@@ -1,0 +1,1578 @@
+// ================= 配乐库清单（自动生成：pipe/manifest.py）=================
+window.BGM_LIB = {
+"groups": [
+"甲 · 标题 / 片头",
+"乙 · 宗门 / 广场",
+"丙 · 城镇 / 集市 / 喜庆",
+"丁 · 野外 / 探索 / 夜行",
+"戊 · 战斗",
+"己 · 首领战 / 压迫",
+"庚 · 抒情 / 过场",
+"辛 · 短曲（胜利 / 升级）",
+"壬 · 音效",
+"癸 · 角色配音（出招喊话）"
+],
+"tracks": {
+"bgm29_xingheyao": {
+"no": "甲01",
+"name": "星河遥",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingheyao.mp3",
+"blob": "10c5dfa64dd76ad9aaa16fd49d5f4945",
+"vol": 0.55,
+"desc": "即梦 · 星河浩渺，孤星独行，标题曲现用",
+"dur": 150.0
+},
+"bgm29_xingyeyin": {
+"no": "甲02",
+"name": "星夜吟",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingyeyin.mp3",
+"blob": "57dab773847d3e31a5fcbd0f2deb1415",
+"vol": 0.55,
+"desc": "即梦 · 星夜低吟，清冷",
+"dur": 150.0
+},
+"bgm29_xingyeguxing": {
+"no": "甲03",
+"name": "星夜孤行",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingyeguxing.mp3",
+"blob": "9d33e907982dcf1106370f018f1ca311",
+"vol": 0.55,
+"desc": "即梦 · 孤身夜行，渐起",
+"dur": 150.0
+},
+"bgm29_yunkongyao": {
+"no": "甲04",
+"name": "云空遥",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/yunkongyao.mp3",
+"blob": "bad4b772e3fd47c715a987772fbcc452",
+"vol": 0.55,
+"desc": "即梦 · 云海辽阔，大气舒展",
+"dur": 150.0
+},
+"bgm29_yunjianxing": {
+"no": "甲05",
+"name": "云间行",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/yunjianxing.mp3",
+"blob": "e30027f6c93d95d8c50021af0abd41f6",
+"vol": 0.55,
+"desc": "即梦 · 行于云间，悠远",
+"dur": 150.0
+},
+"bgm_title_xianjianfu": {
+"no": "甲06",
+"name": "仙剑赋",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "audio/bgm_title_xianjianfu.mp3",
+"blob": "9019a6180152835b9d446df91eb1fe27",
+"vol": 1,
+"desc": "原标题曲（伴奏）",
+"old": true,
+"dur": 150.0
+},
+"bgm29_zongfeng": {
+"no": "乙01",
+"name": "宗风",
+"group": "乙 · 宗门 / 广场",
+"kind": "bgm",
+"file": "bgm29/zongfeng.mp3",
+"blob": "c0dd6a64b695ed3c1b17b99271824052",
+"vol": 0.55,
+"desc": "即梦 · 宗门威仪，鼓号恢弘",
+"dur": 150.0
+},
+"bgm29_zongfeng2": {
+"no": "乙02",
+"name": "宗风·二",
+"group": "乙 · 宗门 / 广场",
+"kind": "bgm",
+"file": "bgm29/zongfeng2.mp3",
+"blob": "527a45fb2284a8781ff27f6d07921f2f",
+"vol": 0.55,
+"desc": "即梦 · 同题另一版，开头即鼓点",
+"dur": 150.0
+},
+"bgm_sect_fenglin": {
+"no": "乙03",
+"name": "枫林",
+"group": "乙 · 宗门 / 广场",
+"kind": "bgm",
+"file": "audio/bgm_sect_fenglin.mp3",
+"blob": "c905771d1a22ad50ba95ad828e293f1f",
+"vol": 1,
+"desc": "原宗门曲",
+"old": true,
+"dur": 96.0
+},
+"bgm_town_xiyue": {
+"no": "丙01",
+"name": "喜悦",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "audio/bgm_town_xiyue.mp3",
+"blob": "8f0ac82253a0b932a9d5c5e9a2105b73",
+"vol": 1,
+"desc": "原城镇曲",
+"old": true,
+"dur": 95.0
+},
+"bgm_town_miaohui": {
+"no": "丙02",
+"name": "江南庙会",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "audio/bgm_town_miaohui.mp3",
+"blob": "d89a9e8a47114a32ae65deb5a3a86a4b",
+"vol": 1,
+"desc": "即梦 · 集市现用",
+"old": true,
+"dur": 150.0
+},
+"bgm_town_jiyue": {
+"no": "丙03",
+"name": "喜悦·即梦",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "audio/bgm_town_jiyue.mp3",
+"blob": "d4d8ac63f5df23fc32e6baab71bc17d1",
+"vol": 1,
+"desc": "即梦 · 店铺现用",
+"old": true,
+"dur": 150.0
+},
+"bgm29_yejingxingling": {
+"no": "丁01",
+"name": "夜径星铃",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/yejingxingling.mp3",
+"blob": "92bcc8cb2e3cbab511c811090f0774cb",
+"vol": 0.55,
+"desc": "即梦 · 古琴箫风铃，幽静带紧张，后山现用",
+"dur": 150.1
+},
+"bgm_explore_guxiao": {
+"no": "丁02",
+"name": "古箫吟风",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "audio/bgm_explore_guxiao.mp3",
+"blob": "44e975707583ff3300c5bb30d2940f24",
+"vol": 1,
+"desc": "原野外曲（带雨声）",
+"old": true,
+"dur": 190.0
+},
+"bgm_battle_kuaida": {
+"no": "戊01",
+"name": "武侠快打",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "audio/bgm_battle_kuaida.mp3",
+"blob": "6dd1ac264189708b6f5e88fbdb7b2af0",
+"vol": 1,
+"desc": "即梦 · 普通战斗现用（高潮段循环）",
+"old": true,
+"dur": 82.1
+},
+"bgm_battle_jianwu": {
+"no": "戊02",
+"name": "剑舞",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "audio/bgm_battle_jianwu.mp3",
+"blob": "84bbc6ba581ebc8535b72b36f3272951",
+"vol": 1,
+"desc": "原战斗曲",
+"old": true,
+"dur": 150.0
+},
+"bgm_boss_jingtian": {
+"no": "己01",
+"name": "景天",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "audio/bgm_boss_jingtian.mp3",
+"blob": "d5328d56d4a91eec068c7c380e9dea50",
+"vol": 1,
+"desc": "原首领战曲（高潮段 0:13 起循环）",
+"old": true,
+"loop": [
+13.5,
+148.0
+],
+"dur": 150.0
+},
+"bgm29_qingguangsheng": {
+"no": "庚01",
+"name": "清光升",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "bgm29/qingguangsheng.mp3",
+"blob": "5c7b3cc9b20b0d90c4ee81e794ccac44",
+"vol": 0.55,
+"desc": "即梦 · 编钟古筝上行，光芒升起（升级音效取自开头）",
+"dur": 150.0
+},
+"lib_qgs_inst": {
+"no": "庚02",
+"name": "清光升·纯乐",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "bgm29/qingguangsheng_inst.mp3",
+"blob": "f9f9af3b9a40fc8d3660709a342f07ce",
+"vol": 0.6,
+"desc": "清光升去掉人声的纯乐版，玄天城 / 青竹小院现用",
+"dur": 150.0
+},
+"lib_s21": {
+"no": "辛01",
+"name": "得胜",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "bgm29/jingle_win_desheng.mp3",
+"blob": "d6ce239facedf1536455fdaa212f5c6b",
+"vol": 0.9,
+"desc": "即梦 · 号角大鼓古筝，胜利短曲 7 秒",
+"dur": 7.5
+},
+"lib_s20": {
+"no": "辛02",
+"name": "云间捷",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "bgm29/jingle_win_yunjianjie.mp3",
+"blob": "bfbcd56167bcb61ab54a8927206b0e89",
+"vol": 0.9,
+"desc": "即梦 · 编钟笛子弦乐，明亮轻快 7 秒",
+"dur": 7.5
+},
+"lib_s16": {
+"no": "辛03",
+"name": "剑风·器乐",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "lib29/s16.mp3",
+"blob": "93406b1f71b4e382314b4e808cea2c4b",
+"vol": 0.9,
+"desc": "即梦 · 剑击打击乐 30 秒",
+"dur": 30.2
+},
+"lib_s17": {
+"no": "辛04",
+"name": "星碎",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "lib29/s17.mp3",
+"blob": "b0abd514da6dc81a1fd0c9f212e1b711",
+"vol": 0.9,
+"desc": "即梦 · 星光钟琴风铃 23 秒",
+"dur": 30.2
+},
+"lib_s18": {
+"no": "辛05",
+"name": "雷层",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "lib29/s18.mp3",
+"blob": "41d5c6bd8d8609ad23ee104ae771f3c8",
+"vol": 0.9,
+"desc": "即梦 · 雷击鼓与合成器 27 秒",
+"dur": 30.2
+},
+"lib_s19": {
+"no": "辛06",
+"name": "清光乍现",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "lib29/s19.mp3",
+"blob": "6609c4967f15afe8763b68fb8981e34c",
+"vol": 0.9,
+"desc": "即梦 · 升级提示 27 秒",
+"dur": 30.2
+},
+"jingle_levelup29": {
+"no": "辛07",
+"name": "清光升·开头",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "bgm29/jingle_levelup29.mp3",
+"blob": "47b134f1439be73289590f4806e0f608",
+"vol": 0.9,
+"desc": "清光升前 9 秒，升级音效现用",
+"dur": 9.0
+},
+"jingle_win29": {
+"no": "辛08",
+"name": "宗风·二·开头",
+"group": "辛 · 短曲（胜利 / 升级）",
+"kind": "short",
+"file": "bgm29/jingle_win29.mp3",
+"blob": "ad94c9a724fa096da2796ad09120ace9",
+"vol": 0.9,
+"desc": "宗风·二前 8 秒，胜利音效现用",
+"dur": 8.0
+},
+"lib_s15": {
+"no": "壬01",
+"name": "剑气斩击",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s15.mp3",
+"blob": "280b72bb864c5d04eca56d231031e841",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑鸣出鞘接挥剑破空，金属尾音",
+"dur": 1.7
+},
+"lib_s14": {
+"no": "壬02",
+"name": "打中敌人",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s14.mp3",
+"blob": "e2de4a346b2b90d94e54e024aeef1add",
+"vol": 1,
+"desc": "即梦 SeedAudio · 结实重击闷响带金属感",
+"dur": 1.0
+},
+"lib_s13": {
+"no": "壬03",
+"name": "暴击",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s13.mp3",
+"blob": "45472f76138d4be74efe35e55a117fec",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑气爆裂重击加金属共鸣",
+"dur": 1.2
+},
+"lib_s12": {
+"no": "壬04",
+"name": "蓄力",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s12.mp3",
+"blob": "2495fc58d52e83dc0fdf521741b438a8",
+"vol": 1,
+"desc": "即梦 SeedAudio · 灵力聚集充能嗡鸣，水晶闪烁",
+"dur": 1.7
+},
+"lib_s11": {
+"no": "壬05",
+"name": "剑气光束",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s11.mp3",
+"blob": "0b9ac1a25171891bb8c7fb16cb6d3ee2",
+"vol": 1,
+"desc": "即梦 SeedAudio · 能量射线呼啸带电光",
+"dur": 1.7
+},
+"lib_s10": {
+"no": "壬06",
+"name": "法术爆炸",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s10.mp3",
+"blob": "043fed8cc2b099e9aa7396a644331152",
+"vol": 1,
+"desc": "即梦 SeedAudio · 灵力轰然爆开，低频冲击",
+"dur": 1.7
+},
+"lib_s09": {
+"no": "壬07",
+"name": "绝技释放",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s09.mp3",
+"blob": "3c7e6df487de63b4c7e04cf888c56eb5",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑鸣雷鸣光芒爆发叠加，两秒",
+"dur": 2.2
+},
+"lib_s08": {
+"no": "壬08",
+"name": "治疗",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s08.mp3",
+"blob": "35ae451994b037d25213de55368cc808",
+"vol": 1,
+"desc": "即梦 SeedAudio · 温润光芒流转，水滴风铃",
+"dur": 1.7
+},
+"lib_s07": {
+"no": "壬09",
+"name": "九天神雷",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s07.mp3",
+"blob": "87757f3fd155f9fc4ad67fc68657d453",
+"vol": 1,
+"desc": "即梦 SeedAudio · 炸雷轰鸣电弧劈啪，两秒",
+"dur": 2.2
+},
+"lib_s06": {
+"no": "壬10",
+"name": "寒冰",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s06.mp3",
+"blob": "589b378438264ff5737afc3ed7b42a84",
+"vol": 1,
+"desc": "即梦 SeedAudio · 冰晶凝结碎裂加冷风",
+"dur": 1.7
+},
+"lib_s05": {
+"no": "壬11",
+"name": "疾风剑法",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s05.mp3",
+"blob": "51a5cc29dde94110da3b67da6d94ddfd",
+"vol": 1,
+"desc": "即梦 SeedAudio · 狂风卷起呼啸带剑鸣",
+"dur": 2.5
+},
+"lib_s04": {
+"no": "壬12",
+"name": "增益",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s04.mp3",
+"blob": "688664da7c1183ccd17f37ae077dd1d4",
+"vol": 1,
+"desc": "即梦 SeedAudio · 光罩展开上扬闪烁音",
+"dur": 1.2
+},
+"lib_s03": {
+"no": "壬13",
+"name": "星光坠落",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s03.mp3",
+"blob": "ba993ed6d149b993521e1f763e6747ca",
+"vol": 1,
+"desc": "即梦 SeedAudio · 流星划过接星辰爆闪",
+"dur": 1.7
+},
+"lib_s02": {
+"no": "壬14",
+"name": "受伤",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s02.mp3",
+"blob": "56a1d88053d6ac604b65742505f95a31",
+"vol": 1,
+"desc": "即梦 SeedAudio · 短促闷响击中",
+"dur": 0.7
+},
+"lib_s01": {
+"no": "壬15",
+"name": "挥剑破空",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s01.mp3",
+"blob": "44aab8712f28d513aa6a7bafd61d4354",
+"vol": 1,
+"desc": "即梦 SeedAudio · 快速剑风呼啸",
+"dur": 0.7
+},
+"lib_s00": {
+"no": "壬16",
+"name": "界面确认",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s00.mp3",
+"blob": "64369503ee0d3da3173fcba3767730e0",
+"vol": 1,
+"desc": "即梦 SeedAudio · 玉石碰撞短音带光感",
+"dur": 0.5
+},
+"lib_m00": {
+"no": "丙04",
+"name": "庙会晴日",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m00.mp3",
+"blob": "310aec79a7d94477176a182a06d84a41",
+"vol": 0.55,
+"desc": "即梦 · 江南庙会，丝竹锣鼓扬琴笛子，喜庆祥和",
+"dur": 150.2
+},
+"lib_m01": {
+"no": "丙05",
+"name": "得胜调",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m01.mp3",
+"blob": "63ff330a0cb07c9ebd6be50ef28c62f9",
+"vol": 0.55,
+"desc": "即梦 · 凯旋庆功，锣鼓唢呐齐鸣，大胜归来",
+"dur": 150.2
+},
+"lib_m02": {
+"no": "丙06",
+"name": "门庭喜",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m02.mp3",
+"blob": "25efb04153a4961cb7ded170900fa550",
+"vol": 0.55,
+"desc": "即梦 · 喜宴迎亲，唢呐吹打笙，喜气盈门",
+"dur": 150.2
+},
+"lib_m03": {
+"no": "丙07",
+"name": "新春鼓点",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m03.mp3",
+"blob": "68530711135c93aa1a3ab72ba562a5bd",
+"vol": 0.55,
+"desc": "即梦 · 舞狮锣鼓铙钹，节奏欢快",
+"dur": 150.2
+},
+"lib_m04": {
+"no": "丙08",
+"name": "庙会晴",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m04.mp3",
+"blob": "bb8a14b7ed49e82e0b44d2879dc0c0ee",
+"vol": 0.55,
+"desc": "即梦 · 锣鼓喧天唢呐欢奏，庙会热闹",
+"dur": 150.2
+},
+"lib_m05": {
+"no": "庚03",
+"name": "古道斜阳",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "lib29/m05.mp3",
+"blob": "1ba29b3354bb50464d8f811fc5efeace",
+"vol": 0.55,
+"desc": "即梦 · 惜别，古琴洞箫二胡，深情惆怅慢板",
+"dur": 150.2
+},
+"lib_m06": {
+"no": "庚04",
+"name": "晴日相逢",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "lib29/m06.mp3",
+"blob": "1d8d9b3228286af67252edce6536f51d",
+"vol": 0.55,
+"desc": "即梦 · 喜悦重逢，笛子古筝琵琶，明亮温馨",
+"dur": 150.2
+},
+"lib_m07": {
+"no": "丙09",
+"name": "暖市",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m07.mp3",
+"blob": "82f5715e8bbb26961b96be7f3bee47f6",
+"vol": 0.55,
+"desc": "即梦 · 热闹集市，民乐合奏唢呐琵琶扬琴，欢快",
+"dur": 150.2
+},
+"lib_m08": {
+"no": "丁03",
+"name": "山晨",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "lib29/m08.mp3",
+"blob": "3735d666226b4755c933d63a82be98aa",
+"vol": 0.55,
+"desc": "即梦 · 山野田园清晨，竹笛葫芦丝古琴，恬静",
+"dur": 150.2
+},
+"lib_m09": {
+"no": "丙10",
+"name": "镇间闲",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m09.mp3",
+"blob": "9d1bc53128e131e1d93abf8f7c56d48b",
+"vol": 0.55,
+"desc": "即梦 · 仙侠城镇，悠闲安宁，古筝竹笛二胡",
+"dur": 150.2
+},
+"lib_m10": {
+"no": "戊03",
+"name": "千军",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m10.mp3",
+"blob": "ce1abf929caa44855e26ec07708aec6f",
+"vol": 0.55,
+"desc": "即梦 · 千军万马冲锋，合唱铜管战鼓，二胡激昂（高潮段 0:07 起循环）",
+"loop": [
+7.5,
+146.0
+],
+"dur": 150.2
+},
+"lib_m11": {
+"no": "戊04",
+"name": "破阵·动画",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m11.mp3",
+"blob": "c8e72d35e9880e0dd455c14f975cc108",
+"vol": 0.55,
+"desc": "即梦 · 动画风史诗战斗，国风器乐（高潮段 0:32 起循环）",
+"loop": [
+32.0,
+144.5
+],
+"dur": 150.2
+},
+"lib_m12": {
+"no": "戊05",
+"name": "破阵·少年",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m12.mp3",
+"blob": "147b2e0384d9fd881ca8b25c9592cf6b",
+"vol": 0.55,
+"desc": "即梦 · 少年意气热血，竹笛高亢琵琶急奏大鼓（高潮段 1:12 起循环）",
+"loop": [
+72.0,
+146.5
+],
+"dur": 150.2
+},
+"lib_m13": {
+"no": "戊06",
+"name": "征鸣",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m13.mp3",
+"blob": "257e770fa82320d736fde63dfe9ebb79",
+"vol": 0.55,
+"desc": "即梦 · 英雄主题，唢呐铜管战鼓弦乐奔腾（高潮段 0:39 起循环）",
+"loop": [
+39.0,
+147.5
+],
+"dur": 150.2
+},
+"lib_m14": {
+"no": "己02",
+"name": "战域狂响",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m14.mp3",
+"blob": "1c44bbc09b5899f747b151a2dece7fae",
+"vol": 0.55,
+"desc": "即梦 · 妖兽战斗，重低音战鼓铜管咆哮，狂暴（高潮段 0:20 起循环）",
+"loop": [
+20.5,
+147.0
+],
+"dur": 150.2
+},
+"lib_m15": {
+"no": "戊07",
+"name": "疾锋",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m15.mp3",
+"blob": "9b2e150e00c20664bf08aa69ccab5817",
+"vol": 0.55,
+"desc": "即梦 · 武侠打斗，快节奏重鼓弦乐断奏琵琶，180BPM（高潮段 0:39 起循环）",
+"loop": [
+39.0,
+148.5
+],
+"dur": 150.2
+},
+"lib_m16": {
+"no": "己03",
+"name": "战域",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m16.mp3",
+"blob": "eb4925e07cf894f06c46203e4b7e5887",
+"vol": 0.55,
+"desc": "即梦 · 首领战，重鼓低音铜管合唱呐喊，165BPM（高潮段 0:38 起循环）",
+"loop": [
+38.0,
+146.5
+],
+"dur": 150.2
+},
+"lib_m17": {
+"no": "戊08",
+"name": "疾鼓",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m17.mp3",
+"blob": "0b8c5f02b37138ef5c493e1361e2caac",
+"vol": 0.55,
+"desc": "即梦 · 大堂鼓排鼓密集节奏，铙钹琵琶笛子（高潮段 0:10 起循环）",
+"loop": [
+10.5,
+148.0
+],
+"dur": 150.2
+},
+"lib_m18": {
+"no": "己04",
+"name": "破阵·史诗",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m18.mp3",
+"blob": "fc1acc539898067431f7728711deee7d",
+"vol": 0.55,
+"desc": "即梦 · 混合管弦太鼓铜管，二胡急速，压迫（高潮段 0:38 起循环）",
+"loop": [
+38.5,
+148.0
+],
+"dur": 150.2
+},
+"lib_m19": {
+"no": "戊09",
+"name": "破阵·强击",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m19.mp3",
+"blob": "19926031dcd2796f5aef52898a81b02f",
+"vol": 0.55,
+"desc": "即梦 · 重型战鼓连击弦乐断奏唢呐，160BPM（高潮段 0:09 起循环）",
+"loop": [
+9.5,
+146.5
+],
+"dur": 150.2
+},
+"lib_m20": {
+"no": "丙11",
+"name": "古城闲市",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m20.mp3",
+"blob": "cccb2394befb580da8aabb9e7f8ea684",
+"vol": 0.55,
+"desc": "即梦 · 繁华古城集市，笛子琵琶扬琴木鱼小堂鼓",
+"dur": 102.1
+},
+"lib_m21": {
+"no": "己05",
+"name": "征云",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m21.mp3",
+"blob": "1aab375dc6195d0ed9518da07fb014ab",
+"vol": 0.55,
+"desc": "即梦 · 首领战，管弦二胡大鼓，渐强悲壮（高潮段 0:39 起循环）",
+"loop": [
+39.0,
+159.5
+],
+"dur": 162.1
+},
+"lib_m22": {
+"no": "戊10",
+"name": "风刃",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m22.mp3",
+"blob": "3f7cf8d6fb72f668b7a68318b9bbf396",
+"vol": 0.55,
+"desc": "即梦 · 雷霆剑诀，唢呐京剧锣鼓弦乐，豪迈（高潮段 0:13 起循环）",
+"loop": [
+13.0,
+92.5
+],
+"dur": 97.2
+},
+"lib_m23": {
+"no": "己06",
+"name": "雪阵",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m23.mp3",
+"blob": "feb845516879c00bd7d4c8bf2f39c943",
+"vol": 0.55,
+"desc": "即梦 · 冰雪剑阵，古筝刮奏弦乐钢片琴，空灵激昂（高潮段 1:49 起循环）",
+"loop": [
+109.5,
+247.5
+],
+"dur": 252.1
+},
+"lib_m24": {
+"no": "己07",
+"name": "诡夜沉鼓",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m24.mp3",
+"blob": "112dfc48c15119c27291313697499a80",
+"vol": 0.55,
+"desc": "即梦 · 妖兽战斗，低音弦乐铜管战鼓埙，压迫诡谲（高潮段 0:36 起循环）",
+"loop": [
+36.5,
+82.5
+],
+"dur": 87.1
+},
+"lib_m25": {
+"no": "戊11",
+"name": "惊弦",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m25.mp3",
+"blob": "8413b0c031f9a66aca90681147d1bd62",
+"vol": 0.55,
+"desc": "即梦 · 刀剑对决，古琴扫弦箫弦乐顿弓堂鼓，紧张凌厉（高潮段 0:44 起循环）",
+"loop": [
+44.0,
+108.5
+],
+"dur": 112.2
+},
+"lib_m26": {
+"no": "己08",
+"name": "阵前风",
+"group": "己 · 首领战 / 压迫",
+"kind": "bgm",
+"file": "lib29/m26.mp3",
+"blob": "e2a23c0aa4591eb8edf8f8092f049bd6",
+"vol": 0.55,
+"desc": "即梦 · 中国鼓乐，大鼓排鼓钹锣号角，千军万马（高潮段 0:44 起循环）",
+"loop": [
+44.5,
+198.0
+],
+"dur": 202.2
+},
+"lib_m27": {
+"no": "戊12",
+"name": "剑鸣",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m27.mp3",
+"blob": "93f477b3ad53465745678ef433218370",
+"vol": 0.55,
+"desc": "即梦 · 仙剑风格战斗，琵琶轮指竹笛弦乐，紧凑明快（高潮段 0:13 起循环）",
+"loop": [
+13.0,
+111.5
+],
+"dur": 113.1
+},
+"lib_m28": {
+"no": "戊13",
+"name": "破阵·摇滚",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m28.mp3",
+"blob": "55f4be3d1ba4bd8fb9c101c5c601662f",
+"vol": 0.55,
+"desc": "即梦 · 古风摇滚，电吉他二胡架子鼓，燃（高潮段 0:11 起循环）",
+"loop": [
+11.0,
+92.0
+],
+"dur": 95.1
+},
+"lib_m29": {
+"no": "戊14",
+"name": "破阵·交响",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m29.mp3",
+"blob": "8db201a08961b3473e721c842c6d44af",
+"vol": 0.55,
+"desc": "即梦 · 史诗交响大鼓唢呐铜管，热血激昂（高潮段 0:32 起循环）",
+"loop": [
+32.5,
+141.5
+],
+"dur": 144.1
+},
+"lib_m30": {
+"no": "丙12",
+"name": "古城闲市·二",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/m30.mp3",
+"blob": "f3475416bcc2f3924ff2663bdb07b84a",
+"vol": 0.55,
+"desc": "即梦 · 繁华古城集市，笛子琵琶，轻快鼓点",
+"dur": 117.1
+},
+"lib_m31": {
+"no": "戊15",
+"name": "寨风战歌",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/m31.mp3",
+"blob": "561a0dedf25ea2f8174fc6c0f0f94904",
+"vol": 0.55,
+"desc": "即梦 · 山寨战鼓唢呐，粗犷激昂（高潮段 0:38 起循环）",
+"loop": [
+38.5,
+200.5
+],
+"dur": 204.1
+},
+"lib_m32": {
+"no": "丁04",
+"name": "夜弦潜行",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "lib29/m32.mp3",
+"blob": "440ddd2d60cd97867d5a31698a68e68f",
+"vol": 0.55,
+"desc": "即梦 · 悬疑紧张月夜潜行，低音弦乐轻鼓点古琴",
+"dur": 123.1
+},
+"lib_m33": {
+"no": "庚05",
+"name": "月夜离箫",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "lib29/m33.mp3",
+"blob": "05cdcdb1ce160b789bece06dc49cd921",
+"vol": 0.55,
+"desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
+"dur": 147.1
+},
+"lib_v09": {
+"no": "癸01",
+"name": "云霆·九天神雷·三句连读",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v09.mp3",
+"blob": "19667aea55876ff13b13f4f4ad6df9d2",
+"vol": 0.95,
+"desc": "即梦配音 · “九天之上，听我号令。九天神雷——落！灰飞烟灭。” 8 秒整段（默认）",
+"slot": "yunting:ult",
+"dur": 8.1
+},
+"lib_v06": {
+"no": "癸02",
+"name": "云霆·落雷·甲",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v06.mp3",
+"blob": "630d90a29a6cf54d1e9ef8a35335a7a3",
+"vol": 0.95,
+"desc": "即梦配音 · “九天神雷——落！” 单句，断喝",
+"slot": "yunting:ult",
+"dur": 3.1
+},
+"lib_v07": {
+"no": "癸03",
+"name": "云霆·落雷·乙",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v07.mp3",
+"blob": "3da76a76197c86d254d9c109de67e2ed",
+"vol": 0.95,
+"desc": "即梦配音 · “九天神雷——落！” 单句，另一版",
+"slot": "yunting:ult",
+"dur": 3.1
+},
+"lib_v05": {
+"no": "癸04",
+"name": "云霆·起手",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v05.mp3",
+"blob": "0a5181179fb25c036821aab69be455de",
+"vol": 0.95,
+"desc": "即梦配音 · “九天之上，听我号令。”",
+"slot": "yunting:ult",
+"dur": 3.1
+},
+"lib_v08": {
+"no": "癸05",
+"name": "云霆·收尾",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v08.mp3",
+"blob": "a222a1bfab71d006fc53c20296e56510",
+"vol": 0.95,
+"desc": "即梦配音 · “灰飞烟灭。” 冷冷收束",
+"slot": "yunting:ult",
+"dur": 3.1
+},
+"lib_v35": {
+"no": "癸06",
+"name": "云霆·天剑凝锋",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v35.mp3",
+"blob": "649031d95e9c95fa67170cd60a201ef2",
+"vol": 0.95,
+"desc": "即梦配音 · “天剑凝锋，加持！”",
+"slot": "yunting:def",
+"dur": 3.1
+},
+"lib_v34": {
+"no": "癸07",
+"name": "云霆·点星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v34.mp3",
+"blob": "0cc5560ff8cd69f88cf9d123156d17d2",
+"vol": 0.95,
+"desc": "即梦配音 · “点星。”",
+"slot": "yunting:dianxing",
+"dur": 2.1
+},
+"lib_v36": {
+"no": "癸08",
+"name": "云霆·杀星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v36.mp3",
+"blob": "cf2e0c9a8f23d863bd1710fd4d1897c4",
+"vol": 0.95,
+"desc": "即梦配音 · “杀星！”",
+"slot": "yunting:shaxing",
+"dur": 2.1
+},
+"lib_v37": {
+"no": "癸09",
+"name": "云霆·群星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v37.mp3",
+"blob": "f7366fadbfe21b8019137cbcbb680e5e",
+"vol": 0.95,
+"desc": "即梦配音 · “群星——乱舞！”",
+"slot": "yunting:qunxing",
+"dur": 3.1
+},
+"lib_v14": {
+"no": "癸10",
+"name": "林雪·大雪纷飞",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v14.mp3",
+"blob": "8b74d8fb3c251c795076f8c95b517541",
+"vol": 0.95,
+"desc": "即梦配音 · “大雪——纷飞！”",
+"slot": "linxue:ult",
+"dur": 3.1
+},
+"lib_v28": {
+"no": "癸11",
+"name": "林雪·点星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v28.mp3",
+"blob": "83266b1f85a5516679824f9f2a1fb37f",
+"vol": 0.95,
+"desc": "即梦配音 · “点星。”",
+"slot": "linxue:dianxing",
+"dur": 2.1
+},
+"lib_v29": {
+"no": "癸12",
+"name": "林雪·杀星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v29.mp3",
+"blob": "e14729e0c4935cdf1b40bf06e7697620",
+"vol": 0.95,
+"desc": "即梦配音 · “杀星！”",
+"slot": "linxue:shaxing",
+"dur": 1.1
+},
+"lib_v30": {
+"no": "癸13",
+"name": "林雪·群星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v30.mp3",
+"blob": "df6f8fe847bee9596b7c90c3d4310dc2",
+"vol": 0.95,
+"desc": "即梦配音 · “群星——乱舞！”",
+"slot": "linxue:qunxing",
+"dur": 3.1
+},
+"lib_v15": {
+"no": "癸14",
+"name": "神乐·寂灭仙曲",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v15.mp3",
+"blob": "fc6257574bb814d598d5e93523b924ed",
+"vol": 0.95,
+"desc": "即梦配音 · “九音录——寂灭仙曲。”",
+"slot": "shenle:ult",
+"dur": 4.1
+},
+"lib_v31": {
+"no": "癸15",
+"name": "神乐·仙音镇魂",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v31.mp3",
+"blob": "c7e8742a16b9e4d72697e8f723500268",
+"vol": 0.95,
+"desc": "即梦配音 · “仙音——镇魂。”",
+"slot": "shenle:qingxin",
+"dur": 3.1
+},
+"lib_v32": {
+"no": "癸16",
+"name": "神乐·摄魂乱神",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v32.mp3",
+"blob": "f2272b277a62071c8eb462feca665d38",
+"vol": 0.95,
+"desc": "即梦配音 · “摄魂，乱神！”",
+"slot": "shenle:liehun",
+"dur": 2.1
+},
+"lib_v33": {
+"no": "癸17",
+"name": "神乐·安神（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v33.mp3",
+"blob": "de161e2f5b6c81b7db044c2b99a7f764",
+"vol": 0.95,
+"desc": "即梦配音 · “九音归一，安神。”",
+"slot": "shenle:qingxin",
+"dur": 3.1
+},
+"lib_v13": {
+"no": "癸18",
+"name": "叶孤星·贪狼追魂",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v13.mp3",
+"blob": "8c326afe9e3414e740b245167ffbc051",
+"vol": 0.95,
+"desc": "即梦配音 · “贪狼——追魂！”",
+"slot": "hero:tanlang",
+"dur": 3.1
+},
+"lib_v16": {
+"no": "癸19",
+"name": "叶孤星·破军剑阵·起",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v16.mp3",
+"blob": "dfb1f1648ac662ead755f294471fbe3c",
+"vol": 0.95,
+"desc": "即梦配音 · “破军剑阵，起！”",
+"slot": "hero:pojun",
+"dur": 3.1
+},
+"lib_v23": {
+"no": "癸20",
+"name": "叶孤星·破军剑阵·太阳",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v23.mp3",
+"blob": "f93a40760ec45f85551af283cc3c3c5d",
+"vol": 0.95,
+"desc": "即梦配音 · “破军剑阵——太阳！”",
+"slot": "hero:tianshu",
+"dur": 4.1
+},
+"lib_v22": {
+"no": "癸21",
+"name": "叶孤星·九曜七星连斩",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v22.mp3",
+"blob": "c3b4911b77abd0ddf03cddeab51f4ae5",
+"vol": 0.95,
+"desc": "即梦配音 · “九曜七星——连斩！”",
+"slot": "hero:xingluo",
+"dur": 4.4
+},
+"lib_v25": {
+"no": "癸22",
+"name": "叶孤星·星落",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v25.mp3",
+"blob": "d436b0a941631528199885df0d1537bd",
+"vol": 0.95,
+"desc": "即梦配音 · “星落——！” 悲壮",
+"slot": "hero:ult",
+"dur": 3.1
+},
+"lib_v24": {
+"no": "癸23",
+"name": "叶孤星·点星",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v24.mp3",
+"blob": "8afb2cf8c58c94da7c14a9eea4fbb7be",
+"vol": 0.95,
+"desc": "即梦配音 · “点星。” 一字一点",
+"slot": "hero:jueying",
+"dur": 2.1
+},
+"lib_v26": {
+"no": "癸24",
+"name": "叶孤星·喝",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v26.mp3",
+"blob": "7aff506bcf0a9a369d9ca583d284f5d7",
+"vol": 0.95,
+"desc": "即梦配音 · “喝！” 普攻发力",
+"slot": "hero:atk",
+"dur": 1.1
+},
+"lib_v27": {
+"no": "癸25",
+"name": "叶孤星·哈",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v27.mp3",
+"blob": "2c809688cd67bbfba2ea6849c782d3d0",
+"vol": 0.95,
+"desc": "即梦配音 · “哈！” 普攻吐气",
+"slot": "hero:atk",
+"dur": 1.1
+},
+"lib_v19": {
+"no": "癸26",
+"name": "叶孤星·文曲剑雨（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v19.mp3",
+"blob": "aa6ce855cdd3698b0249d6da09d81214",
+"vol": 0.95,
+"desc": "即梦配音 · “文曲——剑雨！”",
+"dur": 3.1
+},
+"lib_v20": {
+"no": "癸27",
+"name": "叶孤星·廉贞焚心（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v20.mp3",
+"blob": "c8f1ac63aa86fb594a362b3a73e3bbd8",
+"vol": 0.95,
+"desc": "即梦配音 · “廉贞，焚心！”",
+"dur": 3.1
+},
+"lib_v21": {
+"no": "癸28",
+"name": "叶孤星·武曲破甲（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v21.mp3",
+"blob": "c3950c2616f21ffd31811ffc5db867ca",
+"vol": 0.95,
+"desc": "即梦配音 · “武曲破甲！”",
+"dur": 2.1
+},
+"lib_v17": {
+"no": "癸29",
+"name": "叶孤星·巨门护（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v17.mp3",
+"blob": "a2beeee292d02a8c14963c8192fdc201",
+"vol": 0.95,
+"desc": "即梦配音 · “巨门，护！”",
+"dur": 2.1
+},
+"lib_v18": {
+"no": "癸30",
+"name": "叶孤星·禄存回春（备用）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/v18.mp3",
+"blob": "307622556608c9fdd0bafd87319c9985",
+"vol": 0.95,
+"desc": "即梦配音 · “禄存，回春。”",
+"dur": 2.1
+},
+"lib_u0": {
+"no": "壬17",
+"name": "琴泛音",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u0.mp3",
+"blob": "e1764758115008799d0764c7bc543e9f",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 古琴泛音一声，清亮柔和",
+"dur": 0.5
+},
+"lib_u2": {
+"no": "壬18",
+"name": "玉磬",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u2.mp3",
+"blob": "27120d35cc1057a167a2ad7c87b322ce",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 玉磬清响带余韵",
+"dur": 0.6
+},
+"lib_u1": {
+"no": "壬19",
+"name": "木鱼",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u1.mp3",
+"blob": "af4431f68288a027887ef8be4d04cec7",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 竹木轻叩一下",
+"dur": 0.2
+},
+"lib_u3": {
+"no": "壬20",
+"name": "翻页",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u3.mp3",
+"blob": "1a679bc55f076549f86941b44485ddee",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 纸页翻动的轻沙声",
+"dur": 0.3
+}
+},
+"sfx": {
+"lib_s15": {
+"no": "壬01",
+"name": "剑气斩击",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s15.mp3",
+"blob": "280b72bb864c5d04eca56d231031e841",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑鸣出鞘接挥剑破空，金属尾音",
+"dur": 1.7
+},
+"lib_s14": {
+"no": "壬02",
+"name": "打中敌人",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s14.mp3",
+"blob": "e2de4a346b2b90d94e54e024aeef1add",
+"vol": 1,
+"desc": "即梦 SeedAudio · 结实重击闷响带金属感",
+"dur": 1.0
+},
+"lib_s13": {
+"no": "壬03",
+"name": "暴击",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s13.mp3",
+"blob": "45472f76138d4be74efe35e55a117fec",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑气爆裂重击加金属共鸣",
+"dur": 1.2
+},
+"lib_s12": {
+"no": "壬04",
+"name": "蓄力",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s12.mp3",
+"blob": "2495fc58d52e83dc0fdf521741b438a8",
+"vol": 1,
+"desc": "即梦 SeedAudio · 灵力聚集充能嗡鸣，水晶闪烁",
+"dur": 1.7
+},
+"lib_s11": {
+"no": "壬05",
+"name": "剑气光束",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s11.mp3",
+"blob": "0b9ac1a25171891bb8c7fb16cb6d3ee2",
+"vol": 1,
+"desc": "即梦 SeedAudio · 能量射线呼啸带电光",
+"dur": 1.7
+},
+"lib_s10": {
+"no": "壬06",
+"name": "法术爆炸",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s10.mp3",
+"blob": "043fed8cc2b099e9aa7396a644331152",
+"vol": 1,
+"desc": "即梦 SeedAudio · 灵力轰然爆开，低频冲击",
+"dur": 1.7
+},
+"lib_s09": {
+"no": "壬07",
+"name": "绝技释放",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s09.mp3",
+"blob": "3c7e6df487de63b4c7e04cf888c56eb5",
+"vol": 1,
+"desc": "即梦 SeedAudio · 剑鸣雷鸣光芒爆发叠加，两秒",
+"dur": 2.2
+},
+"lib_s08": {
+"no": "壬08",
+"name": "治疗",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s08.mp3",
+"blob": "35ae451994b037d25213de55368cc808",
+"vol": 1,
+"desc": "即梦 SeedAudio · 温润光芒流转，水滴风铃",
+"dur": 1.7
+},
+"lib_s07": {
+"no": "壬09",
+"name": "九天神雷",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s07.mp3",
+"blob": "87757f3fd155f9fc4ad67fc68657d453",
+"vol": 1,
+"desc": "即梦 SeedAudio · 炸雷轰鸣电弧劈啪，两秒",
+"dur": 2.2
+},
+"lib_s06": {
+"no": "壬10",
+"name": "寒冰",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s06.mp3",
+"blob": "589b378438264ff5737afc3ed7b42a84",
+"vol": 1,
+"desc": "即梦 SeedAudio · 冰晶凝结碎裂加冷风",
+"dur": 1.7
+},
+"lib_s05": {
+"no": "壬11",
+"name": "疾风剑法",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s05.mp3",
+"blob": "51a5cc29dde94110da3b67da6d94ddfd",
+"vol": 1,
+"desc": "即梦 SeedAudio · 狂风卷起呼啸带剑鸣",
+"dur": 2.5
+},
+"lib_s04": {
+"no": "壬12",
+"name": "增益",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s04.mp3",
+"blob": "688664da7c1183ccd17f37ae077dd1d4",
+"vol": 1,
+"desc": "即梦 SeedAudio · 光罩展开上扬闪烁音",
+"dur": 1.2
+},
+"lib_s03": {
+"no": "壬13",
+"name": "星光坠落",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s03.mp3",
+"blob": "ba993ed6d149b993521e1f763e6747ca",
+"vol": 1,
+"desc": "即梦 SeedAudio · 流星划过接星辰爆闪",
+"dur": 1.7
+},
+"lib_s02": {
+"no": "壬14",
+"name": "受伤",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s02.mp3",
+"blob": "56a1d88053d6ac604b65742505f95a31",
+"vol": 1,
+"desc": "即梦 SeedAudio · 短促闷响击中",
+"dur": 0.7
+},
+"lib_s01": {
+"no": "壬15",
+"name": "挥剑破空",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s01.mp3",
+"blob": "44aab8712f28d513aa6a7bafd61d4354",
+"vol": 1,
+"desc": "即梦 SeedAudio · 快速剑风呼啸",
+"dur": 0.7
+},
+"lib_s00": {
+"no": "壬16",
+"name": "界面确认",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s00.mp3",
+"blob": "64369503ee0d3da3173fcba3767730e0",
+"vol": 1,
+"desc": "即梦 SeedAudio · 玉石碰撞短音带光感",
+"dur": 0.5
+},
+"lib_u0": {
+"no": "壬17",
+"name": "琴泛音",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u0.mp3",
+"blob": "e1764758115008799d0764c7bc543e9f",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 古琴泛音一声，清亮柔和",
+"dur": 0.5
+},
+"lib_u2": {
+"no": "壬18",
+"name": "玉磬",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u2.mp3",
+"blob": "27120d35cc1057a167a2ad7c87b322ce",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 玉磬清响带余韵",
+"dur": 0.6
+},
+"lib_u1": {
+"no": "壬19",
+"name": "木鱼",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u1.mp3",
+"blob": "af4431f68288a027887ef8be4d04cec7",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 竹木轻叩一下",
+"dur": 0.2
+},
+"lib_u3": {
+"no": "壬20",
+"name": "翻页",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/u3.mp3",
+"blob": "1a679bc55f076549f86941b44485ddee",
+"vol": 0.5,
+"desc": "合成 · 对话提示音候选 · 纸页翻动的轻沙声",
+"dur": 0.3
+}
+}
+};
