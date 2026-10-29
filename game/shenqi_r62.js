@@ -11,8 +11,14 @@
   const local = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
   // 两版素材：r62 典雅版 / r63 华贵版（多一层 00_frame 金框，中圈不透明）。神器页左上角可切换
   const VAR = { r62: { dir: 'ui3/r62/', blob: BLOB, IM: {}, need: [], name: '典雅版' }, r63: { dir: 'ui3/r63/', blob: BLOB63, IM: {}, need: [], name: '华贵版', frame: true } };
+  // R63 白色仙侠五版（Codex 整盘概念图，未拆层）：整图直接铺，九槽按 12 点起每 40° 一格，半径按各图量出
+  const WB = { w1: 'a770a1136a237a6b5f12ab4dea5bad3e', w2: '314a0bc59aab70abca7a84e59240ab15', w3: 'e88804a3ab34f54619f59358b2b405a9', w4: '18f6d1a117623c57e8aca2bc82011fc5', w5: 'ade7b41f236a23196eec655bbac30372' };
+  const WN = { w1: '白玉清辉', w2: '霜月银盘', w3: '水墨白境', w4: '云上天仪', w5: '白金镇天' }, WR = { w1: 366, w2: 356, w3: 352, w4: 362, w5: 360 }, WK = .88;   // 整图缩到 .88，盘边不顶到面板
+  for (const k in WB) VAR[k] = { full: k, blob: WB[k], IM: {}, need: [], name: WN[k], r: WR[k] * WK };
+  const ORDER = ['r62', 'r63', 'w1', 'w2', 'w3', 'w4', 'w5'];
   const cur = () => VAR[(S.flags && S.flags.disc_var) || 'r62'] || VAR.r62;
   function loadVar(v) { if (v.started) return; v.started = 1;
+    if (v.full) { const im = new Image(); im.onload = () => { v.IM.full = im; }; im.src = (!local && v.blob) ? '/_blob/' + v.blob : 'ui3/r63w/' + v.full + '.webp'; return; }
     const load = n => { v.need.push(n); const im = new Image(); im.onload = () => { v.IM[n] = im; }; im.src = (!local && v.blob[n]) ? '/_blob/' + v.blob[n] : v.dir + n + '.webp'; };
     for (const [n] of LAYERS) load('layers_' + n); if (v.frame) load('layers_00_frame');
     load('layers_05_core_glow'); for (const c of ['0', 'few', '9']) load('core_core_' + c);
@@ -32,6 +38,20 @@
     const V = cur(); loadVar(V); IM = V.IM; const R63 = !!V.frame;
     const k = size / 1024, t = (performance.now() - T0) / 1000, n = own.filter(Boolean).length;
     ctx.save(); ctx.translate(cx - 512 * k, cy - 512 * k); ctx.scale(k, k);
+    if (V.full) {   // 概念整图：盘面 + 槽内图标 + 封印/可解封标记 + 选中圈
+      if (V.IM.full) { ctx.save(); ctx.shadowColor = 'rgba(40,30,10,.35)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 18; ctx.drawImage(V.IM.full, 512 - 512 * WK, 512 - 512 * WK, 1024 * WK, 1024 * WK); ctx.restore(); }
+      for (let i = 0; i < 9; i++) {
+        const a = -Math.PI / 2 + i * Math.PI * 2 / 9, x = 512 + Math.cos(a) * V.r, y = 512 + Math.sin(a) * V.r, col = COLORS[i], rr = 46;
+        if (own[i]) { if (opts.icon) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, rr - 4, 0, 7); ctx.clip(); opts.icon(i, x, y, rr - 4); ctx.restore(); }
+          ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(x, y); ctx.rotate(t * .8 + i); const g = ctx.createConicGradient ? ctx.createConicGradient(0, 0, 0) : null;
+          if (g) { g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.08, 'rgba(255,236,190,.85)'); g.addColorStop(.16, 'rgba(255,220,150,0)'); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.strokeStyle = g; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, rr + 6, 0, 7); ctx.stroke(); } ctx.restore(); }
+        else { const p = .5 + .5 * Math.sin(t * 2.2 + i * .9); ctx.save(); ctx.beginPath(); ctx.arc(x, y, rr - 2, 0, 7); ctx.clip();
+          ctx.fillStyle = opts.unlockable ? hexA(col, .22 + .18 * p) : 'rgba(40,36,70,.42)'; ctx.fillRect(x - rr, y - rr, rr * 2, rr * 2);
+          ctx.font = `700 ${opts.unlockable ? 26 : 30}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = opts.unlockable ? '#fff6dc' : hexA(col, .9); ctx.shadowColor = hexA(col, .9); ctx.shadowBlur = 12; ctx.fillText(opts.unlockable ? '解' : '封', x, y + 1); ctx.restore(); }
+        if (opts.sel === i) { const p = .7 + .3 * Math.sin(t * 4); ctx.strokeStyle = `rgba(255,240,196,${p})`; ctx.lineWidth = 6; ctx.shadowColor = col; ctx.shadowBlur = 18; ctx.beginPath(); ctx.arc(x, y, rr + 14, 0, 7); ctx.stroke(); ctx.shadowBlur = 0; }
+      }
+      ctx.restore(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; return;
+    }
     const img = (nm, a = 1, op = 'source-over') => { const im = IM[nm]; if (!im) return; ctx.globalAlpha = a; ctx.globalCompositeOperation = op; ctx.drawImage(im, 0, 0, 1024, 1024); };
     // 华贵感（Claude）：盘外一圈暖金光晕 + 落地阴影，把星盘从宣纸上托起来
     { const g = ctx.createRadialGradient(512, 530, 440, 512, 530, 560); g.addColorStop(0, 'rgba(60,30,0,.38)'); g.addColorStop(1, 'rgba(60,30,0,0)'); ctx.fillStyle = g; ctx.fillRect(-60, -40, 1144, 1144);
@@ -94,6 +114,6 @@
     ctx.save(); ctx.fillStyle = 'rgba(20,12,40,.72)'; ctx.strokeStyle = 'rgba(255,214,120,.85)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 17) : ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
     ctx.font = `600 15px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffe7b0'; ctx.fillText('星盘：' + V.name + '  ⇄', x + w / 2, y + h / 2 + 1); ctx.restore();
   }
-  const hitToggle = t => { if (!TBTN || !t) return false; const b = TBTN; if (t.x < b.x || t.x > b.x + b.w || t.y < b.y || t.y > b.y + b.h) return false; S.flags.disc_var = ((S.flags.disc_var || 'r62') === 'r62') ? 'r63' : 'r62'; loadVar(cur()); return true; };
-  window.R62_DISC = { drawToggle, hitToggle, label, ready: () => { const V = cur(); loadVar(V); return !!(V.IM.layers_01_base && V.IM['slots_t01_sealed']); }, draw, SLOT_C, COLORS, scaleFor: R => R * 1024 / 350 };
+  const hitToggle = t => { if (!TBTN || !t) return false; const b = TBTN; if (t.x < b.x || t.x > b.x + b.w || t.y < b.y || t.y > b.y + b.h) return false; S.flags.disc_var = ORDER[(ORDER.indexOf(S.flags.disc_var || 'r62') + 1) % ORDER.length]; loadVar(cur()); return true; };
+  window.R62_DISC = { drawToggle, hitToggle, label, ready: () => { const V = cur(); loadVar(V); return V.full ? !!V.IM.full : !!(V.IM.layers_01_base && V.IM['slots_t01_sealed']); }, draw, SLOT_C, COLORS, scaleFor: R => R * 1024 / (cur().r || 350) };
 })();
