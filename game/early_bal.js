@@ -45,7 +45,7 @@
   })(makeEnemy);
 
   // ---------- 4) 寒星剑 ----------
-  ITEM_DB.w_hanxing = { name: '寒星剑', slot: 'weapon', atk: 10, aoe: 1.5, desc: '不知哪位前辈遗落在后山的佩剑，剑身凝着一层寒星般的冷光。群攻剑诀威力 +50%' };
+  ITEM_DB.w_hanxing = { name: '寒星剑', slot: 'weapon', atk: 24, aoe: 1.5, desc: '不知哪位前辈遗落在后山的佩剑，剑身凝着一层寒星般的冷光。群攻剑诀威力 +50%' };
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id) { const a = [...arguments]; if (id === 'w_hanxing') a[0] = 'w_hantie'; return orig.apply(this, a); })(itemIcon);
   const GROUP = new Set(['pojun', 'tianshu', 'xingluo', 'xingluo2']);
   let aoeNow = 0, dxNow = 0;
@@ -73,8 +73,15 @@
         if (window.itemGet) await itemGet(items, '打开宝箱'); else await showPanel('打开宝箱', ['!寒星剑 ×1', '灵石 ×80', '回春丹 ×2']);
         await say('星旋', '哟，好东西！这剑里的寒气凝而不散——用它催星落、天璇这类群攻剑招，剑光能密上一半。');
         const c = await choose('寒星剑', ['立刻换上', '先收进行囊']);
-        if (c === 0) { equipItem('w_hanxing'); toast('已装备寒星剑：攻击 +10，群攻剑招威力 +50%', 2600); }
+        if (c === 0) { equipItem('w_hanxing'); toast('已装备寒星剑：攻击 +24，群攻剑招威力 +50%', 2600); }
       } finally { world.locked = false; }
     };
   }
+
+  // ---------- 5) 老存档补强（总策划 2026-10-29：开局战力加强，寒星剑/星痕剑攻击提高）----------
+  const mig = () => { const h = S && S.hero, f = F(); if (!h || f.bal2) return; f.bal2 = 1;
+    if (h.atk < 38) { h.atk += 12; h.maxhp += 60; h.hp = Math.min(h.maxhp, h.hp + 60); h.maxmp += 30; h.mp = Math.min(h.maxmp, h.mp + 30); h.def += 2; }
+    if (h.equip && h.equip.weapon === 'w_hanxing') h.atk += 14; else if (h.equip && h.equip.weapon === 'w_xinghen') h.atk += 20;   // 已装备的剑按新数值补差
+    if (typeof toast === 'function' && S.started) toast('叶孤星根基稳固：攻击 / 气血 / 灵力提升', 2400); };
+  setInterval(mig, 1500);
 })();

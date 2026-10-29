@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         hideBars();
         File updateDir = new File(getFilesDir(), "update");
+        try { WebView.setWebContentsDebuggingEnabled(true); } catch (Exception ignored) {}
         web = new WebView(this);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);

@@ -209,7 +209,7 @@ const S = {
   shake: 0,
   letterbox: 0, caption: '',
   toast: null,
-  hero: { lv: 6, realm: '练气六重', hp: 220, maxhp: 220, mp: 60, maxmp: 60, atk: 26, def: 10, spd: 12, points: 10, sword: false, skills: [], bonus: null },
+  hero: { lv: 6, realm: '练气六重', hp: 280, maxhp: 280, mp: 90, maxmp: 90, atk: 38, def: 12, spd: 12, points: 10, sword: false, skills: [], bonus: null },   // 总策划 2026-10-29：开局战力加强（原 220/60/26/10）
 };
 
 // 粒子与特效
@@ -333,7 +333,7 @@ function updateChoice(dt) {
   if (!choice) return; choice.t += dt;
   const tap = consumeTap(); if (!tap) return;
   const rects = choiceRects();
-  rects.forEach((r, i) => { if (tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h) { sfx('chime'); const res = choice.res; choice = null; res(i); } });
+  rects.forEach((r, i) => { if (tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h) { playSnd('ui_confirm'); const res = choice.res; choice = null; res(i); } });
 }
 function choiceRects() { const n = choice.options.length; const w = 860, h = 74, gap = 18; const y0 = H / 2 - (n * (h + gap)) / 2 + 30; return choice.options.map((o, i) => ({ x: W / 2 - w / 2, y: y0 + i * (h + gap), w, h })); }
 function drawChoice() {
@@ -347,7 +347,7 @@ function drawChoice() {
 // 玉佩面板 / 系统提示
 let sysPanel = null;
 function showPanel(title, lines, ms = 0) {
-  return new Promise(res => { sysPanel = { title, lines, t: 0, res, ms }; sfx('chime'); });
+  return new Promise(res => { sysPanel = { title, lines, t: 0, res, ms }; playSnd('ui_confirm'); });
 }
 function updatePanel(dt) {
   if (!sysPanel) return; sysPanel.t += dt;
@@ -1235,7 +1235,7 @@ const SKILL_DB = {
 const ITEM_DB = {
   w_wood: { name: '桃木剑', slot: 'weapon', atk: 4, price: 30, desc: '练功用的木剑' },
   w_qingfeng: { name: '青锋剑', slot: 'weapon', atk: 10, price: 160, desc: '青石镇铁匠的得意之作' },
-  w_xinghen: { name: '星痕剑', slot: 'weapon', atk: 12, desc: '专为九曜剑典打造的极品灵器（贪狼每战 2 次）' },
+  w_xinghen: { name: '星痕剑', slot: 'weapon', atk: 32, desc: '专为九曜剑典打造的极品灵器（贪狼每战 2 次）' },
   w_hantie: { name: '寒铁剑', slot: 'weapon', atk: 18, price: 420, desc: '北地寒铁打造，剑身凝霜' },
   w_chixiao: { name: '赤霄剑', slot: 'weapon', atk: 26, spd: 1, desc: '传说中的帝道之剑，剑气赤红' },
   a_cloth: { name: '青布道袍', slot: 'armor', def: 5, maxhp: 30, price: 90, desc: '天剑宗外门道袍' },
@@ -3250,7 +3250,7 @@ async function titleScreen() {
   };
   await nextFrame(); consumeTap();
   while (!consumeTap()) await nextFrame();
-  sfx('chime'); await fadeOut(600);
+  playSnd('ui_confirm'); await fadeOut(600);
 }
 
 async function part1() { // 后山崖顶
@@ -6835,7 +6835,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const p = world.player, pt = FI('archive_rotunda_r4_collection'); world.locked = true;
     let r = 'aligning'; for (let i = 0; i < 30 && r === 'aligning'; i++) { r = ScriptureStory.take(st, [p.x, p.y], pt, 200); if (r === 'aligning') { if (!i) toast('经藏正慢慢转向那一格……', 1600); await sleep(400); } }
     if (r !== 'started') { world.locked = false; return; }
-    S.quest = ''; sfx('chime'); await sleep(ScriptureStory.duration * 1000 + 200);
+    S.quest = ''; playSnd('ui_confirm'); await sleep(ScriptureStory.duration * 1000 + 200);
     await LIB_GOT();
   }; }
   S.flags = S.flags || {};
@@ -7094,7 +7094,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await showPanel('任务完成', ['突破练气七重 +20', '突破练气八重 +30', '突破练气九重 +50', '凝聚破军剑意 +50', '凝聚贪狼剑意 +80', '!当前星辰点：' + S.hero.points]);
     await say('叶孤星·大笑', '230 点！发财了！快快快，打开兑换列表！');
     const c = await choose('玉佩 · 兑换', ['星痕剑（150点）· 专为九曜剑典打造，贪狼不再虚脱', '凝元丹（100点）· 冲击凝丹境的丹药']);
-    if (c === 0) { S.hero.sword = true; S.hero.points -= 150; sfx('chime'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次']); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
+    if (c === 0) { S.hero.sword = true; S.hero.points -= 150; playSnd('ui_confirm'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次']); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
     else { S.hero.points -= 100; S.hero.potions = (S.hero.potions ?? 3) + 2; await showPanel('兑换成功', ['!凝元丹', '（本章额外获得 2 颗疗伤丹）']); await say('星旋', '先攒着也行，剑以后再换。'); }
     RES_TOD('dawn'); await narrate('不知不觉，东边的天空泛起了鱼肚白。');
     await say('叶孤星', '折腾了一整夜……回屋睡会儿。');

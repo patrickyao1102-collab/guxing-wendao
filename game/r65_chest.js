@@ -81,3 +81,36 @@
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function (name) { const r = orig.apply(this, arguments); try { preload(styleOf(name)); } catch (e) {} return r; })(tileSetMap);
   preload(0);
 })();
+
+// ================= R68 · 给没有宝箱的地图补上 Codex 宝箱（位置按碰撞格自动挑的可走空地）=================
+// 奖励按地图阶段：宗门/后山 → 回春丹、灵石；玄天城/落云岭/青阳外岭 → 大还丹、回灵丹、星华丹、更多灵石
+(function () {
+  if (typeof TMAPS === 'undefined') return;
+  const ADD = {
+    tj_front: [[29.5, 15.5, [['p_small', 2], ['gold', 50]]], [6.5, 33, [['p_mp', 2]]], [48.5, 33, [['gold', 80]]]],
+    seal_field: [[17.5, 9, [['p_small', 2]]], [3.5, 3.5, [['gold', 60]]], [3.5, 13, [['p_mp', 1], ['p_small', 1]]]],
+    tj_houshan: [[11.5, 12, [['p_small', 3]]], [22.5, 6.5, [['gold', 50]]]],
+    qingzhu_court: [[17, 9.8, [['p_mp', 2]]], [9.6, 26.3, [['gold', 70]]]],
+    qingzhu_stairs: [[7.9, 15.1, [['p_small', 2], ['gold', 40]]], [6.6, 2.6, [['p_big', 1]]]],
+    xt_city: [[56, 31.5, [['gold', 150]]], [6.5, 4, [['p_big', 1]]], [15, 45, [['p_mp', 3]]]],
+    xt_manor: [[18.4, 25, [['gold', 200]]], [41, 4.1, [['p_revive', 1]]]],
+    xt_manor_treasury: [[12.9, 9.4, [['gold', 300], ['p_big', 1]]]],
+    tj_library: [[21.5, 15, [['p_mp', 2]]]],
+    ly_ridge: [[23.3, 30, [['p_big', 1]]], [8.5, 3, [['gold', 120]]], [36.3, 5.3, [['p_mp', 2], ['p_small', 2]]]],
+    ly_midnorth: [[19, 3.5, [['gold', 150]]], [38, 34, [['p_big', 2]]], [4.8, 33.3, [['p_revive', 1]]]],
+    ly_cave: [[25, 11.5, [['gold', 200]]], [6, 16, [['p_big', 1], ['p_mp', 2]]]],
+    ly_valley: [[15.8, 22, [['p_big', 2]]], [40.3, 5, [['gold', 180]]], [40.8, 37.3, [['p_revive', 1]]]],
+    qy_escape: [[21.5, 11, [['p_small', 3]]], [3.5, 18, [['gold', 100]]]],
+    qy_shelter: [[29.3, 9.3, [['p_mp', 2]]], [2.8, 21.3, [['gold', 120]]]],
+    qy_defense: [[21.3, 3.5, [['p_big', 1]]], [4.5, 29, [['gold', 150]]]],
+    qy_rescue: [[31.5, 18.8, [['p_big', 1], ['p_mp', 2]]], [3, 28.5, [['gold', 150]]], [3.5, 2.8, [['p_revive', 1]]]],
+    lin_court: [[28, 29.1, [['gold', 160]]], [4.9, 4.6, [['p_big', 1]]]],
+    tj_market: [[47.6, 32.1, [['gold', 90]]], [7.1, 31.8, [['p_small', 2], ['p_mp', 1]]]],
+  };
+  for (const [m, list] of Object.entries(ADD)) {
+    const def = TMAPS[m]; if (!def) continue;
+    def.chests = def.chests || [];
+    if (def.chests.length) continue;   // 已有宝箱的地图不动
+    for (const [c, r, items] of list) def.chests.push({ c, r, items });
+  }
+})();
