@@ -1,0 +1,459 @@
+{
+  "revision": "R69",
+  "map": "ly_cave",
+  "sourceMapSha256": "ddf5e8b18eaa69bdc0eacdf9ed3c91bb4023926d19ed1475bf1e8d6595b64be8",
+  "assets": {
+    "campfire": {
+      "file": "revisions/r69_ly_cave/cx2/r69_campfire_d4d9eb362a.webp",
+      "source": "assets/r69/campfire.png",
+      "sha256": "d4d9eb362abec62b30fafc03149214d66b8f299efe36d8dd6ff5baa3512e17c7",
+      "size_px": [
+        112,
+        114
+      ],
+      "anchor_px": [
+        56,
+        106
+      ],
+      "native_size_px": [
+        112,
+        114
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_campfire_d4d9eb362a",
+      "img": "cx2_r69_campfire_d4d9eb362a"
+    },
+    "cave_columns": {
+      "file": "revisions/r69_ly_cave/cx2/r69_cave_columns_226faa2fe3.webp",
+      "source": "assets/r69/cave_columns.png",
+      "sha256": "226faa2fe3dd573bb741dd9456f47ce408cac108867d860e02dd417a2ecd1b63",
+      "size_px": [
+        330,
+        330
+      ],
+      "anchor_px": [
+        165,
+        322
+      ],
+      "native_size_px": [
+        1254,
+        1254
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_cave_columns_226faa2fe3",
+      "img": "cx2_r69_cave_columns_226faa2fe3"
+    },
+    "firewood": {
+      "file": "revisions/r69_ly_cave/cx2/r69_firewood_7bf8de3b69.webp",
+      "source": "assets/r69/firewood.png",
+      "sha256": "7bf8de3b69deead390ecfef968fa4a28194125203e185dd93ecc65cdfbdd2dd4",
+      "size_px": [
+        104,
+        64
+      ],
+      "anchor_px": [
+        50.5,
+        54
+      ],
+      "native_size_px": [
+        104,
+        64
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_firewood_7bf8de3b69",
+      "img": "cx2_r69_firewood_7bf8de3b69"
+    },
+    "forest_mushrooms": {
+      "file": "revisions/r69_ly_cave/cx2/r69_forest_mushrooms_45333bb645.webp",
+      "source": "assets/r69/forest_mushrooms.png",
+      "sha256": "45333bb645ed0b26ab9b0c53b2116f375830d87a9513eaa63f841a2f28029688",
+      "size_px": [
+        50,
+        52
+      ],
+      "anchor_px": [
+        25,
+        46
+      ],
+      "native_size_px": [
+        50,
+        52
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_forest_mushrooms_45333bb645",
+      "img": "cx2_r69_forest_mushrooms_45333bb645"
+    },
+    "lincang_injured": {
+      "file": "revisions/r69_ly_cave/cx2/r69_lincang_injured_1f91ceae18.webp",
+      "source": "assets/r69/lincang_injured.png",
+      "sha256": "1f91ceae18ceff9e7f2c4ab09996fe82d2c6a6b550352b6e818442c91313df83",
+      "size_px": [
+        130,
+        130
+      ],
+      "anchor_px": [
+        65,
+        122
+      ],
+      "native_size_px": [
+        1254,
+        1254
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_lincang_injured_1f91ceae18",
+      "img": "cx2_r69_lincang_injured_1f91ceae18"
+    },
+    "r69_cave_pool": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_cave_pool_6cde51fab2.webp",
+      "source": "assets/r69/r69_cave_pool.png",
+      "sha256": "6cde51fab27eae7af2c25eed4008533cde166dfe530688ff98aac29ccca73673",
+      "size_px": [
+        350,
+        220
+      ],
+      "anchor_px": [
+        175,
+        110
+      ],
+      "native_size_px": [
+        350,
+        220
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_cave_pool_6cde51fab2",
+      "img": "cx2_r69_r69_cave_pool_6cde51fab2"
+    },
+    "r69_entry_light": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_entry_light_05003507f4.webp",
+      "source": "assets/r69/r69_entry_light.png",
+      "sha256": "05003507f4fb8dd5810fed43a342ef599bf308f211a4a28983a961e51ce82abf",
+      "size_px": [
+        360,
+        460
+      ],
+      "anchor_px": [
+        180,
+        230
+      ],
+      "native_size_px": [
+        360,
+        460
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_entry_light_05003507f4",
+      "img": "cx2_r69_r69_entry_light_05003507f4"
+    },
+    "r69_fire_glow": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_fire_glow_ac804e1c11.webp",
+      "source": "assets/r69/r69_fire_glow.png",
+      "sha256": "ac804e1c11b9768e25bbfc40da2a2b3eb12da7951904e8af128e841260d5b95f",
+      "size_px": [
+        220,
+        150
+      ],
+      "anchor_px": [
+        110,
+        75
+      ],
+      "native_size_px": [
+        220,
+        150
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_fire_glow_ac804e1c11",
+      "img": "cx2_r69_r69_fire_glow_ac804e1c11"
+    },
+    "r69_relic_slab": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_relic_slab_4ad777d2d5.webp",
+      "source": "assets/r69/r69_relic_slab.png",
+      "sha256": "4ad777d2d51b1ff2621d09afde4a27d9bedd2c533ca6d42b7edafa8701cfbd44",
+      "size_px": [
+        83,
+        114
+      ],
+      "anchor_px": [
+        41.5,
+        108
+      ],
+      "native_size_px": [
+        372,
+        499
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_relic_slab_4ad777d2d5",
+      "img": "cx2_r69_r69_relic_slab_4ad777d2d5"
+    },
+    "r69_spirit_glow": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_spirit_glow_711c3c555a.webp",
+      "source": "assets/r69/r69_spirit_glow.png",
+      "sha256": "711c3c555a3f94e08fcc1a376cbb0b4ada301f6989aed989f1693cc6cd9dbbca",
+      "size_px": [
+        170,
+        110
+      ],
+      "anchor_px": [
+        85,
+        55
+      ],
+      "native_size_px": [
+        170,
+        110
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_spirit_glow_711c3c555a",
+      "img": "cx2_r69_r69_spirit_glow_711c3c555a"
+    },
+    "r69_straw_mat": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_straw_mat_b0f7c8dd79.webp",
+      "source": "assets/r69/r69_straw_mat.png",
+      "sha256": "b0f7c8dd7962ea0329be8ce073e46fc21526b27ec91f11e52bbb82b1db93053d",
+      "size_px": [
+        166,
+        90
+      ],
+      "anchor_px": [
+        83,
+        82
+      ],
+      "native_size_px": [
+        838,
+        449
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_straw_mat_b0f7c8dd79",
+      "img": "cx2_r69_r69_straw_mat_b0f7c8dd79"
+    },
+    "r69_wall_back_a": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_back_a_b53bc6fbe7.webp",
+      "source": "assets/r69/r69_wall_back_a.png",
+      "sha256": "b53bc6fbe70379fdbca21000f35235f29fc1c16a8e0d199b300e40f96045bef8",
+      "size_px": [
+        440,
+        204
+      ],
+      "anchor_px": [
+        220,
+        196
+      ],
+      "native_size_px": [
+        640,
+        290
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_back_a_b53bc6fbe7",
+      "img": "cx2_r69_r69_wall_back_a_b53bc6fbe7"
+    },
+    "r69_wall_back_b": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_back_b_281b88ecab.webp",
+      "source": "assets/r69/r69_wall_back_b.png",
+      "sha256": "281b88ecab0678f58e773ad18e64fe3b22593d3928d5d87391169610e3540c89",
+      "size_px": [
+        440,
+        200
+      ],
+      "anchor_px": [
+        220,
+        192
+      ],
+      "native_size_px": [
+        603,
+        283
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_back_b_281b88ecab",
+      "img": "cx2_r69_r69_wall_back_b_281b88ecab"
+    },
+    "r69_wall_corner": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_corner_5d6e6887af.webp",
+      "source": "assets/r69/r69_wall_corner.png",
+      "sha256": "5d6e6887af905f7111176fceb93e76303c7c82fe4b7da9a5cb0cd807c47d704f",
+      "size_px": [
+        220,
+        205
+      ],
+      "anchor_px": [
+        110,
+        197
+      ],
+      "native_size_px": [
+        317,
+        294
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_corner_5d6e6887af",
+      "img": "cx2_r69_r69_wall_corner_5d6e6887af"
+    },
+    "r69_wall_front": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_front_ba4bab7ceb.webp",
+      "source": "assets/r69/r69_wall_front.png",
+      "sha256": "ba4bab7ceb46bd887b96448de3eab104041e42ee9f7f7c374a93754e0aaa6e1c",
+      "size_px": [
+        440,
+        110
+      ],
+      "anchor_px": [
+        220,
+        104
+      ],
+      "native_size_px": [
+        740,
+        175
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_front_ba4bab7ceb",
+      "img": "cx2_r69_r69_wall_front_ba4bab7ceb"
+    },
+    "r69_wall_left": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_left_19f650b3d2.webp",
+      "source": "assets/r69/r69_wall_left.png",
+      "sha256": "19f650b3d230cdcca742e1dc080c040c0a45f1526b9c13ad8a2157f8a5de1bd6",
+      "size_px": [
+        190,
+        382
+      ],
+      "anchor_px": [
+        95,
+        374
+      ],
+      "native_size_px": [
+        221,
+        563
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_left_19f650b3d2",
+      "img": "cx2_r69_r69_wall_left_19f650b3d2"
+    },
+    "r69_wall_right": {
+      "file": "revisions/r69_ly_cave/cx2/r69_r69_wall_right_adc8bcd7d9.webp",
+      "source": "assets/r69/r69_wall_right.png",
+      "sha256": "adc8bcd7d9bd6d7576b643e23e7e2361d42de06888c88caafe0eaaf879384502",
+      "size_px": [
+        190,
+        386
+      ],
+      "anchor_px": [
+        95,
+        378
+      ],
+      "native_size_px": [
+        239,
+        523
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_r69_wall_right_adc8bcd7d9",
+      "img": "cx2_r69_r69_wall_right_adc8bcd7d9"
+    },
+    "rock_01": {
+      "file": "revisions/r69_ly_cave/cx2/r69_rock_01_1dde81efa9.webp",
+      "source": "assets/r69/rock_01.png",
+      "sha256": "1dde81efa94e9bc4e17464d153ce4d329855f387145837dc1d55eeae71e0c5ea",
+      "size_px": [
+        96,
+        64
+      ],
+      "anchor_px": [
+        47,
+        56
+      ],
+      "native_size_px": [
+        96,
+        64
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_rock_01_1dde81efa9",
+      "img": "cx2_r69_rock_01_1dde81efa9"
+    },
+    "rock_02": {
+      "file": "revisions/r69_ly_cave/cx2/r69_rock_02_6357326199.webp",
+      "source": "assets/r69/rock_02.png",
+      "sha256": "635732619947d175a11136b83663643e680c3d70012e309b43f213c0487f7851",
+      "size_px": [
+        80,
+        88
+      ],
+      "anchor_px": [
+        38,
+        81
+      ],
+      "native_size_px": [
+        80,
+        88
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_rock_02_6357326199",
+      "img": "cx2_r69_rock_02_6357326199"
+    },
+    "rock_03": {
+      "file": "revisions/r69_ly_cave/cx2/r69_rock_03_8b4eaf646d.webp",
+      "source": "assets/r69/rock_03.png",
+      "sha256": "8b4eaf646d9a43cebdad95e9d145bdf4b636058b05e07963ae24a4c16f9c91cc",
+      "size_px": [
+        120,
+        56
+      ],
+      "anchor_px": [
+        61,
+        48
+      ],
+      "native_size_px": [
+        120,
+        56
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_rock_03_8b4eaf646d",
+      "img": "cx2_r69_rock_03_8b4eaf646d"
+    },
+    "spirit_crystal": {
+      "file": "revisions/r69_ly_cave/cx2/r69_spirit_crystal_18136c9e2f.webp",
+      "source": "assets/r69/spirit_crystal.png",
+      "sha256": "18136c9e2f77b93b40c8bf83a7b714359611258cfb91df37441b99f7c07233a3",
+      "size_px": [
+        112,
+        129
+      ],
+      "anchor_px": [
+        56,
+        123
+      ],
+      "native_size_px": [
+        112,
+        129
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_spirit_crystal_18136c9e2f",
+      "img": "cx2_r69_spirit_crystal_18136c9e2f"
+    },
+    "water_jar": {
+      "file": "revisions/r69_ly_cave/cx2/r69_water_jar_3fce3ee6e2.webp",
+      "source": "assets/r69/water_jar.png",
+      "sha256": "3fce3ee6e2465713a93159ff0449fbad5779158b182c32403f7e2b4653fbe840",
+      "size_px": [
+        64,
+        72
+      ],
+      "anchor_px": [
+        31.5,
+        65
+      ],
+      "native_size_px": [
+        64,
+        72
+      ],
+      "hasAlpha": true,
+      "img_id": "r69_water_jar_3fce3ee6e2",
+      "img": "cx2_r69_water_jar_3fce3ee6e2"
+    }
+  },
+  "effects": {
+    "source": "effects/r69-effects.js",
+    "file": "revisions/r69_ly_cave/r69-effects.js",
+    "sha256": "ea14a46db4814ae1443f1111b9220b6c35c3fedc3f814060891b43ed0ed8d093",
+    "crystals": 4,
+    "pools": 1
+  },
+  "ground": {
+    "source": "maps/ly_cave/ground.png",
+    "file": "revisions/r69_ly_cave/cx2/g_ly_cave.webp",
+    "sha256": "3989a69cdf193f8c6ff829b79b2fe5732e4021090066e2ec6c92e6d39868b2af"
+  }
+}
