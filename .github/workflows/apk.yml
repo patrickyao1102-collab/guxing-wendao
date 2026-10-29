@@ -12,13 +12,14 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: "17" }
       - name: 接受 SDK 许可并装 build-tools（runner 自带 Android SDK）
         run: |
@@ -53,7 +54,13 @@ jobs:
         run: |
           export KS_FILE=$HOME/.guxing-ks/guxing.jks
           export KS_PASS=$(cat $HOME/.guxing-ks/pass)
-          gradle --no-daemon assembleRelease
+          set -o pipefail; gradle --no-daemon --stacktrace assembleRelease 2>&1 | tee ../build.log
+      - name: 失败时把日志尾部发到 Issue（方便远程查看）
+        if: failure()
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          { echo '```'; grep -v '^\s*at ' build.log | tail -150; echo '```'; } > body.md
+          gh issue create --title "APK 构建失败 #${{ github.run_number }}" --body-file body.md || true
       - name: 整理产物
         run: |
           mkdir -p out
