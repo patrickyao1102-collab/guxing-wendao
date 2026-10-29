@@ -5983,7 +5983,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       return orig(o, now);
     })(drawBaked);
     for (const n of ['seal_chains_intact', 'seal_chains_broken'].concat([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => 'seal_nodes_' + i))) ldImg('fx5_' + n, 'fx5/' + n + '.webp');
-    ldImg('liuyun_g', 'fx5/liuyun_g_cut.webp');
+    ldImg('liuyun_g', (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:') ? 'fx5/liuyun_g_cut.webp' : '/_blob/61dc34a622b5a60df62f2cb78655f81f');
   }
 
   // 剧情镜头：world.camFocus = [x, y] 时镜头对准这一点（演出用），清掉就回到跟随主角
