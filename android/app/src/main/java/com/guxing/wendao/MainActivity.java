@@ -31,6 +31,19 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(true);
+        s.setTextZoom(100);                                  // 不随系统字体放大，避免 UI 错位
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        s.setOffscreenPreRaster(true);
+        web.setLayerType(View.LAYER_TYPE_HARDWARE, null);    // 画布走 GPU
+        web.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        web.setVerticalScrollBarEnabled(false); web.setHorizontalScrollBarEnabled(false);
+        web.setHapticFeedbackEnabled(false);
+        web.setLongClickable(false); web.setOnLongClickListener(v -> true); // 长按不弹选择菜单
+        if (android.os.Build.VERSION.SDK_INT >= 28) {        // 刘海屏也铺满
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
+        }
         web.setWebViewClient(new Client(getAssets(), updateDir));
         web.setBackgroundColor(0xFF000000);
         web.addJavascriptInterface(new Bridge(), "GuxingApp");
