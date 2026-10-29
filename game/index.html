@@ -293,7 +293,7 @@ function updateDialog(dt) {
   if (!dialog) return;
   dialog.slide = Math.min(1, dialog.slide + dt * 5);
   const total = [...dialog.text].length;
-  if (dialog.shown < total) { const prev = Math.floor(dialog.shown); dialog.shown = Math.min(total, dialog.shown + dt * 38); if (Math.floor(dialog.shown) !== prev && Math.floor(dialog.shown) % 3 === 0) sfx('blip'); }
+  if (dialog.shown < total) { const prev = Math.floor(dialog.shown); dialog.shown = Math.min(total, dialog.shown + dt * 38); }   // 作者：对话打字不要任何声音
   const tap = consumeTap();
   if (tap) {
     if (dialog.shown < total) dialog.shown = total;
@@ -333,7 +333,7 @@ function updateChoice(dt) {
   if (!choice) return; choice.t += dt;
   const tap = consumeTap(); if (!tap) return;
   const rects = choiceRects();
-  rects.forEach((r, i) => { if (tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h) { playSnd('ui_confirm'); const res = choice.res; choice = null; res(i); } });
+  rects.forEach((r, i) => { if (tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h) { const res = choice.res; choice = null; res(i); } });
 }
 function choiceRects() { const n = choice.options.length; const w = 860, h = 74, gap = 18; const y0 = H / 2 - (n * (h + gap)) / 2 + 30; return choice.options.map((o, i) => ({ x: W / 2 - w / 2, y: y0 + i * (h + gap), w, h })); }
 function drawChoice() {
@@ -347,7 +347,7 @@ function drawChoice() {
 // 玉佩面板 / 系统提示
 let sysPanel = null;
 function showPanel(title, lines, ms = 0) {
-  return new Promise(res => { sysPanel = { title, lines, t: 0, res, ms }; playSnd('ui_confirm'); });
+  return new Promise(res => { sysPanel = { title, lines, t: 0, res, ms }; });
 }
 function updatePanel(dt) {
   if (!sysPanel) return; sysPanel.t += dt;
@@ -4799,7 +4799,8 @@ tileDraw = (orig => function () {
 })(tileDraw);
 
 // ---------------- 吞噬（叶孤星新技能）----------------
-SKILL_DB.jueying.lv = 99; // 绝影留到第四章剧情里领悟
+SKILL_DB.jueying.lv = 15; // 作者：绝影在凝丹六重领悟（15 级）
+setInterval(() => { try { const h = S.hero; if (h && h.lv >= 15 && h.skills && !h.skills.includes('jueying')) { h.skills.push('jueying'); toast('凝丹六重 · 领悟 贪狼剑意·绝影', 2400); } } catch (e) {} }, 1500);
 SKILL_DB.tunshi = { name: '纳月 · 吞噬', cost: 24, desc: '以纳月之力吞噬敌人灵力，伤害的一半化为自身气血，回复灵力（对邪修伤害 +50%）', star: '纳月' };
 async function skTunshi(P, t) {
   if (!t) return; await dimTo(.6, 250); skillBanner('纳月 · 吞噬', '#d9b8ff', '吞天地之万法'); playSnd('sfx_charge');

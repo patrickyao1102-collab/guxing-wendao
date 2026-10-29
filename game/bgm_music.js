@@ -16,7 +16,7 @@
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05' };
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'lib_nk1', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'lib_nk1', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_m08' };   // 叶孤星居室：山晨（竹笛葫芦丝古琴，恬静）
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
@@ -65,6 +65,7 @@
     const m = (typeof world !== 'undefined' && world.mapName) || '', def = world && world.map && world.map.def;
     if (m === 'tj_front') return 'plaza';   // 演武广场：恢弘大气的宗风
     if (m === 'tj_houshan') return 'houshan';
+    if (m === 'tj_room') return 'room';   // 作者：卧室原来的枫林太难听
     if (/^xt_city/.test(m)) return 'xtcity';   // 玄天城：清光升·纯乐
     if (/^qingzhu_/.test(m)) return 'qingzhu';   // 青竹小院：清光升·纯乐   // 后山：夜径星铃（古琴、箫、风铃，幽静带点紧张）
     if (WILD.test(m) || (def && def.mobs)) return 'wild';
