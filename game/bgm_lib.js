@@ -13,63 +13,8 @@ window.BGM_LIB = {
 "癸 · 角色配音（出招喊话）"
 ],
 "tracks": {
-"bgm29_xingheyao": {
-"no": "甲01",
-"name": "星河遥",
-"group": "甲 · 标题 / 片头",
-"kind": "bgm",
-"file": "bgm29/xingheyao.mp3",
-"blob": "10c5dfa64dd76ad9aaa16fd49d5f4945",
-"vol": 0.55,
-"desc": "即梦 · 星河浩渺，孤星独行，标题曲现用",
-"dur": 150.0
-},
-"bgm29_xingyeyin": {
-"no": "甲02",
-"name": "星夜吟",
-"group": "甲 · 标题 / 片头",
-"kind": "bgm",
-"file": "bgm29/xingyeyin.mp3",
-"blob": "57dab773847d3e31a5fcbd0f2deb1415",
-"vol": 0.55,
-"desc": "即梦 · 星夜低吟，清冷",
-"dur": 150.0
-},
-"bgm29_xingyeguxing": {
-"no": "甲03",
-"name": "星夜孤行",
-"group": "甲 · 标题 / 片头",
-"kind": "bgm",
-"file": "bgm29/xingyeguxing.mp3",
-"blob": "9d33e907982dcf1106370f018f1ca311",
-"vol": 0.55,
-"desc": "即梦 · 孤身夜行，渐起",
-"dur": 150.0
-},
-"bgm29_yunkongyao": {
-"no": "甲04",
-"name": "云空遥",
-"group": "甲 · 标题 / 片头",
-"kind": "bgm",
-"file": "bgm29/yunkongyao.mp3",
-"blob": "bad4b772e3fd47c715a987772fbcc452",
-"vol": 0.55,
-"desc": "即梦 · 云海辽阔，大气舒展",
-"dur": 150.0
-},
-"bgm29_yunjianxing": {
-"no": "甲05",
-"name": "云间行",
-"group": "甲 · 标题 / 片头",
-"kind": "bgm",
-"file": "bgm29/yunjianxing.mp3",
-"blob": "e30027f6c93d95d8c50021af0abd41f6",
-"vol": 0.55,
-"desc": "即梦 · 行于云间，悠远",
-"dur": 150.0
-},
 "bgm_title_xianjianfu": {
-"no": "甲06",
+"no": "甲01",
 "name": "仙剑赋",
 "group": "甲 · 标题 / 片头",
 "kind": "bgm",
@@ -150,19 +95,8 @@ window.BGM_LIB = {
 "old": true,
 "dur": 150.0
 },
-"bgm29_yejingxingling": {
-"no": "丁01",
-"name": "夜径星铃",
-"group": "丁 · 野外 / 探索 / 夜行",
-"kind": "bgm",
-"file": "bgm29/yejingxingling.mp3",
-"blob": "92bcc8cb2e3cbab511c811090f0774cb",
-"vol": 0.55,
-"desc": "即梦 · 古琴箫风铃，幽静带紧张，后山现用",
-"dur": 150.1
-},
 "bgm_explore_guxiao": {
-"no": "丁02",
+"no": "丁01",
 "name": "古箫吟风",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -213,19 +147,8 @@ window.BGM_LIB = {
 ],
 "dur": 150.0
 },
-"bgm29_qingguangsheng": {
-"no": "庚01",
-"name": "清光升",
-"group": "庚 · 抒情 / 过场",
-"kind": "bgm",
-"file": "bgm29/qingguangsheng.mp3",
-"blob": "5c7b3cc9b20b0d90c4ee81e794ccac44",
-"vol": 0.55,
-"desc": "即梦 · 编钟古筝上行，光芒升起（升级音效取自开头）",
-"dur": 150.0
-},
 "lib_qgs_inst": {
-"no": "庚02",
+"no": "庚01",
 "name": "清光升·纯乐",
 "group": "庚 · 抒情 / 过场",
 "kind": "bgm",
@@ -555,7 +478,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m05": {
-"no": "庚03",
+"no": "庚02",
 "name": "古道斜阳",
 "group": "庚 · 抒情 / 过场",
 "kind": "bgm",
@@ -566,7 +489,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m06": {
-"no": "庚04",
+"no": "庚03",
 "name": "晴日相逢",
 "group": "庚 · 抒情 / 过场",
 "kind": "bgm",
@@ -588,7 +511,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m08": {
-"no": "丁03",
+"no": "丁02",
 "name": "山晨",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -932,7 +855,7 @@ window.BGM_LIB = {
 "dur": 204.1
 },
 "lib_m32": {
-"no": "丁04",
+"no": "丁03",
 "name": "夜弦潜行",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -941,17 +864,6 @@ window.BGM_LIB = {
 "vol": 0.55,
 "desc": "即梦 · 悬疑紧张月夜潜行，低音弦乐轻鼓点古琴",
 "dur": 123.1
-},
-"lib_m33": {
-"no": "庚05",
-"name": "月夜离箫",
-"group": "庚 · 抒情 / 过场",
-"kind": "bgm",
-"file": "lib29/m33.mp3",
-"blob": "05cdcdb1ce160b789bece06dc49cd921",
-"vol": 0.55,
-"desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
-"dur": 147.1
 },
 "lib_v09": {
 "no": "癸01",

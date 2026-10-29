@@ -8,14 +8,15 @@
   if (typeof playBgm !== 'function' || typeof AUD === 'undefined') return;
   // 2026-10-29 即梦新曲（bgm29_*）：标题曲换成「星河遥」（不再用仙剑赋），演武广场（tj_front）用恢弘的「宗风」。
   // 候选曲都接进来了，测试面板「即梦配乐」可以试听、一键换标题曲 / 广场曲（记在本机 localStorage）。
-  const J29 = { bgm29_yunkongyao: '云空遥', bgm29_yunjianxing: '云间行', bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二', bgm29_xingyeyin: '星夜吟', bgm29_xingyeguxing: '星夜孤行', bgm29_xingheyao: '星河遥', bgm29_qingguangsheng: '清光升', bgm29_yejingxingling: '夜径星铃' };
+  // 2026-10-29 作者：带人声的即梦歌曲（星河遥、星夜吟、星夜孤行、云空遥、云间行、清光升原版、夜径星铃、月夜离箫）全部删掉，只留纯音乐
+  const J29 = { bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二' };
   // 所有代码合成的程序音全部换成即梦音效库（作者：不要再出现"叮"的程序音）
   const SDEF = { ui_text: 'lib_u0', ui_click: 'lib_u1', ui_open: 'lib_u2', ui_confirm: 'lib_s00',
     sfx_swing: 'lib_s01', sfx_hurt: 'lib_s02', sfx_star: 'lib_s03', sfx_buff: 'lib_s04', sfx_wind: 'lib_s05', sfx_ice: 'lib_s06', sfx_thunder: 'lib_s07',
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05' };
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'bgm_town_miaohui', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
+  const DEF = { title: 'bgm_title_xianjianfu', plaza: 'bgm29_zongfeng', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm_explore_guxiao', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'bgm_town_miaohui', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
