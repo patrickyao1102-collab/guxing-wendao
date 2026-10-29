@@ -11,7 +11,7 @@
   // 2026-10-29 作者：即梦歌曲全部 AI 人声分离，只留伴奏
   const J29 = { bgm29_yunkongyao: '云空遥·纯乐', bgm29_yunjianxing: '云间行·纯乐', bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二', bgm29_xingyeyin: '星夜吟·纯乐', bgm29_xingyeguxing: '星夜孤行·纯乐', bgm29_xingheyao: '星河遥·纯乐', bgm29_yejingxingling: '夜径星铃·纯乐' };
   // 所有代码合成的程序音全部换成即梦音效库（作者：不要再出现"叮"的程序音）
-  const SDEF = { ui_text: 'lib_u0', ui_click: 'lib_u1', ui_open: 'lib_u2', ui_confirm: 'lib_s00',
+  const SDEF = { ui_click: 'lib_s00', ui_open: 'lib_s00', ui_confirm: 'lib_s00',   // 对话提示音 lib_u0–u3 是代码合成的，全部不用
     sfx_swing: 'lib_s01', sfx_hurt: 'lib_s02', sfx_star: 'lib_s03', sfx_buff: 'lib_s04', sfx_wind: 'lib_s05', sfx_ice: 'lib_s06', sfx_thunder: 'lib_s07',
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05' };

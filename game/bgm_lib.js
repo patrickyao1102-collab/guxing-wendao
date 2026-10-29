@@ -1311,50 +1311,6 @@ window.BGM_LIB = {
 "vol": 0.95,
 "desc": "即梦配音 · “禄存，回春。”",
 "dur": 2.1
-},
-"lib_u0": {
-"no": "壬17",
-"name": "琴泛音",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u0.mp3",
-"blob": "e1764758115008799d0764c7bc543e9f",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 古琴泛音一声，清亮柔和",
-"dur": 0.5
-},
-"lib_u2": {
-"no": "壬18",
-"name": "玉磬",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u2.mp3",
-"blob": "27120d35cc1057a167a2ad7c87b322ce",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 玉磬清响带余韵",
-"dur": 0.6
-},
-"lib_u1": {
-"no": "壬19",
-"name": "木鱼",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u1.mp3",
-"blob": "af4431f68288a027887ef8be4d04cec7",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 竹木轻叩一下",
-"dur": 0.2
-},
-"lib_u3": {
-"no": "壬20",
-"name": "翻页",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u3.mp3",
-"blob": "1a679bc55f076549f86941b44485ddee",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 纸页翻动的轻沙声",
-"dur": 0.3
 }
 },
 "sfx": {
@@ -1533,50 +1489,6 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "即梦 SeedAudio · 玉石碰撞短音带光感",
 "dur": 0.5
-},
-"lib_u0": {
-"no": "壬17",
-"name": "琴泛音",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u0.mp3",
-"blob": "e1764758115008799d0764c7bc543e9f",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 古琴泛音一声，清亮柔和",
-"dur": 0.5
-},
-"lib_u2": {
-"no": "壬18",
-"name": "玉磬",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u2.mp3",
-"blob": "27120d35cc1057a167a2ad7c87b322ce",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 玉磬清响带余韵",
-"dur": 0.6
-},
-"lib_u1": {
-"no": "壬19",
-"name": "木鱼",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u1.mp3",
-"blob": "af4431f68288a027887ef8be4d04cec7",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 竹木轻叩一下",
-"dur": 0.2
-},
-"lib_u3": {
-"no": "壬20",
-"name": "翻页",
-"group": "壬 · 音效",
-"kind": "sfx",
-"file": "lib29/u3.mp3",
-"blob": "1a679bc55f076549f86941b44485ddee",
-"vol": 0.5,
-"desc": "合成 · 对话提示音候选 · 纸页翻动的轻沙声",
-"dur": 0.3
 }
 }
 };

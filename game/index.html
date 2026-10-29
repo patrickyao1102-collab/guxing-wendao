@@ -1190,7 +1190,7 @@ setMap = (orig => function (...a) { playBgm('bgm_shanmen'); return orig(...a); }
 startBattle = (orig => function (cfg) { playBgm(cfg.boss || /赵/.test(cfg.title || '') ? 'bgm_boss' : 'bgm_battle'); return orig(cfg); })(startBattle);
 endBattle = (orig => async function (win) { if (win && !(battle && battle._jingled)) { stopBgm(.4); playSnd('jingle_win'); } return orig(win); })(endBattle);
 // 对话翻页、菜单的轻声
-say = (orig => function (...a) { playSnd('ui_text'); return orig(...a); })(say);
+// 作者：对话不要任何提示音（原来每句对话都会响一声合成的“滴”）
 endBattle = (orig => async function (win) { const r = await orig(win); setTimeout(() => { if (!battle && world.map) playBgm('bgm_shanmen', true); }, 2500); return r; })(endBattle);
 
 function playAmb(n, force = false) {
