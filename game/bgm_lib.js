@@ -643,21 +643,6 @@ window.BGM_LIB = {
 ],
 "dur": 150.2
 },
-"lib_m13": {
-"no": "戊06",
-"name": "征鸣",
-"group": "戊 · 战斗",
-"kind": "bgm",
-"file": "lib29/m13.mp3",
-"blob": "257e770fa82320d736fde63dfe9ebb79",
-"vol": 0.55,
-"desc": "即梦 · 英雄主题，唢呐铜管战鼓弦乐奔腾（高潮段 0:39 起循环）",
-"loop": [
-39.0,
-147.5
-],
-"dur": 150.2
-},
 "lib_m14": {
 "no": "己02",
 "name": "战域狂响",
@@ -674,7 +659,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m15": {
-"no": "戊07",
+"no": "戊06",
 "name": "疾锋",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -704,7 +689,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m17": {
-"no": "戊08",
+"no": "戊07",
 "name": "疾鼓",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -734,7 +719,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m19": {
-"no": "戊09",
+"no": "戊08",
 "name": "破阵·强击",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -775,7 +760,7 @@ window.BGM_LIB = {
 "dur": 162.1
 },
 "lib_m22": {
-"no": "戊10",
+"no": "戊09",
 "name": "风刃",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -820,7 +805,7 @@ window.BGM_LIB = {
 "dur": 87.1
 },
 "lib_m25": {
-"no": "戊11",
+"no": "戊10",
 "name": "惊弦",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -834,23 +819,8 @@ window.BGM_LIB = {
 ],
 "dur": 112.2
 },
-"lib_m26": {
-"no": "己08",
-"name": "阵前风",
-"group": "己 · 首领战 / 压迫",
-"kind": "bgm",
-"file": "lib29/m26.mp3",
-"blob": "e2a23c0aa4591eb8edf8f8092f049bd6",
-"vol": 0.55,
-"desc": "即梦 · 中国鼓乐，大鼓排鼓钹锣号角，千军万马（高潮段 0:44 起循环）",
-"loop": [
-44.5,
-198.0
-],
-"dur": 202.2
-},
 "lib_m27": {
-"no": "戊12",
+"no": "戊11",
 "name": "剑鸣",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -865,7 +835,7 @@ window.BGM_LIB = {
 "dur": 113.1
 },
 "lib_m28": {
-"no": "戊13",
+"no": "戊12",
 "name": "破阵·摇滚",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -880,7 +850,7 @@ window.BGM_LIB = {
 "dur": 95.1
 },
 "lib_m29": {
-"no": "戊14",
+"no": "戊13",
 "name": "破阵·交响",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -906,7 +876,7 @@ window.BGM_LIB = {
 "dur": 117.1
 },
 "lib_m31": {
-"no": "戊15",
+"no": "戊14",
 "name": "寨风战歌",
 "group": "戊 · 战斗",
 "kind": "bgm",
