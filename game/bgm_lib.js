@@ -150,6 +150,21 @@ window.BGM_LIB = {
 "old": true,
 "dur": 150.0
 },
+"lib_nk1": {
+"no": "丙04",
+"name": "疾锋·快打（喜庆）",
+"group": "丙 · 城镇 / 集市 / 喜庆",
+"kind": "bgm",
+"file": "lib29/nk1.mp3",
+"blob": "e8322eae9a75635035e3296d3b66f1e2",
+"vol": 0.55,
+"desc": "即梦 · 琵琶堂鼓竹笛，热闹喜庆，集市 / 庙会现用（只循环 0:45–1:19）（高潮段 0:45 起循环）",
+"loop": [
+45.37,
+78.8
+],
+"dur": 117.1
+},
 "bgm29_yejingxingling": {
 "no": "丁01",
 "name": "夜径星铃·纯乐",
@@ -212,6 +227,36 @@ window.BGM_LIB = {
 148.0
 ],
 "dur": 150.0
+},
+"lib_nk2": {
+"no": "戊03",
+"name": "剑风疾·对决",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/nk2.mp3",
+"blob": "ab778cc028d86a266bdf0f6b77f82875",
+"vol": 0.55,
+"desc": "即梦 · 战鼓唢呐琵琶轮指，170BPM（伴奏版）（高潮段 0:31 起循环）",
+"loop": [
+31.51,
+76.7
+],
+"dur": 151.1
+},
+"lib_nk3": {
+"no": "戊04",
+"name": "剑风疾·紧张",
+"group": "戊 · 战斗",
+"kind": "bgm",
+"file": "lib29/nk3.mp3",
+"blob": "1590df7e07fb4a9be239d9f107670e92",
+"vol": 0.55,
+"desc": "即梦 · 笛子二胡古筝扫弦，180BPM（伴奏版）（高潮段 1:22 起循环）",
+"loop": [
+82.76,
+125.43
+],
+"dur": 136.1
 },
 "lib_qgs_inst": {
 "no": "庚01",
@@ -489,7 +534,7 @@ window.BGM_LIB = {
 "dur": 0.5
 },
 "lib_m00": {
-"no": "丙04",
+"no": "丙05",
 "name": "庙会晴日",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -500,7 +545,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m01": {
-"no": "丙05",
+"no": "丙06",
 "name": "得胜调",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -511,7 +556,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m02": {
-"no": "丙06",
+"no": "丙07",
 "name": "门庭喜",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -522,7 +567,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m03": {
-"no": "丙07",
+"no": "丙08",
 "name": "新春鼓点",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -533,7 +578,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m04": {
-"no": "丙08",
+"no": "丙09",
 "name": "庙会晴",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -566,7 +611,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m07": {
-"no": "丙09",
+"no": "丙10",
 "name": "暖市",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -588,7 +633,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m09": {
-"no": "丙10",
+"no": "丙11",
 "name": "镇间闲",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -599,7 +644,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m10": {
-"no": "戊03",
+"no": "戊05",
 "name": "千军",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -614,7 +659,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m11": {
-"no": "戊04",
+"no": "戊06",
 "name": "破阵·动画",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -629,7 +674,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m12": {
-"no": "戊05",
+"no": "戊07",
 "name": "破阵·少年",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -659,7 +704,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m15": {
-"no": "戊06",
+"no": "戊08",
 "name": "疾锋",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -689,7 +734,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m17": {
-"no": "戊07",
+"no": "戊09",
 "name": "疾鼓",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -719,7 +764,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m19": {
-"no": "戊08",
+"no": "戊10",
 "name": "破阵·强击",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -734,7 +779,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m20": {
-"no": "丙11",
+"no": "丙12",
 "name": "古城闲市",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -760,7 +805,7 @@ window.BGM_LIB = {
 "dur": 162.1
 },
 "lib_m22": {
-"no": "戊09",
+"no": "戊11",
 "name": "风刃",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -805,7 +850,7 @@ window.BGM_LIB = {
 "dur": 87.1
 },
 "lib_m25": {
-"no": "戊10",
+"no": "戊12",
 "name": "惊弦",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -820,7 +865,7 @@ window.BGM_LIB = {
 "dur": 112.2
 },
 "lib_m27": {
-"no": "戊11",
+"no": "戊13",
 "name": "剑鸣",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -835,7 +880,7 @@ window.BGM_LIB = {
 "dur": 113.1
 },
 "lib_m28": {
-"no": "戊12",
+"no": "戊14",
 "name": "破阵·摇滚",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -850,7 +895,7 @@ window.BGM_LIB = {
 "dur": 95.1
 },
 "lib_m29": {
-"no": "戊13",
+"no": "戊15",
 "name": "破阵·交响",
 "group": "戊 · 战斗",
 "kind": "bgm",
@@ -865,7 +910,7 @@ window.BGM_LIB = {
 "dur": 144.1
 },
 "lib_m30": {
-"no": "丙12",
+"no": "丙13",
 "name": "古城闲市·二",
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
@@ -876,7 +921,7 @@ window.BGM_LIB = {
 "dur": 117.1
 },
 "lib_m31": {
-"no": "戊14",
+"no": "戊16",
 "name": "寨风战歌",
 "group": "戊 · 战斗",
 "kind": "bgm",

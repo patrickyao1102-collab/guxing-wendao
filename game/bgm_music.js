@@ -16,7 +16,7 @@
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05' };
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'bgm_town_miaohui', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'lib_nk1', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
