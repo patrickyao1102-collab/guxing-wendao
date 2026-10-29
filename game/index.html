@@ -5841,7 +5841,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   // ---------- 后山林间 · 流云仙衣锁灵阵 ----------
   if (SB) {
     const nearS = nearOf(SB), atS = (x, y) => P(...nearS(x, y));
-    const SEAL_FX = window.SEAL_FX = { seal_field: [768, 460], tj_houshan: [2130, 532] }; // 阵心（仙衣脚点 + 28）
+    const SEAL_FX = window.SEAL_FX = { tj_houshan: [2130, 532] }; // 锁灵阵只在天剑宗后山；后山·林间那份是早期测试，不再显示 // 阵心（仙衣脚点 + 28）
     const shardSpot = (uid, x, y) => { const [c, r] = atS(x, y + 30); return { key: 'none', c, r, name: '破阵灵晶', hidden: true, h: 90, cond: () => !S.flags['sf_' + uid], talk: async a => {
       S.flags['sf_' + uid] = 1; addItem('yunxingshi', 1); playSnd('ui_confirm'); S.flash = .25; S.flashColor = '#cfe8ff';
       const n = S.hero.bag.yunxingshi || 0; toast('获得：破阵灵晶（' + n + ' / 3）', 1800); a.hidden = true; a.npc = null;
@@ -5954,6 +5954,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const SA = window.SEAL_AMB = { cy: .62, rx: .3, ry: .45, pin: .08 };
     drawBaked = (orig => function (o, now) {
       const id = o.id;
+      if (world.mapName === 'seal_field' && /^seal_/.test(id)) return;
       if (SEAL_FX[world.mapName]) {
         const FXP = SEAL_FX[world.mapName];
         const st = seal.st(), t = performance.now() - seal.t0;
@@ -6162,7 +6163,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
 
   const q = new URLSearchParams(location.search).get('part');
   if (q === 'yw5') setTimeout(() => { S.fade = 1; S.hero.skills = ['pojun', 'tanlang']; S.hero.realm = '练气九重'; S.hero.maxhp = S.hero.hp = 310; S.hero.maxmp = S.hero.mp = 105; S.hero.atk = 35; S.hero.sword = true; part5(); }, 60);
-  if (q === 'ywseal') setTimeout(() => { S.fade = 0; S.flags.ch2_roam = 1; S.flags.ch2_hall = 1; S.flags.ch2_seal_open = 1; const st = TMAPS.seal_field.start; tileSetMap('seal_field', st[0], st[1], 'up'); S.scene = drawMap; S.hud = true; world.locked = false; }, 60);
+  if (q === 'ywseal_old') setTimeout(() => { S.fade = 0; S.flags.ch2_roam = 1; S.flags.ch2_hall = 1; S.flags.ch2_seal_open = 1; const st = TMAPS.seal_field.start; tileSetMap('seal_field', st[0], st[1], 'up'); S.scene = drawMap; S.hud = true; world.locked = false; }, 60);
 })();
 
 // ================= 天剑宗 · 后山崖顶（Codex 第五批 clean_r3）=================
@@ -6492,6 +6493,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   }
   const q = new URLSearchParams(location.search).get('part');
   if (q === 'hs1') setTimeout(() => { S.fade = 1; part1(); }, 60);
+  if (q === 'ywseal') setTimeout(() => { S.fade = 0; Object.assign(S.flags, { ch2_roam: 1, ch2_hall: 1, ch2_seal_open: 1, hs_impact: 1, hs_meet: 1 }); const st = P(...near(2130, 820)); tileSetMap('tj_houshan', st[0], st[1], 'up'); S.scene = drawMap; S.hud = true; world.locked = false; }, 60);
   if (q === 'hs2') setTimeout(() => { S.fade = 0; Object.assign(S.flags, { ch2_roam: 1, ch2_hall: 1, ch2_seal_open: 1, hs_impact: 1, hs_meet: 1 }); const st = TMAPS.tj_houshan.start; tileSetMap('tj_houshan', st[0], st[1], 'up'); S.scene = drawMap; S.hud = true; world.locked = false; }, 60);
 })();
 
@@ -13975,7 +13977,7 @@ ultJiutian = (orig => async function (P) {
 (() => {
   const STORY = [
     ['第一章', [['', '从头开始（标题画面）'], ['hs1', '后山崖顶·观星'], ['2', '借力一战'], ['lib1', '夜入藏经阁'], ['res4', '回到住所·修复剑典'], ['4', '贪狼破军·连升三级'], ['yw5', '演武广场·测灵碑'], ['6', '第一章结尾'], ['boss', '赵师兄之战']]],
-    ['第二章', [['ch2n', '第二章开始'], ['resch2', '测灵碑后回住所'], ['ch2boss', '宗主居所'], ['ywseal', '后山林间·锁灵阵'], ['hs2', '后山崖顶·自由探索'], ['forest', '山外树林'], ['town', '青阳镇'], ['camp', '黑风寨'], ['party', '三人战斗测试']]],
+    ['第二章', [['ch2n', '第二章开始'], ['resch2', '测灵碑后回住所'], ['ch2boss', '宗主居所'], ['ywseal', '天剑宗后山·锁灵阵'], ['hs2', '后山崖顶·自由探索'], ['forest', '山外树林'], ['town', '青阳镇'], ['camp', '黑风寨'], ['party', '三人战斗测试']]],
     ['第三章', [['ch3', '第三章开始'], ['ch3city', '城中'], ['ch3forest', '幽影林'], ['ch3mijing', '秘境'], ['ch3spring', '灵泉'], ['ch3ambush', '伏击']]],
     ['第四章', [['ch4', '第四章开始'], ['ch4boss', '长老之战']]],
     ['第五章', [['ch5', '玄兵阁·请柬（拍卖会开始）'], ['ch5street', '黄昏街头·飞云宗'], ['ch5auc', '拍卖会·直接开拍'], ['ch5pay', '结账·黑卡贵宾']]],
