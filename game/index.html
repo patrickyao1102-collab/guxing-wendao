@@ -14156,20 +14156,26 @@ ultJiutian = (orig => async function (P) {
 <script src="r54_data.js"></script>
 <script src="lin_r54.js"></script>
 <script src="r60_data.js"></script><script src="r66_pre.js"></script>
-<script src="r60_market.js"></script><script src="r60_npc.js"></script><script src="r66_npc.js"></script><script src="map_detail2.js"></script><script src="r64_shop.js"></script><script src="r64_choice.js"></script><script src="r58b_qz.js"></script><script>// ================= 接入 Codex R70：青竹小院 · 叶孤星石像（A 搞怪托腮望天，作者选定）=================
-// 摆在「道」字右上侧草地（Codex 定的脚底 [565,1515]，含底座约 202 像素高 ≈ 叶孤星 1.8 倍），加碰撞和「观看」。
+<script src="r60_market.js"></script><script src="r60_npc.js"></script><script src="r66_npc.js"></script><script src="map_detail2.js"></script><script src="r64_shop.js"></script><script src="r64_choice.js"></script><script src="r58b_qz.js"></script><script>// ================= 接入 Codex R70：叶孤星石像 =================
+// 青竹小院「道」字右上：A 搞怪托腮望天（作者选定）；东南草坪：两座成年帅版——B4 长身玉立回眸石像、西装短发像（R58b）。
+// 作者：石像有点大，整体缩小（A 约 1.45 倍人高，成年两座约 1.9 倍）。都加碰撞和「观看」。
 (function () {
   const B = typeof CXB2 !== 'undefined' && CXB2.qingzhu_court; if (!B || !TMAPS.qingzhu_court) return;
   const loc = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
-  const im = new Image(); im.onload = () => { IMG.r70_statue_a = im; }; im.src = loc ? 'cx2r70/r70_statue_a.webp' : '/_blob/4a1a902bf201da4886c2c1a7fe999da6';
-  const W = 199.08, H = 232.55, AX = 106.92, AY = 220.54, FX = 565, FY = 1515;
-  B.objs.push({ id: 'r70_statue_a', uid: 'r70_yeguxing_a', img: 'r70_statue_a', x: FX - AX, y: FY - AY, w: W, h: H, ax: FX, ay: FY, sy: 1646, flat: false, flip: false });
-  // 碰撞：脚底左右 64、往上 36 像素（cs = 8）
-  const cs = B.cs, bl = B.blocked.split('');
-  for (let y = FY - 36; y < FY; y += cs) for (let x = FX - 64; x < FX + 64; x += cs) { const i = Math.floor(y / cs) * B.cols + Math.floor(x / cs); if (i >= 0 && i < bl.length) bl[i] = '1'; }
+  const L = [
+    { k: 'r70_statue_a', blob: '4a1a902bf201da4886c2c1a7fe999da6', w: 199.08, h: 232.55, ax: 106.92, ay: 220.54, fx: 565, fy: 1515, sy: 1646, k2: .8, hw: 52, nm: '叶孤星石像', txt: '石雀站上了头顶，他托着下巴仰望天空，仿佛正无奈地想着：又是我？', tp: [605, 1551] },
+    { k: 'r70_statue_b4', blob: '83ed9e56315bbe1a4e96cbfdf521832c', w: 200, h: 280, ax: 120.5, ay: 280, fx: 1700, fy: 1300, sy: 1300, k2: .76, hw: 44, nm: '叶孤星石像 · 长身玉立', txt: '石像微微回首，嘴角一点笑意，剑锋斜指地面。底座刻着一行小字：孤星问道，道不孤。', tp: [1700, 1340] },
+    { k: 'r70_statue_suit', blob: '495a22116725929cce3f33fc986faab7', w: 92, h: 270, ax: 52.5, ay: 270, fx: 1830, fy: 1300, sy: 1300, k2: .78, hw: 34, nm: '叶孤星像 · 西装', txt: '一身墨色西装、墨镜遮眼的叶孤星……不知道是哪位弟子的手笔，底座上写着：「本少宗主，另一种可能。」', tp: [1830, 1340] },
+  ];
+  const cs = B.cs, bl = B.blocked.split(''), P = (x, y) => [x / 64 - .5, y / 64 - .8];
+  for (const o of L) {
+    const im = new Image(); im.onload = () => { IMG[o.k] = im; }; im.src = loc ? 'cx2r70/' + o.k + '.webp' : '/_blob/' + o.blob;
+    const w = o.w * o.k2, h = o.h * o.k2, ax = o.ax * o.k2, ay = o.ay * o.k2;
+    B.objs.push({ id: o.k, uid: o.k, img: o.k, x: o.fx - ax, y: o.fy - ay, w, h, ax: o.fx, ay: o.fy, sy: o.sy, flat: false, flip: false });
+    for (let y = o.fy - 28; y < o.fy; y += cs) for (let x = o.fx - o.hw; x < o.fx + o.hw; x += cs) { const i = Math.floor(y / cs) * B.cols + Math.floor(x / cs); if (i >= 0 && i < bl.length) bl[i] = '1'; }
+    const [c, r] = P(o.tp[0], o.tp[1]); TMAPS.qingzhu_court.npcs.push({ key: 'none', c, r, name: o.nm, hidden: true, h: 150, talk: async () => { await narrate(o.txt); } });
+  }
   B.blocked = bl.join('');
-  const P = (x, y) => [x / 64 - .5, y / 64 - .8], [c, r] = P(605, 1551);
-  TMAPS.qingzhu_court.npcs.push({ key: 'none', c, r, name: '叶孤星石像', hidden: true, h: 150, talk: async () => { await narrate('石雀站上了头顶，他托着下巴仰望天空，仿佛正无奈地想着：又是我？'); } });
 })();
 </script>
 <script src="r65_chest.js"></script>
