@@ -8,15 +8,15 @@
   if (typeof playBgm !== 'function' || typeof AUD === 'undefined') return;
   // 2026-10-29 即梦新曲（bgm29_*）：标题曲换成「星河遥」（不再用仙剑赋），演武广场（tj_front）用恢弘的「宗风」。
   // 候选曲都接进来了，测试面板「即梦配乐」可以试听、一键换标题曲 / 广场曲（记在本机 localStorage）。
-  // 2026-10-29 作者：带人声的即梦歌曲（星河遥、星夜吟、星夜孤行、云空遥、云间行、清光升原版、夜径星铃、月夜离箫）全部删掉，只留纯音乐
-  const J29 = { bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二' };
+  // 2026-10-29 作者：即梦歌曲全部 AI 人声分离，只留伴奏
+  const J29 = { bgm29_yunkongyao: '云空遥·纯乐', bgm29_yunjianxing: '云间行·纯乐', bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二', bgm29_xingyeyin: '星夜吟·纯乐', bgm29_xingyeguxing: '星夜孤行·纯乐', bgm29_xingheyao: '星河遥·纯乐', bgm29_yejingxingling: '夜径星铃·纯乐' };
   // 所有代码合成的程序音全部换成即梦音效库（作者：不要再出现"叮"的程序音）
   const SDEF = { ui_text: 'lib_u0', ui_click: 'lib_u1', ui_open: 'lib_u2', ui_confirm: 'lib_s00',
     sfx_swing: 'lib_s01', sfx_hurt: 'lib_s02', sfx_star: 'lib_s03', sfx_buff: 'lib_s04', sfx_wind: 'lib_s05', sfx_ice: 'lib_s06', sfx_thunder: 'lib_s07',
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05' };
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
-  const DEF = { title: 'bgm_title_xianjianfu', plaza: 'bgm29_zongfeng', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm_explore_guxiao', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'bgm_town_miaohui', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'bgm_town_miaohui', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst' };
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
@@ -26,8 +26,8 @@
     bgm_explore_guxiao: '44e975707583ff3300c5bb30d2940f24', bgm_battle_jianwu: '84bbc6ba581ebc8535b72b36f3272951', bgm_boss_jingtian: 'd5328d56d4a91eec068c7c380e9dea50',
     bgm_town_miaohui: 'd89a9e8a47114a32ae65deb5a3a86a4b', bgm_town_jiyue: 'd4d8ac63f5df23fc32e6baab71bc17d1',
     bgm_battle_kuaida: '6dd1ac264189708b6f5e88fbdb7b2af0',
-    bgm29_yunkongyao: 'bad4b772e3fd47c715a987772fbcc452', bgm29_yunjianxing: 'e30027f6c93d95d8c50021af0abd41f6', bgm29_zongfeng: 'c0dd6a64b695ed3c1b17b99271824052', bgm29_zongfeng2: '527a45fb2284a8781ff27f6d07921f2f',
-    bgm29_xingyeyin: '57dab773847d3e31a5fcbd0f2deb1415', bgm29_xingyeguxing: '9d33e907982dcf1106370f018f1ca311', bgm29_xingheyao: '10c5dfa64dd76ad9aaa16fd49d5f4945', bgm29_qingguangsheng: '5c7b3cc9b20b0d90c4ee81e794ccac44', bgm29_yejingxingling: '92bcc8cb2e3cbab511c811090f0774cb' };
+    bgm29_yunkongyao: '3dd22daaa4cc98b78e92ef9e59930cad', bgm29_yunjianxing: 'f9bdc1852efa6cd0a1744225d6799cdf', bgm29_zongfeng: 'c0dd6a64b695ed3c1b17b99271824052', bgm29_zongfeng2: '527a45fb2284a8781ff27f6d07921f2f',
+    bgm29_xingyeyin: '8d9487cb686bf8af0153139f25cd4a09', bgm29_xingyeguxing: 'adeab58e565570fe7515fc2e57bd73bc', bgm29_xingheyao: '675947de585d0532f311f62a4d79b9b8', bgm29_yejingxingling: '945319ca8fd16ad14577bde8a8dc83db' };
   const LIBT = (window.BGM_LIB && BGM_LIB.tracks) || {};
   for (const k in LIBT) if (LIBT[k].blob) BLOB[k] = LIBT[k].blob;
   // 即梦的曲子响度比旧曲高约 6dB，接进来时压低一点

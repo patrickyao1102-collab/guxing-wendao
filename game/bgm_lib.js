@@ -13,8 +13,63 @@ window.BGM_LIB = {
 "癸 · 角色配音（出招喊话）"
 ],
 "tracks": {
-"bgm_title_xianjianfu": {
+"bgm29_xingheyao": {
 "no": "甲01",
+"name": "星河遥·纯乐",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingheyao.mp3",
+"blob": "675947de585d0532f311f62a4d79b9b8",
+"vol": 0.55,
+"desc": "即梦 · 星河浩渺，孤星独行（AI 分离人声后的伴奏版），标题曲现用",
+"dur": 150.0
+},
+"bgm29_xingyeyin": {
+"no": "甲02",
+"name": "星夜吟·纯乐",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingyeyin.mp3",
+"blob": "8d9487cb686bf8af0153139f25cd4a09",
+"vol": 0.55,
+"desc": "即梦 · 星夜低吟，清冷（伴奏版）",
+"dur": 150.0
+},
+"bgm29_xingyeguxing": {
+"no": "甲03",
+"name": "星夜孤行·纯乐",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/xingyeguxing.mp3",
+"blob": "adeab58e565570fe7515fc2e57bd73bc",
+"vol": 0.55,
+"desc": "即梦 · 孤身夜行，渐起（伴奏版）",
+"dur": 150.0
+},
+"bgm29_yunkongyao": {
+"no": "甲04",
+"name": "云空遥·纯乐",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/yunkongyao.mp3",
+"blob": "3dd22daaa4cc98b78e92ef9e59930cad",
+"vol": 0.55,
+"desc": "即梦 · 云海辽阔，大气舒展（伴奏版），演武广场现用",
+"dur": 150.0
+},
+"bgm29_yunjianxing": {
+"no": "甲05",
+"name": "云间行·纯乐",
+"group": "甲 · 标题 / 片头",
+"kind": "bgm",
+"file": "bgm29/yunjianxing.mp3",
+"blob": "f9bdc1852efa6cd0a1744225d6799cdf",
+"vol": 0.55,
+"desc": "即梦 · 行于云间，悠远（伴奏版）",
+"dur": 150.0
+},
+"bgm_title_xianjianfu": {
+"no": "甲06",
 "name": "仙剑赋",
 "group": "甲 · 标题 / 片头",
 "kind": "bgm",
@@ -95,8 +150,19 @@ window.BGM_LIB = {
 "old": true,
 "dur": 150.0
 },
-"bgm_explore_guxiao": {
+"bgm29_yejingxingling": {
 "no": "丁01",
+"name": "夜径星铃·纯乐",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/yejingxingling.mp3",
+"blob": "945319ca8fd16ad14577bde8a8dc83db",
+"vol": 0.55,
+"desc": "即梦 · 古琴箫风铃，幽静带紧张（伴奏版），后山现用",
+"dur": 150.1
+},
+"bgm_explore_guxiao": {
+"no": "丁02",
 "name": "古箫吟风",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -153,9 +219,9 @@ window.BGM_LIB = {
 "group": "庚 · 抒情 / 过场",
 "kind": "bgm",
 "file": "bgm29/qingguangsheng_inst.mp3",
-"blob": "f9f9af3b9a40fc8d3660709a342f07ce",
+"blob": "40ac91fe03f098c6b0138e4ed5d2dc5e",
 "vol": 0.6,
-"desc": "清光升去掉人声的纯乐版，玄天城 / 青竹小院现用",
+"desc": "清光升 AI 分离人声后的伴奏版，玄天城 / 青竹小院现用",
 "dur": 150.0
 },
 "lib_s21": {
@@ -511,7 +577,7 @@ window.BGM_LIB = {
 "dur": 150.2
 },
 "lib_m08": {
-"no": "丁02",
+"no": "丁03",
 "name": "山晨",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -855,7 +921,7 @@ window.BGM_LIB = {
 "dur": 204.1
 },
 "lib_m32": {
-"no": "丁03",
+"no": "丁04",
 "name": "夜弦潜行",
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
@@ -864,6 +930,17 @@ window.BGM_LIB = {
 "vol": 0.55,
 "desc": "即梦 · 悬疑紧张月夜潜行，低音弦乐轻鼓点古琴",
 "dur": 123.1
+},
+"lib_m33": {
+"no": "庚04",
+"name": "月夜离箫",
+"group": "庚 · 抒情 / 过场",
+"kind": "bgm",
+"file": "lib29/m33.mp3",
+"blob": "05cdcdb1ce160b789bece06dc49cd921",
+"vol": 0.55,
+"desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
+"dur": 147.1
 },
 "lib_v09": {
 "no": "癸01",
