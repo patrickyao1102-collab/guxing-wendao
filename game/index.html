@@ -5968,7 +5968,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
           if (st !== 'dormant') fxDraw(fxs, 'back', FXP[0], FXP[1], tt);
           if (st === 'vanishing') fxDraw('liuyun_afterglow', 'back', FXP[0], FXP[1], t, Math.max(0, Math.min(1, (t / 2800 - .48) / .35)));
           ctx.save(); const bob = st === 'released' ? Math.sin(now * 2) * 4 : 0; ctx.translate(0, bob);
-          // R61 第四轮 G 神话法衣（作者选定方向）：先用抠好的定稿图顶替旧仙衣看效果；S.flags.liuyun_old = 1 可切回旧图
+          // R61 长身云衣（作者选定方向）：先用抠好的定稿图顶替旧仙衣看效果；S.flags.liuyun_old = 1 可切回旧图
           if (IMG.liuyun_g && !(S.flags && S.flags.liuyun_old)) { const im = IMG.liuyun_g, h = o.h * 1.02, w = h * im.width / im.height, cx = o.x + o.w / 2, by = o.y + o.h; const fl = .5 + .5 * Math.sin(now * 1.6);
             ctx.save(); ctx.shadowColor = 'rgba(140,190,255,' + (.35 + .35 * fl) + ')'; ctx.shadowBlur = 28 + 18 * fl; ctx.drawImage(im, cx - w / 2, by - h + Math.sin(now * 1.1) * 3, w, h); ctx.restore(); }
           else orig(o, now);
@@ -5983,7 +5983,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       return orig(o, now);
     })(drawBaked);
     for (const n of ['seal_chains_intact', 'seal_chains_broken'].concat([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => 'seal_nodes_' + i))) ldImg('fx5_' + n, 'fx5/' + n + '.webp');
-    ldImg('liuyun_g', (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:') ? 'fx5/liuyun_g_cut.webp' : '/_blob/61dc34a622b5a60df62f2cb78655f81f');
+    ldImg('liuyun_g', (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:') ? 'fx5/liuyun_g_cut.webp' : '/_blob/435b106085ecd7135dd7c8a860ea31a8');
   }
 
   // 剧情镜头：world.camFocus = [x, y] 时镜头对准这一点（演出用），清掉就回到跟随主角
