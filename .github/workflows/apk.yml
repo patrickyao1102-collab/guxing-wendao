@@ -20,7 +20,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: "17" }
-      - uses: android-actions/setup-android@v3
+      - name: 接受 SDK 许可并装 build-tools（runner 自带 Android SDK）
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" >/dev/null
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.9" }
       - name: 签名密钥（首次生成，之后从缓存取，保证每次打包签名一致）
