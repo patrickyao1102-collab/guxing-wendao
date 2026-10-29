@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>孤星问道</title>
+<style>
+html,body{margin:0;height:100%;background:#07080f;color:#f1e3c4;font:16px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden}
+.wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+h1{font-size:44px;letter-spacing:.3em;margin:0;color:#ffe2a0;text-shadow:0 0 24px rgba(255,210,120,.35)}
+.sub{color:#9c8c6c;font-size:13px;letter-spacing:.4em}
+.bar{width:min(70vw,520px);height:10px;border:1px solid #7a5a2a;border-radius:6px;background:#1a1408;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#c9a35a,#ffe2a0);transition:width .25s}
+.txt{font-size:14px;color:#d6c496;min-height:1.5em}
+.skip{margin-top:10px;padding:8px 22px;border:1px solid #7a5a2a;border-radius:8px;background:#2b1f0e;color:#f1e3c4;font-size:14px;opacity:0;transition:opacity .5s}
+.stars{position:absolute;inset:0;pointer-events:none}
+.stars i{position:absolute;width:2px;height:2px;background:#cfe0ff;border-radius:50%;animation:tw 3s infinite}
+@keyframes tw{0%,100%{opacity:.2}50%{opacity:.9}}
+</style></head><body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+  <h1>孤星问道</h1>
+  <div class="sub">卷一 · 九曜剑典</div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="txt" id="txt">正在检查更新…</div>
+  <button class="skip" id="skip" onclick="window.GuxingApp&&GuxingApp.skip()">跳过更新，直接进入</button>
+</div>
+<script>
+const S=document.getElementById('stars');for(let i=0;i<60;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*3)+'s';S.appendChild(s);}
+window.onBoot=function(text,done,total,bytes){document.getElementById('txt').textContent=text;document.getElementById('fill').style.width=(total?Math.round(done/total*100):0)+'%';};
+setTimeout(()=>{document.getElementById('skip').style.opacity=1;},4000);
+</script>
+</body></html>

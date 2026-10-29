@@ -1,0 +1,29 @@
+plugins { id "com.android.application" }
+android {
+    namespace "com.guxing.wendao"
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.guxing.wendao"
+        minSdk 24
+        targetSdk 34
+        versionCode (System.getenv("APP_VERSION_CODE") ?: "1").toInteger()
+        versionName (System.getenv("APP_VERSION_NAME") ?: "1.0")
+    }
+    // 签名用的 keystore 由流水线生成并缓存，不进仓库；路径和口令从环境变量来
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("KS_FILE") ?: "/tmp/none.jks")
+            storePassword System.getenv("KS_PASS") ?: ""
+            keyAlias "guxing"
+            keyPassword System.getenv("KS_PASS") ?: ""
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.release }
+        debug { signingConfig signingConfigs.release }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    // 游戏文件不压缩打包，WebView 直接流式读取
+    aaptOptions { noCompress "webp", "mp3", "mp4", "json", "js", "html", "css" }
+    packagingOptions { jniLibs { useLegacyPackaging false } }
+}

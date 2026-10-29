@@ -1,0 +1,68 @@
+name: 打包安卓 APK
+
+on:
+  push:
+    branches: [main]
+    paths: ["android/**", ".github/workflows/apk.yml"]
+  workflow_dispatch:
+    inputs:
+      bundle_game:
+        description: "把当前 game/ 整个打进 APK（首次安装不用下载）"
+        default: "true"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.9" }
+      - name: 签名密钥（首次生成，之后从缓存取，保证每次打包签名一致）
+        id: ks
+        uses: actions/cache@v4
+        with:
+          path: ~/.guxing-ks
+          key: guxing-keystore-v1
+      - name: 生成签名密钥（仅首次）
+        run: |
+          mkdir -p ~/.guxing-ks
+          if [ ! -f ~/.guxing-ks/guxing.jks ]; then
+            PASS=$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20)
+            echo -n "$PASS" > ~/.guxing-ks/pass
+            keytool -genkeypair -keystore ~/.guxing-ks/guxing.jks -storepass "$PASS" -keypass "$PASS" -alias guxing -keyalg RSA -keysize 2048 -validity 36500 -dname "CN=Guxing Wendao, O=Guxing, C=AU"
+          fi
+      - name: 游戏文件打进 APK 的 assets
+        run: |
+          python3 tools/make_manifest.py game "${GITHUB_SHA::7}"
+          mkdir -p android/app/src/main/assets
+          cp -r game/. android/app/src/main/assets/
+      - name: 编译
+        working-directory: android
+        env:
+          APP_VERSION_CODE: ${{ github.run_number }}
+          APP_VERSION_NAME: 1.${{ github.run_number }}
+        run: |
+          export KS_FILE=$HOME/.guxing-ks/guxing.jks
+          export KS_PASS=$(cat $HOME/.guxing-ks/pass)
+          gradle --no-daemon assembleRelease
+      - name: 整理产物
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk out/guxing-wendao.apk
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with: { name: guxing-wendao-apk, path: out/guxing-wendao.apk }
+      - name: 发布到 Releases（latest）
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: 孤星问道 安卓包（自动更新版）
+          body: "安装一次即可；之后每次打开自动检查并下载更新。构建 ${{ github.sha }}"
+          files: out/guxing-wendao.apk
+          prerelease: false
