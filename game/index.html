@@ -14928,24 +14928,132 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   // 开战后空闲时把本队会用到的先下好，第一次放招不闪
   startBattle = (orig => function () { const r = orig.apply(this, arguments); setTimeout(() => { try { for (const u of battle.heroes || []) { const w = u.ally || 'hero'; for (const k in R77) if (k.endsWith('_' + w)) r77Load(k); } for (const k of ['dr_hero', 'stun', 'frozen', 'immune', 'spd_yunting', 'frost_linxue', 'lotus_linxue', 'shield_linxue']) r77Load(k); } catch (e) {} }, 1500); return r; })(startBattle);
   const WHO = u => u.ally || 'hero';
-  function r77Of(u) { const out = [], b = u.bx || {}, w = WHO(u);
+  function r77Of(u) { const out = [], b = u.bx || {};
     if (u.side === 'enemy') { const bf = u.buffs || {}; if (bf.frozen > 0) out.push('frozen'); else if (bf.stun > 0) out.push('stun'); if (u.ctrlImm > 1 && !(bf.frozen > 0)) out.push('immune'); return out; }
-    if (bxv(u, 'dr')) out.push(b.dr && b.dr.src === 'shuangjia' ? 'frost_linxue' : 'swordring');   // 护体：全队每人光剑绕身旋转（作者：最初脚底光剑放大、调亮、绕全身转）   // 作者：护体＝光剑绕身旋转（蓝色火焰那版不要）
-    if (bxv(u, 'vuln') && R77['kuang_' + w]) out.push('kuang_' + w); else if (bxv(u, 'atk') && R77['atk_' + w]) out.push('atk_' + w);
-    if (bxv(u, 'spd')) out.push('spd_yunting');
-    if (b.ctrlImm && b.ctrlImm.n > 0) out.push('lotus_linxue');
-    if (b.hs && b.hs.n > 0 && b.hs.v > 0) out.push(b.hs.ice ? 'shield_linxue' : 'wall_shenle');
-    if (b.ns && b.ns.n > 0 && w === 'hero') out.push('ns_hero');
+    if (bxv(u, 'dr')) out.push(b.dr && b.dr.src === 'shuangjia' ? 'frost' : 'swordring');   // 护体：白金光剑绕身；霜甲：冰晶护罩
+    if (bxv(u, 'vuln')) out.push('kuang'); else if (bxv(u, 'atk')) out.push('atk');
+    if (bxv(u, 'spd')) out.push('spd');
+    if (b.ctrlImm && b.ctrlImm.n > 0) out.push('lotus');
+    if (b.hs && b.hs.n > 0 && b.hs.v > 0) out.push(b.hs.ice ? 'shield' : 'wall');
+    if (b.ns && b.ns.n > 0) out.push('ns');
     return out; }
+  // ---------- 身上状态（作者定的路子：看得见的具体东西绕身/挂身，亮而清楚，不糊人；剑白金，蓝色留给林雪）----------
+  const WPN = { hero: [[-101, -236], [-226, -110]], yunting: [[61, -330], [133, -475]], linxue: [[92, -256], [217, -135]], shenle: [[-77, -278], [43, -333]] };   // 兵刃 柄→尖（相对脚底，人物高 500）
+  const weapon = (u, x, y) => { const w = WPN[WHO(u)] || WPN.hero, s = u.h / 500; return [[x + w[0][0] * s, y + w[0][1] * s], [x + w[1][0] * s, y + w[1][1] * s]]; };
+  const T = () => performance.now() / 1000;
+  function jag(x0, y0, x1, y1, amp, seg) { const pts = [[x0, y0]]; for (let i = 1; i < seg; i++) { const k = i / seg, nx = -(y1 - y0), ny = x1 - x0, l = Math.hypot(nx, ny) || 1, o = (Math.random() - .5) * 2 * amp; pts.push([x0 + (x1 - x0) * k + nx / l * o, y0 + (y1 - y0) * k + ny / l * o]); } pts.push([x1, y1]); return pts; }
+  function bolt(pts, col, w) { for (const [lw, a] of [[w * 4, .22], [w * 2, .5], [w, 1]]) { ctx.strokeStyle = col.replace('A', a); ctx.lineWidth = lw; ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); } }
+  function glowDot(x, y, r, c0, c1) { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c0); g.addColorStop(1, c1); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+  // 兵刃紫电：柄到尖几道游走的紫电 + 剑尖电花
+  function weaponBolt(u, x, y, hard) {
+    const [[ax, ay], [bx, by]] = weapon(u, x, y), H = u.h, n = hard ? 4 : 3;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let i = 0; i < n; i++) bolt(jag(ax, ay, bx, by, H * .028, 7), 'rgba(205,160,255,A)', 1.6 + (hard ? .6 : 0));
+    glowDot(bx, by, H * (hard ? .12 : .09), 'rgba(245,225,255,.95)', 'rgba(170,110,255,0)');
+    for (let i = 0; i < (hard ? 4 : 2); i++) { const a = Math.random() * 6.28, l = H * (.06 + Math.random() * .08); bolt(jag(bx, by, bx + Math.cos(a) * l, by + Math.sin(a) * l, H * .012, 4), 'rgba(225,195,255,A)', 1.2); }
+    glowDot((ax + bx) / 2, (ay + by) / 2, H * .16, 'rgba(190,140,255,.18)', 'rgba(160,100,255,0)');
+    ctx.restore();
+  }
+  // 狂攻：兵刃紫电 + 身边噼啪乱窜的小紫电
+  function rageBolts(u, x, y, L) {
+    const H = u.h; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) { const side = Math.random() < .5 ? -1 : 1; if ((L === 'front') !== (Math.random() < .5)) continue; const sx = x + side * H * (.18 + Math.random() * .16), sy = y - H * (.15 + Math.random() * .7);
+      bolt(jag(sx, sy, sx + side * H * .05, sy + H * (.12 + Math.random() * .12), H * .02, 5), 'rgba(205,160,255,A)', 1.4); }
+    ctx.restore(); if (L === 'front') weaponBolt(u, x, y, true);
+  }
+  // 加速：脚边绕着几道白色风纹，越转越快的感觉
+  function windRing(u, x, y, L) {
+    const H = u.h, t = T(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) { const a0 = t * 4 + i * Math.PI / 2, rx = H * (.3 + i * .03), ry = H * .08, yy = y - H * (.04 + i * .07);
+      for (let k = 0; k < 14; k++) { const a = a0 - k * .09, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue;
+        ctx.globalAlpha = (1 - k / 14) * .85; ctx.strokeStyle = '#f2fbff'; ctx.lineWidth = 3.2 * (1 - k / 14) + .6; ctx.beginPath(); ctx.arc(x, yy, 1, 0, 0); ctx.moveTo(x + Math.cos(a) * rx, yy + Math.sin(a) * ry); ctx.lineTo(x + Math.cos(a - .09) * rx, yy + Math.sin(a - .09) * ry); ctx.stroke(); } }
+    ctx.restore();
+  }
+  // 冰晶护罩（霜甲）：多面切割的冰罩，淡冰蓝几乎透明，棱线和边缘发亮，光泽扫过，雪花飘落
+  function iceDome(u, x, y, L, tint) {
+    const H = u.h, t = T(), cx = x, cy = y - H * .5, rx = H * .36, ry = H * .58, c = tint || [200, 240, 255];
+    const P = (a, k) => [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k];
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    if (L === 'back') {   // 罩内底色 + 背面棱线
+      const g = ctx.createRadialGradient(cx, cy, rx * .2, cx, cy, ry); g.addColorStop(0, `rgba(${c},0)`); g.addColorStop(.75, `rgba(${c},.05)`); g.addColorStop(1, `rgba(${c},.16)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = `rgba(${c},.18)`; ctx.lineWidth = 1; for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * Math.PI / 3 + .3; ctx.beginPath(); ctx.moveTo(...P(a, .45)); ctx.lineTo(...P(a + Math.PI / 6, 1)); ctx.stroke(); }
+    } else {
+      // 外轮廓：六边形分段的亮边
+      const N = 12; ctx.lineJoin = 'round';
+      for (const [lw, al] of [[6, .12], [2.2, .55], [1, .95]]) { ctx.strokeStyle = `rgba(${c},${al})`; ctx.lineWidth = lw; ctx.beginPath(); for (let i = 0; i <= N; i++) { const a = -Math.PI / 2 + i / N * Math.PI * 2, k = i % 2 ? .97 : 1; const p = P(a, k); i ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke(); }
+      // 正面切面棱线
+      ctx.strokeStyle = `rgba(${c},.32)`; ctx.lineWidth = 1.2;
+      for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(...P(a, .45)); ctx.lineTo(...P(a, .97)); ctx.stroke(); ctx.beginPath(); ctx.moveTo(...P(a, .45)); ctx.lineTo(...P(a + Math.PI / 3, .45)); ctx.stroke(); }
+      // 一道光泽从上往下扫
+      const sweep = ((t * .35) % 1.4) - .2; ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.clip();
+      const sy = cy - ry + sweep * ry * 2, sg = ctx.createLinearGradient(cx - rx, sy - H * .08, cx + rx, sy + H * .08); sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,.16)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = sg; ctx.fillRect(cx - rx, sy - H * .1, rx * 2, H * .2); ctx.restore();
+      // 顶端冰晶星 + 边缘闪光点
+      const tw = .6 + .4 * Math.sin(t * 3); glowDot(cx, cy - ry, H * .05 * tw + 2, 'rgba(255,255,255,.95)', `rgba(${c},0)`);
+      for (let i = 0; i < 4; i++) { const a = t * .6 + i * 1.6, p = P(a, 1), k = .5 + .5 * Math.sin(t * 5 + i * 2); glowDot(p[0], p[1], 4 + 5 * k, `rgba(255,255,255,${.8 * k})`, `rgba(${c},0)`); }
+      // 罩内飘雪
+      ctx.fillStyle = 'rgba(240,250,255,.85)'; for (let i = 0; i < 8; i++) { const ph = (t * .25 + i / 8) % 1, sx = cx + Math.sin(i * 7.3 + t) * rx * .7, sy2 = cy - ry * .85 + ph * ry * 1.7; ctx.globalAlpha = Math.sin(ph * Math.PI) * .8; ctx.beginPath(); ctx.arc(sx, sy2, 1.8, 0, 7); ctx.fill(); }
+    }
+    ctx.restore();
+  }
+  // 冰盾：身前一面多棱冰晶盾
+  function iceShield(u, x, y, L) {
+    if (L !== 'front') return; const H = u.h, t = T(), sx = x - H * .26, sy = y - H * .5, w = H * .2, h = H * .42, c = '200,240,255';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(sx, sy + Math.sin(t * 2) * 3);
+    const pts = [[0, -h / 2], [w / 2, -h * .3], [w * .55, h * .1], [0, h / 2], [-w * .55, h * .1], [-w / 2, -h * .3]];
+    const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2); g.addColorStop(0, `rgba(${c},.28)`); g.addColorStop(1, `rgba(${c},.08)`); ctx.fillStyle = g;
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); ctx.closePath(); ctx.fill();
+    for (const [lw, al] of [[5, .15], [2, .6], [1, 1]]) { ctx.strokeStyle = `rgba(${c},${al})`; ctx.lineWidth = lw; ctx.stroke(); }
+    ctx.strokeStyle = `rgba(${c},.45)`; ctx.lineWidth = 1; for (const p of pts) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(...p); ctx.stroke(); }
+    glowDot(0, -h * .1, H * .06, 'rgba(255,255,255,.7)', `rgba(${c},0)`);
+    ctx.restore();
+  }
+  // 冰心：脚下一朵冰莲 + 花瓣绕身
+  function iceLotus(u, x, y, L) {
+    const H = u.h, t = T(), c = '205,242,255'; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    if (L === 'back') { for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + t * .2; ctx.save(); ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(a);
+        const pl = H * .26, pw = H * .07; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(pw, -pl * .5, 0, -pl); ctx.quadraticCurveTo(-pw, -pl * .5, 0, 0);
+        ctx.fillStyle = `rgba(${c},.14)`; ctx.fill(); ctx.strokeStyle = `rgba(${c},.75)`; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
+      glowDot(x, y - 2, H * .08, 'rgba(255,255,255,.6)', `rgba(${c},0)`); }
+    for (let i = 0; i < 5; i++) { const a = t * 1.2 + i / 5 * Math.PI * 2, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue;
+      const px = x + Math.cos(a) * H * .34, py = y - H * (.3 + .25 * (.5 + .5 * Math.sin(t + i * 2))) + Math.sin(a) * H * .08;
+      ctx.save(); ctx.translate(px, py); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0, 0, H * .035, H * .014, 0, 0, 7); ctx.fillStyle = `rgba(${c},.75)`; ctx.fill(); ctx.restore(); glowDot(px, py, H * .03, 'rgba(255,255,255,.5)', `rgba(${c},0)`); }
+    ctx.restore();
+  }
+  // 音障：淡青白护罩 + 音符绕身流转
+  function noteWall(u, x, y, L) {
+    iceDome(u, x, y, L, [205, 255, 235]);
+    const H = u.h, t = T(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < 7; i++) { const a = t * 1.1 + i / 7 * Math.PI * 2, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue;
+      const px = x + Math.cos(a) * H * .38, py = y - H * (.25 + .5 * (i / 7)) + Math.sin(a) * H * .07;
+      ctx.font = `${Math.round(H * .09)}px serif`; ctx.fillStyle = front ? 'rgba(235,255,245,.95)' : 'rgba(200,250,230,.5)'; ctx.shadowColor = '#b8ffe0'; ctx.shadowBlur = 10; ctx.fillText(i % 2 ? '♪' : '♫', px, py); }
+    ctx.restore();
+  }
+  // 凝神：剑尖一颗白金星芒
+  function tipStar(u, x, y, L) { if (L !== 'front') return; const [, [bx, by]] = weapon(u, x, y), H = u.h, t = T(), k = .75 + .25 * Math.sin(t * 5);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(bx, by); ctx.rotate(t * .8); glowDot(0, 0, H * .14 * k, 'rgba(255,248,220,.9)', 'rgba(255,215,140,0)');
+    ctx.fillStyle = 'rgba(255,250,235,.95)'; for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(H * .015, -H * .02); ctx.lineTo(0, -H * .13 * k); ctx.lineTo(-H * .015, -H * .02); ctx.fill(); } ctx.restore(); }
+  // 敌人：眩晕（头顶转圈小金星）、冰封（冰晶围住）、首领免控（淡灰白护罩）
+  function stunStars(u, x, y, L) { const H = u.h, t = T(), cy = y - H * .98; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 4; i++) { const a = t * 3 + i / 4 * Math.PI * 2, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue; const px = x + Math.cos(a) * H * .2, py = cy + Math.sin(a) * H * .05;
+      ctx.save(); ctx.translate(px, py); ctx.rotate(t * 4); ctx.fillStyle = '#ffe27a'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r = k % 2 ? 5 : 12, aa = k * Math.PI / 5; ctx.lineTo(Math.cos(aa) * r, Math.sin(aa) * r); } ctx.fill(); ctx.restore(); }
+    ctx.restore(); }
+  function frozenIce(u, x, y, L) { iceDome(u, x, y, L, [190, 235, 255]); }
+  function immuneDome(u, x, y, L) { iceDome(u, x, y, L, [215, 215, 225]); }
+  const CODE = { atk: (u, L, x, y) => { if (L === 'front') weaponBolt(u, x, y, false); }, kuang: (u, L, x, y) => rageBolts(u, x, y, L), spd: (u, L, x, y) => windRing(u, x, y, L), frost: (u, L, x, y) => iceDome(u, x, y, L),
+    shield: (u, L, x, y) => iceShield(u, x, y, L), lotus: (u, L, x, y) => iceLotus(u, x, y, L), wall: (u, L, x, y) => noteWall(u, x, y, L), ns: (u, L, x, y) => tipStar(u, x, y, L),
+    stun: (u, L, x, y) => stunStars(u, x, y, L), frozen: (u, L, x, y) => frozenIce(u, x, y, L), immune: (u, L, x, y) => immuneDome(u, x, y, L) };
+
   // 护体：最初脚底那圈光剑阵放大调亮 + 6 柄光剑绕全身螺旋旋转（转到身后画在人物后面，转到身前画在前面）
   const SW = new Image(); SW.src = 'fx/fx_sword_blue.webp';
   // 绕身的剑：取 el/flysword 第 7 帧那柄发光蓝剑（剑柄朝上、剑尖朝下），切掉下面的法阵，单独存一张
   let SWD = null; function swd() { if (SWD) return SWD; const im = IMG.e_flysword, m = typeof ELM !== 'undefined' && ELM.flysword; if (!im || !m) return null;
     const f = 7, sx = (f % m.cols) * m.w, sy = Math.floor(f / m.cols) * m.h, cx = Math.round(m.w * .24), cw = Math.round(m.w * .52), cy = Math.round(m.h * .27), ch = Math.round(m.h * .54);
-    const c = document.createElement('canvas'); c.width = cw; c.height = ch; const g = c.getContext('2d'); g.drawImage(im, sx + cx, sy + cy, cw, ch, 0, 0, cw, ch);
+    const c = document.createElement('canvas'); c.width = cw; c.height = ch; const g = c.getContext('2d'); g.filter = 'grayscale(1) sepia(.45) saturate(1.5) brightness(1.45)'; g.drawImage(im, sx + cx, sy + cy, cw, ch, 0, 0, cw, ch); g.filter = 'none';   // 作者：白金色（蓝色是林雪的）
     const fade = g.createLinearGradient(0, ch * .82, 0, ch); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(1, 'rgba(0,0,0,0)'); g.globalCompositeOperation = 'destination-in'; g.fillStyle = fade; g.fillRect(0, 0, cw, ch);
     return (SWD = c); }
-  const RING = {}; ['back', 'front'].forEach((L, i) => { const im = new Image(); im.onload = () => { RING[L] = im; }; im.src = R77LOC ? 'r77/hero_dr_' + L + '.webp' : '/_blob/' + ['88dbc08f611d7862a994ea55a2ed20ed', '7d0504366cb95144c1ff0eb82445af98'][i]; });
+  const RING = {}; ['back', 'front'].forEach((L, i) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const g = c.getContext('2d'); g.filter = 'grayscale(1) sepia(.45) saturate(1.5) brightness(1.45)'; g.drawImage(im, 0, 0); RING[L] = c; }; im.src = R77LOC ? 'r77/hero_dr_' + L + '.webp' : '/_blob/' + ['88dbc08f611d7862a994ea55a2ed20ed', '7d0504366cb95144c1ff0eb82445af98'][i]; });
   function swordRing(u, L, x, y) {
     const t = performance.now() / 1000, H = u.h, fr = Math.floor(t * 8) % 16;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
@@ -14955,20 +15063,20 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       const N = 6, rx = H * .4, ry = H * .1, len = H * .42, w = len * SD.width / SD.height;
       for (let i = 0; i < N; i++) {
         const a = t * 1.5 + i / N * Math.PI * 2, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue;
-        const lift = (.22 + .3 * (.5 + .5 * Math.sin(t * 1.1 + i * 1.7))) * H;   // 每柄在脚边到胸口之间上下游走
+        const lift = (.32 + .22 * (.5 + .5 * Math.sin(t * 1.1 + i * 1.7))) * H;   // 作者：往上一点   // 每柄在脚边到胸口之间上下游走
         const px = x + Math.cos(a) * rx, py = y - lift + Math.sin(a) * ry, depth = front ? 1 : .6, sc = front ? 1 : .88;
-        ctx.save(); ctx.translate(px, py); ctx.rotate(Math.cos(a) * .12); ctx.scale(sc, sc);
+        ctx.save(); ctx.translate(px, py); ctx.scale(sc, sc);   // 作者：剑要正，不倾斜
         ctx.globalAlpha = depth; ctx.drawImage(SD, -w / 2, -len / 2, w, len);
         ctx.globalAlpha = .5 * depth; ctx.drawImage(SD, -w / 2, -len / 2, w, len);   // 叠一层更亮
         ctx.restore();
         // 剑尖拖出一道光弧
-        ctx.globalAlpha = .35 * depth; ctx.strokeStyle = '#9fd8ff'; ctx.lineWidth = 3; ctx.beginPath();
+        ctx.globalAlpha = .35 * depth; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 3; ctx.beginPath();
         for (let k = 0; k <= 8; k++) { const aa = a - k * .07, ll = lift; const qx = x + Math.cos(aa) * rx, qy = y - ll + Math.sin(aa) * ry; k ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy); } ctx.stroke();
       }
     }
     ctx.restore(); return true;
   }
-  function r77Draw(u, k, L, x, y) { if (k === 'swordring') return swordRing(u, L, x, y); r77Load(k); const im = R77IM[k + '_' + L]; if (!im) return false; const cw = im.width / 4, s = u.h / 500, fr = Math.floor(performance.now() / 125) % 16, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw, d = 768 * s;
+  function r77Draw(u, k, L, x, y) { if (k === 'swordring') return swordRing(u, L, x, y); if (CODE[k]) { CODE[k](u, L, x, y); return true; } r77Load(k); const im = R77IM[k + '_' + L]; if (!im) return false; const cw = im.width / 4, s = u.h / 500, fr = Math.floor(performance.now() / 125) % 16, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw, d = 768 * s;
     ctx.drawImage(im, sx, sy, cw, cw, x - 384 * s, y - 640 * s, d, d); return true; }
   window.R77_STATUS = { R77, R77IM };
   // ---------- 身上的持续状态光效 ----------
@@ -14978,8 +15086,8 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     u.bx = u.bx || {};
     const now = performance.now() / 1000, x = u.x + (u.ox || 0), y = u.y + (u.oy || 0);
     const R = r77Of(u); for (const k of R) r77Draw(u, k, 'back', x, y);
-    const has = k => R.some(q => q.startsWith(k)) && R.some(q => q.startsWith(k) && R77IM[q + '_back']);
-    const rDr = R.includes('swordring') || has('frost_'), rAtk = has('atk_') || has('kuang_'), rSpd = has('spd_'), rHs = has('shield_') || has('wall_'), rNs = has('ns_');
+    const has = k => R.includes(k);
+    const rDr = has('swordring') || has('frost'), rAtk = has('atk') || has('kuang'), rSpd = has('spd'), rHs = has('shield') || has('wall'), rNs = has('ns');
     // 身下：减伤阵纹（慢转）、加速风纹
     if (bxv(u, 'dr') && IM.array && !rDr) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .38 + Math.sin(now * 2.2) * .08; ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(now * .5); const im = IM.array, cw = im.width / 2, s = u.h * 1.0; ctx.drawImage(im, u.ally === 'linxue' || u.ally === 'shenle' ? cw : 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
     if (u.side === 'hero' && bxv(u, 'spd') && !rSpd) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 4; i++) { const k = (now * 1.6 + i / 4) % 1; ctx.strokeStyle = `rgba(190,240,255,${.5 * (1 - k)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, u.h * (.2 + k * .35), u.h * (.05 + k * .09), 0, Math.PI * .1, Math.PI * .9); ctx.stroke(); } ctx.restore(); }
