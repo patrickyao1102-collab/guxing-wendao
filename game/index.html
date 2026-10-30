@@ -2390,8 +2390,21 @@ function tileUpdate(dt) {
     if (canStand(T, nx, ny)) { p.x = nx; p.y = ny; } else if (canStand(T, nx, p.y)) p.x = nx; else if (canStand(T, p.x, ny)) p.y = ny; else if (world.path && world.path.length && canStand(T, world.path[0][0], world.path[0][1]) && Math.hypot(world.path[0][0] - p.x, world.path[0][1] - p.y) < 14) { p.x = world.path[0][0]; p.y = world.path[0][1]; } else { world.path = null; }
   } else if (!world.scripted) p.moving = false;
   // 跟随的队友：沿着主角走过的轨迹
-  const tr = world.trail; if (p.moving || !tr.length) { const l = tr[0]; if (!l || Math.hypot(l[0] - p.x, l[1] - p.y) > 6) tr.unshift([p.x, p.y, p.face]); if (tr.length > 200) tr.pop(); }
-  for (const f of world.followers || []) { const idx = Math.min(tr.length - 1, f.follower * 11); const q = tr[idx]; if (q) { const mv = Math.hypot(q[0] - f.x, q[1] - f.y) > .5; if (mv && Math.abs(q[0] - f.x) > .5) f.dir = q[0] > f.x ? 1 : -1; if (mv) f.face = q[2] || faceOf(q[0] - f.x, q[1] - f.y, f.face); /* 跟着主角当时的朝向走，不自己乱算 */ f.x = q[0]; f.y = q[1]; f.moving = mv && p.moving; } }
+  const tr = world.trail; if (p.moving || !tr.length) { const l = tr[0]; if (!l || Math.hypot(l[0] - p.x, l[1] - p.y) > 3) tr.unshift([p.x, p.y, p.face]); if (tr.length > 400) tr.pop(); }
+  // 队友跟随（重写）：原来每攒够 6px 就把队友“瞬移”到下一个轨迹点，走路动画一帧动一帧停 → 一顿一顿的很怪。
+  // 现在：沿主角走过的轨迹按弧长取「身后 58px / 116px」的目标点，队友平滑地追过去（限速、带一点缓动），朝向按自己实际移动方向（带回差）。
+  for (const f of world.followers || []) { if (f._lc && f.follower == null) continue;
+    const D = 58 * (f.follower || 1); let acc = 0, px = p.x, py = p.y, tx = null, ty = null, tf = null;
+    for (let k = 0; k < tr.length; k++) { const q = tr[k], d = Math.hypot(q[0] - px, q[1] - py); if (acc + d >= D) { const u = (D - acc) / Math.max(1e-6, d); tx = px + (q[0] - px) * u; ty = py + (q[1] - py) * u; tf = q[2]; break; } acc += d; px = q[0]; py = q[1]; }
+    if (tx == null) { const q = tr[tr.length - 1]; if (!q) continue; tx = q[0]; ty = q[1]; tf = q[2]; }
+    const dx = tx - f.x, dy = ty - f.y, dist = Math.hypot(dx, dy);
+    if (dist > 400) { f.x = tx; f.y = ty; f.moving = false; continue; }   // 换图 / 剧情瞬移：直接到位
+    const maxStep = spd * 1.35 * dt, step = Math.min(dist, Math.max(maxStep * Math.min(1, dist / 10), dist > .4 ? .4 : dist));
+    if (step > .05 && dist > .05) { f.x += dx / dist * step; f.y += dy / dist * step; }
+    const v = step / Math.max(dt, 1e-3); f._spdS = (f._spdS || 0) * .75 + v * .25;   // 平滑速度，避免 moving 一帧真一帧假
+    const mov = f._spdS > 22; if (mov) { if (Math.abs(dx) > 1) f.dir = dx > 0 ? 1 : -1; const nf = faceOf(dx, dy, f.face); if (nf !== f.face) { f._fct = (f._fcp === nf ? (f._fct || 0) + dt : 0); f._fcp = nf; if (f._fct > .1) f.face = nf; } else f._fct = 0; }
+    else if (!p.moving && tf && dist < 2) f.face = f.face || tf;
+    f.moving = mov; }
   // NPC 闲逛
   for (const a of world.actors) if (a.npc && a.home && !a.talking) {
     a.wait -= dt; if (a.wait <= 0 && !a.tx) { const ang = rand(0, 7), d = rand(40, 110); const tx = a.home[0] + Math.cos(ang) * d, ty = a.home[1] + Math.sin(ang) * d * .6; if (canStand(T, tx, ty) && lineFree(T, a.x, a.y, tx, ty)) { a.tx = tx; a.ty = ty; } else a.wait = .6; }
