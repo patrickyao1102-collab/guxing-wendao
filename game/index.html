@@ -4316,7 +4316,7 @@ function drawStatus(B, mi, now) {
   if (!mi.ally) { const h = S.hero; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('随身', x, y); y += 30;
     [['weapon', '武器'], ['armor', '衣甲'], ['acc', '饰品']].forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * 40, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * 40, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
       ctx.font = `600 18px ${FONT}`; ctx.fillStyle = id ? UI.text : UI.dim; ctx.fillText(n + '　' + (id ? ITEM_DB[id].name : '未装备'), x + 44, y + i * 40 + 1); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; if (id) ctx.fillText(statText(ITEM_DB[id]), x + 230, y + i * 40 + 1); }); }
-  else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(mi.k === 'yunting' ? '天剑宗弟子，叶孤星的生死兄弟。性子刚烈，雷属性灵根，修天剑诀。' : '林家大小姐，冰属性灵根，修天剑诀，剑法清冷如雪。', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
+  else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(({ yunting: '天剑宗天才弟子，一身黑衣，冷峻寡言，被叶孤星戏称「冰块脸」。雷属性灵根，修天剑诀。嘴上不多说，却是肯为叶孤星豁出命去的兄弟。', linxue: '天剑宗天才弟子，叶孤星的师姐。容貌清丽，目光清冷，冰属性灵根，修天剑诀。看着冷淡，却嫉恶如仇，见不得恃强凌弱。', shenle: '音谷圣女，月白长裙，手持一支晶莹长笛，清丽出尘如谪仙。修乐道功法《九音录》，以笛音入道，可镇魂伤敌，也能抚平伤势。', luochen: '来自南蛮大陆的妖族少年，身负极古老、极高贵的妖族血脉，双眸一黑一金。被妖皇追杀，流落云渺大陆，为叶孤星所救，暂居天剑宗，与他结为好友。' })[mi.k] || '', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
 }
 function drawEquip(B, L, mi) {
   if (mi.ally) { ctx.font = `600 22px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'left'; ctx.fillText(mi.name + ' 的装备由剧情获得，暂不能更换。', B.x + 30, B.y + 50); return; }
@@ -7971,11 +7971,14 @@ window.MapBubble=(()=>{
 (function () {
   const R = {"b_shenle": [0, 0, 492, 600], "b_shenle_atk": [494, 0, 492, 600], "b_shenle_cast": [988, 0, 492, 600], "b_luochen": [1482, 0, 515, 656], "b_luochen_atk": [1999, 0, 515, 656], "b_luochen_cast": [2516, 0, 515, 656], "b_luochen_ult": [3033, 0, 515, 656], "p_shenle": [3550, 0, 512, 768], "p_luochen": [0, 770, 560, 959], "p_luochen_nu": [562, 770, 560, 959], "p_shenle_smile": [1124, 770, 512, 768], "p_shenle_joy": [1638, 770, 512, 768], "p_shenle_surprise": [2152, 770, 512, 768], "p_shenle_worried": [2666, 770, 512, 768], "p_shenle_sad": [3180, 770, 512, 768], "p_shenle_thoughtful": [0, 1731, 512, 768], "p_shenle_angry": [514, 1731, 512, 768], "p_shenle_listening_closed": [1028, 1731, 512, 768], "p_shenle_flute_cast": [1542, 1731, 512, 768], "av_yegx": [2056, 1731, 256, 256], "av_yunting": [2314, 1731, 256, 256], "av_linxue": [2572, 1731, 256, 256], "av_shenle": [2830, 1731, 256, 256], "av_luochen": [3088, 1731, 256, 256], "frame_normal": [3346, 1731, 320, 320], "frame_active": [3668, 1731, 320, 320]};
   const im = new Image();
-  im.onload = () => { for (const [k, [x, y, w, h]] of Object.entries(R)) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, x, y, w, h, 0, 0, w, h); if (/^p_luochen/.test(k)) { const g = c.getContext('2d'); g.globalCompositeOperation = 'destination-in';   // 洛尘立绘右侧 / 顶部头发被画布切断：边缘柔化，不再出现硬边
+  im.onload = () => { for (const [k, [x, y, w, h]] of Object.entries(R)) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, x, y, w, h, 0, 0, w, h); if (/^p_luochen/.test(k)) continue; if (false) { const g = c.getContext('2d'); g.globalCompositeOperation = 'destination-in';   // 洛尘立绘右侧 / 顶部头发被画布切断：边缘柔化，不再出现硬边
           const gx = g.createLinearGradient(w, 0, w - 150, 0); gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(1, '#000'); g.fillStyle = gx; g.fillRect(0, 0, w, h);
           const gy = g.createLinearGradient(0, 0, 0, 110); gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(1, '#000'); g.fillStyle = gy; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'source-over'; }
         IMG[k] = c; } };
   im.src = 'assets3/allies2.webp';
+  // 洛尘对话立绘：用完整建模（同云霆 / 林雪 / 神乐一样的半身立绘），不再做边缘虚化
+  const lc = new Image(), LOC = !!(window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
+  lc.onload = () => { IMG.p_luochen = lc; IMG.p_luochen_nu = lc; }; lc.src = LOC ? 'assets3/p_luochen_full.webp' : '/_blob/a689f2e0adc0e9a1bb57fe547611ca1f';
 })();
 Object.assign(SPEAKERS, {
   '神乐': { p: 'p_shenle', color: '#f3e6c8' },
@@ -8006,7 +8009,7 @@ const ALLY2_SKILLS = {
 
 // ---- 开战：最多出战 3 人（叶孤星 + 2 个队友）；洛尘的图含托天的头顶空间，整体放大一点保持身高一致 ----
 for (const k of ['smile','joy','surprise','worried','sad','thoughtful','angry','listening_closed','flute_cast']) MEDAL_FACE['p_shenle_' + k] = { fx: .41, fy: .23, span: .4 };
-Object.assign(MEDAL_FACE, { p_shenle: { fx: .41, fy: .23, span: .4 }, p_luochen: { fx: .48, fy: .28, span: .85 }, p_luochen_nu: { fx: .48, fy: .28, span: .85 } });
+Object.assign(MEDAL_FACE, { p_shenle: { fx: .41, fy: .23, span: .4 }, p_luochen: { fx: .5, fy: .21, span: .36 }, p_luochen_nu: { fx: .5, fy: .21, span: .36 } });
 startBattle = (orig => function (cfg) {
   if (!cfg.solo) { const pt = (cfg.party || S.party || []).filter(k => PARTY_DB[k]); cfg = Object.assign({}, cfg, { party: pt.slice(0, 2) }); }
   const pr = orig(cfg); const b = battle; if (!b) return pr;
