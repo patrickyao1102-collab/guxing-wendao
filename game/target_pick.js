@@ -29,8 +29,9 @@
     for (const e of aliveEnemies()) { const x = e.x;
       { const pa = .55 + Math.sin(now * 4) * .25; ctx.save(); ctx.translate(x, e.y - 6); ctx.scale(1, .32); ctx.lineWidth = 4; ctx.strokeStyle = `rgba(255,214,120,${pa})`; ctx.beginPath(); ctx.arc(0, 0, 86, 0, 7); ctx.stroke(); ctx.lineWidth = 2; ctx.strokeStyle = `rgba(255,240,200,${pa * .8})`; ctx.rotate(now * .8); for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.arc(0, 0, 100, 0, .5); ctx.stroke(); } ctx.restore(); }
       ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(x, e.y - 10, 4, x, e.y - 10, 70); g.addColorStop(0, 'rgba(255,220,120,.35)'); g.addColorStop(1, 'rgba(255,220,120,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, e.y - 6, 80, 26, 0, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline('选择目标', 245, 96, '#ffe9b0', '#1a0800', 5);
-    ctx.font = `600 16px ${FONT}`; textOutline('点敌人出手 · 点空白处返回', 245, 130, '#f0e2c0', 'rgba(0,0,0,.8)', 3);
+    if (window.R79 && R79.target_banner) { ctx.drawImage(R79.target_banner, 376, 2, 570, 52); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `700 20px "STSongti-SC","Songti SC","Noto Serif SC",serif`; ctx.fillStyle = '#0E2424'; ctx.fillText('选择目标 · 点敌人出手 · 点空白处返回', 661, 29); }
+    else { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline('选择目标', 245, 96, '#ffe9b0', '#1a0800', 5);
+    ctx.font = `600 16px ${FONT}`; textOutline('点敌人出手 · 点空白处返回', 245, 130, '#f0e2c0', 'rgba(0,0,0,.8)', 3); }
     ctx.restore();
   })(drawBattle);
 })();

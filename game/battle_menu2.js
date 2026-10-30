@@ -9,13 +9,15 @@
     { k: 'def', label: '防御' }, { k: 'item', label: '道具' }, { k: 'flee', label: '逃跑' },
   ];
   const OLD = { atk: [0, 0], skill: [-1, 0], ult: [0, -1], def: [1, 0], item: [0, 1] };   // 原十字菜单的位置（转发点选用）
-  const PW = 176, PH = 58, GAP = 10;
+  const R79 = () => window.R79_READY && R79_READY();   // Codex R79「玉牌剑阵」素材到齐就换成玉牌
+  let PW = 176, PH = 58, GAP = 10;
   let shownAt = 0, lastActive = null;
   const fleeOK = b => !!(b && b.cfg && b.cfg.flee && !b.cfg.boss && !b.cfg.cannotLose);
   function layout() {
-    const b = battle, c = menuCenter(), n = CMDS.length, top = Math.max(70, Math.min(H - 120 - n * (PH + GAP), c.y - (n * (PH + GAP)) / 2 + 10));
-    const ax = Math.min(W - PW - 250, c.x - 40);
-    return CMDS.map((it, i) => { const u = (i - (n - 1) / 2) / ((n - 1) / 2); return { ...it, x: ax - 46 * (1 - u * u), y: top + i * (PH + GAP), w: PW, h: PH }; });
+    if (R79()) { PW = 300; PH = 84; GAP = 2; } else { PW = 176; PH = 58; GAP = 10; }
+    const b = battle, c = menuCenter(), n = CMDS.length, top = R79() ? 138 : Math.max(70, Math.min(H - 120 - n * (PH + GAP), c.y - (n * (PH + GAP)) / 2 + 10));
+    const ax = R79() ? 610 : Math.min(W - PW - 250, c.x - 40);
+    return CMDS.map((it, i) => { const u = (i - (n - 1) / 2) / ((n - 1) / 2); return { ...it, x: ax - (R79() ? 30 : 46) * (1 - u * u), y: top + i * (PH + GAP), w: PW, h: PH }; });
   }
   function state(it) {
     const b = battle, P = b.P;
@@ -40,7 +42,23 @@
     else if (k === 'flee') { for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-s + i * 2, -s * .5 + i * s * .5); ctx.lineTo(s * .2 + i * 4, -s * .5 + i * s * .5); ctx.stroke(); } ctx.beginPath(); ctx.moveTo(s * .3, -s * .8); ctx.lineTo(s, 0); ctx.lineTo(s * .3, s * .8); ctx.stroke(); }
     ctx.restore();
   }
+  const ICON = { mi: 'icon_secret', skill: 'icon_spell', atk: 'icon_attack', def: 'icon_defend', item: 'icon_item', flee: 'icon_escape' };
+  const SERIF = '"STSongti-SC","Songti SC","Noto Serif SC","Source Han Serif SC",serif';
+  function jade(r, it, st, k, hov, now) {
+    const I = window.R79, sel = hov || !!st.glow, off = st.on ? 0 : 0, lift = sel ? -4 : 0;
+    const x = r.x + (1 - k) * 60, y = r.y + lift - 2;
+    ctx.save(); ctx.globalAlpha = k;
+    const pl = !st.on ? I.command_plate_disabled : sel ? I.command_plate_selected : I.command_plate_normal;
+    ctx.drawImage(pl, x, y, 300, 88);
+    if (st.glow) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = k * (.25 + .15 * Math.sin(now * 4)); ctx.drawImage(I.command_plate_selected, x, y, 300, 88); ctx.restore(); }
+    const ic = I[ICON[it.k]]; if (ic) { ctx.save(); if (!st.on) { ctx.globalAlpha = k * .48; ctx.filter = 'grayscale(1)'; } ctx.drawImage(ic, x + 38, y + 2, 84, 84); ctx.restore(); }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = st.on ? '#0E2424' : '#1F2933';
+    ctx.font = `700 28px ${SERIF}`; ctx.fillText(it.label, x + 134, y + 38);
+    if (st.note) { ctx.font = `600 13px ${FONT}`; ctx.fillStyle = st.on ? (st.glow ? '#7a4a08' : '#2a4a4a') : '#5a3a2a'; ctx.fillText(st.note, x + 134, y + 63); }
+    ctx.restore();
+  }
   function plaque(r, it, st, k, hov, now) {
+    if (R79()) return jade(r, it, st, k, hov, now);
     const center = it.k === 'atk', ult = !!st.glow;
     ctx.save(); ctx.globalAlpha = k * (st.on ? 1 : .55);
     const x = r.x + (1 - k) * 60, y = r.y;
@@ -71,7 +89,9 @@
     const b = battle; if (!b || !b.menu || b.menu.sub) return orig.apply(this, arguments);
     const now = performance.now() / 1000; if (lastActive !== b.P) { lastActive = b.P; shownAt = now; }
     const hx = input.x, hy = input.y;
-    layout().forEach((r, i) => { const k = Math.max(0, Math.min(1, (now - shownAt - i * .04) / .18)), e = 1 - Math.pow(1 - k, 3), st = state(r), hov = hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h; plaque(r, r, st, e, hov && st.on, now); });
+    const LY = layout();
+    if (R79() && window.R79.sword_cord_tassel) { const I = window.R79; const k0 = Math.max(0, Math.min(1, (now - shownAt) / .25)); ctx.save(); ctx.globalAlpha = k0; const cx = Math.min(...LY.map(r => r.x)) - 18; ctx.drawImage(I.sword_cord_tassel, cx, LY[0].y - 6, 80, LY[LY.length - 1].y + 92 - LY[0].y); ctx.restore(); }
+    LY.forEach((r, i) => { const k = Math.max(0, Math.min(1, (now - shownAt - i * .04) / .18)), e = 1 - Math.pow(1 - k, 3), st = state(r), hov = hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h; plaque(r, r, st, e, hov && st.on, now); });
   })(drawBattleMenu);
   async function flee(b) {
     const P = b.P; b.state = 'act'; b.menu = null;

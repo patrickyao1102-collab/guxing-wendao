@@ -16109,4 +16109,51 @@ window.MarketEffects = (() => {
   drawBaked = (orig => function (o, now) { if (o && o.r60 && world.mapName === ID && R80_MODE() === 'late' && o.pose && (o.pose.kind === 'visitor' || o.pose.kind === 'onlooker')) return; return orig.apply(this, arguments); })(drawBaked);
 })();
 </script>
+<script>// ===== Codex R79 战斗菜单「玉牌剑阵」（作者选定 A）：素材加载 + 仙术 / 秘传技能列表面板 + 选目标横幅 + 出手角色脚下九曜星盘 =====
+(function () {
+  const local = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
+  const BL = {"actor_nine_star_halo": "a1133aebd59d45eb231448e80ff518fe", "command_plate_disabled": "2a166999bc1db188677c89786f9fb8de", "command_plate_normal": "79ae2fb59b16c006732f18b6e57e1360", "command_plate_selected": "26429b6d1df450b44fe5115bb746eed9", "effect_tag": "b593a8c8b6742f8e705497dc99e63b6b", "icon_attack": "cc767298fbafcb431d2ad3f04f9e2a02", "icon_defend": "10a355143a4f4a6633d2f01e3a9f7b13", "icon_escape": "d1f72770880e21d64848292f8fab8baf", "icon_item": "4262b03b7f2efddb059a06c47722b855", "icon_secret": "2c1c7d9d1ffe06fb7d7eb19442a37b61", "icon_spell": "5251409e76956579412da72aa4c9ea6f", "skill_panel_9slice": "42cdf2762eeee5b019a5ff6ebcebaeb5", "skill_row_normal": "70c3c2c9155603ed612d15a781b64e61", "skill_row_selected": "45dc6e0c022ebd935df3ec96c08a7a69", "skill_title": "b76bfb907f669b50abd5e54eaa84abb6", "sword_cord_tassel": "a154ecb18d17dcbebf68994d4d2aa9e6", "target_banner": "8b9aea5a5e7d08404761011fafc33d12"}, IM = window.R79 = {};
+  for (const k in BL) { const im = new Image(); im.onload = () => { IM[k] = im; }; im.src = local ? 'r79/' + k + '.webp' : '/_blob/' + BL[k]; }
+  window.R79_READY = () => !!(IM.command_plate_normal && IM.command_plate_selected && IM.command_plate_disabled && IM.icon_attack);
+  const TXT = '#0E2424', SERIF = '"STSongti-SC","Songti SC","Noto Serif SC","Source Han Serif SC",serif';
+  // 九宫格
+  function nine(im, x, y, w, h, L = 168, T = 108, Rr = 168, Bm = 108) { const sw = im.width, sh = im.height, dl = L / 2, dt = T / 2, dr = Rr / 2, db = Bm / 2;
+    const sx = [0, L, sw - Rr, sw], sy = [0, T, sh - Bm, sh], dx = [x, x + dl, x + w - dr, x + w], dy = [y, y + dt, y + h - db, y + h];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = sx[i + 1] - sx[i], b = sy[j + 1] - sy[j], c = dx[i + 1] - dx[i], d = dy[j + 1] - dy[j]; if (a > 0 && b > 0 && c > 0 && d > 0) ctx.drawImage(im, sx[i], sy[j], a, b, dx[i], dy[j], c, d); } }
+  window.R79_NINE = nine;
+  // ---- 技能列表（仙术 / 秘传）：左上角玉框面板，一行一招 ----
+  const ROW = 50, PW = 420;
+  const rects = () => { const n = battle.menu.sub.length, top = 126; return battle.menu.sub.map((s, i) => ({ x: 36, y: top + i * ROW, w: PW - 36, h: ROW - 4 })); };
+  const oldRects = skillRects;
+  skillRects = function () { if (!R79_READY() || !IM.skill_panel_9slice) return oldRects.apply(this, arguments); return rects(); };
+  drawBattleMenu = (orig => function () {
+    const b = battle; if (!b || !b.menu || !b.menu.sub || !R79_READY() || !IM.skill_panel_9slice) return orig.apply(this, arguments);
+    const L = b.menu.sub, rs = rects(), hx = input.x, hy = input.y, now = performance.now() / 1000;
+    ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.28)'; ctx.fillRect(0, 0, W, H);
+    const px = 18, py = 64, ph = 62 + L.length * ROW + 52;
+    nine(IM.skill_panel_9slice, px, py, PW, ph);
+    if (IM.skill_title) ctx.drawImage(IM.skill_title, px + PW / 2 - 115, py + 4, 230, 52);
+    const title = (b.menu.title || (L.some(s => /秘传|绝技/.test(s.group || '')) ? '秘传' : '仙术'));
+    ctx.font = `700 26px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = TXT; ctx.fillText(b.menu.sub.__title || title, px + PW / 2, py + 32);
+    rs.forEach((r, i) => { const s = L[i], hov = !s.disabled && hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h;
+      ctx.globalAlpha = s.disabled ? .5 : 1; const im = hov ? IM.skill_row_selected : IM.skill_row_normal; if (im) ctx.drawImage(im, r.x - 6, r.y - 1, r.w + 12, r.h + 2);
+      const cx = r.x + 22, cy = r.y + r.h / 2, uk = window.UI_ICONS && UI_ICONS.key(s.k);
+      if (uk && UI_ICONS.has(uk)) UI_ICONS.draw(uk, cx, cy, 17); else if (IM.icon_spell) ctx.drawImage(IM.icon_spell, cx - 17, cy - 17, 34, 34);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `700 21px ${SERIF}`; ctx.fillStyle = TXT; let nm = s.name || ''; while (nm.length > 2 && ctx.measureText(nm).width > 190) nm = nm.slice(0, -1); ctx.fillText(nm, r.x + 48, cy + 1);
+      const cost = s.costLabel || (s.cost ? s.cost + '灵' : ''); if (cost) { ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = s.costLabel ? '#7a4a08' : '#24506a'; ctx.fillText(cost, r.x + r.w - 104, cy + 1); }
+      if (s.tag) { const tx = r.x + r.w - 82, ty = cy - 12; if (IM.effect_tag) ctx.drawImage(IM.effect_tag, tx, ty, 74, 24); ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = TXT; ctx.fillText(s.tag, tx + 37, ty + 12.5); }
+      if (s.disabled && s.why && hov) { ctx.font = `600 12px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = '#7a2a1a'; ctx.fillText(s.why, r.x + r.w - 8, r.y + 6); }
+      ctx.globalAlpha = 1; });
+    // 悬停 / 最后一行下方：显示当前招式说明
+    const hi = rs.findIndex(r => hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h), cur = L[hi >= 0 ? hi : 0];
+    if (cur && cur.desc) { ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = '#2a4a4a'; let d = cur.desc; while (d.length && ctx.measureText(d).width > PW - 70) d = d.slice(0, -1); ctx.fillText(d + (d.length < cur.desc.length ? '…' : ''), px + 34, py + ph - 34); }
+    ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(240,250,245,.9)'; ctx.fillText('点空白处返回', px + 8, py + ph + 16);
+    ctx.restore();
+  })(drawBattleMenu);
+  // ---- 出手角色脚下：淡淡的九曜小星盘（借 B 星盘方案的长处）----
+  drawUnit = (orig => function (u) { const b = battle;
+    if (b && IM.actor_nine_star_halo && u === b.P && (b.state === 'menu' || b.state === 'pick') && u.side !== 'enemy') { const t = performance.now() / 1000; ctx.save(); ctx.globalAlpha = .26 + .06 * Math.sin(t * 2); ctx.translate(u.x, u.y - 2); ctx.scale(1 + .02 * Math.sin(t * 1.3), 1); ctx.drawImage(IM.actor_nine_star_halo, -110, -40, 220, 80); ctx.restore(); }
+    return orig.apply(this, arguments); })(drawUnit);
+})();
+</script>
 </body></html>
