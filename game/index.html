@@ -4300,7 +4300,7 @@ drawMenu = function () {
 };
 function drawStatus(B, mi, now) {
   // 右侧立绘（底部淡出）
-  const im = IMG[mi.p]; if (im) { const ph = B.h + 40, pw = ph * im.width / im.height; ctx.save(); ctx.globalAlpha = .95; ctx.drawImage(im, B.x + B.w - pw + 30, B.y + 10 + Math.sin(now * 1.2) * 3, pw, ph); ctx.restore();
+  const im = IMG[mi.p]; if (im) { const ph = B.h + 40, pw = ph * im.width / im.height, dx = /^p_luochen/.test(mi.p) ? -pw * .16 : 0; ctx.save(); ctx.globalAlpha = .95; ctx.drawImage(im, B.x + B.w - pw + 30 + dx, B.y + 10 + Math.sin(now * 1.2) * 3, pw, ph); ctx.restore();
     const g = ctx.createLinearGradient(B.x + B.w - pw, 0, B.x + B.w - pw + 160, 0); g.addColorStop(0, UI.fade1); g.addColorStop(1, UI.fade0); ctx.fillStyle = g; ctx.fillRect(B.x + B.w - pw - 2, B.y, 162, B.h); }
   const x = B.x + 36; let y = B.y + 50;
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `56px ${BRUSH}`; textOutline(mi.name, x, y, UI.title, UI.titleLine, 5);
@@ -7978,7 +7978,7 @@ window.MapBubble=(()=>{
   im.src = 'assets3/allies2.webp';
   // 洛尘对话立绘：用完整建模（同云霆 / 林雪 / 神乐一样的半身立绘），不再做边缘虚化
   const lc = new Image(), LOC = !!(window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
-  lc.onload = () => { IMG.p_luochen = lc; IMG.p_luochen_nu = lc; }; lc.src = LOC ? 'assets3/p_luochen_full.webp' : '/_blob/a689f2e0adc0e9a1bb57fe547611ca1f';
+  lc.onload = () => { IMG.p_luochen = lc; IMG.p_luochen_nu = lc; }; lc.src = LOC ? 'assets3/p_luochen_full.webp' : '/_blob/af141ad642630c40cee7cd6b329da0b4';
 })();
 Object.assign(SPEAKERS, {
   '神乐': { p: 'p_shenle', color: '#f3e6c8' },
