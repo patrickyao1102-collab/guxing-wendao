@@ -11,7 +11,7 @@
 
   // ---------- 后山兽火 ----------
   const HS = TMAPS.tj_houshan;
-  if (TMAPS.qingzhu_upper_pavilion) window.HS_DOWN_LABEL = '下山 · 云海大亭';
+  if (TMAPS.qingzhu_upper_pavilion && !window.HS12_ON) window.HS_DOWN_LABEL = '下山 · 云海大亭';
   const awayFrom = (x, y) => {
     const B = window.HS_BARRIER, Z = window.HS_Z || .74;
     if (B && Math.hypot(x - B.C[0], y - B.C[1]) < B.R + 60) return false;            // 锁灵阵结界附近不刷
