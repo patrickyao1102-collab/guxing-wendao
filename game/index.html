@@ -5772,7 +5772,7 @@ window.COMIC_TRIG = [
       }
     } else if (s) consumeTap();
   };
-  window.SEAL_INPUT = handle;
+  window.SEAL_INPUT = handle; window.SEAL_PEEK = () => seal;   // 测试面板 / 自动试玩用
   updateMap = (orig => function (dt) { if (seal) return handle(); return orig(dt); })(updateMap);
 })();
 
