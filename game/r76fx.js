@@ -6,7 +6,7 @@
  * 招式演出按 meta.timing 的节拍结算伤害与增益（数值沿用原技能）。 */
 (function () {
   'use strict';
-  if (!window.R76 || !window.R68Material || !window.SK4 || !SK4.ACT) return;
+  if (window.R76_OFF || !window.R76 || !window.R68Material || !window.SK4 || !SK4.ACT) { if (window.R68Material && window.__R68ORIG) Object.assign(R68Material, window.__R68ORIG); return; }
   const M = R68Material, ORIG = window.__R68ORIG || {}, W2 = 640, H2 = 360;
   const WRAP = { blade: M.blade, meteor: M.meteor, orb: M.orb, impact: M.impact };
   Object.assign(M, ORIG);                     // 全局恢复原版（点星/星落保持原样）

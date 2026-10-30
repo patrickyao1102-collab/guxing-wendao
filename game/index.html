@@ -15033,6 +15033,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   }
   // 狂攻：兵刃紫电 + 身边噼啪乱窜的小紫电
   function rageBolts(u, x, y, L) {
+    if (window.R78P && R78P.img(33)) { const t = T(); for (let i = 0; i < 3; i++) { const a = t * 2.2 + i * 2.1, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue; R78P.cell(33, (Math.floor(t * 16) + i * 5) % 16, x + Math.cos(a) * u.h * .26, y - u.h * (.25 + i * .22), u.h * .55, { blend: 'lighter' }); } return; }   // R78 画的紫电弧
     const H = u.h; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
     for (let i = 0; i < 3; i++) { const side = Math.random() < .5 ? -1 : 1; if ((L === 'front') !== (Math.random() < .5)) continue; const sx = x + side * H * (.18 + Math.random() * .16), sy = y - H * (.15 + Math.random() * .7);
       bolt(jag(sx, sy, sx + side * H * .05, sy + H * (.12 + Math.random() * .12), H * .02, 5), 'rgba(205,160,255,A)', 1.4); }
@@ -15076,6 +15077,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   }
   // 冰盾：身前一面多棱冰晶盾
   function iceShield(u, x, y, L) {
+    if (L === 'front' && window.R78P && R78P.img(46)) { const t = T(); R78P.cell(46, Math.floor(t * 16) % 16, x - u.h * .26, y - u.h * .5 + Math.sin(t * 2) * 3, u.h * .75, { alpha: .9 }); return; }   // R78 画的多棱冰晶盾
     if (L !== 'front') return; const H = u.h, t = T(), sx = x - H * .26, sy = y - H * .5, w = H * .2, h = H * .42, c = '200,240,255';
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(sx, sy + Math.sin(t * 2) * 3);
     const pts = [[0, -h / 2], [w / 2, -h * .3], [w * .55, h * .1], [0, h / 2], [-w * .55, h * .1], [-w / 2, -h * .3]];
@@ -15088,6 +15090,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   }
   // 冰心：脚下一朵冰莲 + 花瓣绕身
   function iceLotus(u, x, y, L) {
+    if (window.R78P && R78P.img(43)) { if (L === 'back') R78P.cell(43, Math.floor(T() * 16) % 16, x, y + 6, u.h * 1.05); return; }   // R78 画的小冰莲
     const H = u.h, t = T(), c = '205,242,255'; ctx.save(); ctx.globalCompositeOperation = 'lighter';
     if (L === 'back') { for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + t * .2; ctx.save(); ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(a);
         const pl = H * .26, pw = H * .07; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(pw, -pl * .5, 0, -pl); ctx.quadraticCurveTo(-pw, -pl * .5, 0, 0);
@@ -15117,7 +15120,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       ctx.save(); ctx.translate(px, py); ctx.rotate(t * 4); ctx.fillStyle = '#ffe27a'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r = k % 2 ? 5 : 12, aa = k * Math.PI / 5; ctx.lineTo(Math.cos(aa) * r, Math.sin(aa) * r); } ctx.fill(); ctx.restore(); }
     ctx.restore(); }
   function frozenIce(u, x, y, L) { iceDome(u, x, y, L, [190, 235, 255]); }
-  function immuneDome(u, x, y, L) { iceDome(u, x, y, L, [215, 215, 225]); }
+  function immuneDome(u, x, y, L) { const im = window.R78P && R78P.img(75); if (im) { const c = im.width / 4, fr = Math.floor(T() * 16) % 16, s = u.h / 182 / (c / 256); ctx.save(); ctx.globalAlpha = L === 'back' ? .7 : .25; ctx.drawImage(im, (fr % 4) * c, Math.floor(fr / 4) * c, c, c, x - 128 * (c / 256) * s * wideOf(u), y - 232 * (c / 256) * s, c * s * wideOf(u), c * s); ctx.restore(); return; } iceDome(u, x, y, L, [215, 215, 225]); }
   function iceDomeArt(u, x, y, L) { const im = R78.dome; if (!im) return iceDome(u, x, y, L); const [sx, sy, c] = r78Cell(im, Math.floor(T() * 16) % 16), k = c / 256, s = u.h / 182 / k;
     ctx.save(); ctx.globalAlpha = L === 'back' ? 1 : .32; ctx.drawImage(im, sx, sy, c, c, x - 128 * k * s, y - 232 * k * s, c * s, c * s); ctx.restore(); }   // 身后整张、身前淡一层：边缘罩在人前，脸看得清
   // R78 v2（Codex 画的）：眩晕金星 / 冰封冰壳 / 玉色音律罩 / 凝神四芒星；没加载完退回代码画
@@ -16164,5 +16167,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="r78p.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
