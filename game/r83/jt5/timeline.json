@@ -1,0 +1,583 @@
+{
+  "schema": "r83.timeline.v1",
+  "skill": "九天神雷 v5 · 敌阵雷云",
+  "referenceResolution": [
+    1280,
+    720
+  ],
+  "durationSeconds": 6.2,
+  "previewFps": 30,
+  "hitTimesSeconds": [
+    0.94,
+    2.05,
+    2.85,
+    4.03,
+    4.58
+  ],
+  "hitFrames30fps": [
+    28,
+    61,
+    86,
+    121,
+    137
+  ],
+  "entities": {
+    "caster": {
+      "name": "云霆",
+      "key": "b_yunting",
+      "side": "hero",
+      "x": 1115,
+      "y": 490,
+      "h": 247,
+      "ally": "yunting"
+    },
+    "target": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "field": {
+      "x": 640,
+      "y": 360,
+      "h": 0
+    },
+    "enemy0": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "enemy1": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 190,
+      "y": 560,
+      "h": 200
+    },
+    "enemy2": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 640,
+      "h": 200
+    },
+    "ally0": {
+      "name": "叶孤星",
+      "key": "b_yegx",
+      "side": "hero",
+      "x": 975,
+      "y": 615,
+      "h": 240
+    },
+    "ally1": {
+      "name": "云霆",
+      "key": "b_yunting",
+      "side": "hero",
+      "x": 1115,
+      "y": 490,
+      "h": 247,
+      "ally": "yunting"
+    },
+    "ally2": {
+      "name": "林雪",
+      "key": "b_linxue",
+      "side": "hero",
+      "x": 1180,
+      "y": 640,
+      "h": 223,
+      "ally": "linxue"
+    }
+  },
+  "anchorCoordinates": "feet=[x,y]; head=[x,y-h]; chest=[x,y-h*0.65]; offsets are display pixels",
+  "clips": [
+    {
+      "element": "01_敌人头顶雷云",
+      "start": 0,
+      "end": 1.7,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.6,
+      "rotationDegrees": 0,
+      "z": -5,
+      "fadeIn": 0.65,
+      "fadeOut": 0.16,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "01_敌人头顶雷云",
+      "start": 1.55,
+      "end": 3.45,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": -5,
+      "fadeIn": 0.16,
+      "fadeOut": 0.18,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "01_敌人头顶雷云",
+      "start": 3.3,
+      "end": 5.9,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": -5,
+      "fadeIn": 0.18,
+      "fadeOut": 0.65,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "02_第一波初雷",
+      "start": 0.76,
+      "end": 1.48,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        13
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.83,
+      "rotationDegrees": 0,
+      "z": 2,
+      "fadeIn": 0,
+      "fadeOut": 0.06,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "03_第二波交错分叉",
+      "start": 1.86,
+      "end": 2.56,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        13
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.91,
+      "rotationDegrees": 0,
+      "z": 2,
+      "fadeIn": 0,
+      "fadeOut": 0.06,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "03_第二波交错分叉",
+      "start": 2.68,
+      "end": 3.24,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        13
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 2,
+      "fadeIn": 0,
+      "fadeOut": 0.06,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 1
+    },
+    {
+      "element": "04_终式群雷贯地",
+      "start": 3.82,
+      "end": 4.68,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        13
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 3,
+      "fadeIn": 0,
+      "fadeOut": 0.05,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "04_终式群雷贯地",
+      "start": 4.51,
+      "end": 5.28,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        13
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 3,
+      "fadeIn": 0,
+      "fadeOut": 0.13,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 3
+    },
+    {
+      "element": "05_地面紫光与电痕",
+      "start": 0.91,
+      "end": 1.8,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.23,
+      "rotationDegrees": 0,
+      "z": -3,
+      "fadeIn": 0.035,
+      "fadeOut": 0.4,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "05_地面紫光与电痕",
+      "start": 2.03,
+      "end": 3.35,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.38,
+      "rotationDegrees": 0,
+      "z": -3,
+      "fadeIn": 0.035,
+      "fadeOut": 0.4,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "05_地面紫光与电痕",
+      "start": 4.0,
+      "end": 5.65,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.83,
+      "rotationDegrees": 0,
+      "z": -3,
+      "fadeIn": 0.035,
+      "fadeOut": 0.4,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "06_命中碎石",
+      "start": 0.94,
+      "end": 1.76,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        12
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.27,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0,
+      "fadeOut": 0.14,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "06_命中碎石",
+      "start": 2.05,
+      "end": 2.95,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        12
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 0.5,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0,
+      "fadeOut": 0.14,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    },
+    {
+      "element": "06_命中碎石",
+      "start": 4.03,
+      "end": 5.55,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        12
+      ],
+      "displaySize": [
+        1365.3333333333333,
+        1365.3333333333333
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0,
+      "fadeOut": 0.14,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 0
+    }
+  ],
+  "assets": {
+    "01_敌人头顶雷云": {
+      "meta": "01_敌人头顶雷云/meta.json",
+      "frameDirectory": "01_敌人头顶雷云/frames/",
+      "atlas": "01_敌人头顶雷云/atlas.png"
+    },
+    "02_第一波初雷": {
+      "meta": "02_第一波初雷/meta.json",
+      "frameDirectory": "02_第一波初雷/frames/",
+      "atlas": "02_第一波初雷/atlas.png"
+    },
+    "03_第二波交错分叉": {
+      "meta": "03_第二波交错分叉/meta.json",
+      "frameDirectory": "03_第二波交错分叉/frames/",
+      "atlas": "03_第二波交错分叉/atlas.png"
+    },
+    "04_终式群雷贯地": {
+      "meta": "04_终式群雷贯地/meta.json",
+      "frameDirectory": "04_终式群雷贯地/frames/",
+      "atlas": "04_终式群雷贯地/atlas.png"
+    },
+    "05_地面紫光与电痕": {
+      "meta": "05_地面紫光与电痕/meta.json",
+      "frameDirectory": "05_地面紫光与电痕/frames/",
+      "atlas": "05_地面紫光与电痕/atlas.png"
+    },
+    "06_命中碎石": {
+      "meta": "06_命中碎石/meta.json",
+      "frameDirectory": "06_命中碎石/frames/",
+      "atlas": "06_命中碎石/atlas.png"
+    }
+  },
+  "blend": "source-over straight alpha; all previews use delivered PNGs",
+  "notes": [
+    "以作者明确认可的终式战斗概念为唯一美术基准；雷云压在敌人头顶，雷由云中劈出。原来交叉斩、黑块雷柱版本作废。",
+    "云层与地面照明在游戏单位后，落雷与碎石在前。preview_reference 中的角色和背景只用于审核演示，均直接来自现存游戏渲染；不把概念图重绘的人物/UI接入。",
+    "第一波初雷→第二波分叉换路→短收蓄势→终式三处贯地爆光，逐步加强，6.2秒收束。所有闪电轮廓都是 imagegen 绘制。",
+    "6组纹理全部为真透明 PNG，4×4图集，单格1024。fullScreenContentBox=[32,242,960,540]；显示方格1365.333像素时，16:9内容对应1280×720战场。云层单独压至520像素场景高度，云底在后排敌人头顶上方。",
+    "当前整幅群攻层针对审核用三敌布局对齐，接入其他敌人数/站位时需按敌阵整体范围重新定位或拆分落点，不能直接固定屏幕坐标。地面电痕随敌阵定位。",
+    "此版本是认可美术方向的素材实现稿，视频为真实游戏素材与交付PNG分层合成，尚未修改或接入游戏代码。"
+  ],
+  "revision": "作者已认可关键画面的分层实现",
+  "darkReference": "scene_layers/dark.png",
+  "previewBackground": "preview_background.png",
+  "previewUnitLayers": [
+    {
+      "source": "preview_reference/unit_0.png"
+    },
+    {
+      "source": "preview_reference/unit_1.png",
+      "start": 0,
+      "end": 0.45
+    },
+    {
+      "source": "preview_reference/cast.png",
+      "start": 0.45,
+      "end": 5.35
+    },
+    {
+      "source": "preview_reference/unit_1.png",
+      "start": 5.35,
+      "end": 6.2
+    },
+    {
+      "source": "preview_reference/unit_2.png"
+    },
+    {
+      "source": "preview_reference/unit_3.png"
+    },
+    {
+      "source": "preview_reference/unit_4.png"
+    },
+    {
+      "source": "preview_reference/unit_5.png"
+    }
+  ],
+  "hudOverEffects": true,
+  "supersedes": [
+    "05_云霆_九天神雷_v2",
+    "05_云霆_九天神雷_v3_画制群雷",
+    "05_云霆_九天神雷_v4_层层递进"
+  ],
+  "reviewTimes": [
+    0.5,
+    2.12,
+    4.15,
+    4.8
+  ],
+  "cameraFlashes": [
+    {
+      "time": 0.94,
+      "duration": 0.065,
+      "color": [
+        152,
+        102,
+        230
+      ],
+      "opacity": 0.07
+    },
+    {
+      "time": 2.05,
+      "duration": 0.065,
+      "color": [
+        171,
+        110,
+        244
+      ],
+      "opacity": 0.1
+    },
+    {
+      "time": 2.85,
+      "duration": 0.065,
+      "color": [
+        171,
+        110,
+        244
+      ],
+      "opacity": 0.12
+    },
+    {
+      "time": 3.52,
+      "duration": 0.18,
+      "color": [
+        6,
+        8,
+        24
+      ],
+      "opacity": 0.13
+    },
+    {
+      "time": 4.03,
+      "duration": 0.07,
+      "color": [
+        213,
+        175,
+        255
+      ],
+      "opacity": 0.22
+    },
+    {
+      "time": 4.58,
+      "duration": 0.07,
+      "color": [
+        213,
+        175,
+        255
+      ],
+      "opacity": 0.18
+    }
+  ],
+  "dim": {
+    "color": [
+      8,
+      6,
+      25
+    ],
+    "peakOpacity": 0.52,
+    "fadeInSeconds": 0.25,
+    "fadeOutSeconds": 0.4
+  }
+}

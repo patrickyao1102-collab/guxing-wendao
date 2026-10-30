@@ -95,3 +95,22 @@
     return orig.apply(this, arguments);
   })(menuUpdate);
 })();
+
+// ================= 大地图「队友跟随」开关（行囊 · 出战页右上角）=================
+// 关掉后大地图上队友不跟在身后（剧情、对话、过场时照常出现）。队友仍在队伍里、照常出战。
+(function () {
+  if (typeof MTABS === 'undefined') return;
+  const F = () => (S.flags = S.flags || {});
+  const off = () => !!F().noFollow;
+  const R = B => ({ x: B.x + B.w - 232, y: B.y + 12, w: 218, h: 40 });
+  if (typeof drawActorT === 'function') drawActorT = (orig => function (a) {
+    if (a && a.follower && off() && !dialog && !choice && !world.scripted && !world.locked) return;
+    return orig.apply(this, arguments);
+  })(drawActorT);
+  drawQuest = (orig => function (B) { const r = orig.apply(this, arguments); if (!(S.menu && MTABS[S.menu.tab] === '出战')) return r;
+    const b = R(B), on = !off(); ctx.save(); roundRect(b.x, b.y, b.w, b.h, 20); ctx.fillStyle = on ? 'rgba(142,42,28,.85)' : UI.slot; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
+    ctx.font = `600 16px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = on ? '#fff2d6' : UI.text; ctx.fillText('大地图队友跟随：' + (on ? '开' : '关'), b.x + b.w / 2, b.y + b.h / 2 + 1); ctx.restore(); return r; })(drawQuest);
+  menuUpdate = (orig => function () { const m = S.menu, t = input.tapped;
+    if (m && t && !t.key && MTABS[m.tab] === '出战') { const L = menuLayout(); if (inR(t, R(L.body))) { input.tapped = null; F().noFollow = off() ? 0 : 1; try { playSnd('ui_click'); } catch (e) {} try { toast(off() ? '队友不再在大地图上跟随' : '队友恢复跟随'); } catch (e) {} return; } }
+    return orig.apply(this, arguments); })(menuUpdate);
+})();
