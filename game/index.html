@@ -429,6 +429,15 @@ async function moveActor(a, x, y, spd = 220) {
 // 朝向判定（作者：八向行走一直有问题）：走路图只有上/下/左右三组，斜着走时按角度二选一；
 // 加了回差：已经侧身就一直侧身，直到角度陡过 63° 才转成正/背面；正/背面要角度平过 51° 才转侧身。
 // 这样手指在 45° 附近晃、沿路径拐小弯时，朝向不会左右乱跳、步子也不会被打断。
+// 八向判定：45° 一个扇区，已在某扇区内时要偏出中心 30° 以上才换，避免斜走时左右抖
+const FACE8 = ['right', 'down_right', 'down', 'down_left', 'left', 'up_left', 'up', 'up_right'];
+function face8Of(vx, vy, cur) {
+  if (!vx && !vy) return cur || 'down';
+  const ang = Math.atan2(vy, vx) * 180 / Math.PI;
+  const ci = FACE8.indexOf(cur);
+  if (ci >= 0) { let d = ang - ci * 45; d = ((d + 180) % 360 + 360) % 360 - 180; if (Math.abs(d) <= 30) return cur; }
+  return FACE8[((Math.round(ang / 45) % 8) + 8) % 8];
+}
 function faceOf(vx, vy, cur) {
   const ax = Math.abs(vx), ay = Math.abs(vy);
   const side = cur === 'left' || cur === 'right' ? ax * 2 > ay : ax > ay * .8;
@@ -2371,6 +2380,7 @@ function tileUpdate(dt) {
   } else if (world.locked && !dialog && !choice && !sysPanel) consumeTap();
   if (vx || vy) {
     p.moving = true; if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1;
+    p.face8 = face8Of(vx, vy, p.face8);   // 八向朝向（带回差）：斜向帧用
     { const nf = faceOf(vx, vy, p.face); if (nf === p.face) p._fc = null; else { if (p._fc !== nf) { p._fc = nf; p._fct = 0; p._fcn = 0; } p._fct += dt; p._fcn++; if ((p._fct >= .08 && p._fcn >= 2) || !p._wl) { p.face = nf; p._fc = null; } } }   // 带回差 + 新朝向要连续稳住 2 帧且 80ms 才换：斜走、两键先后按下、手指晃动都不会闪
     const nx = p.x + vx * dt, ny = p.y + vy * dt;
     if (canStand(T, nx, ny)) { p.x = nx; p.y = ny; } else if (canStand(T, nx, p.y)) p.x = nx; else if (canStand(T, p.x, ny)) p.y = ny; else if (world.path && world.path.length && canStand(T, world.path[0][0], world.path[0][1]) && Math.hypot(world.path[0][0] - p.x, world.path[0][1] - p.y) < 14) { p.x = world.path[0][0]; p.y = world.path[0][1]; } else { world.path = null; }
@@ -7671,7 +7681,7 @@ window.WalkLab = (() => {
     c.globalCompositeOperation='lighter';c.globalAlpha=b.mix;c.drawImage(images[kind],b.to*160,row*240,160,240,0,0,160,240);c.globalAlpha=1;c.globalCompositeOperation='source-over';return blendCanvas;
   }
   const images={},dirs=['down','up','left','right'];let assets;
-  async function init(){await Promise.all(companions.map(async k=>{const im=new Image();im.src='revisions/companions/'+(k==='guxing'?'guxing-whole':k)+'.webp';await im.decode();images[k]=im}));const guxing04=new Image();guxing04.src='revisions/companions/guxing04.webp';await guxing04.decode();images.guxing04=guxing04;await Promise.all(['guxing','linxue'].map(async kind=>{const im=new Image();im.src='revisions/cloth06/'+kind+'-front-patch.webp';await im.decode();images[kind+'Cloth06']=im}));assets=await(await fetch('revisions/assets.json')).json();await Promise.all(Object.values(assets.sets).flatMap(s=>Object.values(s).map(async a=>{if(images[a.atlas])return;const im=new Image();im.src=a.atlas;await im.decode();images[a.atlas]=im})));}
+  async function init(){await Promise.all(companions.map(async k=>{const im=new Image();im.src='revisions/companions/'+(k==='guxing'?'guxing-whole':k)+'.webp';await im.decode();images[k]=im}));const guxing04=new Image();guxing04.src='revisions/companions/guxing04.webp';await guxing04.decode();images.guxing04=guxing04;await Promise.all(['guxing','linxue'].map(async kind=>{const im=new Image();im.src='revisions/cloth06/'+kind+'-front-patch.webp';await im.decode();images[kind+'Cloth06']=im}));try{const LOC=(window.FORCE_LOCAL||/^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname)||location.protocol==='file:');const dg=new Image();dg.src=LOC?'revisions/companions/guxing-diag.webp':'/_blob/GUXING_DIAG_BLOB';await dg.decode();if(dg.naturalWidth===1120&&dg.naturalHeight===480)images.guxingDiag=dg;}catch(e){console.warn('八向斜向帧未加载',e);}assets=await(await fetch('revisions/assets.json')).json();await Promise.all(Object.values(assets.sets).flatMap(s=>Object.values(s).map(async a=>{if(images[a.atlas])return;const im=new Image();im.src=a.atlas;await im.decode();images[a.atlas]=im})));}
   function config(id,kind='adult',dir='right'){
     if(companions.includes(kind))return {id:'companion',name:kind==='guxing'?'叶孤星':kind==='yunting'?'云霆':'林雪',detail:kind==='guxing'?`整身六帧联动 · 一轮 ${(cadence*6/1000).toFixed(2)} 秒 · 移动速度不变`:`保留原六帧动作 · 每帧 ${cadence} ms · 一轮 ${(cadence*6/1000).toFixed(2)} 秒 · 移动速度不变`,speed:112,cycle:112*6*cadence/1000,set:kind,seq:sequence(kind,dir),weights:[1,1,1,1,1,1]};
     const v=versions.find(v=>v.id===id)||versions[0];
@@ -7689,8 +7699,11 @@ window.WalkLab = (() => {
     return {atlas:a.atlas,frame,count:a.count,set:c.set};
   }
   // Original companion sprites use one complete frame; crossfading creates ghost limbs.
-  function draw(ctx,id,kind,dir,phase,moving,x,y,height){const p=sample(id,kind,dir,phase,moving),s=height/280;if(companions.includes(kind)){const scale=height/224,row=dir==='up'?1:dir==='down'?0:2;ctx.save();ctx.translate(x,y);if(dir==='right')ctx.scale(-1,1);if(((isCompanion(kind)&&companionRevision!=='01')||(kind==='guxing'&&['04','05','06','07'].includes(companionRevision)))&&stableFrame(ctx,kind,row,p.frame,scale)){ctx.restore();return p;}if(moving&&smoothing&&kind==='guxing'&&!['04','05','06','07'].includes(companionRevision))ctx.drawImage(blendedFrame(kind,row,phase),-80*scale,-232*scale,160*scale,240*scale);else ctx.drawImage(activeImage(kind),p.frame*160,row*240,160,240,-80*scale,-232*scale,160*scale,240*scale);ctx.restore();return p;}ctx.drawImage(images[p.atlas],p.frame%4*384,Math.floor(p.frame/4)*336,384,336,x-192*s,y-308*s,384*s,336*s);return p;}
-  return {init,draw,sample,config,versions,dirs,companions,blend,companionRevisions,setCompanionRevision(id){if(companionRevisions.some(v=>v.id===id))companionRevision=id;},getCompanionRevision(){return companionRevision;},setSmoothing(value){smoothing=!!value;},setCadence(ms){if([125,170,200].includes(+ms))cadence=+ms;}};
+  function draw(ctx,id,kind,dir,phase,moving,x,y,height){const p=sample(id,kind,dir,phase,moving),s=height/280;if(companions.includes(kind)){const scale=height/224;
+    // R75 八向：叶孤星多了左下/左上两排（右侧镜像），直接从 guxing-diag 图集取格，和定稿同规格 160×240、脚底 232
+    if(kind==='guxing'&&images.guxingDiag&&/_/.test(dir)){const drow=/^down/.test(dir)?0:1,flip=/right$/.test(dir);ctx.save();ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(images.guxingDiag,p.frame*160,drow*240,160,240,-80*scale,-232*scale,160*scale,240*scale);ctx.restore();return p;}
+    const row=dir==='up'?1:dir==='down'?0:2;ctx.save();ctx.translate(x,y);if(dir==='right')ctx.scale(-1,1);if(((isCompanion(kind)&&companionRevision!=='01')||(kind==='guxing'&&['04','05','06','07'].includes(companionRevision)))&&stableFrame(ctx,kind,row,p.frame,scale)){ctx.restore();return p;}if(moving&&smoothing&&kind==='guxing'&&!['04','05','06','07'].includes(companionRevision))ctx.drawImage(blendedFrame(kind,row,phase),-80*scale,-232*scale,160*scale,240*scale);else ctx.drawImage(activeImage(kind),p.frame*160,row*240,160,240,-80*scale,-232*scale,160*scale,240*scale);ctx.restore();return p;}ctx.drawImage(images[p.atlas],p.frame%4*384,Math.floor(p.frame/4)*336,384,336,x-192*s,y-308*s,384*s,336*s);return p;}
+  return {init,draw,sample,config,versions,dirs,companions,blend,companionRevisions,hasDiag(){return !!images.guxingDiag;},setCompanionRevision(id){if(companionRevisions.some(v=>v.id===id))companionRevision=id;},getCompanionRevision(){return companionRevision;},setSmoothing(value){smoothing=!!value;},setCadence(ms){if([125,170,200].includes(+ms))cadence=+ms;}};
 })();
 
 // ================= 三人行走正式定稿接入（叶孤星06 / 云霆05 / 林雪07）=================
@@ -7714,7 +7727,8 @@ function walkFinalDraw(a, now) {
     else if (!a._mf) a._mf = a.dir < 0 ? 'left' : 'right'; }
   if (!kind || !walkFinalReady) return false;
   const fc = WALK_ALIAS[a.key] && !WALK_FINAL[a.key] ? (a.face || a._mf) : a.face;
-  const dir = fc === 'up' || fc === 'left' || fc === 'right' ? fc : 'down';
+  let dir = fc === 'up' || fc === 'left' || fc === 'right' ? fc : 'down';
+  if (kind === 'guxing' && a.face8 && /_/.test(a.face8) && WalkLab.hasDiag && WalkLab.hasDiag()) dir = a.face8;   // 斜向：用八向朝向（只有叶孤星有斜向帧）
   const w = a._wl || (a._wl = { ph: 0, t: now, dir });
   const dt = Math.max(0, Math.min(.25, now - w.t)); w.t = now;
   if (dir !== w.dir) w.dir = dir;   // 换方向不重置步子相位（原来归零，拐弯就像重新迈步）
