@@ -14767,7 +14767,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     await sleep(380);
     heroes().forEach((u, i) => setTimeout(() => { el('flysword', { x: u.x, y: u.y + 6, h: u.h * 1.3, layer: 2, alpha: 1.2, fadeOut: .25 }); }, i * 110));
     await sleep(520); playSnd('sfx_buff', .7); S.shake = 4;
-    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n }; spr('array', 0, { x: u.x, y: u.y, size: u.h * 1.15, sy: .32, life: .7, layer: 0, alpha: u2 => 1.2 * (1 - u2), rot: u2 => u2 * 1.2 }); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#bfe6ff'); }
+    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n, src: 'huti' }; spr('array', 0, { x: u.x, y: u.y, size: u.h * 1.15, sy: .32, life: .7, layer: 0, alpha: u2 => 1.2 * (1 - u2), rot: u2 => u2 * 1.2 }); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#bfe6ff'); }
     await sleep(500); dimBrief(0, 250);
   };
   // ---------- 叶孤星 · 凝神：星光汇向剑尖，凝成一颗星 ----------
@@ -14793,7 +14793,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     await quickBanner(P, '强 攻', '雷附于刃', '#d8ccff'); dimBrief(.5, 200); playSnd('sfx_thunder', .55);
     el('cloud', { x: (heroes()[0].x + heroes()[heroes().length - 1].x) / 2 - 60, y: Math.min(...heroes().map(u => u.y - u.h)) + 10, w: 520, layer: 2, dark: .55, glow: .5, alpha: 1, fadeIn: .2, fadeOut: .4 });
     await sleep(320); const T = SKILL_TIER('yunting', 'qianggong'), v = .2 * (1 + [0, 0, .15, .3, .45, .6][T]), n = T >= 3 ? 3 : 2;
-    for (const u of heroes()) { el('thunder', { x: u.x, y: u.y + 8, w: u.h * 1.2, layer: 2, alpha: 1.2 }); S.shake = 6; await sleep(120); (u.bx || (u.bx = {})).atk = { v: Math.max(v, bxv(u, 'atk')), n }; setTimeout(() => tag(u, '攻击 +' + Math.round(v * 100) + '%', '#ffd36a'), 300); }
+    for (const u of heroes()) { el('thunder', { x: u.x, y: u.y + 8, w: u.h * 1.2, layer: 2, alpha: 1.2 }); S.shake = 6; await sleep(120); (u.bx || (u.bx = {})).atk = { v: Math.max(v, bxv(u, 'atk')), n, src: 'qianggong' }; setTimeout(() => tag(u, '攻击 +' + Math.round(v * 100) + '%', '#ffd36a'), 300); }
     await sleep(700); dimBrief(0, 250);
   };
   // ---------- 云霆 · 疾风：雷霆贴地绕场，脚下风纹 ----------
@@ -14832,7 +14832,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const T = SKILL_TIER('linxue', 'shuangjia'), k1 = 1 + [0, 0, .15, .3, .45, .6][T], v = Math.min(.5, .25 * k1), n = T >= 3 ? 3 : 2, hp = .15 * k1;
     for (const u of heroes()) { el('icebloom', { x: u.x, y: u.y + 10, w: u.h * 1.25, layer: 2, alpha: 1.1, fadeOut: .3 }); spr('flake', 2, { x: u.x, y: u.y - u.h * .55, size: k => 60 + k * 120, rot: k => k * 1.5, life: .9, layer: 2, alpha: fadeIO(.2, .4) }); await sleep(120); }
     await sleep(500); playSnd('sfx_heal', .6);
-    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n }; const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * hp)); u.hp += h; floatText(u.x + 30, u.y - u.h * .7, '+' + h, '#7dffa8', 38); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#cff4ff'); }
+    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n, src: 'shuangjia' }; const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * hp)); u.hp += h; floatText(u.x + 30, u.y - u.h * .7, '+' + h, '#7dffa8', 38); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#cff4ff'); }
     await sleep(700); dimBrief(0, 250);
   };
   // ---------- 林雪 · 冰心：全队脚下一朵冰莲，异常碎成冰晶 ----------
@@ -14909,17 +14909,36 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     await sleep(700); dimBrief(0, 250);
   };
 
+  // ---------- Codex R77 身上残留状态（正式素材；16 帧 × 125ms 循环，640 画布脚底锚点 (320,552)，缩放 = 人物高 / 500）----------
+  const R77LOC = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
+  const R77 = {
+    hero_dr: { back: '88dbc08f611d7862a994ea55a2ed20ed', front: '7d0504366cb95144c1ff0eb82445af98' },
+    yt_atk: { back: '272abd4dd6c42096237b164c0d9763bd', front: '1e653cf917572072c4f84e0e935d0a84' },
+  };
+  const R77IM = {};
+  for (const k in R77) for (const L of ['back', 'front']) { const im = new Image(); im.onload = () => { R77IM[k + '_' + L] = im; }; im.src = R77LOC ? 'r77/' + k + '_' + L + '.webp' : '/_blob/' + R77[k][L]; }
+  // 哪些状态用哪套正式素材（其余暂用代码画的简版）
+  function r77Of(u) { const out = []; const b = u.bx || {};
+    if (bxv(u, 'dr') && b.dr && b.dr.src !== 'shuangjia') out.push('hero_dr');
+    if (bxv(u, 'atk') && u.ally === 'yunting') out.push('yt_atk');
+    return out; }
+  function r77Draw(u, k, L, x, y) { const im = R77IM[k + '_' + L]; if (!im) return false; const cw = im.width / 4, s = u.h / 500, fr = Math.floor(performance.now() / 125) % 16, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw, d = 640 * s;
+    ctx.drawImage(im, sx, sy, cw, cw, x - 320 * s, y - 552 * s, d, d); return true; }
+  window.R77_STATUS = { R77, R77IM };
   // ---------- 身上的持续状态光效 ----------
   const COL = { hero: '143,208,255', yunting: '200,170,255', linxue: '190,240,255', shenle: '200,255,225', luochen: '255,220,150' };
   drawUnit = (orig => function (u) {
     const b = battle; if (!b || !u.bx || !u.alive) return orig.apply(this, arguments);
     const now = performance.now() / 1000, x = u.x + (u.ox || 0), y = u.y + (u.oy || 0);
+    const R = r77Of(u); for (const k of R) r77Draw(u, k, 'back', x, y);
+    const rDr = R.includes('hero_dr') && R77IM.hero_dr_back, rAtk = R.includes('yt_atk') && R77IM.yt_atk_back;
     // 身下：减伤阵纹（慢转）、加速风纹
-    if (bxv(u, 'dr') && IM.array) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .38 + Math.sin(now * 2.2) * .08; ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(now * .5); const im = IM.array, cw = im.width / 2, s = u.h * 1.0; ctx.drawImage(im, u.ally === 'linxue' || u.ally === 'shenle' ? cw : 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
+    if (bxv(u, 'dr') && IM.array && !rDr) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .38 + Math.sin(now * 2.2) * .08; ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(now * .5); const im = IM.array, cw = im.width / 2, s = u.h * 1.0; ctx.drawImage(im, u.ally === 'linxue' || u.ally === 'shenle' ? cw : 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
     if (u.side === 'hero' && bxv(u, 'spd')) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 4; i++) { const k = (now * 1.6 + i / 4) % 1; ctx.strokeStyle = `rgba(190,240,255,${.5 * (1 - k)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, u.h * (.2 + k * .35), u.h * (.05 + k * .09), 0, Math.PI * .1, Math.PI * .9); ctx.stroke(); } ctx.restore(); }
     const r = orig.apply(this, arguments);
+    for (const k of R) r77Draw(u, k, 'front', x, y);
     // 身上：加攻雷光、凝神星芒、护盾阵壁
-    if (bxv(u, 'atk')) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const c = u.ally === 'yunting' || !u.ally ? '210,180,255' : '255,210,140'; for (let i = 0; i < 2; i++) { if (Math.random() < .35) { const px = x - u.h * (.15 + Math.random() * .3), py = y - u.h * (.35 + Math.random() * .4); ctx.strokeStyle = `rgba(${c},.85)`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(px, py); for (let s = 0; s < 4; s++) ctx.lineTo(px + (Math.random() - .5) * 26, py - s * 9 + (Math.random() - .5) * 6); ctx.stroke(); } }
+    if (bxv(u, 'atk') && !rAtk) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const c = u.ally === 'yunting' || !u.ally ? '210,180,255' : '255,210,140'; for (let i = 0; i < 2; i++) { if (Math.random() < .35) { const px = x - u.h * (.15 + Math.random() * .3), py = y - u.h * (.35 + Math.random() * .4); ctx.strokeStyle = `rgba(${c},.85)`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(px, py); for (let s = 0; s < 4; s++) ctx.lineTo(px + (Math.random() - .5) * 26, py - s * 9 + (Math.random() - .5) * 6); ctx.stroke(); } }
       const g = ctx.createRadialGradient(x - u.h * .2, y - u.h * .5, 0, x - u.h * .2, y - u.h * .5, u.h * .45); g.addColorStop(0, `rgba(${c},${.16 + Math.sin(now * 6) * .05})`); g.addColorStop(1, `rgba(${c},0)`); ctx.fillStyle = g; ctx.fillRect(x - u.h * .7, y - u.h, u.h * 1, u.h); ctx.restore(); }
     if (u.bx.ns && u.bx.ns.n > 0 && IM.qstar) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const im = IM.qstar, cw = im.width / 2, s = 70 + Math.sin(now * 5) * 10; ctx.globalAlpha = .95; ctx.translate(x - u.h * .34, y - u.h * .62); ctx.rotate(now * 1.5); ctx.drawImage(im, 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
     const hs = u.bx.hs; if (hs && hs.n > 0 && hs.v > 0 && IM.array) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .32 + Math.sin(now * 3) * .06; ctx.translate(x - u.h * .28, y - u.h * .5); ctx.scale(.42, 1); ctx.rotate(now * .4); const im = IM.array, cw = im.width / 2, s = u.h * .95; ctx.drawImage(im, hs.ice ? 0 : cw, cw, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
