@@ -16121,33 +16121,88 @@ window.MarketEffects = (() => {
     const sx = [0, L, sw - Rr, sw], sy = [0, T, sh - Bm, sh], dx = [x, x + dl, x + w - dr, x + w], dy = [y, y + dt, y + h - db, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = sx[i + 1] - sx[i], b = sy[j + 1] - sy[j], c = dx[i + 1] - dx[i], d = dy[j + 1] - dy[j]; if (a > 0 && b > 0 && c > 0 && d > 0) ctx.drawImage(im, sx[i], sy[j], a, b, dx[i], dy[j], c, d); } }
   window.R79_NINE = nine;
-  // ---- 技能列表（仙术 / 秘传）：左上角玉框面板，一行一招 ----
-  const ROW = 50, PW = 420;
-  const rects = () => { const n = battle.menu.sub.length, top = 126; return battle.menu.sub.map((s, i) => ({ x: 36, y: top + i * ROW, w: PW - 36, h: ROW - 4 })); };
+  // ---- 技能列表（仙术 / 秘传）：左上角玉框面板，大字书法 · 可上下拖动 / 滚轮滚动 ----
+  const ROW = 84, PW = 560, VIS = 5, PX = 20, PY = 72, TOP = PY + 80;
+  const SC = { y: 0, drag: null, list: null, sel: -1 };
+  const maxScroll = () => Math.max(0, battle.menu.sub.length * ROW - VIS * ROW);
+  const listOpen = () => battle && battle.menu && battle.menu.sub && R79_READY() && IM.skill_panel_9slice;
+  const rects = () => { const L = battle.menu.sub; if (SC.list !== L) { SC.list = L; SC.y = 0; SC.sel = -1; } SC.y = Math.max(0, Math.min(maxScroll(), SC.y));
+    const y0 = TOP, y1 = TOP + VIS * ROW;
+    return L.map((s, i) => { let y = TOP + i * ROW - SC.y, h = ROW - 6; const a = Math.max(y, y0), z = Math.min(y + h, y1); return z - a < 20 ? { x: -9999, y: -9999, w: 0, h: 0, ry: y } : { x: PX + 22, y: a, w: PW - 44, h: z - a, ry: y }; }); };
   const oldRects = skillRects;
-  skillRects = function () { if (!R79_READY() || !IM.skill_panel_9slice) return oldRects.apply(this, arguments); return rects(); };
+  skillRects = function () { if (!listOpen()) return oldRects.apply(this, arguments); return rects(); };
+  // 详情卡（第二层）：点一下某招 → 右侧显示详细信息；再点同一招或「施展」才出手
+  const CARD = { x: PX + PW + 14, y: PY + 40, w: 400, h: 0 };
+  const BTN = () => ({ x: CARD.x + 60, y: CARD.y + CARD.h - 100, w: 280, h: 82 });
+  const TARGET = { 单体: '敌方单体', 群攻: '敌方全体', 控制: '敌方单体', 减伤: '我方全队', 加攻: '我方全队', 回灵: '我方全队', 护盾: '我方全队', 加速: '我方全队', 回血: '我方', 解控: '我方全队', 狂攻: '自身', 增攻: '自身', 必杀: '敌方全体' };
+  const POWER = { dianxing: 175, xingluo2: 200, xingyun: 240, tanlang: 200, jueying: 460, duopo: 400, shaxing: 270, yunlei: 150, bingfeng: 80, shenfa: 120, tianshu: 125 };
+  function info(s) { const d = s.desc || '', tg = s.tag || '', m = d.match(/(\d+)\s*%/);
+    const enemy = /单体|群攻|控制|必杀/.test(tg) || /敌/.test(d);
+    const pw = POWER[s.k] ? POWER[s.k] + '%' : m ? (enemy ? '' : '+') + m[1] + '%' : '';
+    return { kind: enemy ? '攻 击' : '辅 助', power: pw, powerLabel: enemy ? '威 力' : '效 果', target: TARGET[tg] || (/全体/.test(d) ? '敌方全体' : /全队/.test(d) ? '我方全队' : '单体'), cost: s.costLabel || (s.cost ? s.cost + ' 灵力' : '无消耗') }; }
+  handleMenuTap = (orig => function (tap) {
+    if (!listOpen()) return orig(tap);
+    const L = battle.menu.sub, rs = rects();
+    if (SC.sel >= 0 && CARD.h) { const bt = BTN(); if (tap.x > bt.x && tap.x < bt.x + bt.w && tap.y > bt.y && tap.y < bt.y + bt.h) {
+      const i = SC.sel, r0 = rs[i]; if (r0 && r0.x > 0) { SC.sel = -1; return orig({ x: r0.x + 8, y: r0.y + r0.h / 2 }); }
+      SC.y = Math.max(0, Math.min(maxScroll(), i * ROW - ROW)); const r1 = rects()[i]; SC.sel = -1; return orig({ x: r1.x + 8, y: r1.y + r1.h / 2 }); }
+      if (tap.x > CARD.x && tap.x < CARD.x + CARD.w && tap.y > CARD.y && tap.y < CARD.y + CARD.h) return; }
+    const i = rs.findIndex(r => tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h);
+    if (i >= 0 && i !== SC.sel) { SC.sel = i; try { playSnd('ui_click'); } catch (e) {} return; }
+    if (i >= 0) SC.sel = -1;
+    return orig(tap);
+  })(handleMenuTap);
+  const inList = p => p.x > PX && p.x < PX + PW && p.y > TOP - 10 && p.y < TOP + VIS * ROW + 10;
+  cv.addEventListener('pointerdown', e => { if (!listOpen()) return; const p = toLogical(e); if (!inList(p)) return; SC.drag = { y0: p.y, s0: SC.y, moved: false, p }; input.tapped = null; });
+  cv.addEventListener('pointermove', e => { if (!SC.drag) return; const p = toLogical(e), dy = p.y - SC.drag.y0; if (Math.abs(dy) > 10) SC.drag.moved = true; if (SC.drag.moved) SC.y = Math.max(0, Math.min(maxScroll(), SC.drag.s0 - dy)); });
+  window.addEventListener('pointerup', () => { const d = SC.drag; SC.drag = null; if (d && !d.moved && listOpen()) input.tapped = d.p; });
+  cv.addEventListener('wheel', e => { if (!listOpen()) return; SC.y = Math.max(0, Math.min(maxScroll(), SC.y + e.deltaY * .6)); e.preventDefault(); }, { passive: false });
   drawBattleMenu = (orig => function () {
-    const b = battle; if (!b || !b.menu || !b.menu.sub || !R79_READY() || !IM.skill_panel_9slice) return orig.apply(this, arguments);
+    const b = battle; if (!listOpen()) return orig.apply(this, arguments);
     const L = b.menu.sub, rs = rects(), hx = input.x, hy = input.y, now = performance.now() / 1000;
-    ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.28)'; ctx.fillRect(0, 0, W, H);
-    const px = 18, py = 64, ph = 62 + L.length * ROW + 52;
-    nine(IM.skill_panel_9slice, px, py, PW, ph);
-    if (IM.skill_title) ctx.drawImage(IM.skill_title, px + PW / 2 - 115, py + 4, 230, 52);
+    ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.34)'; ctx.fillRect(0, 0, W, H);
+    const vis = Math.min(VIS, L.length), ph = 80 + vis * ROW + 34;
+    nine(IM.skill_panel_9slice, PX, PY, PW, ph);
+    if (IM.skill_title) ctx.drawImage(IM.skill_title, PX + PW / 2 - 140, PY + 6, 280, 62);
     const title = (b.menu.title || (L.some(s => /秘传|绝技/.test(s.group || '')) ? '秘传' : '仙术'));
-    ctx.font = `700 26px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = TXT; ctx.fillText(b.menu.sub.__title || title, px + PW / 2, py + 32);
-    rs.forEach((r, i) => { const s = L[i], hov = !s.disabled && hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h;
-      ctx.globalAlpha = s.disabled ? .5 : 1; const im = hov ? IM.skill_row_selected : IM.skill_row_normal; if (im) ctx.drawImage(im, r.x - 6, r.y - 1, r.w + 12, r.h + 2);
-      const cx = r.x + 22, cy = r.y + r.h / 2, uk = window.UI_ICONS && UI_ICONS.key(s.k);
-      if (uk && UI_ICONS.has(uk)) UI_ICONS.draw(uk, cx, cy, 17); else if (IM.icon_spell) ctx.drawImage(IM.icon_spell, cx - 17, cy - 17, 34, 34);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `700 21px ${SERIF}`; ctx.fillStyle = TXT; let nm = s.name || ''; while (nm.length > 2 && ctx.measureText(nm).width > 190) nm = nm.slice(0, -1); ctx.fillText(nm, r.x + 48, cy + 1);
-      const cost = s.costLabel || (s.cost ? s.cost + '灵' : ''); if (cost) { ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = s.costLabel ? '#7a4a08' : '#24506a'; ctx.fillText(cost, r.x + r.w - 104, cy + 1); }
-      if (s.tag) { const tx = r.x + r.w - 82, ty = cy - 12; if (IM.effect_tag) ctx.drawImage(IM.effect_tag, tx, ty, 74, 24); ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = TXT; ctx.fillText(s.tag, tx + 37, ty + 12.5); }
-      if (s.disabled && s.why && hov) { ctx.font = `600 12px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = '#7a2a1a'; ctx.fillText(s.why, r.x + r.w - 8, r.y + 6); }
+    ctx.font = `400 40px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = TXT; ctx.fillText(b.menu.sub.__title || title, PX + PW / 2, PY + 38);
+    ctx.save(); ctx.beginPath(); ctx.rect(PX + 10, TOP - 4, PW - 20, vis * ROW + 2); ctx.clip();
+    L.forEach((s, i) => { const y = TOP + i * ROW - SC.y, h = ROW - 6; if (y + h < TOP - 4 || y > TOP + vis * ROW) return;
+      const r = { x: PX + 22, y, w: PW - 44, h }, hov = i === SC.sel || !SC.drag && !s.disabled && hx > r.x && hx < r.x + r.w && hy > Math.max(r.y, TOP) && hy < Math.min(r.y + h, TOP + vis * ROW);
+      ctx.globalAlpha = s.disabled ? .5 : 1; const im = hov ? IM.skill_row_selected : IM.skill_row_normal; if (im) ctx.drawImage(im, r.x - 8, r.y - 2, r.w + 16, r.h + 4);
+      const cx = r.x + 34, cy = r.y + r.h / 2, uk = window.UI_ICONS && UI_ICONS.key(s.k);
+      if (uk && UI_ICONS.has(uk)) UI_ICONS.draw(uk, cx, cy, 26); else if (IM.icon_spell) ctx.drawImage(IM.icon_spell, cx - 26, cy - 26, 52, 52);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `400 38px ${BRUSH}`; ctx.fillStyle = TXT; let nm = (s.name || '').replace(/^(破军剑意|贪狼剑意)·/, ''); while (nm.length > 2 && ctx.measureText(nm).width > 250) nm = nm.slice(0, -1); ctx.fillText(nm, r.x + 74, cy + 2);
+      const cost = s.costLabel || (s.cost ? s.cost + ' 灵' : ''); if (cost) { ctx.font = `700 20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = s.costLabel ? '#7a4a08' : '#1d4a66'; ctx.fillText(cost, r.x + r.w - 150, cy + 1); }
+      if (s.tag) { const tx = r.x + r.w - 104, ty = cy - 17; if (IM.effect_tag) ctx.drawImage(IM.effect_tag, tx, ty, 94, 34); ctx.font = `400 22px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = TXT; ctx.fillText(s.tag, tx + 47, ty + 18); }
+      if (s.disabled && s.why) { ctx.font = `700 15px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = '#7a2a1a'; ctx.fillText(s.why, r.x + r.w - 14, r.y + 13); }
       ctx.globalAlpha = 1; });
-    // 悬停 / 最后一行下方：显示当前招式说明
-    const hi = rs.findIndex(r => hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h), cur = L[hi >= 0 ? hi : 0];
-    if (cur && cur.desc) { ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = '#2a4a4a'; let d = cur.desc; while (d.length && ctx.measureText(d).width > PW - 70) d = d.slice(0, -1); ctx.fillText(d + (d.length < cur.desc.length ? '…' : ''), px + 34, py + ph - 34); }
-    ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(240,250,245,.9)'; ctx.fillText('点空白处返回', px + 8, py + ph + 16);
+    ctx.restore();
+    // 滚动提示：上 / 下还有招式时显示金色箭头 + 右侧滚动条
+    const ms = maxScroll();
+    if (ms > 0) { const bx = PX + PW - 16, by = TOP, bh = vis * ROW, kh = Math.max(40, bh * VIS / L.length), ky = by + (bh - kh) * (SC.y / ms);
+      ctx.fillStyle = 'rgba(14,36,36,.18)'; ctx.fillRect(bx - 2, by, 4, bh); ctx.fillStyle = 'rgba(176,132,48,.85)'; ctx.fillRect(bx - 3, ky, 6, kh);
+      const arrow = (x, y, up) => { ctx.save(); ctx.globalAlpha = .65 + .3 * Math.sin(now * 4); ctx.fillStyle = '#c8962e'; ctx.beginPath(); ctx.moveTo(x - 14, y + (up ? 7 : -7)); ctx.lineTo(x + 14, y + (up ? 7 : -7)); ctx.lineTo(x, y + (up ? -7 : 7)); ctx.closePath(); ctx.fill(); ctx.restore(); };
+      if (SC.y > 4) arrow(PX + PW / 2, TOP - 8, true); if (SC.y < ms - 4) arrow(PX + PW / 2, TOP + bh + 10, false); }
+    // 详情卡：选中的招；没选中时跟着鼠标悬停那招（手机上点一下即选中）
+    const hi = rs.findIndex(r => hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h), ci = SC.sel >= 0 ? SC.sel : hi, cur = L[ci];
+    CARD.h = 0;
+    if (cur) { const f = info(cur), cx0 = CARD.x, cw = CARD.w, mw = cw - 84; ctx.font = `600 21px ${FONT}`;
+      const words = cur.desc || '', lines = []; let ln = ''; for (const ch of words) { if (ctx.measureText(ln + ch).width > mw) { lines.push(ln); ln = ch; } else ln += ch; } if (ln) lines.push(ln);
+      const ch = 160 + 96 + lines.length * 30 + (SC.sel >= 0 ? 110 : 52); CARD.h = ch; const cy0 = CARD.y;
+      nine(IM.skill_panel_9slice, cx0, cy0, cw, ch);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = TXT; ctx.font = `400 46px ${BRUSH}`; ctx.fillText(cur.name || '', cx0 + cw / 2, cy0 + 56);
+      const chip = (x, y, txt) => { if (IM.effect_tag) ctx.drawImage(IM.effect_tag, x - 62, y - 21, 124, 42); ctx.font = `400 25px ${BRUSH}`; ctx.fillStyle = TXT; ctx.fillText(txt, x, y + 1); };
+      chip(cx0 + cw / 2 - 74, cy0 + 112, f.kind); chip(cx0 + cw / 2 + 74, cy0 + 112, f.target);
+      ctx.strokeStyle = 'rgba(14,36,36,.25)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx0 + 46, cy0 + 150); ctx.lineTo(cx0 + cw - 46, cy0 + 150); ctx.stroke();
+      const stat = (x, label, val, col) => { ctx.font = `700 18px ${FONT}`; ctx.fillStyle = '#4a6464'; ctx.fillText(label, x, cy0 + 180); ctx.font = `400 40px ${BRUSH}`; ctx.fillStyle = col; ctx.fillText(val, x, cy0 + 222); };
+      if (f.power) { stat(cx0 + cw * .3, f.powerLabel, f.power, '#8a2a12'); stat(cx0 + cw * .7, '消 耗', f.cost, '#1d4a66'); } else stat(cx0 + cw / 2, '消 耗', f.cost, '#1d4a66');
+      ctx.textAlign = 'left'; ctx.font = `600 21px ${FONT}`; ctx.fillStyle = '#1f3d3d'; lines.forEach((l, k) => ctx.fillText(l, cx0 + 42, cy0 + 270 + k * 30));
+      if (SC.sel >= 0) { const bt = BTN(), dis = cur.disabled, im = dis ? IM.command_plate_disabled : IM.command_plate_selected; if (im) ctx.drawImage(im, bt.x, bt.y, bt.w, bt.h);
+        { const uk = window.UI_ICONS && UI_ICONS.key(cur.k), sx = bt.x + bt.w * .267, sy = bt.y + bt.h / 2; if (uk && UI_ICONS.has(uk)) UI_ICONS.draw(uk, sx, sy, bt.h * .36); else if (IM.icon_spell) ctx.drawImage(IM.icon_spell, sx - bt.h * .45, sy - bt.h * .45, bt.h * .9, bt.h * .9); }
+        ctx.textAlign = 'center'; ctx.font = `400 34px ${BRUSH}`; ctx.fillStyle = dis ? '#5a5a5a' : TXT; ctx.fillText(dis ? (cur.why || '用不了') : '施 展', bt.x + bt.w * .64, bt.y + bt.h / 2 + 2); }
+      else { ctx.textAlign = 'center'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = '#4a6464'; ctx.fillText('点一下选中，再点一次出手', cx0 + cw / 2, cy0 + ch - 34); } }
+    ctx.font = `400 24px ${BRUSH}`; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(240,250,245,.92)'; ctx.fillText(ms > 0 ? '上下拖动翻看 · 点空白处返回' : '点空白处返回', PX + 10, PY + ph + 22);
     ctx.restore();
   })(drawBattleMenu);
   // ---- 出手角色脚下：淡淡的九曜小星盘（借 B 星盘方案的长处）----
@@ -16156,4 +16211,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
+<script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
