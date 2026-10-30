@@ -6427,7 +6427,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await say('星旋', '这几只是打发了，可流星的星力还没散——山里的小妖还会被引过来。');
     await say('星旋', '想练手就在后山多转转，碰上那些发光的兽火就是妖兽。练够了，顺着南边的石阶下山去藏经阁。');
     await say('星旋', '不过……刚才流星一落，右边石台上那圈星钉好像亮了。你要是好奇，可以先去瞧一眼。');
-    S.quest = '去藏经阁（跟着金色箭头走，可先在后山打兽火历练）'; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('碰到发光的兽火就会开打。灵草、宝箱、古阵也都能去看看。走到南边石阶口就去藏经阁', 3600);
+    S.quest = '去藏经阁（看左上角小地图的金圈，可先在后山打兽火历练）'; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('碰到发光的兽火就会开打。灵草、宝箱、古阵也都能去看看。走到南边石阶口就去藏经阁', 3600);
     const [tx, ty] = near(1322, 1800);
     addTrigger(tx, ty, 110, async () => { world.hold = true; S.quest = ''; await fadeOut(500); await (window.LIB_PART3 || origPart3)(); });
     world.locked = false;
