@@ -55,7 +55,7 @@
     await fx.until(2.6); P.pose = null; await fx.until(2.8);
   };
   // ---------- 林雪 · 大雪纷飞 v2：天暗 → 三层暴雪 → 敌阵巨型冰霜阵 → 2.0 冰晶巨簇喷发 → 冰封 ----------
-  if (typeof ultDaxue === 'function') ultDaxue = async function (P) {
+  if (window.R83_DAXUE2 && typeof ultDaxue === 'function') ultDaxue = async function (P) {   // 作者：冰晶爆炸不如原版 → 先关掉，用回原版
     const ts = aliveEnemies(); if (!ts.length) return;
     P.pose = 'cast'; try { await portraitPop(P); } catch (e) {} try { skillBanner('大雪纷飞', '#d4f6ff', '漫天风雪，冰封万物'); } catch (e) {}
     try { playSnd('sfx_wind', .8); } catch (e) {}

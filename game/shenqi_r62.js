@@ -15,16 +15,18 @@
   const WB = { w1: 'a770a1136a237a6b5f12ab4dea5bad3e', w2: '314a0bc59aab70abca7a84e59240ab15', w3: 'e88804a3ab34f54619f59358b2b405a9', w4: '18f6d1a117623c57e8aca2bc82011fc5', w5: 'ade7b41f236a23196eec655bbac30372' };
   const WN = { w1: '白玉清辉', w2: '霜月银盘', w3: '水墨白境', w4: '云上天仪', w5: '白金镇天' }, WR = { w1: 366, w2: 356, w3: 352, w4: 362, w5: 360 }, WK = .88;   // 整图缩到 .88，盘边不顶到面板
   for (const k in WB) VAR[k] = { full: k, blob: WB[k], IM: {}, need: [], name: WN[k], r: WR[k] * WK };
-  const ORDER = ['r62', 'r63', 'w1', 'w2', 'w3', 'w4', 'w5'];
-  const cur = () => VAR[(S.flags && S.flags.disc_var) || 'r62'] || VAR.r62;
+  // R85 白金镇天分层版（Codex）：可旋转四环 + 九色锁链发光层；纯原画，不叠代码画的光效
+  VAR.r85 = { dir: 'ui3/r85/', blob: {"connections_core_to_t01": "8da65989644bfb06c9d82443e3fb9833", "connections_core_to_t02": "915842176c9e9435a02e861f7a14ed77", "connections_core_to_t03": "2785dc03ffdf8468c86c8f34888a0ff1", "connections_core_to_t04": "3b1f0db5b19d930e529b057ea8ac581b", "connections_core_to_t05": "c1079655500ed4d06401f83564477dd4", "connections_core_to_t06": "41c0c4944fcb7fd7f74a57e0860bf03b", "connections_core_to_t07": "794ce9b13a1c11e3a5675b8bc4bd54a4", "connections_core_to_t08": "136cd82d9cc19c862f3edfea528c0216", "connections_core_to_t09": "8d0dbfd835837449d690e0ecd8c734bf", "connections_t01_to_t02": "b33c20f6b0f61aea533c3b8b6bbfcd2f", "connections_t02_to_t03": "70261ac430cd036c8032c5140f26f3a1", "connections_t03_to_t04": "b0142b49d3f0d05dd5d3cfc8a2ecde62", "connections_t04_to_t05": "e0e8f6d5a1e343f88afddca913b292a8", "connections_t05_to_t06": "d49a525925cfdd1d3e563458971be1f0", "connections_t06_to_t07": "201ce276a28e36fd930f4ddd9cd2aa31", "connections_t07_to_t08": "c5d3379fc21b8ab8574f9f5fb167c323", "connections_t08_to_t09": "fcab4d2692d2d568b75062ab40831e52", "connections_t09_to_t01": "e268c4664a054c371589862901bf9c68", "core_core_0": "4b7fd00fa87c263f7a507c3f68043bb5", "core_core_9": "2b933d05bf674f6ab9a7c06da77e2089", "core_core_few": "92e0e65e06b66116967c459323383fba", "glow_t01_sealed": "ea4d9a7d79ad3e87b47ed240dd5304de", "glow_t01_unlockable": "a85f53866b516851676dfb5acdd810ba", "glow_t02_sealed": "5929e85f98983c628bd0a0ca1070bd12", "glow_t02_unlockable": "4a959ffb69885275f3dcbad4b89d3239", "glow_t03_sealed": "7d1e88624b1f852639d28d552919f03c", "glow_t03_unlockable": "1a5dbd3751a1c4f986a07fd9038f3780", "glow_t04_sealed": "e3f83e7675b41a4e64a3601aac2b111d", "glow_t04_unlockable": "4633490845e9141496d432638641ceba", "glow_t05_sealed": "314fe056cb7de6678ef96ca019e1f4d5", "glow_t05_unlockable": "c61daaea147fd101b6c1cc7fd1b8dea6", "glow_t06_sealed": "6d197b55e4ddfee9f79b0711fd232cdc", "glow_t06_unlockable": "9ea579f81baa64f3a0716f97692d9144", "glow_t07_sealed": "cb13c39072ac91f6d5a1f6ed90264712", "glow_t07_unlockable": "67210bbfb5731dec613a1604693bc14d", "glow_t08_sealed": "3b8b78d3ac16438baed8fd361e07908c", "glow_t08_unlockable": "8f7d259f09dbece8c4b812f50fd23fe7", "glow_t09_sealed": "ebf95a03e70d08f1424d8d24c3b8d33c", "glow_t09_unlockable": "f29c7b7ff79264af8d290bc035f7fab1", "layers_00_frame": "45e710d7723db1589a2ce767b564147a", "layers_01_base": "379de997edd7e2567d2e75947bac4b29", "layers_02_outer_ticks": "56bb9d395caff235b886f7a9102355f2", "layers_03_middle_runes": "10bb2c56b83350e7a18b35ec2ae07453", "layers_04_inner_orbits": "99cec1505c12bc94543eedeb2c0dcdc3", "layers_05_core_glow": "85b81ef19146885d36c7c471ca7e020c", "layers_06_stardust": "6589c1bd57cf9658d21da379ab6c9b9f", "slots_t01_collected": "e251e81bce6e9cec38d3850d6050d1ff", "slots_t01_sealed": "9d76c58461c3f7c0ecd819287f4eae26", "slots_t01_unlockable": "3944dc730519c9819b8076414013eaff", "slots_t02_collected": "079a2f972a1f506e139456b3677fdd81", "slots_t02_sealed": "42718e57019c9de82a85f14806a8b8f4", "slots_t02_unlockable": "32c346384871857f891246be1432f068", "slots_t03_collected": "ac22515971e0451a1f0b9e6f00579eb5", "slots_t03_sealed": "308a118316947d436ece83e1fbd74dbc", "slots_t03_unlockable": "be109daa8e6760b22c7ab715d805eb95", "slots_t04_collected": "68285116845c55f4fcc694cbae4a4f97", "slots_t04_sealed": "494eb0c4cee1764de71ef830d4af8be5", "slots_t04_unlockable": "5377df51990131258d7a4b92d276689f", "slots_t05_collected": "28cecf75945c28378f11a1abf62736a3", "slots_t05_sealed": "77e70253d0c11f4aa5ce483ed14b4035", "slots_t05_unlockable": "ac10c7c35ed9927be9732e55a6695840", "slots_t06_collected": "91516f354992613da52718841684c68b", "slots_t06_sealed": "208158e8d42a8d108c4244adff7c9ecf", "slots_t06_unlockable": "00093027739c8edd4a22f24827370a52", "slots_t07_collected": "6820e81ea300480479263e135564666f", "slots_t07_sealed": "49a667952a58ab868c538a834a473773", "slots_t07_unlockable": "bbc6b490177e8d25d8d8ee55055331a1", "slots_t08_collected": "cef7eb3bda1b2221a0b9bad40e21bd7e", "slots_t08_sealed": "d21d1b349bbc298db6f5c593a5800852", "slots_t08_unlockable": "33c6b6ff78cf48d2dcb600391b78092d", "slots_t09_collected": "a7f75cce00b8b7909a238f4ed00753e2", "slots_t09_sealed": "c1d375b566899e663e19211b5bb71462", "slots_t09_unlockable": "8b631a8bb81d578b3d7b86c62ad3e776"}, IM: {}, need: [], name: '白金镇天', frame: true, pure: true };
+  const ORDER = ['r85', 'r62', 'r63', 'w1', 'w2', 'w3', 'w4', 'w5'];
+  const cur = () => { if (S.flags && !S.flags.disc85) { S.flags.disc85 = 1; S.flags.disc_var = 'r85'; } return VAR[(S.flags && S.flags.disc_var) || 'r85'] || VAR.r85; };
   function loadVar(v) { if (v.started) return; v.started = 1;
     if (v.full) { const im = new Image(); im.onload = () => { v.IM.full = im; }; im.src = (!local && v.blob) ? '/_blob/' + v.blob : 'ui3/r63w/' + v.full + '.webp'; return; }
     const load = n => { v.need.push(n); const im = new Image(); im.onload = () => { v.IM[n] = im; }; im.src = (!local && v.blob[n]) ? '/_blob/' + v.blob[n] : v.dir + n + '.webp'; };
     for (const [n] of LAYERS) load('layers_' + n); if (v.frame) load('layers_00_frame');
     load('layers_05_core_glow'); for (const c of ['0', 'few', '9']) load('core_core_' + c);
-    for (let i = 1; i <= 9; i++) { const t = 't0' + i; if (!v.frame) { load('slots_' + t + '_sealed2'); load('glow_' + t); } for (const st of ['sealed', 'unlockable', 'collected']) load('slots_' + t + '_' + st); load('connections_core_to_' + t); load('connections_' + t + '_to_t0' + (i % 9 + 1)); } }
-  loadVar(VAR.r62); setTimeout(() => loadVar(VAR.r63), 4000);
-  let IM = VAR.r62.IM;
+    for (let i = 1; i <= 9; i++) { const t = 't0' + i; if (!v.frame) { load('slots_' + t + '_sealed2'); load('glow_' + t); } if (v.pure) { load('glow_' + t + '_sealed'); load('glow_' + t + '_unlockable'); } for (const st of ['sealed', 'unlockable', 'collected']) load('slots_' + t + '_' + st); load('connections_core_to_' + t); load('connections_' + t + '_to_t0' + (i % 9 + 1)); } }
+  loadVar(VAR.r85); setTimeout(() => loadVar(VAR.r62), 4000);
+  let IM = VAR.r85.IM;
   const hexA = (h, a) => { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
   // 星位名牌：深色小牌 + 本色细边，已收集时字用本色、未收集用暖白
   function label(x, y, text, i, on) {
@@ -35,7 +37,7 @@
   }
   const T0 = performance.now();
   function draw(cx, cy, size, own, opts = {}) {
-    const V = cur(); loadVar(V); IM = V.IM; const R63 = !!V.frame;
+    const V = cur(); loadVar(V); IM = V.IM; const R63 = !!V.frame, PURE = !!V.pure;
     const k = size / 1024, t = (performance.now() - T0) / 1000, n = own.filter(Boolean).length;
     ctx.save(); ctx.translate(cx - 512 * k, cy - 512 * k); ctx.scale(k, k);
     if (V.full) {   // 概念整图：盘面 + 槽内图标 + 封印/可解封标记 + 选中圈
@@ -54,7 +56,7 @@
     }
     const img = (nm, a = 1, op = 'source-over') => { const im = IM[nm]; if (!im) return; ctx.globalAlpha = a; ctx.globalCompositeOperation = op; ctx.drawImage(im, 0, 0, 1024, 1024); };
     // 华贵感（Claude）：盘外一圈暖金光晕 + 落地阴影，把星盘从宣纸上托起来
-    { const g = ctx.createRadialGradient(512, 530, 440, 512, 530, 560); g.addColorStop(0, 'rgba(60,30,0,.38)'); g.addColorStop(1, 'rgba(60,30,0,0)'); ctx.fillStyle = g; ctx.fillRect(-60, -40, 1144, 1144);
+    if (!PURE) { const g = ctx.createRadialGradient(512, 530, 440, 512, 530, 560); g.addColorStop(0, 'rgba(60,30,0,.38)'); g.addColorStop(1, 'rgba(60,30,0,0)'); ctx.fillStyle = g; ctx.fillRect(-60, -40, 1144, 1144);
       const h = ctx.createRadialGradient(512, 512, 455, 512, 512, 540), hp = .55 + .25 * Math.sin(t * 1.3); h.addColorStop(0, `rgba(255,214,120,${.45 * hp})`); h.addColorStop(1, 'rgba(255,200,90,0)'); ctx.fillStyle = h; ctx.fillRect(-40, -40, 1104, 1104); }
     for (const [nm, dir, per, op, a0] of LAYERS) { const a = R63 && nm === '03_middle_runes' ? 1 : a0; ctx.save(); if (dir) { ctx.translate(512, 512); ctx.rotate(dir * Math.PI * 2 * t / per); ctx.translate(-512, -512); } img('layers_' + nm, a, op); ctx.restore(); }
     // 星线
@@ -65,7 +67,7 @@
     const br = .5 - .5 * Math.cos(Math.PI * 2 * t / (8 / 3)); img('layers_05_core_glow', lo + (hi - lo) * br, 'screen'); if (R63) img('layers_00_frame', 1);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     // 金边流光：两道亮光沿外圈金边缓缓扫过（6 秒一圈）
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    if (!PURE) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const [ph, a0] of [[0, 1], [Math.PI, .55]]) { const ang = t * Math.PI * 2 / 6 + ph;
       for (let k = 0; k < 14; k++) { const aa = ang - k * .035, x = 512 + Math.cos(aa) * 466, y = 512 + Math.sin(aa) * 466, r = 34 - k * 1.6, al = a0 * (1 - k / 14) * .55;
         const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(255,248,220,${al})`); g.addColorStop(.4, `rgba(255,214,120,${al * .6})`); g.addColorStop(1, 'rgba(255,200,90,0)'); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); } }
@@ -79,20 +81,23 @@
     for (let i = 0; i < 42; i++) { const sd = Math.sin(i * 91.7) * .5 + .5, sd2 = Math.sin(i * 37.3) * .5 + .5, u = (t * (.035 + sd * .03) + sd2) % 1;
       const aa = sd * Math.PI * 2 + t * .05, rr = 80 + sd2 * 360, x = 512 + Math.cos(aa) * rr, y = 512 + Math.sin(aa) * rr - u * 60, al = Math.sin(u * Math.PI) * (.5 + .5 * Math.sin(t * 3 + i));
       ctx.globalAlpha = al * .9; ctx.fillStyle = i % 4 ? '#ffd98a' : '#fff4d6'; ctx.beginPath(); ctx.arc(x, y, 1.6 + (i % 3), 0, 7); ctx.fill(); }
-    ctx.restore(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    ctx.restore(); } ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     // 槽位（位置固定，不随环转）
     for (let i = 0; i < 9; i++) {
       const [x, y] = SLOT_C[i], st = own[i] ? 'collected' : (opts.unlockable ? 'unlockable' : 'sealed'), nm = 'slots_t0' + (i + 1) + '_' + st, im = (st === 'sealed' && IM[nm + '2']) || IM[nm];
       if (own[i] && opts.icon) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, 47 * 190 / 256, 0, 7); ctx.clip(); opts.icon(i, x, y, 47 * 190 / 256); ctx.restore(); }
       const locked = !own[i], col = COLORS[i];
       // 封印锁：底下一圈本色灵光呼吸（Claude）
-      if (locked) { const p = .5 + .5 * Math.sin(t * 2.2 + i * .9); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(x, y, 40, x, y, 112); g.addColorStop(0, hexA(col, .55 * (.55 + .45 * p))); g.addColorStop(.6, hexA(col, .18 * (.5 + .5 * p))); g.addColorStop(1, hexA(col, 0)); ctx.fillStyle = g; ctx.fillRect(x - 115, y - 115, 230, 230); ctx.restore(); }
+      if (locked && !PURE) { const p = .5 + .5 * Math.sin(t * 2.2 + i * .9); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(x, y, 40, x, y, 112); g.addColorStop(0, hexA(col, .55 * (.55 + .45 * p))); g.addColorStop(.6, hexA(col, .18 * (.5 + .5 * p))); g.addColorStop(1, hexA(col, 0)); ctx.fillStyle = g; ctx.fillRect(x - 115, y - 115, 230, 230); ctx.restore(); }
       if (im) { ctx.drawImage(im, x - 95, y - 95, 190, 190);
         const ph = t / (8 / 3) + i * .11, b = .5 - .5 * Math.cos(Math.PI * 2 * ph), [l, h] = st === 'unlockable' ? [.02, .15] : st === 'collected' ? [.015, .10] : [0, 0];
         if (h) { ctx.globalAlpha = l + (h - l) * b; ctx.globalCompositeOperation = 'screen'; ctx.drawImage(im, x - 95, y - 95, 190, 190); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; } }
       const gim = st === 'sealed' && IM['glow_t0' + (i + 1)];
       if (gim) { const p = .5 + .5 * Math.sin(t * 2.6 + i * 1.3); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .18 + .42 * p; ctx.drawImage(gim, x - 95, y - 95, 190, 190); ctx.restore(); }
-      if (locked && im) { // 锁面流光 + 锁链上的星点闪烁
+      // R85 九色锁链发光（Codex fx 层，screen 呼吸：2 秒一呼吸，相邻星差 0.11 圈）
+      const g85 = PURE && locked && IM['glow_t0' + (i + 1) + '_' + st];
+      if (g85) { const b2 = .5 - .5 * Math.cos(Math.PI * 2 * (t / 2 + i * .11)), [gl, gh] = st === 'unlockable' ? [.55, 1] : [.3, .8]; ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = gl + (gh - gl) * b2; ctx.drawImage(g85, x - 95, y - 95, 190, 190); ctx.globalAlpha = (gl + (gh - gl) * b2) * .6; ctx.drawImage(g85, x - 95, y - 95, 190, 190); ctx.restore(); }
+      if (locked && im && !PURE) { // 锁面流光 + 锁链上的星点闪烁
         ctx.save(); ctx.beginPath(); ctx.arc(x, y, 64, 0, 7); ctx.clip(); ctx.globalCompositeOperation = 'lighter';
         const u = ((t + i * .37) % 3.4) / 3.4, bx = x - 120 + u * 240; const lg = ctx.createLinearGradient(bx - 30, y - 30, bx + 30, y + 30);
         lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,246,220,.55)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = lg;
@@ -102,7 +107,7 @@
           ctx.globalAlpha = tw; ctx.fillStyle = '#fffbe8'; ctx.beginPath(); ctx.moveTo(sx - L, sy); ctx.lineTo(sx, sy - 1.8); ctx.lineTo(sx + L, sy); ctx.lineTo(sx, sy + 1.8); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(sx, sy - L); ctx.lineTo(sx + 1.8, sy); ctx.lineTo(sx, sy + L); ctx.lineTo(sx - 1.8, sy); ctx.closePath(); ctx.fill();
           const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 12); g.addColorStop(0, hexA(col, .9)); g.addColorStop(1, hexA(col, 0)); ctx.fillStyle = g; ctx.fillRect(sx - 12, sy - 12, 24, 24); }
         ctx.restore(); ctx.globalAlpha = 1; }
-      if (own[i]) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(x, y); ctx.rotate(t * .8 + i); const g = ctx.createConicGradient ? ctx.createConicGradient(0, 0, 0) : null;
+      if (own[i] && !PURE) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(x, y); ctx.rotate(t * .8 + i); const g = ctx.createConicGradient ? ctx.createConicGradient(0, 0, 0) : null;
         if (g) { g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.08, 'rgba(255,236,190,.85)'); g.addColorStop(.16, 'rgba(255,220,150,0)'); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.strokeStyle = g; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(0, 0, 86, 0, 7); ctx.stroke(); } ctx.restore(); }
       if (opts.sel === i) { const p = .7 + .3 * Math.sin(t * 4); ctx.strokeStyle = `rgba(255,240,196,${p})`; ctx.lineWidth = 6; ctx.shadowColor = COLORS[i]; ctx.shadowBlur = 18; ctx.beginPath(); ctx.arc(x, y, 104, 0, 7); ctx.stroke(); ctx.shadowBlur = 0; }
     }
