@@ -52,7 +52,7 @@
     const T = world.map.T, here = world.mapName, p = world.player;
     if (goal.map !== here) {
       const hop = R.nextHop(here, goal.map);
-      const d = hop && (T.doors || []).find(d => d.to === hop);
+      const ds = hop ? (T.doors || []).filter(d => d.to === hop) : [], d = ds.find(d => !d.cond || d.cond()) || ds[0];   // 同一目的地有多个口（如藏经阁正门锁着、侧廊能走）→ 指向能走的那个
       if (d && (!d.cond || d.cond())) { G.hop = hop; G.pt = doorSpot(T, d); return; }
       // 出口暂时被剧情锁住（如第一章后山南阶）→ 指向剧情触发点
       const tg = (world.triggers || []).filter(t => !t.done && t.marker !== false).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];

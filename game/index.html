@@ -13791,7 +13791,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     [/落云岭/, () => ({ map: 'ly_ridge' })],
     [/见宗主|天剑大殿/, () => ({ map: TMAPS.tj_hall ? 'tj_hall' : 'tj_front' })],
     [/山门出发|山门/, () => ({ map: 'tj_front' })],
-    [/集齐.*灵晶/, () => ({ map: 'tj_houshan', pt: lockPt(), pick: (S.hero.bag.yunxingshi || 0) < 3 ? '陨星灵晶' : '九曜锁灵阵' })],
+    [/集齐.*灵晶/, () => { const few = (S.hero.bag.yunxingshi || 0) < 3, left = few && world.mapName === 'tj_houshan' && (world.actors || []).some(a => a.npc && a.npc.name === '陨星灵晶'); return { map: 'tj_houshan', pt: left ? null : lockPt(), pick: few ? '陨星灵晶' : '九曜锁灵阵' }; }],   // 灵晶没捡够：金圈指向最近的灵晶，不再一直指着阵心
     [/锁灵阵|破阵灵晶|天剑后山|后山|崖边|星空/, () => ({ map: 'tj_houshan', pt: lockPt() })],
     [/侧廊|溜进藏经阁|藏经阁内|阁内/, () => ({ map: 'tj_library' })],
     [/转轮经藏/, () => ({ map: 'tj_forbidden', pick: '八方转轮经藏' })],
@@ -15120,6 +15120,581 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const hs = u.bx.hs; if (hs && hs.n > 0 && hs.v > 0 && IM.array && !rHs) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .32 + Math.sin(now * 3) * .06; ctx.translate(x - u.h * .28, y - u.h * .5); ctx.scale(.42, 1); ctx.rotate(now * .4); const im = IM.array, cw = im.width / 2, s = u.h * .95; ctx.drawImage(im, hs.ice ? 0 : cw, cw, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
     return r;
   })(drawUnit);
+})();
+
+</script><script>// ===== Codex R73 天剑宗专属宫灯：铺进天剑宗各场景（换掉原来的铜灯 / 野外灯，脚点不动） =====
+(function () {
+  if (typeof CXB2 === 'undefined') return;
+  const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
+  // 灯款：图尺寸、脚点、灯芯（发光点）——取自 Codex R73 v7 scene.json
+  const L = { cloud: { s: [104, 214], a: [15.98, 209.97], e: [[68.92, 102.97]], b: '445bf66b6a8596d6e6a6d82a7f6e77dc' }, jade: { s: [98, 206], a: [49.14, 204.69], e: [[49.4, 77.64]], b: '4d0cd52abff4cad8ea6441e3cf155c4e' },
+    lotus: { s: [86, 196], a: [42.65, 191.07], e: [[42.9, 55.47]], b: 'ab6e9b3855bed98790a7b4ea89e65319' }, twin: { s: [131, 214], a: [65.25, 209.12], e: [[24.26, 93.41], [107.91, 93.41]], b: 'e0ba05e53a3fef5fe4ef0d0e8c64d785' } };
+  for (const k in L) { const im = new Image(); im.onload = () => { IMG['tjl_' + k] = im; }; im.src = LOC ? 'r73/lamp_' + k + '.webp' : '/_blob/' + L[k].b; }
+  // 每张图：原灯 id → [灯款, 高度倍率]；同一张图里成对的灯朝路中间对称
+  const PLAN = {
+    tj_front: { front_v7_bronze_lantern: o => [o.ay > 1300 && o.ay < 1400 ? 'twin' : 'jade', 1.0] },
+    tj_houshan: { front_v7_bronze_lantern: o => [{ lamp_572: 'cloud', lamp_816: 'jade' }[o.uid] || 'twin', .97] },
+    tj_scripture: { tianjian_court_lamp_r2: () => ['jade', .98] },
+    qingzhu_court: { route_lamp_low: () => ['lotus', 1.12], lantern_pole: () => ['cloud', 1.15] },
+    qingzhu_stairs: { lamp_low: () => ['lotus', 1.12], lamp_tall: () => ['jade', 1.05] },
+    qingzhu_bamboo: { wild_bamboo_lantern_r3: () => ['lotus', .9] },
+    qingzhu_upper_pavilion: { wild_stone_lantern_r3: () => ['jade', 1.0] },
+  };
+  for (const [m, rule] of Object.entries(PLAN)) {
+    const B = CXB2[m]; if (!B) continue; const cx = B.w / 2;
+    for (const o of B.objs) { const f = rule[o.id]; if (!f || o.tjl) continue; const [k, mul] = f(o), d = L[k], h = o.h * mul, sc = h / d.s[1];
+      const flip = k === 'cloud' && o.ax > cx;   // 悬臂灯：灯头朝路中间
+      o.tjl = k; o.img = 'tjl_' + k; o.w = d.s[0] * sc; o.h = h; o.y = o.ay - d.a[1] * sc; o.x = flip ? o.ax - (d.s[0] - d.a[0]) * sc : o.ax - d.a[0] * sc; o.flip = flip; o._sc = sc; }
+  }
+  // 夜里灯芯发暖光（后山崖顶 / 夜探藏经阁 / 各图夜景）
+  const night = () => { const m = world.mapName; return m === 'tj_houshan' || (S.flags && (S.flags.res_tod === 'night' || (m === 'tj_scripture' && S.flags.lib_ch1))); };
+  drawBaked = (orig => function (o, now) { orig(o, now); if (!o.tjl || !IMG[o.img]) return; const d = L[o.tjl], n = night(), a = n ? .85 : .32;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const [ex, ey] of d.e) { const px = o.flip ? o.x + o.w - ex * o._sc : o.x + ex * o._sc, py = o.y + ey * o._sc, r = (n ? 46 : 26) * o._sc / .9, fl = .92 + .08 * Math.sin(now * 3.1 + o.ax * .01);
+      const g = ctx.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, `rgba(255,236,190,${a * fl})`); g.addColorStop(.35, `rgba(255,205,130,${a * .45 * fl})`); g.addColorStop(1, 'rgba(255,180,90,0)'); ctx.fillStyle = g; ctx.fillRect(px - r, py - r, r * 2, r * 2); }
+    if (n) { const fx = o.ax, fy = o.ay, rx = 120 * o._sc / .9, ry = 46 * o._sc / .9; ctx.translate(fx, fy); ctx.scale(1, ry / rx); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, 'rgba(255,210,140,.22)'); g.addColorStop(1, 'rgba(255,190,110,0)'); ctx.fillStyle = g; ctx.fillRect(-rx, -rx, rx * 2, rx * 2); }
+    ctx.restore(); })(drawBaked);
+})();
+</script><script>// ===== Codex R68 v2：叶孤星 天剑一式·点星（双倍粗剑芒·强化命中）/ 星落（天空九曜阵）——Codex 源码材质 + 时间轴，移植到正式战斗 =====
+(function () { const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
+  const BL = { '星剑.png': 'df8edc4610115c3123d32c8f672d0210', '星核与星爆.png': 'da6663325d945c003e2867342ff4176f', '星辰法阵_四层图集.png': '5ad209e02e14c4887a1267564f2c5579', 'point_needle_v1.png': '1ac1a19ce5040661540042517c967801' }, FN = { '星剑.png': 'sword', '星核与星爆.png': 'star', '星辰法阵_四层图集.png': 'array', 'point_needle_v1.png': 'needle' };
+  window.R68URL = f => LOC ? 'r68/' + FN[f] + '.webp' : '/_blob/' + BL[f]; })();
+
+/* ---- Codex R68 materials.js ---- */
+/* R68 v2 — time-varying emissive materials.
+ * Sources: Qunxing v6 four-cell sword / star / layered array atlases.
+ * No V1 material is used. No discrete phase switching: neighbouring cells
+ * are always smoothstep blended before continuous spatial flow modulation.
+ * Public coordinates are the 1280 × 720 stage. All drawing is screen.
+ */
+(function () {
+  'use strict';
+  const TAU = Math.PI * 2, clamp = v => Math.max(0, Math.min(1, v));
+  const smooth = v => { const q = clamp(v); return q * q * (3 - 2 * q); };
+  const mix = (a, b, q) => a + (b - a) * q;
+  const rand = i => { const v = Math.sin(i * 127.1 + 49.3) * 43758.5453; return v - Math.floor(v); };
+  const canvas = (w, h) => { const v = document.createElement('canvas'); v.width = w; v.height = h; return v; };
+  const data = { ready: false, sword: [], star: [], arrays: [] }, cache = new Map();
+  let loading = null;
+  function load(url) { return new Promise((resolve, reject) => { const im = new Image(); im.onload = () => resolve(im); im.onerror = () => reject(new Error('R68 material failed: ' + url)); im.src = url; }); }
+  function phase(t, seed) { const p = ((t * 5.2 + seed * .413) % 4 + 4) % 4, i = Math.floor(p); return [i, (i + 1) % 4, smooth(p - i)]; }
+  function cacheTexture(key, make) { if (cache.has(key)) return cache.get(key); const value = make(); cache.set(key, value); if (cache.size > 96) cache.delete(cache.keys().next().value); return value; }
+  function energyCell(im, i, size, center, crop) {
+    const cw = Math.floor(im.width / 2), ch = Math.floor(im.height / 2), cv = canvas(size, size), g = cv.getContext('2d');
+    const ox = i % 2 * cw, oy = Math.floor(i / 2) * ch;
+    if (crop) g.drawImage(im, ox + cw * crop[0], oy + ch * crop[1], cw * crop[2], ch * crop[3], 0, 0, size, size);
+    else g.drawImage(im, ox, oy, cw, ch, (.5 - center[0]) * size, (.5 - center[1]) * size, size, size);
+    const rgba = g.getImageData(0, 0, size, size).data, out = new Float32Array(size * size);
+    for (let k = 0; k < out.length; k++) { const p = k * 4, lum = (rgba[p] * .2126 + rgba[p + 1] * .7152 + rgba[p + 2] * .0722) / 255; out[k] = Math.pow(lum, 1.12) * rgba[p + 3] / 255; }
+    return { size, values: out };
+  }
+  function sample(field, u, v) {
+    const n = field.size, x = clamp(u) * (n - 1), y = clamp(v) * (n - 1), ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, jx = Math.min(n - 1, ix + 1), jy = Math.min(n - 1, iy + 1), d = field.values;
+    return mix(mix(d[iy * n + ix], d[iy * n + jx], fx), mix(d[jy * n + ix], d[jy * n + jx], fx), fy);
+  }
+  function phases(fields, p, u, v) { return mix(sample(fields[p[0]], u, v), sample(fields[p[1]], u, v), p[2]); }
+  function arrayCell(im, i) {
+    const cw = Math.floor(im.width / 2), ch = Math.floor(im.height / 2), cv = canvas(640, 640), g = cv.getContext('2d');
+    g.drawImage(im, i % 2 * cw, Math.floor(i / 2) * ch, cw, ch, 0, 0, 640, 640);
+    const p = g.getImageData(0, 0, 640, 640), d = p.data;
+    for (let y = 0; y < 640; y++) for (let x = 0; x < 640; x++) {
+      const k = (y * 640 + x) * 4, l = (d[k] * .2126 + d[k + 1] * .7152 + d[k + 2] * .0722) / 255;
+      const e = Math.pow(clamp((l - .32) / .68), 1.43), edge = smooth(Math.min(x, y, 639 - x, 639 - y) / 14);
+      const blue = i === 2 ? .18 : .045;
+      d[k] = Math.round(mix(255, 175, blue)); d[k + 1] = Math.round(mix(183 + 72 * e, 220, blue)); d[k + 2] = Math.round(mix(91 + 164 * e, 255, blue)); d[k + 3] *= e * edge;
+    }
+    g.putImageData(p, 0, 0); return cv;
+  }
+  async function preload(root) {
+    if (data.ready) return; if (loading) return loading;
+    loading = Promise.all(['星剑.png', '星核与星爆.png', '星辰法阵_四层图集.png'].map(file => load(R68URL(file)))).then(([sword, star, array]) => {
+      const sc = [[.5, .583], [.5, .580], [.5, .475], [.5, .482]], oc = [[.508, .484], [.480, .470], [.591, .438], [.499, .421]];
+      for (let i = 0; i < 4; i++) { data.sword.push(energyCell(sword, i, 192, sc[i], [.035, sc[i][1] - .23, .60, .46])); data.star.push(energyCell(star, i, 192, oc[i])); data.arrays.push(arrayCell(array, i)); }
+      data.ready = true;
+    }); return loading;
+  }
+  function glow(c, x, y, rx, ry, a, color = '255,200,109') {
+    if (a <= 0 || rx <= 0 || ry <= 0) return;
+    c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.scale(rx, ry);
+    const gr = c.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, 'rgba(' + color + ',' + clamp(a) + ')'); gr.addColorStop(.24, 'rgba(' + color + ',' + clamp(a * .66) + ')'); gr.addColorStop(.6, 'rgba(' + color + ',' + clamp(a * .19) + ')'); gr.addColorStop(1, 'rgba(' + color + ',0)'); c.fillStyle = gr; c.fillRect(-1, -1, 2, 2); c.restore();
+  }
+  function node(c, x, y, r, a, cool = false) {
+    glow(c, x, y, r * 3.2, r * 3.2, a * .42, cool ? '125,190,255' : '255,174,62');
+    c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = clamp(a); c.fillStyle = cool ? '#e5f5ff' : '#fff7da'; c.beginPath(); c.arc(x, y, Math.max(.6, r * .38), 0, TAU); c.fill(); c.restore();
+  }
+  function array(c, t, o) {
+    if (!data.ready || !o || o.a <= 0) return;
+    const { x, y, rx, ry, a } = o, angles = [t * TAU / 14, -t * TAU / 11, t * TAU / 19, -t * TAU / 7.8];
+    glow(c, x, y, rx * 1.13, ry * 1.3, a * .10, '255,193,103');
+    for (const [i, r, alpha] of [[3, 1.07, .24], [0, 1, .90], [1, .76, .79], [2, .43, .87]]) {
+      c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = clamp(a * alpha * (.93 + .07 * Math.sin(t * 2.8 + i))); c.translate(x, y); c.scale(rx * r, ry * r); c.rotate(angles[i]); c.drawImage(data.arrays[i], -1, -1, 2, 2); c.restore();
+    }
+    // Bright current packets run along each engraved ring, independently of the rings.
+    for (let ring = 0; ring < 3; ring++) {
+      const r = [1, .76, .43][ring], rotation = angles[ring];
+      for (let j = 0; j < 3; j++) {
+        const head = t * (ring === 1 ? -.81 : .63) + j * TAU / 3 + rotation;
+        c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.scale(1, ry / rx); c.lineCap = 'round';
+        for (let k = 0; k < 14; k++) { const an = head - k * .022; c.globalAlpha = a * .38 * (1 - k / 14); c.strokeStyle = ring === 2 ? '#d4ecff' : '#fff1c2'; c.lineWidth = 2.0 + 1.9 * (1 - k / 14); c.beginPath(); c.arc(0, 0, rx * r * .90, an - .025, an); c.stroke(); }
+        c.restore();
+      }
+    }
+    for (let j = 0; j < 8; j++) { const an = j * TAU / 8 + angles[0]; node(c, x + Math.cos(an) * rx * .87, y + Math.sin(an) * ry * .87, 5.4, a * (.6 + .4 * Math.sin(t * 2.5 + j) ** 2), j === 2 || j === 6); }
+    for (let j = 0; j < 31; j++) { const r = [.43, .76, .97][j % 3], an = j * 2.39996 + angles[j % 3] + t * .11; node(c, x + Math.cos(an) * rx * r, y + Math.sin(an) * ry * r, 1.5 + rand(j + 4) * 1.9, a * .48, j % 7 === 0); }
+  }
+  function fieldTexture(t, seed, type) {
+    const key = type + ':' + t.toFixed(5) + ':' + seed;
+    return cacheTexture(key, () => {
+      const w = 512, h = 160, cv = canvas(w, h), g = cv.getContext('2d'), pixels = g.createImageData(w, h), d = pixels.data, p = phase(t, seed), blade = type === 'blade';
+      for (let iy = 0; iy < h; iy++) for (let ix = 0; ix < w; ix++) {
+        const u = ix / (w - 1), v = (iy / (h - 1) - .5) * 2, k = (iy * w + ix) * 4;
+        const body = blade ? Math.sin(Math.PI * u) ** .72 * .38 + .015 : (.065 + .75 * Math.pow(u, .72)) * Math.sqrt(smooth((1 - u) / .10));
+        const curl = Math.sin(u * 30 - t * 7.1 + seed) * .033 + Math.sin(u * 63 + t * 9.5) * .014;
+        const yy = v - curl * (1 - u), radius = Math.abs(yy) / Math.max(.01, body), outside = Math.exp(-radius * radius * (blade ? 2.25 : 1.9));
+        const texture = phases(data.sword, p, 1 - u * .94, .5 + yy * .38 + .027 * Math.sin(u * 28 - t * 6));
+        const rolling = .60 + .22 * Math.sin(u * 53 - t * 10.1 + yy * 11) + .18 * Math.sin(u * 103 + t * 13.7 - yy * 23);
+        const filament = Math.exp(-Math.pow(Math.sin(u * 21 - t * 4.3 + yy * 7) * 3.2, 2));
+        const grain = .28 + .72 * texture;
+        const edge = Math.exp(-Math.pow(radius - .88 - .1 * Math.sin(u * 37 - t * 7.2), 2) / .027) * (.24 + .36 * grain);
+        const coreWidth = blade ? .10 : .22;
+        const head = blade ? 0 : Math.exp(-Math.pow((u - .925) / .052, 2) - Math.pow(yy / .27, 2)) * .92;
+        const core = Math.max(head, Math.exp(-Math.pow(yy / Math.max(.011, body * coreWidth), 2)) * Math.pow(u, .12) * smooth((1 - u) / .055) * (blade ? 1 : .69));
+        const ribbons = blade ? 1 : .52 + .48 * Math.sin(u * 42 - t * 8.6 + yy * 13 + Math.sin(u * 13 + t * 3) * 2) ** 2;
+        const plasma = outside * (.34 + .56 * grain + .24 * rolling + .2 * filament) * smooth(u / .11) * smooth((1 - u) / .035) * ribbons;
+        const brightness = clamp(core * .88 + plasma * .30 + edge * .16), alpha = clamp(plasma * .88 + core * .42 + edge * .36);
+        if (alpha < .002) continue;
+        const cool = blade ? .88 * clamp(radius) : .07 * clamp(radius) * (.5 + .5 * Math.sin(u * 17 + t));
+        d[k] = mix(255, 149, cool); d[k + 1] = mix(137 + 118 * brightness, 221, cool); d[k + 2] = mix(31 + 224 * brightness ** 1.4, 255, cool); d[k + 3] = alpha * 255;
+      }
+      g.putImageData(pixels, 0, 0); return cv;
+    });
+  }
+  function trailFragments(c, t, len, width, a, seed, blade) {
+    for (let j = 0; j < (blade ? 18 : 36); j++) {
+      const q = ((t * (.55 + rand(j + seed * 13) * .30) + rand(j * 5 + seed + 2)) % 1 + 1) % 1;
+      const x = -len * (.12 + q * 1.05), y = (rand(j * 7 + seed) - .5) * width * (.25 + q * .95) + Math.sin(t * 4 + j) * width * .05;
+      const life = Math.sin(q * Math.PI) * (1 - q), size = 1.0 + rand(j + 49) * 2.1;
+      c.save(); c.globalAlpha = clamp(a * life * .8); c.strokeStyle = j % 7 ? '#ffe0a0' : '#aedfff'; c.lineWidth = size; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, y); c.lineTo(x - 5 - q * 12, y + Math.sin(j) * 1.2); c.stroke(); c.restore();
+    }
+  }
+  function projectile(c, t, x, y, len, width, angle, a, seed, isBlade) {
+    if (!data.ready || a <= 0 || len <= 0 || width <= 0) return;
+    const tex = fieldTexture(t, seed, isBlade ? 'blade' : 'meteor');
+    c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.rotate(angle); c.globalAlpha = clamp(a * .38); c.filter = 'blur(6px)'; c.drawImage(tex, -len * 1.02, -width * .77, len * 1.02, width * 1.54); c.filter = 'none';
+    c.globalAlpha = clamp(a); c.drawImage(tex, -len, -width / 2, len, width);
+    // The textured luminous head closes the body; it does not become an icon.
+    glow(c, -len * .075, 0, width * .36, width * .28, a * .64, isBlade ? '213,238,255' : '255,238,195');
+    c.globalAlpha = clamp(a); trailFragments(c, t, len, width, a, seed, isBlade); c.restore();
+  }
+  function blade(c, t, x, y, len, width, angle, a = 1, seed = 0) { projectile(c, t, x, y, len, width, angle, a, seed, true); }
+  function meteor(c, t, x, y, len, width, angle, a = 1, seed = 0) { projectile(c, t, x, y, len, width, angle, a, seed, false); }
+  function orbTexture(t, seed) {
+    return cacheTexture('orb:' + t.toFixed(5) + ':' + seed, () => {
+      const n = 192, cv = canvas(n, n), g = cv.getContext('2d'), out = g.createImageData(n, n), d = out.data, p = phase(t, seed);
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = (x - n / 2) / (n * .43), dy = (y - n / 2) / (n * .43), r = Math.hypot(dx, dy), an = Math.atan2(dy, dx), k = (y * n + x) * 4;
+        if (r > 1.13) continue;
+        const perturb = .025 * Math.sin(an * 7 + t * 5.2) + .014 * Math.sin(an * 13 - t * 8.3), rr = r + perturb * r * r;
+        const u = .5 + Math.cos(an + t * .19 + rr * .25) * rr * .39, v = .5 + Math.sin(an + t * .19 + rr * .25) * rr * .39;
+        const img = phases(data.star, p, u, v), flow = .5 + .5 * Math.sin(rr * 36 - an * 3 - t * 9.8 + Math.sin(an * 4 + t) * 1.2);
+        const core = Math.exp(-rr * rr * 11), shell = Math.exp(-Math.pow(rr - .72, 2) / .022) * (.31 + .33 * flow + .29 * img), inner = Math.exp(-rr * rr * 3.5) * (.24 + .30 * img + .15 * flow);
+        const alpha = clamp((core * .87 + shell + inner) * (1 - smooth((rr - .91) / .18))), bright = clamp(core + inner * .55 + shell * .28);
+        d[k] = 255; d[k + 1] = 137 + 118 * bright; d[k + 2] = 34 + 221 * bright ** 1.5; d[k + 3] = alpha * 255;
+      }
+      g.putImageData(out, 0, 0); return cv;
+    });
+  }
+  function orb(c, t, x, y, r, a = 1, seed = 0) {
+    if (!data.ready || r <= 0 || a <= 0) return;
+    glow(c, x, y, r * 2.3, r * 2.3, a * .25); c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = clamp(a); c.drawImage(orbTexture(t, seed), x - r * 1.16, y - r * 1.16, r * 2.32, r * 2.32); c.restore();
+  }
+  function ring(c, x, y, rx, ry, a, width, t, seed, cool = false) {
+    if (a <= 0 || rx <= 0 || ry <= 0) return;
+    c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.scale(1, ry / rx); c.lineCap = 'round';
+    const color = cool ? '#aedfff' : '#ffcf79';
+    for (let j = 0; j < 72; j++) {
+      const an = j * TAU / 72, flow = .56 + .44 * Math.sin(an * 5 - t * 8 + seed) ** 2, r = rx * (1 + .006 * Math.sin(an * 9 + t * 11));
+      c.globalAlpha = clamp(a * flow * .35); c.strokeStyle = color; c.lineWidth = width * 3; c.beginPath(); c.arc(0, 0, r, an, an + TAU / 72 + .006); c.stroke();
+      c.globalAlpha = clamp(a * flow); c.strokeStyle = cool ? '#dff3ff' : '#fff2c6'; c.lineWidth = width; c.beginPath(); c.arc(0, 0, r, an, an + TAU / 72 + .006); c.stroke();
+    }
+    c.restore();
+  }
+  function impact(c, age, x, y, r, a = 1, seed = 0, groundY = y) {
+    if (!data.ready || age < 0 || age > 1.25 || a <= 0) return;
+    const swell = 1 - Math.exp(-age * 9), fade = 1 - smooth((age - .33) / .73), coreFade = 1 - smooth((age - .16) / .51), t = age + seed * .03;
+    glow(c, x, groundY, r * (1.2 + swell * 1.4), r * .38, a * fade * .49, '255,192,86');
+    glow(c, x, y, r * 1.9, r * 1.6, a * coreFade * .26, '255,214,146');
+    orb(c, t, x, y, r * (.15 + swell * .48), a * coreFade * .96, seed);
+    ring(c, x, groundY, r * (.20 + swell * 1.35), r * (.055 + swell * .32), a * fade * .90, 5.2 + 2.0 * (1 - swell), t, seed);
+    if (age >= .075) { const q = 1 - Math.exp(-(age - .075) * 6); ring(c, x, groundY - 3, r * (.16 + q * 1.07), r * (.045 + q * .26), a * fade * .64, 3.1, t + .27, seed + 1, true); }
+    // Fractured light flies from the same impact centre, with ballistic drift.
+    for (let j = 0; j < 48; j++) {
+      const life = .42 + rand(j + seed * 7) * .51, q = age / life; if (q >= 1) continue;
+      const an = j * 2.39996 + seed * .49, v = r * (1.0 + rand(j + 23) * 2.5), d = v * age, px = x + Math.cos(an) * d, py = y + Math.sin(an) * d * .62 - age * r * .23 + age * age * r * .85;
+      const alpha = a * Math.sin(Math.min(1, q * 2.4) * Math.PI / 2) * (1 - q) * .9, size = 2.0 + rand(j + 56) * 3.8;
+      c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = clamp(alpha); c.strokeStyle = j % 8 ? '#ffe6ad' : '#c0e8ff'; c.lineWidth = size; c.lineCap = 'round'; c.beginPath(); c.moveTo(px, py); c.lineTo(px - Math.cos(an) * (5 + 14 * (1 - q)), py - Math.sin(an) * (5 + 14 * (1 - q)) * .62); c.stroke(); c.restore();
+    }
+  }
+  window.R68Material = { preload, array, orb, blade, meteor, impact, glow, ring, node, version: '2.0.0', inspect: () => ({ ready: data.ready, fourPhaseSources: data.sword.length, compositing: 'screen plus caller bloom', continuousUVFlow: true, source: 'Qunxing v6 four phase atlases; Shaxing v11 flow field method' }) };
+})();
+
+/* ---- Codex R68 materials_light_edge.js ---- */
+/* Daylight visibility for the approved luminous blade: soft moving energy only.
+   No polygon sword, no opaque body, no drawn outline, no solid guard. */
+(function(){
+ const M=window.R68Material,mk=(w,h)=>{const a=document.createElement('canvas');a.width=w;a.height=h;return a};
+ const raw=mk(512,160),g=raw.getContext('2d'),tinted=mk(512,160),out=tinted.getContext('2d');let last=null;
+ function prepare(t){if(last===t)return;last=t;g.clearRect(0,0,512,160);M.blade(g,t,480,80,440,124,0,1,6);const p=g.getImageData(0,0,512,160),d=p.data;
+  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const l=(d[i]+d[i+1]+d[i+2])/765,hot=Math.max(0,Math.min(1,(l-.50)/.47));d[i]=25+hot*230;d[i+1]=95+hot*160;d[i+2]=235+hot*20;d[i+3]*=.53;}
+  out.putImageData(p,0,0);
+ }
+ function underlay(c,t,x,y,length,width,angle,alpha){if(alpha<=0||length<2)return;prepare(t);c.save();c.translate(x,y);c.rotate(angle);c.globalCompositeOperation='source-over';c.globalAlpha=alpha;c.drawImage(tinted,-length*480/440,-width*80/124,length*512/440,width*160/124);c.restore()}
+ window.R68LightEdge={underlay};
+})();
+
+/* ---- Codex R68 materials_point_heavy.js ---- */
+/* Point-star snap material. Keeps the original V1 needle silhouette and its
+ * painted filaments with white emission, then advects light inside that alpha envelope.
+ * Runtime canvases only: source PNGs are never changed or exported.
+ * Draw on the main scene canvas so the source-over detail survives daylight.
+ */
+(function () {
+  'use strict';
+  const TAU = Math.PI * 2, W = 512, H = 128;
+  const C = v => Math.max(0, Math.min(1, v));
+  const smooth = v => { const q = C(v); return q * q * (3 - 2 * q); };
+  const mix = (a, b, q) => a + (b - a) * q;
+  const mk = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; };
+  const hash = n => { const v = Math.sin(n * 127.1 + 49.3) * 43758.5453; return v - Math.floor(v); };
+  const load = url => new Promise((resolve, reject) => {
+    const im = new Image(); im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error('Point snap material failed to load: ' + url)); im.src = url;
+  });
+  const body = mk(W, H), bodyCtx = body.getContext('2d');
+  const emission = mk(W, H), emissionCtx = emission.getContext('2d');
+  const bodyPixels = bodyCtx.createImageData(W, H), glowPixels = emissionCtx.createImageData(W, H);
+  let source = null, phaseFields = [], ready = false, loading = null, lastTime = null;
+
+  function sampleRGBA(data, x, y, channel) {
+    x = Math.max(0, Math.min(W - 1, x)); y = Math.max(0, Math.min(H - 1, y));
+    const ix = Math.floor(x), iy = Math.floor(y), jx = Math.min(W - 1, ix + 1), jy = Math.min(H - 1, iy + 1), u = x - ix, v = y - iy;
+    return mix(mix(data[(iy * W + ix) * 4 + channel], data[(iy * W + jx) * 4 + channel], u),
+      mix(data[(jy * W + ix) * 4 + channel], data[(jy * W + jx) * 4 + channel], u), v);
+  }
+  function phaseSample(field, u, v) {
+    const N = 128, x = C(u) * (N - 1), y = C(v) * (N - 1), ix = Math.floor(x), iy = Math.floor(y), jx = Math.min(N - 1, ix + 1), jy = Math.min(N - 1, iy + 1);
+    return mix(mix(field[iy * N + ix], field[iy * N + jx], x - ix), mix(field[jy * N + ix], field[jy * N + jx], x - ix), y - iy);
+  }
+  async function preload(root) {
+    if (ready) return; if (loading) return loading;
+    const base = String(root).replace(/\/$/, '');
+    loading = Promise.all([load(R68URL('point_needle_v1.png')), load(R68URL('星剑.png'))]).then(([needle, atlas]) => {
+      const cv = mk(W, H), g = cv.getContext('2d');
+      // V1's actual needle points LEFT. Strip empty padding, keeping the blue
+      // leading flare and all gold flame tips. Tip is x=60, spine is y=527.5.
+      g.drawImage(needle, needle.width * 60 / 1024, needle.height * 425 / 1024,
+        needle.width * 920 / 1024, needle.height * 205 / 1024, 0, 0, W, H);
+      source = g.getImageData(0, 0, W, H).data;
+      const centers = [.583, .580, .475, .482], cw = atlas.width / 2, ch = atlas.height / 2;
+      for (let i = 0; i < 4; i++) {
+        const tile = mk(128, 128), q = tile.getContext('2d');
+        q.drawImage(atlas, (i % 2) * cw + cw * .035, Math.floor(i / 2) * ch + ch * (centers[i] - .23),
+          cw * .60, ch * .46, 0, 0, 128, 128);
+        const bytes = q.getImageData(0, 0, 128, 128).data, field = new Float32Array(128 * 128);
+        for (let k = 0; k < field.length; k++) { const p = k * 4; field[k] = (.2126 * bytes[p] + .7152 * bytes[p + 1] + .0722 * bytes[p + 2]) / 255 * bytes[p + 3] / 255; }
+        phaseFields.push(field);
+      }
+      ready = true;
+    }).catch(error => { loading = null; throw error; });
+    return loading;
+  }
+
+  function texture(t) {
+    if (lastTime === t) return; lastTime = t;
+    const phase = ((t * 7.1) % 4 + 4) % 4, i = Math.floor(phase), j = (i + 1) % 4, blend = smooth(phase - i);
+    const out = bodyPixels.data, glow = glowPixels.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const k = (y * W + x) * 4, originalAlpha = source[k + 3] / 255;
+      if (originalAlpha < .003) { out[k + 3] = glow[k + 3] = 0; continue; }
+      const u = x / (W - 1), v = (y / (H - 1) - .5) * 2;
+      // Keep the tip and outline registered; only the interior painted
+      // filaments travel. Adjacent four-phase fields blend continuously.
+      const pin = smooth(u / .15), sx = x + pin * (7.2 * Math.sin(u * 23 - t * 13.5) + 3.1 * Math.sin(u * 57 - t * 21)),
+        sy = y + pin * (1.5 * Math.sin(u * 31 - t * 15.7) + .6 * Math.sin(u * 73 + t * 19));
+      const shiftedAlpha = sampleRGBA(source, sx, sy, 3) / 255;
+      const sampleWeight = .26 * shiftedAlpha;
+      const sr = mix(source[k], sampleRGBA(source, sx, sy, 0), sampleWeight),
+        sg = mix(source[k + 1], sampleRGBA(source, sx, sy, 1), sampleWeight),
+        sb = mix(source[k + 2], sampleRGBA(source, sx, sy, 2), sampleWeight);
+      const flowU = C(.045 + u * .89 + .027 * Math.sin(t * 8 - u * 26)), flowV = C(.5 + v * .36 + .024 * Math.sin(u * 33 - t * 13));
+      const atlasLight = mix(phaseSample(phaseFields[i], flowU, flowV), phaseSample(phaseFields[j], flowU, flowV), blend);
+      const wave = .84 + .12 * Math.sin(u * 64 - t * 22 + v * 8) + .07 * Math.sin(u * 131 - t * 31 - v * 14);
+      const packet = Math.exp(-Math.pow(Math.sin(u * 16 - t * 6.2 + v * 4) * 3.3, 2));
+      const hot = smooth((Math.min(sr, sg, sb) / 255 - .67) / .28), gain = .78 + .16 * wave + .095 * atlasLight + .055 * packet;
+      // White light with open spaces between moving filaments. The dense
+      // blue body is removed: only the thin hot ridges keep strong opacity.
+      const tipHalf = .018 + .40 * Math.min(1, u / .22);
+      const tipMask = u < .22 ? 1 - smooth((Math.abs(v) - tipHalf) / .075) : 1;
+      const filamentOpacity = (.12 + .64 * hot + .07 * atlasLight) * (.88 + .08 * wave);
+      out[k] = out[k + 1] = out[k + 2] = 255;
+      out[k + 3] = 255 * originalAlpha * tipMask * filamentOpacity;
+      glow[k] = glow[k + 1] = glow[k + 2] = 255;
+      glow[k + 3] = 255 * originalAlpha * tipMask * (.055 + .56 * hot + .10 * atlasLight + .035 * packet);
+    }
+    bodyCtx.putImageData(bodyPixels, 0, 0); emissionCtx.putImageData(glowPixels, 0, 0);
+  }
+
+  function draw(c, t, tipX, tipY, length, angle, alpha = 1) {
+    if (!ready || alpha <= 0 || length <= 1) return;
+    texture(t);
+    const height = 2 * Math.min(74.88, length * 205 / 920), a = C(alpha);
+    c.save(); c.translate(tipX, tipY); c.rotate(angle + Math.PI);
+    c.filter = 'none'; c.globalCompositeOperation = 'source-over'; c.globalAlpha = a;
+    c.drawImage(body, 0, -height / 2, length, height);
+    c.globalCompositeOperation = 'screen'; c.globalAlpha = a * .40;
+    c.drawImage(emission, 0, -height / 2, length, height);
+    c.filter = 'blur(1.6px)'; c.globalAlpha = a * .18;
+    c.drawImage(emission, -length * .002, -height * .56, length * 1.004, height * 1.12);
+    c.filter = 'none';
+    // Few moving chips leave the wake. No handle, guard, polygon edge,
+    // extra beam line or ball is added to the original needle silhouette.
+    for (let n = 0; n < 10; n++) {
+      const q = ((t * (1.16 + hash(n + 8) * .4) + hash(n + 17)) % 1 + 1) % 1;
+      const x = length * (.38 + q * .63), side = n % 2 ? 1 : -1,
+        y = side * height * (.10 + .25 * q) + Math.sin(t * 12 + n * 2.3) * height * .028;
+      c.globalAlpha = a * Math.sin(q * Math.PI) * .42 * (1 - q * .5);
+      c.strokeStyle = '#ffffff'; c.lineWidth = .7 + hash(n + 11) * .7; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(x, y); c.lineTo(x + 1.5 + q * 4, y + side * .6); c.stroke();
+    }
+    c.restore();
+  }
+  window.R68PointSnap = { preload, draw, version: '1.4.0-double-width', inspect: () => ({ ready, source: 'V1 painted needle silhouette', fourPhases: phaseFields.length, continuousUVFlow: true, hardGeometry: false }) };
+})();
+
+/* ---- Codex R68 jiuyao_sky_material.js ---- */
+/* 九曜剑典 · 天穹九曜星盘. Independent original Canvas material.
+ * Broad, broken, textured orbital ribbons; nine restrained energy cores;
+ * a faint nine-lobed stellar canopy. No swords, runes, images or M.array.
+ */
+(function(){'use strict';
+ const TAU=Math.PI*2,C=v=>Math.max(0,Math.min(1,v)),S=v=>{const q=C(v);return q*q*(3-2*q)},L=(a,b,q)=>a+(b-a)*q;
+ const rings=[{r:.30,speed:.235,offset:.23},{r:.61,speed:-.155,offset:1.24},{r:.93,speed:.095,offset:.57}];
+ const defaults={x:650,y:155,rx:350,ry:105,a:1,releaseCount:0};
+ function radial(c,x,y,rx,ry,a,rgb){if(a<=0||rx<=0||ry<=0)return;c.save();c.globalAlpha=1;c.translate(x,y);c.scale(rx,ry);const gr=c.createRadialGradient(0,0,0,0,0,1);gr.addColorStop(0,'rgba('+rgb+','+C(a)+')');gr.addColorStop(.23,'rgba('+rgb+','+C(a*.52)+')');gr.addColorStop(.61,'rgba('+rgb+','+C(a*.11)+')');gr.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=gr;c.fillRect(-1,-1,2,2);c.restore()}
+ function orbital(t,layer,angle,radius){const ring=rings[layer],an=angle+ring.offset+t*ring.speed,shear=Math.sin(t*.17+layer*1.7)*.055;return{x:(Math.cos(an)+Math.sin(an)*shear)*radius,y:Math.sin(an)*radius*(1-layer*.018),angle:an}}
+ function world(p,o){return{x:o.x+p.x*o.rx,y:o.y+p.y*o.ry}}
+ function nodePositions(t,options){const o={...defaults,...options},nodes=[];for(let layer=0;layer<3;layer++)for(let j=0;j<3;j++){const index=layer*3+j,p=orbital(t,layer,j*TAU/3,rings[layer].r);nodes.push({index,layer,...world(p,o),angle:p.angle,radius:rings[layer].r,released:Array.isArray(o.releasedNodes)?o.releasedNodes.includes(index):index<Math.min(7,Math.max(0,o.releaseCount||0))})}return nodes}
+ function stroke(c,p,q,width,a,color){if(a<=0)return;c.globalAlpha=C(a);c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}
+ function canopy(c,t,o){
+  // A low-density continuous star veil, cut into nine moving petals. Its
+  // open centre and dark gaps prevent the disc from turning into a white mass.
+  c.save();c.translate(o.x,o.y);c.scale(o.rx,o.ry);c.globalAlpha=1;
+  for(let j=0;j<9;j++){
+   const an=j*TAU/9+t*.045,spread=.14+.025*Math.sin(t*.48+j),inner=.20,outer=.91+.035*Math.sin(t*.52+j*1.3);
+   const p=(a,r)=>[Math.cos(a)*r,Math.sin(a)*r];
+   const start=p(an-spread,inner),left=p(an-spread,outer),tip=p(an,outer*1.08),right=p(an+spread,outer),end=p(an+spread,inner);
+   const gr=c.createRadialGradient(0,0,.14,0,0,1.05),cool=j===2||j===6;
+   gr.addColorStop(0,'rgba(213,171,104,0)');gr.addColorStop(.38,cool?'rgba(102,95,179,'+(o.a*.022)+')':'rgba(222,158,67,'+(o.a*.028)+')');gr.addColorStop(.70,cool?'rgba(132,125,210,'+(o.a*.045)+')':'rgba(245,187,94,'+(o.a*.060)+')');gr.addColorStop(1,'rgba(235,185,97,0)');
+   c.fillStyle=gr;c.beginPath();c.moveTo(...start);c.quadraticCurveTo(...left,...tip);c.quadraticCurveTo(...right,...end);c.quadraticCurveTo(0,0,...start);c.closePath();c.fill();
+  }c.restore();
+ }
+ function ribbon(c,t,o,layer,j){
+  const ring=rings[layer],start=j*TAU/3-.57,end=j*TAU/3+.77,n=58;
+  for(let k=0;k<n;k++){
+   const u=k/n,v=(k+1)/n,an=L(start,end,u),next=L(start,end,v),wave=.004*Math.sin(an*17-t*3.3+layer)+.002*Math.sin(an*37+t*5.1),radius=ring.r+wave;
+   const p=world(orbital(t,layer,an,radius),o),q=world(orbital(t,layer,next,radius),o),taper=Math.sin(Math.PI*(u*.94+.03))**.47;
+   const current=Math.exp(-Math.pow(Math.sin((u-t*(layer===1?-.24:.20)+j*.17)*Math.PI)*3.7,2));
+   const threads=.68+.22*Math.sin(u*63-t*7.1+j*2.3)**2+.10*Math.sin(u*113+t*11.2)**2;
+   const light=o.a*taper*threads*(.23+.40*current),cool=layer===1&&(j===1||j===2);
+   stroke(c,p,q,7.2+current*2.4,light*.20,cool?'#817bc5':'#d89844');
+   stroke(c,p,q,2.35+current*1.15,light*.81,cool?'#a3a7e4':'#f2c879');
+   stroke(c,p,q,.82+current*.34,light*.62,cool?'#d1d4ff':'#fff0bd');
+   // One laterally offset stream flows independently inside the light band.
+   const offset=.0035*Math.sin(u*19-t*4.7+j),pa=world(orbital(t,layer,an,radius+offset),o),pb=world(orbital(t,layer,next,radius+offset),o);
+   if(current>.47)stroke(c,pa,pb,.72,light*.45,cool?'#e2ddff':'#fff4ce');
+  }
+ }
+ function movingPackets(c,t,o,layer){
+  for(let j=0;j<3;j++){
+   const phase=((t*(layer===1?-.13:.105)+j/3+.031*layer)%1+1)%1,an=phase*TAU;
+   for(let k=1;k<12;k++){const p=world(orbital(t,layer,an-k*.014,rings[layer].r),o),q=world(orbital(t,layer,an-k*.014+.017,rings[layer].r),o);stroke(c,p,q,1.6,o.a*.34*(1-k/12),layer===1?'#c4baff':'#ffe7a5')}
+  }
+ }
+ function nucleus(c,t,node,o){
+  const scale=C(Math.sqrt(o.rx*o.ry/(350*105))*.22+.78),r=(node.layer===0?7.4:node.layer===1?8.3:9.2)*scale;
+  const a=o.a*(node.released?.46:1)*(.87+.13*Math.sin(t*2.1+node.index*.83)**2);
+  radial(c,node.x,node.y,r*3.5,r*2.8,a*.28,'255,174,64');
+  radial(c,node.x,node.y,r*1.55,r*1.35,a*.54,'255,210,125');
+  // Circular plasma mantle, not a four-point star icon. The outer edge and
+  // internal light membrane roll continuously without changing the node count.
+  c.globalAlpha=C(a*.71);c.fillStyle='#eeb868';c.beginPath();
+  for(let k=0;k<=40;k++){const an=k/40*TAU,rr=r*(.74+.032*Math.sin(an*5-t*4.1+node.index)+.020*Math.sin(an*9+t*6.3));const x=node.x+Math.cos(an)*rr,y=node.y+Math.sin(an)*rr;k?c.lineTo(x,y):c.moveTo(x,y)}c.closePath();c.fill();
+  c.globalAlpha=C(a*.82);c.fillStyle='#ffe9ba';c.beginPath();c.arc(node.x-r*.07,node.y-r*.10,r*.44,0,TAU);c.fill();
+  c.globalAlpha=C(a*.86);c.fillStyle='#fff7df';c.beginPath();c.arc(node.x-r*.08,node.y-r*.10,r*.23,0,TAU);c.fill();
+  c.globalAlpha=C(a*.56);c.strokeStyle='#ffdfa3';c.lineWidth=1.05;c.beginPath();c.arc(node.x,node.y,r*.88,t*.8+node.index,t*.8+node.index+TAU*.56);c.stroke();
+  const turn=-t*1.14+node.index;c.globalAlpha=C(a*.52);c.fillStyle='#d8d5ff';c.beginPath();c.arc(node.x+Math.cos(turn)*r*.69,node.y+Math.sin(turn)*r*.69,1.05,0,TAU);c.fill();
+ }
+ function interflow(c,t,o,nodes){
+  for(let j=0;j<3;j++){
+   const p=nodes[j],q=nodes[3+(j+1)%3],r=nodes[6+(j+2)%3],at=u=>({x:(1-u)**2*p.x+2*(1-u)*u*q.x+u*u*r.x,y:(1-u)**2*p.y+2*(1-u)*u*q.y+u*u*r.y});
+   for(let k=0;k<36;k++){const u=k/36,phase=((t*.19+j*.31)%1+1)%1,current=Math.exp(-Math.pow((u-phase)*11,2));stroke(c,at(u),at((k+1)/36),1.4,o.a*(.020+.13*current),j===1?'#8d88c9':'#d4ac6c')}
+  }
+ }
+ function draw(c,t,options){
+  const o={...defaults,...options},nodes=nodePositions(t,o);if(o.a<=0||o.rx<=0||o.ry<=0)return{nodes,center:{x:o.x,y:o.y}};
+  c.save();c.globalCompositeOperation='screen';canopy(c,t,o);radial(c,o.x,o.y,o.rx*1.08,o.ry*1.16,o.a*.023,'217,151,68');interflow(c,t,o,nodes);
+  for(let layer=2;layer>=0;layer--){for(let j=0;j<3;j++)ribbon(c,t,o,layer,j);movingPackets(c,t,o,layer)}
+  for(let j=0;j<27;j++){
+   const layer=j%3,an=j*2.39996+t*(j%2?.071:-.085),p=world(orbital(t,layer,an,.20+.76*((j*.381966)%1)),o),a=o.a*(.08+.14*Math.sin(t*1.6+j)**2);
+   c.globalAlpha=C(a);c.fillStyle=j%5?'#f5ce87':'#b7b4ea';c.beginPath();c.arc(p.x,p.y,.75+.18*(j%3),0,TAU);c.fill();
+  }
+  for(const node of nodes)nucleus(c,t,node,o);
+  c.restore();return{nodes,center:{x:o.x,y:o.y},family:'九曜剑典·天穹星盘',nodeCount:9,releaseCount:o.releaseCount};
+ }
+ window.R68JiuyaoSky={draw,nodePositions,version:'1.0.0',method:'original procedural nine-luminary sky canopy; no sword array, image atlas or static sprite'};
+})();
+
+/* ---- 移植到正式战斗：按真实施法者 / 目标坐标重建（Codex scene_point_heavy.js 的时间轴、材质、命中参数原样保留） ---- */
+(function () {
+  'use strict';
+  if (!window.R68Material || !window.R68PointSnap || !window.R68JiuyaoSky) return;
+  const C = x => Math.max(0, Math.min(1, x)), TAU = Math.PI * 2, E = (t, a, b) => { const q = C((t - a) / (b - a)); return q * q * (3 - 2 * q); }, L = (a, b, q) => a + (b - a) * q, R = i => { let x = Math.sin(i * 127.1 + 49.3) * 43758.5453; return x - Math.floor(x); };
+  const M = window.R68Material, mk = (w, h) => { const v = document.createElement('canvas'); v.width = w; v.height = h; return v; };
+  let fx = null, fxc, bloom, bg, bloom2, bg2;
+  let main = ctx, c = ctx, t = 0, skill = 'xingluo', P = null, TG = [], SKY = { x: 650, y: 158 }, ready = false;
+  Promise.all([M.preload(''), R68PointSnap.preload('')]).then(() => { ready = true; }).catch(e => console.warn('R68', e));
+  const nT = () => Math.max(1, TG.length);
+  function target(i) { const u = TG[i % nT()]; return { x: u.x, y: u.y - u.h * .55 }; }
+  function tgUnit(i) { return TG[i % nT()]; }
+  // 手 / 掌前小阵：Codex 演示里叶孤星脚点 (972.8,590.4)、身高 240，阵心 (835,400)；按真实脚点和身高换算
+  const hk = () => (P.h || 240) / 240;
+  function finger() { const k = hk(); return { x: P.x - 90 * k, y: P.y - 150 * k }; }
+  function pointGateAt() { const k = hk(); return { x: P.x - 137.8 * k, y: P.y - 190.4 * k }; }
+  function night() { return skill === 'dianxing' ? 0 : .75 * E(t, .08, .60) * (1 - E(t, 5.0, 5.97)); }
+  function pointPlan() {
+    const launch = 23 / 30, hit = 27 / 30, origin = pointGateAt(), end = target(0), angle = Math.atan2(end.y - origin.y, end.x - origin.x), length = 302.4;
+    return { origin, start: { x: origin.x + Math.cos(angle) * length * .9, y: origin.y + Math.sin(angle) * length * .9 }, end, angle, length, formStart: .25, launch, hit, target: 0, main: true, i: 0, holdFrames: 3 };
+  }
+  function pointBladePose(z = t) {
+    const p = pointPlan(), d = { x: Math.cos(p.angle), y: Math.sin(p.angle) }, base = { angle: p.angle, materialTime: z * 1.35 };
+    if (z < p.formStart) return { ...base, x: p.origin.x, y: p.origin.y, length: 0, alpha: 0, form: 0, phase: 'opening' };
+    if (z < p.launch) { const q = E(z, .25, .42), len = 266.4 + 36 * E(z, .60, p.launch); return { ...base, x: p.origin.x + d.x * len * .9, y: p.origin.y + d.y * len * .9, length: len, alpha: q, form: 1, phase: 'ready' }; }
+    if (z < p.hit) { const q = C((z - p.launch) / (p.hit - p.launch)), v = .55 * q + .45 * q * q; return { ...base, x: L(p.start.x, p.end.x, v), y: L(p.start.y, p.end.y, v), length: L(302.4, 381.6, q), alpha: 1, form: 1, phase: 'strike' }; }
+    const age = z - p.hit; return { ...base, x: p.end.x + d.x * 16, y: p.end.y + d.y * 16, length: 388.8, alpha: (1 - E(age, 0, .10)) * .65, form: 1, phase: age < .10 ? 'contact' : 'gone', age };
+  }
+  function ninePose(z = t) { const op = E(z, .10, 1.45); return { x: SKY.x, y: SKY.y, rx: L(45, 350, op), ry: L(14, 105, op), a: E(z, .10, .65) * (1 - E(z, 4.2, 4.95)), releaseCount: Math.max(0, Math.min(7, Math.floor((z - 2.7 + .00001) / .2) + 1)), system: '九曜剑典', source: 'sky' }; }
+  let PLAN = null;
+  function meteorPlan() {
+    if (PLAN) return PLAN;
+    const n = nT(), map = n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0], off = [-14, 12, -21, 19, -18, 22, 0], used = new Set();
+    return (PLAN = map.map((j, i) => {
+      const launch = 2.7 + i * .2, hit = 3.2 + i * .2, array = ninePose(launch), nodes = R68JiuyaoSky.nodePositions(launch, array), end = { x: target(j).x + off[i], y: target(j).y + (i === 6 ? 8 : 0) };
+      const ranked = nodes.filter(nd => !used.has(nd.index)).map(nd => ({ nd, cost: Math.abs(Math.atan2(end.y - nd.y, nd.x - end.x) * 180 / Math.PI - 35) + (nd.x < end.x + 150 ? 80 : 0) })).sort((a, b) => a.cost - b.cost), chosen = ranked[0].nd; used.add(chosen.index);
+      const start = { x: chosen.x, y: chosen.y }, back = Math.min(190, Math.max(65, (start.x - end.x) * .55)), control1 = { x: L(start.x, end.x, .30), y: L(start.y, end.y, .24) }, control2 = { x: end.x + back * Math.cos(35 * Math.PI / 180), y: end.y - back * Math.sin(35 * Math.PI / 180) };
+      return { i, target: j, start, end, control1, control2, launch, hit, main: i === 6, originNode: chosen.index };
+    }));
+  }
+  function events() { return skill === 'dianxing' ? [pointPlan()] : meteorPlan(); }
+  function localAge(e, z = t) { const a = z - e.hit, hold = (e.holdFrames || 4) / 30; return a < 0 ? a : a < 2 / 30 ? a : a < 2 / 30 + hold ? 2 / 30 : a - hold; }
+  function clock() { const e = events().find(e => e.main), a = t - e.hit; return a < 0 ? t : t - Math.min(Math.max(0, a - 2 / 30), (e.holdFrames || 4) / 30); }
+  function pose(p, z = t) { const q = C((z - p.launch) / (p.hit - p.launch)), v = .36 * q + .64 * q * q; const u = 1 - v, a = p.start, b = p.control1, d = p.control2, e = p.end, x = u * u * u * a.x + 3 * u * u * v * b.x + 3 * u * v * v * d.x + v * v * v * e.x, y = u * u * u * a.y + 3 * u * u * v * b.y + 3 * u * v * v * d.y + v * v * v * e.y, dx = 3 * u * u * (b.x - a.x) + 6 * u * v * (d.x - b.x) + 3 * v * v * (e.x - d.x), dy = 3 * u * u * (b.y - a.y) + 6 * u * v * (d.y - b.y) + 3 * v * v * (e.y - d.y); return { x, y, q, angle: Math.atan2(dy, dx) }; }
+  function glow(g, x, y, rx, ry, a, col = '255,222,140') { if (a <= 0) return; g.save(); g.translate(x, y); g.scale(rx, ry); g.globalCompositeOperation = 'screen'; const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, 'rgba(' + col + ',' + C(a) + ')'); gr.addColorStop(.35, 'rgba(' + col + ',' + C(a * .55) + ')'); gr.addColorStop(1, 'rgba(' + col + ',0)'); g.fillStyle = gr; g.fillRect(-1, -1, 2, 2); g.restore(); }
+  function line(a, b, w, alpha, col = '#ffeab6') { if (alpha <= 0) return; c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = C(alpha); c.strokeStyle = col; c.lineCap = 'round'; c.lineWidth = w; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); c.restore(); }
+  function flowingLink(a, b, z, alpha, w = 3, seed = 0) { line(a, b, w * 2, alpha * .12, '#6fa8db'); line(a, b, w, alpha * .29); for (let j = 0; j < 8; j++) { const q = (z * .45 + j / 8 + seed * .17) % 1, prev = Math.max(0, q - .045); line({ x: L(a.x, b.x, prev), y: L(a.y, b.y, prev) }, { x: L(a.x, b.x, q), y: L(a.y, b.y, q) }, w * .75, alpha * .55, '#fff9e0'); } }
+  function arrayPose() {
+    if (skill === 'dianxing') { const p = pointPlan(), gate = pointGateAt(), op = E(t, .04, .34), snap = 1 - .35 * E(t, .70, p.launch); return { x: gate.x, y: gate.y, rx: L(7, 26, op) * snap * 1.3, ry: L(10, 57, op) * snap * 1.3, a: E(t, .03, .19) * (1 - E(t, p.launch, p.launch + .10)), rotation: p.angle - Math.PI }; }
+    return ninePose();
+  }
+  function charge(x, y, alpha, seed = 0, r = 170) { for (let i = 0; i < 36; i++) { const q = (t * .66 + i * .618) % 1, an = i * 2.399 + t * .46, dist = (1 - q) * r, px = x + Math.cos(an) * dist, py = y + Math.sin(an) * dist * .55; M.orb(c, t, px, py, 1.3 + q * 2.5, alpha * Math.sin(q * Math.PI) * .65, i + seed); } }
+  function ritual() {
+    const p = arrayPose(), z = clock();
+    if (skill === 'dianxing') {
+      const f = finger(), feed = E(t, .08, .30) * (1 - E(t, .74, .83));
+      c.save(); c.translate(p.x, p.y); c.rotate(p.rotation); M.array(c, z * 2.2, { x: 0, y: 0, rx: p.rx, ry: p.ry, a: p.a * .66 }); c.restore();
+      flowingLink(f, p, z * 1.7, feed * .28, 2, 2);
+      M.orb(c, z, f.x, f.y, 4.8, feed * .48, 4);
+      M.glow(c, p.x, p.y, 17, 25, E(t, .64, .74) * (1 - E(t, .77, .84)) * .5, '214,237,255');
+      for (let j = 0; j < 12; j++) { const q = C((t - .10 - j * .012) / .42); if (q <= 0 || q >= 1) continue; const an = j * 2.399, dist = (1 - q) * 47; M.node(c, p.x + Math.cos(an) * dist, p.y + Math.sin(an) * dist * .65, 1.2 + q, Math.sin(q * Math.PI) * .44, j % 4 === 0); }
+      return;
+    }
+    R68JiuyaoSky.draw(c, z, { ...p, releaseCount: ninePose(t).releaseCount, releasedNodes: meteorPlan().filter(e => t >= e.launch).map(e => e.originNode) }); const f = finger(), feed = E(t, .8, 1.5) * (1 - E(t, 2.8, 3.2)); M.orb(c, z, f.x, f.y, 7, feed * .62, 4);
+    if (t > 1.5 && t < 2.7) charge(p.x, p.y, E(t, 1.5, 1.9) * (1 - E(t, 2.6, 2.85)) * .42, 43, 120);
+  }
+  function cracks(p, age) { const a = E(age, .03, .16) * (1 - E(age, .55, 1.02)); if (a <= 0) return; const y = tgUnit(p.target).y + 4; for (let i = 0; i < 7; i++) { const an = i * TAU / 7 + .2, pts = [{ x: p.end.x, y }]; for (let j = 1; j <= 5; j++) { const d = j * 29; pts.push({ x: p.end.x + Math.cos(an) * d + (R(i * 11 + j) - .5) * 21, y: y + Math.sin(an) * d * .23 + (R(i * 7 + j) - .5) * 9 }); } for (let j = 1; j < pts.length; j++) { line(pts[j - 1], pts[j], 7, a * .18); line(pts[j - 1], pts[j], 2.4, a * .76, '#fff2c4'); } } }
+  function meteorEffects() {
+    const plan = meteorPlan(), z = clock(), ex0 = Math.min(...TG.map(u => u.x)) - 80, ex1 = Math.max(...TG.map(u => u.x)) + 80;
+    for (let j = 0; j < 26; j++) { const birth = 2.72 + j * .052, age = t - birth, life = .68; if (age < 0 || age > life) continue; const q = age / life, origin = { x: SKY.x - 290 + R(j + 24) * 520, y: SKY.y - 48 + R(j + 48) * 95 }, end = { x: L(ex0, ex1, R(j + 71)), y: 510 + R(j + 80) * 55 }, x = L(origin.x, end.x, q * q), y = L(origin.y, end.y, q * q), alpha = Math.sin(q * Math.PI) * .32; M.node(c, x, y, 1.5 + R(j) * 2, alpha, j % 5 === 0); line({ x: x + 8, y: y - 11 }, { x, y }, 1.3, alpha * .48, '#f5dda8'); }
+    for (const p of plan) {
+      const birth = t - p.launch; if (birth >= 0 && birth < .20) M.orb(c, z, p.start.x, p.start.y, p.main ? 17 : 10, (1 - E(birth, .04, .20)) * .75, p.i);
+      if (t >= p.launch && t < p.hit) { const v = pose(p), dist = Math.hypot(v.x - p.start.x, v.y - p.start.y), len = Math.min(p.main ? 395 : 298, dist + 26), width = p.main ? 118 : 78; for (let k = 3; k >= 1; k--) { const a = pose(p, Math.max(p.launch, t - k * .025)), b = pose(p, Math.max(p.launch, t - (k - 1) * .025)); line(a, b, 12 - k * 2, .08, '#b1b4ff'); } M.meteor(c, z, v.x, v.y, len, width, v.angle, 1, p.i); }
+      const age = localAge(p); if (age >= 0 && age < .9) { M.impact(c, age, p.end.x, p.end.y, p.main ? 142 : 76, 1, p.i, tgUnit(p.target).y); if (p.main) cracks(p, age); }
+    }
+  }
+  function pointLightUnderlay() { if (skill !== 'dianxing') return; const b = pointBladePose(); if (b.alpha > 0) R68PointSnap.draw(main, b.materialTime, b.x, b.y, b.length, b.angle, b.alpha); }
+  function pointEffects() {
+    const p = pointPlan(), b = pointBladePose();
+    if (t >= p.launch && t < p.hit + .10) { const fade = t < p.hit ? 1 : 1 - E(t, p.hit, p.hit + .10), d = { x: Math.cos(p.angle), y: Math.sin(p.angle) };
+      if (t < p.hit) for (let k = 1; k <= 3; k++) { const v = pointBladePose(Math.max(p.launch, t - k * .018)); line({ x: v.x - d.x * v.length * .7, y: v.y - d.y * v.length * .7 }, { x: b.x - d.x * b.length * .2, y: b.y - d.y * b.length * .2 }, 4 - k, .12 * fade / k, '#ffffff'); } }
+    const raw = t - p.hit; if (raw < 0 || raw > .64) return;
+    const age = localAge(p), core = 1 - E(age, .055, .24), spread = .28 + .72 * (1 - Math.exp(-age * 27)), fade = 1 - E(age, .18, .46), x = p.end.x, y = p.end.y;
+    M.glow(c, x, y, 96, 70, core * .78, '255,255,255'); M.glow(c, x, y, 28 + 13 * spread, 22 + 10 * spread, core * .98, '255,255,255');
+    for (let j = 0; j < 13; j++) { const an = j * 2.399 + .19, len = (36 + R(j + 12) * 62) * spread, a = fade * (.55 + R(j) * .42), start = 5 + 11 * spread;
+      c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.scale(1, .8); c.rotate(an); const w = j % 3 === 0 ? 6 : 3, g = c.createLinearGradient(start, 0, len, 0); g.addColorStop(0, 'rgba(255,255,255,' + a + ')'); g.addColorStop(.52, 'rgba(255,255,255,' + (a * .7) + ')'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g;
+      c.beginPath(); c.moveTo(start, -w); c.lineTo(len, 0); c.lineTo(start, w); c.closePath(); c.fill(); c.restore(); }
+    for (let ring = 0; ring < 2; ring++) { const elapsed = age - ring * .045; if (elapsed < 0) continue; const q = 1 - Math.exp(-elapsed * 19), r = 16 + (ring ? 62 : 90) * q, alpha = (1 - E(elapsed, .12, .40)) * (ring ? .45 : .72);
+      c.save(); c.globalCompositeOperation = 'screen'; c.translate(x, y); c.scale(1, .68); c.strokeStyle = '#ffffff'; c.lineCap = 'round';
+      for (let j = 0; j < 5; j++) { const an = j * TAU / 5 + ring * .24 + age * .5; c.globalAlpha = alpha * .20; c.lineWidth = 8; c.beginPath(); c.arc(0, 0, r, an, an + .94); c.stroke(); c.globalAlpha = alpha; c.lineWidth = ring ? 2 : 3.4; c.stroke(); } c.restore(); }
+    for (let j = 0; j < 26; j++) { const a = Math.max(0, age - .008), life = .25 + R(j + 21) * .20; if (a > life) continue; const an = j * 2.399 + .2, dist = (70 + R(j + 32) * 155) * (1 - Math.exp(-a * 9)), px = x + Math.cos(an) * dist, py = y + Math.sin(an) * dist * .70 + a * a * 85, alpha = E(a, 0, .015) * (1 - E(a, .07, life));
+      line({ x: px - Math.cos(an) * (10 + R(j) * 9), y: py - Math.sin(an) * (7 + R(j) * 7) }, { x: px, y: py }, 2.1 + R(j) * 1.9, alpha * .86, '#ffffff'); }
+  }
+  function groundLight() {
+    if (skill === 'dianxing') { const age = t - pointPlan().hit; if (age >= 0 && age < .33) glow(main, target(0).x, tgUnit(0).y, 100, 19, (1 - E(age, .08, .33)) * .21, '255,255,255'); return; }
+    for (const e of events()) { const age = localAge(e); if (age >= 0 && age < 1.1) { const a = E(age, 0, .035) * (1 - E(age, .38, 1.1)), u = tgUnit(e.target); glow(main, e.end.x, u.y + 2, e.main ? 190 : 110, e.main ? 41 : 26, a * .38); } }
+    const a = E(t, 1.3, 2.65) * (1 - E(t, 4.8, 5.4)); glow(main, P.x, P.y + 2, 85, 19, a * .12);
+  }
+  function beginFx() { if (!fx) { fx = mk(W, H); fxc = fx.getContext('2d'); bloom = mk(320, 180); bg = bloom.getContext('2d'); bloom2 = mk(160, 90); bg2 = bloom2.getContext('2d'); } fxc.setTransform(1, 0, 0, 1, 0, 0); fxc.clearRect(0, 0, W, H); c = fxc; }
+  function finishFx() { bg.clearRect(0, 0, 320, 180); bg.filter = 'blur(3px)'; bg.drawImage(fx, 0, 0, 320, 180); bg.filter = 'none'; bg2.clearRect(0, 0, 160, 90); bg2.filter = 'blur(4px)'; bg2.drawImage(fx, 0, 0, 160, 90); bg2.filter = 'none'; c = main; main.save(); main.globalCompositeOperation = 'screen'; main.globalAlpha = 1; main.drawImage(fx, 0, 0); main.globalCompositeOperation = 'lighter'; main.globalAlpha = .23; main.drawImage(bloom, 0, 0, W, H); main.globalAlpha = .11; main.drawImage(bloom2, 0, 0, W, H); main.restore(); }
+  const TITLE = {}; function title() { if (skill === 'dianxing') return; const a = E(t, .35, .65) * (1 - E(t, 1.25, 1.5)); if (a <= .003) return; let cv = TITLE.xl; if (!cv) { cv = TITLE.xl = mk(340, 190); const g = cv.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = '#bc873c'; g.shadowBlur = 5; g.strokeStyle = '#171820'; g.lineWidth = 3; g.font = '600 21px ' + FONT; g.strokeText('叶孤星', 170, 42); g.fillStyle = '#e5c78f'; g.fillText('叶孤星', 170, 42); g.font = '900 56px ' + FONT; g.strokeText('星落', 170, 96); g.fillStyle = '#fff0cd'; g.fillText('星落', 170, 96); } main.save(); main.globalAlpha = a; main.drawImage(cv, 90, 62); main.restore(); }   // 让开右上角队伍血条
+
+  // 一次施法：返回 Promise；hits(e) 在每颗星 / 剑芒命中那一帧回调
+  function play(k, caster, targets, onHit, endAt) {
+    skill = k; P = caster; TG = targets.slice(); PLAN = null; t = 0;
+    if (k === 'xingluo') { const ax = TG.reduce((s, u) => s + u.x, 0) / TG.length; SKY = { x: Math.round((P.x + ax) / 2 + 14), y: 205 }; }   // Codex 演示 y=158；正式战斗顶上有队伍血条，星盘整体下移让开
+    const evs = events().map(e => ({ e, done: false })), b = battle;
+    return new Promise(res => {
+      let resolved = false;
+      const under = addFx({ life: k === 'dianxing' ? 1.9 : 6, layer: 0, draw(f) { if (skill !== k || P !== caster) return; t = f.t; groundLight(); } });
+      addFx({ life: k === 'dianxing' ? 1.9 : 6, layer: 1,
+        update(f) { t = f.t; skill = k; P = caster; if (k === 'xingluo' && b === battle) b.dim = night();
+          for (const o of evs) if (!o.done && t >= o.e.hit) { o.done = true; const m = o.e.main;
+            if (k === 'dianxing') { S.shake = Math.max(S.shake || 0, 5); screenFlash('#fffaeb', .18); } else { S.shake = Math.max(S.shake || 0, m ? 13 : 4); screenFlash('#fffaeb', m ? .52 : .13); }
+            try { onHit(o.e, tgUnit(o.e.target)); } catch (er) { console.warn(er); } }
+          if (!resolved && t >= endAt) { resolved = true; res(); } },
+        draw(f) { t = f.t; skill = k; P = caster; main = ctx; c = ctx; pointLightUnderlay(); beginFx(); ritual(); if (k === 'xingluo') meteorEffects(); else pointEffects(); finishFx(); c = main; title(); },
+        onEnd() { if (k === 'xingluo' && b === battle) b.dim = 0; if (!resolved) { resolved = true; res(); } } });
+    });
+  }
+
+  // ---- 接进战斗：叶孤星的 点星（天剑一式）与 星落；云霆 / 林雪 的点星仍用原来的冰 / 雷版 ----
+  const oldDX = skDianxing;
+  skDianxing = async function (Pc, tg) {
+    if (!tg || Pc.ally || !ready) return oldDX.apply(this, arguments);
+    playSnd('sfx_sword_ring');
+    setTimeout(() => playSnd('sfx_beam', .8), 760);
+    await play('dianxing', Pc, [tg], () => { playSnd('sfx_hit'); const { d, crit } = dmgCalc(Pc, tg, 1.75, .25); applyDamage(tg, d, crit, { pierce: true }); }, 1.55);
+  };
+  const oldXL = skXingluo;
+  skXingluo = async function (Pc) {
+    const ts = aliveEnemies(); if (Pc.ally || !ready || !ts.length) return oldXL.apply(this, arguments);
+    Pc.pose = 'cast'; playSnd('sfx_charge', .7);
+    const mult = window.XL_MULT || 2.0, cnt = new Map();
+    // 每个目标挨几颗星：总伤害按颗数分摊（倍率与原版一致）
+    const n = ts.length, map = n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0]; for (const j of map) cnt.set(j % n, (cnt.get(j % n) || 0) + 1);
+    setTimeout(() => playSnd('sfx_star', .6), 2700);
+    await play('xingluo', Pc, ts, (e, u) => { if (!u || !u.alive) return; playSnd(e.main ? 'sfx_boom' : 'sfx_hit', e.main ? .9 : .55); const share = mult / (cnt.get(e.target % n) || 1); const { d, crit } = dmgCalc(Pc, u, share, .1); applyDamage(u, d, e.main ? crit : false); }, 5.0);
+    Pc.pose = null;
+  };
+  window.R68FX = { play, ready: () => ready };
 })();
 
 </script></body></html>
