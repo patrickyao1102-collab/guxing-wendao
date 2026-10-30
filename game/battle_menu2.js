@@ -85,6 +85,7 @@
     if (st.note) { ctx.font = `600 13px ${FONT}`; ctx.fillStyle = st.on ? (ult ? '#ffe28a' : '#d8c49a') : '#a08a70'; ctx.fillText(st.note, x + 64, y + r.h - 11); }
     ctx.restore();
   }
+  window.BM2 = { layout: () => layout(), state: it => state(it), CMDS };
   drawBattleMenu = (orig => function () {
     const b = battle; if (!b || !b.menu || b.menu.sub) return orig.apply(this, arguments);
     const now = performance.now() / 1000; if (lastActive !== b.P) { lastActive = b.P; shownAt = now; }

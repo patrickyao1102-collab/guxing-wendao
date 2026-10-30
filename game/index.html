@@ -4316,7 +4316,7 @@ function drawStatus(B, mi, now) {
   if (!mi.ally) { const h = S.hero; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('随身', x, y); y += 30;
     [['weapon', '武器'], ['armor', '衣甲'], ['acc', '饰品']].forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * 40, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * 40, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
       ctx.font = `600 18px ${FONT}`; ctx.fillStyle = id ? UI.text : UI.dim; ctx.fillText(n + '　' + (id ? ITEM_DB[id].name : '未装备'), x + 44, y + i * 40 + 1); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; if (id) ctx.fillText(statText(ITEM_DB[id]), x + 230, y + i * 40 + 1); }); }
-  else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(({ yunting: '天剑宗天才弟子，一身黑衣，冷峻寡言，被叶孤星戏称「冰块脸」。雷属性灵根，修天剑诀。嘴上不多说，却是肯为叶孤星豁出命去的兄弟。', linxue: '天剑宗天才弟子，叶孤星的师姐。容貌清丽，目光清冷，冰属性灵根，修天剑诀。看着冷淡，却嫉恶如仇，见不得恃强凌弱。', shenle: '音谷圣女，月白长裙，手持一支晶莹长笛，清丽出尘如谪仙。修乐道功法《九音录》，以笛音入道，可镇魂伤敌，也能抚平伤势。', luochen: '来自南蛮大陆的妖族少年，身负极古老、极高贵的妖族血脉，双眸一黑一金。被妖皇追杀，流落云渺大陆，为叶孤星所救，暂居天剑宗，与他结为好友。' })[mi.k] || '', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
+  else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(({ yunting: '天剑宗天才弟子，一身黑衣，冷峻寡言，被叶孤星戏称「冰块脸」。雷属性灵根，修天剑诀。嘴上不多说，却是肯为叶孤星豁出命去的兄弟。', linxue: '天剑宗天才弟子，叶孤星的师姐。容貌清丽，目光清冷，冰属性灵根，修天剑诀。看着冷淡，却嫉恶如仇，见不得恃强凌弱。', shenle: '音谷圣女，出身仙灵大陆三大仙宗之一的天音宗。月白长裙，手持晶莹长笛，清丽出尘如谪仙。修超神阶功法《九音录》，以音律化道，可镇魂杀敌于无形。', luochen: '来自南蛮大陆的妖族少年，身负极古老、极高贵的妖族血脉，双眸一黑一金。被妖皇追杀，流落云渺大陆，为叶孤星所救，暂居天剑宗，与他结为好友。' })[mi.k] || '', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
 }
 function drawEquip(B, L, mi) {
   if (mi.ally) { ctx.font = `600 22px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'left'; ctx.fillText(mi.name + ' 的装备由剧情获得，暂不能更换。', B.x + 30, B.y + 50); return; }
@@ -16170,5 +16170,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="r78p.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="r79d.js"></script><script src="r78p.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
