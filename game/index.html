@@ -14690,6 +14690,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       const { d } = dmgCalc(P, t, 4.0, .3); applyDamage(t, d, true, { pierce: true }); await hitStop(220); if (t.alive) stun(t, 1); particleBurst(tx, ty, 50, ['#9fd0ff', '#fff', '#c9a6ff'], 700, .8, 7);
       await sleep(500); await dashBack(P, 260); P.pose = null; await dimTo(0, 350); },
   };
+  SK4.ACT = ACT;   // 特效层（下一段脚本）会替换这里的演出
   const PICK = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);
   doHeroAction = (orig => async function (k) {
     const b = battle, P = b && b.P; if (!b || !P) return orig.apply(this, arguments);
@@ -14703,7 +14704,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
         if (b.onEvent) { const r = await b.onEvent('before', b, k); if (r === 'cancel') { b.state = 'menu'; b.menu = { sel: null, sub: null }; return; } }
         b.state = 'act'; b.menu = null; const rage = P.rage; P.mp -= cost;
         if (k === 'duopo') { b.tanlangUsed = (b.tanlangUsed || 0) + 1; }
-        try { await ACT[k](P, t); } finally { P.pose = null; P.ox = 0; P.oy = 0; }
+        const qc = b.quietCrit; b.quietCrit = true; try { await ACT[k](P, t); } finally { b.quietCrit = qc; P.pose = null; P.ox = 0; P.oy = 0; }
         if (k === 'duopo') P.rage = rage;
         if (P.bx && P.bx.ns && k !== 'ningshen') delete P.bx.ns;
         await afterAct(); return;
@@ -14718,7 +14719,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   // 身上状态小字（画在血条旁）
   drawBattle = (orig => function () { orig.apply(this, arguments); const b = battle; if (!b || !b.heroes) return;
     ctx.save(); ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'center';
-    for (const u of b.units) { if (!u.alive || !u.bx) continue; const tags = []; for (const k in u.bx) { const o = u.bx[k]; if (o.n <= 0) continue; tags.push(k === 'dr' ? '减伤' + Math.round(o.v * 100) + '%' : k === 'atk' ? '攻+' + Math.round(o.v * 100) + '%' : k === 'spd' ? (u.side === 'hero' ? '速+' : '冰缓') : k === 'hs' ? '盾' + Math.round(o.v) : k === 'ns' ? '凝神' : k === 'vuln' ? '搏命' : k === 'ctrlImm' ? '免控' : ''); }
+    for (const u of b.units) { if (!u.alive || !u.bx || u.side === 'hero') continue; const tags = [];   // 我方状态改由身上光效表现，不再挂字 for (const k in u.bx) { const o = u.bx[k]; if (o.n <= 0) continue; tags.push(k === 'dr' ? '减伤' + Math.round(o.v * 100) + '%' : k === 'atk' ? '攻+' + Math.round(o.v * 100) + '%' : k === 'spd' ? (u.side === 'hero' ? '速+' : '冰缓') : k === 'hs' ? '盾' + Math.round(o.v) : k === 'ns' ? '凝神' : k === 'vuln' ? '搏命' : k === 'ctrlImm' ? '免控' : ''); }
       if (u.side === 'enemy' && u.ctrlImm > 1) tags.push('免冻'); if (!tags.length) continue;
       const s = tags.filter(Boolean).join(' '); const w = ctx.measureText(s).width + 14, x = u.x + u.ox, y = u.y - u.h - 18; roundRect(x - w / 2, y - 10, w, 20, 10); ctx.fillStyle = 'rgba(10,8,16,.75)'; ctx.fill(); ctx.fillStyle = u.side === 'hero' ? '#dff6ff' : '#ffd0c0'; ctx.fillText(s, x, y + 1); }
     ctx.restore(); })(drawBattle);
@@ -14729,6 +14730,201 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const b1 = document.createElement('button'); b1.textContent = '学会全部辅助/秘传 + 送卷册'; b1.onclick = () => { for (const who in X) for (const id in X[who]) learn(who, id); for (const t in VOL) addItem('juan' + t, 3); for (const id of ['xingluo', 'jueying', 'xingyun', 'duopo']) if (!S.hero.skills.includes(id)) S.hero.skills.push(id); pan.hidden = true; toast('已学全部新招'); };
     const b2 = document.createElement('button'); b2.textContent = '送全部技能书'; b2.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].sk4) addItem(id, 1); pan.hidden = true; toast('已送技能书'); };
     row.appendChild(b1); row.appendChild(b2); pan.appendChild(h); pan.appendChild(row); })();
+})();
+
+</script><script>
+// ================= 技能体系 v4 · 新招特效（用素材库里的成品特效重做；Codex R76 正式特效到货后再替换）=================
+// 原则：辅助招不弹大立绘、1.2–1.6 秒放完；每人一套色（叶孤星 星蓝白金 / 云霆 雷紫 / 林雪 冰蓝 / 神乐 青白）；
+// 增益挂在身上要看得见：减伤=脚下慢转的阵纹，加攻=兵刃雷光，加速=脚下风纹，护盾=身前半透明阵壁，凝神=剑尖星芒。
+(function () {
+  if (!window.SK4 || !SK4.ACT) return;
+  const A = SK4.ACT, bxv = SK4.bxv;
+  // ---------- 图集 ----------
+  const IM = {}; const load = (k, f) => { const im = new Image(); im.onload = () => { IM[k] = im; }; im.src = 'sx_assets/' + f; };
+  load('array', 'array4.webp'); load('qstar', 'qx_star.webp'); load('flake', 'dx_atlas1.webp'); load('qsword', 'qx_sword.webp'); load('seal', 'seal_master.webp');
+  const CELL = { array: [2, 2], qstar: [2, 2], flake: [3, 2], qsword: [2, 2] };
+  function spr(k, i, o) {   // 画图集第 i 格；o: x,y,size,rot,alpha,sy,life,layer,blend
+    return addFx({ life: o.life || 1, layer: o.layer ?? 1, draw(f) {
+      const im = IM[k]; if (!im) return; const u = Math.min(1, f.t / f.life), v = fn => typeof fn === 'function' ? fn(u, f) : fn;
+      const a = v(o.alpha ?? 1); if (a <= 0) return; const [c, r] = CELL[k] || [1, 1], cw = im.width / c, ch = im.height / r, sx = (i % c) * cw, sy = Math.floor(i / c) * ch;
+      const S = v(o.size), x = v(o.x), y = v(o.y);
+      ctx.save(); ctx.globalCompositeOperation = o.blend || 'lighter'; ctx.globalAlpha = Math.min(1, a); ctx.translate(x, y); if (o.sy) ctx.scale(1, v(o.sy)); if (o.rot) ctx.rotate(v(o.rot));
+      ctx.drawImage(im, sx, sy, cw, ch, -S / 2, -S / 2 * ch / cw, S, S * ch / cw); ctx.restore(); } });
+  }
+  const ease = k => 1 - Math.pow(1 - k, 3), inout = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  const fadeIO = (a, b) => u => Math.min(1, u / a) * Math.min(1, (1 - u) / b);
+  const heroes = () => (battle.heroes || [battle.P]).filter(u => u.alive);
+  const mid = u => [u.x + (u.ox || 0), u.y + (u.oy || 0) - u.h * .5];
+  function tag(u, text, col) { floatText(u.x - 20, u.y - u.h * .55, text, col, 26, 1.0); }
+  async function quickBanner(P, name, sub, col) { P.pose = 'cast'; try { skillBanner(name, col, sub); } catch (e) {} await sleep(120); }
+  const dimBrief = async (v, ms) => { try { await dimTo(v, ms); } catch (e) {} };
+
+  // ---------- 叶孤星 · 护体：脚下剑阵升起，飞剑落阵 ----------
+  A.huti = async function (P) {
+    await quickBanner(P, '护 体', '破军剑气 · 护住全队', '#cfe6ff'); playSnd('sfx_sword_ring', .7); dimBrief(.35, 200);
+    const T = SK4.X.hero.huti; const v = .2 * (1 + [0, 0, .15, .3, .45, .6][SKILL_TIER('hero', 'huti')]), n = SKILL_TIER('hero', 'huti') >= 3 ? 3 : 2;
+    for (const u of heroes()) { el('swordcircle', { x: u.x, y: u.y + 4, w: u.h * 1.25, layer: 0, alpha: 1.1, fadeOut: .3 }); }
+    await sleep(380);
+    heroes().forEach((u, i) => setTimeout(() => { el('flysword', { x: u.x, y: u.y + 6, h: u.h * 1.3, layer: 2, alpha: 1.2, fadeOut: .25 }); }, i * 110));
+    await sleep(520); playSnd('sfx_buff', .7); S.shake = 4;
+    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n }; spr('array', 0, { x: u.x, y: u.y, size: u.h * 1.15, sy: .32, life: .7, layer: 0, alpha: u2 => 1.2 * (1 - u2), rot: u2 => u2 * 1.2 }); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#bfe6ff'); }
+    await sleep(500); dimBrief(0, 250);
+  };
+  // ---------- 叶孤星 · 凝神：星光汇向剑尖，凝成一颗星 ----------
+  A.ningshen = async function (P) {
+    await quickBanner(P, '凝 神', '剑未出，意先至', '#ffe8a8'); dimBrief(.55, 220); playSnd('sfx_charge', .6);
+    const tx = P.x - P.h * .34, ty = P.y - P.h * .62;
+    for (let i = 0; i < 22; i++) { const a = Math.random() * 6.28, r = 150 + Math.random() * 120, sx = tx + Math.cos(a) * r, sy = ty + Math.sin(a) * r * .7; setTimeout(() => fx('fx3_dot', { life: .45, layer: 2, x: k => sx + (tx - sx) * ease(k), y: k => sy + (ty - sy) * ease(k), scale: k => .35 + k * .3, alpha: k => k * 1.8 }), i * 28); }
+    spr('qstar', 0, { x: tx, y: ty, size: u => 40 + u * 150, rot: u => u * 2.4, life: 1.0, layer: 2, alpha: u => Math.min(1.4, u * 2.5) });
+    await sleep(900); el('starburst', { x: tx, y: ty, w: 260, layer: 2, alpha: 1.3 }); playSnd('sfx_star', .7); screenFlash('#fff4d8', .3);
+    (P.bx || (P.bx = {})).ns = { v: 1, n: 2 }; tag(P, '下一招 +50%', '#ffe08a');
+    await sleep(550); dimBrief(0, 250);
+  };
+  // ---------- 叶孤星 · 聚灵：九曜星辰坠落全队 ----------
+  A.juling = async function (P) {
+    await quickBanner(P, '聚 灵', '九曜星光 · 洒落全队', '#ffe8a8'); playSnd('sfx_star', .7); dimBrief(.45, 200);
+    spr('seal', 0, { x: P.x, y: P.y - P.h * 1.25, size: u => 160 + u * 60, rot: u => u * 1.6, life: 1.5, layer: 2, alpha: fadeIO(.2, .3) });
+    await sleep(350); const v = Math.round(30 * (1 + [0, 0, .15, .3, .45, .6][SKILL_TIER('hero', 'juling')]));
+    for (const u of heroes()) { await sleep(130); el('meteor', { x: u.x, y: u.y + 6, h: u.h * 1.15, layer: 2, alpha: 1.2 }); setTimeout(() => { u.mp = Math.min(u.maxmp, u.mp + v); tag(u, '灵力 +' + v, '#9fd0ff'); motes && motes(u.x, u.y, 8, '#bfe0ff', { spread: 40, rise: 140, w: 30 }); }, 450); }
+    playSnd('sfx_heal', .6); await sleep(900); dimBrief(0, 250);
+  };
+  // ---------- 云霆 · 强攻：雷柱落到每人身上 ----------
+  A.qianggong = async function (P) {
+    await quickBanner(P, '强 攻', '雷附于刃', '#d8ccff'); dimBrief(.5, 200); playSnd('sfx_thunder', .55);
+    el('cloud', { x: (heroes()[0].x + heroes()[heroes().length - 1].x) / 2 - 60, y: Math.min(...heroes().map(u => u.y - u.h)) + 10, w: 520, layer: 2, dark: .55, glow: .5, alpha: 1, fadeIn: .2, fadeOut: .4 });
+    await sleep(320); const T = SKILL_TIER('yunting', 'qianggong'), v = .2 * (1 + [0, 0, .15, .3, .45, .6][T]), n = T >= 3 ? 3 : 2;
+    for (const u of heroes()) { el('thunder', { x: u.x, y: u.y + 8, w: u.h * 1.2, layer: 2, alpha: 1.2 }); S.shake = 6; await sleep(120); (u.bx || (u.bx = {})).atk = { v: Math.max(v, bxv(u, 'atk')), n }; setTimeout(() => tag(u, '攻击 +' + Math.round(v * 100) + '%', '#ffd36a'), 300); }
+    await sleep(700); dimBrief(0, 250);
+  };
+  // ---------- 云霆 · 疾风：雷霆贴地绕场，脚下风纹 ----------
+  A.jifeng = async function (P) {
+    await quickBanner(P, '疾 风', '雷之道 · 快字当先', '#bff0ff'); playSnd('sfx_wind', .7); dimBrief(.4, 200);
+    const hs = heroes(), x0 = Math.min(...hs.map(u => u.x)) - 120, x1 = Math.max(...hs.map(u => u.x)) + 80, yb = Math.max(...hs.map(u => u.y)) + 10;
+    el('arcchain', { x: k => x0 + (x1 - x0) * k, y: yb - 40, w: 300, layer: 2, alpha: 1.2, loop: .7, fadeOut: .2 });
+    const T = SKILL_TIER('yunting', 'jifeng'), v = .3 * (1 + [0, 0, .15, .3, .45, .6][T]), n = T >= 3 ? 3 : 2;
+    for (const u of hs) { await sleep(140); el('hground', { x: u.x, y: u.y + 4, w: u.h * 1.0, layer: 0, alpha: 1, fadeOut: .3 }); if (u._spd0 == null) u._spd0 = u.spd; u.spd = u._spd0 * (1 + v); (u.bx || (u.bx = {})).spd = { v, n }; u.gauge = Math.min(99, (u.gauge || 0) + 15); tag(u, '速度 +' + Math.round(v * 100) + '%', '#bff0ff'); }
+    await sleep(700); dimBrief(0, 250);
+  };
+  // ---------- 云霆 · 搏命：雷群缠身 ----------
+  A.boming = async function (P) {
+    await quickBanner(P, '搏 命', '雷光暴涨 · 不留后路', '#ffb0a0'); dimBrief(.6, 250); playSnd('sfx_thunder', .7);
+    el('hground', { x: P.x, y: P.y + 4, w: P.h * 1.3, layer: 0, alpha: 1.2, fadeOut: .3 });
+    el('hcluster', { x: P.x, y: P.y + 10, h: P.h * 1.35, layer: 2, alpha: 1.1, fadeOut: .25 }); S.shake = 10; screenFlash('#e6d8ff', .4);
+    await sleep(500); const T = SKILL_TIER('yunting', 'boming'); (P.bx || (P.bx = {})).atk = { v: Math.max(.5 * (1 + [0, 0, .15, .3, .45, .6][T]), bxv(P, 'atk')), n: 3 }; P.bx.vuln = { v: .25, n: 3 };
+    tag(P, '攻击 +50%  受伤 +25%', '#ffb0a0'); await sleep(650); dimBrief(0, 250);
+  };
+  // ---------- 云霆 · 云雷踏影：化雷而去，雷落敌前 ----------
+  A.yunlei = async function (P, t) { if (!t) return;
+    P.pose = 'cast'; await portraitPop(P); skillBanner('云 雷 踏 影', '#d8ccff', '雷光残影 · 先手一剑'); dimBrief(.6, 200);
+    el('bolt', { x: P.x, y: P.y + 6, h: P.h * 1.6, layer: 2, alpha: 1.3 }); playSnd('sfx_thunder', .8); S.shake = 8;
+    await sleep(160); const a0 = P.alpha; P.alpha = 0; afterimage && afterimage(P, 3, 40);
+    const tx = t.x + 150; await sleep(180); P.ox = tx - P.x; P.alpha = a0 == null ? 1 : a0; P.pose = 'atk';
+    el('bolt', { x: tx, y: P.y + 6, h: P.h * 1.6, layer: 2, alpha: 1.3 }); el('ground', { x: tx, y: t.y + 4, w: 300, layer: 0, alpha: 1.1 });
+    await sleep(140); el('hitslash', { x: t.x, y: t.y - t.h * .5, w: 380, layer: 2, alpha: 1.3, flip: true }); el('hbolt', { x: t.x, y: t.y + 6, h: t.h * 1.4, layer: 2, alpha: 1 });
+    screenFlash('#e8e0ff', .55); S.shake = 14; playSnd('sfx_hit');
+    const { d, crit } = dmgCalc(P, t, 1.5, .2); applyDamage(t, d, crit); await hitStop(120); await sleep(380);
+    el('bolt', { x: P.x + P.ox, y: P.y + 6, h: P.h * 1.4, layer: 2, alpha: 1.1 }); P.alpha = 0; await sleep(150); P.ox = 0; P.alpha = a0 == null ? 1 : a0; P.pose = null;
+    el('ground', { x: P.x, y: P.y + 4, w: 260, layer: 0, alpha: .9 }); P.gauge = Math.max(P.gauge, 60); tag(P, '气条回半', '#bff0ff'); await sleep(350); dimBrief(0, 250);
+  };
+  // ---------- 林雪 · 霜甲：脚下冰莲绽放，冰铠成形 ----------
+  A.shuangjia = async function (P) {
+    await quickBanner(P, '霜 甲', '薄冰为铠 · 护住全队', '#cff4ff'); dimBrief(.45, 200); playSnd('sfx_ice', .7);
+    const T = SKILL_TIER('linxue', 'shuangjia'), k1 = 1 + [0, 0, .15, .3, .45, .6][T], v = Math.min(.5, .25 * k1), n = T >= 3 ? 3 : 2, hp = .15 * k1;
+    for (const u of heroes()) { el('icebloom', { x: u.x, y: u.y + 10, w: u.h * 1.25, layer: 2, alpha: 1.1, fadeOut: .3 }); spr('flake', 2, { x: u.x, y: u.y - u.h * .55, size: k => 60 + k * 120, rot: k => k * 1.5, life: .9, layer: 2, alpha: fadeIO(.2, .4) }); await sleep(120); }
+    await sleep(500); playSnd('sfx_heal', .6);
+    for (const u of heroes()) { (u.bx || (u.bx = {})).dr = { v: Math.max(v, bxv(u, 'dr')), n }; const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * hp)); u.hp += h; floatText(u.x + 30, u.y - u.h * .7, '+' + h, '#7dffa8', 38); tag(u, '减伤 ' + Math.round(v * 100) + '%', '#cff4ff'); }
+    await sleep(700); dimBrief(0, 250);
+  };
+  // ---------- 林雪 · 冰心：全队脚下一朵冰莲，异常碎成冰晶 ----------
+  A.bingxin = async function (P) {
+    await quickBanner(P, '冰 心', '心如止水 · 外邪不侵', '#e0f8ff'); dimBrief(.4, 200); playSnd('sfx_ice', .6);
+    const hs = heroes(), cx = hs.reduce((s, u) => s + u.x, 0) / hs.length, cy = hs.reduce((s, u) => s + u.y, 0) / hs.length;
+    spr('array', 2, { x: cx, y: cy + 10, size: u => 300 + u * 220, sy: .34, rot: u => u * .8, life: 1.3, layer: 0, alpha: fadeIO(.15, .35) });
+    await sleep(450);
+    for (const u of hs) { const bad = u.buffs && (u.buffs.stun > 0 || u.buffs.frozen > 0); if (u.buffs) { u.buffs.stun = 0; u.buffs.frozen = 0; } u.frozenFx = 0; (u.bx || (u.bx = {})).ctrlImm = { v: 1, n: 1 };
+      spr('flake', 0, { x: u.x, y: u.y - u.h * .5, size: k => 80 + k * 200, rot: k => k * 2, life: .7, layer: 2, alpha: k => 1.3 * (1 - k) }); if (bad) particleBurst(u.x, u.y - u.h * .5, 30, ['#dff8ff', '#fff'], 520, .7, 6);
+      tag(u, '解控 · 免控一回合', '#e0f8ff'); await sleep(90); }
+    await sleep(700); dimBrief(0, 250);
+  };
+  // ---------- 林雪 · 冰盾：冰晶阵壁立在队友身前 ----------
+  A.bingdun = async function (P) {
+    await quickBanner(P, '冰 盾', '冰晶为盾', '#cff4ff'); playSnd('sfx_ice', .6);
+    const u = heroes().sort((a, c) => a.hp / a.maxhp - c.hp / c.maxhp)[0], [mx, my] = mid(u);
+    spr('qstar', 2, { x: mx - 40, y: my, size: k => 60 + ease(Math.min(1, k * 2)) * 200, rot: k => k * .6, life: .9, layer: 2, alpha: fadeIO(.1, .3) });
+    el('icebloom', { x: u.x, y: u.y + 10, w: u.h * 1.0, layer: 2, alpha: 1 });
+    await sleep(600); const T = SKILL_TIER('linxue', 'bingdun'), v = Math.round(u.maxhp * .3 * (1 + [0, 0, .15, .3, .45, .6][T]));
+    (u.bx || (u.bx = {})).hs = { v, n: T >= 3 ? 3 : 2, ice: true }; tag(u, '冰盾 ' + v, '#cff4ff'); await sleep(450);
+  };
+  // ---------- 林雪 · 冰封：寒气升起，整个人封进冰里 ----------
+  A.bingfeng = async function (P, t) { if (!t) return;
+    P.pose = 'cast'; await portraitPop(P); skillBanner('冰 封', '#cff4ff', '寒气封身 · 一息成冰'); dimBrief(.6, 220); playSnd('sfx_ice', .8);
+    spr('array', 0, { x: t.x, y: t.y + 4, size: u => 200 + u * 120, sy: .32, rot: u => -u * 1.5, life: 1.1, layer: 0, alpha: fadeIO(.15, .3) });
+    for (let i = 0; i < 18; i++) setTimeout(() => fx('fx3_dot', { life: .6, layer: 2, x: t.x + rand(-70, 70), y: k => t.y - k * t.h * .9, scale: .4, alpha: k => 1.4 * (1 - k) }), i * 25);
+    await sleep(520); el('icebloom', { x: t.x, y: t.y + 12, w: t.h * 1.7, layer: 2, alpha: 1.3 }); fx('fx4_ice', { x: t.x, y: t.y - t.h * .45, scale: 1.2, alpha: 1.3 });
+    screenFlash('#e0f6ff', .55); S.shake = 12; playSnd('sfx_hit');
+    const { d, crit } = dmgCalc(P, t, .8, .1); applyDamage(t, d, crit); if (t.alive) SK4.freeze(t, 1); await hitStop(120); await sleep(650); dimBrief(0, 250);
+  };
+  // ---------- 叶孤星 · 夺魄：魂剑破空，直取眉心 ----------
+  A.duopo = async function (P, t) { if (!t) return;
+    P.pose = 'cast'; await portraitPop(P); skillBanner('贪狼剑意 · 夺魄', '#9fd0ff', '聚魂为剑 · 一剑定魂'); await dimBrief(.85, 250); playSnd('sfx_charge', .8);
+    const hx = P.x - P.h * .3, hy = P.y - P.h * .62; el('palm', { x: hx, y: hy, w: 300, layer: 1, alpha: 1.1, to: 6, fadeOut: .2 });
+    spr('qstar', 1, { x: hx, y: hy, size: k => 60 + k * 160, rot: k => k * 3, life: .75, layer: 2, alpha: k => Math.min(1.4, k * 3) });
+    await sleep(720); const tx = t.x + 10, ty = t.y - t.h * .68, ang = Math.atan2(ty - hy, tx - hx);
+    playSnd('sfx_beam'); spr('qsword', 0, { x: k => hx + (tx - hx) * inout(k), y: k => hy + (ty - hy) * inout(k), size: 420, rot: ang + Math.PI, life: .26, layer: 2, alpha: 1.5 });
+    await sleep(240); screenFlash('#c8d8ff', .9); S.shake = 26; playSnd('sfx_crit');
+    el('starburst', { x: tx, y: ty, w: 420, layer: 2, alpha: 1.5 }); el('hitslash', { x: tx, y: ty, w: 420, layer: 2, alpha: 1.3, flip: true });
+    const { d } = dmgCalc(P, t, 4.0, .3); applyDamage(t, d, true, { pierce: true }); await hitStop(220); if (t.alive) SK4.stun(t, 1);
+    particleBurst(tx, ty, 50, ['#9fd0ff', '#fff', '#c9a6ff'], 700, .8, 7); await sleep(650); await dimBrief(0, 300);
+  };
+  // ---------- 神乐 · 清心曲 / 音障 / 神罚 / 灵河：音环 + 星芒 ----------
+  const fl = P => [P.x - P.h * .42, P.y - P.h * .66];
+  A.qxq = async function (P) {
+    await quickBanner(P, '清 心 曲', '笛音流过 · 伤处自愈', '#c8ffd8'); playSnd('sfx_heal', .7);
+    const u = heroes().sort((a, c) => a.hp / a.maxhp - c.hp / c.maxhp)[0], [f0, f1] = fl(P);
+    soundRings(f0, f1, u.x, u.y - u.h * .5, { n: 5, life: .55, col: '200,255,230' }); await sleep(560);
+    el('starburst', { x: u.x, y: u.y - u.h * .5, w: 260, layer: 2, alpha: 1.1 }); spr('array', 3, { x: u.x, y: u.y, size: u.h * 1.1, sy: .34, rot: k => k * 1.4, life: 1.0, layer: 0, alpha: fadeIO(.15, .35) }); notesRise(u.x, u.y - u.h * .4, 8);
+    const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * .35 * (1 + [0, 0, .15, .3, .45, .6][SKILL_TIER('shenle', 'qxq')]))); u.hp += h; if (u.buffs) { u.buffs.stun = 0; u.buffs.frozen = 0; } u.frozenFx = 0; floatText(u.x, u.y - u.h - 30, '+' + h, '#7dffa8', 44); await sleep(700);
+  };
+  A.yinzhang = async function (P) {
+    await quickBanner(P, '音 障', '音符结墙 · 刀剑不入', '#c8ffd8'); playSnd('sfx_buff', .7); const [f0, f1] = fl(P); ringBurst(f0, f1, { n: 3, R: 340, col: '200,255,230' });
+    await sleep(380); const T = SKILL_TIER('shenle', 'yinzhang'), r = .25 * (1 + [0, 0, .15, .3, .45, .6][T]);
+    for (const u of heroes()) { spr('array', 3, { x: u.x - u.h * .3, y: u.y - u.h * .5, size: u.h * 1.05, rot: k => k * .8, life: .9, layer: 2, alpha: fadeIO(.2, .35) }); notesRise(u.x, u.y - u.h * .5, 4); const v = Math.round(u.maxhp * r); (u.bx || (u.bx = {})).hs = { v: Math.max(v, bxv(u, 'hs')), n: T >= 3 ? 3 : 2 }; tag(u, '护盾 ' + v, '#c8ffd8'); await sleep(110); }
+    await sleep(700);
+  };
+  A.shenfa = async function (P) {
+    P.pose = 'cast'; await portraitPop(P); skillBanner('神 罚 仙 音', '#e6d8ff', '漫天音符 · 自上压落'); await dimBrief(.65, 260); playSnd('sfx_charge', .7);
+    const es = aliveEnemies(), cx = es.reduce((s, e) => s + e.x, 0) / es.length;
+    spr('seal', 0, { x: cx, y: 170, size: k => 200 + k * 160, rot: k => k * 1.2, life: 1.9, layer: 2, alpha: fadeIO(.2, .25) }); notesRise(cx, 260, 12, '#e6d8ff');
+    await sleep(650);
+    for (let w = 0; w < 3; w++) { for (const t of es) { if (!t.alive) continue; ringBurst(t.x, t.y - t.h * .5, { n: 2, R: 170, life: .45, col: '225,205,255', sy: .6 }); el('starburst', { x: t.x, y: t.y - t.h * .55, w: 220, layer: 2, alpha: .9 }); const { d, crit } = dmgCalc(P, t, .4, .1); applyDamage(t, d, crit); } S.shake = 9; playSnd('sfx_hit', .7); await sleep(280); }
+    await sleep(450); await dimBrief(0, 300);
+  };
+  A.jiuyinhe = async function (P) {
+    P.pose = 'cast'; await portraitPop(P); skillBanner('九 音 灵 河', '#c8ffd8', '一河流过 · 伤复意涨'); dimBrief(.5, 250); playSnd('sfx_heal', .8);
+    const hs = heroes(), T = SKILL_TIER('shenle', 'jiuyinhe'), r = .35 * (1 + [0, 0, .15, .3, .45, .6][T]);
+    let prev = fl(P);
+    for (const u of hs) { soundRings(prev[0], prev[1], u.x, u.y - u.h * .5, { n: 6, life: .45, col: '200,255,230' }); await sleep(400);
+      el('meteor', { x: u.x, y: u.y + 6, h: u.h * 1.1, layer: 2, alpha: .9 }); spr('array', 3, { x: u.x, y: u.y, size: u.h * 1.1, sy: .34, rot: k => k, life: 1.0, layer: 0, alpha: fadeIO(.15, .35) });
+      const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * r)); u.hp += h; u.rage = Math.min(100, (u.rage || 0) + 20); notesRise(u.x, u.y - u.h * .4, 6); floatText(u.x, u.y - u.h - 30, '+' + h, '#7dffa8', 42); tag(u, '怒气 +20', '#ffd36a'); prev = [u.x, u.y - u.h * .5]; }
+    await sleep(700); dimBrief(0, 250);
+  };
+
+  // ---------- 身上的持续状态光效 ----------
+  const COL = { hero: '143,208,255', yunting: '200,170,255', linxue: '190,240,255', shenle: '200,255,225', luochen: '255,220,150' };
+  drawUnit = (orig => function (u) {
+    const b = battle; if (!b || !u.bx || !u.alive) return orig.apply(this, arguments);
+    const now = performance.now() / 1000, x = u.x + (u.ox || 0), y = u.y + (u.oy || 0);
+    // 身下：减伤阵纹（慢转）、加速风纹
+    if (bxv(u, 'dr') && IM.array) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .38 + Math.sin(now * 2.2) * .08; ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(now * .5); const im = IM.array, cw = im.width / 2, s = u.h * 1.0; ctx.drawImage(im, u.ally === 'linxue' || u.ally === 'shenle' ? cw : 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
+    if (u.side === 'hero' && bxv(u, 'spd')) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 4; i++) { const k = (now * 1.6 + i / 4) % 1; ctx.strokeStyle = `rgba(190,240,255,${.5 * (1 - k)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, u.h * (.2 + k * .35), u.h * (.05 + k * .09), 0, Math.PI * .1, Math.PI * .9); ctx.stroke(); } ctx.restore(); }
+    const r = orig.apply(this, arguments);
+    // 身上：加攻雷光、凝神星芒、护盾阵壁
+    if (bxv(u, 'atk')) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const c = u.ally === 'yunting' || !u.ally ? '210,180,255' : '255,210,140'; for (let i = 0; i < 2; i++) { if (Math.random() < .35) { const px = x - u.h * (.15 + Math.random() * .3), py = y - u.h * (.35 + Math.random() * .4); ctx.strokeStyle = `rgba(${c},.85)`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(px, py); for (let s = 0; s < 4; s++) ctx.lineTo(px + (Math.random() - .5) * 26, py - s * 9 + (Math.random() - .5) * 6); ctx.stroke(); } }
+      const g = ctx.createRadialGradient(x - u.h * .2, y - u.h * .5, 0, x - u.h * .2, y - u.h * .5, u.h * .45); g.addColorStop(0, `rgba(${c},${.16 + Math.sin(now * 6) * .05})`); g.addColorStop(1, `rgba(${c},0)`); ctx.fillStyle = g; ctx.fillRect(x - u.h * .7, y - u.h, u.h * 1, u.h); ctx.restore(); }
+    if (u.bx.ns && u.bx.ns.n > 0 && IM.qstar) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const im = IM.qstar, cw = im.width / 2, s = 70 + Math.sin(now * 5) * 10; ctx.globalAlpha = .95; ctx.translate(x - u.h * .34, y - u.h * .62); ctx.rotate(now * 1.5); ctx.drawImage(im, 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
+    const hs = u.bx.hs; if (hs && hs.n > 0 && hs.v > 0 && IM.array) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .32 + Math.sin(now * 3) * .06; ctx.translate(x - u.h * .28, y - u.h * .5); ctx.scale(.42, 1); ctx.rotate(now * .4); const im = IM.array, cw = im.width / 2, s = u.h * .95; ctx.drawImage(im, hs.ice ? 0 : cw, cw, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
+    return r;
+  })(drawUnit);
 })();
 
 </script></body></html>
