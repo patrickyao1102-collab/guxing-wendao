@@ -15146,7 +15146,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     ctx.restore(); }
   const CODE = { atk: (u, L, x, y) => { if (L === 'front') weaponBolt(u, x, y, false); }, kuang: (u, L, x, y) => rageBolts(u, x, y, L), spd: (u, L, x, y) => windRing(u, x, y, L), frost: (u, L, x, y) => lotusRing(u, L, x, y),
     shield: (u, L, x, y) => { if (!window.R76P) iceShield(u, x, y, L); }, lotus: (u, L, x, y) => iceLotus(u, x, y, L), wall: (u, L, x, y) => R78.jade ? domeArt(R78.jade, u, x, y, L) : noteWall(u, x, y, L), ns: (u, L, x, y) => starArt(u, x, y, L),
-    stun: (u, L, x, y) => { if (!u._r76stun) stunArt(u, x, y, L); }, frozen: (u, L, x, y) => { if (u._r76ice) return; R78.shell ? domeArt(R78.shell, u, x, y, L, .55, wideOf(u)) : frozenIce(u, x, y, L); }, immune: (u, L, x, y) => immuneDome(u, x, y, L) };
+    stun: (u, L, x, y) => { if (!u._r76stun) stunArt(u, x, y, L); }, frozen: (u, L, x, y) => { if (u._r76ice || u._r83frz) return; R78.shell ? domeArt(R78.shell, u, x, y, L, .55, wideOf(u)) : frozenIce(u, x, y, L); }, immune: (u, L, x, y) => immuneDome(u, x, y, L) };
 
   // 护体：最初脚底那圈光剑阵放大调亮 + 6 柄光剑绕全身螺旋旋转（转到身后画在人物后面，转到身前画在前面）
   const SW = new Image(); SW.src = 'fx/fx_sword_blue.webp';

@@ -1,0 +1,450 @@
+{
+  "schema": "r83.timeline.v1",
+  "skill": "大雪纷飞 v2",
+  "referenceResolution": [
+    1280,
+    720
+  ],
+  "durationSeconds": 3.5,
+  "previewFps": 30,
+  "hitTimesSeconds": [
+    2.0
+  ],
+  "hitFrames30fps": [
+    60
+  ],
+  "entities": {
+    "caster": {
+      "name": "林雪",
+      "key": "b_linxue",
+      "side": "hero",
+      "x": 1180,
+      "y": 640,
+      "h": 223,
+      "ally": "linxue"
+    },
+    "target": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "field": {
+      "x": 640,
+      "y": 360,
+      "h": 0
+    },
+    "enemy0": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "enemy1": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 190,
+      "y": 560,
+      "h": 200
+    },
+    "enemy2": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 640,
+      "h": 200
+    },
+    "ally0": {
+      "name": "叶孤星",
+      "key": "b_yegx",
+      "side": "hero",
+      "x": 975,
+      "y": 615,
+      "h": 240
+    },
+    "ally1": {
+      "name": "云霆",
+      "key": "b_yunting",
+      "side": "hero",
+      "x": 1115,
+      "y": 490,
+      "h": 247,
+      "ally": "yunting"
+    },
+    "ally2": {
+      "name": "林雪",
+      "key": "b_linxue",
+      "side": "hero",
+      "x": 1180,
+      "y": 640,
+      "h": 223,
+      "ally": "linxue"
+    }
+  },
+  "anchorCoordinates": "feet=[x,y]; head=[x,y-h]; chest=[x,y-h*0.65]; offsets are display pixels",
+  "clips": [
+    {
+      "element": "04_巨型冰霜阵",
+      "start": 0.35,
+      "end": 2.85,
+      "anchor": "field.feet",
+      "offset": [
+        -310,
+        200
+      ],
+      "displaySize": [
+        950,
+        340
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 0,
+      "fadeIn": 0.2,
+      "fadeOut": 0.3,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "01_暴雪_远景",
+      "start": 0.08,
+      "end": 3.5,
+      "anchor": "field.feet",
+      "offset": [
+        -15,
+        0
+      ],
+      "displaySize": [
+        1280,
+        800
+      ],
+      "opacity": 0.55,
+      "rotationDegrees": 0,
+      "z": 2,
+      "fadeIn": 0.3,
+      "fadeOut": 0.45,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "02_暴雪_中景",
+      "start": 0.18,
+      "end": 3.5,
+      "anchor": "field.feet",
+      "offset": [
+        0,
+        0
+      ],
+      "displaySize": [
+        1360,
+        900
+      ],
+      "opacity": 0.7,
+      "rotationDegrees": 0,
+      "z": 3,
+      "fadeIn": 0.3,
+      "fadeOut": 0.45,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "03_暴雪_近景",
+      "start": 0.28,
+      "end": 3.5,
+      "anchor": "field.feet",
+      "offset": [
+        15,
+        0
+      ],
+      "displaySize": [
+        1440,
+        1050
+      ],
+      "opacity": 0.7,
+      "rotationDegrees": 0,
+      "z": 4,
+      "fadeIn": 0.3,
+      "fadeOut": 0.45,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "05_冰晶巨簇喷发",
+      "start": 1.78,
+      "end": 2.58,
+      "anchor": "enemy0.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 6,
+      "fadeIn": 0,
+      "fadeOut": 0.05,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "06_巨簇冰封持续",
+      "start": 2.13,
+      "end": 3.25,
+      "anchor": "enemy0.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0.22,
+      "fadeOut": 0.22,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": true
+    },
+    {
+      "element": "07_冰晶爆裂",
+      "start": 2.94,
+      "end": 3.5,
+      "anchor": "enemy0.feet",
+      "offset": [
+        0,
+        -160
+      ],
+      "displaySize": [
+        420,
+        420
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 7,
+      "fadeIn": 0.02,
+      "fadeOut": 0.1,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "05_冰晶巨簇喷发",
+      "start": 1.78,
+      "end": 2.58,
+      "anchor": "enemy1.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 6,
+      "fadeIn": 0,
+      "fadeOut": 0.05,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "06_巨簇冰封持续",
+      "start": 2.13,
+      "end": 3.25,
+      "anchor": "enemy1.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0.22,
+      "fadeOut": 0.22,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": true
+    },
+    {
+      "element": "07_冰晶爆裂",
+      "start": 2.975,
+      "end": 3.5,
+      "anchor": "enemy1.feet",
+      "offset": [
+        0,
+        -160
+      ],
+      "displaySize": [
+        420,
+        420
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 7,
+      "fadeIn": 0.02,
+      "fadeOut": 0.1,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "05_冰晶巨簇喷发",
+      "start": 1.78,
+      "end": 2.58,
+      "anchor": "enemy2.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 6,
+      "fadeIn": 0,
+      "fadeOut": 0.05,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "06_巨簇冰封持续",
+      "start": 2.13,
+      "end": 3.25,
+      "anchor": "enemy2.feet",
+      "offset": [
+        0,
+        -172
+      ],
+      "displaySize": [
+        400,
+        400
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0.22,
+      "fadeOut": 0.22,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": true
+    },
+    {
+      "element": "07_冰晶爆裂",
+      "start": 3.01,
+      "end": 3.5,
+      "anchor": "enemy2.feet",
+      "offset": [
+        0,
+        -160
+      ],
+      "displaySize": [
+        420,
+        420
+      ],
+      "opacity": 0.8,
+      "rotationDegrees": 0,
+      "z": 7,
+      "fadeIn": 0.02,
+      "fadeOut": 0.1,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    }
+  ],
+  "assets": {
+    "01_暴雪_远景": {
+      "meta": "01_暴雪_远景/meta.json",
+      "frameDirectory": "01_暴雪_远景/frames/",
+      "atlas": "01_暴雪_远景/atlas.png"
+    },
+    "02_暴雪_中景": {
+      "meta": "02_暴雪_中景/meta.json",
+      "frameDirectory": "02_暴雪_中景/frames/",
+      "atlas": "02_暴雪_中景/atlas.png"
+    },
+    "03_暴雪_近景": {
+      "meta": "03_暴雪_近景/meta.json",
+      "frameDirectory": "03_暴雪_近景/frames/",
+      "atlas": "03_暴雪_近景/atlas.png"
+    },
+    "04_巨型冰霜阵": {
+      "meta": "04_巨型冰霜阵/meta.json",
+      "frameDirectory": "04_巨型冰霜阵/frames/",
+      "atlas": "04_巨型冰霜阵/atlas.png"
+    },
+    "05_冰晶巨簇喷发": {
+      "meta": "05_冰晶巨簇喷发/meta.json",
+      "frameDirectory": "05_冰晶巨簇喷发/frames/",
+      "atlas": "05_冰晶巨簇喷发/atlas.png"
+    },
+    "06_巨簇冰封持续": {
+      "meta": "06_巨簇冰封持续/meta.json",
+      "frameDirectory": "06_巨簇冰封持续/frames/",
+      "atlas": "06_巨簇冰封持续/atlas.png"
+    },
+    "07_冰晶爆裂": {
+      "meta": "07_冰晶爆裂/meta.json",
+      "frameDirectory": "07_冰晶爆裂/frames/",
+      "atlas": "07_冰晶爆裂/atlas.png"
+    }
+  },
+  "blend": "source-over straight alpha; all previews use delivered PNGs",
+  "notes": [
+    "舍弃旧版水浪和椭圆冰壳。天暗→三层共544片绘制雪花的密集暴雪→敌阵脚下巨大冰霜阵→2.0秒冰晶巨簇喷发→冰晶碎裂、雪尘收尾。",
+    "雪幕每层仅一张烘焙帧；不是运行时画雪线。巨簇为 imagegen 原画，中央减淡透明度保留敌人轮廓。",
+    "冰封持续层可保持一回合；预览3秒后的碎裂可绑定状态结束。巨簇的逻辑脚底为方格 y=0.93H；timeline 中已补偿中心锚偏移。"
+  ],
+  "darkReference": "battle_dark.png",
+  "hudOverEffects": true,
+  "revision": "R83b",
+  "supersedes": [
+    "02_林雪_大雪纷飞"
+  ],
+  "cameraFlashes": [
+    {
+      "time": 2.0,
+      "duration": 0.1,
+      "color": [
+        191,
+        230,
+        255
+      ],
+      "opacity": 0.24
+    }
+  ],
+  "dim": {
+    "color": [
+      8,
+      6,
+      25
+    ],
+    "peakOpacity": 0.62,
+    "fadeInSeconds": 0.25,
+    "fadeOutSeconds": 0.4
+  }
+}
