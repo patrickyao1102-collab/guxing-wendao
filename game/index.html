@@ -14609,7 +14609,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     for (const [w, a, b] of INHERIT) if (has(b)) { const ka = w + '.' + a, kb = w + '.' + b; if ((L[ka] || 1) > (L[kb] || 1)) L[kb] = L[ka]; } }
   setInterval(() => { try { if (S.hero) inherit(); } catch (e) {} }, 3000);
   // 同一按钮换招：学了新的，菜单里不再列旧的
-  const REPLACED = id => (id === 'pojun' && (hasH('xingluo') || hasH('xingyun'))) || (id === 'xingluo' && hasH('xingyun')) || (id === 'tanlang' && (hasH('jueying') || hasH('duopo'))) || (id === 'jueying' && hasH('duopo')) || id === 'tianshu';
+  const REPLACED = id => !(window.DUMMY_TEST && typeof battle !== 'undefined' && battle && DUMMY_TEST.D.b === battle) && ((id === 'pojun' && (hasH('xingluo') || hasH('xingyun'))) || (id === 'xingluo' && hasH('xingyun')) || (id === 'tanlang' && (hasH('jueying') || hasH('duopo'))) || (id === 'jueying' && hasH('duopo')) || id === 'tianshu');
   const hasH = id => !!(S.hero.skills && S.hero.skills.includes(id));
 
   // ---------- 书 ----------
