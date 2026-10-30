@@ -15008,7 +15008,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     return out; }
   // ---------- 身上状态（作者定的路子：看得见的具体东西绕身/挂身，亮而清楚，不糊人；剑白金，蓝色留给林雪）----------
   // R78 样品（Codex 画的）：白金悬浮立剑、瘦竖椭圆冰晶护罩、兵刃紫电条；4×4 图集，单格 256
-  const R78 = {}; { const LOC = R77LOC, B = { sword: '9324f9f4287e89f5af192801ce7f0153', dome: 'a34ee78051b5ae842a74af05e7389c43', wbolt: '88bca8a92ddc7de250e8664d105c6b8a', lotus: '22ddd56fd3e32059cad71bee7e3b8519', lotus_s: '82fd89234c8e1b118050eb838d6b36a4' }, F = { sword: 'sword_gold', dome: 'ice_dome', wbolt: 'wbolt', lotus: 'lotus2', lotus_s: 'lotus_s' };
+  const R78 = {}; { const LOC = R77LOC, B = { sword: '9324f9f4287e89f5af192801ce7f0153', dome: 'a34ee78051b5ae842a74af05e7389c43', wbolt: '88bca8a92ddc7de250e8664d105c6b8a', lotus: '22ddd56fd3e32059cad71bee7e3b8519', lotus_s: '82fd89234c8e1b118050eb838d6b36a4', stun: '86d4f11af1aa530e3d19553b695f0280', shell: '51bd2be468a59aa8239b35eb9fd7d35b', jade: 'ce8daeee913f02cc603bcbfe8f459d6d', star4: 'a551fbfae7123e44485aa480ee371ec2' }, F = { sword: 'sword_gold', dome: 'ice_dome', wbolt: 'wbolt', lotus: 'lotus2', lotus_s: 'lotus_s', stun: 'h2_stun', shell: 'h3_shell', jade: 'g2_jade', star4: 'd1_star' };
     for (const k in B) { const im = new Image(); im.onload = () => { R78[k] = im; }; im.src = LOC ? 'r78/' + F[k] + '.webp' : '/_blob/' + B[k]; } }
   const r78Cell = (im, fr) => { const c = im.width / 4; return [(fr % 4) * c, Math.floor(fr / 4) * c, c]; };
   const WPN = { hero: [[-101, -236], [-226, -110]], yunting: [[61, -330], [133, -475]], linxue: [[92, -256], [217, -135]], shenle: [[-77, -278], [43, -333]] };   // 兵刃 柄→尖（相对脚底，人物高 500）
@@ -15120,6 +15120,14 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   function immuneDome(u, x, y, L) { iceDome(u, x, y, L, [215, 215, 225]); }
   function iceDomeArt(u, x, y, L) { const im = R78.dome; if (!im) return iceDome(u, x, y, L); const [sx, sy, c] = r78Cell(im, Math.floor(T() * 16) % 16), k = c / 256, s = u.h / 182 / k;
     ctx.save(); ctx.globalAlpha = L === 'back' ? 1 : .32; ctx.drawImage(im, sx, sy, c, c, x - 128 * k * s, y - 232 * k * s, c * s, c * s); ctx.restore(); }   // 身后整张、身前淡一层：边缘罩在人前，脸看得清
+  // R78 v2（Codex 画的）：眩晕金星 / 冰封冰壳 / 玉色音律罩 / 凝神四芒星；没加载完退回代码画
+  function domeArt(im, u, x, y, L, front = .32, xs = 1) { const [sx, sy, c] = r78Cell(im, Math.floor(T() * 16) % 16), k = c / 256, s = u.h / 182 / k;
+    ctx.save(); ctx.globalAlpha = L === 'back' ? 1 : front; ctx.drawImage(im, sx, sy, c, c, x - 128 * k * s * xs, y - 232 * k * s, c * s * xs, c * s); ctx.restore(); }
+  const wideOf = u => { const im = typeof IMG !== 'undefined' && u.key && IMG[u.key]; return im && im.height ? Math.max(1, Math.min(2.4, im.width / im.height / .75)) : 1; };   // 四足兽冰壳横向拉宽
+  function stunArt(u, x, y, L) { const im = R78.stun; if (!im) return stunStars(u, x, y, L); if (L !== 'front') return; const [sx, sy, c] = r78Cell(im, Math.floor(T() * 16) % 16), s = u.h * .85 / (.37 * c);
+    ctx.save(); ctx.drawImage(im, sx, sy, c, c, x - c * s / 2, y - u.h * 1.0 - c * s / 2, c * s, c * s); ctx.restore(); }
+  function starArt(u, x, y, L) { const im = R78.star4; if (!im) return tipStar(u, x, y, L); if (L !== 'front') return; const [, [bx, by]] = weapon(u, x, y), [sx, sy, c] = r78Cell(im, Math.floor(T() * 16) % 16), d = u.h * .55;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(im, sx, sy, c, c, bx - d / 2, by - d / 2, d, d); ctx.restore(); }
   // 霜甲（作者：冰甲太难看 → 冰莲环绕）：脚下一朵大冰莲 + 5 朵小冰莲绕身旋转，同护体光剑的思路
   function lotusRing(u, L, x, y) { const im = R78.lotus, sm = R78.lotus_s || im; if (!im) return iceDome(u, x, y, L); const t = performance.now() / 1000, H = u.h;   // Codex 重画 v2：圆润分层寒玉莲（大）+ 小冰莲
     const one = (A, bw, fr, px, py, w, a) => { const [sx, sy, c] = r78Cell(A, fr), k = c / 256, s = w / bw; ctx.globalAlpha = a; ctx.drawImage(A, sx, sy, c, c, px - 128 * s, py - 175 * s, 256 * s, 256 * s); };
@@ -15131,8 +15139,8 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       one(sm, 88, (Math.floor(t * 12) + i * 3) % 16, x + Math.cos(a) * rx, y - lift + Math.sin(a) * ry, H * (front ? .2 : .16), front ? 1 : .6); }
     ctx.restore(); }
   const CODE = { atk: (u, L, x, y) => { if (L === 'front') weaponBolt(u, x, y, false); }, kuang: (u, L, x, y) => rageBolts(u, x, y, L), spd: (u, L, x, y) => windRing(u, x, y, L), frost: (u, L, x, y) => lotusRing(u, L, x, y),
-    shield: (u, L, x, y) => iceShield(u, x, y, L), lotus: (u, L, x, y) => iceLotus(u, x, y, L), wall: (u, L, x, y) => noteWall(u, x, y, L), ns: (u, L, x, y) => tipStar(u, x, y, L),
-    stun: (u, L, x, y) => stunStars(u, x, y, L), frozen: (u, L, x, y) => frozenIce(u, x, y, L), immune: (u, L, x, y) => immuneDome(u, x, y, L) };
+    shield: (u, L, x, y) => { if (!window.R76P) iceShield(u, x, y, L); }, lotus: (u, L, x, y) => iceLotus(u, x, y, L), wall: (u, L, x, y) => R78.jade ? domeArt(R78.jade, u, x, y, L) : noteWall(u, x, y, L), ns: (u, L, x, y) => starArt(u, x, y, L),
+    stun: (u, L, x, y) => { if (!u._r76stun) stunArt(u, x, y, L); }, frozen: (u, L, x, y) => { if (u._r76ice) return; R78.shell ? domeArt(R78.shell, u, x, y, L, .55, wideOf(u)) : frozenIce(u, x, y, L); }, immune: (u, L, x, y) => immuneDome(u, x, y, L) };
 
   // 护体：最初脚底那圈光剑阵放大调亮 + 6 柄光剑绕全身螺旋旋转（转到身后画在人物后面，转到身前画在前面）
   const SW = new Image(); SW.src = 'fx/fx_sword_blue.webp';
