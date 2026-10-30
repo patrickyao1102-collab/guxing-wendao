@@ -426,7 +426,14 @@ async function moveActor(a, x, y, spd = 220) {
   const d = Math.hypot(x - a.x, y - a.y); const x0 = a.x, y0 = a.y; a.moving = true; if (x !== x0) a.dir = x > x0 ? 1 : -1; a.face = faceOf(x - x0, y - y0);
   await tween(d / spd * 1000, t => { a.x = lerp(x0, x, t); a.y = lerp(y0, y, t); }); a.moving = false;
 }
-function faceOf(vx, vy) { return Math.abs(vx) > Math.abs(vy) * .8 ? (vx > 0 ? 'right' : 'left') : (vy > 0 ? 'down' : 'up'); }
+// 朝向判定（作者：八向行走一直有问题）：走路图只有上/下/左右三组，斜着走时按角度二选一；
+// 加了回差：已经侧身就一直侧身，直到角度陡过 63° 才转成正/背面；正/背面要角度平过 51° 才转侧身。
+// 这样手指在 45° 附近晃、沿路径拐小弯时，朝向不会左右乱跳、步子也不会被打断。
+function faceOf(vx, vy, cur) {
+  const ax = Math.abs(vx), ay = Math.abs(vy);
+  const side = cur === 'left' || cur === 'right' ? ax * 2 > ay : ax > ay * .8;
+  return side ? (vx > 0 ? 'right' : vx < 0 ? 'left' : cur || 'right') : (vy > 0 ? 'down' : vy < 0 ? 'up' : cur || 'down');
+}
 function updateMap(dt) {
   if (!world.map) return;
   const p = world.player;
@@ -440,7 +447,7 @@ function updateMap(dt) {
     else if (input.down && !tap) { /* 按住拖动 */ const dx = input.x - p.x, dy = input.y - p.y; if (Math.hypot(dx, dy) > 20 && pointInPoly(input.x, input.y, world.map.walk)) world.walkTarget = { x: input.x, y: input.y }; }
     if (world.walkTarget) { const dx = world.walkTarget.x - p.x, dy = world.walkTarget.y - p.y, l = Math.hypot(dx, dy); if (l < 6) world.walkTarget = null; else { vx = dx / l * spd; vy = dy / l * spd; } }
     const nx = p.x + vx * dt, ny = p.y + vy * dt;
-    if (vx || vy) { p.moving = true; if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1; p.face = faceOf(vx, vy); if (pointInPoly(nx, ny, world.map.walk)) { p.x = nx; p.y = ny; } else if (pointInPoly(nx, p.y, world.map.walk)) p.x = nx; else if (pointInPoly(p.x, ny, world.map.walk)) p.y = ny; else world.walkTarget = null; }
+    if (vx || vy) { p.moving = true; if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1; p.face = faceOf(vx, vy, p.face); if (pointInPoly(nx, ny, world.map.walk)) { p.x = nx; p.y = ny; } else if (pointInPoly(nx, p.y, world.map.walk)) p.x = nx; else if (pointInPoly(p.x, ny, world.map.walk)) p.y = ny; else world.walkTarget = null; }
     else p.moving = false;
     for (const tr of world.triggers) {
       if (tr.done) continue;
@@ -2359,16 +2366,18 @@ function tileUpdate(dt) {
     if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1;
     if (kx || ky) { world.path = null; world.walkTarget = null; world.pending = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
     else if (input.down && !tap && !world.path) { const wx = input.x + cam.x, wy = input.y + cam.y, dx = wx - p.x, dy = wy - p.y; if (Math.hypot(dx, dy) > 30) { const l = Math.hypot(dx, dy); vx = dx / l * spd; vy = dy / l * spd; } }
-    if (world.path && world.path.length) { const [tx, ty] = world.path[0], dx = tx - p.x, dy = ty - p.y, l = Math.hypot(dx, dy); if (l < Math.max(2.5, spd * dt * 1.2)) { if (canStand(T, tx, ty)) { p.x = tx; p.y = ty; } world.path.shift(); if (!world.path.length) { world.path = null; world.walkTarget = null; if (world.pending) { const h = world.pending; world.pending = null; doInteract(h); } } } else { vx = dx / l * spd; vy = dy / l * spd; } }
+    if (world.path && world.path.length) { let [tx, ty] = world.path[0], dx = tx - p.x, dy = ty - p.y, l = Math.hypot(dx, dy); if (l < Math.max(2.5, spd * dt * 1.2)) { if (canStand(T, tx, ty)) { p.x = tx; p.y = ty; } world.path.shift(); if (!world.path.length) { world.path = null; world.walkTarget = null; if (world.pending) { const h = world.pending; world.pending = null; doInteract(h); } } else { [tx, ty] = world.path[0]; dx = tx - p.x; dy = ty - p.y; l = Math.hypot(dx, dy); if (l > .5) { vx = dx / l * spd; vy = dy / l * spd; } } }   // 作者：拐点不停步——到达一个路点同一帧就朝下一个路点走，不闪站立帧
+      else { vx = dx / l * spd; vy = dy / l * spd; } }
   } else if (world.locked && !dialog && !choice && !sysPanel) consumeTap();
   if (vx || vy) {
-    p.moving = true; if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1; p.face = faceOf(vx, vy);
+    p.moving = true; if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1;
+    { const nf = faceOf(vx, vy, p.face); if (nf === p.face) p._fc = null; else { if (p._fc !== nf) { p._fc = nf; p._fct = 0; p._fcn = 0; } p._fct += dt; p._fcn++; if ((p._fct >= .08 && p._fcn >= 2) || !p._wl) { p.face = nf; p._fc = null; } } }   // 带回差 + 新朝向要连续稳住 2 帧且 80ms 才换：斜走、两键先后按下、手指晃动都不会闪
     const nx = p.x + vx * dt, ny = p.y + vy * dt;
     if (canStand(T, nx, ny)) { p.x = nx; p.y = ny; } else if (canStand(T, nx, p.y)) p.x = nx; else if (canStand(T, p.x, ny)) p.y = ny; else if (world.path && world.path.length && canStand(T, world.path[0][0], world.path[0][1]) && Math.hypot(world.path[0][0] - p.x, world.path[0][1] - p.y) < 14) { p.x = world.path[0][0]; p.y = world.path[0][1]; } else { world.path = null; }
   } else if (!world.scripted) p.moving = false;
   // 跟随的队友：沿着主角走过的轨迹
   const tr = world.trail; if (p.moving || !tr.length) { const l = tr[0]; if (!l || Math.hypot(l[0] - p.x, l[1] - p.y) > 6) tr.unshift([p.x, p.y, p.face]); if (tr.length > 200) tr.pop(); }
-  for (const f of world.followers || []) { const idx = Math.min(tr.length - 1, f.follower * 11); const q = tr[idx]; if (q) { const mv = Math.hypot(q[0] - f.x, q[1] - f.y) > .5; if (mv && Math.abs(q[0] - f.x) > .5) f.dir = q[0] > f.x ? 1 : -1; if (mv) f.face = faceOf(q[0] - f.x, q[1] - f.y); f.x = q[0]; f.y = q[1]; f.moving = mv && p.moving; } }
+  for (const f of world.followers || []) { const idx = Math.min(tr.length - 1, f.follower * 11); const q = tr[idx]; if (q) { const mv = Math.hypot(q[0] - f.x, q[1] - f.y) > .5; if (mv && Math.abs(q[0] - f.x) > .5) f.dir = q[0] > f.x ? 1 : -1; if (mv) f.face = q[2] || faceOf(q[0] - f.x, q[1] - f.y, f.face); /* 跟着主角当时的朝向走，不自己乱算 */ f.x = q[0]; f.y = q[1]; f.moving = mv && p.moving; } }
   // NPC 闲逛
   for (const a of world.actors) if (a.npc && a.home && !a.talking) {
     a.wait -= dt; if (a.wait <= 0 && !a.tx) { const ang = rand(0, 7), d = rand(40, 110); const tx = a.home[0] + Math.cos(ang) * d, ty = a.home[1] + Math.sin(ang) * d * .6; if (canStand(T, tx, ty) && lineFree(T, a.x, a.y, tx, ty)) { a.tx = tx; a.ty = ty; } else a.wait = .6; }
@@ -7708,10 +7717,11 @@ function walkFinalDraw(a, now) {
   const dir = fc === 'up' || fc === 'left' || fc === 'right' ? fc : 'down';
   const w = a._wl || (a._wl = { ph: 0, t: now, dir });
   const dt = Math.max(0, Math.min(.25, now - w.t)); w.t = now;
-  if (dir !== w.dir) { w.dir = dir; w.ph = 0; }
-  if (a.moving) w.ph = (w.ph + dt / (6 * .17)) % 1; else w.ph = 0;
+  if (dir !== w.dir) w.dir = dir;   // 换方向不重置步子相位（原来归零，拐弯就像重新迈步）
+  if (a.moving) { w.ph = (w.ph + dt / (6 * .17)) % 1; w.mt = now; } else if (!(now - (w.mt || 0) < .12)) w.ph = 0;   // 停下不到 0.12 秒（路点/碰一下墙）不算停
+  const mv = !!a.moving || (now - (w.mt || 0) < .12);
   ctx.save(); ctx.globalAlpha *= a.alpha ?? 1;
-  try { WalkLab.draw(ctx, 'classic', kind, dir, w.ph, !!a.moving, a.x, a.y, 95); }
+  try { WalkLab.draw(ctx, 'classic', kind, dir, w.ph, mv, a.x, a.y, 95); }
   catch (e) { ctx.restore(); walkFinalErr(e); return false; }   // 出错就退回旧走路图，绝不让人物消失
   ctx.restore(); return true;
 }
