@@ -6,7 +6,7 @@
   const ID = 'tj_market', B = D.map, L = D.life;
   const BLOB = {"g_tj_market": "f51f3aae73214886a9c28a39dcbb27e9", "r60_atlas_0": "156fea751c031e4a99ac01f78aa914a9", "r60_life_alchemist": "f66d68c6638c9ac89626a0ef9a49a5e9", "r60_life_artificer": "4ec87ac53effca2f730727ea399733b5", "r60_life_beast_keeper": "398e8c34930f91bec4f97b1038e668d7", "r60_life_board_keeper": "1eafe8cf3041ea381857e29d9a6476cc", "r60_life_crane": "2515d98b0e7b93745fcbdbc259b0da12", "r60_life_deer": "3ab4db5aa51ff70d1eec10013531de5d", "r60_life_guest_blue": "dedc92f087417e5abe721760acf9f4d9", "r60_life_guest_elder": "9581cba1e0cd9fc17dc3ef5e3758699d", "r60_life_guest_jade": "4d9acc687184db1701f317ea420b361a", "r60_life_keeper_feed": "7a25e02a0207fa02d845961e4a263f13", "r60_life_peddler": "17c77424adb003521888d671d73242da", "r60_life_sparrow": "fe6a90a076e27fcc354080779481be64", "r60_life_storyteller": "62c96fa8afa9b90b66ab733eeb82ef5c", "r60_life_visitor_man": "f760b6ce877d5ee5ee4652d9494a1314", "r60_life_visitor_woman": "2162ae3c2e8f9c26a47d9cdd630f199f"};   // 图片放在作品素材库（发布包已近上限）
   const local = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:');
-  const src = n => (!local && BLOB[n]) ? '/_blob/' + BLOB[n] : 'cx2/' + n + '.webp';
+  const src = n => (n === 'g_tj_market' && window.R80_ON && window.R80_SRC) ? R80_SRC('ground') : (!local && BLOB[n]) ? '/_blob/' + BLOB[n] : 'cx2/' + n + '.webp';
   CXB2[ID] = B;
   // ---- 图片 ----
   const ld = (k, n) => { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = src(n); };
@@ -37,7 +37,7 @@
     talismans: { who: '俏掌柜', items: () => ['c_jade', 'p_mp', 'p_revive'].filter(has), hi: ['符箓救急，阵旗护营，出门历练可别只带一把剑。'] },
     special: { who: '五曜商阁执事', items: () => ['yunxingshi', 'c_jade'].filter(has), hi: ['五曜商阁只收奇珍。破阵灵晶也有几颗，就看你出不出得起价。'] },
   };
-  const NAME = { skills: '典籍阁', armory: '兵甲坊', medicine: '丹药铺', talismans: '符阵坊', beasts: '灵兽苑', special: '五曜商阁' };
+  const NAME = { skills: '典籍阁', armory: '兵甲坊', medicine: '丹药铺', talismans: '符阵坊', beasts: '灵兽苑', special: window.R80_ON ? '天剑商阁' : '五曜商阁' };
   const npcs = [];
   for (const t of B.inter) { if (!t.p) continue; const [c, r] = atIn(ID, t.p[0], t.p[1] + 10) || P(t.p[0], t.p[1]);
     const sh = SHOP[t.shop], nm = NAME[t.shop] || t.name;

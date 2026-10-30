@@ -128,7 +128,7 @@
     const B = CXB2[id]; if (!B || done[id]) return false;
     const cs = B.cs, cols = B.cols, rows = B.rows, b = B.blocked.split(''); let changed = 0, missing = 0;
     for (const o of B.objs || []) {
-      if (o.flat || !o.img) continue; const im = IMG[o.img]; if (!im) { missing++; continue; }
+      if (o.flat || !o.img || o.noBlock) continue; const im = IMG[o.img]; if (!im) { missing++; continue; }
       const A = alphaOf(im); if (!A) continue;
       // 排序脚点改到贴图真正的底边（Codex 的贴图底下常留几十像素透明边，脚点偏低会让站在台子前面的人被画到台子后面去）
       if (!o._sb) { let bot = -1; for (let y = A.h - 1; y >= 0 && bot < 0; y--) { let n = 0; for (let x = 0; x < A.w; x += 2) if (A.d[(y * A.w + x) * 4 + 3] > 40) n++; if (n >= 3) bot = y; }
@@ -223,7 +223,7 @@
     ctx.restore();
   }
   drawBaked = (orig => function (o, now) {
-    if (o && !o.flat && !o.r60 && o.img && o.w >= 120 && MAPS.has(world.mapName)) { try { shadow(o); } catch (e) {} }
+    if (o && !o.flat && !o.r60 && !o.noBlock && o.img && o.w >= 120 && MAPS.has(world.mapName)) { try { shadow(o); } catch (e) {} }
     return orig.apply(this, arguments);
   })(drawBaked);
   // 店主站到自家柜台正前方（台子底边下面一点），不再站在广场中间
