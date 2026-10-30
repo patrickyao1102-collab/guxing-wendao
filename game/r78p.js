@@ -49,3 +49,31 @@
   window.motes = motes = function (x, y, n, col, o = {}) { if (!img(58)) return _mo && _mo(x, y, n, col, o);
     const w = (o.w ?? 40) * 2 + 120; play(58, { x, y: k => y - k * 40, size: w * 1.6, life: o.life ?? 1.2, layer: o.layer ?? 1, alpha: k => fadeIO(k) }); };
 })();
+/* 辅助技能加上 R78 画的素材（原演出保留，叠加：护罩出现 / 加攻加防加速提示 / 落雷 / 冰莲 / 治疗光柱 / 音律墙） */
+(function () {
+  if (!window.R78P || !window.SK4 || !SK4.ACT) return;
+  const A = SK4.ACT, P78 = R78P.play, hs = () => (battle.heroes || [battle.P]).filter(u => u.alive);
+  const fade = k => Math.min(1, k * 5) * Math.min(1, (1 - k) * 4);
+  const at = (ms, fn) => setTimeout(() => { try { if (typeof battle !== 'undefined' && battle) fn(); } catch (e) {} }, ms);
+  const dome = (id, u, d = 0) => P78(id, { delay: d, life: .8, layer: 2, x: u.x + (u.ox || 0), y: u.y + 6, size: u.h * 1.75 });
+  const hint = (id, u, d = 0) => P78(id, { delay: d, life: .9, layer: 2, x: u.x + (u.ox || 0) + u.h * .22, y: u.y - u.h * .95, size: u.h * .7 });
+  const foot = (id, u, s, d = 0, o = {}) => P78(id, { delay: d, life: o.life || .8, layer: o.layer ?? 2, x: u.x + (u.ox || 0), y: u.y + 4, size: u.h * s, alpha: o.alpha ?? 1 });
+  const mid = (id, u, s, d = 0) => P78(id, { delay: d, life: .8, layer: 2, x: u.x + (u.ox || 0), y: u.y - u.h * .5, size: u.h * s });
+  function wrap(k, fn) { const o = A[k]; if (!o) return; A[k] = async function (P, t) { try { fn(P, t); } catch (e) {} return o.apply(this, arguments); }; }
+  // 叶孤星
+  wrap('huti', P => { at(700, () => hs().forEach((u, i) => { dome(72, u, i * .08); hint(68, u, .3 + i * .08); })); });
+  wrap('ningshen', P => { at(1150, () => P78(56, { x: P.x - P.h * .34, y: P.y - P.h * .62, size: P.h * 1.3, life: .8 })); });
+  wrap('juling', P => { at(500, () => hs().forEach((u, i) => { mid(66, u, 1.1, i * .13); foot(58, u, 1.4, .2 + i * .13, { life: 1.2 }); })); });
+  // 云霆
+  wrap('qianggong', P => { at(400, () => { const h = hs(); P78(35, { x: (h[0].x + h[h.length - 1].x) / 2, y: Math.min(...h.map(u => u.y - u.h)) - 20, size: 560, life: 1.4, layer: 2, alpha: k => fade(k) }); h.forEach((u, i) => { foot(27, u, 1.9, .15 + i * .12); hint(67, u, .5 + i * .12); }); }); });
+  wrap('jifeng', P => { at(300, () => hs().forEach((u, i) => { foot(34, u, 1.0, i * .14, { life: 1.0, layer: 0 }); hint(69, u, .35 + i * .14); })); });
+  wrap('boming', P => { at(250, () => { P78(35, { x: P.x, y: P.y - P.h * 1.15, size: 380, life: 1.3, alpha: k => fade(k) }); foot(27, P, 2.0, .2); foot(37, P, 1.3, .3, { layer: 0 }); hint(67, P, .6); }); });
+  // 林雪
+  wrap('shuangjia', P => { at(250, () => hs().forEach((u, i) => { foot(44, u, 1.35, i * .12, { layer: 0 }); hint(68, u, .6 + i * .12); })); });
+  wrap('bingxin', P => { at(300, () => { const h = hs(), cx = h.reduce((s, u) => s + u.x, 0) / h.length, cy = h.reduce((s, u) => s + u.y, 0) / h.length; P78(44, { x: cx, y: cy + 14, size: 520, life: 1.0, layer: 0 }); h.forEach((u, i) => mid(48, u, 1.5, .45 + i * .09)); }); });
+  wrap('bingdun', P => { at(350, () => { const u = hs().sort((a, c) => a.hp / a.maxhp - c.hp / c.maxhp)[0]; dome(70, u); mid(46, u, .9, .3); }); });
+  // 神乐
+  wrap('yinzhang', P => { at(300, () => { const h = hs(); P78(64, { x: Math.min(...h.map(u => u.x)) - 110, y: Math.max(...h.map(u => u.y)) + 10, size: 560, life: 1.4, alpha: k => fade(k) }); h.forEach((u, i) => dome(71, u, .4 + i * .1)); }); });
+  wrap('qxq', P => { at(500, () => { const u = hs().sort((a, c) => a.hp / a.maxhp - c.hp / c.maxhp)[0]; foot(65, u, 1.8); }); });
+  wrap('jiuyinhe', P => { at(500, () => hs().forEach((u, i) => foot(65, u, 1.8, i * .4))); });
+})();

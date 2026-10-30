@@ -6,13 +6,15 @@
   const NAMES = { yegx: '叶孤星', yunting: '云霆', linxue: '林雪', luochen: '洛尘', shenle: '神乐' };
   let saved = null; const D = { b: null, me: null };
   function unlockAll() {
-    const h = S.hero; saved = { lv: h.lv, skills: h.skills.slice(), sun: S.flags && S.flags.sun_unlocked, seen: S.flags && S.flags.sun_seen };
+    const h = S.hero; saved = { lv: h.lv, skills: h.skills.slice(), sun: S.flags && S.flags.sun_unlocked, seen: S.flags && S.flags.sun_seen, sk4: JSON.stringify(S.sk4 || {}), jt: S.flags && S.flags.yt_jiutian };
+    // 所有人的辅助 / 秘传临时全学会；九天神雷提前解锁（结束后恢复）
+    S.sk4 = S.sk4 || {}; if (window.SK4 && SK4.X) for (const w in SK4.X) for (const id in SK4.X[w]) S.sk4[w + '.' + id] = 1;
     h.lv = 99; const ally = new Set(['dianxing', 'qunxing', 'shaxing']);
     for (const k of Object.keys(SKILL_DB)) if (!ally.has(k) && !h.skills.includes(k)) h.skills.push(k);
-    S.flags = S.flags || {}; S.flags.sun_unlocked = 1; S.flags.sun_seen = 1;
+    S.flags = S.flags || {}; S.flags.sun_unlocked = 1; S.flags.sun_seen = 1; S.flags.yt_jiutian = 1;
   }
   function restore() {
-    if (!saved) return; const h = S.hero; h.lv = saved.lv; h.skills = saved.skills; S.flags.sun_unlocked = saved.sun; S.flags.sun_seen = saved.seen; saved = null;
+    if (!saved) return; const h = S.hero; h.lv = saved.lv; h.skills = saved.skills; S.flags.sun_unlocked = saved.sun; S.flags.sun_seen = saved.seen; S.sk4 = JSON.parse(saved.sk4); S.flags.yt_jiutian = saved.jt; saved = null;
   }
   const dummy = i => ({ name: '木人桩', key: 'm_dummy', hp: 99999, maxhp: 99999, atk: 1, def: 0, spd: 3, h: 200, color: '#8a6a3a', ai: async () => true, dummy: true });
   async function start(who) { try { return await start0(who); } catch (e) { console.error('DUMMY', e && e.stack); } }
@@ -43,6 +45,7 @@
   // 木人桩里只有选中的角色出手：轮到别人时自动「防」跳过
   updateBattle = (orig => function (dt) {
     const b = typeof battle !== 'undefined' && battle;
+    if (b && b === D.b) for (const u of b.heroes) { u.rage = 100; if (u.mp < 999) { u.maxmp = Math.max(u.maxmp, 999); u.mp = u.maxmp; } }   // 怒气 / 灵力一直满
     if (b && b === D.b && b.state === 'menu' && D.me && b.P !== D.me && !b._skip && !dialog) { b._skip = 1; Promise.resolve(doHeroAction('def')).finally(() => { b._skip = 0; }); }
     return orig.apply(this, arguments);
   })(updateBattle);
