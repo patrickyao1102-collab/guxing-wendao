@@ -14926,18 +14926,42 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   const R77IM = {}, R77ASK = {};
   function r77Load(k) { if (R77ASK[k]) return; R77ASK[k] = 1; ['back', 'front'].forEach((L, i) => { const im = new Image(); im.onload = () => { R77IM[k + '_' + L] = im; }; im.src = R77LOC ? 'r77/' + k + '_' + L + '.webp' : '/_blob/' + R77[k][i]; }); }
   // 开战后空闲时把本队会用到的先下好，第一次放招不闪
-  startBattle = (orig => function () { const r = orig.apply(this, arguments); setTimeout(() => { try { for (const u of battle.heroes || []) { const w = u.ally || 'hero'; for (const k in R77) if (k.endsWith('_' + w)) r77Load(k); } for (const k of ['dr_hero', 'stun', 'frozen', 'immune', 'spd_yunting', 'frost_linxue', 'lotus_linxue', 'shield_linxue']) r77Load(k); } catch (e) {} }, 1500); return r; })(startBattle);
+  startBattle = (orig => function () { const r = orig.apply(this, arguments); setTimeout(() => { try { for (const u of battle.heroes || []) { const w = u.ally || 'hero'; for (const k in R77) if (k.endsWith('_' + w)) r77Load(k); } for (const k of ['stun', 'frozen', 'immune', 'spd_yunting', 'frost_linxue', 'lotus_linxue', 'shield_linxue']) r77Load(k); } catch (e) {} }, 1500); return r; })(startBattle);
   const WHO = u => u.ally || 'hero';
   function r77Of(u) { const out = [], b = u.bx || {}, w = WHO(u);
     if (u.side === 'enemy') { const bf = u.buffs || {}; if (bf.frozen > 0) out.push('frozen'); else if (bf.stun > 0) out.push('stun'); if (u.ctrlImm > 1 && !(bf.frozen > 0)) out.push('immune'); return out; }
-    if (bxv(u, 'dr')) out.push(b.dr && b.dr.src === 'shuangjia' ? 'frost_linxue' : 'dr_hero');
+    if (bxv(u, 'dr')) out.push(b.dr && b.dr.src === 'shuangjia' ? 'frost_linxue' : 'swordring');   // 作者：护体＝光剑绕身旋转（蓝色火焰那版不要）
     if (bxv(u, 'vuln') && R77['kuang_' + w]) out.push('kuang_' + w); else if (bxv(u, 'atk') && R77['atk_' + w]) out.push('atk_' + w);
     if (bxv(u, 'spd')) out.push('spd_yunting');
     if (b.ctrlImm && b.ctrlImm.n > 0) out.push('lotus_linxue');
     if (b.hs && b.hs.n > 0 && b.hs.v > 0) out.push(b.hs.ice ? 'shield_linxue' : 'wall_shenle');
     if (b.ns && b.ns.n > 0 && w === 'hero') out.push('ns_hero');
     return out; }
-  function r77Draw(u, k, L, x, y) { r77Load(k); const im = R77IM[k + '_' + L]; if (!im) return false; const cw = im.width / 4, s = u.h / 500, fr = Math.floor(performance.now() / 125) % 16, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw, d = 768 * s;
+  // 护体：最初脚底那圈光剑阵放大调亮 + 6 柄光剑绕全身螺旋旋转（转到身后画在人物后面，转到身前画在前面）
+  const SW = new Image(); SW.src = 'fx/fx_sword_blue.webp';
+  const RING = {}; ['back', 'front'].forEach((L, i) => { const im = new Image(); im.onload = () => { RING[L] = im; }; im.src = R77LOC ? 'r77/hero_dr_' + L + '.webp' : '/_blob/' + ['88dbc08f611d7862a994ea55a2ed20ed', '7d0504366cb95144c1ff0eb82445af98'][i]; });
+  function swordRing(u, L, x, y) {
+    const t = performance.now() / 1000, H = u.h, fr = Math.floor(t * 8) % 16;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const rim = RING[L]; if (rim) { const cw = rim.width / 4, s = H / 500 * 1.45, d = 640 * s, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw; for (let k = 0; k < 2; k++) { ctx.globalAlpha = k ? .55 : 1; ctx.drawImage(rim, sx, sy, cw, cw, x - 320 * s, y - 552 * s + H * .02, d, d); } }
+    if (SW.complete && SW.naturalWidth) {
+      const N = 6, rx = H * .42, ry = H * .11, len = H * .46, w = len * 96 / 512 * 1.6;
+      for (let i = 0; i < N; i++) {
+        const a = t * 1.6 + i / N * Math.PI * 2, front = Math.sin(a) > 0; if ((L === 'front') !== front) continue;
+        const lift = (.18 + .32 * (.5 + .5 * Math.sin(t * 1.1 + i * 1.7))) * H;   // 每柄在脚边到胸口之间上下游走
+        const px = x + Math.cos(a) * rx, py = y - lift + Math.sin(a) * ry, depth = front ? 1 : .55;
+        ctx.save(); ctx.translate(px, py); ctx.rotate(-Math.PI / 2 + Math.cos(a) * .18); ctx.globalAlpha = .95 * depth;
+        ctx.drawImage(SW, -len * .5, -w / 2, len, w);
+        ctx.globalAlpha = .45 * depth; ctx.drawImage(SW, -len * .55, -w * .9, len * 1.1, w * 1.8);   // 外层辉光
+        ctx.restore();
+        // 剑尖拖出一道光弧
+        ctx.globalAlpha = .35 * depth; ctx.strokeStyle = '#9fd8ff'; ctx.lineWidth = 3; ctx.beginPath();
+        for (let k = 0; k <= 8; k++) { const aa = a - k * .06, ll = lift + len * .5; const qx = x + Math.cos(aa) * rx, qy = y - ll + Math.sin(aa) * ry; k ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy); } ctx.stroke();
+      }
+    }
+    ctx.restore(); return true;
+  }
+  function r77Draw(u, k, L, x, y) { if (k === 'swordring') return swordRing(u, L, x, y); r77Load(k); const im = R77IM[k + '_' + L]; if (!im) return false; const cw = im.width / 4, s = u.h / 500, fr = Math.floor(performance.now() / 125) % 16, sx = (fr % 4) * cw, sy = Math.floor(fr / 4) * cw, d = 768 * s;
     ctx.drawImage(im, sx, sy, cw, cw, x - 384 * s, y - 672 * s, d, d); return true; }
   window.R77_STATUS = { R77, R77IM };
   // ---------- 身上的持续状态光效 ----------
@@ -14948,7 +14972,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const now = performance.now() / 1000, x = u.x + (u.ox || 0), y = u.y + (u.oy || 0);
     const R = r77Of(u); for (const k of R) r77Draw(u, k, 'back', x, y);
     const has = k => R.some(q => q.startsWith(k)) && R.some(q => q.startsWith(k) && R77IM[q + '_back']);
-    const rDr = has('dr_') || has('frost_'), rAtk = has('atk_') || has('kuang_'), rSpd = has('spd_'), rHs = has('shield_') || has('wall_'), rNs = has('ns_');
+    const rDr = R.includes('swordring') || has('frost_'), rAtk = has('atk_') || has('kuang_'), rSpd = has('spd_'), rHs = has('shield_') || has('wall_'), rNs = has('ns_');
     // 身下：减伤阵纹（慢转）、加速风纹
     if (bxv(u, 'dr') && IM.array && !rDr) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .38 + Math.sin(now * 2.2) * .08; ctx.translate(x, y); ctx.scale(1, .32); ctx.rotate(now * .5); const im = IM.array, cw = im.width / 2, s = u.h * 1.0; ctx.drawImage(im, u.ally === 'linxue' || u.ally === 'shenle' ? cw : 0, 0, cw, cw, -s / 2, -s / 2, s, s); ctx.restore(); }
     if (u.side === 'hero' && bxv(u, 'spd') && !rSpd) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 4; i++) { const k = (now * 1.6 + i / 4) % 1; ctx.strokeStyle = `rgba(190,240,255,${.5 * (1 - k)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, u.h * (.2 + k * .35), u.h * (.05 + k * .09), 0, Math.PI * .1, Math.PI * .9); ctx.stroke(); } ctx.restore(); }
