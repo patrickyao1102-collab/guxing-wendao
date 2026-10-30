@@ -1877,7 +1877,7 @@ async function ultDaxue(P) {
     screenFlash('#e8f8ff', .7); playSnd('sfx_ice', 1); S.shake = 14; await hitStop(80); await sleep(650);
   }
   // 冰封：下一回合动不了
-  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); }
+  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); if (window.SK4 && SK4.immune(t)) { SK4.immuneFx(t); continue; } bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); if (window.SK4) SK4.onCtrl(t); }
   await sleep(900); await dimTo(0, 500); P.pose = null;
 }
 // ---------- 叶孤星 · 破军剑意·天枢：天枢巨剑镇压 ----------
@@ -2044,7 +2044,7 @@ async function elDaxue(P) {
   await sleep(250); playSnd('sfx_ice', .9); S.shake = 10; hitAll(P, ts, .6); await hitStop(70);
   await sleep(420); screenFlash('#e8f8ff', .45); playSnd('sfx_ice', 1); S.shake = 18;
   hitAll(P, aliveEnemies(), .75, { crit: .3 }); await hitStop(120);
-  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); motes(t.x, t.y, 10, '#dff8ff', { spread: 120, rise: 120, w: 40 }); }
+  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); if (window.SK4 && SK4.immune(t)) { SK4.immuneFx(t); continue; } bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); if (window.SK4) SK4.onCtrl(t); motes(t.x, t.y, 10, '#dff8ff', { spread: 120, rise: 120, w: 40 }); }
   await sleep(800); P.pose = null;
 }
 
@@ -4415,8 +4415,10 @@ drawBattleMenu = (orig => function () {
     else { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 30, 0, 7); const g = ctx.createRadialGradient(cx - 8, cy - 8, 2, cx, cy, 30); g.addColorStop(0, '#9fc8ff'); g.addColorStop(1, '#1e3a6a'); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = UI.gold; ctx.stroke();
       ctx.font = `26px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline((s.name || '?').replace(/[·・\s]/g, '').slice(-2, -1) || s.name[0], cx, cy + 2, '#fff', 'rgba(0,0,0,.6)', 3); ctx.restore(); }
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `32px ${BRUSH}`; textOutline(s.name, r.x + 92, r.y + 28, '#f6dfa6', '#1a0800', 4);
-    ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(s.desc || '', r.x + 92, r.y + 60);
-    if (s.cost) { ctx.font = `600 17px ${FONT}`; ctx.fillStyle = '#9cc3ff'; ctx.textAlign = 'right'; ctx.fillText('灵力 ' + s.cost, r.x + r.w - 18, r.y + 28); }
+    ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.text; { let d = s.desc || ''; const maxw = r.w - 92 - 30 - (s.tag ? 70 : 0); if (ctx.measureText(d).width > maxw) { while (d.length && ctx.measureText(d + '…').width > maxw) d = d.slice(0, -1); d += '…'; } ctx.fillText(d, r.x + 92, r.y + 60); }
+    if (s.tag) { const TC = { 单体: '#ff9a7a', 群攻: '#ffb060', 减伤: '#9fe0ff', 增攻: '#ffd36a', 加攻: '#ffd36a', 狂攻: '#ff7a6a', 回灵: '#8fd0ff', 加速: '#bff0ff', 解控: '#dff8ff', 护盾: '#c8ffd8', 回血: '#7dffa8', 控制: '#c9a6ff', 必杀: '#ffe14a' }[s.tag] || '#e8dcc0';
+      ctx.font = `600 14px ${FONT}`; const tw = ctx.measureText(s.tag).width + 16, tx = r.x + r.w - 18 - tw, ty = r.y + 46; roundRect(tx, ty, tw, 22, 11); ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = TC; ctx.stroke(); ctx.fillStyle = TC; ctx.textAlign = 'center'; ctx.fillText(s.tag, tx + tw / 2, ty + 11); ctx.textAlign = 'left'; }
+    if (s.costLabel || s.cost) { ctx.font = `600 17px ${FONT}`; ctx.fillStyle = s.costLabel ? '#ffd36a' : '#9cc3ff'; ctx.textAlign = 'right'; ctx.fillText(s.costLabel || ('灵力 ' + s.cost), r.x + r.w - 18, r.y + 28); }
     ctx.globalAlpha = 1; });
   ctx.font = `600 19px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'left'; ctx.fillText('点空白处返回', 650, 140); ctx.restore();
 })(drawBattleMenu);
@@ -9117,7 +9119,7 @@ async function cxDaxue(P) {
   await fx.until(1720); S.shake = 7; hitAll(P, ts, .6); await hitStop(70);
   await fx.until(2460); P.pose = 'atk'; screenFlash('#e5faff', .45); playSnd('sfx_ice', 1); S.shake = 12;
   hitAll(P, aliveEnemies(), .75, { crit: .3 }); await hitStop(120);
-  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); }
+  for (const t of aliveEnemies()) { const bf = t.buffs || (t.buffs = {}); if (window.SK4 && SK4.immune(t)) { SK4.immuneFx(t); continue; } bf.frozen = 1; t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); if (window.SK4) SK4.onCtrl(t); }
   await fx.until(3110); P.pose = null; await fx.until(3600);
 }
 ultJiutian = (orig => async function (P) { return CXS.on ? cxJiutian(P) : orig(P); })(ultJiutian);
@@ -14445,6 +14447,280 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   const previousOverlay = typeof window.TOD_OVL === 'function' ? window.TOD_OVL : null;
   window.TOD_OVL = () => isCave() ? !!IMG[P.overlays[mode()]] : (previousOverlay ? previousOverlay() : false);
   window.R69_CAVE = {revision:69,map:'ly_cave',sourceMapSha256:P.sourceMapSha256,effectsSha256:P.effectsSha256,images:P.images,imageErrors,effectsErrors,effects:P.effects||null,ready:Promise.all(loading).then(v=>v.every(Boolean)),fires: fires.length,installed:true};
+})();
+
+</script><script>
+// ================= 技能体系 v4（总案定稿）：战斗规则 · 仙术/秘传菜单 · 辅助与秘传招 · 书与参悟 =================
+// 三条规则：灵力放仙术、怒气满放必杀；被控制（冰封/麻痹/定身）的敌人受伤 +50%，首领被冻一次后两回合免疫；每人一个特点。
+// 叶孤星：杀招威力翻倍、每战 2 次（星痕剑 3 次）；云霆：每次命中回 6 灵力、击杀回 20% 气血；林雪：攻击附冰缓，同一目标连中两次冻结；神乐：音律伤害无视物防。
+// 菜单：仙术 = 功法招 + 辅助（列表里标注 单体/群攻/减伤/增攻/回灵/加攻/加速/狂攻/解控/护盾/回血/控制）；秘传 = 必杀 + 秘传招。
+(function () {
+  if (typeof SKILL_DB === 'undefined' || typeof heroSkills !== 'function' || typeof doHeroAction !== 'function') return;
+  const F = () => (S.flags || (S.flags = {}));
+  const LEARN = () => (S.sk4 || (S.sk4 = {}));
+  const lv = () => (S.hero && S.hero.lv) || 1;
+  const TM = [0, 0, .15, .30, .45, .60];
+  const tier = (who, id) => (window.SKILL_TIER ? SKILL_TIER(who, id) : 1);
+  const tmul = (who, id) => 1 + (TM[tier(who, id)] || 0);
+  const whoOf = P => (P && P.ally) || 'hero';
+
+  // ---------- 新招表（简介 desc · 详述 lore · 标签 tag · 类别 kind：gong 功法招 / aux 辅助 / mi 秘传）----------
+  const X = {
+    hero: {
+      huti: { name: '护体', kind: 'aux', tag: '减伤', cost: 20, lv: 9, desc: '破军剑气化作屏障：全队减伤 20%，两回合', lore: '破军剑意并非只会杀伐。叶孤星以剑气在身周结一圈星蓝屏障，剑芒环绕全队一周而后隐去——屏障不显，伤到身上时才知道剑意一直在。' },
+      ningshen: { name: '凝神', kind: 'aux', tag: '增攻', cost: 16, lv: 12, desc: '闭目凝意，星光聚于剑尖：自身下一招威力 +50%', lore: '九曜剑典有言：剑未出，意先至。叶孤星闭目收心，周身星光尽数向剑尖汇去，凝成一点极亮的星芒——下一剑出手，便是倾尽全身剑意的一剑。' },
+      juling: { name: '聚灵', kind: 'aux', tag: '回灵', cost: 0, lv: 15, desc: '九曜星辰洒落星光：全队回复 30 灵力', lore: '九曜星辰的虚影在头顶转过一圈，星光如雨洒落，队友身上细细的灵力回流向上升起。这一招不耗灵力，耗的是叶孤星自己这一回合的出手。' },
+    },
+    yunting: {
+      qianggong: { name: '强攻', kind: 'aux', tag: '加攻', cost: 20, lv: 12, desc: '雷纹落在全队武器上：全队攻击 +20%，两回合', lore: '云雷剑上雷光炸开，分成三道雷纹落在队友的兵刃上。雷附于刃，出手便带一道雷。云霆说这招是他在雷雨夜里悟出来的。' },
+      jifeng: { name: '疾风', kind: 'aux', tag: '加速', cost: 16, lv: 14, desc: '雷霆绕场一周：全队速度 +30%，两回合', lore: '一道雷霆贴着地面绕场一周，队友脚下泛起急速流动的风纹，身形快到留下残影。雷之道，快字当先。' },
+      boming: { name: '搏命', kind: 'aux', tag: '狂攻', cost: 24, lv: 17, desc: '周身雷光暴涨：自身攻击 +50% 三回合，但所受伤害 +25%', lore: '云霆眼中雷芒大盛，紫雷缠身。这是把护身的雷光全都压到剑上的打法，打得狠，也挨得疼——他血本来就薄，这三回合得有人替他挡。' },
+      yunlei: { name: '云雷踏影', kind: 'mi', tag: '单体', cost: 30, lv: 20, desc: '化雷光残影瞬至敌前先手一剑：单体 150%，出招后气条立回一半', lore: '云霆的秘传剑法。人化作一道雷光残影，原地只余一道雷痕，人已在敌人身前出剑。敌人看见雷光的时候，剑已经收回去了。' },
+    },
+    linxue: {
+      shuangjia: { name: '霜甲', kind: 'aux', tag: '减伤', cost: 28, lv: 12, desc: '霜气凝成薄冰铠：全队减伤 25% 两回合，并回复 15% 气血', lore: '霜气在队友身上凝成一层薄薄的冰铠，冰铠亮起时有雪花般的光点飘上来。林雪的冰不只伤人，也护人——这是她在天剑诀之外自己悟出的用法。' },
+      bingxin: { name: '冰心', kind: 'aux', tag: '解控', cost: 14, lv: 14, desc: '冰莲绽放：全队解除冰封、麻痹、定身，一回合内免疫控制', lore: '一朵冰莲在全队脚下绽开，缠在身上的异常被冰晶打碎飞散。冰心者，心如止水，外邪不侵。' },
+      bingdun: { name: '冰盾', kind: 'aux', tag: '护盾', cost: 22, lv: 17, desc: '给气血最少的队友凝一面冰晶盾：吸收其 30% 上限气血的伤害，两回合', lore: '一面带着裂纹层次的冰晶盾凝在队友身前。盾被打碎时碎冰四溅，溅到的攻击者也会被冻一下——林雪的护，还是带着她的冷。' },
+      bingfeng: { name: '冰封', kind: 'mi', tag: '控制', cost: 30, lv: 16, desc: '寒气自地面升起封住单体：伤害 80%，直接冻结一回合（首领冻后两回合免疫）', lore: '林雪的秘传。寒气从敌人脚下升起，一息之间把整个人封进一根冰柱里，一回合后冰柱碎裂。被冻住的敌人受到的所有伤害都要再加五成——先冻，再打。' },
+    },
+    shenle: {
+      qxq: { name: '清心曲', kind: 'gong', tag: '回血', cost: 26, lv: 0, desc: '一曲清心：气血最少的队友回复 35% 气血，并解除异常', lore: '九音录里最温柔的一曲。笛音流过，伤口里的灵力重新顺了，心头的躁意也散了。神乐说，这一曲她娘教的，救人的曲子比杀人的曲子难吹。' },
+      yinzhang: { name: '音障', kind: 'aux', tag: '护盾', cost: 30, lv: 19, desc: '无数音符结成音律之墙：全队护盾 25% 上限气血，两回合', lore: '笛声一转，无数音符在全队身前结成一面半透明的音律之墙。刀剑落在墙上，只听见一声清脆的音，伤不到人。' },
+      shenfa: { name: '神罚仙音', kind: 'mi', tag: '群攻', cost: 40, lv: 20, desc: '漫天音符与音波环压落：全体敌人 120% 魂伤', lore: '九音录的秘传。笛音化作漫天音符与一圈圈音波环，自上而下压在敌阵上。音律伤的是神魂，皮糙肉厚也挡不住——只有无魂的机关傀儡不怕它。' },
+      jiuyinhe: { name: '九音灵河', kind: 'mi', tag: '回血', cost: 45, lv: 22, desc: '音波长河绕过全队：全队回复 35% 气血，怒气 +20', lore: '一条音波长河自笛尖流出，绕过全队每一个人。河水流过之处伤势回复，心头的战意也跟着涨起来。这是九音录里救场的最后一曲。' },
+    },
+  };
+  const MI = new Set(['tunshi', 'sun', 'yunlei', 'bingfeng', 'shenfa', 'jiuyinhe']);   // 秘传招（进「秘传」菜单）
+  const AUX = new Set(['huti', 'ningshen', 'juling', 'qianggong', 'jifeng', 'boming', 'shuangjia', 'bingxin', 'bingdun', 'yinzhang']);
+  const TAG = { dianxing: '单体', xingluo2: '群攻', pojun: '群攻', xingluo: '群攻', xingyun: '群攻', tanlang: '单体', jueying: '单体', duopo: '单体', tunshi: '单体', sun: '群攻', qunxing: '群攻', shaxing: '单体', qingxin: '单体', liehun: '群攻', jinwu: '单体', zhouye: '群攻', riyue: '群攻' };
+  for (const who in X) for (const id in X[who]) TAG[id] = X[who][id].tag;
+  const LORE = {   // 现有招的详述（原著味道）
+    dianxing: '天剑宗弟子人人会的入门剑招。剑芒凝于一点，贯穿而去——招式最简单，练到极处也最快。',
+    xingluo2: '叶孤星以天剑诀为根自创的群攻剑招：引一片星光坠地，轰击全体敌人。天剑诀其余剑招与他无缘，这一招却是他自己的。',
+    pojun: '破军剑阵第一式。天璇剑芒结成一座小剑阵，横扫全体敌人，出招后剑阵护住自身一回合。',
+    xingluo: '天璇的升级：星罗剑芒铺天盖地，多段攻击全体敌人，剑阵护住全队。凝丹之后领悟。',
+    xingyun: '破军剑阵的极致：漫天星陨剑芒坠击全体，落地后剑芒插地成阵，护住全队三回合。引魂境后领悟。',
+    tanlang: '贪狼剑意的杀招。剑意极致爆发，必中，威力是常招的两倍。经脉受不住，一战只能出两次（星痕剑三次）。',
+    jueying: '追魂的升级：剑分三影，无视防御，可跨境界重创单体。入定一炷香才悟得的剑意。',
+    duopo: '贪狼剑意的尽头：聚魂为剑，一道幽蓝魂剑直刺敌人眉心，神魂被一剑定住。无视防御，命中必眩晕一回合。',
+    tunshi: '纳月之力：吞噬敌人灵力，伤害的一半化为自身气血。没有神乐的日子里，叶孤星靠这招撑住自己。',
+    sun: '破军剑阵的终式。烈日化阵，万剑如雨。无上境方能自如施展；借力一战，星旋曾替他撑起这一阵。',
+    qunxing: '天剑二式。漫天剑影如群星坠落，攻击全体敌人。',
+    shaxing: '天剑三式·杀招。全身灵力凝于一剑，引星坠击，爆发超越自身修为的一击。引魂境后领悟。',
+    qingxin: '九音录·仙音镇魂。一圈透明音波镇住神魂，单体伤害并可能定身。音律伤的是魂，无视物防。',
+  };
+  const LVNEED = { jueying: 14, xingyun: 19, duopo: 22, xingluo: 10, shaxing: 19 };
+  // ---------- 技能表调整 ----------
+  SKILL_DB.duopo = { name: '贪狼剑意·夺魄', cost: 80, desc: '聚魂为剑直刺眉心：单体 400%，无视防御，眩晕一回合', star: '贪狼', lv: 22 };
+  for (const id in X.hero) { const d = X.hero[id]; SKILL_DB[id] = { name: d.name, cost: d.cost, desc: d.desc, star: d.name }; }   // 不带 lv：靠书参悟
+  if (SKILL_DB.jueying) SKILL_DB.jueying.lv = 14;
+  if (SKILL_DB.xingyun) SKILL_DB.xingyun.lv = 19;
+  if (SKILL_DB.tianshu) delete SKILL_DB.tianshu.lv;   // 天枢并入剑阵线，不再单独学
+  if (SKILL_DB.dianxing) SKILL_DB.dianxing.cost = 12;
+  if (SKILL_DB.xingluo) SKILL_DB.xingluo.cost = 36;
+  if (SKILL_DB.xingyun) SKILL_DB.xingyun.cost = 44;
+  if (SKILL_DB.jueying) SKILL_DB.jueying.cost = 50;
+  if (typeof ALLY_SKILLS !== 'undefined') { ALLY_SKILLS.dianxing.cost = 18; ALLY_SKILLS.qunxing.cost = 36; ALLY_SKILLS.shaxing.cost = 50; ALLY_SKILLS.shaxing.lv = 19; }
+  if (typeof ALLY2_SKILLS !== 'undefined' && ALLY2_SKILLS.shenle) { delete ALLY2_SKILLS.shenle.liehun; if (ALLY2_SKILLS.shenle.qingxin) ALLY2_SKILLS.shenle.qingxin.cost = 22; }
+
+  // ---------- 学会判断 ----------
+  const learned = (who, id) => { const d = X[who] && X[who][id]; if (!d) return false; if (d.kind === 'gong') return lv() >= d.lv; return !!LEARN()[who + '.' + id]; };
+  function learn(who, id) { LEARN()[who + '.' + id] = 1; if (who === 'hero' && S.hero.skills && !S.hero.skills.includes(id)) S.hero.skills.push(id); }
+  // 升级替换：新招继承旧招重数
+  const INHERIT = [['hero', 'pojun', 'xingluo'], ['hero', 'xingluo', 'xingyun'], ['hero', 'tanlang', 'jueying'], ['hero', 'jueying', 'duopo']];
+  function inherit() { const L = S.skillLv || (S.skillLv = {}), has = id => S.hero.skills && S.hero.skills.includes(id);
+    for (const [w, a, b] of INHERIT) if (has(b)) { const ka = w + '.' + a, kb = w + '.' + b; if ((L[ka] || 1) > (L[kb] || 1)) L[kb] = L[ka]; } }
+  setInterval(() => { try { if (S.hero) inherit(); } catch (e) {} }, 3000);
+  // 同一按钮换招：学了新的，菜单里不再列旧的
+  const REPLACED = id => (id === 'pojun' && (hasH('xingluo') || hasH('xingyun'))) || (id === 'xingluo' && hasH('xingyun')) || (id === 'tanlang' && (hasH('jueying') || hasH('duopo'))) || (id === 'jueying' && hasH('duopo')) || id === 'tianshu';
+  const hasH = id => !!(S.hero.skills && S.hero.skills.includes(id));
+
+  // ---------- 书 ----------
+  const VOL = { 2: 300, 3: 800, 4: 2000, 5: 4000 };
+  for (const t in VOL) ITEM_DB['juan' + t] = { name: '《剑诀·卷' + '〇一二三四五'[t] + '》', price: VOL[t], book: true, vol: +t, cat: '卷册', eff: '任一招参悟到第' + '〇一二三四五'[t] + '重所需', desc: '记载剑诀精要的典籍。在「技能」页给任一已学的招参悟到第' + '〇一二三四五'[t] + '重。' };
+  const bookId = (who, id) => 'bk_' + who + '_' + id;
+  const WN = { hero: '叶孤星', yunting: '云霆', linxue: '林雪', shenle: '神乐' };
+  for (const who in X) for (const id in X[who]) { const d = X[who][id]; if (d.kind === 'gong') continue;
+    ITEM_DB[bookId(who, id)] = { name: '《' + d.name + '》' + (d.kind === 'mi' ? '秘传' : '辅助'), price: d.kind === 'mi' ? 1200 : 600, book: true, sk4: { who, id }, cat: d.kind === 'mi' ? '秘传' : '辅助', eff: WN[who] + ' · ' + d.lv + ' 级参悟', desc: WN[who] + '专用。' + d.desc + '。到 ' + d.lv + ' 级后在「技能」页参悟。' }; }
+  // 典籍阁按境界上新
+  window.SK4_SHOP = function () { const L = lv(), out = [];
+    const put = (who, id, need) => { if (L >= need) out.push(bookId(who, id)); };
+    put('hero', 'huti', 9); put('yunting', 'qianggong', 10); put('linxue', 'shuangjia', 12);
+    put('hero', 'ningshen', 12); put('yunting', 'jifeng', 13); put('linxue', 'bingxin', 13);
+    put('hero', 'juling', 15); put('linxue', 'bingfeng', 15); put('yunting', 'boming', 16); put('linxue', 'bingdun', 16);
+    put('shenle', 'yinzhang', 19); put('yunting', 'yunlei', 19); put('shenle', 'shenfa', 19); put('shenle', 'jiuyinhe', 21);
+    out.push('juan2', 'juan3'); if (L >= 19) out.push('juan4'); if (L >= 21) out.push('juan5');
+    return out.filter(id => ITEM_DB[id]); };
+
+  // ---------- 状态（回合制增益）：u.bx = { k: { v, n } }，自己的回合开始时 n−1 ----------
+  const BX = u => (u.bx || (u.bx = {}));
+  const addBx = (u, k, v, n) => { BX(u)[k] = { v, n }; };
+  const bxv = (u, k) => (u.bx && u.bx[k] && u.bx[k].n > 0 ? u.bx[k].v : 0);
+  function tickBx(u) { if (!u.bx) return; for (const k in u.bx) { u.bx[k].n--; if (u.bx[k].n <= 0) { delete u.bx[k]; if (k === 'spd' && u._spd0 != null) u.spd = u._spd0; } } }
+  const ctrl = t => !!(t.buffs && (t.buffs.frozen > 0 || t.buffs.stun > 0));
+  function immune(t) { return t.ctrlImm > 0 || bxv(t, 'ctrlImm') > 0; }
+  function immuneFx(t) { floatText(t.x, t.y - t.h - 40, '免疫', '#cfd6e0', 36); }
+  function onCtrl(t) { const b = battle; if (b && b.cfg && b.cfg.boss) t.ctrlImm = 3; }   // 首领：这回合被冻 + 之后两回合免疫
+  function freeze(t, n = 1) { if (!t.alive) return false; if (immune(t)) { immuneFx(t); return false; } const bf = t.buffs || (t.buffs = {}); bf.frozen = Math.max(bf.frozen || 0, n); t.gauge = 0; t.frozenFx = 1; floatText(t.x, t.y - t.h - 40, '冰封', '#cff4ff', 44); fx('fx4_ice', { x: t.x, y: t.y - t.h * .45, scale: .9, alpha: 1.3 }); onCtrl(t); return true; }
+  function stun(t, n = 1) { if (!t.alive) return false; if (immune(t)) { immuneFx(t); return false; } const bf = t.buffs || (t.buffs = {}); bf.stun = Math.max(bf.stun || 0, n); t.gauge = 0; floatText(t.x, t.y - t.h - 40, '眩晕', '#e6d8ff', 44); onCtrl(t); return true; }
+  window.SK4 = { X, TAG, LORE, LVNEED, learned, learn, immune, immuneFx, onCtrl, freeze, stun, bookId, bxv, MI, AUX };
+
+  // 我方回合开始：状态减一回合
+  updateBattle = (orig => function (dt) {
+    const b = battle, wasRun = b && b.state === 'run'; orig.apply(this, arguments);
+    if (b && wasRun && b.state === 'menu' && b.active && b.active.side === 'hero') tickBx(b.active);
+  })(updateBattle);
+  // 敌人回合：冰缓 / 免疫计时；林雪连击计数不跨敌方回合清零（冻结靠「连中两次」）
+  enemyAct = (orig => async function (e) { tickBx(e); if (e.ctrlImm > 0) e.ctrlImm--; return orig.apply(this, arguments); })(enemyAct);
+
+  // ---------- 伤害：规则落地 ----------
+  dmgCalc = (orig => function (att, def, mult = 1, critRate = .15) {
+    const b = battle; if (!b || !att || !def) return orig.apply(this, arguments);
+    let m = mult, d2 = def;
+    if (att.side === 'hero') {
+      m *= 1 + bxv(att, 'atk');                                  // 强攻 / 搏命
+      if (att.bx && att.bx.ns && att.bx.ns.n > 0) m *= 1.5;      // 凝神：下一招 +50%
+      if (b.curSk && b.curSk !== 'atk') m *= tmul(whoOf(att), b.curSk);   // 重数加成
+      if (att.ally === 'shenle' && def.side === 'enemy') d2 = Object.assign({}, def, { def: def.def * (def.puppet ? 3 : .3) });   // 魂伤：走魂防
+    }
+    if (att.side === 'enemy' && def.side === 'hero' && bxv(def, 'vuln')) m *= 1 + bxv(def, 'vuln');   // 搏命：受伤 +25%
+    return orig.call(this, att, d2, m, critRate);
+  })(dmgCalc);
+  applyDamage = (orig => function (t, d, crit, opts = {}) {
+    const b = battle; if (!b || !t || !t.alive) return orig.apply(this, arguments);
+    let dmg = d; const att = b.active;
+    if (t.side === 'hero') {
+      const dr = bxv(t, 'dr'); if (dr) dmg = Math.round(dmg * (1 - dr));
+      const sh = t.bx && t.bx.hs; if (sh && sh.n > 0 && sh.v > 0 && !opts.pierce) { const a = Math.min(sh.v, dmg); sh.v -= a; dmg -= a; floatText(t.x, t.y - t.h - 30, '护盾 −' + a, '#bff0ff', 34); if (sh.v <= 0) { delete t.bx.hs; floatText(t.x, t.y - t.h - 64, '护盾碎裂', '#dff6ff', 40); particleBurst(t.x, t.y - t.h / 2, 40, ['#dff6ff', '#fff'], 420, .8, 7); if (att && att.alive && att.side === 'enemy' && sh.ice) freeze(att, 1); } if (dmg <= 0) { t.hurt = .6; return; } }
+      return orig.call(this, t, dmg, crit, opts);
+    }
+    if (att && att.side === 'hero') {
+      if (ctrl(t)) { dmg = Math.round(dmg * 1.5); if (!b._brk || performance.now() - b._brk > 400) { b._brk = performance.now(); floatText(t.x + 60, t.y - t.h - 70, '破绽 +50%', '#ffd36a', 34); } }
+      if (att.ally === 'linxue' && b.curSk !== 'bingfeng') {   // 冰缓 + 同一目标连中两次冻结（一次出招只算一次）
+        if (t._spd0 == null) t._spd0 = t.spd; t.spd = t._spd0 * .8; addBx(t, 'spd', .2, 2);
+        if (t._lxAct !== b._actNo) { t._lxAct = b._actNo; t._lxHit = (t._lxHit || 0) + 1; if (t._lxHit >= 2) { t._lxHit = 0; setTimeout(() => { if (t.alive && !ctrl(t)) freeze(t, 1); }, 120); } else floatText(t.x - 50, t.y - t.h - 70, '冰缓', '#bff0ff', 30); }
+      }
+      if (att.ally === 'yunting') { att.mp = Math.min(att.maxmp, att.mp + 6); if (!b._ytMp || performance.now() - b._ytMp > 350) { b._ytMp = performance.now(); floatText(att.x + 40, att.y - att.h - 60, '灵力 +6', '#8fd0ff', 28); } }
+    }
+    const was = t.alive; const r = orig.call(this, t, dmg, crit, opts);
+    if (was && !t.alive && att && att.ally === 'yunting' && att.alive) { const h = Math.round(att.maxhp * .2); att.hp = Math.min(att.maxhp, att.hp + h); floatText(att.x, att.y - att.h - 40, '+' + h, '#7dffa8', 40); }
+    return r;
+  })(applyDamage);
+
+  // ---------- 菜单：仙术 / 秘传 ----------
+  const costOf = (who, id) => { const d = X[who] && X[who][id]; if (d) return d.cost; if (who === 'hero') return (SKILL_DB[id] || {}).cost || 0; if (who === 'shenle') return ((ALLY2_SKILLS.shenle || {})[id] || {}).cost || 0; return (ALLY_SKILLS[id] || {}).cost || 0; };
+  const killLim = () => (S.hero.sword ? 3 : 2);
+  function decorate(it, P) { const who = whoOf(P); it.tag = it.tag || TAG[it.k] || ''; const xd = X[who] && X[who][it.k]; if (xd) { it.name = xd.name; it.desc = xd.desc; it.cost = xd.cost; it.disabled = P.mp < xd.cost; it.why = '灵力不足'; }
+    if (it.k === 'ningshen' && P.bx && P.bx.ns && P.bx.ns.n > 0) { it.disabled = true; it.why = '已在凝神'; }
+    return it; }
+  heroSkills = (orig => function () {
+    const b = battle, P = b && b.P; if (!P) return orig();
+    const who = whoOf(P); let list = orig().filter(it => it.k !== 'none' && !MI.has(it.k) && !(who === 'hero' && REPLACED(it.k)));
+    // 杀招共用次数：追魂 / 绝影 / 夺魄 每战 2 次（星痕剑 3 次）
+    for (const it of list) if (it.k === 'tanlang' || it.k === 'jueying' || it.k === 'duopo') { const lim = killLim(); const sd = SKILL_DB[it.k]; it.desc = (sd && sd.desc || it.desc).replace(/（每战.*?次）/, '') + '（每战 ' + lim + ' 次）'; it.disabled = P.mp < it.cost || (b.tanlangUsed || 0) >= lim; it.why = (b.tanlangUsed || 0) >= lim ? '经脉已到极限，本场不能再用' : '灵力不足'; }
+    if (X[who]) for (const id in X[who]) { const d = X[who][id]; if (d.kind === 'mi' || !learned(who, id)) continue; if (list.some(it => it.k === id)) continue; list.push({ k: id, name: d.name, cost: d.cost, desc: d.desc, disabled: P.mp < d.cost, why: '灵力不足' }); }
+    list = list.map(it => decorate(it, P));
+    if (!list.length) list.push({ k: 'none', name: '（还没有学会仙术）', cost: 0, desc: '', disabled: true, why: '还没有学会仙术' });
+    return list;
+  })(heroSkills);
+  window.MIZHUAN_LIST = function () {
+    const b = battle, P = b.P, who = whoOf(P), list = [];
+    if (P.ally) { const un = PARTY_DB[P.ally] && PARTY_DB[P.ally].ult, nm = (typeof ULT_NAME !== 'undefined' && ULT_NAME[un]) || '必杀'; const r = Math.floor(P.rage || 0);
+      const lock = un === 'jiutian' && !(F().yt_jiutian); list.push({ k: 'ult', name: nm, cost: 0, costLabel: '怒气 100', tag: '必杀', desc: lock ? '城主府之后领悟' : un === 'jiutian' ? '引九天雷霆劈落全体，30% 麻痹' : un === 'daxue' ? '漫天风雪冰封全体敌人一回合' : un === 'tianlai' ? '一曲寂灭，音杀全场' : '必杀', disabled: lock || r < 100, why: lock ? '尚未领悟' : '怒气不足（' + r + '/100）' }); }
+    // 现有的秘传：纳月 / 太阳（从仙术列表里挪过来）
+    const base = (() => { try { const b2 = battle; const L = []; if (!P.ally) { for (const k of S.hero.skills) { const s = SKILL_DB[k]; if (s && MI.has(k)) L.push({ k, name: s.name, cost: s.cost, desc: s.desc, disabled: P.mp < s.cost, why: '灵力不足' }); }
+        const lend = !!b2.cfg.allowUlt, open = lend || !!F().sun_unlocked; if (lend || F().sun_seen) L.push({ k: 'sun', name: SKILL_DB.sun.name, cost: lend ? 0 : SKILL_DB.sun.cost, desc: lend ? '星旋借力 · 仅此一次' : SKILL_DB.sun.desc, disabled: !open || (!lend && P.mp < SKILL_DB.sun.cost), why: open ? '灵力不足' : '解锁条件：无上境' }); } return L; } catch (e) { return []; } })();
+    for (const it of base) list.push(decorate(it, P));
+    if (X[who]) for (const id in X[who]) { const d = X[who][id]; if (d.kind !== 'mi' || !learned(who, id)) continue; list.push(decorate({ k: id, name: d.name, cost: d.cost, desc: d.desc, disabled: P.mp < d.cost, why: '灵力不足' }, P)); }
+    if (!list.length) list.push({ k: 'none', name: '（还没有秘传）', cost: 0, desc: '秘传书在天剑宗集市·典籍阁', disabled: true, why: '还没有秘传' });
+    return list;
+  };
+
+  // ---------- 出招 ----------
+  const heroes = () => (battle.heroes || [battle.P]).filter(u => u.alive);
+  const weakest = () => heroes().sort((a, c) => a.hp / a.maxhp - c.hp / c.maxhp)[0];
+  const col = P => (P.ally === 'yunting' ? '#d8ccff' : P.ally === 'linxue' ? '#cff4ff' : P.ally === 'shenle' ? '#e8fff4' : '#cfe6ff');
+  async function castIntro(P, name, sub, c) { P.pose = 'cast'; await portraitPop(P); skillBanner(name, c || col(P), sub || ''); try { playSnd('sfx_buff'); } catch (e) {} }
+  function auraOn(u, c1, c2) { ring(u.x, u.y, 30, 150, c1, .7); particleBurst(u.x, u.y - u.h * .5, 26, [c1, c2 || '#fff'], 220, .9, 6, -160); fx('fx3_circle_blue', { once: true, life: 1.2, layer: 0, x: u.x, y: u.y - 4, sy: .34, scale: .3, rot: (k, f) => f.t, alpha: 1.1, fadeOut: .4 }); }
+  async function teamBuff(P, c1, c2, apply, label, lcol) { for (const u of heroes()) { auraOn(u, c1, c2); apply(u); floatText(u.x, u.y - u.h - 30, label, lcol || c1, 38); await sleep(120); } await sleep(700); }
+  const T = (P, id) => tmul(whoOf(P), id);
+  const dur = (P, id, base) => base + (tier(whoOf(P), id) >= 3 ? 1 : 0);   // 三重起持续 +1 回合
+  const ACT = {
+    // 叶孤星 · 辅助
+    async huti(P) { await castIntro(P, '护 体', '破军剑气，护住全队'); const v = Math.min(.5, .2 * T(P, 'huti')), n = dur(P, 'huti', 2); await teamBuff(P, '#8fd0ff', '#fff', u => addBx(u, 'dr', Math.max(v, bxv(u, 'dr')), n), '减伤 ' + Math.round(v * 100) + '%'); },
+    async ningshen(P) { await castIntro(P, '凝 神', '星光聚于剑尖'); addBx(P, 'ns', 1, 2); chargeAt(P.x - 60, P.y - P.h * .55, 'fx3_orb_gold', 700, .5); await sleep(750); fx('fx4_star_blue', { life: .6, layer: 2, x: P.x - 60, y: P.y - P.h * .55, scale: k => .3 + k * .4, alpha: 1.5 }); floatText(P.x, P.y - P.h - 30, '下一招 +50%', '#ffe08a', 38); await sleep(500); },
+    async juling(P) { await castIntro(P, '聚 灵', '九曜星光，洒落全队'); const v = Math.round(30 * T(P, 'juling')); fx('fx3_circle_gold', { once: true, life: 1.6, layer: 0, x: P.x, y: P.y - 4, sy: .34, scale: .4, rot: (k, f) => f.t, alpha: 1.2, fadeOut: .4 }); await sleep(400); await teamBuff(P, '#ffe8a8', '#fff', u => { u.mp = Math.min(u.maxmp, u.mp + v); }, '灵力 +' + v, '#8fd0ff'); },
+    // 云霆 · 辅助 / 秘传
+    async qianggong(P) { await castIntro(P, '强 攻', '雷附于刃'); const v = .2 * T(P, 'qianggong'), n = dur(P, 'qianggong', 2); await teamBuff(P, '#d8ccff', '#fff', u => addBx(u, 'atk', Math.max(v, bxv(u, 'atk')), n), '攻击 +' + Math.round(v * 100) + '%', '#ffd36a'); },
+    async jifeng(P) { await castIntro(P, '疾 风', '雷霆绕场'); const v = .3 * T(P, 'jifeng'), n = dur(P, 'jifeng', 2); fx('fx4_ring_thunder', { x: P.x, y: P.y, scale: 1.1, alpha: 1.2 }); await teamBuff(P, '#d8ccff', '#bff0ff', u => { if (u._spd0 == null) u._spd0 = u.spd; u.spd = u._spd0 * (1 + v); addBx(u, 'spd', v, n); }, '速度 +' + Math.round(v * 100) + '%', '#bff0ff'); },
+    async boming(P) { await castIntro(P, '搏 命', '雷光暴涨，不留后路', '#ffb0a0'); auraOn(P, '#c9a6ff', '#ff9a8a'); fx('fx4_ring_thunder', { x: P.x, y: P.y, scale: .8, alpha: 1.4 }); addBx(P, 'atk', Math.max(.5 * T(P, 'boming'), bxv(P, 'atk')), 3); addBx(P, 'vuln', .25, 3); floatText(P.x, P.y - P.h - 30, '攻击 +' + Math.round(50 * T(P, 'boming')) + '%', '#ffd36a', 40); floatText(P.x, P.y - P.h - 70, '受伤 +25%', '#ff9a8a', 30); await sleep(800); },
+    async yunlei(P, t) { if (!t) return; await castIntro(P, '云 雷 踏 影', '雷光残影，先手一剑', '#d8ccff'); await dimTo(.6, 250);
+      const x0 = P.x; fx('fx4_bolt', { x: P.x, y: P.y - P.h * .5, scale: .8, alpha: 1.3 }); P.ox = (t.x + 150) - P.x; P.pose = 'atk'; fx('fx4_ring_thunder', { x: t.x + 150, y: t.y, scale: .6, alpha: 1.2 }); playSnd('sfx_beam', .8); await sleep(160);
+      fx('fx3_slash_violet', { x: t.x + 10, y: t.y - t.h * .5, scale: 1.1, flip: true, alpha: 1.4 }); screenFlash('#e8e0ff', .5); S.shake = 12;
+      const { d, crit } = dmgCalc(P, t, 1.5, .2); applyDamage(t, d, crit); particleBurst(t.x, t.y - t.h * .5, 24, ['#d8ccff', '#fff'], 420, .5, 6); await hitStop(120); await sleep(300);
+      fx('fx4_bolt', { x: P.x + P.ox, y: P.y - P.h * .5, scale: .6, alpha: 1.1 }); P.ox = 0; P.pose = null; P.gauge = Math.max(P.gauge, 60); floatText(P.x, P.y - P.h - 30, '气条回半', '#bff0ff', 34); await sleep(400); await dimTo(0, 250); },
+    // 林雪 · 辅助 / 秘传
+    async shuangjia(P) { await castIntro(P, '霜 甲', '薄冰为铠，护住全队'); const v = Math.min(.5, .25 * T(P, 'shuangjia')), n = dur(P, 'shuangjia', 2), hp = .15 * T(P, 'shuangjia'); await teamBuff(P, '#bff0ff', '#fff', u => { addBx(u, 'dr', Math.max(v, bxv(u, 'dr')), n); const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * hp)); u.hp += h; fx('fx4_ring_ice', { x: u.x, y: u.y, scale: .5, alpha: 1.1 }); setTimeout(() => floatText(u.x, u.y - u.h - 66, '+' + h, '#7dffa8', 36), 250); }, '减伤 ' + Math.round(v * 100) + '%'); },
+    async bingxin(P) { await castIntro(P, '冰 心', '心如止水，外邪不侵'); await teamBuff(P, '#dff8ff', '#fff', u => { if (u.buffs) { u.buffs.stun = 0; u.buffs.frozen = 0; } u.frozenFx = 0; addBx(u, 'ctrlImm', 1, 1); }, '解控 · 免疫'); },
+    async bingdun(P) { await castIntro(P, '冰 盾', '冰晶为盾'); const u = weakest(); const v = Math.round(u.maxhp * .3 * T(P, 'bingdun')); auraOn(u, '#bff0ff', '#fff'); fx('fx4_ice', { x: u.x, y: u.y - u.h * .45, scale: 1.0, alpha: 1.2 }); addBx(u, 'hs', v, dur(P, 'bingdun', 2)); u.bx.hs.ice = true; floatText(u.x, u.y - u.h - 30, '护盾 ' + v, '#bff0ff', 40); await sleep(800); },
+    async bingfeng(P, t) { if (!t) return; await castIntro(P, '冰 封', '寒气封身，一息成冰'); await dimTo(.6, 250);
+      fx('fx3_circle_blue', { once: true, life: 1.2, layer: 0, x: t.x, y: t.y - 4, sy: .34, scale: .36, rot: (k, f) => f.t, alpha: 1.2, fadeOut: .3 }); particleBurst(t.x, t.y - 10, 30, ['#dff8ff', '#bff0ff'], 160, .9, 6, -260); playSnd('sfx_charge', .7); await sleep(600);
+      fx('fx4_ice', { x: t.x, y: t.y - t.h * .45, scale: 1.3, alpha: 1.4 }); screenFlash('#e0f6ff', .5); S.shake = 10; playSnd('sfx_hit');
+      const { d, crit } = dmgCalc(P, t, .8, .1); applyDamage(t, d, crit); if (t.alive) freeze(t, 1); await hitStop(120); await sleep(600); await dimTo(0, 250); },
+    // 神乐 · 功法 / 辅助 / 秘传
+    async qxq(P) { await castIntro(P, '清 心 曲', '伤处灵力顺，心头躁意散'); const u = weakest(); const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * .35 * T(P, 'qxq'))); if (typeof soundRings === 'function') soundRings(P.x - 60, P.y - P.h * .66, u.x, u.y - u.h * .5, { n: 4, life: .5, col: '200,255,230' }); await sleep(500); if (typeof notesRise === 'function') notesRise(u.x, u.y - u.h * .4, 8); u.hp += h; if (u.buffs) { u.buffs.stun = 0; u.buffs.frozen = 0; } u.frozenFx = 0; floatText(u.x, u.y - u.h - 40, '+' + h, '#7dffa8', 44); playSnd('sfx_heal'); await sleep(700); },
+    async yinzhang(P) { await castIntro(P, '音 障', '音符结墙，刀剑不入'); const r = .25 * T(P, 'yinzhang'), n = dur(P, 'yinzhang', 2); if (typeof ringBurst === 'function') ringBurst(P.x, P.y - P.h * .5, { n: 3, R: 320, col: '200,255,230' }); await teamBuff(P, '#c8ffd8', '#fff', u => { const v = Math.round(u.maxhp * r); addBx(u, 'hs', Math.max(v, bxv(u, 'hs')), n); if (typeof notesRise === 'function') notesRise(u.x, u.y - u.h * .5, 4); }, '护盾'); },
+    async shenfa(P) { await castIntro(P, '神 罚 仙 音', '漫天音符，自上压落', '#e6d8ff'); await dimTo(.65, 300); if (typeof notesRise === 'function') notesRise(P.x - 60, P.y - P.h * .6, 10, '#e6d8ff'); playSnd('sfx_charge', .7); await sleep(600);
+      const ts = aliveEnemies(); for (let w = 0; w < 3; w++) { for (const t of ts) { if (!t.alive) continue; if (typeof ringBurst === 'function') ringBurst(t.x, t.y - t.h * .5, { n: 2, R: 160, life: .45, col: '220,200,255', sy: .6 }); const { d, crit } = dmgCalc(P, t, .4, .1); applyDamage(t, d, crit); } S.shake = 8; playSnd('sfx_hit', .7); await sleep(260); }
+      await sleep(500); await dimTo(0, 300); },
+    async jiuyinhe(P) { await castIntro(P, '九 音 灵 河', '一河流过，伤复意涨', '#c8ffd8'); const r = .35 * T(P, 'jiuyinhe'); const hs = heroes(); for (let i = 0; i < hs.length; i++) { const u = hs[i], prev = i ? hs[i - 1] : P; if (typeof soundRings === 'function') soundRings(prev.x, prev.y - prev.h * .5, u.x, u.y - u.h * .5, { n: 5, life: .45, col: '200,255,230' }); await sleep(380); const h = Math.min(u.maxhp - u.hp, Math.round(u.maxhp * r)); u.hp += h; u.rage = Math.min(100, (u.rage || 0) + 20); if (typeof notesRise === 'function') notesRise(u.x, u.y - u.h * .4, 6); floatText(u.x, u.y - u.h - 40, '+' + h, '#7dffa8', 44); floatText(u.x + 60, u.y - u.h - 80, '怒气 +20', '#ffd36a', 30); } playSnd('sfx_heal'); await sleep(700); },
+    // 叶孤星 · 夺魄（杀招线尽头）
+    async duopo(P, t) { if (!t) return; P.pose = 'cast'; await portraitPop(P); await dimTo(.85, 300); skillBanner('贪狼剑意 · 夺魄', '#9fd0ff', '聚魂为剑，一剑定魂'); playSnd('sfx_charge');
+      await chargeAt(P.x - 50, P.y - 130, 'fx3_orb_violet', 800, .55); P.pose = 'atk'; await dashTo(P, t.x + 160, t.y, 160);
+      const tx = t.x + 10, ty = t.y - t.h * .62; fx('fx4_thrust', { life: .4, layer: 2, x: P.x + P.ox - 80, y: ty, ax: 0, rot: Math.PI, sx: .3, scale: .9, alpha: 1.6 }); playSnd('sfx_beam'); screenFlash('#c8d8ff', .9); S.shake = 24;
+      fx('fx3_burst_violet', { x: tx, y: ty, scale: 2.2, alpha: 1.6 }); fx('fx4_star_blue', { life: .8, layer: 2, x: tx, y: ty, scale: k => 1.2 + k, alpha: k => 2 * (1 - k) });
+      const { d } = dmgCalc(P, t, 4.0, .3); applyDamage(t, d, true, { pierce: true }); await hitStop(220); if (t.alive) stun(t, 1); particleBurst(tx, ty, 50, ['#9fd0ff', '#fff', '#c9a6ff'], 700, .8, 7);
+      await sleep(500); await dashBack(P, 260); P.pose = null; await dimTo(0, 350); },
+  };
+  const PICK = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);
+  doHeroAction = (orig => async function (k) {
+    const b = battle, P = b && b.P; if (!b || !P) return orig.apply(this, arguments);
+    b._actNo = (b._actNo || 0) + 1; b.curSk = k;
+    const willPick = PICK.has(k) && !b.__picked && aliveEnemies().length > 1;   // 交给点选目标层：选完再回来
+    try {
+      if (ACT[k]) {
+        if (willPick) return orig.apply(this, arguments);
+        const t = b.__picked && b.__picked.alive ? b.__picked : pickTarget(); b.__picked = null;
+        const cost = costOf(whoOf(P), k); if (P.mp < cost) { toast('灵力不足', 1500); return; }
+        if (b.onEvent) { const r = await b.onEvent('before', b, k); if (r === 'cancel') { b.state = 'menu'; b.menu = { sel: null, sub: null }; return; } }
+        b.state = 'act'; b.menu = null; const rage = P.rage; P.mp -= cost;
+        if (k === 'duopo') { b.tanlangUsed = (b.tanlangUsed || 0) + 1; }
+        try { await ACT[k](P, t); } finally { P.pose = null; P.ox = 0; P.oy = 0; }
+        if (k === 'duopo') P.rage = rage;
+        if (P.bx && P.bx.ns && k !== 'ningshen') delete P.bx.ns;
+        await afterAct(); return;
+      }
+      if (k === 'jueying' && !P.ally && !willPick) b.tanlangUsed = (b.tanlangUsed || 0) + 1;
+      const r = await orig.apply(this, arguments);
+      if (P.bx && P.bx.ns && k !== 'ningshen' && k !== 'def' && k !== 'item' && b.state !== 'pick' && b.state !== 'menu') delete P.bx.ns;
+      return r;
+    } finally { if (battle === b) b.curSk = null; }
+  })(doHeroAction);
+
+  // 身上状态小字（画在血条旁）
+  drawBattle = (orig => function () { orig.apply(this, arguments); const b = battle; if (!b || !b.heroes) return;
+    ctx.save(); ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'center';
+    for (const u of b.units) { if (!u.alive || !u.bx) continue; const tags = []; for (const k in u.bx) { const o = u.bx[k]; if (o.n <= 0) continue; tags.push(k === 'dr' ? '减伤' + Math.round(o.v * 100) + '%' : k === 'atk' ? '攻+' + Math.round(o.v * 100) + '%' : k === 'spd' ? (u.side === 'hero' ? '速+' : '冰缓') : k === 'hs' ? '盾' + Math.round(o.v) : k === 'ns' ? '凝神' : k === 'vuln' ? '搏命' : k === 'ctrlImm' ? '免控' : ''); }
+      if (u.side === 'enemy' && u.ctrlImm > 1) tags.push('免冻'); if (!tags.length) continue;
+      const s = tags.filter(Boolean).join(' '); const w = ctx.measureText(s).width + 14, x = u.x + u.ox, y = u.y - u.h - 18; roundRect(x - w / 2, y - 10, w, 20, 10); ctx.fillStyle = 'rgba(10,8,16,.75)'; ctx.fill(); ctx.fillStyle = u.side === 'hero' ? '#dff6ff' : '#ffd0c0'; ctx.fillText(s, x, y + 1); }
+    ctx.restore(); })(drawBattle);
+
+  // 测试面板：一键学全部新招 + 送书
+  (function addBtn(n) { const pan = document.getElementById('dbgPanel'); if (!pan) { if ((n || 0) < 40) setTimeout(() => addBtn((n || 0) + 1), 500); return; }
+    const h = document.createElement('h4'); h.textContent = '技能体系 v4'; const row = document.createElement('div'); row.className = 'row';
+    const b1 = document.createElement('button'); b1.textContent = '学会全部辅助/秘传 + 送卷册'; b1.onclick = () => { for (const who in X) for (const id in X[who]) learn(who, id); for (const t in VOL) addItem('juan' + t, 3); for (const id of ['xingluo', 'jueying', 'xingyun', 'duopo']) if (!S.hero.skills.includes(id)) S.hero.skills.push(id); pan.hidden = true; toast('已学全部新招'); };
+    const b2 = document.createElement('button'); b2.textContent = '送全部技能书'; b2.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].sk4) addItem(id, 1); pan.hidden = true; toast('已送技能书'); };
+    row.appendChild(b1); row.appendChild(b2); pan.appendChild(h); pan.appendChild(row); })();
 })();
 
 </script></body></html>

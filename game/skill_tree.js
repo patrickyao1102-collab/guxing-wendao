@@ -31,22 +31,42 @@
     huti: ['全队减伤 15%，持续 2 回合', '全队减伤 18%，持续 2 回合', '全队减伤 20%，持续 3 回合', '全队减伤 22%，持续 3 回合', '全队减伤 25%，持续 3 回合'],
     ningfeng: ['全队攻击 +15%，持续 2 回合', '全队攻击 +18%，持续 2 回合', '全队攻击 +20%，持续 3 回合', '全队攻击 +22%，持续 3 回合', '全队攻击 +25%，持续 3 回合'],
   };
+  const aux = (a, b2) => [a, a.replace(/(\d+)%/, (m, v) => Math.round(v * 1.15) + '%'), a.replace(/(\d+)%/, (m, v) => Math.round(v * 1.3) + '%') + (b2 ? '，' + b2 : ''), a.replace(/(\d+)%/, (m, v) => Math.round(v * 1.45) + '%') + (b2 ? '，' + b2 : ''), a.replace(/(\d+)%/, (m, v) => Math.round(v * 1.6) + '%') + (b2 ? '，' + b2 : '')];
+  Object.assign(TIERS, {
+    tanlang: dmg('单体 · 必中', '附破甲：目标防御 −25%，持续 2 回合', '破甲 3 回合'),
+    duopo: dmg('单体 · 无视防御，命中眩晕 1 回合', '眩晕后目标防御 −30%', '眩晕 2 回合'),
+    xingyun: dmg('群体 · 剑阵护队 3 回合', '剑阵减伤 +10%', '剑阵 4 回合'),
+    yunlei: dmg('单体 · 先手，气条回半', '气条回七成', '命中附麻痹 30%'),
+    bingfeng: dmg('单体 · 冻结 1 回合', '冻结目标受伤再 +20%', '冻结 2 回合（首领仍 1 回合）'),
+    shenfa: dmg('群体 · 魂伤', '附定身 20%', '附定身 35%'),
+    huti: aux('全队减伤 20%，持续 2 回合', '持续 3 回合'), shuangjia: aux('全队减伤 25% 并回 15% 气血，持续 2 回合', '持续 3 回合'),
+    ningshen: aux('自身下一招 +50%'), juling: aux('全队回复 30 灵力'),
+    qianggong: aux('全队攻击 +20%，持续 2 回合', '持续 3 回合'), jifeng: aux('全队速度 +30%，持续 2 回合', '持续 3 回合'), boming: aux('自身攻击 +50% 三回合，受伤 +25%'),
+    bingxin: aux('全队解控，免疫 1 回合'), bingdun: aux('护盾 30% 上限气血，持续 2 回合', '持续 3 回合'),
+    qxq: aux('单体回复 35% 气血并解异常'), yinzhang: aux('全队护盾 25% 上限气血，持续 2 回合', '持续 3 回合'), jiuyinhe: aux('全队回复 35% 气血，怒气 +20'),
+  });
   const tiersOf = id => TIERS[id] || dmg(TGT[id] || '单体');
   // ---------- 各人的剑谱 ----------
   const N = (id, icon, short, o) => Object.assign({ id, icon, short }, o || {});
   const TREE = {
-    hero: { title: '九曜剑典', gongfa: 'jiuyao', ult: N('ult', 'sun', '太阳', { name: '破军剑阵·太阳', cost: '怒气 100', desc: '烈日化阵，万剑朝日，重创全体敌人' }),
-      cols: [['贪狼', [N('dianxing', 'dianxing', '点星'), N('tanlang', 'zhuihun', '追魂'), N('jueying', 'jueying', '绝影')]],
-        ['破军', [N('xingluo2', 'xingluo2', '星落'), N('pojun', 'tianxuan', '天璇'), N('tianshu', 'tianshu', '天枢'), N('xingluo', 'xingluo', '星罗')]],
-        ['增益', [N('huti', 'huti', '剑意护体', { name: '剑意护体', cost: 20, desc: '剑意化作护罩笼罩全队，减轻所受伤害', future: true })]],
-        ['秘传', [N('tunshi', 'tunshi', '纳月'), N('xingyun', 'xingyun', '星陨')]]] },
+    hero: { title: '九曜剑典', gongfa: 'jiuyao', ult: null,
+      cols: [['入门', [N('dianxing', 'dianxing', '点星'), N('xingluo2', 'xingluo2', '星落')]],
+        ['破军', [N('pojun', 'tianxuan', '天璇'), N('xingluo', 'xingluo', '星罗'), N('xingyun', 'xingyun', '星陨')]],
+        ['贪狼', [N('tanlang', 'zhuihun', '追魂'), N('jueying', 'jueying', '绝影'), N('duopo', 'duopo', '夺魄')]],
+        ['辅助', [N('huti', 'huti', '护体'), N('ningshen', 'ningshen', '凝神'), N('juling', 'juling', '聚灵')]],
+        ['秘传', [N('tunshi', 'tunshi', '纳月'), N('sun', 'sun', '太阳')]]] },
     yunting: { title: '天剑诀', gongfa: 'tianjian', ult: N('ult', 'jiutian', '九天神雷', { name: '九天神雷', cost: '怒气 100', desc: '引九天雷霆劈落，攻击全体并可能麻痹', lock: () => !(S.flags && S.flags.yt_jiutian), why: '城主府之后领悟' }),
-      cols: [['单攻', [N('dianxing', 'dianxing', '点星'), N('shaxing', 'shaxing', '杀星')]], ['群攻', [N('qunxing', 'qunxing', '群星')]],
-        ['增益', [N('ningfeng', 'ningfeng', '天剑凝锋', { name: '天剑凝锋', cost: 20, desc: '天剑锋芒加持全队，提升攻击', future: true })]]] },
+      cols: [['剑式', [N('dianxing', 'dianxing', '点星'), N('qunxing', 'qunxing', '群星'), N('shaxing', 'shaxing', '杀星')]],
+        ['辅助', [N('qianggong', 'qianggong', '强攻'), N('jifeng', 'jifeng', '疾风'), N('boming', 'boming', '搏命')]],
+        ['秘传', [N('yunlei', 'yunlei', '云雷踏影')]]] },
     linxue: { title: '天剑诀', gongfa: 'tianjian', ult: N('ult', 'daxue', '大雪纷飞', { name: '大雪纷飞', cost: '怒气 100', desc: '漫天风雪冰封全体敌人' }),
-      cols: [['单攻', [N('dianxing', 'dianxing', '点星'), N('shaxing', 'shaxing', '杀星')]], ['群攻', [N('qunxing', 'qunxing', '群星')]]] },
+      cols: [['剑式', [N('dianxing', 'dianxing', '点星'), N('qunxing', 'qunxing', '群星'), N('shaxing', 'shaxing', '寒星')]],
+        ['辅助', [N('shuangjia', 'shuangjia', '霜甲'), N('bingxin', 'bingxin', '冰心'), N('bingdun', 'bingdun', '冰盾')]],
+        ['秘传', [N('bingfeng', 'bingfeng', '冰封')]]] },
     shenle: { title: '九音录', gongfa: 'jiuyin', ult: N('ult', 'tianlai', '寂灭仙曲', { name: '九音录·寂灭仙曲', cost: '怒气 100', desc: '一曲寂灭，音杀全场' }),
-      cols: [['单攻', [N('qingxin', 'yinbo', '仙音镇魂')]], ['群攻', [N('liehun', 'luanshen', '摄魂乱神')]]] },
+      cols: [['音律', [N('qingxin', 'yinbo', '镇魂'), N('qxq', 'qxq', '清心曲')]],
+        ['辅助', [N('yinzhang', 'yinzhang', '音障')]],
+        ['秘传', [N('shenfa', 'shenfa', '神罚仙音'), N('jiuyinhe', 'jiuyinhe', '九音灵河')]]] },
     luochen: { title: '血脉本源', gongfa: 'xuemai', ult: null, solo: true,
       cols: [['光明', [N('guangming', 'guangming', '光明本源', { d: '左眸光明神力降下神罚：圣光天罚轰击全体敌人，我方全员气血回满并解除控制' })]], ['黑暗', [N('heian', 'heian', '黑暗本源', { d: '右眸黑暗神力降下神罚：血色暗光贯穿单体，无视防御，威压镇住其余敌人' })]], ['日月', [N('riyue', 'riyue', '日月轮转', { d: '烛龙天赋：本体化龙，昼夜轮转，紫雷龙息轰击全体，日出光雨回复全队' })]], ['时空', [N('shikong', 'shikong', '时空错乱', { d: '两大原初神之力：光阴倒流、万物失序，重创全体并将其行动条打回原点' })]]] },
   };
@@ -59,30 +79,28 @@
     let src = null, learned = true, why = '';
     if (n.id === 'ult') { learned = !(n.lock && n.lock()); why = n.why || ''; return Object.assign({ name: n.name, cost: n.cost, desc: n.desc, learned, why, ult: true, max: 1, tier: 1 }, {}); }
     if (n.future) return { name: n.name, cost: n.cost, desc: n.desc, learned: false, why: '下次更新开放', max: 5, tier: 1 };
+    const K4 = window.SK4, xd = K4 && K4.X[who] && K4.X[who][n.id];
+    if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind !== 'gong';
+      return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (xd.lv + ' 级，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石）') : xd.lv + ' 级领悟', max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
     if (who === 'hero' && n.id === 'sun') { const sd = SKILL_DB.sun || {}; return { name: sd.name || n.name, cost: '灵力 ' + (sd.cost || 80), desc: sd.desc || n.desc, learned: !!(S.flags && S.flags.sun_unlocked), why: '解锁条件：无上境', max: 1, tier: 1 }; }
     if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? src.lv + ' 级（' + realmOf(src.lv) + '）领悟' : '剧情中领悟'; }
-    else if (who === 'yunting' || who === 'linxue') { src = ALLY_SKILLS[n.id] || {}; learned = S.hero.lv >= (src.lv || 0); why = (src.lv || 0) + ' 级领悟'; }
+    else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = (src.lv || 0) + ' 级（' + realmOf(src.lv || 1) + '）领悟'; }
     else { src = (ALLY2_SKILLS[who] || {})[n.id] || {}; learned = true; }
     const solo = TREE[who].solo;
-    return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', learned, why, max: solo ? 1 : 5, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
+    return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: solo ? 1 : 5, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
   }
-  // 作者设定：太阳属于破军剑意体系（放进「破军」一脉的尽头）；九天神雷 / 大雪纷飞 / 寂灭仙曲归入「秘传」。不再单独挂一个「绝技」节点
-  { const H = TREE.hero; if (H.ult) { const pj = H.cols.find(c => c[0] === '破军'); H.ult.id = 'sun'; H.ult.max1 = true; if (pj) pj[1].push(H.ult); H.ult = null; }   // 太阳是破军剑诀（耗灵力，无上境解锁），不是怒气绝技
-    // 叶孤星双修：九曜剑典（贪狼 / 破军 / 增益 / 秘传）+ 天剑诀（只学得点星，天剑诀其余剑招无法修炼）
-    { const tl = H.cols.find(c => c[0] === '贪狼'), i = tl ? tl[1].findIndex(n => n.id === 'dianxing') : -1; if (i >= 0) { const dx = tl[1].splice(i, 1)[0]; H.cols.push(['剑式', [dx]]); }
-      const pj = H.cols.find(c => c[0] === '破军'), j = pj ? pj[1].findIndex(n => n.id === 'xingluo2') : -1; if (j >= 0) H.cols.push(['自创', [pj[1].splice(j, 1)[0]]]);   // 星落：叶孤星以天剑诀自创
-      H.title = '功法双修'; H.roots = [{ gongfa: 'jiuyao', name: '九曜剑典', cols: [0, 1, 2, 3] }, { gongfa: 'tianjian', name: '天剑诀', cols: [4, 5] }]; }
-    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].push(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
-  const realmCap = who => /练气/.test(memberInfo(who).realm || '') ? 3 : 5;
+  // 必杀归入「秘传」列（九天神雷 / 大雪纷飞 / 寂灭仙曲）
+  {    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].push(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
+  const realmCap = who => { const l = S.hero.lv; return l <= 9 ? 2 : l <= 18 ? 3 : l <= 27 ? 4 : 5; };   // 练气二重、凝丹三重、引魂四重、归元五重
+  const CAPTXT = { 2: '练气期最多修至二重，凝丹后可继续', 3: '凝丹期最多修至三重，引魂后可继续', 4: '引魂期最多修至四重，归元后可继续' };
   const bookId = id => 'jp_' + id;
   function need(who, n, I) {
     const t = I.tier + 1; if (I.max <= 1 || t > I.max) return null;
-    if (t <= 3) return { item: bookId(n.id), n: t === 2 ? 1 : 3, label: '《' + n.short + '》剑谱', cap: realmCap(who), t };
-    return { item: 'yujian', n: t === 4 ? 1 : 2, label: '剑诀玉简', cap: realmCap(who), t };
+    return { item: 'juan' + t, n: 1, label: '《剑诀·卷' + CN[t] + '》', cap: realmCap(who), t };
   }
   // 剑谱 / 玉简 进物品表
-  for (const who in TREE) for (const [, ns] of TREE[who].cols) for (const n of ns) if (!TREE[who].solo && !ITEM_DB[bookId(n.id)])
-    ITEM_DB[bookId(n.id)] = { name: '《' + n.short + '》' + (who === 'shenle' ? '乐谱' : '剑谱'), price: 400, book: true, skill: n.id, desc: '参悟「' + n.short + '」二重、三重所需。在「技能」页参悟。' };
+  for (const id of ['dianxing', 'xingluo2', 'pojun', 'tanlang', 'tianshu', 'qunxing', 'shaxing', 'tunshi', 'xingluo', 'jueying', 'xingyun', 'qingxin', 'liehun']) if (!ITEM_DB[bookId(id)])
+    ITEM_DB[bookId(id)] = { name: '《' + ((SKILL_DB[id] || ALLY_SKILLS[id] || {}).name || id).replace(/.*·/, '') + '》剑谱', price: 400, book: true, skill: id, desc: '旧版剑谱（已改为通用卷册），可折算：在「技能」页参悟时等同一本《剑诀·卷二》。' };
   ITEM_DB.yujian = ITEM_DB.yujian || { name: '剑诀玉简', price: 0, book: true, desc: '记载剑诀精要的古玉，参悟四重、五重所需。支线与首领掉落。' };
 
   // ---------- 图标 ----------
@@ -119,7 +137,8 @@
     shikong(r) { ctx.beginPath(); ctx.arc(0, 0, r * .62, 0, 7); ctx.stroke(); ctx.globalAlpha = .5; ctx.beginPath(); ctx.arc(0, 0, r * .45, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; ctx.fillRect(Math.cos(a) * r * .55 - 1.5, Math.sin(a) * r * .55 - 1.5, 3, 3); } ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r * .4); ctx.moveTo(0, 0); ctx.lineTo(r * .28, r * .14); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, r * .07, 0, 7); ctx.fill(); },
   };
   function icon(k, x, y, r, o = {}) {
-    const [c1, c2] = PAL[k] || ['#ddd', '#333'], t = performance.now() / 1000;
+    if (!PAL[k] && window.UI_ICONS && UI_ICONS.key) k = UI_ICONS.key(k);   // 新招暂借同系图标
+    const [c1, c2] = PAL[k] || ['#dddddd', '#333333'], t = performance.now() / 1000;
     ctx.save(); ctx.translate(x, y);
     if (o.sel || o.glow) { const pr = 1 + Math.sin(t * 4) * .06, g = ctx.createRadialGradient(0, 0, r * .8, 0, 0, r * 1.7 * pr); g.addColorStop(0, c1 + 'aa'); g.addColorStop(1, c1 + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 1.7 * pr, 0, 7); ctx.fill(); }
     if (window.UI_ICONS && UI_ICONS.has(k)) { UI_ICONS.draw(k, 0, 0, r, o.locked);
@@ -169,7 +188,7 @@
     const roots = V.RD.map((d, k) => { const on = d.gongfa === V.act; return { gongfa: d.gongfa, name: d.name, cols: d.cols, on, x: multi ? TA.x + TA.w * (k === 0 ? .33 : .67) : TA.x + TA.w / 2, y: TA.y + (multi ? 56 : 66), r: multi ? (on ? 34 : 24) : 40 }; });
     const root = roots.find(r => r.on) || roots[0] || null;   // 最上面最大的是功法本身，当前看的那本亮，另一本小一点、点一下切换
     if (T.ult) nodes.push({ n: T.ult, x: TA.x + TA.w / 2 + (root ? 150 : 0), y: TA.y + (root ? 72 : 84), r: root ? 32 : 42, col: -1 });
-    const m = Math.max(1, ...cols.map(c => c.ns.length)), compact = !T.solo && m > 3, tall = m > 4, y0 = tall ? 200 : (compact ? 222 : 232) + (root && !T.solo ? 30 : 0), dy = tall ? 64 : compact ? (root ? 66 : 76) : (root ? 92 : 104), rr = tall ? 22 : compact ? 25 : 31;
+    const m = Math.max(1, ...cols.map(c => c.ns.length)), compact = !T.solo && m > 3, tall = m > 4, y0 = tall ? 200 : (compact ? 222 : 232) + (root && !T.solo ? 12 : 0), dy = tall ? 64 : compact ? (root ? 66 : 76) : (root ? 86 : 104), rr = tall ? 22 : compact ? 25 : 31;
     cols.forEach(({ ci, lab, ns }, i) => { const cx = TA.x + sp * (i + .5); ns.forEach((nd, j) => nodes.push({ n: nd, x: cx, y: T.solo ? TA.y + TA.h / 2 + 10 : TA.y + y0 + j * dy, r: T.solo ? 46 : rr, col: ci, j, lab })); });
     const btn = { x: DP.x + 20, y: DP.y + DP.h - 74, w: DP.w - 40, h: 56 };
     return { who, T, TA, DP, nodes, sp, btn, compact, root, roots, multi };
@@ -199,7 +218,7 @@
     ctx.restore();
   }
   function curSel(G) { let s = G.nodes.find(o => key(G.who, o.n.id) === selKey); if (!s) { s = G.nodes.find(o => o.col >= 0 && info(G.who, o.n).learned) || G.nodes[0]; selKey = key(G.who, s.n.id); } return s; }
-  function canUp(G, o) { const I = info(G.who, o.n); if (!I.learned || I.max <= 1) return null; const q = need(G.who, o.n, I); if (!q) return { done: true, I }; return { q, I, ok: q.t <= q.cap && itemCount(q.item) >= q.n }; }
+  function canUp(G, o) { const I = info(G.who, o.n); if (!I.learned && I.book) return { learn: I.book, I, ok: I.book.has && I.book.lvok }; if (!I.learned || I.max <= 1) return null; const q = need(G.who, o.n, I); if (!q) return { done: true, I }; const have = itemCount(q.item) + (q.t === 2 ? itemCount(bookId(o.n.id)) : 0); return { q, I, ok: q.t <= q.cap && have >= q.n }; }
 
   // ---------- 画 ----------
   drawSkills = function (B) {
@@ -275,21 +294,23 @@
     ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#9cc3ff'; ctx.fillText(I.cost, x + 84, y + 18);
     if (I.max > 1) { ctx.fillStyle = '#ffd76a'; ctx.textAlign = 'right'; ctx.fillText(I.learned ? '第' + CN[I.tier] + '重' : '', DP.x + DP.w - 18, y + 18); ctx.textAlign = 'left'; }
     y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = '#e9dcc0'; for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24; }
+    if (I.lore) { ctx.font = `13px ${FONT}`; ctx.fillStyle = '#a8957a'; for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19; } }
     y += 6; ctx.strokeStyle = 'rgba(232,194,122,.3)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22;
     const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || '#c9b48c'; ctx.fillText(lab, x, y); y += 22; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22; } y += 8; };
-    if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', '#ff9a7a'); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], '#f5ead2'); if (I.max > 1) row('修炼上限', '五重（练气期最多三重）', '#c9b48c'); }
+    if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', '#ff9a7a'); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], '#f5ead2');
+      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需 ' + I.book.lv + ' 级（现 ' + S.hero.lv + ' 级）', x, y); y += 24; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', '#e9dcc0'); }
     else {
       const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], '#f5ead2');
       if (cu && cu.q) { row('下一重 · 第' + CN[cu.q.t] + '重', T[cu.q.t - 1], '#9fe28a', '#9fe28a');
         const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24;
-        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText('练气期最多修至三重，凝丹后可继续', x, y); y += 24; }
-        else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('剑谱可在天剑宗集市·典籍阁购得', x, y); y += 22; }
-        else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('剑诀玉简来自支线任务与首领', x, y); y += 22; } }
+        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24; }
+        else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22; }
+        else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22; } }
       else row('已臻化境', '此招已修至第五重。', '#ffd76a', '#ffd76a');
     }
     // 参悟按钮
-    if (I.learned && !I.ult && !I.solo && cu && cu.q) { const b = G.btn, ok = cu.ok;
+    if (!I.ult && !I.solo && cu && (cu.q || cu.learn)) { const b = G.btn, ok = cu.ok;
       lacquer(b.x, b.y, b.w, b.h, { r: 12, top: ok ? '#b8402a' : 'rgba(60,46,34,.9)', bot: ok ? '#6e1a10' : 'rgba(34,26,20,.9)' });
       if (ok) { ctx.save(); roundRect(b.x, b.y, b.w, b.h, 12); ctx.clip(); const sx = b.x + ((t * 160) % (b.w + 200)) - 100, g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.5, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(255,240,200,0)'); ctx.fillStyle = g; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); }
       ctx.textAlign = 'center'; ctx.font = `30px ${BRUSH}`; textOutline('参 悟', b.x + b.w / 2, b.y + b.h / 2 + 1, ok ? '#fff2cc' : '#8a7a5c', '#1a0800', 4); }
@@ -302,9 +323,13 @@
     const tp = input.tapped, L = menuLayout(), G = geo(L.body);
     for (const R of G.roots) if (Math.hypot(tp.x - R.x, tp.y - R.y) < R.r + 14 || (Math.abs(tp.x - R.x) < 60 && tp.y > R.y + R.r && tp.y < R.y + R.r + 32)) { input.tapped = null; ACTIVE[G.who] = R.gongfa; selKey = 'root:' + G.who + ':' + R.gongfa; playSnd('ui_click'); return; }
     for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; selKey = key(G.who, o.n.id); playSnd('ui_click'); return; }
-    if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o); if (cu && cu.q) { input.tapped = null;
-      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? '境界不足：练气期最多修至三重' : cu.q.label + '不够（需要 ' + cu.q.n + '）'); return; }
-      const h = S.hero; h.bag[cu.q.item] -= cu.q.n; if (h.bag[cu.q.item] <= 0) delete h.bag[cu.q.item];
+    if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
+      if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需 ' + cu.learn.lv + ' 级'); return; }
+        const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
+        try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
+      if (cu && cu.q) { input.tapped = null;
+      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return; }
+      const h = S.hero; { const legacy = cu.q.t === 2 && !itemCount(cu.q.item) ? bookId(o.n.id) : cu.q.item; h.bag[legacy] -= cu.q.n; if (h.bag[legacy] <= 0) delete h.bag[legacy]; }
       LV()[key(G.who, o.n.id)] = cu.q.t; anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
       try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; } }
     return orig();
@@ -314,7 +339,7 @@
   itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id]; if (!it || !it.book) return orig.apply(this, arguments);
     ctx.save(); ctx.translate(x, y); const jade = id === 'yujian';
     ctx.fillStyle = jade ? '#3f9d84' : '#4a5f96'; roundRect(-r * .72, -r * .85, r * 1.44, r * 1.7, r * .12); ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#e8c27a'; ctx.stroke();
-    ctx.fillStyle = jade ? '#bff3e0' : '#efe2c0'; ctx.fillRect(-r * .2, -r * .65, r * .4, r * 1.1); ctx.fillStyle = '#5a2a10'; ctx.font = `${Math.round(r * .5)}px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(jade ? '简' : '谱', 0, -r * .1);
+    ctx.fillStyle = jade ? '#bff3e0' : '#efe2c0'; ctx.fillRect(-r * .2, -r * .65, r * .4, r * 1.1); ctx.fillStyle = '#5a2a10'; ctx.font = `${Math.round(r * .5)}px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(jade ? '简' : it.vol ? '卷' : it.sk4 ? (it.cat === '秘传' ? '秘' : '辅') : '谱', 0, -r * .1);
     ctx.restore(); })(itemIcon);
 
   // 对外接口：战斗里查重数
@@ -326,7 +351,7 @@
   const pan = document.getElementById('dbgPanel'); if (!pan) { if ((n || 0) < 40) setTimeout(() => addTestBtn((n || 0) + 1), 500); return; }
   const h = document.createElement('h4'); h.textContent = '剑诀 · 技能树'; const row = document.createElement('div'); row.className = 'row';
   const b = document.createElement('button'); b.textContent = '送全套剑谱×3 + 玉简×3，打开技能页';
-  b.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].book) addItem(id, 3); pan.hidden = true; try { openMenu(); S.menu.tab = MTABS.indexOf('技能'); } catch (e) {} toast('已送入剑谱与玉简'); };
+  b.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].book && (ITEM_DB[id].vol || ITEM_DB[id].sk4)) addItem(id, 3); pan.hidden = true; try { openMenu(); S.menu.tab = MTABS.indexOf('技能'); } catch (e) {} toast('已送入剑谱与玉简'); };
   row.appendChild(b); pan.appendChild(h); pan.appendChild(row);
 })();
 

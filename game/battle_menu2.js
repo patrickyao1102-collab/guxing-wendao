@@ -5,7 +5,7 @@
 (function () {
   if (typeof drawBattleMenu !== 'function' || typeof handleMenuTap !== 'function') return;
   const CMDS = [
-    { k: 'ult', label: '绝技' }, { k: 'skill', label: '仙术' }, { k: 'atk', label: '攻击' },
+    { k: 'mi', label: '秘传' }, { k: 'skill', label: '仙术' }, { k: 'atk', label: '攻击' },
     { k: 'def', label: '防御' }, { k: 'item', label: '道具' }, { k: 'flee', label: '逃跑' },
   ];
   const OLD = { atk: [0, 0], skill: [-1, 0], ult: [0, -1], def: [1, 0], item: [0, 1] };   // 原十字菜单的位置（转发点选用）
@@ -20,7 +20,7 @@
   function state(it) {
     const b = battle, P = b.P;
     // 叶孤星没有怒气绝技（太阳是「仙术」里的无上境剑诀）；借力一战时金光提示落在「仙术」上
-    if (it.k === 'ult') { if (!P.ally) return { on: false, note: '尚未领悟' }; const r = Math.floor(P.rage || 0); return { on: r >= 100, note: r >= 100 ? '怒气已满' : '怒气 ' + r + '/100', glow: r >= 100 }; }
+    if (it.k === 'mi') { const r = Math.floor(P.rage || 0), L = window.MIZHUAN_LIST ? MIZHUAN_LIST() : [], ok = L.some(x => !x.disabled); return { on: ok, note: P.ally ? (r >= 100 ? '怒气已满' : '怒气 ' + r + '/100') : (ok ? '秘传可用' : '尚无秘传'), glow: P.ally && r >= 100 }; }
     if (it.k === 'skill' && !P.ally && b.cfg.allowUlt) return { on: true, note: '太阳 · 星旋借力', glow: true };
     if (it.k === 'item') { const n = S.hero.potions ?? 3; return { on: n > 0, note: '丹药 ×' + n }; }
     if (it.k === 'flee') { const ok = fleeOK(b); return { on: ok, note: ok ? '野外可逃' : '此战不可逃' }; }
@@ -30,11 +30,11 @@
   }
   // ---------- 小图标（纯代码画）----------
   function icon(k, x, y, s, col) {
-    if (window.UI_ICONS && UI_ICONS.draw('cmd_' + k, x, y, 22)) return;
+    if (window.UI_ICONS && UI_ICONS.draw('cmd_' + (k === 'mi' ? 'ult' : k), x, y, 22)) return;
     ctx.save(); ctx.translate(x, y); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     if (k === 'atk') { ctx.rotate(-.78); ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(3, -s + 5); ctx.lineTo(3, s * .45); ctx.lineTo(-3, s * .45); ctx.lineTo(-3, -s + 5); ctx.closePath(); ctx.fill(); ctx.fillRect(-8, s * .45, 16, 3); ctx.fillRect(-1.5, s * .45 + 3, 3, s * .4); }
     else if (k === 'skill') { for (let i = 0; i < 4; i++) { ctx.save(); ctx.rotate(i * Math.PI / 2 + .4); ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(s * .2, -s * .5, 0, -s); ctx.quadraticCurveTo(-s * .2, -s * .5, 0, 0); ctx.fill(); ctx.restore(); } ctx.beginPath(); ctx.arc(0, 0, s * .22, 0, 7); ctx.fill(); }
-    else if (k === 'ult') { ctx.beginPath(); for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, r = i % 2 ? s * .55 : s; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, s * .32, 0, 7); ctx.fill(); }
+    else if (k === 'ult' || k === 'mi') { ctx.beginPath(); for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, r = i % 2 ? s * .55 : s; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, s * .32, 0, 7); ctx.fill(); }
     else if (k === 'def') { ctx.beginPath(); ctx.moveTo(0, -s); ctx.quadraticCurveTo(s * .9, -s * .8, s * .85, -s * .2); ctx.quadraticCurveTo(s * .7, s * .6, 0, s); ctx.quadraticCurveTo(-s * .7, s * .6, -s * .85, -s * .2); ctx.quadraticCurveTo(-s * .9, -s * .8, 0, -s); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -s * .55); ctx.lineTo(0, s * .55); ctx.stroke(); }
     else if (k === 'item') { ctx.beginPath(); ctx.arc(0, s * .32, s * .58, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(0, -s * .45, s * .34, 0, 7); ctx.stroke(); ctx.fillRect(-s * .18, -s * 1.02, s * .36, s * .22); }
     else if (k === 'flee') { for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-s + i * 2, -s * .5 + i * s * .5); ctx.lineTo(s * .2 + i * 4, -s * .5 + i * s * .5); ctx.stroke(); } ctx.beginPath(); ctx.moveTo(s * .3, -s * .8); ctx.lineTo(s, 0); ctx.lineTo(s * .3, s * .8); ctx.stroke(); }
@@ -90,7 +90,8 @@
     const b = battle; if (!b || !b.menu || b.menu.sub) return orig.apply(this, arguments);
     for (const r of layout()) if (tap.x > r.x && tap.x < r.x + r.w && tap.y > r.y && tap.y < r.y + r.h) {
       try { playSnd('ui_click'); } catch (e) {}
-      if (!state(r).on) { toast(r.k === 'ult' && !b.P.ally ? '叶孤星的绝技尚未领悟' : r.k === 'ult' ? '怒气未满' : r.k === 'item' ? '没有丹药了' : '现在不能这样做', 1500); return; }
+      if (r.k === 'mi') { b.menu.sub = window.MIZHUAN_LIST ? MIZHUAN_LIST() : []; try { sfx('blip'); } catch (e) {} return; }
+      if (!state(r).on) { toast(r.k === 'item' ? '没有丹药了' : '现在不能这样做', 1500); return; }
       if (r.k === 'flee') { if (!fleeOK(b)) { toast(b.cfg.boss ? '首领战，无路可逃！' : '此战不可逃'); return; } flee(b); return; }
       const c = menuCenter(), o = OLD[r.k]; return orig.call(this, { x: c.x + o[0] * 100, y: c.y + o[1] * 92 });
     }

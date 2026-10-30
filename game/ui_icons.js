@@ -6,7 +6,7 @@
   // 「星落」已有 Codex 正式图标（R72 星落B，图集第 34 格），原来的代码画版去掉
   const EXTRA = {};
   // 战斗技能 id → 图标名（id 和图标名不一样的几个）
-  const ALIAS = { pojun: 'tianxuan', tanlang: 'zhuihun' };
+  const ALIAS = { pojun: 'tianxuan', tanlang: 'zhuihun', duopo: 'jueying', ningshen: 'ningfeng', juling: 'xingluo2', qianggong: 'ningfeng', jifeng: 'qunxing', boming: 'jiutian', yunlei: 'shaxing', shuangjia: 'huti', bingxin: 'daxue', bingdun: 'huti', bingfeng: 'daxue', qxq: 'yinbo', yinzhang: 'huti', shenfa: 'luanshen', jiuyinhe: 'tianlai' };   // 新招暂借同系图标，正式图标另出
   window.UI_ICONS = {
     key: id => (id in ALIAS ? ALIAS[id] : id),
     has: k => (ok && k in MAP) || !!EXTRA[k],

@@ -31,7 +31,7 @@
   const books = ['dianxing', 'xingluo2', 'pojun', 'tanlang', 'tianshu', 'qunxing', 'shaxing'].map(k => 'jp_' + k);
   const has = id => !!ITEM_DB[id];
   const SHOP = {
-    skills: { who: '老修士', items: () => books.filter(has), hi: ['先看修行路数，再选与你契合的法诀。', '剑谱参悟到二重、三重，招式才见真章。'] },
+    skills: { who: '老修士', items: () => (window.SK4_SHOP ? SK4_SHOP() : books.filter(has)), hi: ['先看修行路数，再选与你契合的法诀。', '剑谱参悟到二重、三重，招式才见真章。'] },
     armory: { who: '炼器女修', items: () => ['w_qingfeng', 'w_hantie', 'a_cloth', 'a_leather', 'a_iron'].filter(has), hi: ['剑要趁手，护具也须合身。', '刚出炉的几件，你挑挑看。'] },
     medicine: { who: '老丹师', items: () => ['p_small', 'p_big', 'p_mp', 'p_revive'].filter(has), hi: ['回气血、复灵力、解毒疗伤，药品都在这儿了。', '出门历练，丹药别省着买。'] },
     talismans: { who: '俏掌柜', items: () => ['c_jade', 'p_mp', 'p_revive'].filter(has), hi: ['符箓救急，阵旗护营，出门历练可别只带一把剑。'] },

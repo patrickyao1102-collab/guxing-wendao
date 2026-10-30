@@ -438,7 +438,7 @@
 
   // ---------- 测试：无限怒气 / 灵力（调试面板开关，默认开） ----------
   const INF_KEY = 'gx_inf_test';
-  let inf = true; try { const v = localStorage.getItem(INF_KEY); if (v === '0') inf = false; } catch (e) {}
+  let inf = false; try { const v = localStorage.getItem(INF_KEY); if (v === '1') inf = true; } catch (e) {}   // 技能体系 v4：默认关（灵力 / 怒气要算数），调试面板可开
   const infFill = () => { if (!inf) return; const b = battle; if (!b) return;
     for (const u of heroesOf(b)) if (u && u.alive) { u.rage = 100; u.mp = u.maxmp; } };
   window.INF_TEST = { get on() { return inf; }, toggle() { inf = !inf; try { localStorage.setItem(INF_KEY, inf ? '1' : '0'); } catch (e) {} infFill(); toast && toast(inf ? '无限怒气/灵力：开' : '无限怒气/灵力：关'); return inf; } };

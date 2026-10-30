@@ -20,9 +20,9 @@
   const STYLE = { '典籍阁': '05_book', '丹药铺': '01_ink', '符阵坊': '03_jade', '兵甲坊': '06_minimal', '灵兽苑': '02_bamboo', '五曜商阁': '04_astrolabe' };
   const styleOf = who => STYLE[who] || (/经|书|典|藏/.test(who) ? '05_book' : /药|丹|医|草/.test(who) ? '01_ink' : /符|阵|玉|珍/.test(who) ? '03_jade' : /宝|拍|万|阁|楼/.test(who) ? '04_astrolabe' : /铁|兵|武|器|甲/.test(who) ? '06_minimal' : '02_bamboo');
   const SUB = { '典籍阁': '剑谱 · 功法 · 玉简', '丹药铺': '药品 · 丹药', '符阵坊': '符箓 · 阵旗 · 护身', '兵甲坊': '兵器 · 防具', '灵兽苑': '灵兽 · 坐骑', '五曜商阁': '奇珍 · 稀材' };
-  const catOf = id => { const it = ITEM_DB[id] || {}; return it.slot === 'weapon' ? '兵器' : it.slot === 'armor' ? '防具' : it.slot === 'acc' ? '饰品' : it.book ? (id === 'yujian' ? '玉简' : '剑谱') : it.use ? '丹药' : id === 'yunxingshi' ? '稀材' : '杂项'; };
+  const catOf = id => { const it = ITEM_DB[id] || {}; return it.slot === 'weapon' ? '兵器' : it.slot === 'armor' ? '防具' : it.slot === 'acc' ? '饰品' : it.cat ? it.cat : it.book ? (id === 'yujian' ? '玉简' : '剑谱') : it.use ? '丹药' : id === 'yunxingshi' ? '稀材' : '杂项'; };
   const cnt = id => id === 'p_small' ? (S.hero.potions || 0) : (S.hero.bag[id] || 0);
-  const effectOf = it => it.slot ? statText(it) : it.use ? [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '复苏' : ''].filter(Boolean).join('　') : it.book ? '参悟剑招重数所需' : '';
+  const effectOf = it => it.slot ? statText(it) : it.use ? [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '复苏' : ''].filter(Boolean).join('　') : it.eff ? it.eff : it.book ? '参悟剑招重数所需' : '';
   function wrap(s, w) { const out = []; let line = ''; for (const ch of String(s || '')) { if (ctx.measureText(line + ch).width > w && line) { out.push(line); line = ch; } else line += ch; } if (line) out.push(line); return out; }
   const hit = (t, r) => t && t.x >= r[0] && t.x <= r[0] + r[2] && t.y >= r[1] && t.y <= r[1] + r[3];
   const FR = [80, 76, 1120, 592], GRID = [126, 196, 576, 344], DET = [788, 196, 372, 360], LEAVE = [788, 590, 176, 52], BUY = [984, 590, 176, 52], SELL = [126, 590, 196, 52];

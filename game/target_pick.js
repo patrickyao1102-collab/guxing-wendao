@@ -2,7 +2,7 @@
 // 选了「攻击」或单体仙术后，敌人头上出现金色箭头，点哪个打哪个；点空白处返回菜单。场上只剩一个敌人时直接出手。
 (function () {
   if (typeof doHeroAction !== 'function' || typeof pickTarget !== 'function') return;
-  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu']);
+  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);
   let forced = null;
   pickTarget = (orig => function () { if (forced && forced.alive) return forced; return orig.apply(this, arguments); })(pickTarget);
   doHeroAction = (orig => async function (k) {
