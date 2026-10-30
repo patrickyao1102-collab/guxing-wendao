@@ -255,8 +255,9 @@
       if (ult && R === G.root) link([R.x + R.r + 6, R.y + 4], [ult.x - ult.r - 6, ult.y], info(who, ult.n).learned, false);
       ctx.save(); const pr = 1 + Math.sin(t * 2) * .05, g = ctx.createRadialGradient(R.x, R.y, R.r * .7, R.x, R.y, R.r * 1.9 * pr); g.addColorStop(0, 'rgba(255,224,150,.55)'); g.addColorStop(1, 'rgba(255,214,130,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(R.x, R.y, R.r * 1.9 * pr, 0, 7); ctx.fill();
       if (G.multi && !R.on) ctx.globalAlpha = .55;
+      if (!im) { ctx.fillStyle = '#2a3150'; ctx.beginPath(); ctx.arc(R.x, R.y, R.r, 0, 7); ctx.fill(); }   // 图没加载完才画底色圆（以前画在图上面，不点就看不见功法图）
       if (im) ctx.drawImage(im, R.x - R.r * 1.12, R.y - R.r * 1.12, R.r * 2.24, R.r * 2.24);
-      if (selRoot === R) { ctx.lineWidth = 2.5; ctx.strokeStyle = `rgba(255,236,170,${.6 + Math.sin(t * 5) * .35})`; ctx.setLineDash([R.r * .3, R.r * .18]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(R.x, R.y, R.r + 10, 0, 7); ctx.stroke(); ctx.setLineDash([]); } else { ctx.fillStyle = '#2a3150'; ctx.beginPath(); ctx.arc(R.x, R.y, R.r, 0, 7); ctx.fill(); }
+      if (selRoot === R) { ctx.lineWidth = 2.5; ctx.strokeStyle = `rgba(255,236,170,${.6 + Math.sin(t * 5) * .35})`; ctx.setLineDash([R.r * .3, R.r * .18]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(R.x, R.y, R.r + 10, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
       ctx.font = `20px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const nw = ctx.measureText(R.name).width + 26; roundRect(R.x - nw / 2, R.y + R.r + 4, nw, 26, 13); ctx.fillStyle = 'rgba(12,10,20,.9)'; ctx.fill(); ctx.strokeStyle = 'rgba(232,194,122,.7)'; ctx.lineWidth = 1; ctx.stroke(); ctx.fillStyle = '#f6dfa6'; ctx.fillText(R.name, R.x, R.y + R.r + 18);
       if (G.multi && !R.on) { ctx.globalAlpha = .8; ctx.font = `600 11px ${FONT}`; ctx.fillStyle = '#c9b48c'; ctx.fillText('点此切换', R.x, R.y + R.r + 40); }
       ctx.restore(); }
