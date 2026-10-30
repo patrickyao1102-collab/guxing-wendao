@@ -64,7 +64,11 @@
     const d = R76.defs[id], dur = opt.dur || d.duration, act = actors(id, P, t, opt), t0 = performance.now();
     const now = () => (performance.now() - t0) / 1000;
     const back = d.layers.filter(l => BACK.has(l)), front = d.layers.filter(l => !BACK.has(l));
-    const draw = ls => () => { if (!ready) return; const tt = now(); if (tt >= dur) return; blit(renderGroup(id, tt, ls, act)); };
+    // 30fps 重建，中间帧复用（每组自己的缓存画布）
+    const draw = ls => { const own = mk(), og = own.getContext('2d'); let fi = -1;
+      return () => { if (!ready) return; const tt = now(); if (tt >= dur) return; const f = Math.floor(tt * 30);
+        if (f !== fi) { fi = f; og.globalCompositeOperation = 'copy'; og.drawImage(renderGroup(id, tt, ls, act), 0, 0); }
+        blit(own); }; };
     addFx({ life: dur + .3, layer: 0, draw: draw(back) }); addFx({ life: dur + .3, layer: 2, draw: draw(front) });
     return { act, until: async s => { const ms = s * 1000 - (performance.now() - t0); if (ms > 0) await sleep(ms); }, now };
   }
@@ -213,7 +217,7 @@
     await bigIntro(P, '杀 星 · 寒 星', '一星坠落 · 寒气开花', '#cff4ff', .7); snd('sfx_charge', .7);
     const fx = play('hanxing', P, t); await fx.until(1.12); snd('sfx_beam');
     await fx.until(1.48); screenFlash('#e0f6ff', .8); S.shake = 24; snd('sfx_boom');
-    const { d } = dmgCalc(P, t, 2.7, 0); applyDamage(t, d, true, { pierce: true }); await hitStop(130);
+    const { d } = dmgCalc(P, t, 2.7, 0); applyDamage(t, d, false, { pierce: true }); await hitStop(130);
     await fx.until(3.0); dim(0, 300);
   })(skShaxing);
 
@@ -223,7 +227,7 @@
     const fx = play('yinzhang', P), T = TIER('shenle', 'yinzhang'), r = .25 * K(T);
     await fx.until(.72);
     for (const u of heroes()) { const v = Math.round(u.maxhp * r); (u.bx || (u.bx = {})).hs = { v: Math.max(v, bxv(u, 'hs')), n: T >= 3 ? 3 : 2, wall: true }; tag(u, '护盾 ' + v, '#c8ffd8'); }
-    loop('yinzhang', 'sound_wall_loop', () => actors('yinzhang', P), () => heroes().some(u => u.bx && u.bx.hs && u.bx.hs.wall && u.bx.hs.v > 0), { alpha: .75 });
+    loop('yinzhang', 'sound_wall_loop', () => actors('yinzhang', P), () => heroes().some(u => u.bx && u.bx.hs && u.bx.hs.wall && u.bx.hs.v > 0), { alpha: .55 });
     await fx.until(1.8); P.pose = null;
   };
   A.shenfa = async function (P) {
