@@ -1145,10 +1145,10 @@ const SND_LIST = ['sfx_swing', 'sfx_hit', 'sfx_crit', 'sfx_sword_ring', 'sfx_cha
 const BGM_LIST = ['bgm_title', 'bgm_shanmen', 'bgm_battle', 'bgm_boss'];
 const AMB_LIST = ['amb_wind', 'amb_town', 'amb_fire'];
 const MAP_AMB = { houshan: 'amb_wind', road: 'amb_wind', gate: 'amb_fire', town: 'amb_town', hall: 'amb_fire', plaza: 'amb_wind' };
-const SFX_ALIAS = { slash: 'sfx_swing', hit: 'sfx_hit', crit: 'sfx_crit', magic: 'sfx_charge', boom: 'sfx_boom', chime: 'sfx_star', blip: 'ui_click' };
+const SFX_ALIAS = { slash: 'sfx_swing', hit: 'sfx_hit', crit: 'sfx_crit', magic: 'sfx_charge', boom: 'sfx_boom', chime: 'ui_none', blip: 'ui_none' };   // 轮到出手的「叮」、菜单「滴」去掉
 const SFX_VOL = { sfx_swing: .55, sfx_hit: .8, sfx_crit: .9, sfx_sword_ring: .6, sfx_charge: .55, sfx_star: .45, sfx_beam: .9, sfx_boom: .8, sfx_ult: .9, sfx_buff: .5, sfx_heal: .5,
   sfx_hurt: .7, sfx_claw: .6, sfx_rock: .7, sfx_vine: .6, ui_click: .45, ui_open: .45, ui_confirm: .5, ui_text: .25, jingle_win: .7, jingle_levelup: .7, sfx_thunder: .95, sfx_ice: .8, sfx_wind: .6 };
-const AUD = { buf: {}, el: {}, mode: null, bgm: null, bgmName: '', master: null, musicGain: null, sfxGain: null, muted: false, lastPlay: {} };
+const AUD = { buf: {}, el: {}, real: {}, mode: null, bgm: null, bgmName: '', master: null, musicGain: null, sfxGain: null, muted: false, lastPlay: {} };
 function audioBoot() {
   if (AUD.mode) return; audioInit();
   if (AC && location.protocol !== 'file:') {
@@ -1156,17 +1156,21 @@ function audioBoot() {
     AUD.master = AC.createGain(); AUD.master.connect(AC.destination);
     AUD.musicGain = AC.createGain(); AUD.musicGain.gain.value = .45; AUD.musicGain.connect(AUD.master);
     AUD.sfxGain = AC.createGain(); AUD.sfxGain.gain.value = .9; AUD.sfxGain.connect(AUD.master);
-    for (const n of [...SND_LIST, ...BGM_LIST, ...AMB_LIST]) fetch('audio/' + n + '.mp3').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => {
+    for (const n of [...BGM_LIST]) fetch('audio/' + n + '.mp3').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => {
       AUD.buf[n] = buf; if (AUD.want === n) playBgm(n, true); if (AUD.wantAmb === n) playAmb(n, true);
     }).catch(() => {});
   } else {
     AUD.mode = 'element';
-    for (const n of [...SND_LIST, ...BGM_LIST, ...AMB_LIST]) { const a = new Audio('audio/' + n + '.mp3'); a.preload = 'auto'; if (!SND_LIST.includes(n)) a.loop = true; AUD.el[n] = a; }
+    for (const n of [...BGM_LIST]) { const a = new Audio('audio/' + n + '.mp3'); a.preload = 'auto'; if (!SND_LIST.includes(n)) a.loop = true; AUD.el[n] = a; }
   }
   if (AUD.want) playBgm(AUD.want, true); if (AUD.wantAmb) playAmb(AUD.wantAmb, true);
 }
+// 作者：滴滴声 / 电子合成音全部取消。audio/ 下的 sfx_* ui_* jingle_* amb_* 原件都是代码合成的——一律不放；
+// 只放即梦 SeedAudio 实录音效（bgm_music.js 解码顶替后记进 AUD.real）。界面点击、轮到出手的提示音整类去掉。
+const SND_MUTE = /^(ui_|amb_)/;
 function playSnd(n, vol = 1, rate = 1) {
   if (AUD.muted) return; if (!AUD.mode) return;
+  if (SND_MUTE.test(n) || !(AUD.real && AUD.real[n]) || AUD.mode !== 'webaudio') return;
   const now = performance.now(); if (AUD.lastPlay[n] && now - AUD.lastPlay[n] < 45) return; AUD.lastPlay[n] = now;   // 同一个声音太密时合并
   const v = (SFX_VOL[n] ?? .6) * vol;
   if (AUD.mode === 'webaudio') {
@@ -1795,7 +1799,7 @@ async function skQunxing(P) {
   P.pose = 'cast'; fx('fx3_circle_blue', { once: true, life: 2.4, layer: 0, x: P.x, y: P.y - 4, sy: .34, scale: .36, rot: (k, f) => f.t, alpha: 1.2, fadeOut: .4 });
   const stars = []; for (let i = 0; i < 26; i++) { const s = { x: rand(120, 760), y: rand(60, 260), d: rand(0, .6) }; stars.push(s);
     fx('fx3_star', { life: 1.5, layer: 1, x: s.x, y: s.y, scale: k => (k * 1.5 < s.d ? 0 : .6 + Math.sin(k * 20 + s.x) * .15), rot: (k, f) => f.t * 2, alpha: 1.4, fadeOut: .2 }); }
-  for (let i = 0; i < 6; i++) setTimeout(() => playSnd('sfx_star', .6), i * 150);
+  playSnd('sfx_star', .6);   // 原来连放 6 下像「滴滴滴」
   await sleep(1100);
   const ts = aliveEnemies(); if (!ts.length) return;
   for (let i = 0; i < stars.length; i++) {
@@ -4118,7 +4122,7 @@ function corner(x, y, sx, sy, s = 18) {
 function lacquer(x, y, w, h, o = {}) {
   ctx.save(); roundRect(x, y, w, h, o.r ?? 10);
   const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, o.top || UI.pTop); g.addColorStop(1, o.bot || UI.pBot); ctx.fillStyle = g; ctx.fill();
-  ctx.save(); ctx.clip(); ctx.globalAlpha = UI.grainA; ctx.fillStyle = ctx.createPattern(grain(), 'repeat'); ctx.fillRect(x, y, w, h); ctx.restore();
+  ctx.save(); ctx.clip(); ctx.globalAlpha = UI.grainA; ctx.fillStyle = (lacquer._pat || (lacquer._pat = ctx.createPattern(grain(), 'repeat'))); ctx.fillRect(x, y, w, h); ctx.restore();
   ctx.lineWidth = 2.5; ctx.strokeStyle = UI.gold; ctx.stroke();
   if (!o.thin) { roundRect(x + 6, y + 6, w - 12, h - 12, Math.max(2, (o.r ?? 10) - 4)); ctx.lineWidth = 1; ctx.strokeStyle = UI.line; ctx.stroke(); }
   if (o.corners) { corner(x + 10, y + 10, 1, 1); corner(x + w - 10, y + 10, -1, 1); corner(x + 10, y + h - 10, 1, -1); corner(x + w - 10, y + h - 10, -1, -1); }
@@ -12172,7 +12176,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       // 以脚底中点为原点做整体挤压 / 倾斜
       ctx.rotate((r.rot || 0) * D); ctx.scale(r.sx || 1, r.sy || 1); ctx.translate(-d.foot.x, -d.foot.y);
       for (const name of d.order) {
-        const p = byName[name], im = R.img[name]; if (!p || !im) continue;
+        const p = byName[name], im = (opt.imgs || R.img)[name]; if (!p || !im) continue;
         ctx.save();
         // 父子关系：下颚跟着头；手臂跟着上半身（d.parent 里配置）
         const chain = []; for (let n = name, g = 0; n && g < 5; g++) { chain.unshift(n); n = (d.parent && d.parent[n]) || (n === 'jaw' ? 'head' : null); }
@@ -12222,6 +12226,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     MOB_DB.wolfking = { key: 'e_wolfking', name: '苍狼妖将', hp: 620, atk: 46, def: 14, spd: 15, h: 300, atkType: 'slash', mh: 110, fxColor: '#8fd8ff' };
   }
   window.RIG_MAP = MAP;
+  const TINT = {};
+  function tinted(R, filter) { const k = R.id + '|' + filter; if (TINT[k]) return TINT[k]; const out = {}; let ok = true;
+    for (const name in R.img) { const im = R.img[name]; if (!im.complete || !im.naturalWidth) { ok = false; break; } const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d'); g.filter = filter; g.drawImage(im, 0, 0); out[name] = c; }
+    if (ok) TINT[k] = out; return ok ? out : R.img; }
   let skip = null;
   drawSprite = (orig => function (key, ...a) { if (skip && key === skip) return; return orig(key, ...a); })(drawSprite);
   drawUnit = (orig => function (u) {
@@ -12238,8 +12246,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     else if (u._rh && now - u._rh < RIG.DUR.hit) { anim = 'hit'; t = now - u._rh; }
     const x = u.x + u.ox, y = u.y + u.oy, H = M.h * (u.h ? u.h / (MOB_H[u.key] || u.h) : 1);
     if (u.alive) { skip = u.key; const hu = u.hurt, h0 = u.h; u.hurt = 0; u.h = Math.max(h0, H * .92); try { orig(u); } finally { skip = null; u.hurt = hu; u.h = h0; } }   // 影子 / 血条照旧，本体换成骨骼
-    ctx.save(); if (M.filter) ctx.filter = M.filter;
-    RIG.draw(ctx, R, x, y, H, true, anim, t, { lunge: .3, trail: .8 });
+    ctx.save();
+    RIG.draw(ctx, R, x, y, H, true, anim, t, { lunge: .3, trail: .8, imgs: M.filter ? tinted(R, M.filter) : null });   // 滤镜只烤一次，不再每帧 ctx.filter（卡帧元凶）
     ctx.restore();
   })(drawUnit);
   const MOB_H = {}; if (typeof MOB_DB !== 'undefined') for (const k in MOB_DB) MOB_H[MOB_DB[k].key] = MOB_DB[k].h;

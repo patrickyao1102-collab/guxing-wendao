@@ -115,9 +115,9 @@
     let u = null;
     if (L) u = local ? L.file : '/_blob/' + L.blob;
     else if (JB[name]) u = local ? JB[name][1] : '/_blob/' + JB[name][0];
-    else { if (ORIG[name]) AUD.buf[name] = ORIG[name]; return; }
+    else { if (AUD.real) delete AUD.real[name]; return; }   // 没有实录顶替的就不放（原件是合成音）
     if (!ORIG[name] && AUD.buf[name]) ORIG[name] = AUD.buf[name];
-    fetch(u).then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { AUD.buf[name] = buf; if (typeof SFX_VOL !== 'undefined') SFX_VOL[name] = L && L.vol != null ? L.vol : .9; }).catch(() => {});
+    fetch(u).then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { AUD.buf[name] = buf; (AUD.real || (AUD.real = {}))[name] = 1; if (typeof SFX_VOL !== 'undefined') SFX_VOL[name] = L && L.vol != null ? L.vol : .9; }).catch(() => {});
   }
   function loadJingles() { const names = new Set([...Object.keys(JB), ...Object.keys(SDEF), ...Object.keys(PICK).filter(k => !(k in DEF))]); for (const n of names) loadOne(n); }
   let tries = 0; const jt = setInterval(() => { if (typeof AC !== 'undefined' && AC && AUD.mode === 'webaudio') { clearInterval(jt); loadJingles(); } else if (++tries > 600) clearInterval(jt); }, 500);
