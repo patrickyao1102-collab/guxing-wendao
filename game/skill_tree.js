@@ -188,7 +188,7 @@
     const roots = V.RD.map((d, k) => { const on = d.gongfa === V.act; return { gongfa: d.gongfa, name: d.name, cols: d.cols, on, x: multi ? TA.x + TA.w * (k === 0 ? .33 : .67) : TA.x + TA.w / 2, y: TA.y + (multi ? 56 : 66), r: multi ? (on ? 34 : 24) : 40 }; });
     const root = roots.find(r => r.on) || roots[0] || null;   // 最上面最大的是功法本身，当前看的那本亮，另一本小一点、点一下切换
     if (T.ult) nodes.push({ n: T.ult, x: TA.x + TA.w / 2 + (root ? 150 : 0), y: TA.y + (root ? 72 : 84), r: root ? 32 : 42, col: -1 });
-    const m = Math.max(1, ...cols.map(c => c.ns.length)), compact = !T.solo && m > 3, tall = m > 4, y0 = tall ? 200 : (compact ? 222 : 232) + (root && !T.solo ? 12 : 0), dy = tall ? 64 : compact ? (root ? 66 : 76) : (root ? 86 : 104), rr = tall ? 22 : compact ? 25 : 31;
+    const m = Math.max(1, ...cols.map(c => c.ns.length)), compact = !T.solo && m > 3, tall = m > 4, y0 = tall ? 200 : (compact ? 222 : 232) + (root && !T.solo ? 12 : 0), dy = tall ? 64 : compact ? (root ? 66 : 76) : (root ? (m <= 2 ? 112 : 86) : 104), rr = tall ? 22 : compact ? 25 : 31;
     cols.forEach(({ ci, lab, ns }, i) => { const cx = TA.x + sp * (i + .5); ns.forEach((nd, j) => nodes.push({ n: nd, x: cx, y: T.solo ? TA.y + TA.h / 2 + 10 : TA.y + y0 + j * dy, r: T.solo ? 46 : rr, col: ci, j, lab })); });
     const btn = { x: DP.x + 20, y: DP.y + DP.h - 74, w: DP.w - 40, h: 56 };
     return { who, T, TA, DP, nodes, sp, btn, compact, root, roots, multi };

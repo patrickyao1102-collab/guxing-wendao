@@ -1,0 +1,404 @@
+{
+  "schema": "r83.timeline.v1",
+  "skill": "贪狼剑意·夺魄 v3 · 横向贯穿",
+  "referenceResolution": [
+    1280,
+    720
+  ],
+  "durationSeconds": 2.2,
+  "previewFps": 30,
+  "hitTimesSeconds": [
+    1.1
+  ],
+  "hitFrames30fps": [
+    33
+  ],
+  "entities": {
+    "caster": {
+      "name": "叶孤星",
+      "key": "b_yegx",
+      "side": "hero",
+      "x": 975,
+      "y": 615,
+      "h": 240
+    },
+    "target": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "field": {
+      "x": 640,
+      "y": 360,
+      "h": 0
+    },
+    "enemy0": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 450,
+      "h": 200
+    },
+    "enemy1": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 190,
+      "y": 560,
+      "h": 200
+    },
+    "enemy2": {
+      "name": "木人桩",
+      "key": "m_dummy",
+      "side": "enemy",
+      "x": 360,
+      "y": 640,
+      "h": 200
+    },
+    "ally0": {
+      "name": "叶孤星",
+      "key": "b_yegx",
+      "side": "hero",
+      "x": 975,
+      "y": 615,
+      "h": 240
+    },
+    "ally1": {
+      "name": "云霆",
+      "key": "b_yunting",
+      "side": "hero",
+      "x": 1115,
+      "y": 490,
+      "h": 247,
+      "ally": "yunting"
+    },
+    "ally2": {
+      "name": "林雪",
+      "key": "b_linxue",
+      "side": "hero",
+      "x": 1180,
+      "y": 640,
+      "h": 223,
+      "ally": "linxue"
+    }
+  },
+  "anchorCoordinates": "feet=[x,y]; head=[x,y-h]; chest=[x,y-h*0.65]; offsets are display pixels",
+  "clips": [
+    {
+      "element": "01_立面魂阵外环",
+      "start": 0,
+      "end": 1.35,
+      "anchor": "caster.chest",
+      "offset": [
+        -275,
+        -94
+      ],
+      "displaySize": [
+        490,
+        720
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 0,
+      "fadeIn": 0.13,
+      "fadeOut": 0.15,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "02_立面魂阵内环",
+      "start": 0,
+      "end": 1.35,
+      "anchor": "caster.chest",
+      "offset": [
+        -275,
+        -94
+      ],
+      "displaySize": [
+        490,
+        720
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 0,
+      "fadeIn": 0.13,
+      "fadeOut": 0.15,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "03_阵心魂眼",
+      "start": 0.2,
+      "end": 1.02,
+      "anchor": "caster.chest",
+      "offset": [
+        -275,
+        -94
+      ],
+      "displaySize": [
+        240,
+        160
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 1,
+      "fadeIn": 0.08,
+      "fadeOut": 0.06,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false
+    },
+    {
+      "element": "04_横剑蓄势",
+      "start": 0.78,
+      "end": 0.9667,
+      "anchor": "field.feet",
+      "offset": [
+        17,
+        -10
+      ],
+      "displaySize": [
+        390,
+        390
+      ],
+      "opacity": 1,
+      "rotationDegrees": -18.7,
+      "z": 2,
+      "fadeIn": 0.025,
+      "fadeOut": 0,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "keyframes": [
+        {
+          "t": 0.78,
+          "anchor": "field.feet",
+          "offset": [
+            17,
+            -10
+          ]
+        },
+        {
+          "t": 0.95,
+          "anchor": "field.feet",
+          "offset": [
+            47,
+            0
+          ]
+        },
+        {
+          "t": 0.9667,
+          "anchor": "field.feet",
+          "offset": [
+            47,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "element": "04_横剑蓄势",
+      "start": 0.9667,
+      "end": 1.0667,
+      "anchor": "field.feet",
+      "offset": [
+        47,
+        0
+      ],
+      "displaySize": [
+        1000,
+        1000
+      ],
+      "opacity": 1,
+      "rotationDegrees": -18.7,
+      "z": 3,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": false,
+      "keyframes": [
+        {
+          "t": 0.9667,
+          "anchor": "field.feet",
+          "offset": [
+            47,
+            0
+          ],
+          "scale": 0.39
+        },
+        {
+          "t": 1.0333,
+          "anchor": "field.feet",
+          "offset": [
+            -90,
+            -46
+          ],
+          "scale": 1
+        },
+        {
+          "t": 1.0667,
+          "anchor": "field.feet",
+          "offset": [
+            -90,
+            -46
+          ],
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "element": "05_一帧贯穿剑芒",
+      "start": 1.0667,
+      "end": 1.53,
+      "anchor": "field.feet",
+      "offset": [
+        -90,
+        -46
+      ],
+      "displaySize": [
+        1000,
+        1000
+      ],
+      "opacity": 1,
+      "rotationDegrees": -18.7,
+      "z": 3,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 1
+    },
+    {
+      "element": "06_背向喷出爆点",
+      "start": 1.1,
+      "end": 1.78,
+      "anchor": "target.head",
+      "offset": [
+        -220,
+        -74
+      ],
+      "displaySize": [
+        650,
+        650
+      ],
+      "opacity": 1,
+      "rotationDegrees": -18.7,
+      "z": 4,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "blend": "source-over",
+      "playback": "once-fit",
+      "persistentUntilStatusRemoved": false,
+      "startFrame": 1
+    },
+    {
+      "element": "07_摄魂印",
+      "start": 1.45,
+      "end": 2.2,
+      "anchor": "target.head",
+      "offset": [
+        0,
+        -12
+      ],
+      "displaySize": [
+        185,
+        185
+      ],
+      "opacity": 1,
+      "rotationDegrees": 0,
+      "z": 5,
+      "fadeIn": 0.08,
+      "fadeOut": 0.12,
+      "blend": "source-over",
+      "playback": "loop",
+      "persistentUntilStatusRemoved": true
+    }
+  ],
+  "assets": {
+    "01_立面魂阵外环": {
+      "meta": "01_立面魂阵外环/meta.json",
+      "frameDirectory": "01_立面魂阵外环/frames/",
+      "atlas": "01_立面魂阵外环/atlas.png"
+    },
+    "02_立面魂阵内环": {
+      "meta": "02_立面魂阵内环/meta.json",
+      "frameDirectory": "02_立面魂阵内环/frames/",
+      "atlas": "02_立面魂阵内环/atlas.png"
+    },
+    "03_阵心魂眼": {
+      "meta": "03_阵心魂眼/meta.json",
+      "frameDirectory": "03_阵心魂眼/frames/",
+      "atlas": "03_阵心魂眼/atlas.png"
+    },
+    "04_横剑蓄势": {
+      "meta": "04_横剑蓄势/meta.json",
+      "frameDirectory": "04_横剑蓄势/frames/",
+      "atlas": "04_横剑蓄势/atlas.png"
+    },
+    "05_一帧贯穿剑芒": {
+      "meta": "05_一帧贯穿剑芒/meta.json",
+      "frameDirectory": "05_一帧贯穿剑芒/frames/",
+      "atlas": "05_一帧贯穿剑芒/atlas.png"
+    },
+    "06_背向喷出爆点": {
+      "meta": "06_背向喷出爆点/meta.json",
+      "frameDirectory": "06_背向喷出爆点/frames/",
+      "atlas": "06_背向喷出爆点/atlas.png"
+    },
+    "07_摄魂印": {
+      "meta": "07_摄魂印/meta.json",
+      "frameDirectory": "07_摄魂印/frames/",
+      "atlas": "07_摄魂印/atlas.png"
+    }
+  },
+  "blend": "source-over straight alpha; all previews use delivered PNGs",
+  "notes": [
+    "R83c 动作修正：全程横向略向上对敌。立面魂阵中心约(700,365)，目标眉心约(360,250)，剑轴为-18.7度；不存在竖直落剑。",
+    "0–0.78 秒立面魂阵蓄势；0.78–0.95 秒横剑凝出并后拉30像素；0.9667–1.0333 秒两帧直线刺穿；1.1 秒全屏闪白并从目标背后向左喷出贯穿爆点。",
+    "爆点原画为硬质白芯紫边剑气喷射及碎片，未使用 v2 的向上花状魂爆。",
+    "1.1 秒触发外部命中/重震屏/定格；本包不额外烘焙震屏定格，便于策划统一叠加。摄魂印循环到眩晕结束。"
+  ],
+  "revision": "R83c",
+  "darkReference": "battle_dark.png",
+  "hudOverEffects": true,
+  "supersedes": [
+    "01_叶孤星_夺魄_幽紫摄魂",
+    "01_叶孤星_夺魄_v2"
+  ],
+  "cameraFlashes": [
+    {
+      "time": 1.1,
+      "duration": 0.1,
+      "color": [
+        255,
+        255,
+        255
+      ],
+      "opacity": 1.0
+    }
+  ],
+  "reviewTimes": [
+    0.65,
+    0.9,
+    1.0667,
+    1.2333
+  ],
+  "dim": {
+    "color": [
+      8,
+      6,
+      25
+    ],
+    "peakOpacity": 0.62,
+    "fadeInSeconds": 0.25,
+    "fadeOutSeconds": 0.4
+  }
+}

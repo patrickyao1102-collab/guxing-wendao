@@ -12,16 +12,23 @@
   const pos = u => ({ x: u.x + (u.ox || 0), y: u.y + (u.oy || 0), h: u.h });
   function anchorPt(ctxU, a) { const [who, part] = a.split('.'); if (who === 'field') return [640, 360]; const u = ctxU[who]; if (!u) return [640, 360]; const p = pos(u);
     return part === 'head' ? [p.x, p.y - p.h] : part === 'chest' ? [p.x, p.y - p.h * .65] : [p.x, p.y]; }
-  function where(ctxU, c, t) { const kf = c.keyframes; if (!kf || !kf.length) { const [x, y] = anchorPt(ctxU, c.anchor); return [x + c.offset[0], y + c.offset[1]]; }
-    if (t <= kf[0].t) { const [x, y] = anchorPt(ctxU, kf[0].anchor); return [x + kf[0].offset[0], y + kf[0].offset[1]]; }
-    for (let i = 0; i < kf.length - 1; i++) { const a = kf[i], b = kf[i + 1]; if (t <= b.t) { const q = (t - a.t) / Math.max(1e-6, b.t - a.t), [ax, ay] = anchorPt(ctxU, a.anchor), [bx, by] = anchorPt(ctxU, b.anchor); return [ax + a.offset[0] + (bx + b.offset[0] - ax - a.offset[0]) * q, ay + a.offset[1] + (by + b.offset[1] - ay - a.offset[1]) * q]; } }
-    const z = kf[kf.length - 1], [x, y] = anchorPt(ctxU, z.anchor); return [x + z.offset[0], y + z.offset[1]]; }
+  // 关键帧：位置 + scale + rotation（线性插值）
+  function kfAt(ctxU, c, t) { const kf = c.keyframes; const P = k => { const [x, y] = anchorPt(ctxU, k.anchor || c.anchor); return [x + k.offset[0], y + k.offset[1], k.scale ?? 1, k.rotation ?? null]; };
+    if (!kf || !kf.length) return P(c); if (t <= kf[0].t) return P(kf[0]);
+    for (let i = 0; i < kf.length - 1; i++) { const a = kf[i], b = kf[i + 1]; if (t <= b.t) { const q = (t - a.t) / Math.max(1e-6, b.t - a.t), A = P(a), B = P(b); return [A[0] + (B[0] - A[0]) * q, A[1] + (B[1] - A[1]) * q, A[2] + (B[2] - A[2]) * q, A[3] == null && B[3] == null ? null : (A[3] ?? 0) + ((B[3] ?? 0) - (A[3] ?? 0)) * q]; } }
+    return P(kf[kf.length - 1]); }
+  // 横向刺击类：时间轴里 field 锚定的剑，按「施法阵心 → 目标」实际连线做相似变换（平移 + 旋转 + 缩放）
+  function laneXf(def, ctxU) { const L = def.lane; if (!L || !ctxU.caster || !ctxU.target) return null;
+    const [ax, ay] = anchorPt(ctxU, L.a), [bx, by] = anchorPt(ctxU, L.b), A = [ax + L.ao[0], ay + L.ao[1]], B = [bx + L.bo[0], by + L.bo[1]], [RA, RB] = L.ref;
+    const th = Math.atan2(B[1] - A[1], B[0] - A[0]) - Math.atan2(RB[1] - RA[1], RB[0] - RA[0]), sc = Math.max(.75, Math.min(1.3, Math.hypot(B[0] - A[0], B[1] - A[1]) / Math.hypot(RB[0] - RA[0], RB[1] - RA[1])));
+    return { RA, A, th, sc, f: (x, y) => { const dx = x - RA[0], dy = y - RA[1], c = Math.cos(th) * sc, s = Math.sin(th) * sc; return [A[0] + dx * c - dy * s, A[1] + dx * s + dy * c]; } }; }
   function drawClip(def, c, ctxU, t, alphaMul = 1, forceLoop = false) {
     const im = img(def, c.element); if (!im) return; const tc = t - c.start, dur = c.end - c.start; const fps = def.el[c.element].fps;
-    let fr; if (c.playback === 'loop' || forceLoop) fr = Math.floor(tc * fps) % 16; else { const s0 = c.startFrame || 0; fr = Math.min(15, s0 + Math.floor(Math.max(0, tc) / dur * (16 - s0))); }
+    let fr; if (c.playback === 'loop' || forceLoop) fr = Math.floor(tc * fps) % 16; else { const s0 = c.startFrame || 0, e0 = c.endFrame ?? 15; fr = Math.min(e0, s0 + Math.floor(Math.max(0, tc) / dur * (e0 + 1 - s0))); }
     let a = (c.opacity ?? 1) * alphaMul; if (!forceLoop) { if (c.fadeIn > 0) a *= Math.min(1, tc / c.fadeIn); if (c.fadeOut > 0) a *= Math.min(1, (c.end - t) / c.fadeOut); }
-    if (a <= 0) return; const [x, y] = where(ctxU, c, t), cw = im.width / 4, [w, h] = c.displaySize;
-    ctx.save(); ctx.globalAlpha = Math.min(1, a); if (c.blend && c.blend !== 'source-over') ctx.globalCompositeOperation = c.blend; ctx.translate(x, y); if (c.rotationDegrees) ctx.rotate(c.rotationDegrees * Math.PI / 180);
+    if (a <= 0) return; let [x, y, ks, kr] = kfAt(ctxU, c, t), cw = im.width / 4, [w, h] = c.displaySize; w *= ks; h *= ks; let rot = (kr ?? c.rotationDegrees ?? 0) * Math.PI / 180;
+    const X = /^field/.test(c.anchor) && ctxU.__lane; if (X) { [x, y] = X.f(x, y); rot += X.th; w *= X.sc; h *= X.sc; }
+    ctx.save(); ctx.globalAlpha = Math.min(1, a); if (c.blend && c.blend !== 'source-over') ctx.globalCompositeOperation = c.blend; ctx.translate(x, y); if (rot) ctx.rotate(rot);
     ctx.drawImage(im, (fr % 4) * cw, Math.floor(fr / 4) * cw, cw, cw, -w / 2, -h / 2, w, h); ctx.restore(); }
   // 播一整招：返回 { until(sec) }
   // 敌人多于时间轴里的 enemy0..2 时，按 i%3 复用模板片段
@@ -30,7 +37,7 @@
       for (let i = k; i < n; i += 3) out.push(Object.assign({}, c, { anchor: c.anchor.replace(/^enemy\d+/, 'enemy' + i) })); }
     return out.sort((a, b) => (a.z || 0) - (b.z || 0)); }
   function play(id, ctxU) { const def = DEFS[id]; preload(def); const t0 = performance.now(), now = () => (performance.now() - t0) / 1000;
-    if (ctxU.enemies) ctxU.enemies.forEach((u, i) => { ctxU['enemy' + i] = u; });
+    if (ctxU.enemies) ctxU.enemies.forEach((u, i) => { ctxU['enemy' + i] = u; }); ctxU.__lane = laneXf(def, ctxU);
     const clips = clipsFor(def, ctxU);
     for (const f of def.flash || []) addFx({ life: def.dur + .1, layer: 3, draw() { const t = now() - f.time; if (t < 0 || t > f.duration) return; ctx.save(); ctx.fillStyle = `rgba(${f.color.join(',')},${f.opacity * (1 - t / f.duration)})`; ctx.fillRect(-50, -50, W + 100, H + 100); ctx.restore(); } });
     if (def.dim) { const d = def.dim; addFx({ life: def.dur + .1, layer: 0, draw() { const t = now(); const a = d.peakOpacity * Math.min(1, t / d.fadeInSeconds) * Math.min(1, Math.max(0, def.dur - t) / d.fadeOutSeconds); if (a <= 0) return; ctx.save(); ctx.fillStyle = `rgba(${d.color.join(',')},${a})`; ctx.fillRect(-50, -50, W + 100, H + 100); ctx.restore(); } }); }
