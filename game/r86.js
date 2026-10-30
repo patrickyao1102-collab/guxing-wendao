@@ -122,4 +122,5 @@
   cv.addEventListener('pointermove', e => { if (!SC.drag) return; const p = toLogical(e), dy = p.y - SC.drag.y0; if (Math.abs(dy) > 8) SC.drag.moved = true; if (SC.drag.moved) SC.y = Math.max(0, Math.min(maxOff(), SC.drag.s0 - dy)); });
   window.addEventListener('pointerup', () => { SC.press = false; const d = SC.drag; SC.drag = null; if (d && !d.moved && open()) input.tapped = d.p; });
   cv.addEventListener('wheel', e => { if (!open()) return; SC.y = Math.max(0, Math.min(maxOff(), SC.y + e.deltaY * .6)); e.preventDefault(); }, { passive: false });
+  window.R86 = { IM, D, txt, READY };
 })();
