@@ -1053,9 +1053,33 @@ window.BGM_LIB = {
 "slot": "yunting:shaxing",
 "dur": 2.1
 },
+"lib_n_yq0": {
+"no": "癸N01",
+"name": "云霆·群星（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_yq0.mp4",
+"blob": "e7180a7aee5a048126d00ef8c76739ce",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
+"slot": "yunting:qunxing",
+"dur": 1.7
+},
+"lib_n_yq1": {
+"no": "癸N02",
+"name": "云霆·群星（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_yq1.mp4",
+"blob": "9d527c4afcdee12ec11e73f019842c41",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
+"slot": "yunting:qunxing",
+"dur": 1.4
+},
 "lib_v37": {
 "no": "癸09",
-"name": "云霆·群星",
+"name": "云霆·群星（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v37.mp3",
@@ -1065,9 +1089,33 @@ window.BGM_LIB = {
 "slot": "yunting:qunxing",
 "dur": 3.1
 },
+"lib_n_dx0": {
+"no": "癸N03",
+"name": "林雪·大雪纷飞（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_dx0.mp4",
+"blob": "9a154b15af74043e96c7606790adfa10",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “大雪纷飞！”",
+"slot": "linxue:ult",
+"dur": 1.3
+},
+"lib_n_dx1": {
+"no": "癸N04",
+"name": "林雪·大雪纷飞（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_dx1.mp4",
+"blob": "c67e412e0787df5e5605f90ac7144b15",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “大雪纷飞！”",
+"slot": "linxue:ult",
+"dur": 1.3
+},
 "lib_v14": {
 "no": "癸10",
-"name": "林雪·大雪纷飞",
+"name": "林雪·大雪纷飞（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v14.mp3",
@@ -1077,9 +1125,33 @@ window.BGM_LIB = {
 "slot": "linxue:ult",
 "dur": 3.1
 },
+"lib_n_ds0": {
+"no": "癸N05",
+"name": "林雪·点星（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_ds0.mp4",
+"blob": "d07ac2ef6747af2f302b4436a31baa65",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “点星！”",
+"slot": "linxue:dianxing",
+"dur": 0.7
+},
+"lib_n_ds1": {
+"no": "癸N06",
+"name": "林雪·点星（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_ds1.mp4",
+"blob": "a8ced6dece74c032b02851914586f05e",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “点星！”",
+"slot": "linxue:dianxing",
+"dur": 0.7
+},
 "lib_v28": {
 "no": "癸11",
-"name": "林雪·点星",
+"name": "林雪·点星（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v28.mp3",
@@ -1089,9 +1161,33 @@ window.BGM_LIB = {
 "slot": "linxue:dianxing",
 "dur": 2.1
 },
+"lib_n_ss0": {
+"no": "癸N07",
+"name": "林雪·杀星（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_ss0.mp4",
+"blob": "86700afc9df8c085b1060ace06e2c1fb",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “杀星！”",
+"slot": "linxue:shaxing",
+"dur": 0.8
+},
+"lib_n_ss1": {
+"no": "癸N08",
+"name": "林雪·杀星（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_ss1.mp4",
+"blob": "d5462c6f458e3326b1f044d3218c7f9e",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “杀星！”",
+"slot": "linxue:shaxing",
+"dur": 0.8
+},
 "lib_v29": {
 "no": "癸12",
-"name": "林雪·杀星",
+"name": "林雪·杀星（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v29.mp3",
@@ -1101,9 +1197,33 @@ window.BGM_LIB = {
 "slot": "linxue:shaxing",
 "dur": 1.1
 },
+"lib_n_lq0": {
+"no": "癸N09",
+"name": "林雪·群星（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_lq0.mp4",
+"blob": "c056bbdf1f3e5adf82391d2262ca8c47",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
+"slot": "linxue:qunxing",
+"dur": 1.4
+},
+"lib_n_lq1": {
+"no": "癸N10",
+"name": "林雪·群星（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_lq1.mp4",
+"blob": "24a591f74fd836d318bc34d89613c7ca",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
+"slot": "linxue:qunxing",
+"dur": 1.4
+},
 "lib_v30": {
 "no": "癸13",
-"name": "林雪·群星",
+"name": "林雪·群星（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v30.mp3",
@@ -1113,9 +1233,33 @@ window.BGM_LIB = {
 "slot": "linxue:qunxing",
 "dur": 3.1
 },
+"lib_n_jm0": {
+"no": "癸N11",
+"name": "神乐·寂灭仙曲（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_jm0.mp4",
+"blob": "6068d05bd8554320cfcf9133e77ea2ed",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “九音录，寂灭仙曲！”",
+"slot": "shenle:ult",
+"dur": 2.4
+},
+"lib_n_jm1": {
+"no": "癸N12",
+"name": "神乐·寂灭仙曲（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_jm1.mp4",
+"blob": "597db7af248079417d7fb48f6a6b5ed1",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “九音录，寂灭仙曲！”",
+"slot": "shenle:ult",
+"dur": 2.7
+},
 "lib_v15": {
 "no": "癸14",
-"name": "神乐·寂灭仙曲",
+"name": "神乐·寂灭仙曲（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v15.mp3",
@@ -1125,9 +1269,57 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 4.1
 },
+"lib_n_xz0": {
+"no": "癸N13",
+"name": "神乐·仙音镇魂（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_xz0.mp4",
+"blob": "df3d2479852324569bdefe01b0f1d9c1",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “仙音镇魂！”",
+"slot": "shenle:qingxin",
+"dur": 1.6
+},
+"lib_n_xz1": {
+"no": "癸N14",
+"name": "神乐·仙音镇魂（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_xz1.mp4",
+"blob": "8ab5b1c9c67d8f6d2fb2c6e157b2d5f6",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “仙音镇魂！”",
+"slot": "shenle:qingxin",
+"dur": 1.6
+},
+"lib_n_as0": {
+"no": "癸N15",
+"name": "神乐·安神（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_as0.mp4",
+"blob": "56beb860036fb0ce67417d8b143524fd",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “九音归一，安神！”",
+"slot": "shenle:qingxin",
+"dur": 2.0
+},
+"lib_n_as1": {
+"no": "癸N16",
+"name": "神乐·安神（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_as1.mp4",
+"blob": "5c0c6b4cc9771d684220668742fd4cff",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “九音归一，安神！”",
+"slot": "shenle:qingxin",
+"dur": 2.0
+},
 "lib_v31": {
 "no": "癸15",
-"name": "神乐·仙音镇魂",
+"name": "神乐·仙音镇魂（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v31.mp3",
@@ -1137,9 +1329,33 @@ window.BGM_LIB = {
 "slot": "shenle:qingxin",
 "dur": 3.1
 },
+"lib_n_sh0": {
+"no": "癸N17",
+"name": "神乐·摄魂乱神（新一）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sh0.mp4",
+"blob": "9c2b9554fc57eab4558df9625a6a1adb",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “摄魂乱神！”",
+"slot": "shenle:liehun",
+"dur": 1.1
+},
+"lib_n_sh1": {
+"no": "癸N18",
+"name": "神乐·摄魂乱神（新二）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sh1.mp4",
+"blob": "30ce0b3ca890d5548504abb34ad080c6",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “摄魂乱神！”",
+"slot": "shenle:liehun",
+"dur": 1.5
+},
 "lib_v32": {
 "no": "癸16",
-"name": "神乐·摄魂乱神",
+"name": "神乐·摄魂乱神（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v32.mp3",
@@ -1151,7 +1367,7 @@ window.BGM_LIB = {
 },
 "lib_v33": {
 "no": "癸17",
-"name": "神乐·安神（备用）",
+"name": "神乐·安神（旧）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v33.mp3",
