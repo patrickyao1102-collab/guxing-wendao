@@ -1789,7 +1789,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp01.mp4",
-"blob": "3567be39ba233417707efdd456458665",
+"blob": "7625554e9ae51433a3926c1d568f50cd",
 "vol": 1,
 "desc": "即梦 SeedAudio · 紫色魔阵展开，低沉魔力嗡鸣渐强（夺魄专属）",
 "dur": 1.0
@@ -1800,7 +1800,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp02.mp4",
-"blob": "4ce90a2db162a8f41757aa851c26f042",
+"blob": "094c55d682ebc92e9f7a0387e310feab",
 "vol": 1,
 "desc": "即梦 SeedAudio · 魔剑破空疾刺，沉重穿刺爆响（夺魄专属）",
 "dur": 1.0
@@ -1811,7 +1811,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp03.mp4",
-"blob": "e0118e2234d0170e7fc786d5aba539f8",
+"blob": "81c7203233049117400f9580d5e6868e",
 "vol": 1,
 "desc": "即梦 SeedAudio · 锁链抽离灵魂，幽怨魂啸与锁链拖拽（夺魄专属）",
 "dur": 2.0
@@ -1822,7 +1822,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp04.mp4",
-"blob": "51f1368105f19e0747e70cda9c49d486",
+"blob": "4cef4efb06c0e8bb24671debe1f2d48f",
 "vol": 1,
 "desc": "即梦 SeedAudio · 巨大魔眼吞噬灵魂的吸入轰鸣（夺魄专属）",
 "dur": 1.0
@@ -1833,7 +1833,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp05.mp4",
-"blob": "52284f2172c8307c4b04f5582660abc3",
+"blob": "c76e12f78b5141ccc9c254953246c418",
 "vol": 1,
 "desc": "即梦 SeedAudio · 魔眼猛然闭合的沉闷冲击轰响（夺魄专属）",
 "dur": 1.0
@@ -1844,7 +1844,7 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp06.mp4",
-"blob": "f5ced90e65e29631a3898c56c21953b8",
+"blob": "dcbfe06ecb8ad6ec79bb8a90694bdc92",
 "vol": 1,
 "desc": "即梦 SeedAudio · 巨狼低吼蓄力，压抑咆哮渐高（夺魄专属）",
 "dur": 1.5
@@ -1855,10 +1855,21 @@ window.BGM_LIB = {
 "group": "壬 · 音效",
 "kind": "sfx",
 "file": "lib29/dp07.mp4",
-"blob": "aafbf779c965ece4e4b59b950e7d2744",
+"blob": "54c7acaf6cbc40fb72c546290c5efe53",
 "vol": 1,
 "desc": "即梦 SeedAudio · 魂魄化光点回流施法者的空灵吸收声（夺魄专属）",
 "dur": 1.0
+},
+"lib_dp00": {
+"no": "壬31",
+"name": "夺魄·暗涌底声",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp00.mp4",
+"blob": "33e97dd0f05d22a1f98db4c5ef4577c3",
+"vol": 1,
+"desc": "即梦 SeedAudio · 黑暗魔力连绵低频轰鸣与阴风（夺魄全程垫底，衔接各段）",
+"dur": 6
 },
 "lib_s00": {
 "no": "壬16",

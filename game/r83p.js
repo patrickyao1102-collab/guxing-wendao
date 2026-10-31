@@ -107,11 +107,11 @@
     // 画面 = Codex v15「六秒蓄势」原样（时间轴/顿帧/震屏/闪白/codeFx 全按它的）。
     // Claude 代码层：抽魂时目标被扯得前倾；怒吼 = 群体震慑——全体敌人依次被啸波震退、眩晕 1 回合、各挂摄魂印、吃一段啸魂伤害，画面压一层血色
     P.pose = 'cast'; try { await portraitPop(P); } catch (e) {}
-    try { playSnd('sfx_dp_array', 1); } catch (e) {}
+    try { playSnd('sfx_dp_bed', .55); playSnd('sfx_dp_array', 1); } catch (e) {}
     const soulKind = HUMAN_RE.test(t.name || '') ? 'human' : 'beast';
     const foes = () => battle.enemies.filter(e => e.alive);
     const fx = play('duopo15', { caster: P, target: t, soulKind, enemies: foes() });
-    await fx.until(.75); try { playSnd('sfx_dp_pierce', 1); } catch (e) {}
+    await fx.until(.85); try { playSnd('sfx_dp_pierce', 1); } catch (e) {}
     await fx.until(1.2); P.pose = 'atk'; try { playSnd('sfx_crit'); } catch (e) {}
     const r1 = dmgCalc(P, t, 3.4, .3); applyDamage(t, r1.d, true, { pierce: true }); await hitStop(67);
     await fx.until(1.3); S.shake = 15; try { playSnd('sfx_boom', .8); } catch (e) {}
@@ -119,7 +119,7 @@
     await fx.until(2.62); try { playSnd('sfx_dp_eye', .9); } catch (e) {}
     await fx.until(2.95); try { playSnd('sfx_dp_eyeclose', 1); } catch (e) {}
     await fx.until(3.6); S.shake = 10;
-    await fx.until(3.95); try { playSnd('sfx_dp_growl', .85); } catch (e) {}
+    await fx.until(3.85); try { playSnd('sfx_dp_growl', .85); } catch (e) {}
     await fx.until(4.5); try { playSnd('sfx_wolf_howl', 1); playSnd('sfx_boom', .7); } catch (e) {} await hitStop(67);
     const list = foes(); await fx.until(4.6); S.shake = 21;
     for (let i = 0; i < list.length; i++) { const e = list[i]; if (!e.alive) continue; await fx.until(4.72 + i * .05);
