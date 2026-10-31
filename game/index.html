@@ -778,7 +778,7 @@ function drawBattle() {
   const b = battle; if (!b) return;
   const bg = b.cfg.bg;
   const zm = window.__R83ZOOM && window.__R83ZOOM();   // R83 技能镜头推近（Codex codeFx.cameraZoom）：只推世界，不推 HUD
-  const zIn = () => { if (zm) { ctx.save(); ctx.translate(zm.px, zm.py); ctx.scale(zm.s, zm.s); ctx.translate(-zm.px, -zm.py); } }, zOut = () => { if (zm) ctx.restore(); };
+  const zIn = () => { if (zm) { ctx.save(); if (zm.dx || zm.dy) ctx.translate(zm.dx || 0, zm.dy || 0); ctx.translate(zm.px, zm.py); ctx.scale(zm.s, zm.s); ctx.translate(-zm.px, -zm.py); } }, zOut = () => { if (zm) ctx.restore(); };
   zIn();
   if (has(bg)) drawImageFit(IMG[bg], 0, 0, W, H); else { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#16213e'); g.addColorStop(.55, '#2b4a5e'); g.addColorStop(1, '#4a5a3a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
   ctx.fillStyle = `rgba(0,0,${b.dim ? 20 : 0},${.15 + (b.dim || 0)})`; ctx.fillRect(0, 0, W, H);
@@ -16219,5 +16219,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
