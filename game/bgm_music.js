@@ -14,7 +14,7 @@
   const SDEF = { ui_click: 'lib_s00', ui_open: 'lib_s00', ui_confirm: 'lib_s00',   // 对话提示音 lib_u0–u3 是代码合成的，全部不用
     sfx_swing: 'lib_s01', sfx_hurt: 'lib_s02', sfx_star: 'lib_s03', sfx_buff: 'lib_s04', sfx_wind: 'lib_s05', sfx_ice: 'lib_s06', sfx_thunder: 'lib_s07',
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
-    sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05', sfx_hit_heavy: 'lib_s13', ui_cancel: 'lib_s00', sfx_wolf_howl: 'lib_s16' };
+    sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05', sfx_hit_heavy: 'lib_s13', ui_cancel: 'lib_s00', sfx_wolf_howl: 'lib_s16', sfx_dp_array: 'lib_dp01', sfx_dp_pierce: 'lib_dp02', sfx_dp_soul: 'lib_dp03', sfx_dp_eye: 'lib_dp04', sfx_dp_eyeclose: 'lib_dp05', sfx_dp_growl: 'lib_dp06', sfx_dp_return: 'lib_dp07' };
   // 混音分层（2026-10-31）：库里的 vol 已按响度对齐，再乘上用途权重——界面点击轻、挥砍/蓄力居中、雷/爆/大招最重
   const ROLE = { ui_click: .5, ui_open: .5, ui_confirm: .55, ui_cancel: .5, sfx_swing: .75, sfx_charge: .78, sfx_buff: .7, sfx_heal: .7, sfx_star: .72, sfx_wind: .8, sfx_vine: .75, sfx_claw: .85, sfx_hurt: .85, sfx_hit: .9 };
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}

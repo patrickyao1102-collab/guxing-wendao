@@ -1783,6 +1783,83 @@ window.BGM_LIB = {
 "desc": "即梦 SeedAudio · 碎冰晶飘落的细碎清亮叮当声（大雪纷飞重做用）",
 "dur": 2.0
 },
+"lib_dp01": {
+"no": "壬24",
+"name": "夺魄·魔阵展开",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp01.mp4",
+"blob": "3567be39ba233417707efdd456458665",
+"vol": 1,
+"desc": "即梦 SeedAudio · 紫色魔阵展开，低沉魔力嗡鸣渐强（夺魄专属）",
+"dur": 1.0
+},
+"lib_dp02": {
+"no": "壬25",
+"name": "夺魄·魔剑贯穿",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp02.mp4",
+"blob": "4ce90a2db162a8f41757aa851c26f042",
+"vol": 1,
+"desc": "即梦 SeedAudio · 魔剑破空疾刺，沉重穿刺爆响（夺魄专属）",
+"dur": 1.0
+},
+"lib_dp03": {
+"no": "壬26",
+"name": "夺魄·锁链抽魂",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp03.mp4",
+"blob": "e0118e2234d0170e7fc786d5aba539f8",
+"vol": 1,
+"desc": "即梦 SeedAudio · 锁链抽离灵魂，幽怨魂啸与锁链拖拽（夺魄专属）",
+"dur": 2.0
+},
+"lib_dp04": {
+"no": "壬27",
+"name": "夺魄·魔眼吞魂",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp04.mp4",
+"blob": "51f1368105f19e0747e70cda9c49d486",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨大魔眼吞噬灵魂的吸入轰鸣（夺魄专属）",
+"dur": 1.0
+},
+"lib_dp05": {
+"no": "壬28",
+"name": "夺魄·闭瞳冲击",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp05.mp4",
+"blob": "52284f2172c8307c4b04f5582660abc3",
+"vol": 1,
+"desc": "即梦 SeedAudio · 魔眼猛然闭合的沉闷冲击轰响（夺魄专属）",
+"dur": 1.0
+},
+"lib_dp06": {
+"no": "壬29",
+"name": "夺魄·贪狼低吼",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp06.mp4",
+"blob": "f5ced90e65e29631a3898c56c21953b8",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨狼低吼蓄力，压抑咆哮渐高（夺魄专属）",
+"dur": 1.5
+},
+"lib_dp07": {
+"no": "壬30",
+"name": "夺魄·魂归",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dp07.mp4",
+"blob": "aafbf779c965ece4e4b59b950e7d2744",
+"vol": 1,
+"desc": "即梦 SeedAudio · 魂魄化光点回流施法者的空灵吸收声（夺魄专属）",
+"dur": 1.0
+},
 "lib_s00": {
 "no": "壬16",
 "name": "界面确认",

@@ -107,28 +107,26 @@
     // 画面 = Codex v15「六秒蓄势」原样（时间轴/顿帧/震屏/闪白/codeFx 全按它的）。
     // Claude 代码层：抽魂时目标被扯得前倾；怒吼 = 群体震慑——全体敌人依次被啸波震退、眩晕 1 回合、各挂摄魂印、吃一段啸魂伤害，画面压一层血色
     P.pose = 'cast'; try { await portraitPop(P); } catch (e) {}
-    try { playSnd('sfx_charge', .85); } catch (e) {}
+    try { playSnd('sfx_dp_array', 1); } catch (e) {}
     const soulKind = HUMAN_RE.test(t.name || '') ? 'human' : 'beast';
     const foes = () => battle.enemies.filter(e => e.alive);
     const fx = play('duopo15', { caster: P, target: t, soulKind, enemies: foes() });
-    await fx.until(.55); try { playSnd('sfx_wind', .55); } catch (e) {}
-    await fx.until(1.02); try { playSnd('sfx_sword_ring', .85); } catch (e) {}
-    await fx.until(1.14); try { playSnd('sfx_beam', .95); } catch (e) {}
+    await fx.until(.75); try { playSnd('sfx_dp_pierce', 1); } catch (e) {}
     await fx.until(1.2); P.pose = 'atk'; try { playSnd('sfx_crit'); } catch (e) {}
     const r1 = dmgCalc(P, t, 3.4, .3); applyDamage(t, r1.d, true, { pierce: true }); await hitStop(67);
     await fx.until(1.3); S.shake = 15; try { playSnd('sfx_boom', .8); } catch (e) {}
-    await fx.until(1.35); P.pose = 'cast'; t._nx0 = t.ox || 0; nudge(t, 13, .9); try { playSnd('sfx_star', .55); } catch (e) {}
-    await fx.until(2.05); try { playSnd('sfx_vine', .7); } catch (e) {}
-    await fx.until(2.7); try { playSnd('sfx_wind', .65); } catch (e) {}
-    await fx.until(3.6); S.shake = 10; try { playSnd('sfx_beam', .8); } catch (e) {}
-    await fx.until(4.1); try { playSnd('sfx_ult', .6); } catch (e) {}
+    await fx.until(1.35); P.pose = 'cast'; t._nx0 = t.ox || 0; nudge(t, 13, .9); try { playSnd('sfx_dp_soul', 1); } catch (e) {}
+    await fx.until(2.62); try { playSnd('sfx_dp_eye', .9); } catch (e) {}
+    await fx.until(2.95); try { playSnd('sfx_dp_eyeclose', 1); } catch (e) {}
+    await fx.until(3.6); S.shake = 10;
+    await fx.until(3.95); try { playSnd('sfx_dp_growl', .85); } catch (e) {}
     await fx.until(4.5); try { playSnd('sfx_wolf_howl', 1); playSnd('sfx_boom', .7); } catch (e) {} await hitStop(67);
     const list = foes(); await fx.until(4.6); S.shake = 21;
     for (let i = 0; i < list.length; i++) { const e = list[i]; if (!e.alive) continue; await fx.until(4.72 + i * .05);
       e._nx0 = e.ox || 0; nudge(e, -22, .5); const r = dmgCalc(P, e, .6, .2); applyDamage(e, r.d, false, { pierce: true });
       if (e.alive && SK4.stun(e, 1) !== false) { e._r76stun = 1; hold('duopo2', '06_摄魂印', { target: e }, () => e.alive && e.buffs && e.buffs.stun > 0); } }
     await fx.until(4.91); S.shake = 10;
-    await fx.until(5.1); try { playSnd('sfx_heal', .6); } catch (e) {}
+    await fx.until(5.0); try { playSnd('sfx_dp_return', 1); } catch (e) {}
     await fx.until(5.96); P.pose = null; await fx.until(6.0);
   };
   A.duopo14 = async function (P, t) { if (!t) return;
