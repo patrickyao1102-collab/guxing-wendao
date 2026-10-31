@@ -11283,7 +11283,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     if (k !== 'xingyun' || !P || P.ally) return orig(k);
     b.state = 'act'; b.menu = null; P.mp -= SKILL_DB.xingyun.cost; P.pose = 'cast';
     try { await skillBanner('破 军 剑 意 · 星 陨', '#cfe6ff', '星陨剑阵'); } catch (e) {}
-    await skXingluoArr(P, pickTarget());
+    // 作者 11-01：星陨借用星罗剑阵的画面，但不能再弹一次「星罗」的名字
+    const sb = window.skillBanner, ci = window.castIntro; window.skillBanner = function (n) { if (/星\s*罗/.test(n || '')) return; return sb.apply(this, arguments); };
+    window.castIntro = async function (P2, n) { if (/星\s*罗/.test(n || '')) return; return ci.apply(this, arguments); };
+    try { await skXingluoArr(P, pickTarget()); } finally { window.skillBanner = sb; window.castIntro = ci; }
     P.buffs = P.buffs || {}; P.buffs.shield = 3; floatText(P.x, P.y - P.h - 30, '星陨剑阵', '#cfe6ff', 40);
     P.pose = null; await afterAct();
   })(doHeroAction);

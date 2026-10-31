@@ -81,11 +81,12 @@
   const sync = () => { const L = battle.menu.sub; if (SC.list !== L) { SC.list = L; SC.y = 0; SC.sel = Math.max(0, L.findIndex(s => !s.disabled)); } SC.y = Math.max(0, Math.min(maxOff(), SC.y)); };
   const rY = i => VY + i * PITCH - SC.y;
   const rowsVis = () => battle.menu.sub.map((s, i) => { const y = rY(i), a = Math.max(y, VY), z = Math.min(y + 78, VY + VH); return z - a < 26 ? { x: -9999, y: -9999, w: 0, h: 0 } : { x: VX + 14, y: a, w: 378, h: z - a }; });
-  const BTN = { x: 726, y: 562, w: 258, h: 48 }, CARD = { x: 700, y: 150, w: 310, h: 490 }, PANEL = { x: 200, y: 140, w: 490, h: 510 };
+  const BACKR = { x: 400, y: 652, w: 116, h: 52 }, BTN = { x: 726, y: 562, w: 258, h: 48 }, CARD = { x: 700, y: 150, w: 310, h: 490 }, PANEL = { x: 200, y: 140, w: 490, h: 510 };
   const inRect = (p, r) => p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h;
   const open = () => typeof battle !== 'undefined' && battle && battle.menu && battle.menu.sub && READY();
   const oldRects = skillRects;
-  skillRects = function () { if (!open()) return oldRects.apply(this, arguments); sync(); return rowsVis(); };
+  let FORCE = -1;
+  skillRects = function () { if (!open()) return oldRects.apply(this, arguments); if (FORCE >= 0) return battle.menu.sub.map((s, i) => i === FORCE ? { x: -5100, y: -5100, w: 200, h: 200 } : { x: -9999, y: -9999, w: 0, h: 0 }); sync(); return rowsVis(); };
   const TARGET = { 单体: '敌方单体', 群攻: '敌方全体', 控制: '敌方单体', 必杀: '敌方全体', 减伤: '我方全队', 加攻: '我方全队', 回灵: '我方全队', 护盾: '我方全队', 加速: '我方全队', 回血: '我方', 解控: '我方全队', 狂攻: '自身', 增攻: '自身' };
   const POWER = { dianxing: 175, xingluo2: 200, xingyun: 240, tanlang: 200, jueying: 460, duopo: 400, shaxing: 270, yunlei: 150, bingfeng: 80, shenfa: 120, tianshu: 125 };
   const TAGIMG = t => /群攻|必杀/.test(t) ? 'tag_group' : /单体/.test(t) ? 'tag_attack' : /控制/.test(t) ? 'tag_control' : 'tag_support';
@@ -99,7 +100,7 @@
     const secret = !!window.__R79D_SECRET || L.some(s => s.k === 'ult');
     ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.30)'; ctx.fillRect(0, 0, W, H); XF();
     D('sword_axis', 200, 140, 78, 500); D('list_header', 258, 150, 400, 70);
-    txt('〈 返回', 278, 170, 72, 25, 21); txt(secret ? '秘传' : '仙术', 377, 159, 140, 46, 39, 'center');
+    txt(secret ? '秘传' : '仙术', 377, 159, 140, 46, 39, 'center');
     txt(secret ? '怒气' : '灵力', 548, 172, 44, 23, 20, 'left'); txt(String(Math.floor(secret ? (P.rage || 0) : (P.mp || 0))), 590, 168, 52, 30, 25, 'right', secret ? '#a8321e' : '#1f5fd0');
     ctx.save(); ctx.beginPath(); ctx.rect(VX - 6, VY, VW + 12, VH); ctx.clip();
     L.forEach((s, i) => { const y = rY(i); if (y + 78 < VY || y > VY + VH) return; const en = !s.disabled, col = en ? INK : DIS2;
@@ -114,6 +115,8 @@
     // 滚动条
     D('scroll_track', 664, 239, 18, 374); D('scroll_up', 664, 220, 18, 18); D('scroll_down', 664, 614, 18, 18);
     const mo = maxOff(); D('scroll_thumb_sword', 663, 250 + (mo > 0 ? SC.y / mo : 0) * 282, 20, 76);
+    // 作者 11-01：返回键放到菜单下面
+    { const pb = SC.backPress; D(pb ? 'back_pressed' : 'back_normal', BACKR.x, BACKR.y, BACKR.w, BACKR.h); txt('返回', BACKR.x, BACKR.y + 2, BACKR.w, BACKR.h - 4, 24, 'center'); }
     D('list_footer', 258, 624, 400, 22); txt((mo > 0 ? '上下拖动 · ' : '') + '共' + L.length + '式', 355, 625, 206, 22, 17, 'center', '#eadfbc');
     // 说明卡
     const cur = L[SC.sel];
@@ -131,13 +134,13 @@
     ctx.restore();
   }
   function cast(orig, i) { const L = battle.menu.sub, s = L[i]; if (!s) return; if (s.disabled) { toast(s.why || '现在用不了'); return; }
-    const top = rY(i); if (top < VY || top + 78 > VY + VH) SC.y = Math.max(0, Math.min(maxOff(), i * PITCH - PITCH)); const r = rowsVis()[i]; SC.list = null;
-    return orig({ x: r.x + 10, y: r.y + r.h / 2 }); }
+    // 作者 11-01：列表滚动后点哪招放哪招——把这一招的点击框钉死传下去，不再按滚动前的坐标反查（以前 SC.list=null 会把滚动清零，点到下面几招就放成别的招或没反应）
+    FORCE = i; try { return orig({ x: -5000, y: -5000 }); } finally { FORCE = -1; SC.list = null; } }
   function listTap(orig, tap) {
     sync(); tap = U(tap);
     if (inRect(tap, BTN)) { try { playSnd('ui_click'); } catch (e) {} return cast(orig, SC.sel); }
     if (inRect(tap, CARD)) return;
-    if (inRect(tap, { x: 270, y: 160, w: 90, h: 44 })) { SC.list = null; return orig({ x: -50, y: -50 }); }   // 〈 返回
+    if (inRect(tap, BACKR)) { try { playSnd('ui_cancel'); } catch (e) {} SC.list = null; return orig({ x: -50, y: -50 }); }   // 返回（菜单下面）
     if (inRect(tap, { x: 658, y: 212, w: 30, h: 32 })) { SC.y = Math.max(0, SC.y - PITCH); return; }
     if (inRect(tap, { x: 658, y: 606, w: 30, h: 32 })) { SC.y = Math.min(maxOff(), SC.y + PITCH); return; }
     const rs = rowsVis(), i = rs.findIndex(r => inRect(tap, r));
@@ -146,9 +149,9 @@
     SC.list = null; return orig({ x: -50, y: -50 });
   }
   const inView = p => p.x > VX && p.x < VX + VW && p.y > VY && p.y < VY + VH;
-  cv.addEventListener('pointerdown', e => { if (!open()) return; const raw = toLogical(e), p = U(raw); if (inRect(p, BTN)) SC.press = true; if (!inView(p)) return; SC.drag = { y0: p.y, s0: SC.y, moved: false, p: raw }; input.tapped = null; });
+  cv.addEventListener('pointerdown', e => { if (!open()) return; const raw = toLogical(e), p = U(raw); if (inRect(p, BTN)) SC.press = true; if (inRect(p, BACKR)) SC.backPress = true; if (!inView(p)) return; SC.drag = { y0: p.y, s0: SC.y, moved: false, p: raw }; input.tapped = null; });
   cv.addEventListener('pointermove', e => { if (!SC.drag) return; const p = U(toLogical(e)), dy = p.y - SC.drag.y0; if (Math.abs(dy) > 8) SC.drag.moved = true; if (SC.drag.moved) SC.y = Math.max(0, Math.min(maxOff(), SC.drag.s0 - dy)); });
-  window.addEventListener('pointerup', () => { SC.press = false; const d = SC.drag; SC.drag = null; if (d && !d.moved && open()) input.tapped = d.p; });
+  window.addEventListener('pointerup', () => { SC.press = false; SC.backPress = false; const d = SC.drag; SC.drag = null; if (d && !d.moved && open()) input.tapped = d.p; });
   cv.addEventListener('wheel', e => { if (!open()) return; SC.y = Math.max(0, Math.min(maxOff(), SC.y + e.deltaY * .6)); e.preventDefault(); }, { passive: false });
   window.R86 = { IM, D, txt, READY };
 })();
