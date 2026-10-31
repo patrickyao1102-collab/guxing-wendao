@@ -10,10 +10,10 @@
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
   // 菜单字体：霞鹜文楷 Medium（OFL 开源，按游戏里用到的字裁剪，约 0.7MB）——所有设备显示一致，不再依赖系统有没有楷体
   // 作者 10-31 最终：照 Codex 设计图的字——标题粗宋（思源宋体 Heavy），正文宋体（思源宋体 Medium），OFL，按游戏用字裁剪
-  for (const [n, b, l] of [['GuxingS9', '42c7a2e40ce58a6b06719bbe1d39091e', 'songti900'], ['GuxingS5', '14da13645129becfac25e830ce291f20', 'songti500']]) { try { const f0 = new FontFace(n, `url(${LOC ? 'fonts/' + l + '.woff' : '/_blob/' + b})`); f0.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {} }
-  const FONT_T = '"GuxingKai","Kaiti SC","STKaiti",serif', FONT_B = '"GuxingKai","Kaiti SC","STKaiti",serif';   // 作者 10-31：设计图是粗楷标题 + 楷书正文 → 文楷，标题描粗成粗楷
+  // 作者 10-31 定稿（方案 8）：标题阿里妈妈东方大楷（免费商用），正文霞鹜文楷 Bold（OFL）；都按游戏用字裁剪
+  for (const [n, b, l] of [['GuxingDF', '30bf9059bcf6fe35c4476899217bee54', 'dongfangdakai'], ['GuxingWKB', '284989e9b6a275e7024c7f042d121f07', 'wenkai_bd']]) { try { const f0 = new FontFace(n, `url(${LOC ? 'fonts/' + l + '.woff' : '/_blob/' + b})`); f0.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {} }
+  const FONT_T = '"GuxingDF","GuxingWKB","GuxingKai","Kaiti SC",serif', FONT_B = '"GuxingWKB","GuxingKai","Kaiti SC",serif';
   // 作者 10-31 选定：霞鹜臻楷（OFL，裁剪）为主字体；臻楷缺的字和数字/字母落到文楷
-  try { const fz = new FontFace('GuxingZK', `url(${LOC ? 'fonts/zhenkai.woff' : '/_blob/ee489a7483d982c03f4f335d4887114d'})`); fz.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
   try { const ff = new FontFace('GuxingKai', `url(${LOC ? 'fonts/wenkai_md.woff' : '/_blob/96b50fbe58c3c7f573008e5f19c47990'})`); ff.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
   const FONTN = '"GuxingZK","GuxingKai","Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#1c2a30', DIS = '#5e6367', DIS2 = '#697276';
   // 作者 10-31：菜单太大 → 整体缩到 0.8，以 (620,395) 为中心；画面整体变换，点击坐标反算回原布局
@@ -23,7 +23,7 @@
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
     ctx.save(); let f = size; const TT = size >= 26, FN = (TT && window.R86_FONT_T) || window.R86_FONT || (TT ? FONT_T : FONT_B), FW = (TT && window.R86_FWT) || window.R86_FW || 400; if (col === INK && window.R86_INK) col = TT && window.R86_INKT ? window.R86_INKT : window.R86_INK; ctx.font = `${FW} ${f}px ${FN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `${FW} ${f}px ${FN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
-    ctx.fillText(s, tx, y + h / 2 + 1); const sw = window.R86_SW != null ? window.R86_SW : (TT ? f * .07 : f * .02); if (sw > 0) { ctx.lineWidth = sw; ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); } ctx.restore(); }
+    ctx.fillText(s, tx, y + h / 2 + 1); const sw = window.R86_SW || 0; if (sw > 0) { ctx.lineWidth = sw; ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); } ctx.restore(); }
   function wrap(s, w, size) { ctx.save(); ctx.font = `${window.R86_FW || 400} ${size}px ${window.R86_FONT || FONT_B}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
