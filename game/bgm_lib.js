@@ -1388,6 +1388,186 @@ window.BGM_LIB = {
 "slot": "shenle:qingxin",
 "dur": 3.1
 },
+"lib_n2_lx_bingfeng": {
+"no": "癸40",
+"name": "林雪·冰封",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingfeng",
+"file": "lib29/n2_lx_bingfeng.mp4",
+"blob": "9779e9c1cab0529b1b268d4f29457abe",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “冰封！”（11-01 补齐）",
+"dur": 0.7
+},
+"lib_n2_lx_shuangjia": {
+"no": "癸41",
+"name": "林雪·霜甲",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:shuangjia",
+"file": "lib29/n2_lx_shuangjia.mp4",
+"blob": "4e51083d2fd4738a89dd4f885a49b0a9",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “霜甲！”（11-01 补齐）",
+"dur": 0.9
+},
+"lib_n2_lx_bingxin": {
+"no": "癸42",
+"name": "林雪·冰心",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingxin",
+"file": "lib29/n2_lx_bingxin.mp4",
+"blob": "bbbb4a3a317adb94468c8d43301cf10e",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “冰心！”（11-01 补齐）",
+"dur": 0.7
+},
+"lib_n2_lx_bingdun": {
+"no": "癸43",
+"name": "林雪·冰盾",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingdun",
+"file": "lib29/n2_lx_bingdun.mp4",
+"blob": "52b5ba3c944d13af7441eb61ab007ec0",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “冰盾！”（11-01 补齐）",
+"dur": 0.7
+},
+"lib_n2_yg_tianxuan": {
+"no": "癸44",
+"name": "叶孤星·天璇",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:pojun",
+"file": "lib29/n2_yg_tianxuan.mp4",
+"blob": "041341c107a3ee8a38eb5179825f3686",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “破军剑意，天璇！”（11-01 补齐）",
+"dur": 2.0
+},
+"lib_n2_yg_xingyun": {
+"no": "癸45",
+"name": "叶孤星·星陨",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:xingyun",
+"file": "lib29/n2_yg_xingyun.mp4",
+"blob": "c91fbbf7125ea281911a8c483bfde725",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “破军剑意，星陨！”（11-01 补齐）",
+"dur": 2.2
+},
+"lib_n2_yg_jueying": {
+"no": "癸46",
+"name": "叶孤星·绝影",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:jueying",
+"file": "lib29/n2_yg_jueying.mp4",
+"blob": "d34532df5a5356f725b2057086ad7370",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “贪狼剑意，绝影！”（11-01 补齐）",
+"dur": 2.1
+},
+"lib_n2_yg_duopo": {
+"no": "癸47",
+"name": "叶孤星·夺魄",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:duopo",
+"file": "lib29/n2_yg_duopo.mp4",
+"blob": "9dbe6f15e8acf3272ea6240f4854e9f3",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “贪狼剑意，夺魄！”（11-01 补齐）",
+"dur": 2.2
+},
+"lib_n2_yg_huti": {
+"no": "癸48",
+"name": "叶孤星·护体",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:huti",
+"file": "lib29/n2_yg_huti.mp4",
+"blob": "9eb9f6412bf950fe0aa5bd7afdb113fb",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “护体！”（11-01 补齐）",
+"dur": 0.8
+},
+"lib_n2_yg_ningshen": {
+"no": "癸49",
+"name": "叶孤星·凝神",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:ningshen",
+"file": "lib29/n2_yg_ningshen.mp4",
+"blob": "e0acdae3b2af81c1b0461bb9d53886cb",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “凝神。”（11-01 补齐）",
+"dur": 0.8
+},
+"lib_n2_yg_juling": {
+"no": "癸50",
+"name": "叶孤星·聚灵",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:juling",
+"file": "lib29/n2_yg_juling.mp4",
+"blob": "afd7c460d70a5247bec8e08cf928e9f1",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “聚灵。”（11-01 补齐）",
+"dur": 0.7
+},
+"lib_n2_yt_yunlei": {
+"no": "癸51",
+"name": "云霆·云雷踏影",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:yunlei",
+"file": "lib29/n2_yt_yunlei.mp4",
+"blob": "b36ab7d6439dcf7cb42672b3b4d96d18",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “云雷踏影！”（11-01 补齐）",
+"dur": 2.0
+},
+"lib_n2_yt_qianggong": {
+"no": "癸52",
+"name": "云霆·强攻",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:qianggong",
+"file": "lib29/n2_yt_qianggong.mp4",
+"blob": "c1de3d65c33d6c8c7c09f1fd32642a86",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “强攻！”（11-01 补齐）",
+"dur": 0.6
+},
+"lib_n2_yt_jifeng": {
+"no": "癸53",
+"name": "云霆·疾风",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:jifeng",
+"file": "lib29/n2_yt_jifeng.mp4",
+"blob": "988dad154aa1ebe24a2cb7990de5f71f",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “疾风！”（11-01 补齐）",
+"dur": 0.7
+},
+"lib_n2_yt_boming": {
+"no": "癸54",
+"name": "云霆·搏命",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:boming",
+"file": "lib29/n2_yt_boming.mp4",
+"blob": "255dc3f8e61353fa0ad41d290c26e658",
+"vol": 1,
+"desc": "即梦配音·参考音色 · “搏命！”（11-01 补齐）",
+"dur": 0.5
+},
 "lib_v13": {
 "no": "癸18",
 "name": "叶孤星·贪狼追魂",
@@ -1402,14 +1582,14 @@ window.BGM_LIB = {
 },
 "lib_v16": {
 "no": "癸19",
-"name": "叶孤星·破军剑阵·起",
+"name": "叶孤星·星罗（破军剑阵，起）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v16.mp3",
 "blob": "dfb1f1648ac662ead755f294471fbe3c",
 "vol": 0.93,
 "desc": "即梦配音 · “破军剑阵，起！”",
-"slot": "hero:pojun",
+"slot": "hero:xingluo",
 "dur": 3.1
 },
 "lib_v23": {
@@ -1421,7 +1601,7 @@ window.BGM_LIB = {
 "blob": "f93a40760ec45f85551af283cc3c3c5d",
 "vol": 0.83,
 "desc": "即梦配音 · “破军剑阵——太阳！”",
-"slot": "hero:tianshu",
+"slot": "hero:sun",
 "dur": 4.1
 },
 "lib_v22": {
@@ -1433,7 +1613,6 @@ window.BGM_LIB = {
 "blob": "c3b4911b77abd0ddf03cddeab51f4ae5",
 "vol": 0.81,
 "desc": "即梦配音 · “九曜七星——连斩！”",
-"slot": "hero:xingluo",
 "dur": 4.4
 },
 "lib_v25": {
@@ -1445,7 +1624,7 @@ window.BGM_LIB = {
 "blob": "d436b0a941631528199885df0d1537bd",
 "vol": 0.77,
 "desc": "即梦配音 · “星落——！” 悲壮",
-"slot": "hero:ult",
+"slot": "hero:xingluo2",
 "dur": 3.1
 },
 "lib_v24": {
@@ -1457,7 +1636,7 @@ window.BGM_LIB = {
 "blob": "8afb2cf8c58c94da7c14a9eea4fbb7be",
 "vol": 1,
 "desc": "即梦配音 · “点星。” 一字一点",
-"slot": "hero:jueying",
+"slot": "hero:dianxing",
 "dur": 2.1
 },
 "lib_v26": {

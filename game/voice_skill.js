@@ -9,7 +9,9 @@
   const NAMES = {};           // 槽名（显示用）
   for (const id in lib) { const t = lib[id]; if (t.kind !== 'voice' || !t.slot) continue; (SLOT[t.slot] = SLOT[t.slot] || []).push(id); }
   Object.assign(NAMES, {
-    'hero:atk': '叶孤星·普攻', 'hero:pojun': '叶孤星·天璇', 'hero:tanlang': '叶孤星·追魂', 'hero:tianshu': '叶孤星·天枢', 'hero:xingluo': '叶孤星·星罗', 'hero:jueying': '叶孤星·绝影', 'hero:ult': '叶孤星·星落',
+    'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳',
+    'yunting:qianggong': '云霆·强攻', 'yunting:jifeng': '云霆·疾风', 'yunting:boming': '云霆·搏命', 'yunting:yunlei': '云霆·云雷踏影',
+    'linxue:shuangjia': '林雪·霜甲', 'linxue:bingxin': '林雪·冰心', 'linxue:bingdun': '林雪·冰盾', 'linxue:bingfeng': '林雪·冰封',
     'yunting:dianxing': '云霆·点星', 'yunting:qunxing': '云霆·群星', 'yunting:shaxing': '云霆·杀星', 'yunting:def': '云霆·凝锋', 'yunting:ult': '云霆·九天神雷',
     'linxue:dianxing': '林雪·点星', 'linxue:qunxing': '林雪·群星', 'linxue:shaxing': '林雪·杀星', 'linxue:ult': '林雪·大雪纷飞',
     'shenle:qingxin': '神乐·仙音镇魂', 'shenle:liehun': '神乐·摄魂乱神', 'shenle:ult': '神乐·寂灭仙曲',
@@ -32,8 +34,9 @@
   }
   // 预热：进战斗时把本场会用到的候选先 new 一遍
   function prewarm(ids) { for (const id of ids) if (!cache[id] && lib[id]) { const a = new Audio(BGM29.src(id)); a.preload = 'auto'; cache[id] = a; } }
-  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu']);
-  doHeroAction = (orig => async function (k) {
+  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);   // 要先点选目标的招（与 SK4 PICK 一致）
+  // 作者 11-01：等所有脚本加载完再包在最外层——以前后加载的辅助 / 秘传 / 夺魄等招直接接管，喊话层根本走不到
+  const install = () => { if (window.__VOICE29_WRAPPED) return; window.__VOICE29_WRAPPED = 1; doHeroAction = (orig => async function (k) {
     const b = battle, P = b && b.P;
     try {
       if (P && !(SINGLE.has(k) && !b.__picked && aliveEnemies().length > 1)) {   // 还在点选目标时不喊
@@ -44,7 +47,8 @@
       }
     } catch (e) {}
     return orig.apply(this, arguments);
-  })(doHeroAction);
+  })(doHeroAction); };
+  if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
   // 云霆九天神雷：有库里的候选（或配乐库里指定了）时，用它顶掉 index.html 里原来的三段配音
   if (typeof playVoice === 'function') playVoice = (orig => function (name, vol) {
     if (/^yt_jt/.test(name) && (window.BGM29.PICK[pickKey('yunting:ult')] || SLOT['yunting:ult'])) {

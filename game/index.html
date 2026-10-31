@@ -2172,14 +2172,16 @@ async function elPalm(e, name, mult, color) {
   await sleep(900);
 }
 
-skillPojun = (orig => async function (P) { if (hasEl('swordcircle') && hasEl('flysword')) { P.mp -= 20; return elPojun(P); } return orig(P); })(skillPojun);
-skillTanlang = (orig => async function (P, t) { const b = battle; if (b.tanlangFails > 0 || !hasEl('wolfbeam') || !t) return orig(P, t); P.mp -= 30; b.tanlangUsed++; return elTanlang(P, t); })(skillTanlang);
-skTianshu = (orig => async function (P, t) { if (hasEl('bigsword')) return elTianshu(P); return orig(P, t); })(skTianshu);
-skXingluoArr = (orig => async function (P, t) { if (hasEl('flysword') && hasEl('swordcircle')) return elXingluo(P); return orig(P, t); })(skXingluoArr);
-skJueying = (orig => async function (P, t) { if (hasEl('crossslash')) return elJueying(P, t); return orig(P, t); })(skJueying);
-skDianxing = (orig => async function (P, t) { if (hasEl('starburst')) return elDianxing(P, t); return orig(P, t); })(skDianxing);
-skQunxing = (orig => async function (P, t) { if (hasEl('meteor')) return elQunxing(P); return orig(P, t); })(skQunxing);
-skShaxing = (orig => async function (P, t) { if (hasEl('redstar')) return elShaxing(P, t); return orig(P, t); })(skShaxing);
+// 作者 11-01：以前画好的序列图还没下载完就退回老版（代码画的飞剑），同一招会出现两个版本 → 先等图（最多 5 秒）再放
+const waitEl = async (...ns) => { for (let i = 0; i < 100 && !ns.every(hasEl); i++) await sleep(50); return ns.every(hasEl); };
+skillPojun = (orig => async function (P) { if (await waitEl('swordcircle', 'flysword')) { P.mp -= 20; return elPojun(P); } return orig(P); })(skillPojun);
+skillTanlang = (orig => async function (P, t) { const b = battle; if (b.tanlangFails > 0 || !(await waitEl('wolfbeam')) || !t) return orig(P, t); P.mp -= 30; b.tanlangUsed++; return elTanlang(P, t); })(skillTanlang);
+skTianshu = (orig => async function (P, t) { if (await waitEl('bigsword')) return elTianshu(P); return orig(P, t); })(skTianshu);
+skXingluoArr = (orig => async function (P, t) { if (await waitEl('flysword', 'swordcircle')) return elXingluo(P); return orig(P, t); })(skXingluoArr);
+skJueying = (orig => async function (P, t) { if (await waitEl('crossslash')) return elJueying(P, t); return orig(P, t); })(skJueying);
+skDianxing = (orig => async function (P, t) { if (await waitEl('starburst')) return elDianxing(P, t); return orig(P, t); })(skDianxing);
+skQunxing = (orig => async function (P, t) { if (await waitEl('meteor')) return elQunxing(P); return orig(P, t); })(skQunxing);
+skShaxing = (orig => async function (P, t) { if (await waitEl('redstar')) return elShaxing(P, t); return orig(P, t); })(skShaxing);
 enemyAoE = (orig => async function (e, name, fxName, mult, color) { if (fxName === 'fx3_burst_violet' && hasEl('palm')) { await elPalm(e, name, mult, color); return true; } return orig(e, name, fxName, mult, color); })(enemyAoE);
 
 // ================= 格子大地图：城镇 / 野外 / 室内（参考七界传说、九天缥缈录的做法）=================
@@ -14766,6 +14768,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
         const lend = !!b2.cfg.allowUlt, open = lend || !!F().sun_unlocked; if (lend || F().sun_seen) L.push({ k: 'sun', name: SKILL_DB.sun.name, cost: lend ? 0 : SKILL_DB.sun.cost, desc: lend ? '星旋借力 · 仅此一次' : SKILL_DB.sun.desc, disabled: !open || (!lend && P.mp < SKILL_DB.sun.cost), why: open ? '灵力不足' : '解锁条件：无上境' }); } return L; } catch (e) { return []; } })();
     for (const it of base) list.push(decorate(it, P));
     if (X[who]) for (const id in X[who]) { const d = X[who][id]; if (d.kind !== 'mi' || !learned(who, id)) continue; list.push(decorate({ k: id, name: d.name, cost: d.cost, desc: d.desc, disabled: P.mp < d.cost, why: '灵力不足' }, P)); }
+    { const seen = new Set(); for (let i = list.length - 1; i >= 0; i--) { if (seen.has(list[i].k)) list.splice(i, 1); else seen.add(list[i].k); } }   // 同一招只列一次（太阳曾出现两次）
     if (!list.length) list.push({ k: 'none', name: '（还没有秘传）', cost: 0, desc: '秘传书在天剑宗集市·典籍阁', disabled: true, why: '还没有秘传' });
     return list;
   };
