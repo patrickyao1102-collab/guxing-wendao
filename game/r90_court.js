@@ -44,7 +44,11 @@
   // 地图里没生成热点的雕像，补上（广场的热点被截成 12 个，祖师像没进去）
   const ensure = (map, name, x, y) => { const M = TMAPS[map]; if (!M) return; M.npcs = M.npcs || []; if (M.npcs.some(n => n.name === name || n.name === '长卿剑仙像' && name === '长青剑仙像')) return; const [c, r] = P(x, y); M.npcs.push({ key: 'none', c, r, name, hidden: true, h: 160, talk: [] }); };
   // 禹余道人是全书最大的伏笔：不做搞笑彩蛋，只补上可点的热点，说明保持庄重神秘
-  { const M = TMAPS.tj_front; if (M && !(M.npcs || []).some(n => n.name === '禹余道人 · 创派祖师像')) { const [c, r] = P(1792, 1445); (M.npcs = M.npcs || []).push({ key: 'none', c, r, name: '禹余道人 · 创派祖师像', hidden: true, h: 160, talk: ['年轻道人的白玉像长发飞扬，并指引剑，四柄古剑悬而不落。', '像前香烟轻起，四道灵光沿古老阵纹流转。'] }); } }
+  { const M = TMAPS.tj_front; if (M && !(M.npcs || []).some(n => n.name === '禹余道人 · 创派祖师像')) { const [c, r] = P(1792, 1445); (M.npcs = M.npcs || []).push({ key: 'none', c, r, name: '禹余道人 · 创派祖师像', hidden: true, h: 160, talk: async () => { await narrate('年轻道人的白玉像长发飞扬，并指引剑，四柄古剑悬而不落。像前香烟轻起，四道灵光沿古老阵纹流转。');
+      // 伏笔（只给感觉，不给答案）：拿到九曜剑典后再来，古剑和玉佩有反应；看过一次后只剩余韵
+      if (window.JIUYAO_OWNED && JIUYAO_OWNED()) { const f = (S.flags = S.flags || {});
+        if (!f.yuyu_stir) { f.yuyu_stir = 1; try { S.shake = 3; } catch (e) {} await narrate('你走近时，悬在像旁的四柄古剑同时轻轻一颤，剑鸣低得几乎听不见。'); await narrate('胸前的黑色玉佩微微发烫——片刻之后，又凉了下去。'); await say('叶孤星', '……星旋？'); await say('星旋', '嗯？没事。走吧。'); }
+        else await narrate('四柄古剑静静悬着。只是你每次走近，玉佩都比别处暖一点。'); } } }); } }
   ensure('tj_scripture', '长青剑仙像', 1024, 1600);
   for (const map of ['qingzhu_court', 'tj_front', 'tj_scripture', 'tj_hall']) { const M = TMAPS[map]; if (!M || !M.npcs) continue;
     for (const n of M.npcs) { if (n.name === '长卿剑仙像') n.name = '长青剑仙像';   // 原著是「长青剑仙」
