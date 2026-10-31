@@ -9,7 +9,7 @@
   const NAMES = {};           // 槽名（显示用）
   for (const id in lib) { const t = lib[id]; if (t.kind !== 'voice' || !t.slot) continue; (SLOT[t.slot] = SLOT[t.slot] || []).push(id); }
   Object.assign(NAMES, {
-    'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳',
+    'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:xl_wushang': '叶孤星·星落·无上境',
     'yunting:qianggong': '云霆·强攻', 'yunting:jifeng': '云霆·疾风', 'yunting:boming': '云霆·搏命', 'yunting:yunlei': '云霆·云雷踏影',
     'linxue:shuangjia': '林雪·霜甲', 'linxue:bingxin': '林雪·冰心', 'linxue:bingdun': '林雪·冰盾', 'linxue:bingfeng': '林雪·冰封',
     'yunting:dianxing': '云霆·点星', 'yunting:qunxing': '云霆·群星', 'yunting:shaxing': '云霆·杀星', 'yunting:def': '云霆·凝锋', 'yunting:ult': '云霆·九天神雷',
@@ -17,7 +17,7 @@
     'shenle:qingxin': '神乐·仙音镇魂', 'shenle:liehun': '神乐·摄魂乱神', 'shenle:ult': '神乐·寂灭仙曲',
   });
   const pickKey = s => 'voice:' + s;
-  function chosen(slot) { const B = window.BGM29; const pk = B && B.PICK[pickKey(slot)]; if (pk && lib[pk]) return pk; const c = SLOT[slot]; if (!c) return null; return /:atk$/.test(slot) ? c[Math.floor(Math.random() * c.length)] : c[0]; }
+  function chosen(slot) { const B = window.BGM29; const pk = B && B.PICK[pickKey(slot)]; if (pk && lib[pk] && lib[pk].slot === slot) return pk; const c = SLOT[slot]; if (!c) return null; return /:atk$/.test(slot) ? c[Math.floor(Math.random() * c.length)] : c[0]; }
   let cur = null;
   const cache = {};
   function play(slot, vol) {
