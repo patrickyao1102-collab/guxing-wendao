@@ -1717,6 +1717,72 @@ window.BGM_LIB = {
 "desc": "即梦 SeedAudio · 巨大魔狼低沉长啸带回响（夺魄 4.5 秒狼啸）",
 "dur": 1.9
 },
+"lib_dx01": {
+"no": "壬18",
+"name": "大雪·寂静前奏",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx01.mp4",
+"blob": "1dbfa305d22a530a4307d181a42572cf",
+"vol": 1,
+"desc": "即梦 SeedAudio · 冰雪降临前的寂静，清冷空灵的冰晶共鸣缓缓升起（大雪纷飞重做用）",
+"dur": 3.0
+},
+"lib_dx02": {
+"no": "壬19",
+"name": "大雪·冰阵凝聚",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx02.mp4",
+"blob": "5a2e932fccd685c9377d06b41946da61",
+"vol": 1,
+"desc": "即梦 SeedAudio · 冰晶法阵空中凝聚，结尾明亮冰铃（大雪纷飞重做用）",
+"dur": 2.0
+},
+"lib_dx03": {
+"no": "壬20",
+"name": "大雪·暴风雪呼啸",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx03.mp4",
+"blob": "14144744c01358bdacfdf3ac93d0abc4",
+"vol": 1,
+"desc": "即梦 SeedAudio · 狂暴暴风雪呼啸翻卷、冰粒拍打（大雪纷飞重做用）",
+"dur": 4.0
+},
+"lib_dx04": {
+"no": "壬21",
+"name": "大雪·冰封咔嚓",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx04.mp4",
+"blob": "59d253a4f6b22a6597fd0f22bc8e6b7a",
+"vol": 1,
+"desc": "即梦 SeedAudio · 冰柱瞬间冻结合拢的咔嚓声（大雪纷飞重做用）",
+"dur": 1.0
+},
+"lib_dx05": {
+"no": "壬22",
+"name": "大雪·冰柱碎爆",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx05.mp4",
+"blob": "44bdeeb6c601f903433e72f9bc26350b",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨大冰柱轰然炸碎、冰块飞溅（大雪纷飞重做用）",
+"dur": 2.0
+},
+"lib_dx06": {
+"no": "壬23",
+"name": "大雪·冰晶余韵",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx06.mp4",
+"blob": "d178bf902f3ee3fa56a609a8ce570835",
+"vol": 1,
+"desc": "即梦 SeedAudio · 碎冰晶飘落的细碎清亮叮当声（大雪纷飞重做用）",
+"dur": 2.0
+},
 "lib_s00": {
 "no": "壬16",
 "name": "界面确认",
