@@ -11,7 +11,7 @@
   // 菜单字体：霞鹜文楷 Medium（OFL 开源，按游戏里用到的字裁剪，约 0.7MB）——所有设备显示一致，不再依赖系统有没有楷体
   // 作者 10-31 最终：照 Codex 设计图的字——标题粗宋（思源宋体 Heavy），正文宋体（思源宋体 Medium），OFL，按游戏用字裁剪
   for (const [n, b, l] of [['GuxingS9', '42c7a2e40ce58a6b06719bbe1d39091e', 'songti900'], ['GuxingS5', '14da13645129becfac25e830ce291f20', 'songti500']]) { try { const f0 = new FontFace(n, `url(${LOC ? 'fonts/' + l + '.woff' : '/_blob/' + b})`); f0.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {} }
-  const FONT_T = '"GuxingS9","GuxingZK","Songti SC",serif', FONT_B = '"GuxingS5","GuxingKai","Songti SC",serif';
+  const FONT_T = '"GuxingKai","Kaiti SC","STKaiti",serif', FONT_B = '"GuxingKai","Kaiti SC","STKaiti",serif';   // 作者 10-31：设计图是粗楷标题 + 楷书正文 → 文楷，标题描粗成粗楷
   // 作者 10-31 选定：霞鹜臻楷（OFL，裁剪）为主字体；臻楷缺的字和数字/字母落到文楷
   try { const fz = new FontFace('GuxingZK', `url(${LOC ? 'fonts/zhenkai.woff' : '/_blob/ee489a7483d982c03f4f335d4887114d'})`); fz.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
   try { const ff = new FontFace('GuxingKai', `url(${LOC ? 'fonts/wenkai_md.woff' : '/_blob/96b50fbe58c3c7f573008e5f19c47990'})`); ff.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
@@ -23,7 +23,7 @@
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
     ctx.save(); let f = size; const TT = size >= 26, FN = (TT && window.R86_FONT_T) || window.R86_FONT || (TT ? FONT_T : FONT_B), FW = (TT && window.R86_FWT) || window.R86_FW || 400; if (col === INK && window.R86_INK) col = TT && window.R86_INKT ? window.R86_INKT : window.R86_INK; ctx.font = `${FW} ${f}px ${FN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `${FW} ${f}px ${FN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
-    ctx.fillText(s, tx, y + h / 2 + 1); const sw = window.R86_SW || 0; if (sw > 0) { ctx.lineWidth = sw; ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); } ctx.restore(); }
+    ctx.fillText(s, tx, y + h / 2 + 1); const sw = window.R86_SW != null ? window.R86_SW : (TT ? f * .07 : f * .02); if (sw > 0) { ctx.lineWidth = sw; ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); } ctx.restore(); }
   function wrap(s, w, size) { ctx.save(); ctx.font = `${window.R86_FW || 400} ${size}px ${window.R86_FONT || FONT_B}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
@@ -100,7 +100,7 @@
     ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.30)'; ctx.fillRect(0, 0, W, H); XF();
     D('sword_axis', 200, 140, 78, 500); D('list_header', 258, 150, 400, 70);
     txt('〈 返回', 278, 170, 72, 25, 21); txt(secret ? '秘传' : '仙术', 377, 159, 140, 46, 39, 'center');
-    txt(secret ? '怒气 ' + Math.floor(P.rage || 0) : '灵力 ' + Math.floor(P.mp || 0), 553, 172, 86, 23, 20, 'right');
+    txt(secret ? '怒气' : '灵力', 548, 172, 44, 23, 20, 'left'); txt(String(Math.floor(secret ? (P.rage || 0) : (P.mp || 0))), 590, 168, 52, 30, 25, 'right', secret ? '#a8321e' : '#1f5fd0');
     ctx.save(); ctx.beginPath(); ctx.rect(VX - 6, VY, VW + 12, VH); ctx.clip();
     L.forEach((s, i) => { const y = rY(i); if (y + 78 < VY || y > VY + VH) return; const en = !s.disabled, col = en ? INK : DIS2;
       D(!en ? 'list_row_disabled' : i === SC.sel ? 'list_row_selected' : 'list_row_normal', VX, y, 400, 78);
@@ -120,7 +120,7 @@
     if (cur) { const f = info(cur); D('detail_card', 700, 150, 310, 490); icon(cur, 744, 196, !cur.disabled);
       const nm = cur.name || '', parts = nm.length > 5 && nm.includes('·') ? [nm.slice(0, nm.indexOf('·')), nm.slice(nm.indexOf('·'))] : [nm];
       if (parts.length > 1) { txt(parts[0], 836, 196, 153, 33, 27); txt(parts[1], 836, 225, 153, 33, 27); } else txt(nm, 836, 212, 153, 33, 27);
-      txt('类型 ' + f.type, 721, 270, 112, 24, 18); txt('目标 ' + f.target, 844, 270, 143, 24, 18);
+      txt('类型', 721, 270, 40, 24, 18, 'left', '#8a3a22'); txt(f.type, 761, 270, 72, 24, 18); txt('目标', 844, 270, 40, 24, 18, 'left', '#8a3a22'); txt(f.target, 884, 270, 103, 24, 18);
       txt(f.enemy ? '威力' : '效果', 733, 324, 100, 22, 19, 'center'); txt(f.power, 721, 347, 125, 35, 29, 'center');
       txt('消耗', 871, 324, 100, 22, 19, 'center'); txt(f.cost, 860, 347, 126, 35, 28, 'center');
       txt('招式说明', 725, 414, 240, 25, 23);
