@@ -1871,6 +1871,28 @@ window.BGM_LIB = {
 "desc": "即梦 SeedAudio · 黑暗魔力连绵低频轰鸣与阴风（夺魄全程垫底，衔接各段）",
 "dur": 6
 },
+"lib_dx00": {
+"no": "壬32",
+"name": "大雪·寒风底声",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx00.mp4",
+"blob": "e72729be6eb8b243eabba0252959b18e",
+"vol": 1,
+"desc": "即梦 SeedAudio · 漫天大雪中寒风连绵呼啸、逐渐增强（大雪纷飞全程垫底）",
+"dur": 8
+},
+"lib_dx07": {
+"no": "壬33",
+"name": "大雪·寒云压顶",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/dx07.mp4",
+"blob": "db2ad46f411dcd3a6efcb89b01915b18",
+"vol": 1,
+"desc": "即梦 SeedAudio · 厚重寒云压顶、低沉远雷般轰鸣伴寒风骤起",
+"dur": 2
+},
 "lib_s00": {
 "no": "壬16",
 "name": "界面确认",
