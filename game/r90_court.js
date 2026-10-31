@@ -45,20 +45,21 @@
   // ---------- 禹余道人：全书最大的伏笔。庄重、神秘，只给感觉不给答案 ----------
   { const M = TMAPS.tj_front; if (M) { M.npcs = M.npcs || [];
     const yuyu = async () => { const f = (S.flags = S.flags || {});
-      await narrate('传说，这是天剑宗世代供奉的无上祖师——禹余道人。');
-      await narrate('长青剑仙已是九州传说中的人物；可宗门里一直有个说法：长青剑仙当年站在这尊像前，也要躬身执弟子礼。');
-      await narrate('至于禹余道人究竟是谁、修为几何、最后去了哪里——翻遍藏经阁，只有四个字：禹余，不可考。');
-      await narrate('白玉像长发飞扬，并指引剑。四柄古剑悬于身侧，千年未坠；像前香火，从未断过。');
+      await narrate('传说，天剑宗开山之前，这尊像就已立在此处。宗门世代供奉，尊为无上祖师——禹余道人。');
+      await narrate('长青剑仙一剑横扫群魔，名动九州。可藏经阁旧卷里记着：剑仙每至此像前，必解剑三拜，不敢仰视。');
+      await narrate('四柄古剑悬于像侧，剑身无铭，千年未坠。历代宗主都想取下一柄看个究竟——无一人能让它们挪动分毫。');
+      await narrate('像座只刻着一行古篆：「上清禹余」。后面的字，被人生生抹去了。');
+      await narrate('宗门祖训，关于祖师只有一句：不可问，不可考，不可妄言。');
       if (window.JIUYAO_OWNED && JIUYAO_OWNED()) {
-        if (!f.yuyu_stir) { f.yuyu_stir = 1; try { S.shake = 3; } catch (e) {} await narrate('你走近时，悬在像旁的四柄古剑同时轻轻一颤，剑鸣低得几乎听不见。'); await narrate('胸前的黑色玉佩微微发烫——片刻之后，又凉了下去。'); await say('叶孤星', '……星旋？'); await say('星旋', '嗯？没事。走吧。'); }
-        else await narrate('四柄古剑静静悬着。只是你每次走近，玉佩都比别处暖一点。'); } };
+        if (!f.yuyu_stir) { f.yuyu_stir = 1; try { S.shake = 3; } catch (e) {} await narrate('你走近时，四柄古剑同时一颤。剑鸣极低，却像从很远很远的地方传来。'); await narrate('胸前的黑色玉佩骤然发烫——片刻之后，又凉了下去。'); await say('叶孤星', '……星旋？'); await narrate('玉佩里沉默了很久。'); await say('星旋', '走吧。别在这里久留。'); }
+        else await narrate('四柄古剑静静悬着。星旋从不在这里开口。'); } };
     const ex = M.npcs.find(n => n.name === '禹余道人 · 创派祖师像');
-    if (ex) ex.talk = yuyu; else { const [c, r] = P(1792, 1445); M.npcs.push({ key: 'none', c, r, name: '禹余道人 · 创派祖师像', hidden: true, h: 160, talk: yuyu }); }
-    // 守像老人：在像旁扫了一辈子地，什么都知道一点，又什么都说不清
-    const OLD = ['这尊像？老朽扫了六十年，没见它落过一粒灰。', '长青剑仙够厉害了吧？听说他当年在这像前站了三天三夜，一句话没说就走了。为什么站？那谁知道。', '问祖师爷是谁？宗主问过我，长老问过我，今儿少宗主也来问——老朽要是知道，还扫什么地。', '那四柄剑悬了一千年。去年有个弟子不信邪，跳起来想摸一把……后来他就被罚去后山砍柴了。', '香火不能断，这是开派时就定下的规矩。谁定的？祖师爷自己。', '夜里来看过没有？月亮正当头的时候，像身会泛一点青光。老朽眼花，也许是看错了。'];
+    if (ex) { ex.talk = yuyu; ex.name = '禹余道人 · 无上祖师像'; } else { const [c, r] = P(1792, 1445); M.npcs.push({ key: 'none', c, r, name: '禹余道人 · 无上祖师像', hidden: true, h: 160, talk: yuyu }); }
+    // 守像老人：守了一辈子像，敬畏，不说笑
+    const OLD = ['老朽在这里守了六十年像。六十年，没见它落过一粒灰。', '长青剑仙？他当年在这像前跪了三天三夜。起身的时候，满头青丝全白了。为什么？没人敢问。', '祖师爷是谁？宗主问过，长老问过。老朽只知道一件事：那四柄剑，不是给人看的。', '早年有位长老不信邪，伸手去碰那悬剑。剑没动，他闭关了三十年，出关后再不提剑。', '香火不能断——这是祖训第一条。第二条往后写的什么，没人见过。', '月圆的夜里，那四柄剑会一齐转向东方。东边有什么？老朽不敢去看。'];
     const [oc, or] = P(1655, 1500);
     M.npcs.push({ key: 'none', cx: 'riddle_elder', c: oc, r: or, name: '守像老人', h: 118, wander: false, talk: async () => {
-      if (window.JIUYAO_OWNED && JIUYAO_OWNED() && (S.flags || {}).yuyu_stir && !(S.flags || {}).yuyu_old) { S.flags.yuyu_old = 1; await say('守像老人', '少宗主……方才那几柄剑，是不是动了一下？'); await say('守像老人', '……哎，老眼昏花，老眼昏花。'); return; }
+      if (window.JIUYAO_OWNED && JIUYAO_OWNED() && (S.flags || {}).yuyu_stir && !(S.flags || {}).yuyu_old) { S.flags.yuyu_old = 1; await say('守像老人', '少宗主……方才那四柄剑——'); await say('守像老人', '老朽守了六十年，头一回见它们动。'); return; }
       const f = (S.flags = S.flags || {}), i = (f.yuyu_old_i || 0) % OLD.length; f.yuyu_old_i = (f.yuyu_old_i || 0) + 1; await say('守像老人', OLD[i]); } });
   } }
   // 长青剑仙：九曜剑典上一任主人，传说级人物（不做搞笑彩蛋）
