@@ -16,10 +16,10 @@
   window.R86_SCALE = { K, AX, AY, U };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
-    ctx.save(); let f = size; ctx.font = `500 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `500 ${f}px ${FONTN}`; }
+    ctx.save(); let f = size; const FN = (size >= 26 && window.R86_FONT_T) || window.R86_FONT || FONTN, FW = window.R86_FW || 500; ctx.font = `${FW} ${f}px ${FN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `${FW} ${f}px ${FN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
-    ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = Math.max(.6, f * .035); ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
-  function wrap(s, w, size) { ctx.save(); ctx.font = `500 ${size}px ${FONTN}`; const out = []; let ln = '';
+    ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = window.R86_SW != null ? window.R86_SW : Math.max(.6, f * .035); ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
+  function wrap(s, w, size) { ctx.save(); ctx.font = `${window.R86_FW || 500} ${size}px ${window.R86_FONT || FONTN}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
   // ================= 主菜单 =================

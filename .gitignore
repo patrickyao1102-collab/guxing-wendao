@@ -4,3 +4,4 @@ android/app/build/
 android/local.properties
 android/app/src/main/assets/*
 !android/app/src/main/assets/boot.html
+fonts/_pv/
