@@ -7,7 +7,7 @@
   const BLOB = window.DX14_BLOB || {};
   const src = f => LOC || !BLOB[f] ? 'r89/' + f + '.webp' : '/_blob/' + BLOB[f];
   const IM = {};
-  function img(f) { if (IM[f] !== undefined) return IM[f] || null; IM[f] = false; const im = new Image(); im.onload = () => { const ok = () => { IM[f] = im; }; im.decode ? im.decode().then(ok, ok) : ok(); }; im.src = src(f); return null; }
+  function img(f) { if (IM[f] !== undefined) return IM[f] || null; IM[f] = false; const im = new Image(); im.onload = () => { const ok = () => { IM[f] = im; if (window.createImageBitmap && !window.DX14_NOBMP) createImageBitmap(im).then(bm => { IM[f] = bm; }, () => {}); }; im.decode ? im.decode().then(ok, ok) : ok(); }; im.src = src(f); return null; }
   const num = id => id.split('_')[0];
   const pair = id => ({ body: img('dx14_' + num(id) + '_body'), glow: img('dx14_' + num(id) + '_glow') });
   const PB = () => img('dx14_particles_body'), PG = () => img('dx14_particles_glow');
@@ -62,18 +62,47 @@
     if (!images || !images.body || p.opacity <= .005) return;
     let bi = images.body, gi = images.glow, rect;
     if (sr) rect = sr;
-    else if (p.frame !== Math.floor(p.frame)) { bi = mixFrame(images.body, p.frame, 'b'); gi = images.glow ? mixFrame(images.glow, p.frame, 'g') : null; rect = [0, 0, 256, 256]; }
+    else if (p.frame !== Math.floor(p.frame)) { return drawBlend(ctx, images, p); }
     else { const cw = bi.width / 4; rect = [(Math.floor(p.frame) % 4) * cw, Math.floor(p.frame / 4) * cw, cw, cw]; }
+    // 快速路径：直接算好变换矩阵 setTransform，不用 save/restore（每帧上千个雪粒，save/restore 是卡顿的大头）
+    const B = FAST && FAST.ctx === ctx ? FAST.M : null;
+    const th = p.angle * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th), sx = p.w / 512, sy = p.h / 512;
+    let la, lb, lc, ld; if (p.projectionY !== undefined && p.projectionY !== 1) { la = sx * cs; lb = sy * sn; lc = -sx * sn; ld = sy * cs; } else { la = sx * cs; lb = sx * sn; lc = -sy * sn; ld = sy * cs; }
+    if (B) ctx.setTransform(B.a * la + B.c * lb, B.b * la + B.d * lb, B.a * lc + B.c * ld, B.b * lc + B.d * ld, B.a * p.x + B.c * p.y + B.e, B.b * p.x + B.d * p.y + B.f);
+    else { ctx.save(); ctx.transform(la, lb, lc, ld, p.x, p.y); }
+    if (window.DX14_AREA) { const A = window.DX14_AREA, k = (p.id || '').slice(0, 2); A[k] = (A[k] || 0) + Math.abs(p.w * p.h) * (ctx === ctx0() ? 1 : .25) * (gi && p.glowGain > 0 ? 2 : 1); }
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = Math.min(1, p.opacity);
+    ctx.drawImage(bi, rect[0], rect[1], rect[2], rect[3], -256, -256, 512, 512);
+    if (gi && p.glowGain > 0) { let gain = Math.max(0, p.opacity * p.glowGain); let rg = rect; if (!sr) { const cw = gi.width / 4; rg = [(Math.floor(p.frame) % 4) * cw, Math.floor(p.frame / 4) * cw, cw, cw]; }
+      if (gain > .01) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, gain); ctx.drawImage(gi, rg[0], rg[1], rg[2], rg[3], -256, -256, 512, 512); } }
+    if (!B) ctx.restore();
+  }
+  let FAST = null; const ctx0 = () => window.ctx || (typeof ctx !== 'undefined' ? ctx : null);
+  const begin = c => { FAST = { ctx: c, M: c.getTransform() }; };
+  const end = () => { const F2 = FAST; if (!F2) return; FAST = null; const M = F2.M; F2.ctx.setTransform(M.a, M.b, M.c, M.d, M.e, M.f); F2.ctx.globalAlpha = 1; F2.ctx.globalCompositeOperation = 'source-over'; };
+  // 两帧交叉淡化直接画到主画布（以前先合到小画布再贴，每帧都要上传纹理 → 卡）
+  function drawBlend(ctx, images, p) {
+    const j = Math.min(15, Math.round(p.frame * 8) / 8), lo = Math.floor(j), hi = Math.min(15, lo + 1), u = j - lo;
+    if (FAST && FAST.ctx === ctx) { const M = FAST.M; ctx.setTransform(M.a, M.b, M.c, M.d, M.e, M.f); }
+    const R = (im, k) => { const cw = im.width / 4; return [(k % 4) * cw, Math.floor(k / 4) * cw, cw, cw]; };
     ctx.save(); ctx.translate(p.x, p.y);
     if (p.projectionY !== undefined && p.projectionY !== 1) { ctx.scale(p.w / 512, p.h / 512); ctx.rotate(p.angle * Math.PI / 180); }
     else { ctx.rotate(p.angle * Math.PI / 180); ctx.scale(p.w / 512, p.h / 512); }
-    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = Math.min(1, p.opacity);
-    ctx.drawImage(bi, rect[0], rect[1], rect[2], rect[3], -256, -256, 512, 512);
-    if (gi && p.glowGain > 0) { ctx.globalCompositeOperation = 'lighter'; let gain = Math.max(0, p.opacity * p.glowGain); let rg = rect; if (!sr && gi !== images.glow) rg = [0, 0, 256, 256]; else if (!sr) { const cw = gi.width / 4; rg = [(Math.floor(p.frame) % 4) * cw, Math.floor(p.frame / 4) * cw, cw, cw]; }
-      if (gain > .01) { ctx.globalAlpha = Math.min(1, gain); ctx.drawImage(gi, rg[0], rg[1], rg[2], rg[3], -256, -256, 512, 512); } }
+    const op = Math.min(1, p.opacity), bi = images.body, gi = images.glow;
+    const two = (im, a, comp) => { ctx.globalCompositeOperation = comp; for (const [k, w] of [[lo, 1 - u], [hi, u]]) { const al = Math.min(1, a * w); if (al < .004) continue; const r = R(im, k); ctx.globalAlpha = al; ctx.drawImage(im, r[0], r[1], r[2], r[3], -256, -256, 512, 512); } };
+    two(bi, op, 'source-over');
+    if (gi && p.glowGain > 0) two(gi, Math.max(0, p.opacity * p.glowGain), 'lighter');
     ctx.restore();
   }
-  function drawAny(ctx, p) { const sr = D.SPR[p.id]; if (sr && !(p.forceAtlas)) { const b = PB(), g = PG(); if (b) drawPair(ctx, { body: b, glow: p.glowGain > 0 ? g : null }, p, sr); } else drawPair(ctx, pair(p.id), p); }
+  // 批量画粒子：先把所有雪粒本体（正常混合）一次画完，再把所有辉光（叠加）一次画完——不再每粒来回切混合模式，GPU 能合批
+  let BATCH = null;
+  function flushBatch(ctx) { const L = BATCH; BATCH = null; if (!L || !L.length) return; const b = PB(), g = PG(); if (!b) return; const B = FAST && FAST.ctx === ctx ? FAST.M : ctx.getTransform();
+    const one = (im, p, sr, al) => { const th = p.angle * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th), sx = p.w / 512, sy = p.h / 512; const la = sx * cs, lb = sx * sn, lc = -sy * sn, ld = sy * cs;
+      ctx.setTransform(B.a * la + B.c * lb, B.b * la + B.d * lb, B.a * lc + B.c * ld, B.b * lc + B.d * ld, B.a * p.x + B.c * p.y + B.e, B.b * p.x + B.d * p.y + B.f); ctx.globalAlpha = al; ctx.drawImage(im, sr[0], sr[1], sr[2], sr[3], -256, -256, 512, 512); };
+    ctx.globalCompositeOperation = 'source-over'; for (const [p, sr] of L) { const a = Math.min(1, p.opacity); if (a > .005) one(b, p, sr, a); }
+    if (g) { ctx.globalCompositeOperation = 'lighter'; for (const [p, sr] of L) { const a = Math.min(1, Math.max(0, p.opacity * p.glowGain)); if (p.glowGain > 0 && a > .01) one(g, p, sr, a); } }
+    ctx.setTransform(B.a, B.b, B.c, B.d, B.e, B.f); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+  function drawAny(ctx, p) { const sr = D.SPR[p.id]; if (sr && BATCH && !p.forceAtlas && !(p.projectionY !== undefined && p.projectionY !== 1)) { BATCH.push([p, sr]); return; } if (sr && !(p.forceAtlas)) { const b = PB(), g = PG(); if (b) drawPair(ctx, { body: b, glow: p.glowGain > 0 ? g : null }, p, sr); } else drawPair(ctx, pair(p.id), p); }
   let _xpT = -1, _xp = null;
   function extraParticles(t, T) { if (t === _xpT) return _xp; _xpT = t; return _xp = extraParticles0(t, T); }
   function extraParticles0(t, T) {
@@ -142,7 +171,7 @@
   }
 
   // ---------- 敌人身上的寒霜 / 薄冰（只在单位自身 alpha 内）----------
-  const PAT = {};
+  const PAT = {}, FROST = {};
   // 只在单位自身 alpha 内叠一层冷色 + 薄冰 / 白霜材质（半透明叠在游戏画好的单位上，不替换原像素）
   function frostOverlay(ctx, e, t, T) {
     const u = e.unit; if (!u || !u.alive) return;
@@ -151,11 +180,13 @@
     const ai = track(conf.thinIceOpacityKeys, t), af = track(conf.frostOpacityKeys, t); if (tint < .01 && ai < .01 && af < .01) return;
     const breath = Math.sin(performance.now() / 1000 * 2.4 + u.x) * 3, h = u.h + breath, w = h * im.width / im.height;
     const X = u.x + (u.ox || 0) - w / 2, Y = u.y + (u.oy || 0) + breath * .3 - h;
-    const fc = e._fc || (e._fc = document.createElement('canvas')), cw = Math.ceil(w / 2), chh = Math.ceil(h / 2); if (fc.width !== cw || fc.height !== chh) { fc.width = cw; fc.height = chh; }
-    const c = fc.getContext('2d');
-    const pass = (fill, al) => { if (al < .01) return; c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, cw, chh); c.drawImage(im, 0, 0, cw, chh); c.globalCompositeOperation = 'source-in'; c.fillStyle = fill; c.fillRect(0, 0, cw, chh); ctx.save(); ctx.globalAlpha = Math.min(1, al); ctx.drawImage(fc, X, Y, w, h); ctx.restore(); };
-    pass('rgb(219,248,255)', tint);
-    for (const [nm, al] of [['dx14_ice_B', ai], ['dx14_frost_material', af]]) { const m = img(nm); if (!m || al < .01) continue; let pat = PAT[nm]; if (!pat) { pat = PAT[nm] = c.createPattern(m, 'repeat'); if (pat.setTransform) pat.setTransform(new DOMMatrix().scale(90 / m.width)); } pass(pat, al); }
+    // 三层（冷色 / 薄冰 / 白霜）各按单位剪影烘一张，只烘一次；每帧只改透明度贴上去
+    const cw = Math.ceil(u.h * im.width / im.height / 2), chh = Math.ceil(u.h / 2), ck = im.src + '|' + cw;
+    const bake = (nm, fill) => { const key = ck + '|' + nm; if (FROST[key]) return FROST[key]; const c0 = document.createElement('canvas'); c0.width = cw; c0.height = chh; const c = c0.getContext('2d');
+      c.drawImage(im, 0, 0, cw, chh); c.globalCompositeOperation = 'source-in'; c.fillStyle = fill; c.fillRect(0, 0, cw, chh); return FROST[key] = c0; };
+    const put = (cv, al) => { if (!cv || al < .01) return; ctx.save(); ctx.globalAlpha = Math.min(1, al); ctx.drawImage(cv, X, Y, w, h); ctx.restore(); };
+    put(bake('tint', 'rgb(219,248,255)'), tint);
+    for (const [nm, al] of [['dx14_ice_B', ai], ['dx14_frost_material', af]]) { const m = img(nm); if (!m || al < .01) continue; const key = ck + '|' + nm; if (!FROST[key]) { const tmp = document.createElement('canvas').getContext('2d'); const pat = tmp.createPattern(m, 'repeat'); if (pat.setTransform) pat.setTransform(new DOMMatrix().scale(90 / m.width)); bake(nm, pat); } put(FROST[key], al); }
   }
 
   // 降饱和：把战斗背景预先做一张灰度图（只做一次），按强度叠上去——比每帧 saturation 混合便宜得多
@@ -180,33 +211,40 @@
       for (const sh of F.shakes) { const a = t - sh.time; if (a >= 0 && a < sh.duration) { const k = sh.pixels * (1 - a / sh.duration); dx += (Math.random() * 2 - 1) * k; dy += (Math.random() * 2 - 1) * k; } }
       return { s, px: F.cameraPivot[0], py: F.cameraPivot[1], dx, dy }; };
     // 层 0：背景冷化（降饱和 + 冷色，只压背景）→ 远景霜气 / 地面霜纹 / 天阵等 z<0 → 远层雪
-    const OFF = window.DX14_OFF || {}, PT = window.DX14_PT = { n: 0 };
-    addFx({ life, layer: 0, draw(f) { if (!alive()) { f.life = 0; return; } const t = now();
+    const OFF = window.DX14_OFF || {}, PT = window.DX14_PT = { n: 0, ms: [0, 0, 0] };
+    const TM = (k, fn) => function (f) { const a = performance.now(); try { return fn.call(this, f); } finally { PT.ms[k] += performance.now() - a; if (k === 0) PT.n++; } };
+    addFx({ life, layer: 0, draw: TM(0, function (f) { if (!alive()) { f.life = 0; return; } const t = now();
       const ds = track(F.desaturationKeys, t), et = track(F.environmentTint.opacityKeys, t);
       if (ds > .005 && !OFF.desat) { const g = grayBg(); if (g) { ctx.save(); ctx.globalAlpha = ds; drawImageFit(g, 0, 0, W, H); ctx.restore(); } }
       if (et > .005) { ctx.save(); ctx.globalAlpha = et; ctx.fillStyle = `rgb(${F.environmentTint.color.join(',')})`; ctx.fillRect(-60, -60, W + 120, H + 120); ctx.restore(); }
       // 远景层（雾、天阵、地面霜、体积光、远层雪）：半分辨率离屏画好再一次放大贴上，省 3/4 填充量；冰锥后层保持全分辨率
       const bg = lowCanvas(), bc = bg.getContext('2d'); bc.setTransform(1, 0, 0, 1, 0, 0); bc.clearRect(0, 0, bg.width, bg.height); bc.setTransform(bg.width / W, 0, 0, bg.height / H, 0, 0);
-      const hi = [];
+      const hi = []; begin(bc);
       if (!OFF.clips) for (const c of backClips) { if (OFF.ids && OFF.ids.some(k => c.asset.startsWith(k))) continue; const p = clipPose(c, t, T); if (!p) continue; if ((c.z || 0) > -1) hi.push(p); else drawPair(bc, pair(p.id), p); }
+      BATCH = [];
       if (!OFF.weather) for (const p of T.weather) if (p.depth === 0) { const q = ordinarySnow(p, t); if (q) drawAny(bc, q); }
       if (!OFF.snow) for (const p of T.snow) if (p.depth <= 1) { const q = snowParticle(p, t, T); if (q) drawAny(bc, q); }
       for (const q of extraParticles(t, T)) if (q.z < 0) drawAny(bc, q);
-      ctx.drawImage(bg, 0, 0, W, H);
-      for (const p of hi) drawPair(ctx, pair(p.id), p);
-    } });
+      flushBatch(bc);
+      end(); ctx.drawImage(bg, 0, 0, W, H);
+      begin(ctx); try { for (const p of hi) drawPair(ctx, pair(p.id), p); } finally { end(); }
+    }) });
     // 层 1：敌人寒霜 → 冷白雾 → z≥0 片段 → 近层雪 / 碎冰
-    addFx({ life, layer: 1, draw(f) { if (!alive()) { f.life = 0; return; } const t = now();
+    addFx({ life, layer: 1, draw: TM(1, function (f) { if (!alive()) { f.life = 0; return; } const t = now();
       if (t < 6.75 && !OFF.frost) for (const e of T.targets) if (e.unit.alive || t < 6.7) frostOverlay(ctx, e, t, T);
       const mist = track(F.coldWhiteMist.opacityKeys, t); if (mist > .005) { ctx.save(); ctx.globalAlpha = mist; ctx.fillStyle = `rgb(${F.coldWhiteMist.color.join(',')})`; ctx.fillRect(-60, -60, W + 120, H + 120); ctx.restore(); }
+      begin(ctx); try {
       if (!OFF.clips) for (const c of frontClips) { if (OFF.ids && OFF.ids.some(k => c.asset.startsWith(k))) continue; const p = clipPose(c, t, T); if (p) drawPair(ctx, pair(p.id), p); }
+      BATCH = [];
       if (!OFF.snow) for (const p of T.snow) if (p.depth >= 2) { const q = snowParticle(p, t, T); if (q) drawAny(ctx, q); }
       for (const q of extraParticles(t, T)) if (q.z >= 0) drawAny(ctx, q);
       for (const q of physicalShards(t, T.shards)) drawAny(ctx, q);
       if (!OFF.weather) for (const p of T.weather) if (p.depth >= 1) { const q = ordinarySnow(p, t); if (q) drawAny(ctx, q); }
-    } });
+      flushBatch(ctx);
+      } finally { end(); }
+    }) });
     // 层 2：白闪（在 HUD 之上）
-    addFx({ life, layer: 2, draw(f) { if (!alive()) { f.life = 0; return; } const t = now(); for (const f of F.whiteFlashes) { const a = t - f.time; if (a >= 0 && a < f.duration) { const k = a < .025 ? a / .025 : 1 - (a - .025) / (f.duration - .025); ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = f.peak * Math.max(0, k); ctx.fillStyle = '#f4fcff'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore(); } } } });
+    addFx({ life, layer: 2, draw: TM(2, function (f) { if (!alive()) { f.life = 0; return; } const t = now(); for (const f of F.whiteFlashes) { const a = t - f.time; if (a >= 0 && a < f.duration) { const k = a < .025 ? a / .025 : 1 - (a - .025) / (f.duration - .025); ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = f.peak * Math.max(0, k); ctx.fillStyle = '#f4fcff'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore(); } } }) });
     return { until: async s => { while ((performance.now() - t0) / 1000 < s && battle === b0) await sleep(16); }, T };
   }
   window.DX14 = { run, bind, preload };
