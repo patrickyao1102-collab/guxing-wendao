@@ -9,17 +9,22 @@
   for (const k in B) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = LOC ? 'r86/' + k + '.webp' : '/_blob/' + B[k]; }
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
   // 菜单字体：霞鹜文楷 Medium（OFL 开源，按游戏里用到的字裁剪，约 0.7MB）——所有设备显示一致，不再依赖系统有没有楷体
+  // 作者 10-31 最终：照 Codex 设计图的字——标题粗宋（思源宋体 Heavy），正文宋体（思源宋体 Medium），OFL，按游戏用字裁剪
+  for (const [n, b, l] of [['GuxingS9', '42c7a2e40ce58a6b06719bbe1d39091e', 'songti900'], ['GuxingS5', '14da13645129becfac25e830ce291f20', 'songti500']]) { try { const f0 = new FontFace(n, `url(${LOC ? 'fonts/' + l + '.woff' : '/_blob/' + b})`); f0.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {} }
+  const FONT_T = '"GuxingS9","GuxingZK","Songti SC",serif', FONT_B = '"GuxingS5","GuxingKai","Songti SC",serif';
+  // 作者 10-31 选定：霞鹜臻楷（OFL，裁剪）为主字体；臻楷缺的字和数字/字母落到文楷
+  try { const fz = new FontFace('GuxingZK', `url(${LOC ? 'fonts/zhenkai.woff' : '/_blob/ee489a7483d982c03f4f335d4887114d'})`); fz.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
   try { const ff = new FontFace('GuxingKai', `url(${LOC ? 'fonts/wenkai_md.woff' : '/_blob/96b50fbe58c3c7f573008e5f19c47990'})`); ff.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
-  const FONTN = '"GuxingKai","Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
+  const FONTN = '"GuxingZK","GuxingKai","Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#1c2a30', DIS = '#5e6367', DIS2 = '#697276';
   // 作者 10-31：菜单太大 → 整体缩到 0.8，以 (620,395) 为中心；画面整体变换，点击坐标反算回原布局
   const K = .8, AX = 620, AY = 395, U = p => ({ x: AX + (p.x - AX) / K, y: AY + (p.y - AY) / K }), XF = () => { ctx.translate(AX, AY); ctx.scale(K, K); ctx.translate(-AX, -AY); };
   window.R86_SCALE = { K, AX, AY, U };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
-    ctx.save(); let f = size; const TT = size >= 26, FN = (TT && window.R86_FONT_T) || window.R86_FONT || FONTN, FW = (TT && window.R86_FWT) || window.R86_FW || 500; if (col === INK && window.R86_INK) col = TT && window.R86_INKT ? window.R86_INKT : window.R86_INK; ctx.font = `${FW} ${f}px ${FN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `${FW} ${f}px ${FN}`; }
+    ctx.save(); let f = size; const TT = size >= 26, FN = (TT && window.R86_FONT_T) || window.R86_FONT || (TT ? FONT_T : FONT_B), FW = (TT && window.R86_FWT) || window.R86_FW || 400; if (col === INK && window.R86_INK) col = TT && window.R86_INKT ? window.R86_INKT : window.R86_INK; ctx.font = `${FW} ${f}px ${FN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `${FW} ${f}px ${FN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
-    ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = window.R86_SW != null ? window.R86_SW : Math.max(.6, f * .035); ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
-  function wrap(s, w, size) { ctx.save(); ctx.font = `${window.R86_FW || 500} ${size}px ${window.R86_FONT || FONTN}`; const out = []; let ln = '';
+    ctx.fillText(s, tx, y + h / 2 + 1); const sw = window.R86_SW || 0; if (sw > 0) { ctx.lineWidth = sw; ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); } ctx.restore(); }
+  function wrap(s, w, size) { ctx.save(); ctx.font = `${window.R86_FW || 400} ${size}px ${window.R86_FONT || FONT_B}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
   // ================= 主菜单 =================
@@ -40,7 +45,7 @@
   let selI = -1, selAt = 0;
   const ease = q => 1 - Math.pow(1 - Math.max(0, Math.min(1, q)), 3), back = q => { q = Math.max(0, Math.min(1, q)); const c = 1.6; return 1 + (c + 1) * Math.pow(q - 1, 3) + c * Math.pow(q - 1, 2); };
   const I7D = (k, cx, cy, sc, rot = 0, a = 1, comp) => { const im = I7[k]; if (!im) return; ctx.save(); ctx.globalAlpha *= a; if (comp) ctx.globalCompositeOperation = comp; ctx.translate(cx, cy); if (rot) ctx.rotate(rot); const w = im.width * sc, h = im.height * sc; ctx.drawImage(im, -w / 2, -h / 2, w, h); ctx.restore(); };
-  function noteLine(s, y, a) { if (!s) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `500 22px ${FONTN}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  function noteLine(s, y, a) { if (!s) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `400 22px ${FONT_B}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(8,16,22,.85)'; ctx.strokeText(s, DCX, y); ctx.fillStyle = '#f4ecd2'; ctx.fillText(s, DCX, y); ctx.restore(); }
   drawBattleMenu = (orig => function () {
     const b = battle; if (!b || !b.menu || !READY() || !R7OK()) return orig.apply(this, arguments);

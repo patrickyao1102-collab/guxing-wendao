@@ -41,7 +41,7 @@ let SCALE = 1;
 function resize() {
   const vw = window.innerWidth, vh = window.innerHeight;
   SCALE = Math.min(vw / W, vh / H);
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);   // 手机上 2 倍像素太吃性能，1.5 倍画质几乎看不出差别
+  const dpr = Math.min(window.devicePixelRatio || 1, /Mobi|Android|iPhone|iPad/.test(navigator.userAgent) ? 1.5 : 2);   // 电脑上按 2 倍画（字更清楚），手机仍 1.5 倍   // 手机上 2 倍像素太吃性能，1.5 倍画质几乎看不出差别
   cv.style.width = (W * SCALE) + 'px';
   cv.style.height = (H * SCALE) + 'px';
   cv.width = Math.round(W * SCALE * dpr);
