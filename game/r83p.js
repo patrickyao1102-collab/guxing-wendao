@@ -80,7 +80,7 @@
   };
   // ---------- 云霆 · 九天神雷 v6（R83e 逐敌劈中）：雷云 → 第一波每敌一道 → 第二波加粗 → 收势 0.3s → 终式主雷 + 全屏白闪 + 全体胸口雷爆 ----------
   // 落雷按每个敌人的真实脚底定位（pivot 0.5,0.92；高度 =(脚底 y − 云底 65)/0.8）；window.JT6_OFF = true 可退回原版
-  if (typeof cxJiutian === 'function') { const _cxJ = cxJiutian; cxJiutian = async function (P) { if (window.JT6_OFF) return _cxJ.apply(this, arguments);
+  if (typeof cxJiutian === 'function') { const _cxJ = cxJiutian; cxJiutian = async function (P) { if (!window.JT6_ON) return _cxJ.apply(this, arguments);   // 作者 10-31：v6 太丑，用回原版；window.JT6_ON = true 可试 v6
     const ts = aliveEnemies(); if (!ts.length) return;
     P.pose = 'cast'; try { await portraitPop(P); } catch (e) {} try { skillBanner('九天神雷', '#d8ccff', '引九天雷霆，荡尽妖邪'); } catch (e) {} battle.quietCrit = true;
     try { playSnd('sfx_charge', .8); } catch (e) {}
