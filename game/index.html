@@ -777,17 +777,21 @@ function drawUnit(u) {
 function drawBattle() {
   const b = battle; if (!b) return;
   const bg = b.cfg.bg;
+  const zm = window.__R83ZOOM && window.__R83ZOOM();   // R83 技能镜头推近（Codex codeFx.cameraZoom）：只推世界，不推 HUD
+  const zIn = () => { if (zm) { ctx.save(); ctx.translate(zm.px, zm.py); ctx.scale(zm.s, zm.s); ctx.translate(-zm.px, -zm.py); } }, zOut = () => { if (zm) ctx.restore(); };
+  zIn();
   if (has(bg)) drawImageFit(IMG[bg], 0, 0, W, H); else { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#16213e'); g.addColorStop(.55, '#2b4a5e'); g.addColorStop(1, '#4a5a3a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
   ctx.fillStyle = `rgba(0,0,${b.dim ? 20 : 0},${.15 + (b.dim || 0)})`; ctx.fillRect(0, 0, W, H);
   drawFx(0);
   const us = [...b.units].sort((a, c) => a.y - c.y); for (const u of us) drawUnit(u);
   drawFx(1);
+  zOut();
   // 顶部：当前行动者（大招演出时收起）
   if (!b._cineHide) { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 0, W, 54); ctx.font = `600 26px ${FONT}`; ctx.fillStyle = '#ffe7b0'; ctx.textBaseline = 'middle';
   ctx.fillText(b.active ? (b.active.name + (b.state === 'menu' ? ' · 请选择行动' : ' 行动中')) : (b.cfg.title || '战斗'), 24, 27); ctx.restore(); }
   drawBattleHud();
   if (b.state === 'menu' && !dialog && !sysPanel) drawBattleMenu();
-  drawFx(2);
+  zIn(); drawFx(2); zOut();
 }
 function drawBattleHud() {
   const b = battle, P = b.P;
