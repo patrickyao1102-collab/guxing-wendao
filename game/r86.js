@@ -8,16 +8,18 @@
   const IM = {}; let n = 0; const N = Object.keys(B).length;
   for (const k in B) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = LOC ? 'r86/' + k + '.webp' : '/_blob/' + B[k]; }
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
-  const FONTN = '"Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
+  // 菜单字体：霞鹜文楷 Medium（OFL 开源，按游戏里用到的字裁剪，约 0.7MB）——所有设备显示一致，不再依赖系统有没有楷体
+  try { const ff = new FontFace('GuxingKai', `url(${LOC ? 'fonts/wenkai_md.woff' : '/_blob/96b50fbe58c3c7f573008e5f19c47990'})`); ff.load().then(f => document.fonts.add(f)).catch(() => {}); } catch (e) {}
+  const FONTN = '"GuxingKai","Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
   // 作者 10-31：菜单太大 → 整体缩到 0.8，以 (620,395) 为中心；画面整体变换，点击坐标反算回原布局
   const K = .8, AX = 620, AY = 395, U = p => ({ x: AX + (p.x - AX) / K, y: AY + (p.y - AY) / K }), XF = () => { ctx.translate(AX, AY); ctx.scale(K, K); ctx.translate(-AX, -AY); };
   window.R86_SCALE = { K, AX, AY, U };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
-    ctx.save(); let f = size; ctx.font = `700 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `700 ${f}px ${FONTN}`; }
+    ctx.save(); let f = size; ctx.font = `500 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `500 ${f}px ${FONTN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
-    ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = .3; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
-  function wrap(s, w, size) { ctx.save(); ctx.font = `700 ${size}px ${FONTN}`; const out = []; let ln = '';
+    ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = Math.max(.6, f * .035); ctx.lineJoin = "round"; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
+  function wrap(s, w, size) { ctx.save(); ctx.font = `500 ${size}px ${FONTN}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
   // ================= 主菜单 =================
@@ -38,7 +40,7 @@
   let selI = -1, selAt = 0;
   const ease = q => 1 - Math.pow(1 - Math.max(0, Math.min(1, q)), 3), back = q => { q = Math.max(0, Math.min(1, q)); const c = 1.6; return 1 + (c + 1) * Math.pow(q - 1, 3) + c * Math.pow(q - 1, 2); };
   const I7D = (k, cx, cy, sc, rot = 0, a = 1, comp) => { const im = I7[k]; if (!im) return; ctx.save(); ctx.globalAlpha *= a; if (comp) ctx.globalCompositeOperation = comp; ctx.translate(cx, cy); if (rot) ctx.rotate(rot); const w = im.width * sc, h = im.height * sc; ctx.drawImage(im, -w / 2, -h / 2, w, h); ctx.restore(); };
-  function noteLine(s, y, a) { if (!s) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `700 22px ${FONTN}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  function noteLine(s, y, a) { if (!s) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `500 22px ${FONTN}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(8,16,22,.85)'; ctx.strokeText(s, DCX, y); ctx.fillStyle = '#f4ecd2'; ctx.fillText(s, DCX, y); ctx.restore(); }
   drawBattleMenu = (orig => function () {
     const b = battle; if (!b || !b.menu || !READY() || !R7OK()) return orig.apply(this, arguments);
