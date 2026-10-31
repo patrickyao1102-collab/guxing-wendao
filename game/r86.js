@@ -8,45 +8,63 @@
   const IM = {}; let n = 0; const N = Object.keys(B).length;
   for (const k in B) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = LOC ? 'r86/' + k + '.webp' : '/_blob/' + B[k]; }
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
-  const FONTN = '"Ma Shan Zheng","STKaiti","KaiTi",serif', INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
+  const FONTN = '"Kaiti SC","STKaiti","KaiTi","BiauKai","Ma Shan Zheng",serif' /* 作者 10-31：毛笔字太丑 → 端正的粗楷体 */, INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
   // 作者 10-31：菜单太大 → 整体缩到 0.8，以 (620,395) 为中心；画面整体变换，点击坐标反算回原布局
   const K = .8, AX = 620, AY = 395, U = p => ({ x: AX + (p.x - AX) / K, y: AY + (p.y - AY) / K }), XF = () => { ctx.translate(AX, AY); ctx.scale(K, K); ctx.translate(-AX, -AY); };
   window.R86_SCALE = { K, AX, AY, U };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
-    ctx.save(); let f = size; ctx.font = `400 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `400 ${f}px ${FONTN}`; }
+    ctx.save(); let f = size; ctx.font = `700 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `700 ${f}px ${FONTN}`; }
     ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; const tx = align === 'center' ? x + w / 2 : align === 'right' ? x + w : x;
     ctx.fillText(s, tx, y + h / 2 + 1); ctx.lineWidth = .3; ctx.strokeStyle = col; ctx.strokeText(s, tx, y + h / 2 + 1); ctx.restore(); }
-  function wrap(s, w, size) { ctx.save(); ctx.font = `400 ${size}px ${FONTN}`; const out = []; let ln = '';
+  function wrap(s, w, size) { ctx.save(); ctx.font = `700 ${size}px ${FONTN}`; const out = []; let ln = '';
     for (const ch of s) { if (ctx.measureText(ln + ch).width > w && !'，。、；：！？）」'.includes(ch)) { out.push(ln); ln = ch; } else ln += ch; } if (ln) out.push(ln); ctx.restore(); return out; }
 
   // ================= 主菜单 =================
   const CMD = [['mi', 'secret', '秘传'], ['skill', 'spell', '仙术'], ['atk', 'attack', '攻击'], ['def', 'defend', '防御'], ['item', 'item', '道具'], ['flee', 'escape', '逃跑']];
-  const DEF_NOTE = { atk: '普通攻击', def: '减伤·回灵' };
   const rowY = i => 170 + i * 76, HIT = i => ({ x: 488, y: rowY(i) + 6, w: 346, h: 66 });
   let shownAt = 0, lastP = null, hoverI = -1;
+  // ================= 主菜单 · R87 圆形剑印（作者 10-31 选定；Claude 从 Codex 设计原图抠图分层）=================
+  // 六枚白玉圆章绕中心剑印；选中的圆章放大并亮起青白灵光（光环缓慢旋转）；打开时圆章从剑印中心依次飞出；
+  // 圆盘下方一行楷书小字显示当前圆章的说明（灵力 / 怒气 / 不可用原因）。字都烘在圆章上，只有说明行实时写。
+  const R7B = {"base": "f5e4da231387587e9bcf5d59e8e66e01", "glow_add": "db6bc47e9a65649fd0118601e542733b", "seal_atk": "8215c379d4ecc3186b3a0d212d74d87a", "seal_atk_dis": "9f9c345bbbc3ff3f1107790f17e0b35f", "seal_def": "36b4c473362b3904ba2020fcca04d2ae", "seal_def_dis": "097eb928084bd98d7d4f6667e843f02f", "seal_flee": "4d590c592ddb7071acdbaba7d0928443", "seal_flee_dis": "40bd94a6b0a6ce9b477446e11a21f6da", "seal_item": "e47c322761fb0de5d43c238ebeea1ce0", "seal_item_dis": "2eb8132c0db36a4d23f2b37b37edbe9f", "seal_mi": "63d941e5418ab8d1d4128cb051584737", "seal_mi_dis": "c2e332e327c995cebccee2a666004730", "seal_xian": "51848f8efb577ccc930bee1b2b28416c", "seal_xian_dis": "339d9bf21280a59fc9046e60f3878c2d", "seal_xian_sel": "b675486d065f19fa3ab45cbb2c3ce32f"};
+  const I7 = {}; let n7 = 0; for (const k in R7B) { const im = new Image(); im.onload = () => { I7[k] = im; n7++; }; im.src = LOC ? 'r87/' + k + '.webp' : '/_blob/' + R7B[k]; }
+  const R7OK = () => n7 >= Object.keys(R7B).length;
+  const DSC = .7, DCX = 632, DCY = 372;   // 抠图像素 → 游戏像素；圆盘中心
+  const RING = [['mi', 'mi', 1, -150], ['skill', 'xian', 126, -63], ['atk', 'atk', 125, 75], ['item', 'item', 1, 147], ['def', 'def', -124, 74], ['flee', 'flee', -128, -63]];
+  const SPOS = i => ({ x: DCX + RING[i][2] * DSC, y: DCY + RING[i][3] * DSC });
+  const SR = 53 * DSC;
+  const DEF_NOTE = { atk: '普通攻击', def: '减伤·回灵', flee: '脱离战斗', item: '使用丹药', mi: '秘传绝技', skill: '施展仙术' };
+  let selI = -1, selAt = 0;
+  const ease = q => 1 - Math.pow(1 - Math.max(0, Math.min(1, q)), 3), back = q => { q = Math.max(0, Math.min(1, q)); const c = 1.6; return 1 + (c + 1) * Math.pow(q - 1, 3) + c * Math.pow(q - 1, 2); };
+  const I7D = (k, cx, cy, sc, rot = 0, a = 1, comp) => { const im = I7[k]; if (!im) return; ctx.save(); ctx.globalAlpha *= a; if (comp) ctx.globalCompositeOperation = comp; ctx.translate(cx, cy); if (rot) ctx.rotate(rot); const w = im.width * sc, h = im.height * sc; ctx.drawImage(im, -w / 2, -h / 2, w, h); ctx.restore(); };
+  function noteLine(s, y, a) { if (!s) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `700 22px ${FONTN}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(8,16,22,.85)'; ctx.strokeText(s, DCX, y); ctx.fillStyle = '#f4ecd2'; ctx.fillText(s, DCX, y); ctx.restore(); }
   drawBattleMenu = (orig => function () {
-    const b = battle; if (!b || !b.menu || !READY()) return orig.apply(this, arguments);
+    const b = battle; if (!b || !b.menu || !READY() || !R7OK()) return orig.apply(this, arguments);
     if (b.menu.sub) return drawList.call(this, orig, arguments);
     const now = performance.now() / 1000; if (lastP !== b.P) { lastP = b.P; shownAt = now; }
-    const L = BM2.CMDS, hu = U(input), hx = hu.x, hy = hu.y; hoverI = -1;
-    ctx.save(); XF();
-    const ka = Math.max(0, Math.min(1, (now - shownAt) / .18)); ctx.globalAlpha = ka; D('sword_axis', 430, 145, 78, 500);
-    CMD.forEach(([k, nm, label], i) => { const it = L.find(x => x.k === k) || { k }, st = BM2.state(it), h = HIT(i);
-      const hov = st.on && hx > h.x && hx < h.x + h.w && hy > h.y && hy < h.y + h.h; if (hov) hoverI = i;
-      const sel = st.on && (hov || !!st.glow), state = !st.on ? 'disabled' : sel ? 'selected' : 'normal', off = sel ? 6 : 0;
-      const k2 = Math.max(0, Math.min(1, (now - shownAt - i * .04) / .2)), e = 1 - Math.pow(1 - k2, 3), sx = (1 - e) * -40, y = rowY(i), x = 480 + off + sx;
-      ctx.globalAlpha = e; D('main_blade_' + state, x, y, 390, 80);
-      if (st.glow) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = e * (.12 + .1 * Math.sin(now * 4)); D('main_blade_selected', x, y, 390, 80); ctx.restore(); }
-      D('icon_' + nm + '_' + (st.on ? 'normal' : 'disabled'), x + 24, y + 7, 64, 64);
-      const col = st.on ? '#10282b' : DIS; txt(label, x + 99, y + 6, 186, 40, 39, 'center', col); txt(st.note || DEF_NOTE[k] || '', x + 95, y + 47, 199, 21, 18, 'center', col); });
+    const L = BM2.CMDS, hx = input.x, hy = input.y, t = now - shownAt; hoverI = -1;
+    const st = RING.map(r => { const it = L.find(x => x.k === r[0]) || { k: r[0] }; return BM2.state(it); });
+    RING.forEach((r, i) => { const p = SPOS(i); if (st[i].on && Math.hypot(hx - p.x, hy - p.y) < SR + 6) hoverI = i; });
+    let si = hoverI >= 0 ? hoverI : st.findIndex(x => x.on && x.glow); if (si < 0) si = selI >= 0 && st[selI] && st[selI].on ? selI : 1;
+    if (si !== selI) { selI = si; selAt = now; }
+    ctx.save();
+    const kb = ease(t / .28); I7D('base', DCX, DCY, DSC * (.86 + .14 * kb), (1 - kb) * -.25, kb);
+    RING.forEach((r, i) => { const q = back((t - .05 - i * .035) / .32), p = SPOS(i), x = DCX + (p.x - DCX) * q, y = DCY + (p.y - DCY) * q, sel = i === selI && st[i].on, ks = sel ? 1 + .07 * ease((now - selAt) / .16) : 1;
+      if (q <= 0) return; const a = Math.min(1, q * 1.4);
+      if (sel) { I7D('glow_add', x, y, DSC * 1.05 * ks, now * .5, a * (.75 + .25 * Math.sin(now * 3.2)), 'lighter'); I7D('glow_add', x, y, DSC * .95 * ks, -now * .35, a * .45, 'lighter'); }
+      const k = 'seal_' + r[1] + (!st[i].on ? '_dis' : sel && r[1] === 'xian' ? '_sel' : '');
+      I7D(k, x, y, DSC * ks * (.6 + .4 * Math.min(1, q)), 0, a); });
+    const cur = st[selI] || {}; noteLine(cur.on ? (cur.note || DEF_NOTE[RING[selI][0]]) : (cur.note || '此时不可用'), DCY + 196, ease((now - selAt) / .2) * kb);
     ctx.restore();
   })(drawBattleMenu);
   handleMenuTap = (orig => function (tap) {
     const b = battle; if (!b || !b.menu || !READY()) return orig.apply(this, arguments);
     if (b.menu.sub) return listTap.call(this, orig, tap);
-    tap = U(tap); const LY = BM2.layout();
-    for (let i = 0; i < CMD.length; i++) { const h = HIT(i); if (tap.x > h.x && tap.x < h.x + h.w && tap.y > h.y && tap.y < h.y + h.h) { const r = LY.find(r => r.k === CMD[i][0]); window.__R79D_SECRET = CMD[i][0] === 'mi'; if (r) return orig.call(this, { x: r.x + r.w / 2, y: r.y + r.h / 2 }); } }
+    if (!R7OK()) return orig.apply(this, arguments);
+    const LY = BM2.layout();
+    for (let i = 0; i < RING.length; i++) { const p = SPOS(i); if (Math.hypot(tap.x - p.x, tap.y - p.y) < SR + 6) { const r = LY.find(r => r.k === RING[i][0]); window.__R79D_SECRET = RING[i][0] === 'mi'; if (r) return orig.call(this, { x: r.x + r.w / 2, y: r.y + r.h / 2 }); } }
   })(handleMenuTap);
 
   // ================= 列表 + 说明卡 =================
