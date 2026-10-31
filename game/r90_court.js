@@ -21,9 +21,10 @@
   add('bamboo_chair_6', '竹椅', ['竹椅坐久了会吱呀作响，像在抗议：请爱护公物。']);
 })();
 
-// ---------- 作者彩蛋：「孤星问道」四字石雕 + 三尊叶孤星像（作者的创作历程，搞笑不煽情）----------
+// ---------- 作者彩蛋：青竹小院「孤星问道」四字 + 三尊叶孤星像；天剑宗广场禹余道人像；藏经阁外长青剑仙像；大殿青龙白虎玉像 ----------
+// 作者的创作历程，搞笑不煽情。点开说话人显示「作者 · 彩蛋」，全部找齐送星辰点。
 (function () {
-  const M = typeof TMAPS !== 'undefined' && TMAPS.qingzhu_court; if (!M) return;
+  if (typeof TMAPS === 'undefined') return;
   const EGG = {
     '小院石雕 · 孤': ['写第一章时，作者给主角取名「孤星」。三秒后发现这名字自带一辈子单身buff。改不了了，已经写了十万字。', '这个「孤」字刻歪了。不是失误，是艺术。——作者（嘴硬版）'],
     '小院石雕 · 星': ['「星」字头顶那颗小星星，作者让 Codex 改了七遍。第八遍的时候 Codex 说：我觉得第三版最好。', '本书的星星：九曜。本游戏的星星：作者也数不清，反正特效里塞满了。'],
@@ -32,19 +33,31 @@
     '叶孤星石像': ['第一章那个托腮望天的姿势，作者自己试过。三分钟后脖子酸了，于是叶孤星替他望了十八年。', '头顶那只石雀是作者特批的。主角可以被同门嘲笑，不能被鸟嫌弃——好吧，也可以。'],
     '叶孤星石像 · 长身玉立': ['这是作者心里叶孤星最帅的样子。为了这张脸否掉了十几版建模，Codex 现在一听到「再帅一点」就沉默。', '底座刻着「孤星问道，道不孤」。作者写完这句，得意了一整个下午。'],
     '叶孤星像 · 西装': ['作者的私心：仙侠主角穿西装戴墨镜。别问，问就是平行宇宙的少宗主。', '如果你在这尊像前站满十秒——什么也不会发生。作者只是想看看你会不会站。'],
+    '禹余道人 · 创派祖师像': ['天剑宗创派祖师禹余道人。作者起名那天正在吃鱼，差一点他就叫「鲈鱼道人」了。', '四柄古剑悬而不落。作者说这叫仙气，Codex 说这叫图层没对齐。'],
+    '长青剑仙像': ['九曜剑典的上一任主人。作者给他写了一整套飞升往事，最后全藏进了一句「只留残篇」。', '剑仙一直按剑站着，因为作者还没想好他坐下来是什么样子。'],
+    '青龙镇殿玉像': ['青龙玉像。作者本来想放齐四神兽，量完尺寸发现大殿只放得下两只，朱雀和玄武还在后台排队。', '青龙盘云而起，霸气侧漏。作者画它的时候，自己的颈椎也跟着盘了一下午。'],
+    '白虎镇殿玉像': ['白虎玉像。设计稿里它本来在打哈欠，作者觉得太萌，硬是改成了昂首挺胸。', '白虎昂首望着殿心——据说是在数宗主今天又批了几份弟子的检讨书。'],
   };
-  const ORDER = ['小院石雕 · 孤', '小院石雕 · 星', '小院石雕 · 问', '小院石雕 · 道'];
+  const TOTAL = Object.keys(EGG).length, ORDER = ['小院石雕 · 孤', '小院石雕 · 星', '小院石雕 · 问', '小院石雕 · 道'];
   const F = () => (S.flags = S.flags || {});
   let seq = [];
-  for (const n of M.npcs) { const L = EGG[n.name]; if (!L) continue;
-    n.talk = async () => { const f = F(), k = 'egg_' + n.name, i = (f[k] || 0) % L.length; f[k] = (f[k] || 0) + 1;
-      await say('作者 · 彩蛋', L[i]);
-      const got = f.author_eggs = f.author_eggs || {}; if (!got[n.name]) { got[n.name] = 1; const c = Object.keys(got).length;
-        if (c < 7) toast('作者彩蛋 ' + c + ' / 7', 1600);
-        else { await say('作者 · 彩蛋', '七个彩蛋全找到了！作者宣布你是本书第一位真爱读者，奖励星辰点 10 点。'); await say('星旋', '等等，这 10 点是从我账上扣的？'); S.hero.points = (S.hero.points || 0) + 10; toast('星辰点 +10', 1800); } }
-      // 按「孤 → 星 → 问 → 道」顺序连着点
-      seq = ORDER.includes(n.name) ? (n.name === ORDER[seq.length] ? seq.concat(n.name) : n.name === ORDER[0] ? [n.name] : []) : [];
-      if (seq.length === 4) { seq = []; await say('作者 · 彩蛋', '你把四个字连着念了一遍。恭喜，这就是书名。作者为想这四个字熬了一整夜，第二天发现早就写在封面上了。'); }
-    };
+  const P = (x, y) => [x / 64 - .5, y / 64 - .8];
+  // 地图里没生成热点的雕像，补上（广场的热点被截成 12 个，祖师像没进去）
+  const ensure = (map, name, x, y) => { const M = TMAPS[map]; if (!M) return; M.npcs = M.npcs || []; if (M.npcs.some(n => n.name === name || n.name === '长卿剑仙像' && name === '长青剑仙像')) return; const [c, r] = P(x, y); M.npcs.push({ key: 'none', c, r, name, hidden: true, h: 160, talk: [] }); };
+  ensure('tj_front', '禹余道人 · 创派祖师像', 1792, 1445);
+  ensure('tj_scripture', '长青剑仙像', 1024, 1600);
+  for (const map of ['qingzhu_court', 'tj_front', 'tj_scripture', 'tj_hall']) { const M = TMAPS[map]; if (!M || !M.npcs) continue;
+    for (const n of M.npcs) { if (n.name === '长卿剑仙像') n.name = '长青剑仙像';   // 原著是「长青剑仙」
+      const L = EGG[n.name]; if (!L) continue;
+      n.talk = async () => { const f = F(), k = 'egg_' + n.name, i = (f[k] || 0) % L.length; f[k] = (f[k] || 0) + 1;
+        await say('作者 · 彩蛋', L[i]);
+        const got = f.author_eggs = f.author_eggs || {}; if (!got[n.name]) { got[n.name] = 1; const c = Object.keys(got).filter(x => EGG[x]).length;
+          if (c < TOTAL) toast('作者彩蛋 ' + c + ' / ' + TOTAL, 1600);
+          else { await say('作者 · 彩蛋', '所有作者彩蛋都找到了！作者宣布你是本书第一位真爱读者，奖励星辰点 10 点。'); await say('星旋', '等等，这 10 点是从我账上扣的？'); S.hero.points = (S.hero.points || 0) + 10; toast('星辰点 +10', 1800); } }
+        // 按「孤 → 星 → 问 → 道」顺序连着点
+        seq = ORDER.includes(n.name) ? (n.name === ORDER[seq.length] ? seq.concat(n.name) : n.name === ORDER[0] ? [n.name] : []) : [];
+        if (seq.length === 4) { seq = []; await say('作者 · 彩蛋', '你把四个字连着念了一遍。恭喜，这就是书名。作者为想这四个字熬了一整夜，第二天发现早就写在封面上了。'); }
+      };
+    }
   }
 })();
