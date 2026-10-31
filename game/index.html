@@ -3431,6 +3431,7 @@ async function part4() { // 贪狼破军：连升三级 + 教学战 + 兑换
   await fadeIn(500);
   await say('星旋', '把玉佩放在残本上——本器灵这就给你修复！');
   await showPanel('兑换成功', ['九曜剑典（完整）', '消耗星辰点 10']);
+  (S.flags = S.flags || {}).jiuyao_full = 1;   // 九曜剑典完本：技能树里九曜剑典从这里才出现
   S.hero.points = Math.max(0, S.hero.points - 10);
   await say('叶孤星', '“九曜剑典，唯天煞孤星命格可修……”原来如此！');
   const realms = ['练气七重', '练气八重', '练气九重'];
@@ -7150,6 +7151,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await narrate('玉佩中涌出一阵温和的黑色灵光，缓缓覆盖到残卷之上。破损的书页，一页一页愈合如初。');
     S.hero.points = Math.max(0, (S.hero.points || 10) - 10);
     await showPanel('兑换成功', ['!九曜剑典（完整）', '扣除星辰点 10 点，剩余 ' + S.hero.points + ' 点']);
+  (S.flags = S.flags || {}).jiuyao_full = 1;   // 九曜剑典完本：技能树里九曜剑典从这里才出现
     await say('叶孤星·惊', '“九曜剑典，以九大星曜之力为引，唯有天煞孤星命格才可修炼此功……”');
     await say('星旋', '天煞孤星之命，天生孤绝，寻常灵气进不了你的经脉。这剑典引的是星辰之力——别人受不住，你偏偏受得住。');
     await say('叶孤星·思', '难怪……这么多年，我连一点寸进都没有。');
@@ -15613,10 +15615,10 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
  */
 (function(){'use strict';
  const TAU=Math.PI*2,C=v=>Math.max(0,Math.min(1,v)),S=v=>{const q=C(v);return q*q*(3-2*q)},L=(a,b,q)=>a+(b-a)*q;
- const rings=[{r:.30,speed:.235,offset:.23},{r:.61,speed:-.155,offset:1.24},{r:.93,speed:.095,offset:.57}];
+ const rings=[{r:.30,speed:.32,offset:.23},{r:.61,speed:.32,offset:1.24},{r:.93,speed:.32,offset:.57}]/*作者11-01：三环同向同速整体转（原来反向+不同速，看着晕又像卡住）*/;
  const defaults={x:650,y:155,rx:350,ry:105,a:1,releaseCount:0};
  function radial(c,x,y,rx,ry,a,rgb){if(a<=0||rx<=0||ry<=0)return;c.save();c.globalAlpha=1;c.translate(x,y);c.scale(rx,ry);const gr=c.createRadialGradient(0,0,0,0,0,1);gr.addColorStop(0,'rgba('+rgb+','+C(a)+')');gr.addColorStop(.23,'rgba('+rgb+','+C(a*.52)+')');gr.addColorStop(.61,'rgba('+rgb+','+C(a*.11)+')');gr.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=gr;c.fillRect(-1,-1,2,2);c.restore()}
- function orbital(t,layer,angle,radius){const ring=rings[layer],an=angle+ring.offset+t*ring.speed,shear=Math.sin(t*.17+layer*1.7)*.055;return{x:(Math.cos(an)+Math.sin(an)*shear)*radius,y:Math.sin(an)*radius*(1-layer*.018),angle:an}}
+ function orbital(t,layer,angle,radius){const ring=rings[layer],an=angle+ring.offset+t*ring.speed,shear=0;return{x:(Math.cos(an)+Math.sin(an)*shear)*radius,y:Math.sin(an)*radius*(1-layer*.018),angle:an}}
  function world(p,o){return{x:o.x+p.x*o.rx,y:o.y+p.y*o.ry}}
  function nodePositions(t,options){const o={...defaults,...options},nodes=[];for(let layer=0;layer<3;layer++)for(let j=0;j<3;j++){const index=layer*3+j,p=orbital(t,layer,j*TAU/3,rings[layer].r);nodes.push({index,layer,...world(p,o),angle:p.angle,radius:rings[layer].r,released:Array.isArray(o.releasedNodes)?o.releasedNodes.includes(index):index<Math.min(7,Math.max(0,o.releaseCount||0))})}return nodes}
  function stroke(c,p,q,width,a,color){if(a<=0)return;c.globalAlpha=C(a);c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}
@@ -15625,7 +15627,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   // open centre and dark gaps prevent the disc from turning into a white mass.
   c.save();c.translate(o.x,o.y);c.scale(o.rx,o.ry);c.globalAlpha=1;
   for(let j=0;j<9;j++){
-   const an=j*TAU/9+t*.045,spread=.14+.025*Math.sin(t*.48+j),inner=.20,outer=.91+.035*Math.sin(t*.52+j*1.3);
+   const an=j*TAU/9+t*.32,spread=.14+.025*Math.sin(t*.48+j),inner=.20,outer=.91+.035*Math.sin(t*.52+j*1.3);
    const p=(a,r)=>[Math.cos(a)*r,Math.sin(a)*r];
    const start=p(an-spread,inner),left=p(an-spread,outer),tip=p(an,outer*1.08),right=p(an+spread,outer),end=p(an+spread,inner);
    const gr=c.createRadialGradient(0,0,.14,0,0,1.05),cool=j===2||j===6;
@@ -15638,7 +15640,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   for(let k=0;k<n;k++){
    const u=k/n,v=(k+1)/n,an=L(start,end,u),next=L(start,end,v),wave=.004*Math.sin(an*17-t*3.3+layer)+.002*Math.sin(an*37+t*5.1),radius=ring.r+wave;
    const p=world(orbital(t,layer,an,radius),o),q=world(orbital(t,layer,next,radius),o),taper=Math.sin(Math.PI*(u*.94+.03))**.47;
-   const current=Math.exp(-Math.pow(Math.sin((u-t*(layer===1?-.24:.20)+j*.17)*Math.PI)*3.7,2));
+   const current=Math.exp(-Math.pow(Math.sin((u-t*.12+j*.17)*Math.PI)*3.7,2));
    const threads=.68+.22*Math.sin(u*63-t*7.1+j*2.3)**2+.10*Math.sin(u*113+t*11.2)**2;
    const light=o.a*taper*threads*(.23+.40*current),cool=layer===1&&(j===1||j===2);
    stroke(c,p,q,7.2+current*2.4,light*.20,cool?'#817bc5':'#d89844');
@@ -15651,7 +15653,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
  }
  function movingPackets(c,t,o,layer){
   for(let j=0;j<3;j++){
-   const phase=((t*(layer===1?-.13:.105)+j/3+.031*layer)%1+1)%1,an=phase*TAU;
+   const phase=((t*.05+j/3+.031*layer)%1+1)%1,an=phase*TAU;
    for(let k=1;k<12;k++){const p=world(orbital(t,layer,an-k*.014,rings[layer].r),o),q=world(orbital(t,layer,an-k*.014+.017,rings[layer].r),o);stroke(c,p,q,1.6,o.a*.34*(1-k/12),layer===1?'#c4baff':'#ffe7a5')}
   }
  }
@@ -15680,7 +15682,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   c.save();c.globalCompositeOperation='screen';canopy(c,t,o);radial(c,o.x,o.y,o.rx*1.08,o.ry*1.16,o.a*.023,'217,151,68');interflow(c,t,o,nodes);
   for(let layer=2;layer>=0;layer--){for(let j=0;j<3;j++)ribbon(c,t,o,layer,j);movingPackets(c,t,o,layer)}
   for(let j=0;j<27;j++){
-   const layer=j%3,an=j*2.39996+t*(j%2?.071:-.085),p=world(orbital(t,layer,an,.20+.76*((j*.381966)%1)),o),a=o.a*(.08+.14*Math.sin(t*1.6+j)**2);
+   const layer=j%3,an=j*2.39996+t*.02,p=world(orbital(t,layer,an,.20+.76*((j*.381966)%1)),o),a=o.a*(.08+.14*Math.sin(t*1.6+j)**2);
    c.globalAlpha=C(a);c.fillStyle=j%5?'#f5ce87':'#b7b4ea';c.beginPath();c.arc(p.x,p.y,.75+.18*(j%3),0,TAU);c.fill();
   }
   for(const node of nodes)nucleus(c,t,node,o);
@@ -16222,5 +16224,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

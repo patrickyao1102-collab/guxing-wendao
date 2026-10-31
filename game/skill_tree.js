@@ -49,8 +49,8 @@
   // ---------- 各人的剑谱 ----------
   const N = (id, icon, short, o) => Object.assign({ id, icon, short }, o || {});
   const TREE = {
-    hero: { title: '九曜剑典', gongfa: 'jiuyao', ult: null,
-      cols: [['入门', [N('dianxing', 'dianxing', '点星'), N('xingluo2', 'xingluo2', '星落')]],
+    hero: { gongfa: 'tianjian', ult: null,
+      cols: [['剑式', [N('dianxing', 'dianxing', '点星'), N('xingluo2', 'xingluo2', '星落')]],
         ['破军', [N('pojun', 'tianxuan', '天璇'), N('xingluo', 'xingluo', '星罗'), N('xingyun', 'xingyun', '星陨')]],
         ['贪狼', [N('tanlang', 'zhuihun', '追魂'), N('jueying', 'jueying', '绝影'), N('duopo', 'duopo', '夺魄')]],
         ['辅助', [N('huti', 'huti', '护体'), N('ningshen', 'ningshen', '凝神'), N('juling', 'juling', '聚灵')]],
@@ -70,6 +70,12 @@
     luochen: { title: '血脉本源', gongfa: 'xuemai', ult: null, solo: true,
       cols: [['光明', [N('guangming', 'guangming', '光明本源', { d: '左眸光明神力降下神罚：圣光天罚轰击全体敌人，我方全员气血回满并解除控制' })]], ['黑暗', [N('heian', 'heian', '黑暗本源', { d: '右眸黑暗神力降下神罚：血色暗光贯穿单体，无视防御，威压镇住其余敌人' })]], ['日月', [N('riyue', 'riyue', '日月轮转', { d: '烛龙天赋：本体化龙，昼夜轮转，紫雷龙息轰击全体，日出光雨回复全队' })]], ['时空', [N('shikong', 'shikong', '时空错乱', { d: '两大原初神之力：光阴倒流、万物失序，重创全体并将其行动条打回原点' })]]] },
   };
+  // 作者 11-01：叶孤星的功法分开——开局只有天剑诀（点星、自创的星落 + 辅助）；九曜剑典要等星旋用玉佩把残本修复成完本之后才出现（破军 / 贪狼 / 秘传）
+  window.JIUYAO_OWNED = () => { const f = S.flags || {}; if (f.jiuyao_full) return true; const h = S.hero || {}, sk = h.skills || [];
+    return ['pojun', 'tanlang', 'xingluo', 'xingyun', 'jueying', 'duopo', 'tianshu', 'sun', 'tunshi'].some(k => sk.includes(k)) || /凝丹|引魂|练气[七八九]/.test(h.realm || ''); };
+  Object.defineProperty(TREE.hero, 'roots', { get() { const tj = { gongfa: 'tianjian', name: '天剑诀', cols: [0, 3] };
+    return JIUYAO_OWNED() ? [tj, { gongfa: 'jiuyao', name: '九曜剑典', cols: [1, 2, 4] }] : [tj]; } });
+  Object.defineProperty(TREE.hero, 'title', { get() { return JIUYAO_OWNED() ? '功法双修' : '天剑诀'; } });
   // 天剑诀按等级领悟：点星入门，群星 6 级，杀星 14 级（九曜剑典仍按剧情领悟）
   if (typeof ALLY_SKILLS !== 'undefined') { if (ALLY_SKILLS.qunxing && !ALLY_SKILLS.qunxing.lv) ALLY_SKILLS.qunxing.lv = 6; }
   // ---------- 数据 ----------
@@ -196,7 +202,7 @@
   let selKey = null, anim = null, stars = null;
   // 点功法本身：右边显示这门功法的介绍和它下面的各脉剑招
   const GF_DESC = {
-    jiuyao: '上古剑典残本，系着青玉扣，记载九曜星辰之力。剑意分贪狼、破军两脉，另有增益之法与秘传。',
+    jiuyao: '上古剑典，唯天煞孤星命格可修。藏经阁的残本经星旋以玉佩修复成完本，记载九曜星辰之力，剑意分破军、贪狼两脉，另有秘传。',
     tianjian: { hero: '天剑宗正统剑诀。叶孤星只学得入门的点星，其余剑招与他无缘；他以天剑诀为根，自创了群攻剑招星落。', other: '天剑宗正统剑诀，宗门弟子人人修习。由点星入门，渐次习得群星、杀星，秘传更有惊天一击。' },
     jiuyin: '天音宗的超神阶功法（仙灵大陆三大仙宗之一），神乐所修。以音律化道：仙音镇魂，摄魂乱神，一曲寂灭可音杀全场。',
     xuemai: '洛尘体内的上古血脉本源。左眸光明、右眸黑暗，四大本源绝技随时可放，不需修炼重数。',
