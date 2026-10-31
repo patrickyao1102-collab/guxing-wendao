@@ -3362,9 +3362,10 @@ async function part2() { // 借力一战
       if (when === 'before' && step === 0 && k !== 'atk' && k !== 'def' && k !== 'item') return;
       if (when === 'after' && step === 0 && b.P.hp < b.P.maxhp * .7) {
         step = 1;
-        await say('星旋', '啧啧，练气六重果然不行啊……算了，借你一招看看——这是你将来的本事！');
-        b.cfg.allowUlt = true; b.P.rage = 100;
-        await showPanel('星旋借力', ['!临时解锁：破军剑阵·太阳', '（无上境专属 · 仅此一次）', '点「仙术」，选择 破军剑阵·太阳']);
+        await say('星旋', '啧啧，练气六重果然不行啊……你自己瞎琢磨的那招星落？路子倒也不算太歪。');
+        await say('星旋', '借你看看——它将来长成什么样！');
+        b.cfg.xlLend = true;
+        await showPanel('星旋借力', ['!临时解锁：星落·无上境', '（无上境专属 · 仅此一次）', '点「仙术」，选择 星落·无上境']);
       }
     },
   });
@@ -3372,9 +3373,10 @@ async function part2() { // 借力一战
   await say('叶孤星', '这么多妖兽……我只能硬拼了！');
   toast('点「攻击」普通攻击', 2200);
   await p;
-  await showPanel('封印', ['破军剑阵·太阳 已重新封印', '!解锁条件：无上境', '（技能栏里会一直留着它的灰色图标）']);
-  await say('叶孤星', '这……这是我打出来的？');
-  await say('星旋', '是你将来打出来的。现在嘛——还你废柴的身子。想要回来？先把残本偷来再说！');
+  await showPanel('封印', ['星落·无上境 已重新封印', '!解锁条件：无上境', '（技能栏里会一直留着它的灰色图标）']);
+  await say('叶孤星', '这……是我那招星落？');
+  await say('星旋', '是你将来的星落。现在嘛——还你那三颗半的小星星。');
+  await say('星旋', '想让它长大？先把残本偷来再说！');
   await fadeOut(500);
   await part3();
 }
@@ -16227,5 +16229,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
