@@ -33,7 +33,6 @@
     '叶孤星石像': ['第一章那个托腮望天的姿势，作者自己试过。三分钟后脖子酸了，于是叶孤星替他望了十八年。', '头顶那只石雀是作者特批的。主角可以被同门嘲笑，不能被鸟嫌弃——好吧，也可以。'],
     '叶孤星石像 · 长身玉立': ['这是作者心里叶孤星最帅的样子。为了这张脸否掉了十几版建模，Codex 现在一听到「再帅一点」就沉默。', '底座刻着「孤星问道，道不孤」。作者写完这句，得意了一整个下午。'],
     '叶孤星像 · 西装': ['作者的私心：仙侠主角穿西装戴墨镜。别问，问就是平行宇宙的少宗主。', '如果你在这尊像前站满十秒——什么也不会发生。作者只是想看看你会不会站。'],
-    '长青剑仙像': ['九曜剑典的上一任主人。作者给他写了一整套飞升往事，最后全藏进了一句「只留残篇」。', '剑仙一直按剑站着，因为作者还没想好他坐下来是什么样子。'],
     '青龙镇殿玉像': ['青龙玉像。作者本来想放齐四神兽，量完尺寸发现大殿只放得下两只，朱雀和玄武还在后台排队。', '青龙盘云而起，霸气侧漏。作者画它的时候，自己的颈椎也跟着盘了一下午。'],
     '白虎镇殿玉像': ['白虎玉像。设计稿里它本来在打哈欠，作者觉得太萌，硬是改成了昂首挺胸。', '白虎昂首望着殿心——据说是在数宗主今天又批了几份弟子的检讨书。'],
   };
@@ -43,13 +42,29 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   // 地图里没生成热点的雕像，补上（广场的热点被截成 12 个，祖师像没进去）
   const ensure = (map, name, x, y) => { const M = TMAPS[map]; if (!M) return; M.npcs = M.npcs || []; if (M.npcs.some(n => n.name === name || n.name === '长卿剑仙像' && name === '长青剑仙像')) return; const [c, r] = P(x, y); M.npcs.push({ key: 'none', c, r, name, hidden: true, h: 160, talk: [] }); };
-  // 禹余道人是全书最大的伏笔：不做搞笑彩蛋，只补上可点的热点，说明保持庄重神秘
-  { const M = TMAPS.tj_front; if (M && !(M.npcs || []).some(n => n.name === '禹余道人 · 创派祖师像')) { const [c, r] = P(1792, 1445); (M.npcs = M.npcs || []).push({ key: 'none', c, r, name: '禹余道人 · 创派祖师像', hidden: true, h: 160, talk: async () => { await narrate('传说，这是天剑宗供奉的无上祖师——禹余道人。'); await narrate('白玉像长发飞扬，并指引剑，四柄古剑悬而不落。像前香火千年不断，四道灵光沿古老阵纹流转。');
-      // 伏笔（只给感觉，不给答案）：拿到九曜剑典后再来，古剑和玉佩有反应；看过一次后只剩余韵
-      if (window.JIUYAO_OWNED && JIUYAO_OWNED()) { const f = (S.flags = S.flags || {});
+  // ---------- 禹余道人：全书最大的伏笔。庄重、神秘，只给感觉不给答案 ----------
+  { const M = TMAPS.tj_front; if (M) { M.npcs = M.npcs || [];
+    const yuyu = async () => { const f = (S.flags = S.flags || {});
+      await narrate('传说，这是天剑宗世代供奉的无上祖师——禹余道人。');
+      await narrate('长青剑仙已是九州传说中的人物；可宗门里一直有个说法：长青剑仙当年站在这尊像前，也要躬身执弟子礼。');
+      await narrate('至于禹余道人究竟是谁、修为几何、最后去了哪里——翻遍藏经阁，只有四个字：禹余，不可考。');
+      await narrate('白玉像长发飞扬，并指引剑。四柄古剑悬于身侧，千年未坠；像前香火，从未断过。');
+      if (window.JIUYAO_OWNED && JIUYAO_OWNED()) {
         if (!f.yuyu_stir) { f.yuyu_stir = 1; try { S.shake = 3; } catch (e) {} await narrate('你走近时，悬在像旁的四柄古剑同时轻轻一颤，剑鸣低得几乎听不见。'); await narrate('胸前的黑色玉佩微微发烫——片刻之后，又凉了下去。'); await say('叶孤星', '……星旋？'); await say('星旋', '嗯？没事。走吧。'); }
-        else await narrate('四柄古剑静静悬着。只是你每次走近，玉佩都比别处暖一点。'); } } }); } }
-  ensure('tj_scripture', '长青剑仙像', 1024, 1600);
+        else await narrate('四柄古剑静静悬着。只是你每次走近，玉佩都比别处暖一点。'); } };
+    const ex = M.npcs.find(n => n.name === '禹余道人 · 创派祖师像');
+    if (ex) ex.talk = yuyu; else { const [c, r] = P(1792, 1445); M.npcs.push({ key: 'none', c, r, name: '禹余道人 · 创派祖师像', hidden: true, h: 160, talk: yuyu }); }
+    // 守像老人：在像旁扫了一辈子地，什么都知道一点，又什么都说不清
+    const OLD = ['这尊像？老朽扫了六十年，没见它落过一粒灰。', '长青剑仙够厉害了吧？听说他当年在这像前站了三天三夜，一句话没说就走了。为什么站？那谁知道。', '问祖师爷是谁？宗主问过我，长老问过我，今儿少宗主也来问——老朽要是知道，还扫什么地。', '那四柄剑悬了一千年。去年有个弟子不信邪，跳起来想摸一把……后来他就被罚去后山砍柴了。', '香火不能断，这是开派时就定下的规矩。谁定的？祖师爷自己。', '夜里来看过没有？月亮正当头的时候，像身会泛一点青光。老朽眼花，也许是看错了。'];
+    const [oc, or] = P(1655, 1500);
+    M.npcs.push({ key: 'none', cx: 'riddle_elder', c: oc, r: or, name: '守像老人', h: 118, wander: false, talk: async () => {
+      if (window.JIUYAO_OWNED && JIUYAO_OWNED() && (S.flags || {}).yuyu_stir && !(S.flags || {}).yuyu_old) { S.flags.yuyu_old = 1; await say('守像老人', '少宗主……方才那几柄剑，是不是动了一下？'); await say('守像老人', '……哎，老眼昏花，老眼昏花。'); return; }
+      const f = (S.flags = S.flags || {}), i = (f.yuyu_old_i || 0) % OLD.length; f.yuyu_old_i = (f.yuyu_old_i || 0) + 1; await say('守像老人', OLD[i]); } });
+  } }
+  // 长青剑仙：九曜剑典上一任主人，传说级人物（不做搞笑彩蛋）
+  { const M = TMAPS.tj_scripture; if (M) { for (const n of (M.npcs || []).filter(n => /^长[青卿]剑仙(石)?像$/.test(n.name))) { n.name = '长青剑仙像';
+    n.talk = async () => { await narrate('长青剑仙，千年前以九曜剑典名震九州。传说他一人一剑横扫群魔，飞升之后，剑典只余残篇，藏于此阁。'); await narrate('剑仙按剑而立，像座刻着古老星纹。宗门弟子出入藏经阁，都会在这里停一停。');
+      if (window.JIUYAO_OWNED && JIUYAO_OWNED()) await narrate('如今残篇已成完本。像座上的星纹，好像比从前亮了一点点。'); }; } } }
   for (const map of ['qingzhu_court', 'tj_front', 'tj_scripture', 'tj_hall']) { const M = TMAPS[map]; if (!M || !M.npcs) continue;
     for (const n of M.npcs) { if (n.name === '长卿剑仙像') n.name = '长青剑仙像';   // 原著是「长青剑仙」
       const L = EGG[n.name]; if (!L) continue;
