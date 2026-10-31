@@ -45,7 +45,7 @@
     const g = window.R80_GROUND; if (g && !g._r91) { const c = document.createElement('canvas'); c.width = g.width; c.height = g.height; const q = c.getContext('2d'); q.drawImage(g, 0, 0); const k = g.width / 4864;
       q.drawImage(g, (3774 - 70.5) * k, 1956 * k, 30 * k, 160 * k, 3774 * k, 1956 * k, 30 * k, 160 * k); c._r91 = 1; window.R80_GROUND = c; IMG.cx2g_tj_market = c; }
   } catch (e) { console.warn('r91 market', e); } };
-  const iv = setInterval(() => { if (window.R80_OCC_READY && window.R80_GROUND && window.R80_GROUND.width) { fixDragon(); cutCanvas(); clearInterval(iv); } }, 100);
+  const iv = setInterval(() => { if (window.R80_OCC_READY && window.R80_GROUND && window.R80_GROUND.width) { fixDragon(); cutCanvas(); clearInterval(iv); if (window.MM_CLEAR) MM_CLEAR(ID); } }, 100);
   // ---- 5. 访客不再穿墙 / 走到悬空处：原来只检查路线端点，中间直线会横穿店铺和云海。逐段采样，不通就重新寻路 ----
   const C = B.cols, RW = B.rows;
   const free = (c, r) => { if (c < 2 || r < 2 || c >= C - 2 || r >= RW - 2) return false; const bl = B.blocked; for (let dc = -2; dc <= 2; dc++) for (let dr = -1; dr <= 1; dr++) if (bl.charCodeAt((r + dr) * C + c + dc) !== 48) return false; return true; };

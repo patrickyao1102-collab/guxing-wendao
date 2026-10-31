@@ -9516,6 +9516,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   // ---------------- 4. 左上角圆形小地图 ----------------
   const MM = { r: 66, cx: 78, cy: 80, view: 760, big: false, cache: {} };
   window.HUD_X0 = MM.cx + MM.r + 14;
+  window.MM_CLEAR = id => { if (id) delete MM.cache[id]; else MM.cache = {}; };   // 地图物件改动后重画小地图
   function thumb(id, T) {
     const k = id, old = MM.cache[k], tnow = performance.now(); if (old && (old.ok || tnow - old.t < 1200)) return old;
     const def = TMAPS[id]; const mw = T.mw, mh = T.mh, s = Math.min(1, 520 / Math.max(mw, mh));
