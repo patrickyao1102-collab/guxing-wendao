@@ -9,6 +9,9 @@
   for (const k in B) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = LOC ? 'r86/' + k + '.webp' : '/_blob/' + B[k]; }
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
   const FONTN = '"Ma Shan Zheng","STKaiti","KaiTi",serif', INK = '#17282b', DIS = '#5e6367', DIS2 = '#697276';
+  // 作者 10-31：菜单太大 → 整体缩到 0.8，以 (620,395) 为中心；画面整体变换，点击坐标反算回原布局
+  const K = .8, AX = 620, AY = 395, U = p => ({ x: AX + (p.x - AX) / K, y: AY + (p.y - AY) / K }), XF = () => { ctx.translate(AX, AY); ctx.scale(K, K); ctx.translate(-AX, -AY); };
+  window.R86_SCALE = { K, AX, AY, U };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
   function txt(s, x, y, w, h, size, align = 'left', col = INK) { if (s == null || s === '') return;
     ctx.save(); let f = size; ctx.font = `400 ${f}px ${FONTN}`; while (f > 10 && ctx.measureText(s).width > w) { f -= 1; ctx.font = `400 ${f}px ${FONTN}`; }
@@ -26,8 +29,8 @@
     const b = battle; if (!b || !b.menu || !READY()) return orig.apply(this, arguments);
     if (b.menu.sub) return drawList.call(this, orig, arguments);
     const now = performance.now() / 1000; if (lastP !== b.P) { lastP = b.P; shownAt = now; }
-    const L = BM2.CMDS, hx = input.x, hy = input.y; hoverI = -1;
-    ctx.save();
+    const L = BM2.CMDS, hu = U(input), hx = hu.x, hy = hu.y; hoverI = -1;
+    ctx.save(); XF();
     const ka = Math.max(0, Math.min(1, (now - shownAt) / .18)); ctx.globalAlpha = ka; D('sword_axis', 430, 145, 78, 500);
     CMD.forEach(([k, nm, label], i) => { const it = L.find(x => x.k === k) || { k }, st = BM2.state(it), h = HIT(i);
       const hov = st.on && hx > h.x && hx < h.x + h.w && hy > h.y && hy < h.y + h.h; if (hov) hoverI = i;
@@ -42,7 +45,7 @@
   handleMenuTap = (orig => function (tap) {
     const b = battle; if (!b || !b.menu || !READY()) return orig.apply(this, arguments);
     if (b.menu.sub) return listTap.call(this, orig, tap);
-    const LY = BM2.layout();
+    tap = U(tap); const LY = BM2.layout();
     for (let i = 0; i < CMD.length; i++) { const h = HIT(i); if (tap.x > h.x && tap.x < h.x + h.w && tap.y > h.y && tap.y < h.y + h.h) { const r = LY.find(r => r.k === CMD[i][0]); window.__R79D_SECRET = CMD[i][0] === 'mi'; if (r) return orig.call(this, { x: r.x + r.w / 2, y: r.y + r.h / 2 }); } }
   })(handleMenuTap);
 
@@ -69,7 +72,7 @@
   function drawList(orig, args) {
     const b = battle, L = b.menu.sub; sync(); const P = b.P || {};
     const secret = !!window.__R79D_SECRET || L.some(s => s.k === 'ult');
-    ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.30)'; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.fillStyle = 'rgba(4,10,16,.30)'; ctx.fillRect(0, 0, W, H); XF();
     D('sword_axis', 200, 140, 78, 500); D('list_header', 258, 150, 400, 70);
     txt('〈 返回', 278, 170, 72, 25, 21); txt(secret ? '秘传' : '仙术', 377, 159, 140, 46, 39, 'center');
     txt(secret ? '怒气 ' + Math.floor(P.rage || 0) : '灵力 ' + Math.floor(P.mp || 0), 553, 172, 86, 23, 20, 'right');
@@ -106,7 +109,7 @@
     const top = rY(i); if (top < VY || top + 78 > VY + VH) SC.y = Math.max(0, Math.min(maxOff(), i * PITCH - PITCH)); const r = rowsVis()[i]; SC.list = null;
     return orig({ x: r.x + 10, y: r.y + r.h / 2 }); }
   function listTap(orig, tap) {
-    sync();
+    sync(); tap = U(tap);
     if (inRect(tap, BTN)) { try { playSnd('ui_click'); } catch (e) {} return cast(orig, SC.sel); }
     if (inRect(tap, CARD)) return;
     if (inRect(tap, { x: 270, y: 160, w: 90, h: 44 })) { SC.list = null; return orig({ x: -50, y: -50 }); }   // 〈 返回
@@ -115,11 +118,11 @@
     const rs = rowsVis(), i = rs.findIndex(r => inRect(tap, r));
     if (i >= 0) { if (i !== SC.sel) { SC.sel = i; try { playSnd('ui_click'); } catch (e) {} return; } return cast(orig, i); }
     if (inRect(tap, PANEL)) return;
-    SC.list = null; return orig(tap);
+    SC.list = null; return orig({ x: -50, y: -50 });
   }
   const inView = p => p.x > VX && p.x < VX + VW && p.y > VY && p.y < VY + VH;
-  cv.addEventListener('pointerdown', e => { if (!open()) return; const p = toLogical(e); if (inRect(p, BTN)) SC.press = true; if (!inView(p)) return; SC.drag = { y0: p.y, s0: SC.y, moved: false, p }; input.tapped = null; });
-  cv.addEventListener('pointermove', e => { if (!SC.drag) return; const p = toLogical(e), dy = p.y - SC.drag.y0; if (Math.abs(dy) > 8) SC.drag.moved = true; if (SC.drag.moved) SC.y = Math.max(0, Math.min(maxOff(), SC.drag.s0 - dy)); });
+  cv.addEventListener('pointerdown', e => { if (!open()) return; const raw = toLogical(e), p = U(raw); if (inRect(p, BTN)) SC.press = true; if (!inView(p)) return; SC.drag = { y0: p.y, s0: SC.y, moved: false, p: raw }; input.tapped = null; });
+  cv.addEventListener('pointermove', e => { if (!SC.drag) return; const p = U(toLogical(e)), dy = p.y - SC.drag.y0; if (Math.abs(dy) > 8) SC.drag.moved = true; if (SC.drag.moved) SC.y = Math.max(0, Math.min(maxOff(), SC.drag.s0 - dy)); });
   window.addEventListener('pointerup', () => { SC.press = false; const d = SC.drag; SC.drag = null; if (d && !d.moved && open()) input.tapped = d.p; });
   cv.addEventListener('wheel', e => { if (!open()) return; SC.y = Math.max(0, Math.min(maxOff(), SC.y + e.deltaY * .6)); e.preventDefault(); }, { passive: false });
   window.R86 = { IM, D, txt, READY };
