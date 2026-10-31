@@ -522,6 +522,17 @@ window.BGM_LIB = {
 "desc": "即梦 SeedAudio · 快速剑风呼啸",
 "dur": 0.7
 },
+"lib_s16": {
+"no": "壬17",
+"name": "贪狼啸魂",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s16.mp4",
+"blob": "f35690abee6af1c0c0e745a1f2632aa5",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨大魔狼低沉长啸带回响（夺魄 4.5 秒狼啸）",
+"dur": 1.9
+},
 "lib_s00": {
 "no": "壬16",
 "name": "界面确认",
@@ -1694,6 +1705,17 @@ window.BGM_LIB = {
 "vol": 1.48,
 "desc": "即梦 SeedAudio · 快速剑风呼啸",
 "dur": 0.7
+},
+"lib_s16": {
+"no": "壬17",
+"name": "贪狼啸魂",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/s16.mp4",
+"blob": "f35690abee6af1c0c0e745a1f2632aa5",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨大魔狼低沉长啸带回响（夺魄 4.5 秒狼啸）",
+"dur": 1.9
 },
 "lib_s00": {
 "no": "壬16",
