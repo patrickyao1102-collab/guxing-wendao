@@ -2461,7 +2461,7 @@ async function doInteract(h) {
     if (h.type === 'npc') {
       const a = h.a, n = a.npc; a.talking = true; a.tx = null; a.moving = false; a.dir = p.x > a.x ? 1 : -1; p.face = faceOf(a.x - p.x, a.y - p.y); if (Math.abs(a.x - p.x) > 1) p.dir = a.x > p.x ? 1 : -1;
       if (typeof n.talk === 'function') await n.talk(a);
-      else { const lines = Array.isArray(n.talk) ? n.talk : [n.talk || '……']; const pick = n.random ? [lines[Math.floor(Math.random() * lines.length)]] : lines; for (const l of pick) await say(n.name, l); }
+      else { const lines = Array.isArray(n.talk) ? n.talk : [n.talk || '……']; const pick = n.random ? [lines[Math.floor(Math.random() * lines.length)]] : lines; for (const l of pick) await say(n.hidden ? '' : n.name, l); }   // 作者 11-01：点物件（隐形热点）出系统旁白，不是物件在说话
       if (n.shop) await openShop(n.shop, n.name);
       a.talking = false;
     } else if (h.type === 'chest') {
@@ -16227,5 +16227,5 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
