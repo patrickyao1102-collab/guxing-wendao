@@ -4,7 +4,7 @@
 // 参悟：二重要剑谱 ×1，三重要剑谱 ×3（典籍阁有卖）；四重要剑诀玉简 ×1，五重 ×2（支线 / 首领掉落）。练气期最多三重，凝丹之后才能到五重。
 (function () {
   if (typeof drawSkills !== 'function' || typeof menuUpdate !== 'function') return;
-  const CN = ['', '一', '二', '三', '四', '五'];
+  const CN = ['', '一', '二', '三', '四', '五', '六', '七'];
   const PAL = {
     zhuihun: ['#8fd0ff', '#123a66'], jueying: ['#c9a6ff', '#2a1450'], tianxuan: ['#ffe39a', '#6a3e0c'], tianshu: ['#fff1c4', '#5a4416'],
     xingluo: ['#9ff3ff', '#0f4656'], tunshi: ['#d7b4ff', '#32164e'], xingyun: ['#ffb27a', '#5e1c0c'], huti: ['#a6f0c8', '#0f4a36'],
@@ -14,7 +14,7 @@
     riyue: ['#ffe0a0', '#2a1a4e'], shikong: ['#c4b8ff', '#10304a'],
   };
   // ---------- 每重效果 ----------
-  const TGT = { tanlang: '单体', jueying: '单体', shaxing: '单体', qingxin: '单体', dianxing: '单体', pojun: '群体', tianshu: '群体', xingluo: '群体', qunxing: '群体', liehun: '群体', xingluo2: '群体', sun: '群体' };
+  const TGT = { tanlang: '单体', jueying: '单体', shaxing: '单体', qingxin: '群体', dianxing: '单体', pojun: '群体', tianshu: '群体', xingluo: '群体', qunxing: '群体', liehun: '群体', xingluo2: '群体', sun: '群体' };
   const dmg = (tg, ex3, ex5) => [tg + '攻击 · 威力 100%', tg + '攻击 · 威力 115%', tg + '攻击 · 威力 130%' + (ex3 ? '，' + ex3 : ''), tg + '攻击 · 威力 145%' + (ex3 ? '，' + ex3 : ''), tg + '攻击 · 威力 160%' + (ex5 ? '，' + ex5 : ex3 ? '，' + ex3 : '')];
   const TIERS = {
     tanlang: dmg('单体', '附破甲：目标防御 −25%，持续 2 回合', '破甲 3 回合，每战可用次数 +1'),
@@ -26,7 +26,9 @@
     dianxing: ['单体攻击 · 威力 100%', '单体攻击 · 威力 115%', '双目标攻击 · 威力 130%（主目标全额，副目标 70%）', '双目标攻击 · 威力 145%', '三目标攻击 · 威力 160%'],
     shaxing: dmg('单体', '附重创：目标防御 −20%，持续 2 回合', '必定暴击'),
     qunxing: dmg('群体', '附星缚：目标速度 −20%，持续 2 回合'),
-    qingxin: dmg('单体', '定身 1 回合', '定身 2 回合'),
+    // 仙音镇魂是神乐的成长技（作者 11-02）：七重，每一重阵盘多亮一枚仙音；第七重七音重聚成七彩光柱
+    qingxin: ['群体 · 1 枚仙音爆散 · 20% 定身', '群体 · 2 枚仙音连爆 · 25% 定身', '群体 · 3 枚仙音连爆 · 30% 定身', '群体 · 4 枚仙音连爆 · 35% 定身',
+      '群体 · 5 枚仙音连爆 · 40% 定身', '群体 · 6 枚仙音连爆 · 45% 定身', '群体 · 七音连爆后化七彩光柱 · 必定身（首领 50%）'],
     liehun: dmg('群体', '附乱神：目标命中 −15%，持续 2 回合'),
     huti: ['全队减伤 15%，持续 2 回合', '全队减伤 18%，持续 2 回合', '全队减伤 20%，持续 3 回合', '全队减伤 22%，持续 3 回合', '全队减伤 25%，持续 3 回合'],
     ningfeng: ['全队攻击 +15%，持续 2 回合', '全队攻击 +18%，持续 2 回合', '全队攻击 +20%，持续 3 回合', '全队攻击 +22%，持续 3 回合', '全队攻击 +25%，持续 3 回合'],
@@ -92,16 +94,22 @@
     if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? src.lv + ' 级（' + realmOf(src.lv) + '）领悟' : '剧情中领悟'; }
     else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = (src.lv || 0) + ' 级（' + realmOf(src.lv || 1) + '）领悟'; }
     else { src = (ALLY2_SKILLS[who] || {})[n.id] || {}; learned = true; }
-    const solo = TREE[who].solo;
-    return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: solo ? 1 : 5, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
+    const solo = TREE[who].solo, mx = solo ? 1 : MAXT(who, n.id);
+    return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: mx, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
   }
   // 必杀归入「秘传」列（九天神雷 / 大雪纷飞 / 寂灭仙曲）
   {    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].push(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
+  const MAXT = (who, id) => (who === 'shenle' && id === 'qingxin') ? 7 : 5;   // 成长技七重
   const realmCap = who => { const l = S.hero.lv; return l <= 9 ? 2 : l <= 18 ? 3 : l <= 27 ? 4 : 5; };   // 练气二重、凝丹三重、引魂四重、归元五重
   const CAPTXT = { 2: '练气期最多修至二重，凝丹后可继续', 3: '凝丹期最多修至三重，引魂后可继续', 4: '引魂期最多修至四重，归元后可继续' };
   const bookId = id => 'jp_' + id;
   function need(who, n, I) {
     const t = I.tier + 1; if (I.max <= 1 || t > I.max) return null;
+    if (I.max === 7) {   // 七重成长技：每境界多两重，六、七重用卷五 ×2 / ×3
+      const c = realmCap(who), cap = c <= 2 ? 3 : c === 3 ? 4 : c === 4 ? 5 : 7, v = Math.min(5, t), n = t <= 5 ? 1 : t - 4;
+      const capTxt = { 3: '练气期最多修至三重，凝丹后可继续', 4: '凝丹期最多修至四重，引魂后可继续', 5: '引魂期最多修至五重，归元后可继续' }[cap];
+      return { item: 'juan' + v, n, label: '《剑诀·卷' + CN[v] + '》', cap, t, capTxt };
+    }
     return { item: 'juan' + t, n: 1, label: '《剑诀·卷' + CN[t] + '》', cap: realmCap(who), t };
   }
   // 剑谱 / 玉简 进物品表
@@ -274,7 +282,7 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = o.col < 0 ? `24px ${BRUSH}` : `600 15px ${FONT}`;
       if (o.col < 0) { const tw = ctx.measureText(o.n.short).width + 28; ctx.save(); roundRect(o.x - tw / 2, o.y + o.r + 6, tw, 30, 15); ctx.fillStyle = 'rgba(12,10,20,.92)'; ctx.fill(); ctx.strokeStyle = 'rgba(232,194,122,.5)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
       textOutline(o.n.short, o.x, o.y + o.r + (o.col < 0 ? 20 : G.compact ? 11 : 15), I.learned ? '#f6e6bf' : '#8f8370', '#0a0604', 3);
-      if (I.max > 1 && I.learned) for (let k = 1; k <= 5; k++) { const px = o.x + (k - 3) * (G.compact && o.col >= 0 ? 9 : 11), py = o.y + o.r + (G.compact && o.col >= 0 ? -2 : 32); ctx.save(); ctx.translate(px, py); ctx.rotate(Math.PI / 4);
+      if (I.max > 1 && I.learned) for (let k = 1; k <= I.max; k++) { const px = o.x + (k - (I.max + 1) / 2) * (G.compact && o.col >= 0 ? (I.max > 5 ? 7.5 : 9) : (I.max > 5 ? 9.5 : 11)), py = o.y + o.r + (G.compact && o.col >= 0 ? -2 : 32); ctx.save(); ctx.translate(px, py); ctx.rotate(Math.PI / 4);
         const lit = k <= I.tier; ctx.fillStyle = lit ? '#ffd76a' : 'rgba(120,100,70,.5)'; if (lit) { ctx.shadowColor = '#ffcc55'; ctx.shadowBlur = 6; } ctx.fillRect(-3.5, -3.5, 7, 7); ctx.restore(); }
       if (o.col < 0) { ctx.font = `600 12px ${FONT}`; ctx.fillStyle = I.learned ? '#ffb070' : '#8f8370'; ctx.fillText(I.learned ? '绝 技' : '未领悟', o.x, o.y - o.r - 12); }
       if (cu && cu.ok) { const bx = o.x + o.r * .78, by = o.y - o.r * .78, p = 1 + Math.sin(t * 6) * .12; ctx.save(); ctx.translate(bx, by); ctx.scale(p, p); ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7); ctx.fillStyle = '#3fae5a'; ctx.fill(); ctx.strokeStyle = '#eaffd8'; ctx.lineWidth = 1.5; ctx.stroke();
@@ -311,7 +319,7 @@
       const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], '#f5ead2');
       if (cu && cu.q) { row('下一重 · 第' + CN[cu.q.t] + '重', T[cu.q.t - 1], '#9fe28a', '#9fe28a');
         const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24;
-        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24; }
+        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24; }
         else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22; }
         else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22; } }
       else row('已臻化境', '此招已修至第五重。', '#ffd76a', '#ffd76a');
@@ -335,7 +343,7 @@
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
         try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
       if (cu && cu.q) { input.tapped = null;
-      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return; }
+      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return; }
       const h = S.hero; { const legacy = cu.q.t === 2 && !itemCount(cu.q.item) ? bookId(o.n.id) : cu.q.item; h.bag[legacy] -= cu.q.n; if (h.bag[legacy] <= 0) delete h.bag[legacy]; }
       LV()[key(G.who, o.n.id)] = cu.q.t; anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
       try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; } }

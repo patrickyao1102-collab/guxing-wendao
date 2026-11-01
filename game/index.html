@@ -8051,7 +8051,7 @@ Object.assign(PARTY_DB, {
 Object.assign(ULT_NAME, { tianlai: '九音录·寂灭仙曲', tuotian: '擎天' });
 const ALLY2_SKILLS = {
   shenle: {
-    qingxin: { name: '九音录·仙音镇魂', cost: 30, desc: '透明音波镇住神魂，单体伤害并定身1回合', lv: 0 },
+    qingxin: { name: '九音录·仙音镇魂', cost: 30, desc: '笛音召出九音阵盘，仙音逐枚凝成巨音爆散，攻击全体并镇魂', lv: 0 },
     liehun: { name: '九音录·摄魂乱神', cost: 42, desc: '笛音如银针刺入神魂，攻击全体敌人', lv: 0 },
   },
   luochen: {
@@ -14632,7 +14632,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   };
   const MI = new Set(['tunshi', 'sun', 'yunlei', 'bingfeng', 'shenfa', 'jiuyinhe']);   // 秘传招（进「秘传」菜单）
   const AUX = new Set(['huti', 'ningshen', 'juling', 'qianggong', 'jifeng', 'boming', 'shuangjia', 'bingxin', 'bingdun', 'yinzhang']);
-  const TAG = { dianxing: '单体', xingluo2: '群攻', pojun: '群攻', xingluo: '群攻', xingyun: '群攻', tanlang: '单体', jueying: '单体', duopo: '单体', tunshi: '单体', sun: '群攻', qunxing: '群攻', shaxing: '单体', qingxin: '单体', liehun: '群攻', jinwu: '单体', zhouye: '群攻', riyue: '群攻' };
+  const TAG = { dianxing: '单体', xingluo2: '群攻', pojun: '群攻', xingluo: '群攻', xingyun: '群攻', tanlang: '单体', jueying: '单体', duopo: '单体', tunshi: '单体', sun: '群攻', qunxing: '群攻', shaxing: '单体', qingxin: '群攻', liehun: '群攻', jinwu: '单体', zhouye: '群攻', riyue: '群攻' };
   for (const who in X) for (const id in X[who]) TAG[id] = X[who][id].tag;
   const LORE = {   // 现有招的详述（原著味道）
     dianxing: '天剑宗弟子人人会的入门剑招。剑芒凝于一点，贯穿而去——招式最简单，练到极处也最快。',
@@ -14647,7 +14647,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     sun: '破军剑阵的终式。烈日化阵，万剑如雨。无上境方能自如施展；借力一战，星旋曾替他撑起这一阵。',
     qunxing: '天剑二式。漫天剑影如群星坠落，攻击全体敌人。',
     shaxing: '天剑三式·杀招。全身灵力凝于一剑，引星坠击，爆发超越自身修为的一击。引魂境后领悟。',
-    qingxin: '九音录·仙音镇魂。一圈透明音波镇住神魂，单体伤害并可能定身。音律伤的是魂，无视物防。',
+    qingxin: '神乐横笛吹出仙音，点亮头顶九音阵盘；阵下光点凝成巨音砸向敌阵。每深一重多亮一枚，七重时七音重聚成七彩光柱。',
   };
   const LVNEED = { jueying: 14, xingyun: 19, duopo: 22, xingluo: 10, shaxing: 19 };
   // ---------- 技能表调整 ----------
@@ -14720,7 +14720,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     if (att.side === 'hero') {
       m *= 1 + bxv(att, 'atk');                                  // 强攻 / 搏命
       if (att.bx && att.bx.ns && att.bx.ns.n > 0) m *= 1.5;      // 凝神：下一招 +50%
-      if (b.curSk && b.curSk !== 'atk') m *= tmul(whoOf(att), b.curSk);   // 重数加成
+      if (b.curSk && b.curSk !== 'atk' && !(b.curSk === 'qingxin' && whoOf(att) === 'shenle')) m *= tmul(whoOf(att), b.curSk);   // 仙音镇魂按音符数成长，不再叠重数倍率   // 重数加成
       if (att.ally === 'shenle' && def.side === 'enemy') d2 = Object.assign({}, def, { def: def.def * (def.puppet ? 3 : .3) });   // 魂伤：走魂防
     }
     if (att.side === 'enemy' && def.side === 'hero' && bxv(def, 'vuln')) m *= 1 + bxv(def, 'vuln');   // 搏命：受伤 +25%
@@ -14824,7 +14824,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       await sleep(500); await dashBack(P, 260); P.pose = null; await dimTo(0, 350); },
   };
   SK4.ACT = ACT;   // 特效层（下一段脚本）会替换这里的演出
-  const PICK = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);
+  const PICK = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);
   doHeroAction = (orig => async function (k) {
     const b = battle, P = b && b.P; if (!b || !P) return orig.apply(this, arguments);
     b._actNo = (b._actNo || 0) + 1; b.curSk = k;
@@ -16231,5 +16231,7 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script>
+<script src="xyzh_rt.js"></script>
+<script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

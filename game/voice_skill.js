@@ -34,7 +34,7 @@
   }
   // 预热：进战斗时把本场会用到的候选先 new 一遍
   function prewarm(ids) { for (const id of ids) if (!cache[id] && lib[id]) { const a = new Audio(BGM29.src(id)); a.preload = 'auto'; cache[id] = a; } }
-  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'qingxin', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);   // 要先点选目标的招（与 SK4 PICK 一致）
+  const SINGLE = new Set(['atk', 'tanlang', 'jueying', 'tunshi', 'dianxing', 'shaxing', 'jinwu', 'yunlei', 'bingfeng', 'duopo']);   // 要先点选目标的招（与 SK4 PICK 一致）
   // 作者 11-01：等所有脚本加载完再包在最外层——以前后加载的辅助 / 秘传 / 夺魄等招直接接管，喊话层根本走不到
   const install = () => { if (window.__VOICE29_WRAPPED) return; window.__VOICE29_WRAPPED = 1; doHeroAction = (orig => async function (k) {
     const b = battle, P = b && b.P;

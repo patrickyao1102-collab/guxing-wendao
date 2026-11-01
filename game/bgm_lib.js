@@ -1280,6 +1280,18 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 4.1
 },
+"lib_n_xz2": {
+"no": "癸N13a",
+"name": "神乐·仙音镇魂（配乐中喊）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_xz2.mp4",
+"blob": "3a7fb27fb2a8228ac1d388d0fa1db3d5",
+"vol": 1,
+"desc": "即梦视频生成·在完整战斗配乐里喊招，再分离出人声 · “仙音镇魂！”（作者 11-02 建议的做法）",
+"slot": "shenle:qingxin",
+"dur": 1.8
+},
 "lib_n_xz0": {
 "no": "癸N13",
 "name": "神乐·仙音镇魂（新一）",
@@ -2395,6 +2407,94 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "即梦 SeedAudio · 厚重寒云压顶、低沉远雷般轰鸣伴寒风骤起",
 "dur": 2
+},
+"lib_xz00": {
+"no": "壬40",
+"name": "仙音镇魂·仙笛起音",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz00.mp4",
+"blob": "0794c0bcefcc0272340d61a7d9e2f542",
+"vol": 1,
+"desc": "即梦 SeedAudio · 清亮竹笛吹出空灵上扬的仙乐短句，伴细碎灵光（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz01": {
+"no": "壬41",
+"name": "仙音镇魂·九音阵展开",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz01.mp4",
+"blob": "5544f425a4cb60ac3a44b6612068e5ed",
+"vol": 1,
+"desc": "即梦 SeedAudio · 音律光阵展开，古琴泛音与钟磬齐鸣（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz02": {
+"no": "壬42",
+"name": "仙音镇魂·音位点亮",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz02.mp4",
+"blob": "1845577f7e82ed53847520c0eed6cac1",
+"vol": 1,
+"desc": "即梦 SeedAudio · 音符落入阵盘音位，清脆编钟一击（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz03": {
+"no": "壬43",
+"name": "仙音镇魂·光点凝音",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz03.mp4",
+"blob": "83b89fb0577c68329d8827acb32dcf8b",
+"vol": 1,
+"desc": "即梦 SeedAudio · 无数光点汇聚凝结，光尘声上扬到一声清鸣（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz04": {
+"no": "壬44",
+"name": "仙音镇魂·巨音爆散",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz04.mp4",
+"blob": "dd1bf3d792ee8aac1f03d8e94b9d401c",
+"vol": 1,
+"desc": "即梦 SeedAudio · 巨大光之音符砸下爆散，低频冲击加钟鸣碎响（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz05": {
+"no": "壬45",
+"name": "仙音镇魂·七音重聚",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz05.mp4",
+"blob": "9ffde2601cf7e130a966dacb1202593a",
+"vol": 1,
+"desc": "即梦 SeedAudio · 七个音阶依次上行齐鸣汇成和弦（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz06": {
+"no": "壬46",
+"name": "仙音镇魂·七彩光柱",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz06.mp4",
+"blob": "b7ede3e3455bb3111f2d7c6ee8670ee8",
+"vol": 1,
+"desc": "即梦 SeedAudio · 七彩光柱贯下冲击大地，低频爆响后长钟回荡（仙音镇魂专属）",
+"dur": 1
+},
+"lib_xz07": {
+"no": "壬47",
+"name": "仙音镇魂·镇魂",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/xz07.mp4",
+"blob": "6d6ce6b48666eaca1d8270349a78ccda",
+"vol": 1,
+"desc": "即梦 SeedAudio · 魂魄被音波震出又拽回，空灵嗡鸣与沉闷回弹（仙音镇魂专属）",
+"dur": 1
 },
 "lib_s00": {
 "no": "壬16",

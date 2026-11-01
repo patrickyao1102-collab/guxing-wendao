@@ -17,6 +17,7 @@
     gm: { who: ['luochen'], name: '光明本源', have: () => !!window.GM_CODEX, run: () => GM_CODEX.preload(), ready: () => !!(window.GM_CODEX && GM_CODEX.ready) },
     ha: { who: ['luochen'], name: '黑暗本源', have: () => !!window.HA_CODEX, run: () => Promise.all([HA_CODEX.preload(), window.HA_RT && HA_RT.preload ? HA_RT.preload() : 0]), ready: () => !!(window.HA_CODEX && HA_CODEX.ready) },
     ry: { who: ['luochen'], name: '日月轮转', have: () => typeof window.LC_DRAGON_LOAD === 'function', run: () => Promise.resolve(LC_DRAGON_LOAD()) },
+    xz: { who: ['shenle'], name: '九音录·仙音镇魂', have: () => !!window.XYZH_RT, run: () => window.XYZH_RT.ready ? Promise.resolve() : XYZH_RT.preload(), ready: () => !!(window.XYZH_RT && XYZH_RT.ready) },
     sk: { who: ['luochen'], name: '时空错乱', have: () => !!window.CODEX_LUOCHEN_SHIKONG, run: () => CODEX_LUOCHEN_SHIKONG.preload(), ready: () => !!(window.CODEX_LUOCHEN_SHIKONG && CODEX_LUOCHEN_SHIKONG.ready) },
   };
   const isDone = k => F.st[k] === 'done' || F.st[k] === 'fail' || (MODS[k].ready && MODS[k].ready());
