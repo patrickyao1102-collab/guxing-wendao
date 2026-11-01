@@ -7794,6 +7794,7 @@ window.WalkLab = (() => {
 // 渲染完全交给 Codex 定稿包里的 motion.js（原样收录）：胸腰/头身校正 + 衣摆局部补图都在里面，不单独用原始图集。
 // 定稿参数：组合 07，每帧 170ms，6 帧一轮 1.02 秒，移速 112px/s，绘制高度 95（青阳镇地图像素）。
 const WALK_FINAL_SPEED = 146;   // 总策划：步速 ×1.3，步频同步加快（170→131ms），不滑步
+const WALK_FRAME_S = .131;      // 每帧秒数（一轮 6 帧 = 0.786s）。作者 11-02：之前 setCadence(131) 只改了标签，相位计算仍用 .17，现在真正生效
 const WALK_FINAL = { w_yegx: 'guxing', w_yunting: 'yunting', w_linxue: 'linxue' };
 const WALK_ALIAS = { b_yunting: 'yunting', b_linxue: 'linxue' };
 let walkFinalReady = false;
@@ -7816,7 +7817,7 @@ function walkFinalDraw(a, now) {
   const w = a._wl || (a._wl = { ph: 0, t: now, dir });
   const dt = Math.max(0, Math.min(.25, now - w.t)); w.t = now;
   if (dir !== w.dir) w.dir = dir;   // 换方向不重置步子相位（原来归零，拐弯就像重新迈步）
-  if (a.moving) { w.ph = (w.ph + dt / (6 * .17)) % 1; w.mt = now; } else if (!(now - (w.mt || 0) < .12)) w.ph = 0;   // 停下不到 0.12 秒（路点/碰一下墙）不算停
+  if (a.moving) { w.ph = (w.ph + dt / (6 * WALK_FRAME_S)) % 1; w.mt = now; } else if (!(now - (w.mt || 0) < .12)) w.ph = 0;   // 停下不到 0.12 秒（路点/碰一下墙）不算停。步频用 WALK_FRAME_S（原来写死 .17，导致 131ms 从没生效、步速加快后滑步更重）
   const mv = !!a.moving || (now - (w.mt || 0) < .12);
   ctx.save(); ctx.globalAlpha *= a.alpha ?? 1;
   try { WalkLab.draw(ctx, 'classic', kind, dir, w.ph, mv, a.x, a.y, 95); }

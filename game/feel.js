@@ -56,17 +56,21 @@
     ctx.restore();
   })(tileAmbientLow);
   // ---- 每帧：步点、起步加速 ----
-  let last = performance.now(), moveT = 0, stepAcc = 0, foot = 0;
-  const STEP = .197;   // 走路一圈 6 帧 × 131ms，左右脚各落一次
+  let last = performance.now(), moveT = 0, stepAcc = 0, foot = 0, lastFi = -1;
+  const STEP = .197;   // 没有定稿行走相位时的兜底：走路一圈 6 帧 × 131ms，左右脚各落一次
+  // 作者 11-02：尘土原来按独立计时器 0.197s 冒一次，和画面上的落脚对不上。现在跟着定稿行走的相位走：六帧里第 2、第 5 帧是落脚帧，进这两帧才起尘
+  const CONTACT = { 1: 1, 4: 1 };
   updateMap = (orig => function (dt) {
     const now = performance.now(), d = Math.min(.1, (now - last) / 1000); last = now;
     const p = world.player, wasMoving = p && p.moving;
     window.WALK_MUL = wasMoving ? Math.min(1, .62 + .38 * Math.min(1, moveT / .16)) : .62;
     const r = orig(dt);
     if (p && p.moving && world.map && world.map.tile && !world.locked) {
-      moveT += d; stepAcc += d;
-      if (stepAcc >= STEP || moveT === d) { stepAcc = moveT === d ? STEP * .5 : stepAcc - STEP; foot ^= 1; const k = groundOf(p.x, p.y); stepSound(k); puff(p.x + (foot ? 5 : -5), p.y, k); }
-    } else { moveT = 0; stepAcc = 0; }
+      moveT += d;
+      const w = p._wl;
+      if (w && typeof w.ph === 'number') { const fi = Math.floor((((w.ph % 1) + 1) % 1) * 6); if (fi !== lastFi) { lastFi = fi; if (CONTACT[fi]) { foot = fi === 1 ? 0 : 1; const k = groundOf(p.x, p.y); stepSound(k); puff(p.x + (foot ? 5 : -5), p.y, k); } } }
+      else { stepAcc += d; if (stepAcc >= STEP || moveT === d) { stepAcc = moveT === d ? STEP * .5 : stepAcc - STEP; foot ^= 1; const k = groundOf(p.x, p.y); stepSound(k); puff(p.x + (foot ? 5 : -5), p.y, k); } }
+    } else { moveT = 0; stepAcc = 0; lastFi = -1; }
     for (const q of puffs) { q.t += d; q.x += q.vx * d; q.y += q.vy * d; q.vy += 18 * d; }
     for (let i = puffs.length - 1; i >= 0; i--) if (puffs[i].t >= puffs[i].life) puffs.splice(i, 1);
     return r;

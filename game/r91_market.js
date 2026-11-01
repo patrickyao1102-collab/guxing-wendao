@@ -1,5 +1,6 @@
 // R91 天剑集市（R80 六岛星阵）修整（作者 11-01 实机反馈）
-// 1. 守护神龙压在中央台子和通往台子的桥上：缩小到 0.62，挪到台子后沿左侧，不再挡桥
+// 1. 守护神龙被石台盖住（Codex R80_神龙石台遮挡修复 的结论）：龙 sy=1865、台 sy=1980，按脚底 y 排序时石台后画、把龙身盖掉。
+//    石台是地面，不该进人物排序；改成「地面阶段」先画（flat），神龙照原图原坐标留在世界物件里。不再缩小、挪动神龙。
 // 2. 灵兽苑入口被栏杆和灵宠摊堵死：截掉入口那段栏杆、挪走摊子，清出通道
 // 3. 湖边步道拐角缺栏杆：补一段横栏 + 一段竖栏
 // 4. 人和场景比例：集市里的人物（主角、同伴、店主、访客）统一放大 1.2 倍，灵兽不变
@@ -10,11 +11,8 @@
   const obj = uid => B.objs.find(o => o.uid === uid);
   const setBlock = (x0, y0, x1, y1, v) => { const bl = B.blocked.split(''); for (let r = Math.floor(y0 / cs); r <= Math.floor(y1 / cs); r++) for (let c = Math.floor(x0 / cs); c <= Math.floor(x1 / cs); c++) if (r >= 0 && c >= 0 && r < B.rows && c < B.cols) bl[r * B.cols + c] = v; B.blocked = bl.join(''); };
 
-  // ---- 1. 神龙 ----
-  const DK = .62, DX = 1735, DB = 1858;   // 新左边、新底边
-  const fd = (R.fxobjs || []).find(o => o.id === 'guardian_dragon');
-  if (fd) { fd.width = 900 * DK; fd.height = 386 * DK; fd.anchor = [450 * DK, 386.05 * DK]; fd.x = DX + 450 * DK; fd.y = DB; }
-  const fixDragon = () => { const o = obj('r80_5'); if (!o || o._r91) return; o._r91 = 1; o.w = 900 * DK; o.h = 386 * DK; o.x = DX; o.y = DB - o.h; o.sy = DB; o.ax = o.x + o.w / 2; o.ay = DB; };
+  // ---- 1. 神龙 / 石台 ----
+  const fixDragon = () => { const d = obj('r80_6'); if (d && !d._r91) { d._r91 = 1; d.flat = true; } };   // r80_6 = guardian_dais（sanctum 组）：地面阶段先画，神龙（r80_5）留在排序队列里
 
   // ---- 2. 灵兽苑入口 ----
   { const r8 = obj('r80_8'); if (r8) r8.wclip = [r8.x - 10, r8.y - 10, r8.w + 20, 1955 - r8.y + 10]; }   // 东侧栏杆只留到 1955（地面图里也烤着这段栏杆，下面一并擦掉）
