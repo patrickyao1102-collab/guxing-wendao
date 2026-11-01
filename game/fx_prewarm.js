@@ -7,7 +7,8 @@
 (function () {
   const F = window.FXW = { st: {}, label: '', cur: 0, total: 0, active: false };
   const rt = name => () => { const m = window[name]; if (!m || !m.preload) return Promise.resolve(); if (m._ready) return Promise.resolve(); m._loading = 1; return m.preload().then(() => { m._ready = 1; }); };
-  const sunOn = () => { const f = S.flags || {}; return !!(f.sun_seen || f.sun_unlocked) || !!(typeof battle !== 'undefined' && battle && battle.cfg && (battle.cfg.sunKill || battle.cfg.allowUlt)); };
+  // 后山借力那一战（xlLend）放的是星落·无上境，不再预载太阳（以前会先卡一下「凝聚剑意 · 破军剑阵·太阳」）
+  const sunOn = () => { const f = S.flags || {}; return !!(f.sun_seen || f.sun_unlocked) || !!(typeof battle !== 'undefined' && battle && battle.cfg && ((battle.cfg.sunKill && !battle.cfg.xlLend) || battle.cfg.allowUlt)); };
   const MODS = {
     sun: { who: ['hero'], name: '破军剑阵·太阳', when: sunOn, have: () => !!window.SUN_RT, run: rt('SUN_RT'), ready: () => !!(window.SUN_RT && SUN_RT._ready) },
     dx: { who: ['hero', 'yunting', 'linxue'], name: '天剑一式·点星', have: () => !!window.DX_RT, run: rt('DX_RT'), ready: () => !!(window.DX_RT && DX_RT._ready) },

@@ -7,8 +7,8 @@
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
   const URL = LOC ? 'xlw/xlw14.webp' : '/_blob/' + (window.XLW14_BLOB || '');
   const MAP = {"cloud": [0, 0, 880, 300], "ip0": [882, 0, 330, 220], "ip1": [1214, 0, 330, 220], "hv0": [1546, 0, 420, 211], "hv1": [0, 302, 420, 211], "ring": [422, 302, 360, 205], "burst": [784, 302, 300, 193], "con0": [1086, 302, 484, 173], "con1": [0, 515, 484, 173], "con2": [486, 515, 484, 173], "con3": [972, 515, 484, 173], "con4": [1458, 515, 484, 173], "con5": [0, 690, 484, 173], "con6": [486, 690, 484, 173], "con7": [972, 690, 484, 173], "fn0": [1458, 690, 420, 64], "fn1": [0, 865, 420, 64]};
-  let sheet = null, ready = false;
-  const load = () => { if (sheet) return; sheet = new Image(); sheet.onload = () => { ready = true; }; sheet.src = URL; };
+  let sheet = null, ready = false, BT = [1, 0, 0, 1, 0, 0];
+  const load = () => { if (sheet) return; sheet = new Image(); sheet.onload = () => { (sheet.decode ? sheet.decode() : Promise.resolve()).catch(() => {}).then(() => { ready = true; }); }; sheet.src = URL; };
   load();
   const C01 = x => Math.max(0, Math.min(1, x)), ez = q => { q = C01(q); return q * q * (3 - 2 * q); };
   const DUR = 7.2;
@@ -19,9 +19,11 @@
 
   function blit(k, x, y, w, h, a, rot, ax, ay, op) {
     if (a <= .003) return; const m = MAP[k]; if (!m) return;
-    ctx.save(); ctx.globalAlpha = Math.min(1, a); ctx.globalCompositeOperation = op || 'screen';
-    ctx.translate(x, y); if (rot) ctx.rotate(rot);
-    ctx.drawImage(sheet, m[0], m[1], m[2], m[3], -w * (ax == null ? .5 : ax), -h * (ay == null ? .5 : ay), w, h); ctx.restore();
+    // 不用 save/restore：直接设变换，一帧几百次绘制时省下状态栈开销（调用方在整段结束时统一复位）
+    ctx.globalAlpha = Math.min(1, a); ctx.globalCompositeOperation = op || 'screen';
+    if (rot) { const c = Math.cos(rot), s = Math.sin(rot); ctx.setTransform(c * BT[0], s * BT[0], -s * BT[0], c * BT[0], BT[4] + x * BT[0], BT[5] + y * BT[0]); }
+    else ctx.setTransform(BT[0], 0, 0, BT[0], BT[4] + x * BT[0], BT[5] + y * BT[0]);
+    ctx.drawImage(sheet, m[0], m[1], m[2], m[3], -w * (ax == null ? .5 : ax), -h * (ay == null ? .5 : ay), w, h);
   }
 
   // 按实战敌人排布三波落雨（照搬 v14 plan()：每颗星按横向顺序分配给从左到右的敌人；每六道有一道落在身上，其余散落在脚边）
@@ -52,7 +54,7 @@
     const ev = plan(units, stars), b = battle;
     const dst = e => { const u = units[e.slot]; return [u.x + e.off[0], u.y + e.off[1]]; };
     return new Promise(res => {
-      let done = false;
+      let done = false, lastSnd = -1;
       const fin = () => { if (!done) { done = true; res(); } };
       addFx({ life: DUR, layer: 1,
         update(f) { const t = f.t;
@@ -60,9 +62,11 @@
           for (const e of ev) if (!e.done && t >= e.hit) { e.done = true; const u = units[e.slot];
             if (e.heavy) S.shake = Math.max(S.shake || 0, e.fin ? 9 : 3);
             try { onHit(e, u); } catch (er) { console.warn(er); } }
-          for (const e of ev) if (!e.snd && t >= e.fire) { e.snd = true; if (e.star === 0 || e.star === 3 || e.star === 6) playSnd('sfx_star', .09 + e.wave * .02); }
+          for (const e of ev) if (!e.snd && t >= e.fire) { e.snd = true; if ((e.star === 0 || e.star === 3 || e.star === 6) && t - lastSnd > .09) { lastSnd = t; playSnd('sfx_star', .09 + e.wave * .02); } }   // 第三波一秒内上百道，音效限流，不然声音堆叠会卡
           if (t >= 6.75) fin(); },
-        draw(f) { if (!ready) return; const t = f.t;
+        draw(f) { if (!ready) return; ctx.save(); const T = ctx.getTransform(); BT = [T.a, T.b, T.c, T.d, T.e, T.f]; try { drawAll(f.t); } finally { ctx.restore(); } },
+        onEnd() { if (b === battle) b.dim = 0; fin(); } });
+      function drawAll(t) {
           // 星云
           const na = ez((t - .4) / .7) * ez((6.9 - t) / .85);
           blit('cloud', -20 + OX + drift(t), 6 + OY, 880, 300, na, 0, 0, 0, 'source-over');
@@ -91,8 +95,7 @@
             if (e.heavy && age >= 0 && age < .24) { const w = (74 + 14 * e.wave) * (.7 + .45 * ez(age / .065));
               blit('burst', dx, dy, w, w * .85, 1.12 * ez(age / .012) * ez((.24 - age) / .12)); }
           }
-        },
-        onEnd() { if (b === battle) b.dim = 0; fin(); } });
+      }
     });
   }
 
@@ -101,14 +104,14 @@
     const ts = aliveEnemies().slice(0, 5);
     if (!window.XL_WUSHANG || Pc.ally || !ts.length || !ready) return prev.apply(this, arguments);
     Pc.pose = 'cast'; playSnd('sfx_charge', .7);
-    const mult = window.XL_MULT || 2, cnt = new Map();
+    const mult = window.XL_MULT || 2, cnt = new Map(); let lastHit = 0, lastBoom = 0;
     // 伤害只结算在落到身上的那几道和最后齐落的七颗上，按目标平分倍率；其余落雨只是画面
     const dmgHit = e => e.body || e.fin;
     const evAll = plan(ts, CP.map(([x, y]) => [x, y]));
     for (const e of evAll) if (dmgHit(e)) cnt.set(e.slot, (cnt.get(e.slot) || 0) + 1);
     await play(Pc, ts, (e, u) => {
       if (!u || !u.alive || !dmgHit(e)) return;
-      playSnd(e.fin ? 'sfx_boom' : 'sfx_hit', e.fin ? .8 : .4);
+      const now = performance.now(); if (e.fin ? now - lastBoom > 120 : now - lastHit > 90) { if (e.fin) lastBoom = now; else lastHit = now; playSnd(e.fin ? 'sfx_boom' : 'sfx_hit', e.fin ? .8 : .4); }
       const share = mult / (cnt.get(e.slot) || 1), r = dmgCalc(Pc, u, share, .1); let d = r.d;
       // 借力那一战（sunKill）：齐落之前别把敌人打死，留到最后七颗一起收
       if (!e.fin && battle.cfg && battle.cfg.sunKill) d = Math.min(d, Math.max(0, Math.ceil(u.hp) - 1));
