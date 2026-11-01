@@ -37,7 +37,7 @@
     restore();
   }
   // 每次轮到我方：灵力 / 怒气回满；木人回满血、不会死
-  heroSkills = (orig => function () { const b = battle; if (b && b === D.b && b.P) { b.P.maxmp = Math.max(b.P.maxmp, 999); b.P.mp = b.P.maxmp; b.P.rage = 100; } return orig.apply(this, arguments); })(heroSkills);
+  heroSkills = (orig => function () { const b = battle; if (b && b === D.b && b.P) { b.P.maxmp = Math.max(b.P.maxmp, 999); b.P.mp = b.P.maxmp; b.P.rage = 100; b.tanlangUsed = 0; /* 作者 11-02：木人桩里贪狼（追魂 / 绝影 / 夺魄）不限次数 */ } return orig.apply(this, arguments); })(heroSkills);
   afterAct = (orig => async function () {
     const b = battle; if (b && b === D.b) { for (const e of b.enemies) { e.alive = true; e.hp = e.maxhp; e.pose = null; } for (const u of b.heroes) { u.alive = true; u.hp = Math.max(u.hp, 1); u.maxmp = Math.max(u.maxmp, 999); u.mp = u.maxmp; u.rage = 100; } }
     return orig.apply(this, arguments);

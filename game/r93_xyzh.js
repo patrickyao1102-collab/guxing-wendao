@@ -10,7 +10,7 @@
   const url = n => (LOC || !window.XYZH_BLOBS || !XYZH_BLOBS[n]) ? n : '/_blob/' + XYZH_BLOBS[n];
   if (RT() && RT().setUrl) RT().setUrl(url);
 
-  const LV = () => Math.max(1, Math.min(7, window.SKILL_TIER ? SKILL_TIER('shenle', 'qingxin') : 1));
+  const LV = () => window.XZ_LV_FORCE || Math.max(1, Math.min(7, window.SKILL_TIER ? SKILL_TIER('shenle', 'qingxin') : 1));
   // 灵力：一重 22，每多一枚仙音 +4（七重 46）
   const sk = ALLY2_SKILLS.shenle.qingxin;
   if (sk) { Object.defineProperty(sk, 'cost', { get: () => 18 + 4 * LV(), set() {}, configurable: true });
@@ -107,5 +107,15 @@
     await play(P, ts, N);
     P.pose = null;
   };
+  // 木人桩（测试面板）：一到七重都列出来，可以挨个试（作者 11-02）
+  const CNN = '一二三四五六七', isDummy = () => typeof battle !== 'undefined' && battle && battle.cfg && battle.cfg.dummy;
+  heroSkills = (orig => function () { const list = orig.apply(this, arguments);
+    try { const P = battle && battle.P; if (isDummy() && P && P.ally === 'shenle') { const i = list.findIndex(it => it.k === 'qingxin'), base = i >= 0 ? list[i] : {};
+      const add = []; for (let n = 1; n <= 7; n++) add.push(Object.assign({}, base, { k: 'xz_lv' + n, name: '仙音镇魂·' + CNN[n - 1] + '重', cost: 0, desc: '木人桩试招：' + n + ' 枚仙音' + (n === 7 ? '，七音重聚成七彩光柱' : ''), tag: '群攻', disabled: false }));
+      if (i >= 0) list.splice(i, 1, ...add); else list.push(...add); }
+      if (isDummy()) for (const it of list) if (/^(tanlang|jueying|duopo)$/.test(it.k)) it.desc = String(it.desc || '').replace(/（每战.*?次）/, '（木人桩不限次数）'); } catch (e) {}
+    return list; })(heroSkills);
+  doHeroAction = (orig => async function (k) { const m = /^xz_lv(\d)$/.exec(k || ''); if (!m) return orig.apply(this, arguments);
+    window.XZ_LV_FORCE = +m[1]; try { try { if (window.VOICE29) VOICE29.play('shenle:qingxin'); } catch (e) {} return await orig.call(this, 'qingxin'); } finally { window.XZ_LV_FORCE = 0; } })(doHeroAction);
   window.R93_XYZH = { level: LV, play, timeline };
 })();
