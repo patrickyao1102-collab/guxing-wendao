@@ -9,20 +9,20 @@
   const ROW = { down: [0, 0], down_left: [1, 0], left: [2, 0], up_left: [3, 0], up: [4, 0], right: [2, 1], down_right: [1, 1], up_right: [3, 1] };
   const FRAME_MS = 160;
   let t0 = 0, wasMoving = false, lastCall = 0;
+  function raw(c, dir, moving, x, y, height) {
+    const r = ROW[dir] || ROW.down, now = performance.now();
+    if (moving && (!wasMoving || now - lastCall > 300)) t0 = now;   // 起步从第 1 帧开始；转向不重置
+    wasMoving = !!moving; lastCall = now;
+    const f = moving ? Math.floor((now - t0) / FRAME_MS) % 8 : 8;
+    const sc = 0.44 * height / 95;
+    c.save(); c.translate(x, y); if (r[1]) c.scale(-1, 1); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    c.drawImage(im, f * 224, r[0] * 240, 224, 240, -112 * sc, -232 * sc, 224 * sc, 240 * sc); c.restore(); hits++;
+    return { frame: f };
+  }
   const wrap = () => { if (typeof WalkLab === 'undefined' || !WalkLab.draw) return setTimeout(wrap, 300);
     const od = WalkLab.draw;
     WalkLab.draw = function (c, id, kind, dir, phase, moving, x, y, height) {
-      const r = ROW[dir];
-      if (on && ok && kind === 'guxing' && r) {
-        const now = performance.now();
-        if (moving && (!wasMoving || now - lastCall > 300)) t0 = now;   // 起步从第 1 帧开始；转向不重置
-        wasMoving = !!moving; lastCall = now;
-        const f = moving ? Math.floor((now - t0) / FRAME_MS) % 8 : 8;
-        const sc = 0.44 * height / 95;
-        c.save(); c.translate(x, y); if (r[1]) c.scale(-1, 1); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
-        c.drawImage(im, f * 224, r[0] * 240, 224, 240, -112 * sc, -232 * sc, 224 * sc, 240 * sc); c.restore(); hits++;
-        return { frame: f };
-      }
+      if (on && ok && kind === 'guxing' && ROW[dir]) return raw(c, dir, moving, x, y, height);
       return od.apply(this, arguments);
     };
   };
@@ -55,5 +55,5 @@
         if (ia || ib) { consumeTap(); setOn(ia); try { playSnd('ui_click'); } catch (e) {} try { toast(ia ? '叶孤星行走：新版八向' : '叶孤星行走：原版', 1400); } catch (e) {} return; } }
       return orig.apply(this, arguments); })(menuUpdate);
   })();
-  window.WALK8 = { get on() { return on && ok; }, get hits() { return hits; }, set(v) { on = !!v; try { localStorage.setItem('walk8', on ? '1' : '0'); } catch (e) {} } };
+  window.WALK8 = { get on() { return on && ok; }, get ready() { return ok; }, drawRaw: raw, get hits() { return hits; }, set(v) { on = !!v; try { localStorage.setItem('walk8', on ? '1' : '0'); } catch (e) {} } };
 })();
