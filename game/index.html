@@ -7817,7 +7817,7 @@ function walkFinalDraw(a, now) {
   if (!kind || !walkFinalReady) return false;
   const fc = WALK_ALIAS[a.key] && !WALK_FINAL[a.key] ? (a.face || a._mf) : a.face;
   let dir = fc === 'up' || fc === 'left' || fc === 'right' ? fc : 'down';
-  if (kind === 'guxing' && a.face8 && /_/.test(a.face8) && WalkLab.hasDiag && WalkLab.hasDiag()) dir = a.face8;   // 斜向：用八向朝向（只有叶孤星有斜向帧）
+  if (kind === 'guxing' && a.face8 && /_/.test(a.face8) && ((window.WALK8 && WALK8.on) || (WalkLab.hasDiag && WalkLab.hasDiag()))) dir = a.face8;   // 斜向：用八向朝向（只有叶孤星有斜向帧）
   const w = a._wl || (a._wl = { ph: 0, t: now, dir });
   const dt = Math.max(0, Math.min(.25, now - w.t)); w.t = now;
   if (dir !== w.dir) w.dir = dir;   // 换方向不重置步子相位（原来归零，拐弯就像重新迈步）
@@ -16236,6 +16236,7 @@ window.MarketEffects = (() => {
 })();
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
+<script src="r97_walk8.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
