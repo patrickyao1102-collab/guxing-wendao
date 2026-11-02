@@ -15694,10 +15694,10 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
  }
  function draw(c,t,options){
   const o={...defaults,...options},nodes=nodePositions(t,o);if(o.a<=0||o.rx<=0||o.ry<=0)return{nodes,center:{x:o.x,y:o.y}};
-  c.save();c.globalCompositeOperation='screen';canopy(c,t,o);radial(c,o.x,o.y,o.rx*1.08,o.ry*1.16,o.a*.023,'217,151,68');interflow(c,t,o,nodes);
-  for(let layer=2;layer>=0;layer--){for(let j=0;j<3;j++)ribbon(c,t,o,layer,j);movingPackets(c,t,o,layer)}
+  c.save();c.globalCompositeOperation='screen';canopy(c,t,o);radial(c,o.x,o.y,o.rx*1.08,o.ry*1.16,o.a*.023,'217,151,68');/*作者11-03：星盘看着还是在转、想吐 → 整个星盘完全静止：旋臂定格不抖、去掉沿旋臂跑的流光，只有星点闪烁*/if(window.XL_SWIRL){interflow(c,t,o,nodes);
+  for(let layer=2;layer>=0;layer--){for(let j=0;j<3;j++)ribbon(c,t,o,layer,j);movingPackets(c,t,o,layer)}}else{interflow(c,0,o,nodes);for(let layer=2;layer>=0;layer--)for(let j=0;j<3;j++)ribbon(c,0,o,layer,j);}
   for(let j=0;j<27;j++){
-   const layer=j%3,an=j*2.39996+t*.02,p=world(orbital(t,layer,an,.20+.76*((j*.381966)%1)),o),a=o.a*(.08+.14*Math.sin(t*1.6+j)**2);
+   const layer=j%3,an=j*2.39996,p=world(orbital(0,layer,an,.20+.76*((j*.381966)%1)),o),a=o.a*(.08+.14*Math.sin(t*1.6+j)**2);
    c.globalAlpha=C(a);c.fillStyle=j%5?'#f5ce87':'#b7b4ea';c.beginPath();c.arc(p.x,p.y,.75+.18*(j%3),0,TAU);c.fill();
   }
   for(const node of nodes)nucleus(c,t,node,o);
