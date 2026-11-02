@@ -1,6 +1,8 @@
-/* 太阳剑阵 v21 龙卷归剑（Codex）→ 实战版 SUN_RT（Claude 移植：素材走图集、按真实敌人计算、去掉演示用背景/HUD）。原注释：v13 — approved v2 image assets and Luochen impact sequences; v4 array geometry retained by user request, with layered material and image-flow overlays.
+/* 太阳剑阵 v28 光质精修（Codex 11-03，底版 v21/v22 龙卷归剑，动作时间轴不变）→ 实战版 SUN_RT（Claude 移植：素材走图集、按真实敌人计算、去掉演示用背景/HUD）。原注释：v13 — approved v2 image assets and Luochen impact sequences; v4 array geometry retained by user request, with layered material and image-flow overlays.
    Only the original game's backdrop, fixed player artwork and beasts are used. */
-(function(){'use strict';window.SUN_WHEEL_BLOB=window.SUN_WHEEL_BLOB||'/_blob/f0155f0ec591c019b03251472f9077aa';
+(function(){'use strict';
+/* v28 光质精修（Codex 11-03）：新画的光剑 16 相位 / 爆散 16 帧 / 剑气拖尾 16 张 / 大光剑 / 晶光剑，打成一张图集 */const SUN28_LOC=!!(window.FORCE_LOCAL||/^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname)||location.protocol==='file:');const SUN28_MAP={"v26_swords0":[0,0,192,640],"v26_swords1":[192,0,192,640],"v26_swords2":[384,0,192,640],"v26_swords3":[576,0,192,640],"v26_swords4":[768,0,192,640],"v26_swords5":[960,0,192,640],"v26_swords6":[1152,0,192,640],"v26_swords7":[1344,0,192,640],"v26_swords8":[1536,0,192,640],"v26_swords9":[1728,0,192,640],"v26_swords10":[1920,0,192,640],"v26_swords11":[2112,0,192,640],"v26_swords12":[2304,0,192,640],"v26_swords13":[2496,0,192,640],"v26_swords14":[2688,0,192,640],"v26_swords15":[2880,0,192,640],"v26_trail0":[0,642,192,640],"v26_trail1":[192,642,192,640],"v26_trail2":[384,642,192,640],"v26_trail3":[576,642,192,640],"v26_trail4":[768,642,192,640],"v26_trail5":[960,642,192,640],"v26_trail6":[1152,642,192,640],"v26_trail7":[1344,642,192,640],"v26_trail8":[1536,642,192,640],"v26_trail9":[1728,642,192,640],"v26_trail10":[1920,642,192,640],"v26_trail11":[2112,642,192,640],"v26_trail12":[2304,642,192,640],"v26_trail13":[2496,642,192,640],"v26_trail14":[2688,642,192,640],"v26_trail15":[2880,642,192,640],"v26_impact0":[0,1284,314,314],"v26_impact1":[316,1284,313,314],"v26_impact2":[632,1284,313,314],"v26_impact3":[948,1284,314,314],"v26_impact4":[1264,1284,314,313],"v26_impact5":[1580,1284,313,313],"v26_impact6":[1896,1284,313,313],"v26_impact7":[2212,1284,314,313],"v26_impact8":[0,1600,314,313],"v26_impact9":[316,1600,313,313],"v26_impact10":[632,1600,313,313],"v26_impact11":[948,1600,314,313],"v26_impact12":[1264,1600,314,314],"v26_impact13":[1580,1600,313,314],"v26_impact14":[1896,1600,313,314],"v26_impact15":[2212,1600,314,314],"qualitySword":[3072,0,1024,1536],"crystal_sword":[0,1920,887,1774]};let SUN28_PG=null;function SUN28_IMG(k){const e=SUN28_MAP[k];if(!e)return Promise.reject(new Error('sun28 asset '+k));SUN28_PG=SUN28_PG||new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=SUN28_LOC?'sun28/sun28_a.webp':'/_blob/1ca562036c3c2e179b0976ee11e1432d';});return SUN28_PG.then(pg=>{const c=document.createElement('canvas');c.width=e[2];c.height=e[3];c.getContext('2d').drawImage(pg,e[0],e[1],e[2],e[3],0,0,e[2],e[3]);return c;});}
+window.SUN_WHEEL_BLOB=window.SUN_WHEEL_BLOB||'/_blob/f0155f0ec591c019b03251472f9077aa';
 const SUN_MAP={"s5_beam": [0, 0, 0, 996, 1536], "s5_sword": [0, 998, 0, 318, 1536], "s7_solid_sword": [0, 1318, 0, 1024, 1536], "s5_array": [0, 2344, 0, 1254, 1252], "s5_beamseq5": [0, 3600, 0, 256, 640], "s5_beamseq2": [0, 0, 1538, 256, 640], "s5_flow3": [0, 258, 1538, 256, 640], "s5_beamseq1": [0, 516, 1538, 256, 640], "s5_beamseq3": [0, 774, 1538, 256, 640], "s5_beamseq4": [0, 1032, 1538, 256, 640], "s5_flow5": [0, 1290, 1538, 256, 640], "s5_flow2": [0, 1548, 1538, 256, 640], "s5_flow4": [0, 1806, 1538, 256, 640], "s5_flow6": [0, 2064, 1538, 256, 640], "s5_flow7": [0, 2322, 1538, 256, 640], "s5_flow1": [0, 2580, 1538, 256, 640], "s5_flow0": [0, 2838, 1538, 256, 640], "s5_beamseq6": [0, 3096, 1538, 256, 640], "s5_beamseq7": [0, 3354, 1538, 256, 640], "s5_beamseq0": [0, 3612, 1538, 256, 640], "s15_core1": [0, 0, 2180, 627, 627], "s15_core3": [0, 629, 2180, 627, 627], "s15_core0": [0, 1258, 2180, 627, 627], "s15_core2": [0, 1887, 2180, 627, 627], "s5_sun_rays": [0, 2516, 2180, 627, 621], "s15_rays3": [0, 3145, 2180, 637, 618], "s15_rays0": [0, 0, 2809, 636, 618], "s15_rays1": [0, 638, 2809, 637, 618], "s15_rays2": [0, 1277, 2809, 636, 618], "s5_sun_sphere": [0, 1915, 2809, 543, 594], "s5_hit": [0, 2460, 2809, 620, 593], "s5_cracks": [0, 3082, 2809, 627, 578], "s5_sun_corona": [0, 0, 3429, 620, 577], "s5_lc_hit1": [0, 622, 3429, 374, 502], "s5_lc_hit0": [0, 998, 3429, 374, 502], "s5_lc_land3": [0, 1374, 3429, 374, 502], "s5_lc_land6": [0, 1750, 3429, 374, 502], "s5_lc_hit7": [0, 2126, 3429, 374, 502], "s5_lc_land2": [0, 2502, 3429, 374, 502], "s5_lc_hit6": [0, 2878, 3429, 374, 502], "s5_lc_land7": [0, 3254, 3429, 374, 502], "s5_lc_hit4": [0, 3630, 3429, 374, 502], "s5_lc_land0": [1, 0, 0, 374, 502], "s5_lc_hit2": [1, 376, 0, 374, 502], "s5_lc_land1": [1, 752, 0, 374, 502], "s5_lc_land4": [1, 1128, 0, 374, 502], "s5_lc_hit3": [1, 1504, 0, 374, 502], "s5_lc_hit5": [1, 1880, 0, 374, 502], "s5_lc_land5": [1, 2256, 0, 374, 502], "s5_sun_core": [1, 2632, 0, 485, 485], "s5_shock": [1, 3119, 0, 627, 459], "s5_fire_sea": [1, 0, 504, 624, 412], "s5_arc5": [1, 626, 504, 384, 384], "s5_arc7": [1, 1012, 504, 384, 384], "s5_arc1": [1, 1398, 504, 384, 384], "s5_arc6": [1, 1784, 504, 384, 384], "s5_arc4": [1, 2170, 504, 384, 384], "s5_arc2": [1, 2556, 504, 384, 384], "s5_arc0": [1, 2942, 504, 384, 384], "s5_arc3": [1, 3328, 504, 384, 384], "s5_lc_beam10": [1, 0, 918, 502, 253], "s5_lc_beam9": [1, 504, 918, 502, 253], "s5_lc_beam11": [1, 1008, 918, 502, 253], "s5_lc_beam3": [1, 1512, 918, 502, 246], "s5_lc_beam4": [1, 2016, 918, 502, 246], "s5_lc_beam5": [1, 2520, 918, 502, 246], "s5_lc_beam6": [1, 3024, 918, 502, 244], "s5_lc_beam8": [1, 3528, 918, 502, 244], "s5_lc_beam7": [1, 0, 1173, 502, 244], "s5_lc_beam1": [1, 504, 1173, 502, 241], "s5_lc_beam2": [1, 1008, 1173, 502, 241], "s5_lc_beam0": [1, 1512, 1173, 502, 241]};let SUN_PG=null;const SUN_PAGES_F=()=>SUN_PG||(SUN_PG=['sun_assets/atlas0.webp','sun_assets/atlas1.webp'].map(src=>new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=src;})));
 function SUN_IMG(k){const e=SUN_MAP[k];if(!e)return Promise.reject(new Error('sun asset '+k));return SUN_PAGES_F()[e[0]].then(pg=>{const c=document.createElement('canvas');c.width=e[3];c.height=e[4];c.getContext('2d').drawImage(pg,e[1],e[2],e[3],e[4],0,0,e[3],e[4]);return c;});}
 
@@ -21,11 +23,11 @@ const A={};let assetsReady=false;let sunPixels=[],sunWarp,sunWarpContext,sunWarp
 let solarDirection='D',sunSets={},coreSets=[],raySets=[],radianceRays,radianceRaysContext,radianceRaysData;
 const SOLAR16_ALIGNMENT={"core": [{"center": [326, 310], "radius": 231, "target": 240, "score": 101.17852175245096}, {"center": [302, 312], "radius": 231, "target": 240, "score": 103.57894454656864}, {"center": [328, 308], "radius": 228, "target": 240, "score": 106.99916513480392}, {"center": [298, 308], "radius": 228, "target": 240, "score": 108.56178462009802}], "rays": [{"center": [328, 320], "radius": 114, "target": 112, "score": 86.55313725490194}, {"center": [321, 324], "radius": 116, "target": 112, "score": 87.09147518382353}, {"center": [328, 300], "radius": 114, "target": 112, "score": 87.4194056372549}, {"center": [323, 302], "radius": 116, "target": 112, "score": 86.42831954656857}]};
 const SUN21_ALIGNMENT=[{"frame": 0, "center": [226, 251], "radius": 132, "score": 149.58486764705884}, {"frame": 1, "center": [225, 251], "radius": 132, "score": 138.78976429738566}, {"frame": 2, "center": [224, 251], "radius": 132, "score": 142.39006576797385}, {"frame": 3, "center": [222, 251], "radius": 132, "score": 139.2821866830065}, {"frame": 4, "center": [225, 250], "radius": 132, "score": 140.918658496732}, {"frame": 5, "center": [224, 250], "radius": 132, "score": 141.30993137254904}, {"frame": 6, "center": [224, 250], "radius": 132, "score": 133.93403839869285}, {"frame": 7, "center": [225, 250], "radius": 132, "score": 148.5017283496732}];
-async function preload(){const keys=['sword','array','beam','sun_core','sun_sphere','sun_corona','sun_rays','shock','cracks','fire_sea','hit'];for(let i=0;i<8;i++)for(let k of ['flow','arc','beamseq','lc_hit','lc_land'])keys.push(k+i);for(let i=0;i<12;i++)keys.push('lc_beam'+i);await Promise.all(keys.map(k=>new Promise((ok,no)=>{SUN_IMG('s5_'+k).then(im=>{A[k]=im;ok()},no)})));prepareLightAssets();await new Promise((ok,no)=>{SUN_IMG('s7_solid_sword').then(im=>{prepareSolidSword(im);ok()},no)});preparePlatinumLayers();await preloadWheelImages();assetsReady=true;}
+async function preloadBaseline(){const keys=['sword','array','beam','sun_core','sun_sphere','sun_corona','sun_rays','shock','cracks','fire_sea','hit'];for(let i=0;i<8;i++)for(let k of ['flow','arc','beamseq','lc_hit','lc_land'])keys.push(k+i);for(let i=0;i<12;i++)keys.push('lc_beam'+i);await Promise.all(keys.map(k=>new Promise((ok,no)=>{SUN_IMG('s5_'+k).then(im=>{A[k]=im;ok()},no)})));prepareLightAssets();await new Promise((ok,no)=>{SUN_IMG('s7_solid_sword').then(im=>{prepareSolidSword(im);ok()},no)});preparePlatinumLayers();await preloadWheelImages();await preloadThunderAssets();await SUN_ARRAY_V26.preload();assetsReady=true;}
 
-const FQ=SUN_LOWCPU?.5:1;   // 手机：光效层按半分辨率画，再放大叠到画面上（光效本身是柔光，看不出差别）
+const FQ=SUN_LOWCPU?.5:2;   // 手机：光效层按半分辨率画，再放大叠到画面上（光效本身是柔光，看不出差别）
 const fx=mk(W*FQ,H*FQ),fxc=fx.getContext('2d'),small4=mk(W/4,H/4),blur4=mk(W/4,H/4),small8=mk(W/8,H/8),blur8=mk(W/8,H/8),litCache=new WeakMap();
-let debugMode='normal';const SQ=1,solid=mk(W*SQ,H*SQ),solidc=solid.getContext('2d');
+let debugMode='normal';const SQ=SUN_LOWCPU?1:2,solid=mk(W*SQ,H*SQ),solidc=solid.getContext('2d');
 function prepareLightAssets(){for(const key of Object.keys(A)){const im=A[key],isSword=key==='sword',w=im.width,h=isSword?Math.min(1125,im.height):im.height,cv=mk(w,h),g=cv.getContext('2d');g.drawImage(im,0,0);const data=g.getImageData(0,0,w,h),d=data.data;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){let i=(y*w+x)*4,L=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,em=Math.pow(C((L-.055)/.945),1.25),fade=1;
   if(isSword){const yy=y/h,xx=(x-w*.5)/w,spread=yy<.70?.17:yy<.90?.48:.19;fade=Math.exp(-Math.pow(Math.abs(xx)/spread,4));em=Math.pow(C((L-.16)/.84),1.25)*.68;const core=Math.exp(-Math.pow(xx/.025,2))*E(yy,.015,.055)*(1-E(yy,.64,.72));em=Math.max(em,core*(.74+.22*L));}
@@ -49,12 +51,18 @@ function environmentLightV8(){
 function illuminate(im,bounds){if(litCache.has(im))return litCache.get(im);const w=im.width,h=im.height,fill=mk(w,h),rim=mk(w,h),g=fill.getContext('2d'),r=rim.getContext('2d'),top=bounds?.[1]||0,bottom=bounds?.[3]||h;
  g.drawImage(im,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#fff9e8';g.fillRect(0,0,w,h);g.globalCompositeOperation='destination-in';const grad=g.createLinearGradient(0,top,0,bottom);grad.addColorStop(0,'rgba(255,255,255,1)');grad.addColorStop(.5,'rgba(255,255,255,.60)');grad.addColorStop(1,'rgba(255,255,255,.09)');g.fillStyle=grad;g.fillRect(0,0,w,h);
  r.drawImage(fill,-2,-6);r.globalCompositeOperation='destination-out';r.drawImage(im,0,0);litCache.set(im,{fill,rim});return{fill,rim};}
-function bloomComposite(){if(wall<9.4)return bloomCompositeV8();for(const[small,blur,scale,radius]of[[small4,blur4,4,12],[small8,blur8,8,40]]){const g=small.getContext('2d'),b=blur.getContext('2d');g.clearRect(0,0,small.width,small.height);g.drawImage(fx,0,0,small.width,small.height);b.clearRect(0,0,blur.width,blur.height);b.filter='blur('+radius/scale+'px)';b.drawImage(small,0,0);b.filter='none';}main.save();main.globalCompositeOperation='screen';main.globalAlpha=.98;main.drawImage(fx,0,0,W,H);main.globalCompositeOperation='lighter';main.globalAlpha=.12;main.drawImage(blur4,0,0,W,H);main.globalAlpha=.035;main.drawImage(blur8,0,0,W,H);main.restore();}
 let fxFar=false;
-function bloomCompositeV8(){
- if(SUN_LOWCPU&&fxFar){main.save();main.globalCompositeOperation='screen';main.globalAlpha=.94;main.drawImage(fx,0,0,W,H);main.restore();return;}   // 手机：远景层不做辉光模糊
- for(const [small,blur,scale,radius]of(SUN_LOWCPU?[[small4,blur4,4,12]]:[[small4,blur4,4,12],[small8,blur8,8,40]])){const g=small.getContext('2d'),b=blur.getContext('2d');g.clearRect(0,0,small.width,small.height);g.drawImage(fx,0,0,small.width,small.height);b.clearRect(0,0,blur.width,blur.height);b.filter='blur('+radius/scale+'px)';b.drawImage(small,0,0);b.filter='none';b.globalCompositeOperation='source-in';b.fillStyle=scale===4?'#fff2d7':'#ffe9c1';b.fillRect(0,0,b.canvas.width,b.canvas.height);b.globalCompositeOperation='source-over';}
- main.save();main.globalCompositeOperation='screen';main.globalAlpha=.94;main.drawImage(fx,0,0,W,H);main.globalCompositeOperation='lighter';main.globalAlpha=(.40-.34*(E(wall,.8,1.15)*(1-E(wall,2.55,3.2))+E(wall,7.04,7.35)*(1-E(wall,9.1,9.4))));main.drawImage(blur4,0,0,W,H);if(!SUN_LOWCPU){main.globalAlpha=(.40-.37*(E(wall,.8,1.15)*(1-E(wall,2.55,3.2))+E(wall,7.04,7.35)*(1-E(wall,9.1,9.4))));main.drawImage(blur8,0,0,W,H);}main.restore();}
+function bloomComposite(){
+ if(SUN_LOWCPU&&fxFar){main.save();main.globalCompositeOperation='screen';main.globalAlpha=1;main.drawImage(fx,0,0,W,H);main.restore();return;}   // 手机：远景层不做辉光模糊
+ for(const[small,blur,scale,radius]of(SUN_LOWCPU?[[small4,blur4,4,8]]:[[small4,blur4,4,8],[small8,blur8,8,28]])){
+  const g=small.getContext('2d'),b=blur.getContext('2d');g.clearRect(0,0,small.width,small.height);g.drawImage(fx,0,0,small.width,small.height);
+  b.clearRect(0,0,blur.width,blur.height);b.filter='blur('+radius/scale+'px)';b.drawImage(small,0,0);b.filter='none';
+ }
+ main.save();main.globalCompositeOperation='screen';main.globalAlpha=1;main.drawImage(fx,0,0,W,H);
+ main.globalCompositeOperation='lighter';main.globalAlpha=.32;main.drawImage(blur4,0,0,W,H);if(!SUN_LOWCPU){main.globalAlpha=.16;main.drawImage(blur8,0,0,W,H);}main.restore();
+}
+function bloomCompositeV8(){bloomComposite();}
+
 function tex(k,x,y,w,h,a=1,rot=0,blend='screen',ax=.5,ay=.5,filter='none'){if(a<=0||!A[k])return;c.save();c.translate(x,y);c.rotate(rot);c.globalCompositeOperation='screen';c.globalAlpha=C(a);c.filter=filter;c.drawImage(A[k],-w*ax,-h*ay,w,h);c.restore();}
 function seq(prefix,q,x,y,w,h,a=1,rot=0,ax=.5,ay=.5){const f=((q%1+1)%1)*8,i=Math.floor(f),u=E(f-i,0,1);tex(prefix+i,x,y,w,h,a*(1-u),rot,'screen',ax,ay);tex(prefix+(i+1)%8,x,y,w,h,a*u,rot,'screen',ax,ay);}
 function impactSeq(prefix,age,x,y,w,h,a=1){const f=Math.min(7,3+age*12),i=Math.floor(f),q=E(f-i,0,1);tex(prefix+i,x,y,w,h,a*(1-q),0,'screen',.5,.80,'none');tex(prefix+Math.min(7,i+1),x,y,w,h,a*q,0,'screen',.5,.80,'none');}
@@ -86,13 +94,13 @@ function originBurst(){const f=finger(),p=E(t,0,.45)*(1-E(t,1.1,1.55));if(p>0){g
 
 
 function phaseName(){return wall<.8?'引光入空':wall<2.2?'白金日轮凝聚':wall<3.2?'日轮舒展结阵':wall<6.6?'法阵幻剑·连绵剑雨':wall<6.94?'群剑拔地':wall<8.1?'龙卷剑涡·盘旋上升':wall<8.8?'收窄汇流·凝聚日轮':wall<9.1?'白金日轮悬停':wall<9.4?'落日一击':wall<10.2?'万丈光芒':'余晖回流';}
-function arrayPlane(isGround){if(!isGround&&wall>=2.0&&wall<3.2){solarArrayWeave();return;}if(wall<6.6)return arrayPlaneV8(isGround);if(wall>=8.8)return;const q=E(wall,7,8.8),clock=6.6+Math.max(0,wall-7),u=Math.max(0,wall-7),angle=(6.6-3.2)*(isGround?TAU/15:-TAU/13.5)+(isGround?1:-1)*TAU*(.05*u+.30*u*u),x=isGround?ground.x:L(sky.x,430,q),y=isGround?ground.y:L(sky.y,180,q),rx=(isGround?ground.rx:sky.rx)*(1-.95*q),ry=(isGround?ground.ry:sky.ry)*(1-.86*q),alpha=(isGround?.58:1)*(1-E(wall,8.25,8.8));c.save();c.translate(x,y);c.scale(rx/420,ry/132);c.translate(-435,-205);SUN_ARRAY_V8.render(c,A,clock,{a:alpha,grow:1,reveal:1,morph:1,angle,dust:false},'new');c.restore();}
+function arrayPlane(isGround){if(!isGround&&wall>=2.0&&wall<3.2){solarArrayWeave();return;}if(wall<6.6)return arrayPlaneV8(isGround);if(wall>=8.8)return;const q=E(wall,7,8.8),clock=6.6+Math.max(0,wall-7),u=Math.max(0,wall-7),angle=(6.6-3.2)*(isGround?TAU/15:-TAU/13.5)+(isGround?1:-1)*TAU*(.05*u+.30*u*u),x=isGround?ground.x:L(sky.x,430,q),y=isGround?ground.y:L(sky.y,180,q),rx=(isGround?ground.rx:sky.rx)*(1-.95*q),ry=(isGround?ground.ry:sky.ry)*(1-.86*q),alpha=(isGround?.58:1)*(1-E(wall,8.25,8.8));c.save();c.translate(x,y);c.scale(rx/420,ry/132);c.translate(-435,-205);SUN_ARRAY_V26.render(c,A,clock,{a:alpha,grow:1,reveal:1,morph:1,angle,dust:false},'new');c.restore();}
 function arrayPlaneV8(isGround){if(t<.8)return;const st=sunGeometry();if(!isGround&&t>=8)return;if(isGround&&t<2.2)return;let x=st.x,y=st.y,rx=st.rx,ry=st.ry,m=st.morph,alpha=st.alpha;
  if(!isGround&&t>=7.4){const f=finalSun();x=f.x;y=f.y;rx=f.r*1.26;ry=f.r*1.18;}
  if(isGround){x=ground.x;y=ground.y;rx=ground.rx*(.12+.88*E(t,2.2,3.2));ry=ground.ry*(.12+.88*E(t,2.2,3.2));m=1;alpha=E(t,2.2,2.45)*.58;if(t>=7.4&&t<8)alpha*=.06+.94*E(t,7.7,8);if(t>=8)alpha*=1-E(impactAge(),0,.16);}
  if(alpha<=0)return;const heartbeat=.88+.12*Math.pow(.5+.5*Math.cos((t-3.2)*TAU),6);alpha*=heartbeat;
  if(!isGround&&t<3.2)orbSkin(x,y,rx,ry,m,alpha);
- c.save();c.translate(x,y);c.scale(rx/420,ry/132);c.translate(-435,-205);SUN_ARRAY_V8.render(c,A,flowTime(),{a:alpha*(isGround?1:Math.pow(m,1.15)),grow:1,reveal:1,morph:m,angle:(flowTime()-3.2)*(isGround?TAU/15:-TAU/13.5),dust:false},'new');c.restore();
+ c.save();c.translate(x,y);c.scale(rx/420,ry/132);c.translate(-435,-205);SUN_ARRAY_V26.render(c,A,flowTime(),{a:alpha*(isGround?1:Math.pow(m,1.15)),grow:1,reveal:1,morph:m,angle:(flowTime()-3.2)*(isGround?TAU/15:-TAU/13.5),dust:false},'new');c.restore();
  if(!isGround&&t>=3.2&&t<6.6){for(let j=0;j<42;j++){const q=((t*.28+j*.173)%1+1)%1,an=j*2.399-t*TAU/13.5,rr=.6+R(j+2)*.40,xx=x+Math.cos(an)*rx*rr,yy=y+Math.sin(an)*ry*rr+q*145;star(xx,yy,1.0+R(j)*1.6,Math.sin(q*Math.PI)*.38);}}
 }
 
@@ -124,13 +132,17 @@ function finishFx(){
  c=main;bloomComposite();main.save();main.imageSmoothingEnabled=true;main.imageSmoothingQuality='high';main.globalCompositeOperation='source-over';main.globalAlpha=1;main.drawImage(solid,0,0,W,H);
  if(swordFx.dirty){
   main.globalCompositeOperation='screen';main.drawImage(swordFx.layer,0,0,W,H);
+  if(!SUN_LOWCPU){
+  if(!swordFx.bloom)swordFx.bloom=[{scale:2,radius:3,gain:.27},{scale:4,radius:10,gain:.15},{scale:8,radius:24,gain:.05}].map(v=>({...v,source:mk(W/v.scale,H/v.scale),blur:mk(W/v.scale,H/v.scale)}));
+  for(const b of swordFx.bloom){const q=b.source.getContext('2d'),g=b.blur.getContext('2d');q.clearRect(0,0,b.source.width,b.source.height);q.drawImage(swordFx.layer,0,0,b.source.width,b.source.height);g.clearRect(0,0,b.blur.width,b.blur.height);g.filter='blur('+b.radius/b.scale+'px)';g.drawImage(b.source,0,0);g.filter='none';main.globalCompositeOperation='screen';main.globalAlpha=b.gain;main.drawImage(b.blur,0,0,W,H);}
+  }else{
   // 实战优化（Claude）：原版每帧对整层剑光做三次 filter 模糊（手机上很吃性能）。改成逐级缩小再放大——双线性放大本身就是柔光，观感接近，开销小一个数量级。
-  if(!swordFx.bloom)swordFx.bloom=[{scale:4,gain:1.02},{scale:8,gain:.62},{scale:16,gain:.30}].map(v=>({...v,c:mk(Math.ceil(W/v.scale),Math.ceil(H/v.scale))}));
+  if(!swordFx.bloom)swordFx.bloom=[{scale:4,gain:.27},{scale:8,gain:.15},{scale:16,gain:.05}].map(v=>({...v,c:mk(Math.ceil(W/v.scale),Math.ceil(H/v.scale))}));
   let src=swordFx.layer;
   for(const b of swordFx.bloom){const g=b.c.getContext('2d');g.imageSmoothingEnabled=true;g.globalCompositeOperation='copy';g.drawImage(src,0,0,b.c.width,b.c.height);src=b.c;
    main.globalCompositeOperation='screen';main.globalAlpha=b.gain;main.drawImage(b.c,0,0,W,H);}
- }
- main.restore();
+  }
+ }main.restore();
 }
 function rainItems(){
  if(rainItems.cache)return rainItems.cache;const list=[],acc=100/6.8;
@@ -146,8 +158,8 @@ function rainItems(){
  }
  return rainItems.cache=list;
 }
-function renderRain(layer){if(t<3.2||t>=6.6)return;for(const p of rainItems()){if((layer==='far')!==(p.k===0))continue;const pose=rainPose(p,t);if(!pose)continue;const age=t-p.hit;if(age<0&&!pose.growing){for(let j=2;j>=1;j--){const prev=rainPose(p,t-j*.035);if(prev)sword(prev.x,prev.y,prev.h,.25/j,p.seed,prev.angle,p.depth,.95);}}sword(pose.x,pose.y,pose.h,1,p.seed,pose.angle,p.depth,age<0?1.12:L(1.10,.55,E(age,.08,.55)));if(pose.growing)tex('hit',p.ox,p.oy,28,16,.48);if(age>=0){const pop=1-E(age,.015,.14);tex('hit',p.x,p.y,16+p.size*.15,16+p.size*.15,pop*(p.k===0?.3:.7));tex('shock',p.x,p.y,21+p.size*.13,5+p.size*.02,(1-E(age,.08,.28))*.32);if(p.k>0){crack(p.x,p.y,15+p.size*.08,p.seed,(1-E(age,.1,.55))*.30);for(let j=0;j<4;j++){const an=R(p.seed+j)*TAU,px=p.x+Math.cos(an)*age*(65+R(j+p.id)*90),py=p.y-90*age+180*age*age+Math.sin(an)*age*40;star(px,py,1.1+R(j+p.id)*1.3,(1-E(age,.08,.24))*.7);}}}}}
-function renderArrayDetail(){c=main;main.fillStyle='#071225';main.fillRect(0,0,W,H);beginFx();c.save();c.translate(640,350);c.scale(1.05,1.42);c.translate(-435,-205);SUN_ARRAY_V8.render(c,A,4.1,{a:1,grow:1,reveal:1,morph:1,angle:.18,dust:false},'new');c.restore();finishFx();main.fillStyle='#fff7e9';main.font='600 25px '+FONT;main.fillText('v12 · 保留原法阵',32,48);}
+function renderRain(layer){if(t<3.2||t>=6.6)return;for(const p of rainItems()){if((layer==='far')!==(p.k===0))continue;const pose=rainPose(p,t);if(!pose)continue;const age=t-p.hit;if(age<0&&!pose.growing){for(let j=2;j>=1;j--){const prev=rainPose(p,t-j*.035);if(prev)sword(prev.x,prev.y,prev.h,.25/j,p.seed,prev.angle,p.depth,.95);}}sword(pose.x,pose.y,pose.h,1,p.seed,pose.angle,p.depth,age<0?1.12:L(1.10,.55,E(age,.08,.55)));if(pose.growing)tex('hit',p.ox,p.oy,28,16,.48);if(age>=0){if(p.k>0&&p.id%3===0)materialBurst26(age*5,p.x,p.y,65+p.size*.25,42+p.size*.15,.42);const pop=1-E(age,.015,.14);tex('hit',p.x,p.y,16+p.size*.15,16+p.size*.15,pop*(p.k===0?.3:.7));tex('shock',p.x,p.y,21+p.size*.13,5+p.size*.02,(1-E(age,.08,.28))*.32);if(p.k>0){crack(p.x,p.y,15+p.size*.08,p.seed,(1-E(age,.1,.55))*.30);for(let j=0;j<4;j++){const an=R(p.seed+j)*TAU,px=p.x+Math.cos(an)*age*(65+R(j+p.id)*90),py=p.y-90*age+180*age*age+Math.sin(an)*age*40;star(px,py,1.1+R(j+p.id)*1.3,(1-E(age,.08,.24))*.7);}}}}}
+function renderArrayDetail(){c=main;main.fillStyle='#071225';main.fillRect(0,0,W,H);beginFx();c.save();c.translate(640,350);c.scale(1.05,1.42);c.translate(-435,-205);SUN_ARRAY_V26.render(c,A,4.1,{a:1,grow:1,reveal:1,morph:1,angle:.18,dust:false},'new');c.restore();finishFx();main.fillStyle='#fff7e9';main.font='600 25px '+FONT;main.fillText('v12 · 保留原法阵',32,48);}
 function sunMorph(){return E(t,2.2,3.2);}
 function sunGeometry(){const m=sunMorph(),q=E(t,.8,1.9),closing=E(t,6.6,7.4);return{x:L(L(430,sky.x,m),430,closing),y:L(sky.y,180,closing),rx:L(L(112,144,q),sky.rx,m)*(1-.69*closing),ry:L(L(112,144,q),sky.ry,m)*(1-.03*closing),morph:m*(1-closing),alpha:E(t,.78,1.42)*(1-E(t,8,8.3)),closing};}
 function impactAge(){return raw<8.2?0:raw-8.2;}
@@ -209,7 +221,7 @@ function riverRibbon(group){const clock=Math.min(wall,8.4),u=C((clock-7)/1.4),jo
  for(let j=0;j<50;j++){const s=((j/50+wall*.19)%1),p=riverPoint(group,(.10+.90*s)*(1-.57*u*u),clock);star(p.x+Math.sin(j*9)*3,p.y+Math.cos(j*5)*3,.7+R(j+group*31),join*fade*.35);}c.restore();}
 function imperialState(){return recallCoreState(wall);}
 function imperialSun(x,y,r,a=1,pulse=0){const clock=sunLoopClock!==null?sunLoopClock:wall<8.8?wall-7.04:wall<9.1?1.76:wall-7.34;drawSolarMaterial(x,y,r,r,0,a,clock,pulse);}
-function radiantRays(){const age=impactAge(),expand=.12+.88*E(age,0,.4),fade=1-E(age,.4,1.4),x=340,y=565;if(fade<=0)return;for(let j=0;j<224;j++){const sector=j/224*TAU,angle=sector+(R(j+743)-.5)*.012+age*.065,dx=Math.cos(angle),dy=Math.sin(angle),edge=Math.min(dx>0?(W-x)/dx:dx<0?-x/dx:9999,dy>0?(H-y)/dy:dy<0?-y/dy:9999),len=edge*(j%7===0?1.15:.76+R(j+102)*.56)*expand,width=(j%7===0?32+R(j+25)*26:5+R(j+25)*13)*(1-.14*E(age,.6,1.4)),a=(j%7===0?.62:.14+R(j+86)*.20)*fade;tex('v10shaft'+(j%8),x+dx*(len*.5+16),y+dy*(len*.5+16),width,len,a,angle-Math.PI/2);}}
+function radiantRays(){const age=impactAge(),expand=.12+.88*E(age,0,.4),fade=1-E(age,.4,1.4),x=340,y=565;if(fade<=0)return;for(let j=0;j<224;j++){const sector=j/224*TAU,angle=sector+(R(j+743)-.5)*.012+age*.065,dx=Math.cos(angle),dy=Math.sin(angle),edge=Math.min(dx>0?(W-x)/dx:dx<0?-x/dx:9999,dy>0?(H-y)/dy:dy<0?-y/dy:9999),len=edge*(j%7===0?1.15:.76+R(j+102)*.56)*expand,width=(j%7===0?32+R(j+25)*26:5+R(j+25)*13)*(1-.14*E(age,.6,1.4)),a=(j%7===0?.62:.14+R(j+86)*.20)*fade;tex('v10shaft'+(j%8),x+dx*(len*.5+16),y+dy*(len*.5+16),width,len,a*.34,angle-Math.PI/2);}}
 function prepareSunSequence(){
  coreSets=[];raySets=[];const size=768;
  for(let i=0;i<4;i++){
@@ -378,7 +390,7 @@ function weavePlate(){
  const cache=weavePlate.cache||(weavePlate.cache={cv:mk(1280,1280),layers:Array.from({length:3},()=>mk(1280,1280)),mask:Array.from({length:3},()=>mk(1280,1280)),key:''});
  if(cache.key===wall)return cache;cache.key=wall;const g=cache.cv.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,1280,1280);
  g.save();g.translate(640,640);g.scale(1,420/132);g.translate(-435,-205);
- SUN_ARRAY_V8.render(g,A,flowTime(),{a:1,grow:1,reveal:1,morph:1,angle:-(flowTime()-3.2)*TAU/13.5,dust:false},'new');g.restore();
+ SUN_ARRAY_V26.render(g,A,flowTime(),{a:1,grow:1,reveal:1,morph:1,angle:-(flowTime()-3.2)*TAU/13.5,dust:false},'new');g.restore();
  for(let layer=0;layer<3;layer++){
   const b=cache.layers[layer].getContext('2d'),m=cache.mask[layer].getContext('2d');
   b.setTransform(1,0,0,1,0,0);b.clearRect(0,0,1280,1280);b.globalCompositeOperation='source-over';b.drawImage(cache.cv,0,0);
@@ -449,7 +461,7 @@ function weaveSurfaceStars(state,plate){
 function solarArrayWeave(){
  const st=weaveState(),plate=weavePlate(),handoff=E(wall,3.00,3.16);
  weaveBands(plate,st.heartbeat*(1-handoff));
- if(handoff>0){c.save();c.translate(sky.x,sky.y);c.scale(sky.rx/420,sky.ry/132);c.translate(-435,-205);SUN_ARRAY_V8.render(c,A,flowTime(),{a:st.heartbeat*handoff,grow:1,reveal:1,morph:1,angle:-(flowTime()-3.2)*TAU/13.5,dust:false},'new');c.restore();}
+ if(handoff>0){c.save();c.translate(sky.x,sky.y);c.scale(sky.rx/420,sky.ry/132);c.translate(-435,-205);SUN_ARRAY_V26.render(c,A,flowTime(),{a:st.heartbeat*handoff,grow:1,reveal:1,morph:1,angle:-(flowTime()-3.2)*TAU/13.5,dust:false},'new');c.restore();}
  weaveStreams(st);
  if(st.r>.05){
   // Keep a full, round sun. It condenses as its energy leaves, never hollows
@@ -462,10 +474,12 @@ function solarArrayWeave(){
  if(seal>0){tex('hit',sky.x,sky.y,92,19,seal*.24);tex('hit',sky.x,sky.y,24,52,seal*.19);}
 }
 
-function preloadWheelImages(){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const half=im.width/2;A.wheelSource=im;for(let i=0;i<4;i++){const cv=mk(512,512),g=cv.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,(i%2)*half,Math.floor(i/2)*half,half,half,0,0,512,512);const src=g.getImageData(0,0,512,512),out=mk(512,512),og=out.getContext('2d'),data=og.createImageData(512,512),rad=new Float32Array(512*512),ang=new Float32Array(512*512);for(let y=0;y<512;y++)for(let x=0;x<512;x++){const n=y*512+x;rad[n]=Math.hypot(x-256,y-256);ang[n]=Math.atan2(y-256,x-256);}A['wheel'+i]=out;A['wheelState'+i]={src:src.data,og,data,rad,ang,last:''};}ok();};im.onerror=no;im.src=(window.FORCE_LOCAL||/^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname)||location.protocol==='file:')?'sun_assets/wheel_atlas.webp':(window.SUN_WHEEL_BLOB||'sun_assets/wheel_atlas.webp');});}
+function preloadWheelImages(){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const half=im.width/2;A.wheelSource=im;for(let i=0;i<4;i++){const cv=mk(512,512),g=cv.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,(i%2)*half,Math.floor(i/2)*half,half,half,0,0,512,512);const src=g.getImageData(0,0,512,512),out=mk(512,512),og=out.getContext('2d'),data=og.createImageData(512,512),rad=new Float32Array(512*512),ang=new Float32Array(512*512);for(let y=0;y<512;y++)for(let x=0;x<512;x++){const n=y*512+x;rad[n]=Math.hypot(x-256,y-256);ang[n]=Math.atan2(y-256,x-256);}A['wheel'+i]=out;A['wheelState'+i]={src:src.data,og,data,rad,ang,last:''};}ok();};im.onerror=no;im.src=(window.FORCE_LOCAL||/^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname)||location.protocol==='file:')?'sun28/wheel_atlas.webp':'/_blob/5f31f584f3b0d13f91d61f53c55eba47';});}
 function wheelTexture(i,clock,reveal){clock=Math.floor(clock*SUN_TEXQ+i*.25)/SUN_TEXQ;reveal=Math.round(reveal*24)/24;const s=A['wheelState'+i],key=clock.toFixed(7)+':'+reveal.toFixed(7);if(s.last===key)return;s.last=key;const d=s.data.data,src=s.src;
  for(let n=0;n<512*512;n++){const k=n*4,a=src[k+3];if(a<3){d[k+3]=0;continue;}const r=s.rad[n],theta=s.ang[n],lum=(src[k]*.2126+src[k+1]*.7152+src[k+2]*.0722)/255,emission=.11+.89*E(lum,.61,.98),thread=.91+.11*Math.sin(theta*7+r*.052-clock*3.4+i)+.055*Math.sin(theta*13-r*.03+clock*5.1),sector=((theta/TAU*8)%1+1)%1,forming=i===0?E(reveal,0,.65):E(reveal,sector*.58-.18,sector*.58+.32),edge=1-E(r,238,256),brightness=thread*(.96+.04*E(r,30,140));
-  d[k]=Math.min(255,(src[k]*.80+51)*brightness);d[k+1]=Math.min(255,(src[k+1]*.80+51)*brightness);d[k+2]=Math.min(255,(src[k+2]*.79+53)*brightness);d[k+3]=a*emission*forming*edge;
+  const tint=i===1?[255,207,111]:i===2?[65,165,255]:[235,247,255],hot=E(lum,.90,1)*(i===0?.72:.18);
+  for(let ch=0;ch<3;ch++)d[k+ch]=Math.min(255,L(tint[ch],255,hot)*(.55+.45*lum)*brightness);
+  d[k+3]=a*emission*forming*edge;
  }s.og.putImageData(s.data,0,0);
 }
 function swordFx(){
@@ -509,11 +523,13 @@ function prepareEnergySword(){
  }
 }
 function drawEnergySword(g,w,h,y,alpha,energy,seed){
- if(alpha<=0||h<=0)return;swordFx.dirty=true;g.save();g.globalCompositeOperation='screen';g.filter='none';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
- const phase=((wall*9+R(seed+209)*12)%12+12)%12,idx=Math.floor(phase),mix=phase-idx,power=C(alpha)*Math.min(1.35,energy);
- g.globalAlpha=C(power*.90);g.drawImage(A.energyContour,-w*.5,y,w,h);
- g.globalAlpha=C(power*.88*(1-mix));g.drawImage(A.energyFrames[idx],-w*.5,y,w,h);
- g.globalAlpha=C(power*.88*mix);g.drawImage(A.energyFrames[(idx+1)%12],-w*.5,y,w,h);
+ if(alpha<=0||h<=0||!A.crystalFrames)return;swordFx.dirty=true;g.save();g.globalCompositeOperation='screen';g.filter='none';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+ const phase=((wall*5+R(seed+209)*4)%4+4)%4,idx=Math.floor(phase),mix=E(phase-idx,0,1),power=C(alpha)*Math.min(1.25,energy);
+ g.globalAlpha=C(power*.98*(1-mix));g.drawImage(A.crystalFrames[idx],-w*.5,y,w,h);
+ g.globalAlpha=C(power*.98*mix);g.drawImage(A.crystalFrames[(idx+1)%4],-w*.5,y,w,h);
+ // A moving specular fleck, not a solid fill: light travels along the blade plane.
+ const travel=((wall*.55+R(seed+251))%1+1)%1,yy=y+h*(.36+travel*.56),shimmer=Math.pow(.5+.5*Math.sin(wall*4.2+seed),5);
+ g.globalAlpha=power*(.12+.25*shimmer);g.drawImage(A.hit,-w*.17,yy-h*.028,w*.34,h*.056);
  g.restore();
 }
 function getEnemySwordAudit(){
@@ -538,6 +554,24 @@ function vortexHeadings(plan){
   out.push(heading);
  }
  plan.headings=out;return out;
+}
+async function preloadThunderAssets(){
+ await SUN28_IMG('crystal_sword').then(im=>{
+  A.v22SwordSource=im;A.crystalFrames=[];
+  for(let j=0;j<4;j++){const cv=mk(424,1507),g=cv.getContext('2d'),cx=(j%2+.5)*im.width/2,sy=Math.floor(j/2)*im.height/2;
+   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,cx-116,sy+12,232,848,0,0,424,1507);A.crystalFrames.push(cv);
+  }});
+ // Color only the original light sprites. Actors and the background are untouched.
+ for(const key of ['hit','shock',...Array.from({length:8},(_,i)=>'lc_hit'+i),...Array.from({length:8},(_,i)=>'lc_land'+i)]){
+  const original=A[key],cv=mk(original.width,original.height),g=cv.getContext('2d');g.drawImage(original,0,0);const p=g.getImageData(0,0,cv.width,cv.height),d=p.data;
+  for(let i=0;i<d.length;i+=4){const lum=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,hot=E(lum,.83,1),cold=key==='shock'?[105,202,255]:[142,215,255];
+   for(let ch=0;ch<3;ch++)d[i+ch]=L(cold[ch],255,hot)*(.65+.35*lum);
+  }g.putImageData(p,0,0);A[key]=cv;
+ }
+ for(let j=0;j<8;j++){const original=A['v10shaft'+j],cv=mk(original.width,original.height),g=cv.getContext('2d');g.drawImage(original,0,0);const p=g.getImageData(0,0,cv.width,cv.height),d=p.data;
+  for(let i=0;i<d.length;i+=4){const lum=(d[i]+d[i+1]+d[i+2])/765,hot=E(lum,.85,1),tone=j%3===0?[107,193,255]:[255,217,148];for(let ch=0;ch<3;ch++)d[i+ch]=L(tone[ch],255,hot)*(.65+.35*lum);}
+  g.putImageData(p,0,0);A['v10shaft'+j]=cv;
+ }
 }
 function armAngle(){return 1.12*E(t,0,.7)-1.29*E(t,7.7,7.9)+.17*E(t,9.2,9.8);}
 function QE(){const a=window.SUN_EN;return a&&a.length?a:battle.enemies}
@@ -580,7 +614,72 @@ function render(z){update(z);c=main;const cam=camera();if(has(battle.cfg.bg))dra
 function fixture(s){state=s;s.started=true;s.overlay.length=0;s.fade=s.flash=s.shake=0;dialog=choice=sysPanel=null;FX.length=0;startBattle({title:'破军剑阵·太阳',bg:'bg_mountain',party:['yunting','linxue'],enemies:layout.enemies.map(e=>({name:e.name,key:e.key,h:layout.BASE_H*H*e.ratio,hp:900000,maxhp:900000}))});
  battle.heroes.forEach((u,i)=>{let d=layout.heroes[i];u.x=d.x*W;u.y=(layout.FOOT_Y-d.depth)*H;u.h=[240,247,223][i];u.gauge=[76,48,28][i];});QE().forEach((u,i)=>{let d=layout.enemies[i];u.x=d.x*W;u.y=(layout.FOOT_Y-d.depth)*H;u.h=BATTLE_SIZE[u.key];u.maxhp=u.hp=900000;u.gauge=[10,30,56][i];});battle.P=battle.heroes[0];battle.active=battle.P;battle.state='act';units.clear();tintCache.clear();for(let u of battle.units)units.set(u,cacheUnit(u));heroParts=makeHeroParts(IMG.b_yegx_cast);layoutAudit=battle.units.map(u=>({name:u.name,side:u.side,x:u.x,y:u.y,visibleHeight:units.get(u).visibleHeight,ratioToScreen:units.get(u).visibleHeight/H,sourceBounds:units.get(u).bounds}));
  if(!hud){hud=mk(W,H);c.save();c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,c.canvas.width,c.canvas.height);drawBattleHud();hud.getContext('2d').drawImage(c.canvas,0,0,W,H,0,0,W,H);c.clearRect(0,0,c.canvas.width,c.canvas.height);c.restore();}hitIndex=0;events.length=0;wall=raw=t=0;FX.length=0;s.scene=()=>render(wall);}
-window.SUN_RT={rtBack,rtFront,duration:12.4,getEnemySwordAudit,getSwordMotionAudit,preload,fixture,render,renderSunLoop,setDirection(key){solarDirection=key;sunPixels=sunSets[key];sunTextureKey=null;},auditRecall,setArrayReview(mode,hideHud=false){arrayMaterial=mode;closeup=hideHud;},setDebugMode(v){debugMode=v;},getLightLayer(){return fx;},renderArrayDetail,renderSunDetail,duration,events,layoutAudit:()=>layoutAudit,auditMotion(){let maxStartPositionError=0,maxStartAngleError=0,maxGrowthPositionError=0;for(const p of rainItems()){const a=frozenSword(p),v=recallPose(p,6.6);maxStartPositionError=Math.max(maxStartPositionError,Math.hypot(v.x-a.x,v.y-a.y));maxStartAngleError=Math.max(maxStartAngleError,Math.abs(v.angle-a.angle));const g=rainPose(p,p.birth+p.grow-1e-8),f=rainPose(p,p.birth+p.grow+1e-8);maxGrowthPositionError=Math.max(maxGrowthPositionError,Math.hypot(g.x-f.x,g.y-f.y));}return{maxStartPositionError,maxStartAngleError,maxGrowthPositionError,rainObjectCount:rainItems().length,riverGroups:0,recallTimes:[6.6,7,8.4,8.8],births:rainItems().map(p=>p.birth)};},inspect(){const items=rainItems();return{wheel:{material:"four newly generated transparent layers",blend:"screen",sourceOverSun:false,phaseRates:[18,-27,31],formation:[.80,1.65],environmentPrelight:[.50,1.35]},battleUnits:battle.units.map(u=>({key:u.key,name:u.name,side:u.side,x:u.x,y:u.y,h:u.h,hp:u.hp,maxhp:u.maxhp})),damageEventLog:JSON.parse(JSON.stringify(events)),raw:wall,legacyRaw:raw,time:t,camera:camera(),phase:phaseName(),nightOpacity:night(),sceneBaseBrightness:1-night(),array:{...SUN_ARRAY_V8.inspect(t),sky,ground},heroArmAngle:armAngle(),requiredVfxImages:Object.keys(A).length,rain:{start:3.2,end:6.6,total:items.length,rate:t<3.2||t>=6.6?0:20+100*(t-3.2)/3.4,active:items.filter(p=>t>=p.birth&&t<6.6).length,airborne:items.filter(p=>t>=p.birth&&t<p.hit).length,planted:items.filter(p=>t>=p.hit&&t<6.6).length},recall:{active:wall>=6.6&&wall<8.8,groups:0,pause:[6.6,7],rivers:[7,8.4],insert:[8.4,8.8],sun:imperialState()},impact:{rayCount:224,seconds:9.4,extendComplete:10.0,fadeEnd:11.0},damageEvents:hitIndex,whiteFlash:raw>=8-1e-7&&raw<8+2/30-1e-7,hitstop:raw>=8+2/30-1e-7&&raw<8.2-1e-7,darkHold:raw>=7.4-1e-7&&raw<7.7-1e-7,reactions:QE().map(u=>({name:u.name,...reaction(u)})),layout:layoutAudit};}};
+// Material-only refinement. Original clocks, actor poses, sword paths and damage events stay intact.
+const export26=mk(W,H);let export26Pass=0;
+async function preload(){
+ await preloadBaseline();
+ await Promise.all(['swords','impact','trail'].flatMap(k=>Array.from({length:16},(_,i)=>SUN28_IMG('v26_'+k+i).then(im=>{A['v26_'+k+i]=im;}))));
+ A.qualitySword=await SUN28_IMG('qualitySword');
+ for(let i=0;i<8;i++)A['v10shaft'+i]=A['v26_trail'+i*2];
+}
+function wheelTexture(i,clock,reveal){clock=Math.floor(clock*SUN_TEXQ+i*.25)/SUN_TEXQ;reveal=Math.round(reveal*24)/24;
+ const s=A['wheelState'+i],key=clock.toFixed(7)+':'+reveal.toFixed(7);if(s.last===key)return;s.last=key;
+ const d=s.data.data,src=s.src;
+ for(let n=0;n<512*512;n++){
+  const k=n*4,a=src[k+3];if(a<3){d[k+3]=0;continue;}
+  const r=s.rad[n],theta=s.ang[n],lum=(src[k]*.2126+src[k+1]*.7152+src[k+2]*.0722)/255;
+  const emission=.04+.96*E(lum,.50,.95),thread=.92+.075*Math.sin(theta*7+r*.052-clock*3.4+i),sector=((theta/TAU*8)%1+1)%1;
+  const forming=i===0?E(reveal,0,.65):E(reveal,sector*.58-.18,sector*.58+.32),edge=1-E(r,240,256);
+  d[k]=src[k]*thread;d[k+1]=src[k+1]*thread;d[k+2]=src[k+2]*thread;d[k+3]=a*Math.pow(a/255,.22)*emission*forming*edge;
+ }
+ s.og.putImageData(s.data,0,0);
+}
+function drawSolarMaterial(x,y,rx,ry,m,alpha,clock,pulse=0){
+ if(alpha<=0||rx<=0||!A.wheel0)return;
+ const forming=wall<2?E(wall,.80,1.65):1,breath=.965+.025*Math.sin(clock*2.2)+pulse*.035;
+ for(let i=0;i<4;i++)wheelTexture(i,clock,forming);
+ c.save();c.translate(x,y);c.scale(1,ry/rx);c.globalCompositeOperation='screen';
+ tex('wheel3',0,0,rx*3.70,rx*3.70,alpha*(.12+.06*pulse)*(1-E(m,.15,.8)),clock*.018);
+ tex('wheel2',0,0,rx*3.04,rx*3.04,alpha*.26*breath,-clock*TAU/27-.23);
+ tex('wheel1',0,0,rx*2.68,rx*2.68,alpha*.98*breath,clock*TAU/18);
+ tex('wheel2',0,0,rx*2.30,rx*2.30,alpha*.06,clock*TAU/31+.55);
+ tex('wheel0',0,0,rx*1.68,rx*1.68,alpha*(.94+.06*pulse),-clock*.12);
+ c.restore();
+}
+function drawEnergySword(g,w,h,y,alpha,energy,seed){
+ if(alpha<=0||h<=0||!A.qualitySword)return;swordFx.dirty=true;
+ const phase=((wall*11+R(seed+209)*16)%16+16)%16,idx=Math.floor(phase),mix=phase-idx;
+ const power=C(alpha)*Math.min(1.18,energy),gain=.82+.18*R(seed+812);
+ g.save();g.globalCompositeOperation='screen';g.filter='none';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+ g.globalAlpha=C(power*gain);g.drawImage(A.qualitySword,-w*.68,y,w*1.36,h);
+ for(const[j,q]of [[idx,1-mix],[(idx+1)%16,mix]]){g.globalAlpha=C(power*.12*q);g.drawImage(A['v26_swords'+j],-w*.62,y,w*1.24,h);}
+ g.restore();
+}
+
+function materialBurst26(age,x,y,w,h,a){
+ if(age<0||age>1.6)return;const q=C(age/1.6),f=3+q*12,i=Math.min(15,Math.floor(f)),mix=f-i;
+ for(const[j,v]of [[i,1-mix],[Math.min(15,i+1),mix]])tex('v26_impact'+j,x,y,w,h,a*v*(1-E(q,.86,1)),0,'screen',.5,.80,'none');
+}
+function sunset(){
+ if(wall<8.8)return;const s=finalSun(),age=impactAge();
+ if(t<8){if(wall>=9.1)for(let j=2;j>=1;j--){const q=C((wall-9.1-j*.025)/.3),fall=q*q;imperialSun(L(430,340,fall),L(180,440,fall),L(104,160,fall),.08/j);}imperialSun(s.x,s.y,s.r,1);return;}
+ c.save();c.globalAlpha*=.34;radiantRays();c.restore();
+ const fade=1-E(age,.45,1.5);materialBurst26(age,340,600,900,530,.98);
+ tex('shock',340,600,350+E(age,0,.6)*1150,110+E(age,0,.6)*240,fade*.24);
+ for(let j=0;j<46;j++){const an=j*2.399,rr=age*(100+R(j+9)*420),x=340+Math.cos(an)*rr,y=570+Math.sin(an)*rr*.5-age*90+age*age*65;
+  tex('v26_trail'+j%16,x,y,5+R(j)*8,15+R(j+81)*40,(1-E(age,.4,1.5))*.56,an-Math.PI*.5);
+ }
+}
+function snapshotFx26(){
+ const g=export26.getContext('2d');g.save();g.globalCompositeOperation='screen';
+ g.globalAlpha=1;g.drawImage(fx,0,0,W,H);
+ g.globalCompositeOperation='lighter';g.globalAlpha=.32;g.drawImage(blur4,0,0,W,H);g.globalAlpha=.16;g.drawImage(blur8,0,0,W,H);
+ g.globalCompositeOperation='screen';g.globalAlpha=1;g.drawImage(solid,0,0,W,H);
+ if(swordFx.dirty){g.drawImage(swordFx.layer,0,0,W,H);for(const b of swordFx.bloom||[]){g.globalAlpha=b.gain;g.drawImage(b.blur,0,0,W,H);}}
+ g.restore();export26Pass++;
+}
+
+window.SUN_RT={rtBack,rtFront,duration:12.4,getEnemySwordAudit,getSwordMotionAudit,preload,fixture,render,renderSunLoop,setDirection(key){solarDirection=key;sunPixels=sunSets[key];sunTextureKey=null;},auditRecall,setArrayReview(mode,hideHud=false){arrayMaterial=mode;closeup=hideHud;},setDebugMode(v){debugMode=v;},getLightLayer(){return fx;},renderArrayDetail,renderSunDetail,duration,events,layoutAudit:()=>layoutAudit,auditMotion(){let maxStartPositionError=0,maxStartAngleError=0,maxGrowthPositionError=0;for(const p of rainItems()){const a=frozenSword(p),v=recallPose(p,6.6);maxStartPositionError=Math.max(maxStartPositionError,Math.hypot(v.x-a.x,v.y-a.y));maxStartAngleError=Math.max(maxStartAngleError,Math.abs(v.angle-a.angle));const g=rainPose(p,p.birth+p.grow-1e-8),f=rainPose(p,p.birth+p.grow+1e-8);maxGrowthPositionError=Math.max(maxGrowthPositionError,Math.hypot(g.x-f.x,g.y-f.y));}return{maxStartPositionError,maxStartAngleError,maxGrowthPositionError,rainObjectCount:rainItems().length,riverGroups:0,recallTimes:[6.6,7,8.4,8.8],births:rainItems().map(p=>p.birth)};},inspect(){const items=rainItems();return{wheel:{material:"four newly generated transparent layers",blend:"screen",sourceOverSun:false,phaseRates:[18,-27,31],formation:[.80,1.65],environmentPrelight:[.50,1.35]},battleUnits:battle.units.map(u=>({key:u.key,name:u.name,side:u.side,x:u.x,y:u.y,h:u.h,hp:u.hp,maxhp:u.maxhp})),damageEventLog:JSON.parse(JSON.stringify(events)),raw:wall,legacyRaw:raw,time:t,camera:camera(),phase:phaseName(),nightOpacity:night(),sceneBaseBrightness:1-night(),array:{...SUN_ARRAY_V26.inspect(t),sky,ground},heroArmAngle:armAngle(),requiredVfxImages:Object.keys(A).length,rain:{start:3.2,end:6.6,total:items.length,rate:t<3.2||t>=6.6?0:20+100*(t-3.2)/3.4,active:items.filter(p=>t>=p.birth&&t<6.6).length,airborne:items.filter(p=>t>=p.birth&&t<p.hit).length,planted:items.filter(p=>t>=p.hit&&t<6.6).length},recall:{active:wall>=6.6&&wall<8.8,groups:0,pause:[6.6,7],rivers:[7,8.4],insert:[8.4,8.8],sun:imperialState()},impact:{rayCount:224,seconds:9.4,extendComplete:10.0,fadeEnd:11.0},damageEvents:hitIndex,whiteFlash:raw>=8-1e-7&&raw<8+2/30-1e-7,hitstop:raw>=8+2/30-1e-7&&raw<8.2-1e-7,darkHold:raw>=7.4-1e-7&&raw<7.7-1e-7,reactions:QE().map(u=>({name:u.name,...reaction(u)})),layout:layoutAudit};}};
 })();
 
 // Only recall is lengthened. All preserved stages receive the original v20 clock.
