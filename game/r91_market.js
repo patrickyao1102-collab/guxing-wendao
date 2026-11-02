@@ -12,14 +12,14 @@
   const setBlock = (x0, y0, x1, y1, v) => { const bl = B.blocked.split(''); for (let r = Math.floor(y0 / cs); r <= Math.floor(y1 / cs); r++) for (let c = Math.floor(x0 / cs); c <= Math.floor(x1 / cs); c++) if (r >= 0 && c >= 0 && r < B.rows && c < B.cols) bl[r * B.cols + c] = v; B.blocked = bl.join(''); };
 
   // ---- 1. 神龙 / 石台 ----
-  const fixDragon = () => { const d = obj('r80_6'); if (d && !d._r91) { d._r91 = 1; d.flat = true; } };   // r80_6 = guardian_dais（sanctum 组）：地面阶段先画，神龙（r80_5）留在排序队列里
+  const fixDragon = () => { if (R.r93) return; const d = obj('r80_6'); if (d && !d._r91) { d._r91 = 1; d.flat = true; } };   // r80_6 = guardian_dais（sanctum 组）：地面阶段先画，神龙（r80_5）留在排序队列里
 
   // ---- 2. 灵兽苑入口 ----
-  { const r8 = obj('r80_8'); if (r8) r8.wclip = [r8.x - 10, r8.y - 10, r8.w + 20, 1955 - r8.y + 10]; }   // 东侧栏杆只留到 1955（地面图里也烤着这段栏杆，下面一并擦掉）
-  setBlock(3760, 1958, 3840, 2160, '0');                      // 入口那段栏杆的阻挡
+  if (!R.r93) { const r8 = obj('r80_8'); if (r8) r8.wclip = [r8.x - 10, r8.y - 10, r8.w + 20, 1955 - r8.y + 10]; }   // 东侧栏杆只留到 1955（地面图里也烤着这段栏杆，下面一并擦掉）
+  if (!R.r93) setBlock(3760, 1958, 3840, 2160, '0');                      // 入口那段栏杆的阻挡
 
   // ---- 3. 湖边拐角补栏杆 ----
-  { const h = obj('r80_463'), v = obj('r80_22');
+  if (!R.r93) { const h = obj('r80_463'), v = obj('r80_22');
     if (h) B.objs.push(Object.assign({}, h, { uid: 'r91_rail_h', x: 3634, y: 2660, sy: 2721, ax: 3634 + h.w / 2, ay: 2721, wclip: [3630, 2640, 152, 90] }));
     if (v) B.objs.push(Object.assign({}, v, { uid: 'r91_rail_v', x: 3626, y: 2702, sy: 2866, ax: 3626 + v.w / 2, ay: 2866, wclip: [3610, 2700, 60, 170] }));
     setBlock(3630, 2706, 3784, 2730, '1'); setBlock(3624, 2706, 3652, 2866, '1'); }
@@ -30,7 +30,7 @@
   drawBaked = (orig => function (o, now) {
     if (o && o.wclip) { const [x, y, w, h] = o.wclip; ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     // 地图缩放后，人尺度的小摊位、货架、长椅、告示牌等跟着人稍微放大（以底边中点为准），房子和栏杆不动（作者 11-02：小摊位要放大一点）
-    if (o && !o.r60 && world.mapName === ID && SMALL_K[o.id] && VZ() < 1) { const k = 1 + (AZ() - 1) * SMALL_K[o.id], fx = o.x + o.w / 2, fy = o.sy; ctx.save(); ctx.translate(fx, fy); ctx.scale(k, k); ctx.translate(-fx, -fy); const r = orig.apply(this, arguments); ctx.restore(); return r; }
+    if (o && !o.r60 && !R.r93 && world.mapName === ID && SMALL_K[o.id] && VZ() < 1) { const k = 1 + (AZ() - 1) * SMALL_K[o.id], fx = o.x + o.w / 2, fy = o.sy; ctx.save(); ctx.translate(fx, fy); ctx.scale(k, k); ctx.translate(-fx, -fy); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     if (o && o.r60 && o.pose && world.mapName === ID) { const k = (ANIMAL.test(o.pose.kind || o.pose.texture || '') ? 1 : CHAR_K) * AZ(); const [ax, ay] = o.pose.anchor; ctx.save(); ctx.translate(ax, ay); ctx.scale(k, k);   // 地图缩放时访客和灵兽也反向放大，和主角一样大
       ctx.translate(-ax, -ay); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     return orig.apply(this, arguments);
@@ -41,7 +41,7 @@
   })(drawActorT); };
   if (document.readyState === 'complete') wrapActor(); else window.addEventListener('load', wrapActor);
   // 集市特效层会把遮挡件再画一遍（盖在湖水 / 神龙光效上），所以直接在切好的贴图上擦掉，两条画法都生效
-  const cutCanvas = () => { try {
+  const cutCanvas = () => { if (R.r93) return; try {
     const r8 = obj('r80_8'), c8 = r8 && IMG['cx2_' + r8.img_id]; if (c8 && c8.getContext) c8.getContext('2d').clearRect(0, (1950 - r8.y) * c8.height / r8.h, c8.width, c8.height);
     // 地面图：用左边一格（70.5px）的地砖盖掉入口那段栏杆
     const g = window.R80_GROUND; if (g && !g._r91) { const c = document.createElement('canvas'); c.width = g.width; c.height = g.height; const q = c.getContext('2d'); q.drawImage(g, 0, 0); const k = g.width / 4864;

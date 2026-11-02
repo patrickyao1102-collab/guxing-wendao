@@ -43,7 +43,7 @@
     const sh = SHOP[t.shop], nm = NAME[t.shop] || t.name;
     npcs.push({ key: 'none', c, r, name: nm, hidden: true, h: 130, mapLabel: NAME[t.shop] ? 'shop' : true, talk: async () => {
       if (sh) { await say(sh.who, sh.hi[Math.floor(Math.random() * sh.hi.length)]); await openShop(sh.items(), nm); }
-      else if (t.shop === 'beasts') { await say('灵兽苑饲养员', '这些灵兽都通人性，要等你修为再高些，才认你做主人。'); await narrate('仙鹤在苑里踱步，灵鹿低头啃着灵草，笼里的雀儿叽叽喳喳。'); }
+      else if (t.shop === 'beasts') { await say('灵兽苑饲养员', '这些灵兽都通人性，要等你修为再高些，才认你做主人。'); await narrate(window.R80 && R80.r93 ? '仙鹤在池边梳理羽毛，灵鹿低头啃着灵草，九尾灵狐和玉兔在草地上追来追去。' : '仙鹤在苑里踱步，灵鹿低头啃着灵草，笼里的雀儿叽叽喳喳。'); }
       else if (t.text) await narrate(t.text);
     } });
   }
