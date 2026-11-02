@@ -115,10 +115,10 @@
   // ---------- 自由期任务提示 ----------
   function setQuest() {
     const f = F();
-    S.quest = '三日之约：' + (f.ch1_hunt_done ? '' : '后山历练（兽火 ' + Math.min(5, f.ch1_hunt || 0) + '/5）· ') + '院中木人切磋 · 准备好了去演武广场测灵碑';
+    S.quest = '三日后修为检测：' + (f.ch1_hunt_done ? '' : '后山历练（兽火 ' + Math.min(5, f.ch1_hunt || 0) + '/5）· ') + '院中木人切磋 · 准备好了去演武广场测灵碑';
   }
 
-  // ---------- 自由期开始（接在父亲走后）----------
+  // ---------- 自由期开始（接在清晨收到执事堂告示之后）----------
   window.CH1_FREE_START = async function () {
     const f = F(); f.ch1_free = 1; f.ch1_hunt = f.ch1_hunt || 0;
     RES_TOD('');

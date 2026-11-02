@@ -7253,26 +7253,13 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     tileSetMap('tj_room', ...roomAt()); S.scene = drawMap; await fadeIn(500);   // 进屋自动接「父亲敲门」
   }
   async function roomDawn() {
+    // 作者 11-03：第二天早上叶擎苍不再来居室（父子见面太频繁）。三日后修为检测的消息改由执事堂告示带到
     world.locked = true; const p = world.player;
-    await narrate('叶孤星打了个哈欠，刚准备躺下，门外忽然传来了几下轻轻的敲门声。');
-    playSnd('ui_click'); await sleep(220); playSnd('ui_click'); await sleep(220); playSnd('ui_click');
-    await say('叶擎苍', '孤星，起了吗？');
-    await say('叶孤星·惊', '爹，我、我起来了。');
-    const [fx, fy] = nearOf(TR)(544, 740), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
-    await tween(400, t => f.alpha = t); await moveActor(f, p.x + 60, p.y + 50, 120); p.face = 'down';
-    await say('叶擎苍', '你昨晚没休息好？');
-    await say('叶孤星·苦笑', '昨晚修炼剑典来着，折腾了大半夜……运气不错，刚好凝聚了剑意。');
-    await say('叶擎苍·严肃', '孤星，你想证明自己，爹可以理解。但你不可以说大话骗爹。那九曜剑典千年来，宗门多少天才都试过，无人成功。');
-    await say('叶擎苍·叹息', '爹知道你这些年心里郁闷。你不要说凝练剑意了——哪怕只是踏入练气七重，爹就已经很满足了。');
-    await say('叶擎苍', '再过几日，便是下山历练的日子。下山前宗门会检测修为，爹想给你安排个安全些的地方。');
-    const ch = await choose('要不要现在就给爹露一手？', ['现在就让爹看看剑意', '算了，三日后当众给他个惊喜']);
-    if (ch === 0) { await say('叶孤星·坚定', '爹，我真没骗你，我这就——'); await say('叶擎苍', '好了，这事先不提了。'); await narrate('叶擎苍摆了摆手，打断了他的话。'); }
-    await say('叶孤星·坚定', '爹，您要真替我好，就放手让我自己历练吧。');
-    await say('叶擎苍·叹息', '……好吧。三日之后，你的修为若能达到练气八重以上，爹就不插手。若是没有，你必须听我的安排。');
-    await say('叶孤星·笑', '这可是您说的，到时候可别反悔啊。');
-    await tween(300, () => {}); await moveActor(f, fx, fy, 120); await tween(400, t => f.alpha = 1 - t); f.hidden = true;
-    await say('星旋', '哎，看样子，你爹好像压根儿就不信你啊。要不现在追出去，给他看看你的剑意？');
-    await say('叶孤星', '算了。三天后的修为检测，当着大家的面，给他一个惊喜。');
+    await narrate('天边泛起鱼肚白。叶孤星打了个哈欠，刚准备躺下，门缝底下被人塞进来一张盖着执事堂印的告示。');
+    await moveActor(p, ...nearOf(TR)(544, 700), 150); p.face = 'down';
+    await narrate('「三日后辰时，演武广场测灵碑前检测修为，以定各弟子下山历练去处。——天剑宗执事堂」');
+    await say('星旋', '三天后？来得正好。你那点剑意，到时候当着全宗的面亮出来。');
+    await say('叶孤星', '十八年了，他们只当我是个笑话。三天后的修为检测，就当着大家的面，给我爹一个惊喜。');
     await say('星旋', '原来你是想当众炫耀啊——啧啧啧，这心机，我喜欢！');
     await say('叶孤星', '……睡觉。');
     await fadeOut(700);
@@ -8046,7 +8033,6 @@ window.MapBubble=(()=>{
     ['青竹小院在天剑峰山腰', 'cg_res_home', 2],          // 夜归青竹小院
     ['玉佩中涌出一阵温和的黑色灵光', 'cg_res_restore', 2], // 玉佩修复残卷
     ['成了！这一指', 'cg_res_tanlang', 1],                // 贪狼剑意贯穿青冈岩
-    ['你昨晚没休息好', 'cg_res_dawn', 2],                 // 清晨父亲敲门
     ['晚辈叶擎苍，见过神仙前辈', 'cg_res_bow', 2],         // 宗主向器灵行礼（喜剧）
     ['哇——这才叫城嘛', 'cg_xt_city', 2],                  // 玄天城南门
   ];
@@ -13893,7 +13879,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
   const lockPt = () => { const B = typeof CXB2 !== 'undefined' && CXB2.tj_houshan; const t = B && (B.inter || []).find(t => t.kind === 'lock_array'); return t && t.p; };
   // 任务文字 → 目标地图（+ 地图内的目标点，世界像素）
   const RULES = [
-    [/三日之约/, () => ({ map: 'tj_front' })],
+    [/三日之约|三日后修为检测/, () => ({ map: 'tj_front' })],
     [/避难营/, () => ({ map: 'qy_shelter' })],
     [/追往青阳外岭/, () => ({ map: 'qy_rescue' })],   // 第七章：追天鹏
     [/镇外迎战/, () => ({ map: 'qy_defense' })],   // 第七章：镇外迎战赤焰魔狮
@@ -16275,7 +16261,7 @@ window.MarketEffects = (() => {
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
 <script src="r97_walk8.js"></script>
-<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script>
+<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
