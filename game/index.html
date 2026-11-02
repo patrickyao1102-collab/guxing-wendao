@@ -2646,6 +2646,7 @@ function drawGroundVis(g, cam) {
 function bakedGround(T, def) {
   const im = IMG[def.baked.ground]; if (im) return im;
   if (window.CX2_LAZY_LD && /^cx2g_/.test(def.baked.ground)) CX2_LAZY_LD(def.baked.ground.slice(5));
+  window.__GPH = performance.now();   // 这一帧地面还没到，画的是绿色占位——载入画面据此盖住（作者 11-03：开第一章先闪一下绿地）
   if (!bakedGround.ph) { const c = document.createElement('canvas'); c.width = T.mw; c.height = T.mh; const x = c.getContext('2d'); x.fillStyle = '#5d7a45'; x.fillRect(0, 0, c.width, c.height); bakedGround.ph = c; }
   return bakedGround.ph;
 }

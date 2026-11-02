@@ -18,7 +18,9 @@
   window.MAP_LOADING = () => { try { return readiness() < 1; } catch (e) { return false; } };
   const layer = { draw() {
     if (world.mapName !== mapAt) { mapAt = world.mapName; t0 = performance.now(); prog = 0; }
-    const r = readiness();
+    let r = readiness();
+    // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
+    if (window.__GPH && performance.now() - window.__GPH < 250 && forced !== world.mapName) r = Math.min(r, .6);
     if (r >= 1) { shown = Math.max(0, shown - .08); if (!shown) return; } else shown = 1;
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
