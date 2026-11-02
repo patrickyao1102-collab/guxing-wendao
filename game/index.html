@@ -5787,17 +5787,25 @@ window.COMIC_TRIG = [
     const n = cfg.n || 5, cost = cfg.cost || 0, h = S.hero;
     if (cfg.lv && h.lv < cfg.lv) { toast('需要达到 ' + cfg.lv + ' 级才能破解这座锁灵阵'); return Promise.resolve(false); }
     if ((h.bag.yunxingshi || 0) < cost) { toast('破阵灵晶不够（需要 ' + cost + ' 颗）'); return Promise.resolve(false); }
-    const pts = []; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / n + (Math.random() - .5) * .5, r = 150 + Math.random() * 70; pts.push([W / 2 + Math.cos(a) * r * 1.35, H / 2 + Math.sin(a) * r * .85]); }
+    if (seal && seal.res) return seal.promise;   // 作者 11-03：锁灵阵经常卡住——已经在破阵中又被触发一次时，不再另起一局（旧的那局永远等不到结果）
+    let pts = [];
+    for (let tries = 0; tries < 40; tries++) {   // 星位至少隔 120 像素，手指点得准
+      pts = []; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / n + (Math.random() - .5) * .45, r = 150 + Math.random() * 60; pts.push([W / 2 + Math.cos(a) * r * 1.35, H / 2 + Math.sin(a) * r * .85]); }
+      let ok = true; for (let i = 0; i < n && ok; i++) for (let j = i + 1; j < n; j++) if (Math.hypot(pts[i][0] - pts[j][0], pts[i][1] - pts[j][1]) < 120) { ok = false; break; }
+      if (ok) break;
+    }
     const order = pts.map((_, i) => i).sort(() => Math.random() - .5);
     if (window.__sealHud === undefined) { window.__sealHud = S.hud; S.hud = false; }   // 破阵时收起地图 HUD（小地图 / 任务栏 / 行囊），免得压在阵图上
-    return new Promise(res => { seal = { cfg, pts, order, step: 0, t0: performance.now(), show: 1, res, err: 0 }; world.locked = true; playSnd('sfx_charge', .6); });
+    let resolve; const promise = new Promise(res => { resolve = res; });
+    seal = { cfg, pts, order, step: 0, t0: performance.now(), show: 1, res: v => { world.locked = false; resolve(v); }, err: 0, promise, taps: [] }; world.locked = true; playSnd('sfx_charge', .6);
+    return promise;
   };
   window.SEAL_NOW = () => seal;
   const layer = { draw() {
     if (!seal) { if (window.__sealHud !== undefined) { S.hud = window.__sealHud; window.__sealHud = undefined; } return; } const s = seal, now = performance.now(), t = (now - s.t0) / 1000, col = s.cfg.color || '#9fd8ff';
     ctx.save(); if (has('sq_sealbg')) { ctx.drawImage(IMG.sq_sealbg, 0, 0, W, H); ctx.fillStyle = 'rgba(4,6,18,.35)'; } else ctx.fillStyle = 'rgba(4,6,18,.82)'; ctx.fillRect(0, 0, W, H);
     // 阵纹
-    ctx.translate(W / 2, H / 2); ctx.rotate(t * .1); ctx.strokeStyle = col; ctx.globalAlpha = .35; ctx.lineWidth = 2;
+    ctx.translate(W / 2, H / 2); ctx.strokeStyle = col; ctx.globalAlpha = .35 + .08 * Math.sin(t * 2);   /* 作者 11-03：不转（转着头晕），只呼吸 */ ctx.lineWidth = 2;
     for (const r of [120, 200, 280]) { ctx.beginPath(); ctx.ellipse(0, 0, r * 1.35, r * .85, 0, 0, 7); ctx.stroke(); }
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
     // 示意：开头 2.4 秒按顺序闪一遍
@@ -5808,8 +5816,9 @@ window.COMIC_TRIG = [
       if (lit) { const g = ctx.createRadialGradient(p[0], p[1], 2, p[0], p[1], r + 26); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p[0], p[1], r + 26, 0, 7); ctx.fill(); }
       ctx.fillStyle = lit ? '#fff' : 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.arc(p[0], p[1], lit ? 12 : 9, 0, 7); ctx.fill();
       ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.stroke(); });
+    for (const q of s.taps) { const a = (now - q.t) / 450; if (a >= 1) continue; ctx.globalAlpha = 1 - a; ctx.strokeStyle = q.bad ? '#ff8a7a' : '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(q.x, q.y, 18 + a * 40, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
     ctx.textAlign = 'center'; ctx.font = `40px ${BRUSH}`; textOutline(s.cfg.title || '锁灵阵', W / 2, 60, '#fff0c4', '#1a0800', 5);
-    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e9dcc0'; ctx.fillText(t < 2.4 ? '记住星位亮起的顺序……' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + s.order.length + '）', W / 2, H - 132);
+    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e9dcc0'; ctx.fillText(t < 2.4 ? '记住星位亮起的顺序……（点屏幕可跳过）' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + s.order.length + '）', W / 2, H - 132);
     const _sb = SBof();
     for (const [r, txt] of [[_sb.again, '重新演示'], [_sb.leave, '暂时离开']]) { roundRect(r.x, r.y, r.w, r.h, 10); ctx.fillStyle = 'rgba(20,30,52,.85)'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(159,216,255,.7)'; ctx.stroke();
       ctx.font = `26px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#e8f4ff'; ctx.fillText(txt, r.x + r.w / 2, r.y + r.h / 2 + 2); }
@@ -5824,8 +5833,10 @@ window.COMIC_TRIG = [
     { const t = input.tapped, SB = SBof();
       if (inR(t, SB.again)) { consumeTap(); s.step = 0; s.err = 0; s.t0 = performance.now(); playSnd('ui_click'); return; }
       if (inR(t, SB.leave)) { consumeTap(); const r = s.res; seal = null; world.locked = false; if (window.__sealHud !== undefined) { S.hud = window.__sealHud; window.__sealHud = undefined; } playSnd('ui_click'); r(false); return; } }
+    if (s && input.tapped && (performance.now() - s.t0) / 1000 <= 2.4) { consumeTap(); s.t0 = performance.now() - 2401; return; }   // 演示中点一下：直接开始（原来演示时的点击被悄悄吞掉，玩家以为卡住了）
     if (s && input.tapped && (performance.now() - s.t0) / 1000 > 2.4) {
-      const t = consumeTap(); const i = s.pts.findIndex(p => Math.hypot(t.x - p[0], t.y - p[1]) < 40);
+      const t = consumeTap(); let i = -1, bd = 64; s.pts.forEach((p, k) => { const d = Math.hypot(t.x - p[0], t.y - p[1]); if (d < bd) { bd = d; i = k; } });   // 取最近的阵眼，手指点偏一点也算
+      s.taps.push({ x: t.x, y: t.y, t: performance.now(), bad: i >= 0 && s.order[s.step] !== i }); if (s.taps.length > 8) s.taps.shift();
       if (i >= 0) {
         if (s.order[s.step] === i) { s.step++; s.err = 0; playSnd('sfx_star', .5); if (s.step >= s.order.length) { const c = s.cfg; seal = null; if (c.cost) { S.hero.bag.yunxingshi -= c.cost; if (!S.hero.bag.yunxingshi) delete S.hero.bag.yunxingshi; } S.flash = 1; S.flashColor = '#ffffff'; playSnd('sfx_ult', .7); world.locked = false; s.res(true); } }
         else { s.step = 0; s.err = 1; s.t0 = performance.now(); S.shake = 8; playSnd('sfx_hurt'); }
@@ -5944,7 +5955,8 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const seal = { st: () => S.flags.seal_liuyun || (world.mapName === 'tj_houshan' && !S.flags.hs_impact && !S.flags.ch2_seal_open ? 'dormant' : 'sealed'), t0: 0, lit: 0 };
     window.SEAL_LIUYUN = seal;
     window.SEAL_LOCKTALK = () => lockTalk();
-    async function lockTalk() {
+    async function lockTalk() { try { return await lockTalk0(); } catch (e) { world.locked = false; (window.__gameErrs = window.__gameErrs || []).push('锁灵阵：' + (e && e.message || e)); } }   // 中途出错也把人放开，不会定在原地
+    async function lockTalk0() {
       const st = seal.st();
       // 宗主送衣的剧情（大殿）结束前：强大结界，无法解开
       if (!S.flags.ch2_seal_open && st !== 'claimed') {
