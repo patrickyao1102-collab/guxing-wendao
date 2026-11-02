@@ -4025,8 +4025,11 @@ TMAPS.lin_manor.onEnter = async function () {
   await say('叶孤星', '林家主，周虎和方烈就由您和三位长老联手牵制，那些练气境的山贼交给林家弟子。那个神秘高手，交给我们。');
   await say('林震山', '好！两位少侠先在府中歇息一晚，明日一早，我们一同前往黑风谷！');
   await fadeOut(500); partyRest(); world.actors = world.actors.filter(a => a !== ly);
-  setMap('courtyard', 560, 600); world.locked = true; S.scene = drawMap;
-  const yt = addActor('b_yunting', 760, 480, '云霆', '#b8c4ff'); yt.h = 118; yt.dir = -1;
+  // 作者 11-03：林家府邸早换成 Codex 的「林府 · 曲水花庭」了，夜谈不再用老院子图
+  if (TMAPS.lin_court) { if (window.SET_TOD) SET_TOD('night'); tileSetMap('lin_court', 880 / 64 - .5, 745 / 64 - .8, 'right'); world.actors = world.actors.filter(a => !a.follower); world.followers = []; }
+  else setMap('courtyard', 560, 600);
+  world.locked = true; S.scene = drawMap;
+  const yt = TMAPS.lin_court ? addActor(PARTY_DB.yunting.walk, 975, 725, '云霆', '#b8c4ff') : addActor('b_yunting', 760, 480, '云霆', '#b8c4ff'); yt.h = TMAPS.lin_court ? 108 : 118; yt.dir = -1; yt.face = 'left';
   await fadeIn(600);
   await narrate('夜深。云霆一个人坐在院子的台阶上擦剑。');
   await narrate('叶孤星拎着一坛从林府厨房顺来的酒，往他旁边一坐。');
@@ -4045,7 +4048,7 @@ TMAPS.lin_manor.onEnter = async function () {
   await say('叶孤星', '又不是给你的，是给我自己保命的。你挂了，谁替我挡刀？');
   { const a = allyState('yunting'); PARTY_DB.yunting.base.def += 8; PARTY_DB.yunting.base.maxhp += 80; a.hp += 80; }
   await showPanel('星痕衣 → 云霆', ['!极品灵器 · 星痕衣', '云霆 防御 +8　气血 +80']);
-  await fadeOut(500);
+  await fadeOut(500); if (window.SET_TOD) SET_TOD('');
   S.flags.ch2_plan = 1; S.quest = '出镇往东，前往黑风谷';
   await goMap('qy_town', 23, 23.2, 'down');
 };
@@ -4102,7 +4105,10 @@ TMAPS.hf_camp.onEnter = async function () {
   await fadeOut(800); await ch2After();
 };
 async function ch2After() {
-  setMap('courtyard', 560, 600); world.locked = true; S.scene = drawMap; S.hud = false;
+  // 作者 11-03：林家府邸用新的东厢客房（Codex），云霆躺在床上养伤
+  if (TMAPS.lin_guest_east) { S.flags.yt_sick2 = 1; tileSetMap('lin_guest_east', 640 / 64 - .5, 590 / 64 - .8, 'right'); world.actors = world.actors.filter(a => !a.follower); world.followers = []; }
+  else setMap('courtyard', 560, 600);
+  world.locked = true; S.scene = drawMap; S.hud = false;
   await fadeIn(600);
   await narrate('林家府邸。云霆连续两次全力催动天剑诀，又硬接了魔族高手一掌，伤势远比看上去严重。');
   await say('叶孤星', '星旋，有没有疗伤的丹药？多少星辰点都行！');
@@ -4131,6 +4137,7 @@ async function ch2After() {
   await ch2EndNew();
 }
 async function ch2EndNew() {
+  if (S.flags) S.flags.yt_sick2 = 0;
   S.hud = false; world.map = null; S.scene = () => { ctx.fillStyle = '#04050b'; ctx.fillRect(0, 0, W, H); };
   stopBgm(1); playSnd('jingle_levelup'); await fadeIn(600);
   await bigTitle('第二章 完', '下一章：玄天城 · 苍月城', 3200);
@@ -10786,7 +10793,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     fangLord: () => fz() === 8 && RP() >= 3, jianchen: () => fz() === 8 && RP() >= 4,
   };
   window.FZ_VIS = t => !VIS[t] || VIS[t]();
-  const sickY = () => F().fz >= 2 && !F().fz_yun, sickL = () => F().fz >= 2 && !F().fz_lin;
+  const sickY = () => (F().fz >= 2 && !F().fz_yun) || !!F().yt_sick2, sickL = () => F().fz >= 2 && !F().fz_lin;
   drawBaked = (orig => function (o, now) {
     if (o.tag && VIS[o.tag] && !VIS[o.tag]()) return;
     if (o.uid === 'lin-r26-3' && (world.mapName === 'lin_guest_east' ? sickY() : world.mapName === 'lin_guest_xue' ? sickL() : false)) {
