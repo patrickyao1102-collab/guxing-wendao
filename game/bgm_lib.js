@@ -1675,10 +1675,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:dianxing",
 "file": "lib29/n3_hero__dianxing.mp4",
-"blob": "cf2507a4069b1398e15967e641ef29c4",
+"blob": "7881959600397b01cf5f43c0cc11e2ef",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-01 重录）",
-"dur": 2.1
+"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
+"dur": 2.14
 },
 "lib_n3_hero__duopo": {
 "no": "癸A02",
@@ -1699,10 +1699,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:huti",
 "file": "lib29/n3_hero__huti.mp4",
-"blob": "e039395f9feb55d59f111ffc6eafc135",
+"blob": "462e9af9ecd3cf0ea290284de66cc8b4",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “护体！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “护体！”（11-03 重录·尾字完整）",
+"dur": 0.84
 },
 "lib_n3_hero__jueying": {
 "no": "癸A04",
@@ -1711,10 +1711,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:jueying",
 "file": "lib29/n3_hero__jueying.mp4",
-"blob": "cc9ee0907cc90b39b91c36a16d92bc11",
+"blob": "c5331b235b0b0942e48db8ac07900545",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，绝影！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·清朗少年风 · “贪狼剑意，绝影！”（11-03 重录·尾字完整）",
+"dur": 2.37
 },
 "lib_n3_hero__juling": {
 "no": "癸A05",
@@ -1723,10 +1723,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:juling",
 "file": "lib29/n3_hero__juling.mp4",
-"blob": "a7c73eafd7a6b442fb8209718fe724cc",
+"blob": "08e0623c1f29838fa96e2f28485e33f0",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “聚灵！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “聚灵！”（11-03 重录·尾字完整）",
+"dur": 0.77
 },
 "lib_n3_hero__ningshen": {
 "no": "癸A06",
@@ -1735,10 +1735,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:ningshen",
 "file": "lib29/n3_hero__ningshen.mp4",
-"blob": "980f2c5b3b7ac2f38fe4f92d2168fc62",
+"blob": "dfb3fb71828f4f712bd495e8d1be820e",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “凝神！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “凝神！”（11-03 重录·尾字完整）",
+"dur": 0.88
 },
 "lib_n3_hero__pojun": {
 "no": "癸A07",
@@ -1747,10 +1747,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:pojun",
 "file": "lib29/n3_hero__pojun.mp4",
-"blob": "60acae421be15f45f471fd3eb184a439",
+"blob": "a0fe91ceb7b49a14bd2192d5cd419317",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天璇！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·清朗少年风 · “破军剑意，天璇！”（11-03 重录·尾字完整）",
+"dur": 1.88
 },
 "lib_n3_hero__sun": {
 "no": "癸A08",
@@ -1759,10 +1759,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:sun",
 "file": "lib29/n3_hero__sun.mp4",
-"blob": "194b7ebb72cded768a70146ce1e823b9",
+"blob": "b14be3bac36e86cf3b8fcc705b676a2c",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，太阳！（大招·热血激昂）”（11-01 重录）",
-"dur": 1.9
+"desc": "即梦配音·清朗少年风 · “破军剑阵，太阳！（大招·热血激昂）”（11-03 重录·尾字完整）",
+"dur": 2.21
 },
 "lib_n3_hero__tanlang": {
 "no": "癸A09",
@@ -1771,10 +1771,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tanlang",
 "file": "lib29/n3_hero__tanlang.mp4",
-"blob": "2f52f5e05a61198024f1b286e96ddf49",
+"blob": "e42427cd8fa5f9fe2a4cc9c735766182",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，追魂！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·清朗少年风 · “贪狼剑意，追魂！”（11-03 重录·尾字完整）",
+"dur": 1.83
 },
 "lib_n3_hero__tianshu": {
 "no": "癸A10",
@@ -1783,10 +1783,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tianshu",
 "file": "lib29/n3_hero__tianshu.mp4",
-"blob": "119079d9c99b34b7cf0e00439e757bee",
+"blob": "c9651332c3f43d9b14a79f9ab9017a6d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天枢！”（11-01 重录）",
-"dur": 1.6
+"desc": "即梦配音·清朗少年风 · “破军剑意，天枢！”（11-03 重录·尾字完整）",
+"dur": 1.76
 },
 "lib_n3_hero__xingluo": {
 "no": "癸A11",
@@ -1795,10 +1795,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingluo",
 "file": "lib29/n3_hero__xingluo.mp4",
-"blob": "7e4a9eaef7dfdbe4a6f8ba6a675f4c1c",
+"blob": "2d68fb1536fd63aab3df232c0441ed77",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，起！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·清朗少年风 · “破军剑阵，起！”（11-03 重录·尾字完整）",
+"dur": 1.32
 },
 "lib_n3_hero__xingluo2": {
 "no": "癸A12",
@@ -1807,10 +1807,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingluo2",
 "file": "lib29/n3_hero__xingluo2.mp4",
-"blob": "0c1e2c65ba9998e4083aa3b8573daa2b",
+"blob": "b8b544fd45f3a7e5ab45b61ca1baaca9",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “星落！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “星落！”（11-03 重录·尾字完整）",
+"dur": 0.81
 },
 "lib_n3_hero__xingyun": {
 "no": "癸A13",
@@ -1819,10 +1819,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingyun",
 "file": "lib29/n3_hero__xingyun.mp4",
-"blob": "24528a95d132a59d68abd2b25794425b",
+"blob": "774fa0410d028fc83a9bf871fee1a91c",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，星陨！”（11-01 重录）",
-"dur": 1.6
+"desc": "即梦配音·清朗少年风 · “破军剑意，星陨！”（11-03 重录·尾字完整）",
+"dur": 1.97
 },
 "lib_n3_hero__xl_wushang": {
 "no": "癸A14",
@@ -1831,10 +1831,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xl_wushang",
 "file": "lib29/n3_hero__xl_wushang.mp4",
-"blob": "e93ff23856c9449e5973ed5cb6d85883",
+"blob": "955ab7df546415654863592e75749afb",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “星落！（大招·热血激昂）”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “星落！（大招·热血激昂）”（11-03 重录·尾字完整）",
+"dur": 0.74
 },
 "lib_n3_linxue__bingdun": {
 "no": "癸A15",
@@ -1843,10 +1843,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingdun",
 "file": "lib29/n3_linxue__bingdun.mp4",
-"blob": "bff69867a173d4c93b8f680977633c32",
+"blob": "46b23fb4e5070325936d6d0921167264",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰盾！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “冰盾！”（11-03 重录·尾字完整）",
+"dur": 0.77
 },
 "lib_n3_linxue__bingfeng": {
 "no": "癸A16",
@@ -1855,10 +1855,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingfeng",
 "file": "lib29/n3_linxue__bingfeng.mp4",
-"blob": "83bcee615803e62059d1cd3ce74299b7",
+"blob": "535c5c0aa55d54536e996dfe0cb7ca0d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰封！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “冰封！”（11-03 重录·尾字完整）",
+"dur": 0.77
 },
 "lib_n3_linxue__bingxin": {
 "no": "癸A17",
@@ -1867,10 +1867,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingxin",
 "file": "lib29/n3_linxue__bingxin.mp4",
-"blob": "e8da725694381210e5399a0900acf2c4",
+"blob": "08fef76c1f030b719c440042de8aba0c",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰心！”（11-01 重录）",
-"dur": 0.6
+"desc": "即梦配音·清朗少年风 · “冰心！”（11-03 重录·尾字完整）",
+"dur": 0.74
 },
 "lib_n_c_qxq": {
 "no": "癸N14a",
@@ -2023,10 +2023,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:dianxing",
 "file": "lib29/n3_linxue__dianxing.mp4",
-"blob": "7259f054693155191f576ea9c1669a66",
+"blob": "8b0cf0b9368b8cb376f4bcb6fb2cf0b9",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-01 重录）",
-"dur": 1.9
+"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
+"dur": 2.53
 },
 "lib_n3_linxue__qunxing": {
 "no": "癸A19",
@@ -2035,10 +2035,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:qunxing",
 "file": "lib29/n3_linxue__qunxing.mp4",
-"blob": "6ee7d2d725f6e08e1924e2609cdd0073",
+"blob": "5781d1a7f7bf76d13fcb8af80649dbbf",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-03 重录·尾字完整）",
+"dur": 1.74
 },
 "lib_n3_linxue__shuangjia": {
 "no": "癸A20",
@@ -2047,10 +2047,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:shuangjia",
 "file": "lib29/n3_linxue__shuangjia.mp4",
-"blob": "84361b1dd65a84a68d213c953923f498",
+"blob": "15fb63b41cd55a4f6a6c85815a509aee",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “霜甲！”（11-01 重录）",
-"dur": 0.7
+"desc": "即梦配音·清朗少年风 · “霜甲！”（11-03 重录·尾字完整）",
+"dur": 0.93
 },
 "lib_n3_yunting__boming": {
 "no": "癸A21",
@@ -2071,10 +2071,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:def",
 "file": "lib29/n3_yunting__def.mp4",
-"blob": "94d6fb241817202570d9374aec8a9f65",
+"blob": "f46eac92adbf4df7e767fb5c7776216d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑凝锋，加持！”（11-01 重录）",
-"dur": 2.0
+"desc": "即梦配音·清朗少年风 · “天剑凝锋，加持！”（11-03 重录·尾字完整）",
+"dur": 2.14
 },
 "lib_n3_yunting__dianxing": {
 "no": "癸A23",
@@ -2083,10 +2083,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:dianxing",
 "file": "lib29/n3_yunting__dianxing.mp4",
-"blob": "9b9ca17c18d4b9490a8d681cbdf52fbb",
+"blob": "678cbb85c8986361d54b5e1fc49e906d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-01 重录）",
-"dur": 2.0
+"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
+"dur": 2.67
 },
 "lib_n3_yunting__jifeng": {
 "no": "癸A24",
@@ -2107,10 +2107,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:qianggong",
 "file": "lib29/n3_yunting__qianggong.mp4",
-"blob": "8476fe33b77f25a96028322842f1d36a",
+"blob": "863eeb963b3733a405d26f93ace63f9d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “强攻！”（11-01 重录）",
-"dur": 1.0
+"desc": "即梦配音·清朗少年风 · “强攻！”（11-03 重录·尾字完整）",
+"dur": 1.21
 },
 "lib_n3_yunting__qunxing": {
 "no": "癸A26",
@@ -2119,10 +2119,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:qunxing",
 "file": "lib29/n3_yunting__qunxing.mp4",
-"blob": "1a76916f4e6171c47740a223401a354c",
+"blob": "6e81376b5d82a94e8378be4912db5f94",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-01 重录）",
-"dur": 2.0
+"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-03 重录·尾字完整）",
+"dur": 2.02
 },
 "lib_n3_yunting__yunlei": {
 "no": "癸A27",
