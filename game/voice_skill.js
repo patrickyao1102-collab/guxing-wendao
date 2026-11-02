@@ -43,7 +43,7 @@
         const who = P.ally || 'hero';
         if (!(who === 'yunting' && k === 'ult')) {   // 云霆大招由下面 playVoice 的替换来播（跟动画对拍）
           if (k === 'atk' && Math.random() < .5) { /* 普攻一半概率不喊 */ } else if (play(who + ':' + k)) { const id = chosen(who + ':' + k); vEnd = performance.now() + ((lib[id] && lib[id].dur) || 1.8) * 1000; }
-          if (who === 'shenle' && k === 'jiuyinhe') jiuyinheSfx();
+          if (who === 'shenle' && k === 'jiuyinhe' && !window.R96_JYH3) jiuyinheSfx();   // v3 流萤光河自己按时间轴放音效
         }
       }
     } catch (e) {}
