@@ -167,10 +167,10 @@ window.BGM_LIB = {
 "group": "丙 · 城镇 / 集市 / 喜庆",
 "kind": "bgm",
 "file": "lib29/xm2.mp4",
-"blob": "570db2ff5964d9ef9676d77c1dfda1f0",
+"blob": "9c8bbacc3cbd3ad69038cc5f5b1a4ca1",
 "vol": 0.5,
-"desc": "即梦 SeedMusic · 古筝竹笛扬琴，轻快悠扬、明亮温暖，约 117BPM，青阳镇现用（11-02 新做；剪掉前奏尾声，取 0:03–1:43 整段首尾接好无缝循环）",
-"dur": 100.2
+"desc": "即梦 SeedMusic · 古筝竹笛扬琴，轻快悠扬、明亮温暖，约 117BPM，青阳镇现用（11-02 新做；作者：最后那段不好听 → 只取 0:04–0:54 这一段首尾接好无缝循环）",
+"dur": 50.1
 },
 
 "bgm29_yejingxingling": {
