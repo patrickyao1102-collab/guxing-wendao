@@ -1280,6 +1280,18 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 4.1
 },
+"lib_n_xz4": {
+"no": "癸N13c",
+"name": "神乐·九音录，仙音镇魂（干脆圆润版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_xz4.mp4",
+"blob": "71cf1db8807df5b4a08de2347974378c",
+"vol": 1,
+"desc": "作者：上一条风格对但太尖 → 小云雀按“清亮圆润、略偏中音”重抽，挑音高最低、高频最少的一条，分离出人声 · “九音录，仙音镇魂！”",
+"slot": "shenle:qingxin",
+"dur": 2.3
+},
 "lib_n_xz3": {
 "no": "癸N13b",
 "name": "神乐·九音录，仙音镇魂（干脆版）",
