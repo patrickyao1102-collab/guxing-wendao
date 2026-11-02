@@ -1280,6 +1280,18 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 4.1
 },
+"lib_n_xz3": {
+"no": "癸N13b",
+"name": "神乐·九音录，仙音镇魂（干脆版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_xz3.mp4",
+"blob": "1adc4e03cd315c970251cc1fcda94f74",
+"vol": 1,
+"desc": "小云雀视频生成·按作者说的“像大掌门2那样”干脆有力地喊，再分离出人声 · “九音录，仙音镇魂！”",
+"slot": "shenle:qingxin",
+"dur": 2.1
+},
 "lib_n_xz2": {
 "no": "癸N13a",
 "name": "神乐·仙音镇魂（配乐中喊）",
