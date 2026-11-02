@@ -14862,7 +14862,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const h = document.createElement('h4'); h.textContent = '技能体系 v4'; const row = document.createElement('div'); row.className = 'row';
     const b1 = document.createElement('button'); b1.textContent = '学会全部辅助/秘传 + 送卷册'; b1.onclick = () => { for (const who in X) for (const id in X[who]) learn(who, id); for (const t in VOL) addItem('juan' + t, 3); for (const id of ['xingluo', 'jueying', 'xingyun', 'duopo']) if (!S.hero.skills.includes(id)) S.hero.skills.push(id); pan.hidden = true; toast('已学全部新招'); };
     const b2 = document.createElement('button'); b2.textContent = '送全部技能书'; b2.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].sk4) addItem(id, 1); pan.hidden = true; toast('已送技能书'); };
-    row.appendChild(b1); row.appendChild(b2); pan.appendChild(h); pan.appendChild(row); })();
+    row.appendChild(b1); row.appendChild(b2); const put = () => { if (!pan.contains(row)) pan.append(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true }); })();
 })();
 
 </script><script>
@@ -16231,7 +16231,7 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

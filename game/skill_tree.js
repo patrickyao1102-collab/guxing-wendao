@@ -372,7 +372,8 @@
   const h = document.createElement('h4'); h.textContent = '剑诀 · 技能树'; const row = document.createElement('div'); row.className = 'row';
   const b = document.createElement('button'); b.textContent = '送全套剑谱×3 + 玉简×3，打开技能页';
   b.onclick = () => { for (const id in ITEM_DB) if (ITEM_DB[id].book && (ITEM_DB[id].vol || ITEM_DB[id].sk4)) addItem(id, 3); pan.hidden = true; try { openMenu(); S.menu.tab = MTABS.indexOf('技能'); } catch (e) {} toast('已送入剑谱与玉简'); };
-  row.appendChild(b); pan.appendChild(h); pan.appendChild(row);
+  row.appendChild(b);
+  const put = () => { if (!pan.contains(row)) pan.append(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true }); // 面板打开会整块重画，冲掉了就补回
 })();
 
 // 作者：凝丹一重（10 级）领悟破军剑阵·星罗——已过 10 级的存档补发

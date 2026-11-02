@@ -25,7 +25,10 @@
     const b = document.createElement('button'); const lab = () => { b.textContent = on ? '测试版行走：开（往左右走用新八帧）· 点一下关' : '测试版行走：关 · 点一下开'; }; lab();
     b.onclick = () => { on = !on; try { localStorage.setItem('walkTest8', on ? '1' : '0'); } catch (e) {} lab(); pan.hidden = true;
       try { toast(on ? '已换成测试版行走：往左、往右走看效果（上下和斜向还是原来的）' : '已换回原来的行走', 2600); } catch (e) {} };
-    row.appendChild(b); pan.appendChild(h); pan.appendChild(row);
+    row.appendChild(b);
+    // 测试面板每次打开都会整块重画（innerHTML），所以盯住它：按钮被冲掉就重新放回最上面
+    const put = () => { if (!pan.contains(row)) { lab(); pan.prepend(h, row); } };
+    put(); new MutationObserver(put).observe(pan, { childList: true });
   })();
   window.WALK_TEST8 = { get on() { return on; }, get hits() { return hits; }, set(v) { on = !!v; try { localStorage.setItem('walkTest8', on ? '1' : '0'); } catch (e) {} } };
 })();
