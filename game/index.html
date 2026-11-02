@@ -7106,7 +7106,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   TMAPS.qingzhu_court = {
     title: '青竹小院', baked: Object.assign({ ground: 'cx2g_qingzhu_court' }, QC), chests: [], leaves: true,
     start: atOf(QC)(736, 1640),
-    doors: [{ x: 1088, y: 548, rw: 34, rh: 20, to: 'tj_room', at: atOf(TR)(416, 520), face: 'up', label: '居室' }],
+    doors: [{ x: 1088, y: 548, rw: 34, rh: 20, to: 'tj_room', at: atOf(TR)(544, 740), face: 'up', label: '居室' }],
     exits: [
       exitOf(QC, ex(QC, 'north'), { to: 'qingzhu_stairs', label: '山阶 · 后山', at: QS ? atOf(QS)(1056, 1180) : null, face: 'up' }),
       exitOf(QC, ex(QC, 'south'), { to: 'tj_front', label: '竹林小径 · 演武广场', at: null, face: 'right' }),
@@ -7122,7 +7122,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   const rSpot = spotOf(TR), bed = obj(TR, 'canopy_bed'), robes = obj(TR, 'disciple_robes'), shelf = obj(TR, 'bookshelf_tall_a');
   TMAPS.tj_room = {
     title: '叶孤星居室', baked: Object.assign({ ground: 'cx2g_tj_room' }, TR), chests: [], indoor: true,
-    start: atOf(TR)(416, 520),
+    start: atOf(TR)(544, 740),   // 新居室（Codex r6）门在正下方；原来的 (416,520) 落在屏风里
     exits: [exitOf(TR, ex(TR, 'exit'), { to: 'qingzhu_court', label: '青竹小院', at: atOf(QC)(1088, 600), face: 'down' })],
     npcs: [
       rSpot('床榻', bed ? bed.ax : 200, bed ? bed.ay + 30 : 300, async () => {
@@ -7130,7 +7130,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
         await fadeOut(400); h.hp = h.maxhp; h.mp = h.maxmp; if (typeof partyHealAll === 'function') partyHealAll(); playSnd('ui_confirm'); await fadeIn(400);
         toast('在床上躺了一会儿——气血、灵力全部恢复', 2000);
       }, 120),
-      rSpot('桌案 · 剑谱', 473, 380, ['几本翻得起毛边的《天剑诀》。十八年，一页都没练成。', '桌角刻着密密麻麻的「正」字——那是他数过的、被人笑话的日子。']),
+      rSpot('桌案 · 剑谱', 824, 600, ['几本翻得起毛边的《天剑诀》。十八年，一页都没练成。', '桌角刻着密密麻麻的「正」字——那是他数过的、被人笑话的日子。']),
       ...(shelf ? [rSpot('书架', shelf.ax, shelf.ay + 30, ['剑谱、心法、游记……游记翻得最旧。他一直想下山看看。'])] : []),
       ...(robes ? [rSpot('弟子服', robes.ax, robes.ay + 30, ['叠好的天剑宗弟子服。袖口打过补丁——他自己缝的，针脚歪歪扭扭。'])] : []),
     ],
@@ -7185,12 +7185,12 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   const courtAt = () => doorTo('tj_room', 'qingzhu_court') || atOf(QC)(736, 1600);
   async function roomFix() {
     world.locked = true; const p = world.player;
-    const [dx, dy] = nearOf(TR)(473, 420); await moveActor(p, dx, dy, 150); p.face = 'up';
+    const [dx, dy] = nearOf(TR)(824, 615); await moveActor(p, dx, dy, 150); p.face = 'up';   // 走到书案正前方（新居室书案在右侧）
     await narrate('叶孤星拿出怀中那本九曜剑典残卷，轻轻放在桌案上。');
     await say('叶孤星', '你真的能修复这本剑典？');
     await say('星旋', '喂，小爷我可是连你们藏经阁的禁制都帮你破了，你居然还怀疑我？把玉佩放在残本上！');
     sfx('magic'); S.flash = .5; S.flashColor = '#3a3f66';
-    for (let i = 0; i < 3; i++) { particleBurst(473 - world.cam.x, 352 - world.cam.y, 16, ['#9fb8ff', '#ffffff', '#2a2f55'], 90, 1.2, 4, -30); await sleep(260); }
+    for (let i = 0; i < 3; i++) { particleBurst(824 - world.cam.x, 470 - world.cam.y, 16, ['#9fb8ff', '#ffffff', '#2a2f55'], 90, 1.2, 4, -30); await sleep(260); }
     await narrate('玉佩中涌出一阵温和的黑色灵光，缓缓覆盖到残卷之上。破损的书页，一页一页愈合如初。');
     S.hero.points = Math.max(0, (S.hero.points || 10) - 10);
     await showPanel('兑换成功', ['!九曜剑典（完整）', '扣除星辰点 10 点，剩余 ' + S.hero.points + ' 点']);
@@ -7258,7 +7258,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     playSnd('ui_click'); await sleep(220); playSnd('ui_click'); await sleep(220); playSnd('ui_click');
     await say('叶擎苍', '孤星，起了吗？');
     await say('叶孤星·惊', '爹，我、我起来了。');
-    const [fx, fy] = nearOf(TR)(416, 560), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
+    const [fx, fy] = nearOf(TR)(544, 740), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
     await tween(400, t => f.alpha = t); await moveActor(f, p.x + 60, p.y + 50, 120); p.face = 'down';
     await say('叶擎苍', '你昨晚没休息好？');
     await say('叶孤星·苦笑', '昨晚修炼剑典来着，折腾了大半夜……运气不错，刚好凝聚了剑意。');
@@ -7285,12 +7285,12 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   // ================= 第二章 · 测灵碑之后回住所（原著第六、七章）=================
   window.RES_CH2_HOME = async function () {
     await fadeOut(500);
-    RES_TOD('night'); const [c, r] = atOf(TR)(470, 440); tileSetMap('tj_room', c, r, 'up'); S.scene = drawMap; S.hud = false; world.locked = true;
+    RES_TOD('night'); const [c, r] = atOf(TR)(824, 615); tileSetMap('tj_room', c, r, 'up'); S.scene = drawMap; S.hud = false; world.locked = true;
     const p = world.player;
     await fadeIn(600);
     await narrate('叶孤星慢悠悠地回到住所，还没来得及躺下，门外便传来了轻轻的敲门声。');
     await say('叶擎苍', '孤星，是我。');
-    const [fx, fy] = nearOf(TR)(416, 560), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
+    const [fx, fy] = nearOf(TR)(544, 740), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
     await tween(400, t => f.alpha = t); await moveActor(f, p.x - 50, p.y + 70, 120); p.face = 'down';
     await say('叶擎苍·严肃', '孤星，你的修为是怎么突破得这么快的？你今天的剑招我从未见过，还有那柄剑……这些都是从何而来？');
     await say('叶孤星·思', '爹，你还记得那天晚上，我从藏经阁拿走的那本九曜剑典残本吗？宗门的残本只是引子——我得到了完整的九曜剑典。');
@@ -7314,7 +7314,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await tween(400, t => xx.alpha = 1 - t); xx.hidden = true;
     await fadeOut(700);
     // 三日后清晨
-    RES_TOD('dawn'); { const [c2, r2] = atOf(TR)(300, 420); tileSetMap('tj_room', c2, r2, 'down'); } S.scene = drawMap;
+    RES_TOD('dawn'); { const [c2, r2] = atOf(TR)(200, 415); tileSetMap('tj_room', c2, r2, 'down'); } S.scene = drawMap;
     await caption('三日后 · 清晨', 1500);
     await fadeIn(500);
     await say('星旋', '哎呀，终于要下山历练了，真是激动啊！');
@@ -7329,7 +7329,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   };
   // 第二章：出发前夜服凝元丹，在居室里
   window.RES_ROOM_NIGHT = async function () {
-    RES_TOD('night'); const [c, r] = atOf(TR)(470, 440); tileSetMap('tj_room', c, r, 'up'); S.scene = drawMap; world.locked = true; S.hud = false;
+    RES_TOD('night'); const [c, r] = atOf(TR)(824, 615); tileSetMap('tj_room', c, r, 'up'); S.scene = drawMap; world.locked = true; S.hud = false;
     await fadeIn(400);
   };
 
