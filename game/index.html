@@ -34,6 +34,10 @@ const WALK4 = { w_yegx: 'yegx_walk4', w_yunting: 'yunting_walk4', w_linxue: 'lin
 // 逻辑分辨率 1280x720，横屏。素材缺失时自动用占位图形。
 'use strict';
 const W = 1280, H = 720;
+// 地图镜头缩放（作者 11-02：集市等地图建筑相对人物太大，看不全一座房子 → 人物大小不变，整张地图按比例缩小，参照青阳镇）
+const MAP_ZOOM = { tj_market: .6, xt_city: .75, qingzhu_upper_pavilion: .75, tj_front: .8, tj_hall: .8, xt_manor: .8, tj_scripture: .8, tj_houshan: .8, qingzhu_court: .8, lin_court: .8 };   // 作者 11-02：参照青阳镇，建筑相对人物太大的地图整体缩小
+function VZ() { try { const m = world && world.map && world.mapName; if (!m) return 1; const z = (window.ZOOM_TEST && ZOOM_TEST[m]) || MAP_ZOOM[m] || 1; if (z === 1) return 1; const T = world.map.T;
+  return T && T.mw ? Math.min(1, Math.max(z, W / T.mw, H / T.mh)) : z; } catch (e) { return 1; } }   // 地图比屏幕小的不再缩，免得两边露黑
 const PIXEL = false, PX = 2; // 像素版：素材已按 4 倍像素网格烘焙
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
@@ -2371,12 +2375,12 @@ function tileUpdate(dt) {
   if (free && S.hud && input.tapped && !input.tapped.key && input.tapped.x > W - 140 && input.tapped.y > H - 120) { consumeTap(); openMenu(); return; }
   if (free && S.hero.learnQ && S.hero.learnQ.length && !battle) { world.locked = true; showLearns().then(() => world.locked = false); return; }
   const cam = world.cam || { x: 0, y: 0 };
-  let vx = 0, vy = 0; const spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 190) * (window.WALK_MUL || 1); // 三人定稿：112px/s，与步频 170ms×6 匹配（原 190 / 300）
+  let vx = 0, vy = 0; const spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 190) * (window.WALK_MUL || 1) / VZ(); // 三人定稿：112px/s，与步频 170ms×6 匹配（原 190 / 300）
   if (free) {
     const tap = consumeTap();
     if (tap && tap.key) { interactFacing(); }
     else if (tap) {
-      const wx = tap.x + cam.x, wy = tap.y + cam.y;
+      const wx = tap.x / VZ() + cam.x, wy = tap.y / VZ() + cam.y;
       const hit = pickInteract(wx, wy);
       if (hit) { goInteract(hit); }
       else { const [tc, tr] = cellOf(wx, wy), [sc, sr] = cellOf(p.x, p.y); const path = findPath(T, sc, sr, tc, tr); if (path) { world.path = smoothPath(T, p.x, p.y, path.slice(1)); world.pending = null; world.walkTarget = { x: wx, y: wy }; } }
@@ -2384,7 +2388,7 @@ function tileUpdate(dt) {
     let kx = 0, ky = 0; const K = input.keys;
     if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1;
     if (kx || ky) { world.path = null; world.walkTarget = null; world.pending = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
-    else if (input.down && !tap && !world.path) { const wx = input.x + cam.x, wy = input.y + cam.y, dx = wx - p.x, dy = wy - p.y; if (Math.hypot(dx, dy) > 30) { const l = Math.hypot(dx, dy); vx = dx / l * spd; vy = dy / l * spd; } }
+    else if (input.down && !tap && !world.path) { const wx = input.x / VZ() + cam.x, wy = input.y / VZ() + cam.y, dx = wx - p.x, dy = wy - p.y; if (Math.hypot(dx, dy) > 30) { const l = Math.hypot(dx, dy); vx = dx / l * spd; vy = dy / l * spd; } }
     if (world.path && world.path.length) { let [tx, ty] = world.path[0], dx = tx - p.x, dy = ty - p.y, l = Math.hypot(dx, dy); if (l < Math.max(2.5, spd * dt * 1.2)) { if (canStand(T, tx, ty)) { p.x = tx; p.y = ty; } world.path.shift(); if (!world.path.length) { world.path = null; world.walkTarget = null; if (world.pending) { const h = world.pending; world.pending = null; doInteract(h); } } else { [tx, ty] = world.path[0]; dx = tx - p.x; dy = ty - p.y; l = Math.hypot(dx, dy); if (l > .5) { vx = dx / l * spd; vy = dy / l * spd; } } }   // 作者：拐点不停步——到达一个路点同一帧就朝下一个路点走，不闪站立帧
       else { vx = dx / l * spd; vy = dy / l * spd; } }
   } else if (world.locked && !dialog && !choice && !sysPanel) consumeTap();
@@ -2434,12 +2438,12 @@ function tileUpdate(dt) {
   // 野外小怪
   tileMobs(dt, T, free);
   // 镜头
-  const tx = T.mw <= W ? (T.mw - W) / 2 : clamp(p.x - W / 2, 0, T.mw - W), ty = T.mh <= H ? (T.mh - H) / 2 : clamp(p.y - H * .55, 0, T.mh - H);
+  const VWd = W / VZ(), VHd = H / VZ(), tx = T.mw <= VWd ? (T.mw - VWd) / 2 : clamp(p.x - VWd / 2, 0, T.mw - VWd), ty = T.mh <= VHd ? (T.mh - VHd) / 2 : clamp(p.y - VHd * .55, 0, T.mh - VHd);
   if (!world.cam) world.cam = { x: tx, y: ty }; else { world.cam.x = lerp(world.cam.x, tx, Math.min(1, dt * 8)); world.cam.y = lerp(world.cam.y, ty, Math.min(1, dt * 8)); }
 }
 // ---- 交互：NPC / 宝箱 ----
 function pickInteract(wx, wy) {
-  for (const a of world.actors) if (a.npc && Math.abs(wx - a.x) < 40 && wy < a.y + 10 && wy > a.y - (a.h || 108)) return { type: 'npc', a };
+  const iz = 1 / VZ(); for (const a of world.actors) if (a.npc && Math.abs(wx - a.x) < 40 * iz && wy < a.y + 10 * iz && wy > a.y - (a.h || 108) * iz) return { type: 'npc', a };
   for (const ch of world.chests || []) { const x = (ch.c + .5) * TS, y = (ch.r + 1) * TS; if (Math.abs(wx - x) < 40 && wy < y + 6 && wy > y - 80) return { type: 'chest', ch }; }
   return null;
 }
@@ -2450,7 +2454,7 @@ function goInteract(h) {
   const path = findPath(T, sc, sr, tc, tr); if (path) { world.path = smoothPath(T, p.x, p.y, path.slice(1)); world.pending = h; } else doInteract(h);
 }
 function interactFacing() {
-  const p = world.player; let best = null, bd = 110;
+  const p = world.player; let best = null, bd = 110 / VZ();
   for (const a of world.actors) if (a.npc) { const d = Math.hypot(a.x - p.x, a.y - p.y); if (d < bd) { bd = d; best = { type: 'npc', a }; } }
   for (const ch of world.chests || []) { const d = Math.hypot((ch.c + .5) * TS - p.x, (ch.r + .8) * TS - p.y); if (d < bd) { bd = d; best = { type: 'chest', ch }; } }
   if (best) doInteract(best);
@@ -2545,7 +2549,7 @@ mobFight = (orig => async function (a) {
 function tileDraw() {
   const m = world.map, T = m.T, cam = world.cam || { x: 0, y: 0 }, now = performance.now() / 1000;
   ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
-  ctx.save(); ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
+  ctx.save(); { const z = VZ(); if (z !== 1) ctx.scale(z, z); } ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
   ctx.imageSmoothingQuality = 'low';   // 地图物件接近原尺寸，'high' 要贵 3~4 倍，肉眼几乎看不出
   const gcv = renderGround(T, m.def); drawGroundVis(gcv, cam);
   if (typeof tileAmbientLow === 'function') tileAmbientLow(T, cam, now);
@@ -2555,11 +2559,11 @@ function tileDraw() {
   // 出口箭头
   for (const d of T.doors) if (d.edge && (!d.cond || d.cond()) && !(window.PORTALS_ALL_ON && !(TMAPS.qy_town && m.def === TMAPS.qy_town))) { const x = (d.x + (d.w || 1) / 2) * CS, y = (d.y + (d.h || 1) / 2) * CS; const ang = d.arrow ?? (d.y === 0 ? -Math.PI / 2 : d.x === 0 ? Math.PI : d.y + (d.h || 1) >= T.rows ? Math.PI / 2 : 0); if (typeof lfxExit === 'function') lfxExit(x, y, ang, now, d); const b = Math.sin(now * 4) * 6; ctx.save(); ctx.translate(x + Math.cos(ang) * b, y + Math.sin(ang) * b); ctx.rotate(ang); ctx.fillStyle = 'rgba(255,230,150,.85)'; ctx.strokeStyle = 'rgba(60,30,0,.8)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-10, -16); ctx.lineTo(-4, 0); ctx.lineTo(-10, 16); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); if (d.label) { ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'center'; textOutline(d.label, x - Math.cos(ang) * 40, y - Math.sin(ang) * 40 - 10, '#ffe7b0', '#2a1400', 4); } }
   // 任务标记
-  for (const tr of world.triggers) if (!tr.done && tr.marker) { const b = Math.sin(now * 4) * 6; ctx.save(); ctx.translate(tr.x, tr.y - 110 + b); ctx.fillStyle = '#ff4a3a'; ctx.strokeStyle = '#fff4e0'; ctx.lineWidth = 5; ctx.font = `900 52px ${FONT}`; ctx.textAlign = 'center'; ctx.strokeText('!', 0, 0); ctx.fillText('!', 0, 0); ctx.restore(); }
+  for (const tr of world.triggers) if (!tr.done && tr.marker) { const b = Math.sin(now * 4) * 6; ctx.save(); ctx.translate(tr.x, tr.y); ctx.scale(1 / VZ(), 1 / VZ()); ctx.translate(0, -110 + b); ctx.fillStyle = '#ff4a3a'; ctx.strokeStyle = '#fff4e0'; ctx.lineWidth = 5; ctx.font = `900 52px ${FONT}`; ctx.textAlign = 'center'; ctx.strokeText('!', 0, 0); ctx.fillText('!', 0, 0); ctx.restore(); }
   if (world.walkTarget) { ctx.save(); ctx.strokeStyle = 'rgba(255,240,180,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(world.walkTarget.x, world.walkTarget.y, 16, 7, 0, 0, 7); ctx.stroke(); ctx.restore(); }
   // 物件 + 人物：按脚底 y 排序
   const items = [];
-  const vx0 = cam.x - 400, vx1 = cam.x + W + 400, vy0 = cam.y - 200, vy1 = cam.y + H + 500;
+  const vx0 = cam.x - 400, vx1 = cam.x + W / VZ() + 400, vy0 = cam.y - 200, vy1 = cam.y + H / VZ() + 500;
   for (const o of T.objs) { if (o.bk) { if (o.x + o.w < vx0 + 400 - 80 || o.x > vx1 - 400 + 80 || o.y > vy1 || o.y + o.h < vy0) continue; items.push({ y: o.flat ? -1e9 + o.sy : o.sy, o }); continue; } const x = (o.c + .5) * TS, y = (o.r + 1) * TS; if (x < vx0 || x > vx1 || y < vy0 || y > vy1) continue; items.push({ y: (o.flat || o.d.flat) ? -1e9 + y : y - (o.d.foot ? 0 : 40) + (o.dy || 0) + (o.d.zb || 0), o }); }
   for (const ch of world.chests || []) items.push({ y: (ch.r + 1) * TS, ch });
   for (const a of world.actors) if (!a.hidden) items.push({ y: a.y, a });
@@ -2567,11 +2571,11 @@ function tileDraw() {
   for (const it of items) {
     if (it.o) (it.o.bk ? drawBaked(it.o, now) : drawObj(it.o));
     else if (it.ch) drawObj({ c: it.ch.c, r: it.ch.r, d: OBJDEF[it.ch.opened ? 'chest_open' : 'chest'], glow: !it.ch.opened });
-    else drawActorT(it.a, now);
+    else { const z = VZ(); if (z !== 1) { const a = it.a; ctx.save(); ctx.translate(a.x, a.y); ctx.scale(1 / z, 1 / z); ctx.translate(-a.x, -a.y); drawActorT(a, now); ctx.restore(); } else drawActorT(it.a, now); }   // 地图缩放时人物反向放大回原尺寸：人物和别的地图一样大，只有地图变小
   }
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh(T, cam, now);
   // 头顶名字（像 java 游戏那样标出 NPC）
-  for (const a of world.actors) if (a.npc && !a.hidden && !a.npc.noLabel) { ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline(a.npc.name, a.x, a.y - (a.h || 108) - 10, a.npc.shop ? '#ffe08a' : '#fff4d8', '#1a0c00', 4); if (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark) { const b = Math.sin(now * 4) * 5, my = a.y - (a.h || 108) - 44 + b; ctx.save(); const g = ctx.createRadialGradient(a.x, my, 2, a.x, my, 40); g.addColorStop(0, 'rgba(255,90,70,.45)'); g.addColorStop(1, 'rgba(255,90,70,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, my, 40, 0, 7); ctx.fill(); ctx.restore(); ctx.font = `900 56px ${FONT}`; textOutline('!', a.x, my, '#ff4a3a', '#fff4e0', 6); } }
+  for (const a of world.actors) if (a.npc && !a.hidden && !a.npc.noLabel) { const zl = VZ(); ctx.save(); if (zl !== 1) { ctx.translate(a.x, a.y); ctx.scale(1 / zl, 1 / zl); ctx.translate(-a.x, -a.y); } ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline(a.npc.name, a.x, a.y - (a.h || 108) - 10, a.npc.shop ? '#ffe08a' : '#fff4d8', '#1a0c00', 4); if (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark) { const b = Math.sin(now * 4) * 5, my = a.y - (a.h || 108) - 44 + b; ctx.save(); const g = ctx.createRadialGradient(a.x, my, 2, a.x, my, 40); g.addColorStop(0, 'rgba(255,90,70,.45)'); g.addColorStop(1, 'rgba(255,90,70,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, my, 40, 0, 7); ctx.fill(); ctx.restore(); ctx.font = `900 56px ${FONT}`; textOutline('!', a.x, my, '#ff4a3a', '#fff4e0', 6); } ctx.restore(); }
   ctx.restore();
   ctx.imageSmoothingQuality = 'high';
   // 夜色 / 室内暖光 / 暗角
@@ -2628,7 +2632,7 @@ const GTILES = new WeakMap();
 function drawGroundVis(g, cam) {
   if (g.width <= 2048 && g.height <= 2048) { ctx.drawImage(g, 0, 0); return; }
   let tl = GTILES.get(g); if (!tl) { tl = []; const S = 1024; for (let y = 0; y < g.height; y += S) for (let x = 0; x < g.width; x += S) { const w = Math.min(S, g.width - x), h = Math.min(S, g.height - y), c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(g, x, y, w, h, 0, 0, w, h); tl.push([c, x, y, w, h]); } GTILES.set(g, tl); }
-  const x0 = cam.x - 2, y0 = cam.y - 2, x1 = cam.x + W + 2, y1 = cam.y + H + 2;
+  const x0 = cam.x - 2, y0 = cam.y - 2, x1 = cam.x + W / VZ() + 2, y1 = cam.y + H / VZ() + 2;
   for (const [c, x, y, w, h] of tl) if (x < x1 && x + w > x0 && y < y1 && y + h > y0) ctx.drawImage(c, x, y);
 }
 function bakedGround(T, def) {
@@ -2715,15 +2719,15 @@ function objBox(o) { if (o.bk) return IMG[o.img] ? { x: o.x + o.w / 2, y: o.y + 
 function tileAmbientLow(T, cam, now) {
   if (T.baked) { // 整图城镇：在河道矩形里画流动亮纹
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
-    for (const [rx, ry, rw, rh] of world.map.def.water || []) { if (rx > cam.x + W || rx + rw < cam.x || ry > cam.y + H || ry + rh < cam.y) continue;
-      for (let y = Math.max(ry, Math.floor(cam.y / 40) * 40); y < Math.min(ry + rh, cam.y + H + 40); y += 40) for (let x = rx + 8; x < rx + rw - 8; x += 36) {
+    for (const [rx, ry, rw, rh] of world.map.def.water || []) { if (rx > cam.x + W / VZ() || rx + rw < cam.x || ry > cam.y + H / VZ() || ry + rh < cam.y) continue;
+      for (let y = Math.max(ry, Math.floor(cam.y / 40) * 40); y < Math.min(ry + rh, cam.y + H / VZ() + 40); y += 40) for (let x = rx + 8; x < rx + rw - 8; x += 36) {
         const ph = now * 1.6 + x * .07 + y * .05, a = Math.sin(ph) * .5 + .5; if (a < .55) continue;
         const xx = x + ((x * 7 + y * 3) % 17), yy = y + ((now * 30 + x) % 40);
         ctx.strokeStyle = `rgba(225,248,255,${(a - .55) * 1.1})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(xx - 8, yy); ctx.quadraticCurveTo(xx, yy - 3, xx + 8, yy); ctx.stroke(); } }
     ctx.restore(); return;
   }
   // 水面：缓慢流动的亮纹
-  const c0 = Math.max(0, Math.floor(cam.x / TS) - 1), c1 = Math.min(T.cols, Math.ceil((cam.x + W) / TS) + 1), r0 = Math.max(0, Math.floor(cam.y / TS) - 1), r1 = Math.min(T.rows, Math.ceil((cam.y + H) / TS) + 1);
+  const c0 = Math.max(0, Math.floor(cam.x / TS) - 1), c1 = Math.min(T.cols, Math.ceil((cam.x + W / VZ()) / TS) + 1), r0 = Math.max(0, Math.floor(cam.y / TS) - 1), r1 = Math.min(T.rows, Math.ceil((cam.y + H / VZ()) / TS) + 1);
   ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
   for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if (GROUND[T.g[r][c]] === 'water') {
     for (let i = 0; i < 2; i++) { const ph = now * .8 + c * 1.7 + r * 2.3 + i * 3.1, a = (Math.sin(ph) * .5 + .5); if (a < .45) continue;
@@ -2736,7 +2740,7 @@ function tileAmbientHigh(T, cam, now) {
   const def = world.map.def, dt = 1 / 60;
   // 灯火 + 炊烟
   ctx.save(); ctx.globalCompositeOperation = 'lighter';
-  for (const o of T.objs) { const fx = OBJ_FX[o.id]; if (!fx) continue; const b = objBox(o); if (!b || b.x < cam.x - 300 || b.x > cam.x + W + 300 || b.y < cam.y - 100 || b.y - b.h > cam.y + H + 100) continue;
+  for (const o of T.objs) { const fx = OBJ_FX[o.id]; if (!fx) continue; const b = objBox(o); if (!b || b.x < cam.x - 300 || b.x > cam.x + W / VZ() + 300 || b.y < cam.y - 100 || b.y - b.h > cam.y + H / VZ() + 100) continue;
     for (const [lx, ly, R, col] of fx.lights || []) { const x = b.x + lx * b.w * (o.flip ? -1 : 1), y = b.y - b.h + ly * b.h, f = .75 + Math.sin(now * 7 + x) * .08 + Math.sin(now * 13 + y) * .05;
       const g = ctx.createRadialGradient(x, y, 0, x, y, R * f); g.addColorStop(0, `rgba(${col},.42)`); g.addColorStop(.4, `rgba(${col},.14)`); g.addColorStop(1, `rgba(${col},0)`); ctx.fillStyle = g; ctx.fillRect(x - R, y - R, R * 2, R * 2); }
     for (const [sx, sy] of fx.smoke || []) { if (Math.random() < dt * 2.2) SMOKE.push({ x: b.x + sx * b.w * (o.flip ? -1 : 1), y: b.y - b.h + sy * b.h, t: 0, life: rand(2.5, 4), vx: rand(8, 22), r: rand(6, 10) }); }
@@ -2756,11 +2760,11 @@ function tileAmbientHigh(T, cam, now) {
   // 飘落的花瓣 / 落叶 / 萤火（屏幕范围内循环）
   const P = world.ambP || (world.ambP = []);
   const kind = def.petals ? 'petal' : def.fireflies ? 'fly' : def.leaves ? 'leaf' : def.snow ? 'snow' : null;
-  if (kind) { while (P.length < (kind === 'fly' ? 30 : 26)) P.push({ x: cam.x + rand(-100, W + 100), y: cam.y + rand(-50, H), ph: rand(0, 7), s: rand(.6, 1.3), v: rand(.6, 1.2) });
+  if (kind) { while (P.length < (kind === 'fly' ? 30 : 26)) P.push({ x: cam.x + rand(-100, W / VZ() + 100), y: cam.y + rand(-50, H / VZ()), ph: rand(0, 7), s: rand(.6, 1.3), v: rand(.6, 1.2) });
     ctx.save(); if (kind === 'fly') ctx.globalCompositeOperation = 'lighter';
     for (const p of P) {
       if (kind === 'fly') { p.x += Math.sin(now * .7 + p.ph) * .5; p.y += Math.cos(now * .5 + p.ph * 1.3) * .4; } else { p.x += (Math.sin(now + p.ph) * .6 + .5) * p.v; p.y += .7 * p.v; }
-      if (p.y > cam.y + H + 30 || p.x > cam.x + W + 120 || p.x < cam.x - 140 || p.y < cam.y - 80) { p.x = cam.x + rand(-100, W); p.y = cam.y - 20; if (kind === 'fly') p.y = cam.y + rand(0, H); }
+      if (p.y > cam.y + H / VZ() + 30 || p.x > cam.x + W / VZ() + 120 || p.x < cam.x - 140 || p.y < cam.y - 80) { p.x = cam.x + rand(-100, W / VZ()); p.y = cam.y - 20; if (kind === 'fly') p.y = cam.y + rand(0, H / VZ()); }
       ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(now * p.v + p.ph);
       if (kind === 'petal') { ctx.fillStyle = 'rgba(255,190,205,.9)'; ctx.beginPath(); ctx.ellipse(0, 0, 5 * p.s, 2.6 * p.s, 0, 0, 7); ctx.fill(); }
       else if (kind === 'leaf') { ctx.fillStyle = 'rgba(214,150,60,.85)'; ctx.beginPath(); ctx.ellipse(0, 0, 6 * p.s, 3 * p.s, 0, 0, 7); ctx.fill(); }
@@ -2772,15 +2776,15 @@ function tileAmbientHigh(T, cam, now) {
   // 云影：大片柔和的影子慢慢飘过（只在室外）
   if (!def.indoor && !window.LOWFX) { ctx.save(); ctx.globalCompositeOperation = 'multiply';
     for (let i = 0; i < 3; i++) { const x = ((now * 18 + i * 900) % (T.mw + 1200)) - 600, y = (i * 733 + 300) % T.mh, R = 420 + i * 80;
-      if (x + R < cam.x || x - R > cam.x + W || y + R < cam.y || y - R > cam.y + H) continue;
+      if (x + R < cam.x || x - R > cam.x + W / VZ() || y + R < cam.y || y - R > cam.y + H / VZ()) continue;
       const g = ctx.createRadialGradient(x, y, 0, x, y, R); g.addColorStop(0, 'rgba(150,160,170,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.save(); ctx.translate(x, y); ctx.scale(1.6, .8); ctx.translate(-x, -y); ctx.fillRect(x - R, y - R, R * 2, R * 2); ctx.restore(); }
     ctx.restore();
     // 偶尔一群鸟的影子掠过
-    const bt = now % 23; if (bt < 6) { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.18)'; const bx = cam.x - 100 + bt * (W + 200) / 6, by = cam.y + 120 + Math.sin(now) * 20;
+    const bt = now % 23; if (bt < 6) { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.18)'; const bx = cam.x - 100 + bt * (W / VZ() + 200) / 6, by = cam.y + 120 + Math.sin(now) * 20;
       for (let i = 0; i < 5; i++) { const x = bx - i * 34, y = by + (i % 2) * 26 + i * 8, fl = Math.sin(now * 12 + i) * 6; ctx.beginPath(); ctx.moveTo(x - 12, y - fl); ctx.quadraticCurveTo(x, y + 4, x + 12, y - fl); ctx.quadraticCurveTo(x, y, x - 12, y - fl); ctx.fill(); }
       ctx.restore(); } }
   // 白天的暖阳（左上来的光）
-  if (!def.indoor && !def.tint && !window.LOWFX) { ctx.save(); ctx.globalCompositeOperation = 'soft-light'; const g = ctx.createLinearGradient(cam.x, cam.y, cam.x + W, cam.y + H); g.addColorStop(0, 'rgba(255,230,170,.5)'); g.addColorStop(1, 'rgba(40,60,90,.35)'); ctx.fillStyle = g; ctx.fillRect(cam.x, cam.y, W, H); ctx.restore(); }
+  if (!def.indoor && !def.tint && !window.LOWFX) { ctx.save(); ctx.globalCompositeOperation = 'soft-light'; const g = ctx.createLinearGradient(cam.x, cam.y, cam.x + W / VZ(), cam.y + H / VZ()); g.addColorStop(0, 'rgba(255,230,170,.5)'); g.addColorStop(1, 'rgba(40,60,90,.35)'); ctx.fillStyle = g; ctx.fillRect(cam.x, cam.y, W, H); ctx.restore(); }
 }
 // ---- 投影：太阳在左上，房子和树在地上投一道斜斜的影子（把贴上去的物件"按"进地里）----
 const SIL = {};
@@ -6067,7 +6071,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
 
   // 剧情镜头：world.camFocus = [x, y] 时镜头对准这一点（演出用），清掉就回到跟随主角
   updateMap = (orig => function (dt) { const c0 = world.cam && { x: world.cam.x, y: world.cam.y }; orig(dt); let f = typeof world.camFocus === 'function' ? world.camFocus() : world.camFocus, m = world.map; if (Array.isArray(world.camFocus) && !world.locked && !dialog && !choice) { world.camFocus = null; f = null; }   // 剧情定点镜头只在锁住时有效：一旦能自由走动，镜头必须跟着主角（之前剧情跳转后镜头卡住不动）
-    if (f && m && m.tile && world.cam) { const T = m.T; const tx = clamp(f[0] - W / 2, 0, T.mw - W), ty = clamp(f[1] - H / 2, 0, T.mh - H); const b = c0 || { x: tx, y: ty }; world.cam.x = lerp(b.x, tx, Math.min(1, dt * 4)); world.cam.y = lerp(b.y, ty, Math.min(1, dt * 4)); } })(updateMap);
+    if (f && m && m.tile && world.cam) { const T = m.T; const vw = W / VZ(), vh = H / VZ(), tx = clamp(f[0] - vw / 2, 0, T.mw - vw), ty = clamp(f[1] - vh / 2, 0, T.mh - vh); const b = c0 || { x: tx, y: ty }; world.cam.x = lerp(b.x, tx, Math.min(1, dt * 4)); world.cam.y = lerp(b.y, ty, Math.min(1, dt * 4)); } })(updateMap);
   // 隐形交互点（悬剑台、碑、灵晶等）+ 进图钩子
   tileSetMap = (orig => function (name, c, r, face) {
     orig(name, c, r, face);
@@ -6092,7 +6096,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   const oldPart5 = part5;
   part5 = async function () {
     S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; S.flags.ch2_roam = 0;
-    const [pc, pr] = at(865, 1660); tileSetMap('tj_front', pc, pr, 'up'); world.locked = true; S.hud = false; S.scene = drawMap; world.camFocus = [880, 1170]; world.cam = { x: 880 - W / 2, y: 1170 - H / 2 };
+    const [pc, pr] = at(865, 1660); tileSetMap('tj_front', pc, pr, 'up'); world.locked = true; S.hud = false; S.scene = drawMap; world.camFocus = [880, 1170]; world.cam = { x: 880 - W / VZ() / 2, y: 1170 - H / VZ() / 2 };
     world.stele = { x: STELE[0], y: STELE[1] - 110, h: 300 };   // 光柱贴在碑身刻的那把剑上：剑尖约 y=990、剑柄约 y=1210（碑身 854–1326）
     const [zx, zy] = near(1080, 1400); const zhao = addActor('w_zhao', zx, zy, '赵师弟', '#c0392b'); zhao.dir = -1;
     const crowdAt = [[620, 1360], [700, 1390], [1040, 1390], [1120, 1360], [580, 1290], [1160, 1290], [800, 1520], [940, 1600], [790, 1680], [1250, 1500], [1330, 1560]];
@@ -16231,7 +16235,7 @@ window.MarketEffects = (() => {
     return orig.apply(this, arguments); })(drawUnit);
 })();
 </script>
-<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script>
+<script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

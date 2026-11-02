@@ -47,7 +47,7 @@
     for (const d of T.doors) {
       if (!active(d)) continue;
       const [x, y] = pos(d);
-      if (x < cam.x - 70 || x > cam.x + W + 70 || y < cam.y - 30 || y > cam.y + H + 90) continue;
+      if (x < cam.x - 70 || x > cam.x + W / VZ() + 70 || y < cam.y - 30 || y > cam.y + H / VZ() + 90) continue;
       const near = world.player && Math.hypot(world.player.x - x, world.player.y - y) < 190;
       const bob = Math.sin(now * 2.6) * 3;
       ctx.drawImage(chev, x - 20, y - 30 + bob - 16, 40, 36);

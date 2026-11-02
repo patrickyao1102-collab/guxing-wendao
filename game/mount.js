@@ -183,12 +183,12 @@
     if (!R.on || R.anim || !free) { if (R.on && R.anim) { consumeTap(); } return orig(dt); }
     // 剧情触发点：先落地再触发
     for (const t of world.triggers) if (!t.done && Math.hypot(p.x - t.x, p.y - t.y) < t.r + 30) { land(true); return orig(dt); }
-    const cam = world.cam || { x: 0, y: 0 }, spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 146) * CFG.speedMul;
-    const tap = consumeTap(); if (tap && !tap.key) { world.walkTarget = { x: clamp(tap.x + cam.x, 24, T.mw - 24), y: clamp(tap.y + cam.y, 40, T.mh - 12) }; }
+    const cam = world.cam || { x: 0, y: 0 }, spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 146) * CFG.speedMul / VZ();
+    const tap = consumeTap(); if (tap && !tap.key) { world.walkTarget = { x: clamp(tap.x / VZ() + cam.x, 24, T.mw - 24), y: clamp(tap.y / VZ() + cam.y, 40, T.mh - 12) }; }
     let vx = 0, vy = 0; const K = input.keys; let kx = 0, ky = 0;
     if (K.ArrowLeft || K.a || K.A) kx -= 1; if (K.ArrowRight || K.d || K.D) kx += 1; if (K.ArrowUp || K.w || K.W) ky -= 1; if (K.ArrowDown || K.s || K.S) ky += 1;
     if (kx || ky) { world.walkTarget = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
-    else if (input.down && !tap && !world.walkTarget) { const dx = input.x + cam.x - p.x, dy = input.y + cam.y - p.y, l = Math.hypot(dx, dy); if (l > 30) { vx = dx / l * spd; vy = dy / l * spd; } }
+    else if (input.down && !tap && !world.walkTarget) { const dx = input.x / VZ() + cam.x - p.x, dy = input.y / VZ() + cam.y - p.y, l = Math.hypot(dx, dy); if (l > 30) { vx = dx / l * spd; vy = dy / l * spd; } }
     else if (world.walkTarget) { const dx = world.walkTarget.x - p.x, dy = world.walkTarget.y - p.y, l = Math.hypot(dx, dy); if (l <= Math.max(.5, spd * dt * 1.2)) { p.x = world.walkTarget.x; p.y = world.walkTarget.y; world.walkTarget = null; } else { vx = dx / l * spd; vy = dy / l * spd; } }
     if (vx || vy) { p.x = clamp(p.x + vx * dt, 24, T.mw - 24); p.y = clamp(p.y + vy * dt, 40, T.mh - 12); R.flightFace = flightFaceOf(vx, vy); p.face = faceOf(vx, vy); if (Math.abs(vx) > 1) p.dir = vx > 0 ? 1 : -1; }
     R.moving = !!(vx || vy);

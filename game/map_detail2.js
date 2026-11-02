@@ -60,7 +60,7 @@
     const def = world.map && world.map.def; if (!def || !def.baked || window.MD2_OFF) return;
     if (MAPID !== world.mapName || !LIST) build();
     const t = performance.now(), dt = Math.min(.05, (t - (last || t)) / 1000); last = t;
-    const vx0 = cam.x - 150, vx1 = cam.x + W + 150, vy0 = cam.y - 150, vy1 = cam.y + H + 250;
+    const vx0 = cam.x - 150, vx1 = cam.x + W / VZ() + 150, vy0 = cam.y - 150, vy1 = cam.y + H / VZ() + 250;
     const ind = indoor(), nt = night(), out = !ind && !nt;
     let nPart = PARTS.length;
     ctx.save();
