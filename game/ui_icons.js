@@ -5,7 +5,7 @@
 
   // R94 Codex 第二轮定稿：17 枚新招图标，独立图集 960×480，每格 160
   const MAP2 = {"duopo":[0,0],"ningshen":[160,0],"juling":[320,0],"xl_wushang":[480,0],"qianggong":[640,0],"jifeng":[800,0],"boming":[0,160],"yunlei":[160,160],"shuangjia":[320,160],"bingxin":[480,160],"bingdun":[640,160],"bingfeng":[800,160],"qxq":[0,320],"yinzhang":[160,320],"shenfa":[320,320],"jiuyinhe":[480,320],"qingxin":[640,320]};
-  const img2 = new Image(); let ok2 = false; img2.onload = () => ok2 = true; img2.src = 'ui_icons/skills_r94.webp?v=r94';
+  const img2 = new Image(); let ok2 = false; img2.onload = () => ok2 = true; img2.src = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:') ? 'ui_icons/skills_r94.webp?v=r94' : '/_blob/42000a674e756d728b8f3cfdbf27a906';
   // 「星落」已有 Codex 正式图标（R72 星落B，图集第 34 格），原来的代码画版去掉
   const EXTRA = {};
   // 战斗技能 id → 图标名（id 和图标名不一样的几个）
