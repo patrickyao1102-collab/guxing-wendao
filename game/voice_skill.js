@@ -15,6 +15,7 @@
     'yunting:dianxing': '云霆·点星', 'yunting:qunxing': '云霆·群星', 'yunting:shaxing': '云霆·杀星', 'yunting:def': '云霆·凝锋', 'yunting:ult': '云霆·九天神雷',
     'linxue:dianxing': '林雪·点星', 'linxue:qunxing': '林雪·群星', 'linxue:shaxing': '林雪·杀星', 'linxue:ult': '林雪·大雪纷飞',
     'shenle:qingxin': '神乐·仙音镇魂', 'shenle:liehun': '神乐·摄魂乱神', 'shenle:ult': '神乐·寂灭仙曲',
+    'shenle:qxq': '神乐·清心曲', 'shenle:yinzhang': '神乐·音障', 'shenle:shenfa': '神乐·神罚仙音', 'shenle:jiuyinhe': '神乐·九音灵河',
   });
   const pickKey = s => 'voice:' + s;
   function chosen(slot) { const B = window.BGM29; const pk = B && B.PICK[pickKey(slot)]; if (pk && lib[pk] && lib[pk].slot === slot) return pk; const c = SLOT[slot]; if (!c) return null; return /:atk$/.test(slot) ? c[Math.floor(Math.random() * c.length)] : c[0]; }

@@ -1808,6 +1808,78 @@ window.BGM_LIB = {
 "desc": "即梦配音·清朗少年风 · “冰心！”（11-01 重录）",
 "dur": 0.6
 },
+"lib_n_lx_dianxing4": {
+"no": "癸A18c",
+"name": "林雪·点星（干脆版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_lx_dianxing4.mp4",
+"blob": "4296912efa9ee73222e2e350042e6526",
+"vol": 1,
+"desc": "小云雀视频生成·林雪立绘作参考，清冷干净、略偏中音，像大掌门2的干脆喊招，分离出人声 · “天剑一式，点星！”",
+"slot": "linxue:dianxing",
+"dur": 2.0
+},
+"lib_n_lx_qunxing4": {
+"no": "癸A19c",
+"name": "林雪·群星（干脆版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_lx_qunxing4.mp4",
+"blob": "a86a0060effa78e99bbf10579be712d6",
+"vol": 1,
+"desc": "小云雀视频生成·林雪立绘作参考，清冷干净、略偏中音，像大掌门2的干脆喊招，分离出人声 · “天剑二式，群星！”",
+"slot": "linxue:qunxing",
+"dur": 2.0
+},
+"lib_n_sl_qxq": {
+"no": "癸N14",
+"name": "神乐·清心曲",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sl_qxq.mp4",
+"blob": "c28de5f4247f26ac32fb0c517016379d",
+"vol": 1,
+"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，清心曲！”",
+"slot": "shenle:qxq",
+"dur": 2.0
+},
+"lib_n_sl_yinzhang": {
+"no": "癸N15",
+"name": "神乐·音障",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sl_yinzhang.mp4",
+"blob": "9f67db8cb6a1b0fe251d2665584da3f5",
+"vol": 1,
+"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，音障！”",
+"slot": "shenle:yinzhang",
+"dur": 1.8
+},
+"lib_n_sl_shenfa": {
+"no": "癸N16",
+"name": "神乐·神罚仙音",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sl_shenfa.mp4",
+"blob": "26a7e605746acfe14a2fd7df4f16ee13",
+"vol": 1,
+"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，神罚仙音！”",
+"slot": "shenle:shenfa",
+"dur": 2.7
+},
+"lib_n_sl_jiuyinhe": {
+"no": "癸N17",
+"name": "神乐·九音灵河",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_sl_jiuyinhe.mp4",
+"blob": "4dcdc431bcc88ecf371c1840bed8aa64",
+"vol": 1,
+"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，九音灵河！”",
+"slot": "shenle:jiuyinhe",
+"dur": 2.3
+},
 "lib_n3_linxue__dianxing": {
 "no": "癸A18",
 "name": "林雪·点星（清朗版）",
