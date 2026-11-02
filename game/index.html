@@ -15771,7 +15771,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     if (PLAN) return PLAN;
     const n = nT(), map = n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0], off = [-14, 12, -21, 19, -18, 22, 0], used = new Set();
     return (PLAN = map.map((j, i) => {
-      const launch = 2.7 + i * .2, hit = 3.2 + i * .2, array = ninePose(launch), nodes = R68JiuyaoSky.nodePositions(launch, array), end = { x: target(j).x + off[i], y: target(j).y + (i === 6 ? 8 : 0) };
+      const launch = 2.7 + i * .2, hit = 3.2 + i * .2, array = ninePose(launch), nodes = (window.XLARR && XLARR.ready()) ? XLARR.nodes(launch, SKY) : R68JiuyaoSky.nodePositions(launch, array), end = { x: target(j).x + off[i], y: target(j).y + (i === 6 ? 8 : 0) };
       const ranked = nodes.filter(nd => !used.has(nd.index)).map(nd => ({ nd, cost: Math.abs(Math.atan2(end.y - nd.y, nd.x - end.x) * 180 / Math.PI - 35) + (nd.x < end.x + 150 ? 80 : 0) })).sort((a, b) => a.cost - b.cost), chosen = ranked[0].nd; used.add(chosen.index);
       const start = { x: chosen.x, y: chosen.y }, back = Math.min(190, Math.max(65, (start.x - end.x) * .55)), control1 = { x: L(start.x, end.x, .30), y: L(start.y, end.y, .24) }, control2 = { x: end.x + back * Math.cos(35 * Math.PI / 180), y: end.y - back * Math.sin(35 * Math.PI / 180) };
       return { i, target: j, start, end, control1, control2, launch, hit, main: i === 6, originNode: chosen.index };
@@ -15800,6 +15800,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       for (let j = 0; j < 12; j++) { const q = C((t - .10 - j * .012) / .42); if (q <= 0 || q >= 1) continue; const an = j * 2.399, dist = (1 - q) * 47; M.node(c, p.x + Math.cos(an) * dist, p.y + Math.sin(an) * dist * .65, 1.2 + q, Math.sin(q * Math.PI) * .44, j % 4 === 0); }
       return;
     }
+    if (window.XLARR && XLARR.ready()) XLARR.draw(c, p.x, p.y, t); else /* R100 作者 11-03：头顶换成 Codex 金色阵法（r100_xlarr.js） */
     R68JiuyaoSky.draw(c, z, { ...p, releaseCount: ninePose(t).releaseCount, releasedNodes: meteorPlan().filter(e => t >= e.launch).map(e => e.originNode) }); const f = finger(), feed = E(t, .8, 1.5) * (1 - E(t, 2.8, 3.2)); M.orb(c, z, f.x, f.y, 7, feed * .62, 4);
     if (t > 1.5 && t < 2.7) charge(p.x, p.y, E(t, 1.5, 1.9) * (1 - E(t, 2.6, 2.85)) * .42, 43, 120);
   }
@@ -16272,7 +16273,7 @@ window.MarketEffects = (() => {
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
 <script src="r97_walk8.js"></script>
-<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script>
+<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
