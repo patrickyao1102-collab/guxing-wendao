@@ -183,7 +183,7 @@
     if (!R.on || R.anim || !free) { if (R.on && R.anim) { consumeTap(); } return orig(dt); }
     // 剧情触发点：先落地再触发
     for (const t of world.triggers) if (!t.done && Math.hypot(p.x - t.x, p.y - t.y) < t.r + 30) { land(true); return orig(dt); }
-    const cam = world.cam || { x: 0, y: 0 }, spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 146) * CFG.speedMul / VZ();
+    const cam = world.cam || { x: 0, y: 0 }, spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 146) * CFG.speedMul * (typeof AZ === 'function' ? AZ() : 1 / VZ());
     const tap = consumeTap(); if (tap && !tap.key) { world.walkTarget = { x: clamp(tap.x / VZ() + cam.x, 24, T.mw - 24), y: clamp(tap.y / VZ() + cam.y, 40, T.mh - 12) }; }
     let vx = 0, vy = 0; const K = input.keys; let kx = 0, ky = 0;
     if (K.ArrowLeft || K.a || K.A) kx -= 1; if (K.ArrowRight || K.d || K.D) kx += 1; if (K.ArrowUp || K.w || K.W) ky -= 1; if (K.ArrowDown || K.s || K.S) ky += 1;

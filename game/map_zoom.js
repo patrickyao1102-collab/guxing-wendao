@@ -20,3 +20,23 @@
     put(); new MutationObserver(() => { if (!pan.contains(row)) put(); }).observe(pan, { childList: true });
   })();
 })();
+// 人物大小测试（作者 11-03：集市里人物放得太大）：给当前地图挑人物大小，1 = 和青阳镇一样大；记在本机，定下来写进 CHAR_SCALE
+(function () {
+  let T = {}; try { T = JSON.parse(localStorage.getItem('charScaleTest') || '{}') || {}; } catch (e) {}
+  window.CHAR_SCALE_TEST = T;
+  const save = () => { try { localStorage.setItem('charScaleTest', JSON.stringify(T)); } catch (e) {} };
+  const LV = [1, .9, .8, .7];
+  (function addBtn(n) {
+    const pan = document.getElementById('dbgPanel'); if (!pan) { if ((n || 0) < 40) setTimeout(() => addBtn((n || 0) + 1), 500); return; }
+    const h = document.createElement('h4'); const row = document.createElement('div'); row.className = 'row';
+    const lab = () => { const m = (typeof world !== 'undefined' && world.mapName) || ''; const nm = m && TMAPS[m] ? (TMAPS[m].title || m) : '（不在地图上）';
+      h.textContent = '人物大小 · ' + nm;
+      const cur = (m && (T[m] || (typeof CHAR_SCALE !== 'undefined' && CHAR_SCALE[m]))) || 1; for (const b of row.children) b.className = Math.abs(+b.dataset.z - cur) < .03 ? 'on' : ''; };
+    for (const z of LV) { const b = document.createElement('button'); b.dataset.z = z; b.textContent = Math.round(z * 100) + '%' + (z === 1 ? '（和青阳镇一样）' : '');
+      b.onclick = () => { const m = world.mapName; if (!m) return; T[m] = z; save(); lab(); pan.hidden = true;
+        try { toast((TMAPS[m].title || m) + ' 人物大小 ' + Math.round(z * 100) + '%', 1600); } catch (e) {} };
+      row.appendChild(b); }
+    const put = () => { if (!pan.contains(row)) { lab(); pan.prepend(h, row); } else lab(); };
+    put(); new MutationObserver(() => { if (!pan.contains(row)) put(); }).observe(pan, { childList: true });
+  })();
+})();

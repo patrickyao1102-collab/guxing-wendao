@@ -38,6 +38,10 @@ const W = 1280, H = 720;
 const MAP_ZOOM = { tj_market: .6, xt_city: .75, qingzhu_upper_pavilion: .75, tj_front: .8, tj_hall: .8, xt_manor: .8, tj_scripture: .8, tj_houshan: .8, qingzhu_court: .8, lin_court: .8 };   // 作者 11-02：参照青阳镇，建筑相对人物太大的地图整体缩小
 function VZ() { try { const m = world && world.map && world.mapName; if (!m) return 1; const z = (window.ZOOM_TEST && ZOOM_TEST[m]) || MAP_ZOOM[m] || 1; if (z === 1) return 1; const T = world.map.T;
   return T && T.mw ? Math.min(1, Math.max(z, W / T.mw, H / T.mh)) : z; } catch (e) { return 1; } }   // 地图比屏幕小的不再缩，免得两边露黑
+// 人物在缩放地图上的屏幕大小（1 = 和青阳镇一样大）。作者 11-03：集市里人物放得太大 → 集市人物缩到 0.78
+const CHAR_SCALE = { tj_market: .78 };
+function CZ() { try { const m = world && world.map && world.mapName; return (m && window.CHAR_SCALE_TEST && CHAR_SCALE_TEST[m]) || (m && CHAR_SCALE[m]) || 1; } catch (e) { return 1; } }
+function AZ() { return CZ() / VZ(); }   // 人物相对地图的放大倍数
 const PIXEL = false, PX = 2; // 像素版：素材已按 4 倍像素网格烘焙
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
@@ -2375,7 +2379,7 @@ function tileUpdate(dt) {
   if (free && S.hud && input.tapped && !input.tapped.key && input.tapped.x > W - 140 && input.tapped.y > H - 120) { consumeTap(); openMenu(); return; }
   if (free && S.hero.learnQ && S.hero.learnQ.length && !battle) { world.locked = true; showLearns().then(() => world.locked = false); return; }
   const cam = world.cam || { x: 0, y: 0 };
-  let vx = 0, vy = 0; const spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 190) * (window.WALK_MUL || 1) / VZ(); // 三人定稿：112px/s，与步频 170ms×6 匹配（原 190 / 300）
+  let vx = 0, vy = 0; const spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 190) * (window.WALK_MUL || 1) * AZ(); // 三人定稿：112px/s，与步频 170ms×6 匹配（原 190 / 300）
   if (free) {
     const tap = consumeTap();
     if (tap && tap.key) { interactFacing(); }
@@ -2443,7 +2447,7 @@ function tileUpdate(dt) {
 }
 // ---- 交互：NPC / 宝箱 ----
 function pickInteract(wx, wy) {
-  const iz = 1 / VZ(); for (const a of world.actors) if (a.npc && Math.abs(wx - a.x) < 40 * iz && wy < a.y + 10 * iz && wy > a.y - (a.h || 108) * iz) return { type: 'npc', a };
+  const iz = AZ(); for (const a of world.actors) if (a.npc && Math.abs(wx - a.x) < 40 * iz && wy < a.y + 10 * iz && wy > a.y - (a.h || 108) * iz) return { type: 'npc', a };
   for (const ch of world.chests || []) { const x = (ch.c + .5) * TS, y = (ch.r + 1) * TS; if (Math.abs(wx - x) < 40 && wy < y + 6 && wy > y - 80) return { type: 'chest', ch }; }
   return null;
 }
@@ -2571,11 +2575,11 @@ function tileDraw() {
   for (const it of items) {
     if (it.o) (it.o.bk ? drawBaked(it.o, now) : drawObj(it.o));
     else if (it.ch) drawObj({ c: it.ch.c, r: it.ch.r, d: OBJDEF[it.ch.opened ? 'chest_open' : 'chest'], glow: !it.ch.opened });
-    else { const z = VZ(); if (z !== 1) { const a = it.a; ctx.save(); ctx.translate(a.x, a.y); ctx.scale(1 / z, 1 / z); ctx.translate(-a.x, -a.y); drawActorT(a, now); ctx.restore(); } else drawActorT(it.a, now); }   // 地图缩放时人物反向放大回原尺寸：人物和别的地图一样大，只有地图变小
+    else { const z = 1 / AZ(); if (z !== 1) { const a = it.a; ctx.save(); ctx.translate(a.x, a.y); ctx.scale(1 / z, 1 / z); ctx.translate(-a.x, -a.y); drawActorT(a, now); ctx.restore(); } else drawActorT(it.a, now); }   // 地图缩放时人物反向放大回原尺寸：人物和别的地图一样大，只有地图变小
   }
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh(T, cam, now);
   // 头顶名字（像 java 游戏那样标出 NPC）
-  for (const a of world.actors) if (a.npc && !a.hidden && !a.npc.noLabel) { const zl = VZ(); ctx.save(); if (zl !== 1) { ctx.translate(a.x, a.y); ctx.scale(1 / zl, 1 / zl); ctx.translate(-a.x, -a.y); } ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline(a.npc.name, a.x, a.y - (a.h || 108) - 10, a.npc.shop ? '#ffe08a' : '#fff4d8', '#1a0c00', 4); if (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark) { const b = Math.sin(now * 4) * 5, my = a.y - (a.h || 108) - 44 + b; ctx.save(); const g = ctx.createRadialGradient(a.x, my, 2, a.x, my, 40); g.addColorStop(0, 'rgba(255,90,70,.45)'); g.addColorStop(1, 'rgba(255,90,70,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, my, 40, 0, 7); ctx.fill(); ctx.restore(); ctx.font = `900 56px ${FONT}`; textOutline('!', a.x, my, '#ff4a3a', '#fff4e0', 6); } ctx.restore(); }
+  for (const a of world.actors) if (a.npc && !a.hidden && !a.npc.noLabel) { const zl = 1 / AZ(); ctx.save(); if (zl !== 1) { ctx.translate(a.x, a.y); ctx.scale(1 / zl, 1 / zl); ctx.translate(-a.x, -a.y); } ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline(a.npc.name, a.x, a.y - (a.h || 108) - 10, a.npc.shop ? '#ffe08a' : '#fff4d8', '#1a0c00', 4); if (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark) { const b = Math.sin(now * 4) * 5, my = a.y - (a.h || 108) - 44 + b; ctx.save(); const g = ctx.createRadialGradient(a.x, my, 2, a.x, my, 40); g.addColorStop(0, 'rgba(255,90,70,.45)'); g.addColorStop(1, 'rgba(255,90,70,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, my, 40, 0, 7); ctx.fill(); ctx.restore(); ctx.font = `900 56px ${FONT}`; textOutline('!', a.x, my, '#ff4a3a', '#fff4e0', 6); } ctx.restore(); }
   ctx.restore();
   ctx.imageSmoothingQuality = 'high';
   // 夜色 / 室内暖光 / 暗角
