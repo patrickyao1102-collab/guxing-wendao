@@ -79,7 +79,8 @@
   skXingluo = async function (Pc) {
     const ts = aliveEnemies();
     const tier = window.XL_TIER ? XL_TIER() : 1, outfit = (S.hero && S.hero.outfit) || 'baipao';
-    if (window.XL_WUSHANG || tier !== 1 || Pc.ally || !ts.length || !ready || outfit !== 'baipao') return prev.apply(this, arguments);
+    // 作者 11-03：初阶太丑，练气期也换回原来的星落（只把头顶旋转的星盘改成不转）；初阶素材留着不删
+    if (true || window.XL_WUSHANG || tier !== 1 || Pc.ally || !ts.length || !ready || outfit !== 'baipao') return prev.apply(this, arguments);
     const mult = window.XL_MULT || 2.0, ev = plan(ts.length), cnt = new Map();
     for (const e of ev) cnt.set(e.slot, (cnt.get(e.slot) || 0) + 1);
     // 伤害仍按游戏原来的倍率，每个目标挨几颗星就平分几份

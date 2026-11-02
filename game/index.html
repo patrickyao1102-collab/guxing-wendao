@@ -15630,7 +15630,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
  */
 (function(){'use strict';
  const TAU=Math.PI*2,C=v=>Math.max(0,Math.min(1,v)),S=v=>{const q=C(v);return q*q*(3-2*q)},L=(a,b,q)=>a+(b-a)*q;
- const rings=[{r:.30,speed:.32,offset:.23},{r:.61,speed:.32,offset:1.24},{r:.93,speed:.32,offset:.57}]/*作者11-01：三环同向同速整体转（原来反向+不同速，看着晕又像卡住）*/;
+ const rings=[{r:.30,speed:0,offset:.23},{r:.61,speed:0,offset:1.24},{r:.93,speed:0,offset:.57}]/*作者11-03：头顶星盘还是转得头晕 → 不转，只留星点闪烁和光流*//*作者11-01：三环同向同速整体转（原来反向+不同速，看着晕又像卡住）*/;
  const defaults={x:650,y:155,rx:350,ry:105,a:1,releaseCount:0};
  function radial(c,x,y,rx,ry,a,rgb){if(a<=0||rx<=0||ry<=0)return;c.save();c.globalAlpha=1;c.translate(x,y);c.scale(rx,ry);const gr=c.createRadialGradient(0,0,0,0,0,1);gr.addColorStop(0,'rgba('+rgb+','+C(a)+')');gr.addColorStop(.23,'rgba('+rgb+','+C(a*.52)+')');gr.addColorStop(.61,'rgba('+rgb+','+C(a*.11)+')');gr.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=gr;c.fillRect(-1,-1,2,2);c.restore()}
  function orbital(t,layer,angle,radius){const ring=rings[layer],an=angle+ring.offset+t*ring.speed,shear=0;return{x:(Math.cos(an)+Math.sin(an)*shear)*radius,y:Math.sin(an)*radius*(1-layer*.018),angle:an}}
