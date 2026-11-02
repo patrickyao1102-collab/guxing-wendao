@@ -43,7 +43,7 @@ const MAP_ZOOM = { tj_market: .6, xt_city: .75, qingzhu_upper_pavilion: .75, tj_
 function VZ() { try { const m = world && world.map && world.mapName; if (!m) return 1; const z = (window.ZOOM_TEST && ZOOM_TEST[m]) || MAP_ZOOM[m] || 1; if (z === 1) return 1; const T = world.map.T;
   return T && T.mw ? Math.min(1, Math.max(z, W / T.mw, H / T.mh)) : z; } catch (e) { return 1; } }   // 地图比屏幕小的不再缩，免得两边露黑
 // 人物在缩放地图上的屏幕大小（1 = 和青阳镇一样大）。作者 11-03：集市里人物放得太大 → 集市人物缩到 0.78
-const CHAR_SCALE = { tj_market: .78 };
+const CHAR_SCALE = { tj_market: .78, tj_forbidden: 1.45 };   // 作者 11-03：藏经阁二楼家具太大、人太小 → 二楼人物放大 1.45（房间比屏幕小，地图不能再缩）
 function CZ() { try { const m = world && world.map && world.mapName; return (m && window.CHAR_SCALE_TEST && CHAR_SCALE_TEST[m]) || (m && CHAR_SCALE[m]) || 1; } catch (e) { return 1; } }
 function AZ() { return CZ() / VZ(); }   // 人物相对地图的放大倍数
 const PIXEL = false, PX = 2; // 像素版：素材已按 4 倍像素网格烘焙
@@ -16274,7 +16274,7 @@ window.MarketEffects = (() => {
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
 <script src="r97_walk8.js"></script>
-<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script>
+<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
