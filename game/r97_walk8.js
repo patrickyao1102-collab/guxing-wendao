@@ -38,5 +38,22 @@
     const put = () => { if (!pan.contains(row)) { lab(); pan.prepend(h, row); } };
     put(); new MutationObserver(put).observe(pan, { childList: true });
   })();
+  // 行囊「换装」页加切换：新版八向 / 原版行走（作者 11-03：给叶孤星设置一个切换行走）
+  const setOn = v => { on = !!v; try { localStorage.setItem('walk8', on ? '1' : '0'); } catch (e) {} };
+  (function addMenu(n) {
+    if (typeof drawQuest !== 'function' || typeof menuUpdate !== 'function' || typeof MTABS === 'undefined' || !MTABS.includes('换装')) { if ((n || 0) < 60) setTimeout(() => addMenu((n || 0) + 1), 500); return; }
+    const isTab = () => S.menu && MTABS[S.menu.tab] === '换装';
+    const G = B => { const y = B.y + 268; return { y, a: { x: B.x + 14, y: y + 26, w: 150, h: 52 }, b: { x: B.x + 174, y: y + 26, w: 150, h: 52 } }; };
+    drawQuest = (orig => function (B) { const r = orig.apply(this, arguments); if (!isTab()) return r;
+      const g = G(B); ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText('行走动作', B.x + 18, g.y + 8);
+      for (const [rc, lab, sel] of [[g.a, '新版八向', on], [g.b, '原版行走', !on]]) {
+        roundRect(rc.x, rc.y, rc.w, rc.h, 12); ctx.fillStyle = sel ? 'rgba(142,42,28,.32)' : UI.slot; ctx.fill(); ctx.lineWidth = sel ? 2.5 : 1; ctx.strokeStyle = sel ? UI.gold2 : UI.line; ctx.stroke();
+        ctx.textAlign = 'center'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = sel ? (UI.gold2 || '#ffe08a') : UI.text; ctx.fillText(lab, rc.x + rc.w / 2, rc.y + rc.h / 2 + 1); }
+      ctx.restore(); return r; })(drawQuest);
+    menuUpdate = (orig => function () { const t = input.tapped;
+      if (isTab() && t && !t.key) { const g = G(menuLayout().body); const ia = inR(t, g.a), ib = inR(t, g.b);
+        if (ia || ib) { consumeTap(); setOn(ia); try { playSnd('ui_click'); } catch (e) {} try { toast(ia ? '叶孤星行走：新版八向' : '叶孤星行走：原版', 1400); } catch (e) {} return; } }
+      return orig.apply(this, arguments); })(menuUpdate);
+  })();
   window.WALK8 = { get on() { return on && ok; }, get hits() { return hits; }, set(v) { on = !!v; try { localStorage.setItem('walk8', on ? '1' : '0'); } catch (e) {} } };
 })();
