@@ -3,7 +3,7 @@
 // 每首能试听；点场景按钮把它定为那个场景的配乐（记在本机 localStorage，立刻生效）；音效同理可以顶替游戏里某个音效。
 (function () {
   if (!window.BGM_LIB) return;
-  const SLOTS = [['title', '标题'], ['plaza', '广场'], ['sect', '宗门'], ['town', '城镇'], ['fair', '集市'], ['qytown', '青阳镇'], ['shop', '店铺'], ['houshan', '后山'], ['xtcity', '玄天城'], ['qingzhu', '青竹院'], ['wild', '野外'], ['battle', '战斗'], ['boss', '首领']];
+  const SLOTS = [['title', '标题'], ['plaza', '广场'], ['sect', '宗门'], ['town', '城镇'], ['fair', '集市'], ['qytown', '青阳镇'], ['linfu', '林府'], ['manor', '城主府'], ['hall', '天剑大殿'], ['shop', '店铺'], ['houshan', '后山'], ['xtcity', '玄天城'], ['qingzhu', '青竹院'], ['wild', '野外'], ['battle', '战斗'], ['boss', '首领']];
   const JING = [['jingle_win', '胜利'], ['jingle_levelup', '升级']];
   const SFXN = [['sfx_swing', '挥剑'], ['sfx_hit', '命中'], ['sfx_crit', '暴击'], ['sfx_sword_ring', '剑鸣'], ['sfx_charge', '蓄力'], ['sfx_star', '星光'], ['sfx_beam', '光束'], ['sfx_boom', '爆炸'], ['sfx_ult', '绝技'], ['sfx_buff', '增益'], ['sfx_heal', '治疗'], ['sfx_hurt', '受伤'], ['sfx_thunder', '雷'], ['sfx_ice', '冰'], ['sfx_wind', '风'], ['ui_confirm', '确认'], ['ui_text', '对话']];
   const css = `#bgmLib{position:fixed;inset:0;z-index:100000;background:rgba(8,6,4,.96);color:#f1e3c4;font:14px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;overflow:auto;-webkit-overflow-scrolling:touch}
