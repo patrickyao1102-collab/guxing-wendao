@@ -9390,7 +9390,7 @@ skillTanlang = (orig => async function (P, t) { const b = battle; if (!CXS.on ||
     const st = QC.exits.find(e => e.to === 'qingzhu_steward_room'); if (st && TMAPS.qingzhu_steward_room) { const a = arrive('qingzhu_court', st); M.exits.push(cells(QC, st, { to: st.to, label: '小院管事房', at: a.at, face: a.face })); }
     if (M.doors && M.doors[0] && CXB2.tj_room) M.doors[0].at = atIn('tj_room', 544, 700); }
   // 后山下山 → 云海大亭
-  if (window.HS12_ON) { const w = reroute('tj_houshan', e => e.to === 'qingzhu_stairs', 'qingzhu_upper_pavilion'); if (w) { w.label = '西 · 云海大亭'; window.HS_WEST = w; } const PV = TMAPS.qingzhu_upper_pavilion, back = PV && (PV.exits || []).find(e => e.to === 'tj_houshan'); if (back && window.HS_AT) { back.at = HS_AT(300, 1105); back.face = 'right'; } }   // v12：南阶法阵 → 宗门广场；西桥 → 云海大亭 → 青竹小院
+  if (window.HS12_ON) { const w = reroute('tj_houshan', e => e.to === 'qingzhu_stairs', 'qingzhu_upper_pavilion'); if (w) { w.label = '西 · 云海大亭'; window.HS_WEST = w; if (window.HS_AT) { const a = HS_AT(110, 1100); w.spotAt = [(a[0] + .5) * 64, (a[1] + .8) * 64]; w.overOcc = true; w.w = Math.max(w.w || 1, Math.ceil((w.spotAt[0] + 30) / 16)); } }   /* 作者 11-03：进了后山看不见回去的阵法 —— 西桥头法阵挪进画面里，踩上去就回云海大亭 */ const PV = TMAPS.qingzhu_upper_pavilion, back = PV && (PV.exits || []).find(e => e.to === 'tj_houshan'); if (back && window.HS_AT) { back.at = HS_AT(300, 1105); back.face = 'right'; } }   // v12：南阶法阵 → 宗门广场；西桥 → 云海大亭 → 青竹小院
   else reroute('tj_houshan', () => true, 'qingzhu_upper_pavilion');
   // 天剑大殿
   if (TMAPS.tj_front && TMAPS.tj_hall) { const M = TMAPS.tj_front; const e = (M.exits || []).find(e => e.to === 'tj_hall') || (M.doors || []).find(d => d.to === 'tj_hall');

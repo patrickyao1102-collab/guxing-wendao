@@ -29,9 +29,11 @@
     n.beginPath(); n.arc(0, 0, R0 * .26, 0, 7); n.stroke(); }
 
   const inView = (x, y) => { const c = world.cam || { x: 0, y: 0 }; return !(x < c.x - 120 || x > c.x + W / VZ() + 120 || y < c.y - 60 || y > c.y + H / VZ() + 220); };
-  const skipMap = () => world.mapName === 'tj_houshan';     // 后山崖顶自己画同款法阵
+  // 后山崖顶：南边下山法阵它自己画（这里跳过那一个）；西边去云海大亭 / 竹影山阶的法阵照常画（作者 11-03：进了后山看不见回去的阵法）
+  const skipMap = d => world.mapName === 'tj_houshan' && (!d || d.to === 'tj_front');
   const usable = d => d && !d.noGlow && (!d.cond || d.cond() || d.msg) && d.to && TMAPS[d.to];
   const spot = (T, d) => {
+    if (d.spotAt) return d.spotAt;
     if (!d.edge) return d.rect ? [d.rect[0], d.rect[1]] : [(d.c + .5) * TS, (d.r + 1) * TS - 6];
     if (d._spot && d._spotT === T) return d._spot;
     let x = (d.x + (d.w || 1) / 2) * CS, y = (d.y + (d.h || 1) / 2) * CS;
@@ -77,18 +79,18 @@
   const preHigh = window.__preDoorHigh || null;   // 青阳镇旧光标之前的原版
   // 门（建筑入口）：换成统一法阵
   const prevDoor = lfxDoor;
-  lfxDoor = function (x, y, now, d) { if (!d) return prevDoor(x, y, now, d); if (skipMap() || !usable(d) || !inView(x, y)) return; const f = fit(world.map.T, d, x, y); circle(x, y, now, f.s, f.simple); };
+  lfxDoor = function (x, y, now, d) { if (!d) return prevDoor(x, y, now, d); if (skipMap(d) || !usable(d) || !inView(x, y)) return; const f = fit(world.map.T, d, x, y); circle(x, y, now, f.s, f.simple); };
   // 地图边缘出口：地面层画法阵
   const prevLow = typeof tileAmbientLow === 'function' ? tileAmbientLow : null;
-  tileAmbientLow = function (T, cam, now) { if (prevLow) prevLow(T, cam, now); if (skipMap()) return;
-    for (const d of T.doors) { if (!d.edge || !usable(d)) continue; const [x, y] = spot(T, d); if (inView(x, y)) { const f = fit(T, d, x, y); circle(x, y, now, f.s, f.simple); } } };
+  tileAmbientLow = function (T, cam, now) { if (prevLow) prevLow(T, cam, now);
+    for (const d of T.doors) { if (!d.edge || !usable(d) || skipMap(d) || d.overOcc) continue; const [x, y] = spot(T, d); if (inView(x, y)) { const f = fit(T, d, x, y); circle(x, y, now, f.s, f.simple); } } };
   // 上层：光柱、光粒、地名
   const prevHigh = tileAmbientHigh;
   tileAmbientHigh = function (T, cam, now) {
     const town = world.map && world.map.def === TMAPS.qy_town;
     if (town && preHigh) preHigh(T, cam, now); else prevHigh(T, cam, now);
-    if (skipMap()) return;
-    for (const d of T.doors) { if (!usable(d)) continue; const [x, y] = spot(T, d); if (!inView(x, y)) continue;
+    for (const d of T.doors) { if (!usable(d) || skipMap(d)) continue; const [x, y] = spot(T, d); if (!inView(x, y)) continue;
+      if (d.overOcc) circle(x, y, now, .8, false);   // 法阵落在桥面这类物件图上：地面层会被桥盖住，改在上层画
       const near = world.player && Math.hypot(world.player.x - x, world.player.y - y) < 190;
       pillar(x, y, now, sizeOf(d), (d.edge || Math.hypot(world.player.x - x, world.player.y - y) < 280) ? label(d) : '', near); } };
 })();
