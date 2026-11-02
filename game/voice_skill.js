@@ -43,12 +43,20 @@
       if (P && !(SINGLE.has(k) && !b.__picked && aliveEnemies().length > 1)) {   // 还在点选目标时不喊
         const who = P.ally || 'hero';
         if (!(who === 'yunting' && k === 'ult')) {   // 云霆大招由下面 playVoice 的替换来播（跟动画对拍）
-          if (k === 'atk' && Math.random() < .5) { /* 普攻一半概率不喊 */ } else play(who + ':' + k);
+          if (k === 'atk' && Math.random() < .5) { /* 普攻一半概率不喊 */ } else if (play(who + ':' + k)) { const id = chosen(who + ':' + k); vEnd = performance.now() + ((lib[id] && lib[id].dur) || 1.8) * 1000; }
+          if (who === 'shenle' && k === 'jiuyinhe') jiuyinheSfx();
         }
       }
     } catch (e) {}
-    return orig.apply(this, arguments);
+    const r = await orig.apply(this, arguments);
+    // 作者 11-02：辅助招动画一秒多就收，喊招还没喊完就轮到下一个人——等这句喊完再交出回合（最多多等 1.5 秒）
+    const left = vEnd - performance.now(); if (left > 0) await new Promise(res => setTimeout(res, Math.min(1500, left + 150)));
+    return r;
   })(doHeroAction); };
+  let vEnd = 0;
+  // 九音灵河原来没有音效：笛音起 → 灵河流到每个队友各一声 → 收尾一声（用仙音镇魂同一套即梦音效）
+  function jiuyinheSfx() { if (typeof playSnd !== 'function') return; const at = (ms, n, v) => setTimeout(() => { try { playSnd(n, v); } catch (e) {} }, ms);
+    at(150, 'sfx_xz_flute', .7); [850, 1250, 1650].forEach(ms => at(ms, 'sfx_xz_reunion', .6)); at(2100, 'sfx_xz_soul', .7); }
   if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
   // 云霆九天神雷：有库里的候选（或配乐库里指定了）时，用它顶掉 index.html 里原来的三段配音
   if (typeof playVoice === 'function') playVoice = (orig => function (name, vol) {
