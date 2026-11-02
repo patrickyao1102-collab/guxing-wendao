@@ -28,7 +28,7 @@
     for (let k = 0; k < 2; k++) { n.beginPath(); for (let i = 0; i <= 4; i++) { const a = (i / 4) * Math.PI * 2 + k * Math.PI / 4; const px = Math.cos(a) * R0 * .58, py = Math.sin(a) * R0 * .58; i ? n.lineTo(px, py) : n.moveTo(px, py); } n.stroke(); }
     n.beginPath(); n.arc(0, 0, R0 * .26, 0, 7); n.stroke(); }
 
-  const inView = (x, y) => { const c = world.cam || { x: 0, y: 0 }; return !(x < c.x - 120 || x > c.x + W + 120 || y < c.y - 60 || y > c.y + H + 220); };
+  const inView = (x, y) => { const c = world.cam || { x: 0, y: 0 }; return !(x < c.x - 120 || x > c.x + W / VZ() + 120 || y < c.y - 60 || y > c.y + H / VZ() + 220); };
   const skipMap = () => world.mapName === 'tj_houshan';     // 后山崖顶自己画同款法阵
   const usable = d => d && !d.noGlow && (!d.cond || d.cond() || d.msg) && d.to && TMAPS[d.to];
   const spot = (T, d) => {

@@ -28,7 +28,8 @@
   const ANIMAL = /deer|crane|bird|sparrow|rabbit|cage/;
   drawBaked = (orig => function (o, now) {
     if (o && o.wclip) { const [x, y, w, h] = o.wclip; ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); const r = orig.apply(this, arguments); ctx.restore(); return r; }
-    if (o && o.r60 && o.pose && world.mapName === ID && !ANIMAL.test(o.pose.kind || o.pose.texture || '')) { const [ax, ay] = o.pose.anchor; ctx.save(); ctx.translate(ax, ay); ctx.scale(CHAR_K, CHAR_K); ctx.translate(-ax, -ay); const r = orig.apply(this, arguments); ctx.restore(); return r; }
+    if (o && o.r60 && o.pose && world.mapName === ID) { const k = (ANIMAL.test(o.pose.kind || o.pose.texture || '') ? 1 : CHAR_K) / VZ(); const [ax, ay] = o.pose.anchor; ctx.save(); ctx.translate(ax, ay); ctx.scale(k, k);   // 地图缩放时访客和灵兽也反向放大，和主角一样大
+      ctx.translate(-ax, -ay); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     return orig.apply(this, arguments);
   })(drawBaked);
   const wrapActor = () => { drawActorT = (orig => function (a, now) {
