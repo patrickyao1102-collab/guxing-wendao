@@ -17,8 +17,11 @@
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05', sfx_hit_heavy: 'lib_s13', ui_cancel: 'lib_s00', sfx_wolf_howl: 'lib_s16', sfx_dp_bed: 'lib_dp00', sfx_dx_bed: 'lib_dx00', sfx_xz_flute: 'lib_xz00', sfx_xz_array: 'lib_xz01', sfx_xz_slot: 'lib_xz02', sfx_xz_condense: 'lib_xz03', sfx_xz_burst: 'lib_xz04', sfx_xz_reunion: 'lib_xz05', sfx_xz_pillar: 'lib_xz06', sfx_xz_soul: 'lib_xz07', sfx_dx_prelude: 'lib_dx01', sfx_dx_cloud: 'lib_dx07', sfx_dx_array: 'lib_dx02', sfx_dx_storm: 'lib_dx03', sfx_dx_freeze: 'lib_dx04', sfx_dx_shatter: 'lib_dx05', sfx_dx_tinkle: 'lib_dx06', sfx_dp_array: 'lib_dp01', sfx_dp_pierce: 'lib_dp02', sfx_dp_soul: 'lib_dp03', sfx_dp_eye: 'lib_dp04', sfx_dp_eyeclose: 'lib_dp05', sfx_dp_growl: 'lib_dp06', sfx_dp_return: 'lib_dp07' };
   // 混音分层（2026-10-31）：库里的 vol 已按响度对齐，再乘上用途权重——界面点击轻、挥砍/蓄力居中、雷/爆/大招最重
   const ROLE = { ui_click: .5, ui_open: .5, ui_confirm: .55, ui_cancel: .5, sfx_swing: .75, sfx_charge: .78, sfx_buff: .7, sfx_heal: .7, sfx_star: .72, sfx_wind: .8, sfx_vine: .75, sfx_claw: .85, sfx_hurt: .85, sfx_hit: .9 };
+  // 作者 11-02：「疾锋·快打（喜庆）」难听，永远不准再出现在游戏里——文件和条目已删，旧存档里选过它的也作废
+  const BANNED = new Set(['lib_nk1']);
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'lib_nk1', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_m08' };   // 叶孤星居室：山晨（竹笛葫芦丝古琴，恬静）
+  for (const k in PICK) if (BANNED.has(PICK[k])) delete PICK[k];
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm_explore_guxiao', battle: 'bgm_battle_kuaida', boss: 'bgm_boss_jingtian', fair: 'lib_xm1', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_m08' };   // 叶孤星居室：山晨（竹笛葫芦丝古琴，恬静）
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码

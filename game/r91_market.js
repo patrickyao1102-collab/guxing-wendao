@@ -26,8 +26,11 @@
 
   // 画：裁切 + 人物放大
   const ANIMAL = /deer|crane|bird|sparrow|rabbit|cage/;
+  const SMALL_K = { r80_stall: .7, r80_display: .55, r80_prop: .55, r80_husbandry: .55 };   // 反向放大的程度（1 = 和人一样完全放大回去）
   drawBaked = (orig => function (o, now) {
     if (o && o.wclip) { const [x, y, w, h] = o.wclip; ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); const r = orig.apply(this, arguments); ctx.restore(); return r; }
+    // 地图缩放后，人尺度的小摊位、货架、长椅、告示牌等跟着人稍微放大（以底边中点为准），房子和栏杆不动（作者 11-02：小摊位要放大一点）
+    if (o && !o.r60 && world.mapName === ID && SMALL_K[o.id] && VZ() < 1) { const k = 1 + (1 / VZ() - 1) * SMALL_K[o.id], fx = o.x + o.w / 2, fy = o.sy; ctx.save(); ctx.translate(fx, fy); ctx.scale(k, k); ctx.translate(-fx, -fy); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     if (o && o.r60 && o.pose && world.mapName === ID) { const k = (ANIMAL.test(o.pose.kind || o.pose.texture || '') ? 1 : CHAR_K) / VZ(); const [ax, ay] = o.pose.anchor; ctx.save(); ctx.translate(ax, ay); ctx.scale(k, k);   // 地图缩放时访客和灵兽也反向放大，和主角一样大
       ctx.translate(-ax, -ay); const r = orig.apply(this, arguments); ctx.restore(); return r; }
     return orig.apply(this, arguments);
