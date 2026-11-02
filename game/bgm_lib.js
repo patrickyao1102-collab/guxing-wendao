@@ -1280,6 +1280,18 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 4.1
 },
+"lib_n_c_qingxin": {
+"no": "癸N13d",
+"name": "神乐·仙音镇魂（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_qingxin.mp4",
+"blob": "50ab41d3aefe74ab4a7356def3464681",
+"vol": 1,
+"desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，仙音镇魂！”",
+"slot": "shenle:qingxin",
+"dur": 2.2
+},
 "lib_n_xz4": {
 "no": "癸N13c",
 "name": "神乐·九音录，仙音镇魂（干脆圆润版）",
@@ -1807,6 +1819,78 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "即梦配音·清朗少年风 · “冰心！”（11-01 重录）",
 "dur": 0.6
+},
+"lib_n_c_qxq": {
+"no": "癸N14a",
+"name": "神乐·清心曲（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_qxq.mp4",
+"blob": "97683ae1fb60a9c82ad851005b73e505",
+"vol": 1,
+"desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，清心曲！”",
+"slot": "shenle:qxq",
+"dur": 2.0
+},
+"lib_n_c_yinzhang": {
+"no": "癸N15a",
+"name": "神乐·音障（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_yinzhang.mp4",
+"blob": "1643d597bd09f619a560163bd6580e9d",
+"vol": 1,
+"desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，音障！”",
+"slot": "shenle:yinzhang",
+"dur": 1.5
+},
+"lib_n_c_shenfa": {
+"no": "癸N16a",
+"name": "神乐·神罚仙音（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_shenfa.mp4",
+"blob": "76c180bc082539a44004a9e0d00b286f",
+"vol": 1,
+"desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，神罚仙音！”",
+"slot": "shenle:shenfa",
+"dur": 2.0
+},
+"lib_n_c_jiuyinhe": {
+"no": "癸N17a",
+"name": "神乐·九音灵河（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_jiuyinhe.mp4",
+"blob": "c2e6c1d0f934263f2900cd2210ade701",
+"vol": 1,
+"desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，九音灵河！”",
+"slot": "shenle:jiuyinhe",
+"dur": 2.3
+},
+"lib_n_c_lx_dianxing": {
+"no": "癸A18d",
+"name": "林雪·点星（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_lx_dianxing.mp4",
+"blob": "017aaaa3b2fb90eb549390f053e9da49",
+"vol": 1,
+"desc": "同一条小云雀视频里林雪连喊两招，切开分给两招，保证音色统一 · “天剑一式，点星！”",
+"slot": "linxue:dianxing",
+"dur": 1.8
+},
+"lib_n_c_lx_qunxing": {
+"no": "癸A19d",
+"name": "林雪·群星（统一音色版）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"file": "lib29/n_c_lx_qunxing.mp4",
+"blob": "47792cdfa64169d6dfb3821d621110cb",
+"vol": 1,
+"desc": "同一条小云雀视频里林雪连喊两招，切开分给两招，保证音色统一 · “天剑二式，群星！”",
+"slot": "linxue:qunxing",
+"dur": 1.9
 },
 "lib_n_lx_dianxing4": {
 "no": "癸A18c",
