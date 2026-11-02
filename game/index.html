@@ -15433,6 +15433,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     for (let j = 0; j < 31; j++) { const r = [.43, .76, .97][j % 3], an = j * 2.39996 + angles[j % 3] + t * .11; node(c, x + Math.cos(an) * rx * r, y + Math.sin(an) * ry * r, 1.5 + rand(j + 4) * 1.9, a * .48, j % 7 === 0); }
   }
   function fieldTexture(t, seed, type) {
+    t = Math.round(t * 24) / 24;   /* 作者 11-03 卡顿：流星/剑芒的流光贴图每颗每帧现算 512×160 逐像素，帧率被拖垮；贴图内部流光按每秒 24 张更新（动画片帧率），位置、大小仍每帧走 */
     const key = type + ':' + t.toFixed(5) + ':' + seed;
     return cacheTexture(key, () => {
       const w = 512, h = 160, cv = canvas(w, h), g = cv.getContext('2d'), pixels = g.createImageData(w, h), d = pixels.data, p = phase(t, seed), blade = type === 'blade';
@@ -15479,6 +15480,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   function blade(c, t, x, y, len, width, angle, a = 1, seed = 0) { projectile(c, t, x, y, len, width, angle, a, seed, true); }
   function meteor(c, t, x, y, len, width, angle, a = 1, seed = 0) { projectile(c, t, x, y, len, width, angle, a, seed, false); }
   function orbTexture(t, seed) {
+    t = Math.round(t * 24) / 24;   /* 同上：星珠贴图 192×192 逐像素，按每秒 24 张更新 */
     return cacheTexture('orb:' + t.toFixed(5) + ':' + seed, () => {
       const n = 192, cv = canvas(n, n), g = cv.getContext('2d'), out = g.createImageData(n, n), d = out.data, p = phase(t, seed);
       for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
@@ -15795,7 +15797,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     if (skill === 'dianxing') { const p = pointPlan(), gate = pointGateAt(), op = E(t, .04, .34), snap = 1 - .35 * E(t, .70, p.launch); return { x: gate.x, y: gate.y, rx: L(7, 26, op) * snap * 1.3, ry: L(10, 57, op) * snap * 1.3, a: E(t, .03, .19) * (1 - E(t, p.launch, p.launch + .10)), rotation: p.angle - Math.PI }; }
     return ninePose();
   }
-  function charge(x, y, alpha, seed = 0, r = 170) { for (let i = 0; i < 36; i++) { const q = (t * .66 + i * .618) % 1, an = i * 2.399 + t * .46, dist = (1 - q) * r, px = x + Math.cos(an) * dist, py = y + Math.sin(an) * dist * .55; M.orb(c, t, px, py, 1.3 + q * 2.5, alpha * Math.sin(q * Math.PI) * .65, i + seed); } }
+  function charge(x, y, alpha, seed = 0, r = 170) { for (let i = 0; i < 36; i++) { const q = (t * .66 + i * .618) % 1, an = i * 2.399 + t * .46, dist = (1 - q) * r, px = x + Math.cos(an) * dist, py = y + Math.sin(an) * dist * .55; M.orb(c, (i % 6) * .37, px, py, 1.3 + q * 2.5, alpha * Math.sin(q * Math.PI) * .65, (i % 6) + seed); } }   /* 作者 11-03：流星落下前阵法转着转着突然变慢 —— 原来 36 颗聚气小星每帧各现算一张 192×192 逐像素贴图（每帧百万像素），把帧率拖到很低；小星只有几像素大，改用 6 张固定贴图轮流用，画面一样、不再卡 */
   function ritual() {
     const p = arrayPose(), z = clock();
     if (skill === 'dianxing') {
@@ -15808,7 +15810,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
       return;
     }
     if (window.XLARR && XLARR.ready()) XLARR.draw(c, p.x, p.y, t); else /* R100 作者 11-03：头顶换成 Codex 金色阵法（r100_xlarr.js） */
-    R68JiuyaoSky.draw(c, z, { ...p, releaseCount: ninePose(t).releaseCount, releasedNodes: meteorPlan().filter(e => t >= e.launch).map(e => e.originNode) }); const f = finger(), feed = E(t, .8, 1.5) * (1 - E(t, 2.8, 3.2)); M.orb(c, z, f.x, f.y, 7, feed * .62, 4);
+    R68JiuyaoSky.draw(c, z, { ...p, releaseCount: ninePose(t).releaseCount, releasedNodes: meteorPlan().filter(e => t >= e.launch).map(e => e.originNode) }); const f = finger(), feed = E(t, .8, 1.5) * (1 - E(t, 2.8, 3.2)); M.orb(c, Math.floor(z * 12) / 12, f.x, f.y, 7, feed * .62, 4);
     if (t > 1.5 && t < 2.7) charge(p.x, p.y, E(t, 1.5, 1.9) * (1 - E(t, 2.6, 2.85)) * .42, 43, 120);
   }
   function cracks(p, age) { const a = E(age, .03, .16) * (1 - E(age, .55, 1.02)); if (a <= 0) return; const y = tgUnit(p.target).y + 4; for (let i = 0; i < 7; i++) { const an = i * TAU / 7 + .2, pts = [{ x: p.end.x, y }]; for (let j = 1; j <= 5; j++) { const d = j * 29; pts.push({ x: p.end.x + Math.cos(an) * d + (R(i * 11 + j) - .5) * 21, y: y + Math.sin(an) * d * .23 + (R(i * 7 + j) - .5) * 9 }); } for (let j = 1; j < pts.length; j++) { line(pts[j - 1], pts[j], 7, a * .18); line(pts[j - 1], pts[j], 2.4, a * .76, '#fff2c4'); } } }
