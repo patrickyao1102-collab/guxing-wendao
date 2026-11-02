@@ -368,6 +368,12 @@ function updatePanel(dt) {
 function drawPanel() {
   if (!sysPanel) return;
   const p = sysPanel; const k = ease(Math.min(1, p.t * 4));
+  // 作者 11-03：长说明会超出框 → 按框宽自动换行，框高跟着行数走
+  if (!p.wrapped) { ctx.save(); ctx.font = `600 26px ${FONT}`; const out = [], maxW = 720 - 100;
+    for (const l0 of p.lines) { const hl = String(l0).startsWith('!'), t = hl ? String(l0).slice(1) : String(l0); let cur = '';
+      for (const ch of t) { if (ctx.measureText(cur + ch).width > maxW && cur) { out.push((hl ? '!' : '') + cur); cur = ch; } else cur += ch; }
+      out.push((hl ? '!' : '') + cur); }
+    ctx.restore(); p.lines = out; p.wrapped = true; }
   const w = 720, h = 90 + p.lines.length * 46, x = W / 2 - w / 2, y = H / 2 - h / 2;
   ctx.save(); ctx.fillStyle = `rgba(0,0,0,${.5 * k})`; ctx.fillRect(0, 0, W, H);
   ctx.translate(W / 2, H / 2); ctx.scale(lerp(.8, 1, k), lerp(.8, 1, k)); ctx.translate(-W / 2, -H / 2); ctx.globalAlpha = k;

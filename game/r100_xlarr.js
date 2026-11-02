@@ -11,11 +11,12 @@
   let img = null, ok = false;
   img = new Image(); img.onload = () => { (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(() => { ok = true; }); }; img.src = URL;
   const C = x => Math.max(0, Math.min(1, x)), E = (t, a, b) => { const q = C((t - a) / (b - a)); return q * q * (3 - 2 * q); };
-  // 外环转角（度）：0.8 秒起 42°/秒，2.2–2.7 秒平滑加到 64°/秒，4.4–4.8 秒再减回来
-  function rot(t) {
-    const I = (x, a, b) => { if (x <= a) return 0; if (x >= b) return (b - a) * .5 + x - b; const u = (x - a) / (b - a); return (b - a) * (u * u * u - .5 * u * u * u * u); };
-    return 42 * Math.max(0, t - .8) + 22 * I(t, 2.2, 2.7) - 22 * I(t, 4.4, 4.8);
-  }
+  // 外环转角（度）：从出招起匀速 50°/秒，不加速、不减速。
+  // 作者 11-03：转着转着突然变慢又变快，看得心里难受 —— 原因是命中时战斗「顿帧」(battle.freeze) 会把特效时间停住 70~140 毫秒，
+  // 七颗流星砸下来就一卡一卡。所以阵盘转角改用真实时间（performance.now）走，顿帧时照样匀速转，只有淡入淡出跟技能时间轴。
+  const SPEED = 50; let T0 = 0, lastT = 1e9;
+  function realT(t) { const now = performance.now(); if (t < lastT - .3 || !T0) T0 = now - t * 1000; lastT = t; return (now - T0) / 1000; }
+  function rot(t) { return SPEED * t; }
   const alpha = t => E(t, .85, 1.3) * (1 - E(t, 4.65, 5.3));
   function part(c, k, ang, a) {
     const m = MAP[k], s = SIZE * m[4];
@@ -23,7 +24,7 @@
   }
   function draw(c, x, y, t, mul) {
     if (!ok) return; const a = alpha(t) * (mul == null ? 1 : mul) * (.94 + .06 * Math.sin(t * 3.7)); if (a <= .003) return;
-    const r = rot(t) * Math.PI / 180;
+    const r = rot(realT(t)) * Math.PI / 180;
     c.save(); c.translate(x, y + DY); c.globalCompositeOperation = 'source-over';
     part(c, 'outer', r, a); part(c, 'inner', -r * .48, a); part(c, 'center', 0, a);
     c.restore();
