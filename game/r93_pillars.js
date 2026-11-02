@@ -23,11 +23,39 @@
     return glow;
   }
   const pos = (v, m) => ((v % m) + m) % m;
+  // 作者 11-03：光柱看着是静止的，要会动 —— 用 Codex 画的同一张光柱图做「上行流光」：
+  // 把柱身中段做成首尾无缝的长条（前后半段交叉淡化），每帧往上滚动，再用固定的上下淡出遮罩罩住，看起来是光丝一直往上涌；
+  // 再叠一层水平翻转、慢一点的，两层错速交织成旋绕感；柱身整体随风轻摆。不加新画面，只是让原画动起来。
+  const FW = 192, FH = 512, FLOW = [], SCR = document.createElement('canvas'); SCR.width = FW; SCR.height = FH; const sg = SCR.getContext('2d');
+  const MASK = (() => { const c = document.createElement('canvas'); c.width = FW; c.height = FH; const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, FH);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.22, 'rgba(0,0,0,1)'); gr.addColorStop(.8, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, FW, FH); return c; })();
+  const FY0 = .10, FY1 = .86;   // 取原图 10%~86% 高度这段做流光（顶端淡出、底部光脚不动）
+  function flowTex(i) {
+    if (FLOW[i]) return FLOW[i]; const im = img['p' + i]; if (!im) return null;
+    const sy = im.height * FY0, sh = im.height * (FY1 - FY0), mk = () => { const c = document.createElement('canvas'); c.width = FW; c.height = FH; return c; };
+    const wMask = inv => { const c = mk(), g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, FH); const a = inv ? 1 : 0, b = inv ? 0 : 1;
+      gr.addColorStop(0, `rgba(0,0,0,${a})`); gr.addColorStop(.5, `rgba(0,0,0,${b})`); gr.addColorStop(1, `rgba(0,0,0,${a})`); g.fillStyle = gr; g.fillRect(0, 0, FW, FH); return c; };
+    const A = mk(), ga = A.getContext('2d'); ga.drawImage(im, 0, sy, im.width, sh, 0, 0, FW, FH); ga.globalCompositeOperation = 'destination-in'; ga.drawImage(wMask(false), 0, 0);
+    const Bc = mk(), gb = Bc.getContext('2d'); gb.drawImage(im, 0, sy, im.width, sh, 0, -FH / 2, FW, FH); gb.drawImage(im, 0, sy, im.width, sh, 0, FH / 2, FW, FH); gb.globalCompositeOperation = 'destination-in'; gb.drawImage(wMask(true), 0, 0);
+    const strip = document.createElement('canvas'); strip.width = FW; strip.height = FH * 2; const gs = strip.getContext('2d');
+    for (const oy of [0, FH]) { gs.globalCompositeOperation = 'source-over'; gs.drawImage(A, 0, oy); gs.globalCompositeOperation = 'lighter'; gs.drawImage(Bc, 0, oy); }
+    return (FLOW[i] = strip);
+  }
+  function flow(c, n, t, x, y, w, h, speed, alpha, flip) {
+    const st = flowTex(n.i); if (!st) return; const off = pos(t * speed + n.i * 97, FH);
+    sg.globalCompositeOperation = 'source-over'; sg.clearRect(0, 0, FW, FH); sg.drawImage(st, 0, off, FW, FH, 0, 0, FW, FH);
+    sg.globalCompositeOperation = 'destination-in'; sg.drawImage(MASK, 0, 0);
+    c.save(); c.globalAlpha = alpha; c.globalCompositeOperation = 'screen'; if (flip) { c.translate(x * 2, 0); c.scale(-1, 1); } c.drawImage(SCR, x - w / 2, y, w, h); c.restore();
+  }
   function pillar(c, n, t) {
     const G = bake(); if (!G || !img.core) return;
     const phase = t * Math.PI * 2 / 8 + n.i * Math.PI * 2 / 9, k = 1 + .025 * Math.sin(phase), w = n.w * k, h = n.h, pw = PAD * k;
-    c.save(); c.globalCompositeOperation = 'source-over'; c.globalAlpha = .86 + .05 * Math.sin(phase);
+    const sway = Math.sin(t * .9 + n.i * 1.7) * .035;   // 柱身随风轻摆（以柱脚为轴）
+    c.save(); c.translate(n.x, n.y); c.transform(1, 0, sway, 1, 0, 0); c.translate(-n.x, -n.y);
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = .78 + .08 * Math.sin(phase);
     c.drawImage(G[n.i], n.x - w / 2 - pw, n.y - h - PAD, w + pw * 2, h + PAD * 2);
+    const fy = n.y - h + h * FY0, fh = h * (FY1 - FY0);
+    flow(c, n, t, n.x, fy, w, fh, 150, .62, false); flow(c, n, t + 3.3, n.x, fy, w * .9, fh, 95, .42, true);
     c.globalAlpha = .40; c.globalCompositeOperation = 'screen'; c.drawImage(img.core, n.x - w * .14, n.y - h, w * .28, h);
     const q = pos(t / 3.6 + n.i * .137, 1); c.globalAlpha = Math.sin(Math.PI * q) * .24; c.globalCompositeOperation = 'source-over';
     c.drawImage(img['p' + n.i], n.x - w * .2 + Math.sin(phase) * 9, n.y - 220 - q * 550, w * .40, 360);
