@@ -12,6 +12,11 @@
     ningfeng: ['#ffc98a', '#64200e'], jiutian: ['#d6c4ff', '#2c1660'], daxue: ['#d4f6ff', '#1a4a66'], yinbo: ['#b4fff0', '#0e4a48'],
     luanshen: ['#ffb8e6', '#4e1440'], tianlai: ['#c8ffd8', '#164a2a'], guangming: ['#fff0b0', '#7a5410'], heian: ['#ff8a8a', '#2a0608'],
     riyue: ['#ffe0a0', '#2a1a4e'], shikong: ['#c4b8ff', '#10304a'],
+    // R94 正式图标的光晕色
+    duopo: ['#ff8a7a', '#5a0c10'], ningshen: ['#b8e0ff', '#123a66'], juling: ['#d8e8ff', '#14265e'], xl_wushang: ['#ffe8a8', '#3a2a5e'],
+    qianggong: ['#d6c4ff', '#2c1660'], jifeng: ['#c9a6ff', '#2a1450'], boming: ['#c4a8ff', '#30105a'], yunlei: ['#b8b0ff', '#1c1a5e'],
+    shuangjia: ['#d4f6ff', '#1a4a66'], bingxin: ['#d8f2ff', '#1a3a66'], bingdun: ['#c4ecff', '#123a5a'], bingfeng: ['#d4f6ff', '#164a6e'],
+    qxq: ['#c8ffd8', '#164a2a'], yinzhang: ['#b4fff0', '#0e4a48'], shenfa: ['#c8f0ff', '#14365a'], jiuyinhe: ['#c8ffe8', '#164a3a'], qingxin: ['#fff0c0', '#4a2a5e'],
   };
   // ---------- 每重效果 ----------
   const TGT = { tanlang: '单体', jueying: '单体', shaxing: '单体', qingxin: '群体', dianxing: '单体', pojun: '群体', tianshu: '群体', xingluo: '群体', qunxing: '群体', liehun: '群体', xingluo2: '群体', sun: '群体' };
@@ -66,7 +71,7 @@
         ['辅助', [N('shuangjia', 'shuangjia', '霜甲'), N('bingxin', 'bingxin', '冰心'), N('bingdun', 'bingdun', '冰盾')]],
         ['秘传', [N('bingfeng', 'bingfeng', '冰封')]]] },
     shenle: { title: '九音录', gongfa: 'jiuyin', ult: N('ult', 'tianlai', '寂灭仙曲', { name: '九音录·寂灭仙曲', cost: '怒气 100', desc: '一曲寂灭，音杀全场' }),
-      cols: [['音律', [N('qingxin', 'yinbo', '镇魂'), N('qxq', 'qxq', '清心曲')]],
+      cols: [['音律', [N('qingxin', 'qingxin', '镇魂'), N('qxq', 'qxq', '清心曲')]],
         ['辅助', [N('yinzhang', 'yinzhang', '音障')]],
         ['秘传', [N('shenfa', 'shenfa', '神罚仙音'), N('jiuyinhe', 'jiuyinhe', '九音灵河')]]] },
     luochen: { title: '血脉本源', gongfa: 'xuemai', ult: null, solo: true,
