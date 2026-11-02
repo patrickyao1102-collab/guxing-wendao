@@ -28,8 +28,7 @@
       if (cur) { try { cur.pause(); } catch (e) {} }
       let a = cache[id]; if (!a) { a = new Audio(BGM29.src(id)); a.preload = 'auto'; cache[id] = a; }
       a.currentTime = 0; a.volume = vol != null ? vol : (lib[id].vol != null ? lib[id].vol : .95); a.play().catch(() => {}); cur = a;
-      // 配乐让一让
-      if (typeof AUD !== 'undefined' && AUD.musicGain && typeof AC !== 'undefined' && AC) { const g = AUD.musicGain.gain, t = AC.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(.2, t + .1); g.linearRampToValueAtTime(.45, t + Math.max(1.2, (lib[id].dur || 2) + .4)); }
+      // 作者 11-02：喊招时不再压低战斗配乐（配乐好听，保持原音量）
       return true;
     } catch (e) { return false; }
   }
