@@ -2638,14 +2638,25 @@ function bakedTileMap(def) {
 // 大地图底图切成 1024 的块，只画屏幕里那几块（手机 GPU 对超过 4096 的大图会走慢路径）
 const GTILES = new WeakMap();
 function drawGroundVis(g, cam) {
+  if (g.__pv) { ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(g, 0, 0, g.__pw, g.__ph); ctx.restore(); return; }   // 小预览图放大顶着
   if (g.width <= 2048 && g.height <= 2048) { ctx.drawImage(g, 0, 0); return; }
   let tl = GTILES.get(g); if (!tl) { tl = []; const S = 1024; for (let y = 0; y < g.height; y += S) for (let x = 0; x < g.width; x += S) { const w = Math.min(S, g.width - x), h = Math.min(S, g.height - y), c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(g, x, y, w, h, 0, 0, w, h); tl.push([c, x, y, w, h]); } GTILES.set(g, tl); }
   const x0 = cam.x - 2, y0 = cam.y - 2, x1 = cam.x + W / VZ() + 2, y1 = cam.y + H / VZ() + 2;
   for (const [c, x, y, w, h] of tl) if (x < x1 && x + w > x0 && y < y1 && y + h > y0) ctx.drawImage(c, x, y);
 }
+const GPV = { pos: {"ly_valley":[0,0,402,366],"qingyang":[404,0,402,347],"xt_manor":[808,0,402,329],"ly_midnorth":[1212,0,402,329],"tj_front":[1616,0,420,300],"xt_city":[0,368,420,300],"tj_scripture":[422,368,293,293],"ly_ridge":[717,368,366,293],"qy_defense":[1085,368,366,293],"qy_rescue":[1453,368,366,293],"lin_forest":[0,670,420,280],"hf_camp":[422,670,366,274],"tj_houshan":[790,670,366,274],"qingzhu_court":[1158,670,329,256],"hf_valley":[1489,670,420,252],"tj_hall":[0,952,241,241],"qingzhu_bamboo":[243,952,293,219],"qingzhu_upper_pavilion":[538,952,293,219],"ly_cave":[833,952,274,219],"qy_escape":[1109,952,256,219],"qy_shelter":[1367,952,293,219],"xt_manor_hall":[1662,952,165,197],"tj_library":[1829,952,219,183],"qingzhu_stairs":[0,1195,183,183],"tj_forbidden":[185,1195,192,155],"xt_auction":[379,1195,229,153],"seal_field":[610,1195,219,146],"xt_wanbao":[831,1195,183,137],"xt_manor_treasury":[1016,1195,160,120],"xt_auction_vip":[1178,1195,160,120],"qy_tavern":[1340,1195,192,119],"lin_manor":[1534,1195,192,119],"lin_guest_east":[1728,1195,146,119],"lin_guest_west":[1876,1195,146,119],"lin_guest_xue":[0,1380,146,119],"tj_room":[148,1380,155,117],"qy_inn":[305,1380,165,110],"qy_treasure":[472,1380,155,110],"qy_herb":[629,1380,155,110],"qy_smith":[786,1380,155,110],"qy_tea":[943,1380,165,110],"qingzhu_steward_room":[1110,1380,119,110],"xt_manor_recovery":[1231,1380,137,103],"qy_grocery":[1370,1380,137,101],"qy_house":[1509,1380,119,91]}, im: null, cache: {} };
+{ const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
+  const im = new Image(); im.onload = () => { GPV.im = im; }; im.src = LOC ? 'r100p/ground_preview.webp' : '/_blob/06559579b9157b9929ff124991fbd493'; }
+function groundPreview(key, T) {
+  if (!GPV.im || !/^cx2g_/.test(key || '')) return null; const id = key.slice(5), r = GPV.pos[id]; if (!r) return null;
+  let c = GPV.cache[id]; if (!c) { c = document.createElement('canvas'); c.width = r[2]; c.height = r[3]; c.getContext('2d').drawImage(GPV.im, r[0], r[1], r[2], r[3], 0, 0, r[2], r[3]); GPV.cache[id] = c; }
+  c.__pv = 1; c.__pw = T.mw; c.__ph = T.mh; return c;
+}
 function bakedGround(T, def) {
   const im = IMG[def.baked.ground]; if (im) return im;
   if (window.CX2_LAZY_LD && /^cx2g_/.test(def.baked.ground)) CX2_LAZY_LD(def.baked.ground.slice(5));
+  // 作者 11-03：顶替图要好看——先用这张图的小尺寸预览（所有地图打成一张 300KB 小图集，开游戏就载）放大顶着，不再是绿底
+  { const pv = groundPreview(def.baked.ground, T); if (pv) return pv; }
   window.__GPH = performance.now();   // 这一帧地面还没到，画的是绿色占位——载入画面据此盖住（作者 11-03：开第一章先闪一下绿地）
   if (!bakedGround.ph) { const c = document.createElement('canvas'); c.width = T.mw; c.height = T.mh; const x = c.getContext('2d'); x.fillStyle = '#5d7a45'; x.fillRect(0, 0, c.width, c.height); bakedGround.ph = c; }
   return bakedGround.ph;
