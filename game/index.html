@@ -6953,7 +6953,21 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   })(tileAmbientHigh);
   // 夜色：第一章夜探藏经阁时三张图都压成月夜
   tileDraw = (orig => function () { orig(); const m = world.mapName; if (!night() || !['tj_scripture', 'tj_library', 'tj_forbidden'].includes(m) || (m === 'tj_scripture' && window.LIB_NIGHT_OVERLAY)) return;
-    ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = m === 'tj_scripture' ? 'rgb(120,134,196)' : 'rgb(170,176,214)'; ctx.fillRect(0, 0, W, H); ctx.restore(); })(tileDraw);
+    if (m === 'tj_scripture') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(120,134,196)'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
+    // 阁内（一层 / 二层）：作者 11-03 嫌原来那层淡紫灰"不黑不亮"难看 → 改成真正的深夜：整体压暗偏冷蓝，再在压暗之后把灯盏、窗光、灯下地面重新点亮（暖光），人物身边留一圈微光
+    ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(58,66,108)'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    const cam = world.cam || { x: 0, y: 0 }, z = VZ(), now = performance.now() / 1000, B = CXB2[m];
+    ctx.save(); if (z !== 1) ctx.scale(z, z); ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
+    if (LX.ready) { ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .85; ctx.drawImage(LX.im[m === 'tj_forbidden' ? 'light_forbidden' : 'light_library'], 0, 0); ctx.globalAlpha = 1; }
+    ctx.globalCompositeOperation = 'lighter';
+    const rad = (x, y, rx, ry, col, a) => { if (a <= 0) return; ctx.save(); ctx.translate(x, y); ctx.scale(rx, ry); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(.45, `rgba(${col},${a * .35})`); g.addColorStop(1, `rgba(${col},0)`); ctx.fillStyle = g; ctx.fillRect(-1, -1, 2, 2); ctx.restore(); };
+    for (const o of (B && B.objs) || []) if (/lamp|lotus|lantern|candle/.test(o.id)) { const f = .9 + .07 * Math.sin(now * 3.1 + o.ax) + .03 * Math.sin(now * 7.3 + o.ay);
+      const hx = o.ax, hy = o.y + o.h * .18;
+      rad(hx, hy, 34, 34, '255,232,170', .75 * f);            // 灯芯
+      rad(hx, hy, 150, 130, '255,186,96', .30 * f);           // 灯晕
+      rad(o.ax, o.ay, 190, 78, '255,196,120', .26 * f); }     // 灯下地面光池
+    const p = world.player; if (p && !p.hidden) rad(p.x, p.y - 40, 150, 130, '190,205,255', .10);
+    ctx.restore(); })(tileDraw);
 
   // ---- 第一章 · 当夜 · 藏经阁（替换旧版单图）----
   const ROT = TMAPS.tj_forbidden.npcs.find(n => n.name === '八方转轮经藏'), PED = TMAPS.tj_forbidden.npcs.find(n => n.name === '九曜剑典台');
