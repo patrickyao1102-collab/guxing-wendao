@@ -1022,15 +1022,15 @@ window.BGM_LIB = {
 },
 "lib_v09": {
 "no": "癸01",
-"name": "云霆·九天神雷·三句连读",
+"name": "云霆·九天神雷",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
-"file": "lib29/v09.mp3",
-"blob": "19667aea55876ff13b13f4f4ad6df9d2",
+"file": "lib29/n3_yunting__jiutian.mp4",
+"blob": "49f5a8fc247df308a0dbcbf8f3a967c1",
 "vol": 0.94,
-"desc": "即梦配音 · “九天之上，听我号令。九天神雷——落！灰飞烟灭。” 8 秒整段（默认）",
+"desc": "小云雀配音（原九天神雷音色）· “九天之上，听我号令。九天神雷，落！”（11-03 去掉灰飞烟灭）",
 "slot": "yunting:ult",
-"dur": 8.1
+"dur": 4.53
 },
 "lib_v06": {
 "no": "癸02",
@@ -2059,10 +2059,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:boming",
 "file": "lib29/n3_yunting__boming.mp4",
-"blob": "4f71b6e7c2aa4f0659d3411bc2f5a2f9",
+"blob": "b58667ffc2e0aebf25ac7ebbf4052261",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “搏命！”（11-01 重录）",
-"dur": 1.1
+"desc": "小云雀配音·九天神雷同款音色 · “搏命！”（11-03 按九天神雷音色重录）",
+"dur": 0.58
 },
 "lib_n3_yunting__def": {
 "no": "癸A22",
@@ -2071,10 +2071,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:def",
 "file": "lib29/n3_yunting__def.mp4",
-"blob": "f46eac92adbf4df7e767fb5c7776216d",
+"blob": "5cbed0589ad210c8f50675baa8d0e933",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑凝锋，加持！”（11-03 重录·尾字完整）",
-"dur": 2.14
+"desc": "小云雀配音·九天神雷同款音色 · “天剑凝锋，加持！”（11-03 按九天神雷音色重录）",
+"dur": 1.81
 },
 "lib_n3_yunting__dianxing": {
 "no": "癸A23",
@@ -2083,10 +2083,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:dianxing",
 "file": "lib29/n3_yunting__dianxing.mp4",
-"blob": "678cbb85c8986361d54b5e1fc49e906d",
+"blob": "4bbe67b90afa168004ffead70c8ea815",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
-"dur": 2.67
+"desc": "小云雀配音·九天神雷同款音色 · “天剑一式，点星！”（11-03 按九天神雷音色重录）",
+"dur": 1.95
 },
 "lib_n3_yunting__jifeng": {
 "no": "癸A24",
@@ -2095,10 +2095,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:jifeng",
 "file": "lib29/n3_yunting__jifeng.mp4",
-"blob": "ebcdba45aca0303411bae6ad325fc7d2",
+"blob": "6480be546ca470281e6e9a47e6e56f81",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “疾风！”（11-01 重录）",
-"dur": 1.1
+"desc": "小云雀配音·九天神雷同款音色 · “疾风！”（11-03 按九天神雷音色重录）",
+"dur": 0.79
 },
 "lib_n3_yunting__qianggong": {
 "no": "癸A25",
@@ -2107,10 +2107,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:qianggong",
 "file": "lib29/n3_yunting__qianggong.mp4",
-"blob": "863eeb963b3733a405d26f93ace63f9d",
+"blob": "f79eb592efa657060828821be129e892",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “强攻！”（11-03 重录·尾字完整）",
-"dur": 1.21
+"desc": "小云雀配音·九天神雷同款音色 · “强攻！”（11-03 按九天神雷音色重录）",
+"dur": 0.77
 },
 "lib_n3_yunting__qunxing": {
 "no": "癸A26",
@@ -2119,10 +2119,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:qunxing",
 "file": "lib29/n3_yunting__qunxing.mp4",
-"blob": "6e81376b5d82a94e8378be4912db5f94",
+"blob": "1b7991ffde19da51447fb75dea674057",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-03 重录·尾字完整）",
-"dur": 2.02
+"desc": "小云雀配音·九天神雷同款音色 · “天剑二式，群星！”（11-03 按九天神雷音色重录）",
+"dur": 1.67
 },
 "lib_n3_yunting__yunlei": {
 "no": "癸A27",
@@ -2131,10 +2131,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:yunlei",
 "file": "lib29/n3_yunting__yunlei.mp4",
-"blob": "9eaa0e6b704edd66a9e93c6be7220682",
+"blob": "78cbe2e8cf88025746ff00f9182697aa",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “云雷踏影！”（11-01 重录）",
-"dur": 1.5
+"desc": "小云雀配音·九天神雷同款音色 · “云雷踏影！”（11-03 按九天神雷音色重录）",
+"dur": 1.21
 },
 "lib_v13": {
 "no": "癸18",
