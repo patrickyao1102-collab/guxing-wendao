@@ -3969,7 +3969,7 @@ async function ch2Start() {
   await ch2Forest();
 }
 async function ch2Forest() {
-  { const st = TMAPS.lin_forest.start || [24, 28]; tileSetMap('lin_forest', st[0], st[1], 'up'); } S.hud = true; S.quest = '穿过山外树林'; world.locked = true; S.scene = drawMap;
+  S.flags.ch2_forest = 1; { const st = TMAPS.lin_forest.start || [24, 28]; tileSetMap('lin_forest', st[0], st[1], 'up'); } S.hud = true; S.quest = '穿过山外树林'; world.locked = true; S.scene = drawMap;
   await fadeIn(600);
   await say('叶孤星', '说起来，这还是我第一次下山。十八年来，我都没踏出过天剑宗一步。');
   await say('云霆·伤', '……我小时候，爹娘被土匪杀了。后来被长老带回宗门，一直一个人。');
@@ -3978,6 +3978,7 @@ async function ch2Forest() {
   await say('叶孤星·坏笑', '这叫活泼。');
   await say('云霆·苦笑', '这叫吵。');
   await narrate('（点地面行走，点人说话。地图边缘的箭头通往其他地方。林子里的妖兽会追过来，小心！）');
+  if (window.R104_LY) { await R104_LY.intro(); world.locked = false; return; }   // R104：呼救指引 + 林逸获救实景剧情（r104_linyi.js）
   world.locked = false;
   const [tx, ty] = TMAPS.lin_forest.rescue || tpos(25, 14);
   addTrigger(tx, ty, 150, async () => {
@@ -16332,7 +16333,7 @@ window.MarketEffects = (() => {
 <script src="r97_walk8.js"></script>
 <script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js"></script>
 <script src="r102_misc.js"></script>
-<script src="r103_equipinfo.js"></script>
+<script src="r103_equipinfo.js"></script><script src="r104_sound.js"></script><script src="r104_linyi.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

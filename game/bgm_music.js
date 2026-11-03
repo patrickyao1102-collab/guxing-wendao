@@ -11,7 +11,8 @@
   // 2026-10-29 作者：即梦歌曲全部 AI 人声分离，只留伴奏
   const J29 = { bgm29_yunkongyao: '云空遥·纯乐', bgm29_yunjianxing: '云间行·纯乐', bgm29_zongfeng: '宗风', bgm29_zongfeng2: '宗风·二', bgm29_xingyeyin: '星夜吟·纯乐', bgm29_xingyeguxing: '星夜孤行·纯乐', bgm29_xingheyao: '星河遥·纯乐', bgm29_yejingxingling: '夜径星铃·纯乐' };
   // 所有代码合成的程序音全部换成即梦音效库（作者：不要再出现"叮"的程序音）
-  const SDEF = { ui_click: 'lib_s00', ui_open: 'lib_s00', ui_confirm: 'lib_s00',   // 对话提示音 lib_u0–u3 是代码合成的，全部不用
+  const SDEF = { jingle_bx1: 'lib_bx1', jingle_bx2: 'lib_bx2', jingle_bx5: 'lib_bx5',   // 作者 11-03：获得宝物改用音效「宝光」三选一（编钟一响 / 灵光上扬接编钟 / 光罩风铃），不再用曲子开头
+    ui_click: 'lib_s00', ui_open: 'lib_s00', ui_confirm: 'lib_s00',   // 对话提示音 lib_u0–u3 是代码合成的，全部不用
     sfx_swing: 'lib_s01', sfx_hurt: 'lib_s02', sfx_star: 'lib_s03', sfx_buff: 'lib_s04', sfx_wind: 'lib_s05', sfx_ice: 'lib_s06', sfx_thunder: 'lib_s07',
     sfx_heal: 'lib_s08', sfx_ult: 'lib_s09', sfx_boom: 'lib_s10', sfx_beam: 'lib_s11', sfx_charge: 'lib_s12', sfx_crit: 'lib_s13', sfx_hit: 'lib_s14', sfx_sword_ring: 'lib_s15',
     sfx_claw: 'lib_s14', sfx_rock: 'lib_s10', sfx_vine: 'lib_s05', sfx_hit_heavy: 'lib_s13', ui_cancel: 'lib_s00', sfx_wolf_howl: 'lib_s16', sfx_dp_bed: 'lib_dp00', sfx_dx_bed: 'lib_dx00', sfx_xz_flute: 'lib_xz00', sfx_xz_array: 'lib_xz01', sfx_xz_slot: 'lib_xz02', sfx_xz_condense: 'lib_xz03', sfx_xz_burst: 'lib_xz04', sfx_xz_reunion: 'lib_xz05', sfx_xz_pillar: 'lib_xz06', sfx_xz_soul: 'lib_xz07', sfx_dx_prelude: 'lib_dx01', sfx_dx_cloud: 'lib_dx07', sfx_dx_array: 'lib_dx02', sfx_dx_storm: 'lib_dx03', sfx_dx_freeze: 'lib_dx04', sfx_dx_shatter: 'lib_dx05', sfx_dx_tinkle: 'lib_dx06', sfx_dp_array: 'lib_dp01', sfx_dp_pierce: 'lib_dp02', sfx_dp_soul: 'lib_dp03', sfx_dp_eye: 'lib_dp04', sfx_dp_eyeclose: 'lib_dp05', sfx_dp_growl: 'lib_dp06', sfx_dp_return: 'lib_dp07' };

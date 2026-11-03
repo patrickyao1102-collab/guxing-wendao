@@ -1682,123 +1682,123 @@ window.BGM_LIB = {
 },
 "lib_n3_hero__duopo": {
 "no": "癸A02",
-"name": "叶孤星·夺魄（清朗版）",
+"name": "叶孤星·夺魄（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:duopo",
 "file": "lib29/n3_hero__duopo.mp4",
-"blob": "e971f97c3cfb8b980c4f061cae97e757",
+"blob": "95952a4a855bc6c0ccfa1506a37d5a5e",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，夺魄！”（11-01 重录）",
-"dur": 1.7
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，夺魄！”（11-03 定稿·整句原样切出）",
+"dur": 2.18
 },
 "lib_n3_hero__huti": {
 "no": "癸A03",
-"name": "叶孤星·护体（清朗版）",
+"name": "叶孤星·护体（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:huti",
 "file": "lib29/n3_hero__huti.mp4",
-"blob": "462e9af9ecd3cf0ea290284de66cc8b4",
+"blob": "9002b2edc187cfcff25c28b7fe72825b",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “护体！”（11-03 重录·尾字完整）",
-"dur": 0.84
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “护体！”（11-03 定稿·整句原样切出）",
+"dur": 0.88
 },
 "lib_n3_hero__jueying": {
 "no": "癸A04",
-"name": "叶孤星·绝影（清朗版）",
+"name": "叶孤星·绝影（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:jueying",
 "file": "lib29/n3_hero__jueying.mp4",
-"blob": "c5331b235b0b0942e48db8ac07900545",
+"blob": "0bae7248b7c8c4c0536a2be26b40fea2",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，绝影！”（11-03 重录·尾字完整）",
-"dur": 2.37
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，绝影！”（11-03 定稿·整句原样切出）",
+"dur": 2.23
 },
 "lib_n3_hero__juling": {
 "no": "癸A05",
-"name": "叶孤星·聚灵（清朗版）",
+"name": "叶孤星·聚灵（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:juling",
 "file": "lib29/n3_hero__juling.mp4",
-"blob": "08e0623c1f29838fa96e2f28485e33f0",
+"blob": "e77949390823d9e0886fdbafe0aec5c8",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “聚灵！”（11-03 重录·尾字完整）",
-"dur": 0.77
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “聚灵！”（11-03 定稿·整句原样切出）",
+"dur": 0.84
 },
 "lib_n3_hero__ningshen": {
 "no": "癸A06",
-"name": "叶孤星·凝神（清朗版）",
+"name": "叶孤星·凝神（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:ningshen",
 "file": "lib29/n3_hero__ningshen.mp4",
-"blob": "dfb3fb71828f4f712bd495e8d1be820e",
+"blob": "136f6e3d568ddbdb702fa748f49ffcc2",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “凝神！”（11-03 重录·尾字完整）",
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “凝神！”（11-03 定稿·整句原样切出）",
 "dur": 0.88
 },
 "lib_n3_hero__pojun": {
 "no": "癸A07",
-"name": "叶孤星·天璇（清朗版）",
+"name": "叶孤星·天璇（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:pojun",
 "file": "lib29/n3_hero__pojun.mp4",
-"blob": "a0fe91ceb7b49a14bd2192d5cd419317",
+"blob": "97784a686dfc7133b337fcf732b32b3e",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天璇！”（11-03 重录·尾字完整）",
-"dur": 1.88
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天璇！”（11-03 定稿·整句原样切出）",
+"dur": 2.32
 },
 "lib_n3_hero__sun": {
 "no": "癸A08",
-"name": "叶孤星·太阳（清朗版）",
+"name": "叶孤星·太阳（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:sun",
 "file": "lib29/n3_hero__sun.mp4",
-"blob": "b14be3bac36e86cf3b8fcc705b676a2c",
+"blob": "4d9e3520b72564f8bd9c746ca5382215",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，太阳！（大招·热血激昂）”（11-03 重录·尾字完整）",
-"dur": 2.21
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑阵，太阳！”（11-03 定稿·整句原样切出）",
+"dur": 2.23
 },
 "lib_n3_hero__tanlang": {
 "no": "癸A09",
-"name": "叶孤星·追魂（清朗版）",
+"name": "叶孤星·追魂（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:tanlang",
 "file": "lib29/n3_hero__tanlang.mp4",
-"blob": "e42427cd8fa5f9fe2a4cc9c735766182",
+"blob": "85d9e595fe2d3e17a1bdae2758eff745",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，追魂！”（11-03 重录·尾字完整）",
-"dur": 1.83
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，追魂！”（11-03 定稿·整句原样切出）",
+"dur": 2.23
 },
 "lib_n3_hero__tianshu": {
 "no": "癸A10",
-"name": "叶孤星·天枢（清朗版）",
+"name": "叶孤星·天枢（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:tianshu",
 "file": "lib29/n3_hero__tianshu.mp4",
-"blob": "c9651332c3f43d9b14a79f9ab9017a6d",
+"blob": "3f870ab4967de56bae210296c3a53bec",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天枢！”（11-03 重录·尾字完整）",
-"dur": 1.76
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天枢！”（11-03 定稿·整句原样切出）",
+"dur": 2.25
 },
 "lib_n3_hero__xingluo": {
 "no": "癸A11",
-"name": "叶孤星·星罗（清朗版）",
+"name": "叶孤星·星罗（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:xingluo",
 "file": "lib29/n3_hero__xingluo.mp4",
-"blob": "2d68fb1536fd63aab3df232c0441ed77",
+"blob": "22c09025da922121d6376be3d9b455ec",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，起！”（11-03 重录·尾字完整）",
-"dur": 1.32
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑阵，星罗！”（11-03 定稿·整句原样切出）",
+"dur": 2.39
 },
 "lib_n3_hero__xingluo2": {
 "no": "癸A12",
@@ -1814,15 +1814,15 @@ window.BGM_LIB = {
 },
 "lib_n3_hero__xingyun": {
 "no": "癸A13",
-"name": "叶孤星·星陨（清朗版）",
+"name": "叶孤星·星陨（冷厉版）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:xingyun",
 "file": "lib29/n3_hero__xingyun.mp4",
-"blob": "774fa0410d028fc83a9bf871fee1a91c",
+"blob": "919bc32b5297b458ae545d8e90d700f7",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，星陨！”（11-03 重录·尾字完整）",
-"dur": 1.97
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，星陨！”（11-03 定稿·整句原样切出）",
+"dur": 2.69
 },
 "lib_n3_hero__xl_wushang": {
 "no": "癸A14",
@@ -2727,6 +2727,39 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "即梦 SeedAudio · 魂魄被音波震出又拽回，空灵嗡鸣与沉闷回弹（仙音镇魂专属）",
 "dur": 1
+},
+"lib_bx1": {
+"no": "壬48",
+"name": "宝光·编钟一响",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/bx1.mp4",
+"blob": "13577f890536b9a9c5d0ea56d2512019",
+"vol": 1,
+"desc": "即梦 SeedAudio 音效拼合 · 清脆编钟一击接细碎冰晶叮当（获得宝物）",
+"dur": 2
+},
+"lib_bx2": {
+"no": "壬49",
+"name": "宝光·灵光上扬接编钟",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/bx2.mp4",
+"blob": "67e1325afeb064227008507f907091fc",
+"vol": 1,
+"desc": "即梦 SeedAudio 音效拼合 · 光点汇聚上扬后编钟一击收住（获得宝物）",
+"dur": 2
+},
+"lib_bx5": {
+"no": "壬50",
+"name": "宝光·光罩风铃",
+"group": "壬 · 音效",
+"kind": "sfx",
+"file": "lib29/bx5.mp4",
+"blob": "910af27b007d2809ba1f6ecc2b56ccd1",
+"vol": 1,
+"desc": "即梦 SeedAudio 音效拼合 · 光罩展开上扬接温润风铃（获得宝物）",
+"dur": 2
 },
 "lib_s00": {
 "no": "壬16",
