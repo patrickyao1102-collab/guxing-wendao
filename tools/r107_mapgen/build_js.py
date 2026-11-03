@@ -11,7 +11,7 @@ import rooms_cy   # 城主府四厢（拆正堂构件拼）
 PFX = 'm_'          # 游戏里的地图 id 前缀（不和老地图撞名）
 DST = GAME + '/r107'; os.makedirs(DST, exist_ok=True)
 maps = []
-order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_path', 'nw_court', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_manor', 'cy_council', 'cy_study', 'cy_bedroom', 'cy_kitchen', 'cy_guest', 'cy_north', 'xx_b1', 'xx_b2']
+order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_passage', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_manor', 'cy_council', 'cy_study', 'cy_bedroom', 'cy_kitchen', 'cy_guest', 'cy_north', 'xx_b1', 'xx_b2']
 for mid in order:
     f = f'{OUT}/{mid}/map.json'
     if os.path.exists(f): maps.append(json.load(open(f)))

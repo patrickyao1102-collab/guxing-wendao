@@ -96,7 +96,7 @@ def build():
     B[:int(330 // cs)] = True                         # 北边崖顶以上不可走
     B[:, :2] = True; B[:, -2:] = True; B[-2:, :] = True
     exits = [dict(to='yy_deep', label='返回秘境裂隙', rect=[650, 928, 140, 32], spawn=[720, 880], face='up', arrow=None),
-             dict(to='nw_path', label='传送法阵 · 神像古道', rect=[690, 530, 60, 30], spawn=[720, 640], face='down', arrow=None)]
+             dict(to='nw_passage', label='穿过水帘 · 瀑后归径', rect=[690, 530, 60, 30], spawn=[720, 640], face='down', arrow=None)]
     for e in exits:
         x, y, w, h = e['rect']; B[y // cs:(y + h) // cs + 1, x // cs:(x + w) // cs + 1] = False
     B[int(500 // cs):int(960 // cs), int(650 // cs):int(790 // cs)] &= np.asarray(Image.fromarray((wet > .45).astype(np.uint8) * 255).resize((C, R), Image.BOX))[int(500 // cs):int(960 // cs), int(650 // cs):int(790 // cs)] > 100

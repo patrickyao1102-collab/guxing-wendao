@@ -136,7 +136,7 @@ def decorate(spec, objs, B):
 L = S + '/loom/loom/'
 SPECS = {
     'nw_temple': dict(id='nw_temple', pfx='loom_', json=L + 'map.json', root=L, strip='loom/',
-        exits=[dict(to='nw_court', label='下山 · 返回群像遗庭', rect=[1040, 1730, 160, 62], spawn=[1120, 1650], face='up', arrow=None),
+        exits=[dict(to='nw_passage', label='出宫门 · 瀑后归径', rect=[1040, 1730, 160, 62], spawn=[1120, 1650], face='up', arrow=None),
                dict(to='nw_spring', label='神殿东侧 · 去月湖灵泉', rect=[2084, 940, 60, 160], spawn=[2010, 1020], face='left', arrow=None)],
         spots={'altar': [1120, 647], 'gate': [1120, 1600], 'court': [1120, 1070]}, lights=[dict(x=1120, y=560, r=260, c='255,225,160')], meta=dict(grade='rgba(255,235,200,.03)')),
     'nw_spring': dict(id='nw_spring', pfx='moon_', json=S + '/moon/moon-spring/map.json', root=S + '/moon/', title='月湖 · 双息灵泉',
@@ -149,6 +149,11 @@ SPECS = {
         spots={'portal': [1920, 1984], 'west_court': [680, 1296], 'gate': [1920, 2832]}, decorate=80, nodeco=[[280, 820, 1040, 1560], [1280, 840, 2560, 1800]],
         keep=[[1920, 1984], [2680, 55], [1160, 744], [2680, 744], [1160, 2485], [2680, 2485], [650, 1965], [2900, 1622], [3418, 1266], [476, 2392], [1920, 2652], [700, 1620], [700, 1544], [680, 1300]],
         zones=[], meta=dict(grade='rgba(255,180,110,.03)')),
+    # 女娲宫外 · 瀑后归径（Codex 定稿）：东头水帘回碧潭听瀑，西北石门前法阵进女娲宫
+    'nw_passage': dict(id='nw_passage', pfx='fp_', json=S + '/fp/falls-passage/map.json', root=S + '/fp/', title='女娲宫外 · 瀑后归径',
+        exits=[dict(to='nw_falls', label='穿过水帘 · 回碧潭听瀑', rect=[2150, 1100, 60, 50], spawn=[2040, 1133], face='left', arrow=None),
+               dict(to='nw_temple', label='传送法阵 · 入女娲宫', rect=[340, 284, 80, 40], spawn=[380, 400], face='down', arrow=None)],
+        spots={'bridge': [1094, 1133], 'gold': [417, 1088], 'gate': [380, 303]}, meta=dict(grade='rgba(255,245,225,.02)')),
     # 城主府 · 临水环院（Codex 定稿）：南府门回城，北面正堂，四厢进书房 / 内寝 / 庖屋 / 客舍（Claude 拼）
     'cy_manor': dict(id='cy_manor', pfx='cym_', json=S + '/manor/cy_manor/map.json', root=S + '/manor/', title='苍月城主府 · 临水环院',
         exits=[dict(to='cy_gate', label='出府门 · 回苍月城', rect=[1230, 1512, 100, 36], spawn=[1280, 1420], face='down', arrow=None),
