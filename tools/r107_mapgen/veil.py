@@ -106,7 +106,7 @@ def build():
         for k in ('_b', '_cx', '_cy', '_w'): o.pop(k)
     J = dict(id='nw_falls', title='遮天灵瀑 · 碧潭听瀑', w=W, h=H, cs=cs, cols=C, rows=R, blocked=''.join('1' if v else '0' for v in B.flatten()), objs=objs, exits=exits,
              spots={'falls': [720, 600], 'portal': [720, 546]}, chests=[], zones=[], lights=[dict(x=720, y=330, r=300, c='190,230,255')], mobs=None,
-             meta=dict(grade='rgba(255,250,240,.02)'), cascade=True, water=[[x - rx, y - ry, 2 * rx, 2 * ry] for x, y, rx, ry in D['water']])
+             meta=dict(grade='rgba(255,250,240,.02)'), cascade=True, water=[])   # 水面白色波纹特效作者觉得难看，取消
     json.dump(J, open(f'{d}/map.json', 'w'), ensure_ascii=False)
     print('veil ok', len(objs))
 
