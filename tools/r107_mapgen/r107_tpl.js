@@ -7,7 +7,7 @@
 (function () {
   if (typeof TMAPS === 'undefined') return;
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
-  const BL = {"lk_nw_spring": "ff733fddd2a32bc8b2ba5e580d312a37", "w_moon_crane": "35478d97994c1f64a4774e111147f761", "w_moon_deer": "eb4f0a239486ce49c2f63680701887c6", "w_moon_sparrow": "fc7e03384ff291e1370a2f21499b95a7", "w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "ac2999674fc8a10f0d7c33391afd1793", "g_cy_council": "857494286fc8c172a176b8f0555ddbdb", "g_cy_gate": "6e45126aed82009b9d446405c635d212", "g_cy_manor": "077dd98fd5292a8b6280656236952d49", "g_cy_north": "4ea43d76e4ca3482c6e1e12ad9fa2b4f", "g_nw_falls": "036c4d3efc1d6dc08bddc0f03992d92f", "g_nw_spring": "d91e4e902d4619fc08f54185599cf694", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec", "atlas_1": "bba8e3f1fdc61eab50a326f7fac52c83", "g_cy_study": "a14b83136ee26ccd75c89dded6c5984e", "g_cy_bedroom": "0c775c16330c54e2288c98053a0762df", "g_cy_kitchen": "61afd56f14d81c1e894afe17d0de39ad", "g_cy_guest": "62e857916e61406ac73ce639600ffafd", "g_nw_passage": "363a43a6df01679bfae12a77701eb5d5", "lk_nw_passage": "cc38f02af1ab5142313fa53c23db7f0d", "w_fp_falls": "35fced1d8a714fc9883be50d7454ff76"};   // 发布版 blob
+  const BL = {"lk_nw_spring": "ff733fddd2a32bc8b2ba5e580d312a37", "w_moon_crane": "35478d97994c1f64a4774e111147f761", "w_moon_deer": "eb4f0a239486ce49c2f63680701887c6", "w_moon_sparrow": "fc7e03384ff291e1370a2f21499b95a7", "w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "b52c1b3504995fb669149d85b55bdf07", "g_cy_council": "857494286fc8c172a176b8f0555ddbdb", "g_cy_gate": "6e45126aed82009b9d446405c635d212", "g_cy_manor": "077dd98fd5292a8b6280656236952d49", "g_cy_north": "e4d089b4ac1882878f162eb9fd40b933", "g_nw_falls": "036c4d3efc1d6dc08bddc0f03992d92f", "g_nw_spring": "d91e4e902d4619fc08f54185599cf694", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec", "atlas_1": "f6874c05abb41af13f988a0df13a4c42", "g_cy_study": "a14b83136ee26ccd75c89dded6c5984e", "g_cy_bedroom": "0c775c16330c54e2288c98053a0762df", "g_cy_kitchen": "61afd56f14d81c1e894afe17d0de39ad", "g_cy_guest": "62e857916e61406ac73ce639600ffafd", "g_nw_passage": "363a43a6df01679bfae12a77701eb5d5", "lk_nw_passage": "cc38f02af1ab5142313fa53c23db7f0d", "w_fp_falls": "35fced1d8a714fc9883be50d7454ff76"};   // 发布版 blob
   const SRC = k => LOC || !BL[k] ? 'r107/' + k + '.webp' : '/_blob/' + BL[k];
   const NAMES = __NAMES__, ATLAS = __ATLAS__, PAGES = __PAGES__;
   const DATA = __DATA__;
@@ -86,6 +86,20 @@
     for (const k of CAS) { if (k.mid !== cur) continue; const base = IMG[k.base]; if (!base || !base.width) continue;
       let c = k.cv; if (!c) { c = k.cv = document.createElement('canvas'); c.width = base.width; c.height = base.height; }
       const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); g.drawImage(base, 0, 0); springCascadeLocal(g, base, t); IMG[k.key] = c; } }, 1000 / 24);
+  // 阵法：隐阵 / 血印显形 / 破阵 三态换图；显形时血印和阵楔一明一暗地呼吸（只调 Codex 画好的图的亮度）
+  const FMS = [];
+  const fmCv = (F, k, w, h) => { F.cv = F.cv || {}; let c = F.cv[k]; if (!c) { c = F.cv[k] = document.createElement('canvas'); c.width = w; c.height = h; } const g = c.getContext('2d'); g.clearRect(0, 0, w, h); return [c, g]; };
+  setInterval(() => { const cur = typeof world !== 'undefined' && world.map && world.map.def && world.map.def.r107; if (!cur) return; const t = performance.now() / 1000;
+    for (const F of FMS) { if (F.id !== cur) continue; const v = (S.flags && S.flags[F.flag]) || 0, base = IMG['r107_' + F.st[v]]; if (!base || !base.width) continue;
+      const pulse = .5 + .5 * Math.sin(t * 2.2);
+      if (v !== 1) IMG[F.key] = base;
+      else { const b0 = IMG['r107_' + F.st[0]], gl = IMG['r107_' + F.glow], [c, g] = fmCv(F, 'main', base.width, base.height);
+        if (b0) g.drawImage(b0, 0, 0); g.globalAlpha = .55 + .45 * pulse; g.drawImage(base, 0, 0); g.globalAlpha = 1;
+        if (gl) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = .45 * pulse; g.drawImage(gl, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+        IMG[F.key] = c; }
+      F.w.forEach((nm, i) => { const w0 = IMG['r107_' + nm], w1 = IMG['r107_' + F.wl[i]]; if (!w0) return; if (v !== 1 || !w1) { IMG[F.wk[i]] = w0; return; }
+        const [c, g] = fmCv(F, 'w' + i, w0.width, w0.height), p = .5 + .5 * Math.sin(t * 2.2 - i * 1.1);
+        g.drawImage(w0, 0, 0); g.globalAlpha = .35 + .65 * p; g.drawImage(w1, 0, 0); g.globalAlpha = 1; IMG[F.wk[i]] = c; }); } }, 50);
   // ---- 物件图集：用到时才载，载完切成单张 ----
   let atlasLoading = false;
   const loadAtlas = () => { if (atlasLoading) return; atlasLoading = true;
@@ -100,10 +114,22 @@
       if ((f & 4) && ANIM[nm]) { img = 'r107_anim_' + id + '_' + ACV.length; ACV.push({ key: img, id: nm, mid: id, ph: ph || 0 }); }
       else if (d.cas && /_cascade$/.test(nm)) { img = 'r107_cas_' + id + '_' + CAS.length; CAS.push({ key: img, base: 'r107_' + nm, mid: id }); IMG[img] = IMG['r107_' + nm]; }
       return { id: nm, img, x, y, w, h, sy, flat: !!(f & 1), flip: !!(f & 2) }; });
+    if (d.fm) { const F = d.fm; F.id = id; F.wk = []; FMS.push(F);   // 阵法：巨石和阵楔按状态换图
+      for (const o of objs) { if (o.id === F.st[0]) o.img = F.key = 'r107_fm_' + id; const wi = F.w.indexOf(o.id); if (wi >= 0) o.img = F.wk[wi] = 'r107_fmw_' + id + '_' + wi; } }
     const baked = { ground: 'r107g_' + id, w: d.w, h: d.h, cs: 16, cols: d.cols, rows: d.rows, blocked: s, objs };
     const def = { title: d.t, baked, r107: id, water: d.wa || [], indoor: !!(d.meta && d.meta.indoor), start: d.start, npcs: [], leaves: /^yy_|^nw_|cy_north/.test(id),
       chests: d.ch.map(([c, r], i) => ({ c, r, items: LOOT[i % LOOT.length] })),
       exits: d.ex.map(e => Object.assign({}, e, { cond: () => e.to.startsWith(PFX) && !!TMAPS[e.to], msg: e.label + '：这条路还没通（等接进剧情）' })) };
+    if (d.fm) { const F = d.fm, st = () => (S.flags && S.flags[F.flag]) || 0, put = v => { S.flags = S.flags || {}; S.flags[F.flag] = v; S.flash = .45; S.flashColor = '#ff5a48'; };
+      const at = (x, y) => [x / 64 - .5, y / 64 - .8], [c1, r1] = at(...F.trig), [c2, r2] = at(...F.eye);
+      const done = () => say('', '巨石已从中裂开，石阶一路往地下去。');
+      def.npcs.push({ key: 'none', c: c1, r: r1, name: '', hidden: true, h: 150, talk: async () => {
+        const v = st(); if (v === 0) { await say('', '巨石上刻着一道残旧的纹路，像字又不像字。'); await say('', '指尖刚触到石面，残纹里忽然渗出血光——一道封印在巨石上显了形。'); put(1); }
+        else if (v === 1) await say('', '血印在石上一明一暗。阵眼……似乎偏在巨石左侧。'); else await done(); } });
+      def.npcs.push({ key: 'none', c: c2, r: r2, name: '', hidden: true, h: 150, talk: async () => {
+        const v = st(); if (v === 0) await say('', '一块灰白的岩石，石脚生着青苔。');
+        else if (v === 1) { await say('', '找准阵眼，一击而下——血印寸寸崩散，巨石从中裂开，露出往下的石阶。'); put(2); } else await done(); } });
+      for (const e of def.exits) if (e.to === PFX + F.exit) { const c0 = e.cond; e.cond = () => st() >= 2 && c0(); delete e.msg; } }
     if (d.mobs) { const Z = d.z; def.mobs = Object.assign({}, d.mobs, { zone: (c, r) => { const x = (c + .5) * 16, y = (r + .8) * 16; return Z.some(([zx, zy, zr]) => Math.hypot(x - zx, y - zy) < zr); } }); }
     TMAPS[key] = def;
   }
@@ -118,6 +144,8 @@
     const r = o.apply(this, arguments); const d = world.map && world.map.def; if (!d || !d.r107) return r; const D = DATA[d.r107];
     const z = (typeof VZ === 'function' ? VZ() : 1) || 1, vw = W / z, vh = H / z;
     if (D.meta && D.meta.grade) { ctx.save(); ctx.fillStyle = D.meta.grade; ctx.fillRect(cam.x - 4, cam.y - 4, vw + 8, vh + 8); ctx.restore(); }
+    if (D.fm && ((S.flags && S.flags[D.fm.flag]) || 0) === 1) { const [fx, fy] = D.fm.trig, a = .16 + .12 * Math.sin(now * 2.2), R = 320; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(fx, fy - 170, 0, fx, fy - 170, R); g.addColorStop(0, `rgba(255,50,36,${a})`); g.addColorStop(1, 'rgba(255,50,36,0)'); ctx.fillStyle = g; ctx.fillRect(fx - R, fy - 170 - R, R * 2, R * 2); ctx.restore(); }
     for (const L of D.lights || []) { if (L.x + L.r < cam.x || L.x - L.r > cam.x + vw || L.y + L.r < cam.y || L.y - L.r > cam.y + vh) continue;
       const a = .32 + Math.sin(now * 1.7 + L.x) * .08; ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r); g.addColorStop(0, `rgba(${L.c},${a})`); g.addColorStop(1, `rgba(${L.c},0)`); ctx.fillStyle = g; ctx.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2); ctx.restore(); }
     return r; })(tileAmbientHigh);

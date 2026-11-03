@@ -7,6 +7,7 @@ import common, maps_xx  # 注册额外素材
 import codexmap; codexmap.register_all()   # Codex 整图：女娲神殿、月湖灵泉、苍月城
 import veil   # 遮天灵瀑（照 Codex 概念图 01 拼）
 import rooms_cy   # 城主府四厢（拆正堂构件拼）
+import north; north.register()   # 苍月北郊 · 白岩沉坛
 
 PFX = 'm_'          # 游戏里的地图 id 前缀（不和老地图撞名）
 DST = GAME + '/r107'; os.makedirs(DST, exist_ok=True)
@@ -23,6 +24,7 @@ for m in maps:
     for o in m['objs']:
         im = asset(o['id'])[0]; s = max(o['w'] / im.width, o['h'] / im.height)
         need[o['id']] = max(need.get(o['id'], 0), min(1.0, s))
+    for k in m.get('extra', []): need[k] = 1.0      # 换态用的图（血印巨石显形 / 破阵、发光层）
 items = []
 for k, s in need.items():
     im = asset(k)[0]
@@ -73,7 +75,7 @@ for m in maps:
         exits.append(dict(x=int(x // 16), y=int(y // 16), w=max(1, math.ceil(w / 16)), h=max(1, math.ceil(h / 16)), to=(PFX + to) if to in ids else to, at=at, face=e['face'], label=e['label']))
     D[m['id']] = dict(t=m['title'], w=m['w'], h=m['h'], cols=m['cols'], rows=m['rows'], b0=first, b=runs, o=objs, ex=exits,
                      start=P(*m['exits'][0]['spawn']) if m['exits'] else None, ch=[[round(x / 64 - .5), round((y - 20) / 64 - 1)] for x, y in m['chests']],
-                     z=[[z['x'], z['y'], z['r']] for z in m['zones']], mobs=m['mobs'], spots={k: list(v) for k, v in m['spots'].items()}, meta=m.get('meta') or {}, lights=m['lights'], wa=m.get('water') or [], lake=m.get('lake'), cas=bool(m.get('cascade')))
+                     z=[[z['x'], z['y'], z['r']] for z in m['zones']], mobs=m['mobs'], spots={k: list(v) for k, v in m['spots'].items()}, meta=m.get('meta') or {}, lights=m['lights'], wa=m.get('water') or [], lake=m.get('lake'), cas=bool(m.get('cascade')), fm=m.get('fm'))
 js = open(os.path.dirname(__file__) + '/r107_tpl.js', encoding='utf-8').read()
 js = js.replace('__NAMES__', json.dumps(names)).replace('__ATLAS__', json.dumps(amap)).replace('__PAGES__', str(len(pages))).replace('__DATA__', json.dumps(D, ensure_ascii=False, separators=(',', ':'))).replace('__PFX__', PFX).replace('__ANIM__', json.dumps(ANIM))
 open(GAME + '/r107_maps.js', 'w', encoding='utf-8').write(js)
