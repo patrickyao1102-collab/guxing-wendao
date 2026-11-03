@@ -42,9 +42,11 @@ def build(spec):
     W, H = m['world_size_px']
     d = f'{OUT}/{ID}'; os.makedirs(d, exist_ok=True)
     Image.open(path_of(spec, m['ground'])).convert('RGB').resize((W, H)).save(f'{d}/ground.webp', quality=86, method=6)
-    objs = []; anim = {}
+    objs = []; anim = {}; moved = []
     for it in m['instances']:
-        if it['id'] in spec.get('drop', ()): continue
+        if it['id'] in spec.get('drop', ()) or it.get('uid') in spec.get('drop', ()): continue
+        if it.get('uid') in spec.get('move', {}):
+            it = dict(it); old = it['anchor']; it['anchor'] = spec['move'][it['uid']]; moved.append((it['id'], old, it['anchor']))
         a = m['assets'][it['id']]; sc = it.get('scale', 1); name = P + it['id']
         full = Image.open(REG[name]['key']); im, _, _ = asset(name)
         bb = full.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
@@ -64,6 +66,10 @@ def build(spec):
         objs.append(dict(id=name, x=round(x, 1), y=round(y, 1), w=round(im.width * sc, 1), h=round(im.height * sc, 1), sy=round(sy, 1), flat=flat, flip=flip))
     B = nav16(m)
     rows, cols = B.shape
+    for k, (ox, oy), (nx, ny) in moved:      # 挪过的物件：旧脚下放开、新脚下挡住
+        hw = m['assets'][k]['size_px'][0] * .5
+        B[int((oy - 30) // 16):int(oy // 16) + 1, int((ox - hw) // 16):int((ox + hw) // 16) + 1] = 0
+        B[int((ny - 30) // 16):int(ny // 16) + 1, int((nx - hw) // 16):int((nx + hw) // 16) + 1] = 1
     for e in spec['exits']:
         x, y, w, h = e['rect']; B[y // 16:(y + h) // 16 + 1, x // 16:(x + w) // 16 + 1] = 0
     for x, y, w, h in spec.get('open', []): B[y // 16:(y + h) // 16 + 1, x // 16:(x + w) // 16 + 1] = 0
@@ -139,10 +145,23 @@ SPECS = {
     'cy_gate': dict(id='cy_gate', pfx='cyc_', json=S + '/cyc/map.json', root=S + '/cyc/', strip='cangyue_city/', title='苍月城 · 南门府街',
         exits=[dict(to='yy_deep', label='出南门 · 往幽影林', rect=[1768, 2950, 304, 58], spawn=[1920, 2832], face='up', arrow=None),
                dict(to='cy_north', label='出北门 · 荒林阵门', rect=[2628, 0, 104, 64], spawn=[2680, 360], face='down', arrow=None),
-               dict(to='cy_council', label='传送法阵 · 城主府议事正堂', rect=[1880, 1964, 80, 40], spawn=[1920, 2080], face='down', arrow=None)],
+               dict(to='cy_manor', label='传送法阵 · 城主府', rect=[1880, 1964, 80, 40], spawn=[1920, 2080], face='down', arrow=None)],
         spots={'portal': [1920, 1984], 'west_court': [680, 1296], 'gate': [1920, 2832]}, decorate=80, nodeco=[[280, 820, 1040, 1560], [1280, 840, 2560, 1800]],
         keep=[[1920, 1984], [2680, 55], [1160, 744], [2680, 744], [1160, 2485], [2680, 2485], [650, 1965], [2900, 1622], [3418, 1266], [476, 2392], [1920, 2652], [700, 1620], [700, 1544], [680, 1300]],
         zones=[], meta=dict(grade='rgba(255,180,110,.03)')),
+    # 城主府 · 临水环院（Codex 定稿）：南府门回城，北面正堂，四厢进书房 / 内寝 / 庖屋 / 客舍（Claude 拼）
+    'cy_manor': dict(id='cy_manor', pfx='cym_', json=S + '/manor/cy_manor/map.json', root=S + '/manor/', title='苍月城主府 · 临水环院',
+        exits=[dict(to='cy_gate', label='出府门 · 回苍月城', rect=[1230, 1512, 100, 36], spawn=[1280, 1420], face='down', arrow=None),
+               dict(to='cy_council', label='旧印正堂', rect=[1230, 548, 100, 32], spawn=[1280, 640], face='up', arrow=None),
+               dict(to='cy_study', label='西厢 · 书房', rect=[484, 606, 64, 34], spawn=[516, 672], face='up', arrow=None),
+               dict(to='cy_bedroom', label='东厢 · 内寝', rect=[2116, 598, 64, 34], spawn=[2148, 664], face='up', arrow=None),
+               dict(to='cy_kitchen', label='西厢 · 庖屋', rect=[406, 1232, 64, 34], spawn=[438, 1296], face='up', arrow=None),
+               dict(to='cy_guest', label='东厢 · 客舍', rect=[2085, 1232, 64, 34], spawn=[2117, 1296], face='up', arrow=None)],
+        move={'flowerbed_70': [1785, 663]},
+        spots={'pond': [1280, 1300], 'hall': [1280, 640], 'gate': [1280, 1420]}, meta=dict(grade='rgba(255,235,200,.02)')),
+    'cy_council': dict(id='cy_council', pfx='cyh_', json=S + '/manor/cy_council/map.json', root=S + '/manor/', title='苍月城主府 · 旧印正堂',
+        exits=[dict(to='cy_manor', label='出正堂 · 回府院', rect=[900, 1200, 120, 50], spawn=[960, 1080], face='down', arrow=None)],
+        spots={'lord': [960, 546], 'center': [960, 760]}, lights=[dict(x=800, y=300, r=160, c='255,205,140'), dict(x=1430, y=600, r=140, c='255,205,140')], meta=dict(indoor=True)),
 }
 
 def build_all(ids=None):

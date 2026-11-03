@@ -1,6 +1,6 @@
 import json, sys
 from PIL import Image, ImageOps
-import codexmap, common, veil
+import codexmap, common, veil, rooms_cy
 from core import asset, OUT
 Image.MAX_IMAGE_PIXELS=None
 codexmap.register_all()
