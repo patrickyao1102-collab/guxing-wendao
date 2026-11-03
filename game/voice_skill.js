@@ -8,6 +8,8 @@
   const SLOT = {};            // 'yunting:ult' -> [ids]
   const NAMES = {};           // 槽名（显示用）
   for (const id in lib) { const t = lib[id]; if (t.kind !== 'voice' || !t.slot) continue; (SLOT[t.slot] = SLOT[t.slot] || []).push(id); }
+  // 作者 11-03：核对喊话要用最新配音——同一招有 11-03 重录版（lib_n3_*）时排在最前（以前林雪点星 / 群星默认还是旧的统一音色版，和她其余几招音色不一致）
+  for (const s in SLOT) SLOT[s].sort((a, b) => (/^lib_n3_/.test(b) ? 1 : 0) - (/^lib_n3_/.test(a) ? 1 : 0));
   Object.assign(NAMES, {
     'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:xl_wushang': '叶孤星·星落·无上境',
     'yunting:qianggong': '云霆·强攻', 'yunting:jifeng': '云霆·疾风', 'yunting:boming': '云霆·搏命', 'yunting:yunlei': '云霆·云雷踏影',
