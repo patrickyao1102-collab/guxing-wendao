@@ -80,10 +80,12 @@ def build(spec):
         L = m['lakeSurface']; src = 'lk_' + ID
         Image.open(path_of(spec, L['file'])).convert('RGBA').save(f'{OUT}/{src}.webp', quality=86, method=6)
         lake = dict(src=src, period=L['period'], size=L['size'], contacts=L.get('contacts', []), springs=L.get('springs', []))
+        if L.get('flowBanks'): lake['flowBanks'] = [[round(a, 1), round(b, 1), round(y, 1)] for a, b, y in L['flowBanks']]     # 溪流：只有水面的光点顺流往下漂
+        if L.get('channels'): lake['channels'] = [[[round(a, 1), round(b, 1), round(y, 1)] for a, b, y in ch] for ch in L['channels']]
     J = dict(id=ID, title=spec.get('title', m['name']), w=W, h=H, cs=16, cols=cols, rows=rows, blocked=''.join('1' if v else '0' for v in B.flatten()), objs=objs,
              exits=spec['exits'], spots=spec.get('spots', {}), chests=spec.get('chests', []), zones=spec.get('zones', []),
              lights=spec.get('lights', []), mobs=spec.get('mobs'), meta=spec.get('meta', {}), water=[], anim=anim, lake=lake,
-             cascade=[o for o in objs if o['id'] == P + 'cascade'] and bool(m.get('springSites')))
+             notes=spec.get('notes', []), cascade=[o for o in objs if o['id'] == P + 'cascade'] and bool(m.get('springSites')))
     json.dump(J, open(f'{d}/map.json', 'w'), ensure_ascii=False)
     print('codex ->', ID, len(objs), 'objs', 'anim', list(anim), 'lake', bool(lake))
     return J
@@ -134,6 +136,7 @@ def decorate(spec, objs, B):
     print('  街面摆设', len(placed))
 
 L = S + '/loom/loom/'
+G = S + '/glade/'
 SPECS = {
     'nw_temple': dict(id='nw_temple', pfx='loom_', json=L + 'map.json', root=L, strip='loom/',
         exits=[dict(to='nw_passage', label='出宫门 · 瀑后归径', rect=[1040, 1730, 160, 62], spawn=[1120, 1650], face='up', arrow=None),
@@ -167,6 +170,21 @@ SPECS = {
     'cy_council': dict(id='cy_council', pfx='cyh_', json=S + '/manor/cy_council/map.json', root=S + '/manor/', title='苍月城主府 · 旧印正堂',
         exits=[dict(to='cy_manor', label='出正堂 · 回府院', rect=[900, 1200, 120, 50], spawn=[960, 1080], face='down', arrow=None)],
         spots={'lord': [960, 546], 'center': [960, 760]}, lights=[dict(x=800, y=300, r=160, c='255,205,140'), dict(x=1430, y=600, r=140, c='255,205,140')], meta=dict(indoor=True)),
+    # 女娲秘境入口三张（Codex 定稿）：幽影林 → 绛荚分溪 → 古樟井庭 → 五色石山径 → 碧潭听瀑
+    'nw_creek': dict(id='nw_creek', pfx='nsc_', json=G + 'spirit-creek/map.json', root=G, title='初入秘境 · 绛荚分溪', drop=['yun'],
+        exits=[dict(to='yy_deep', label='返回幽影林', rect=[53, 716, 64, 64], spawn=[315, 833], face='down', arrow=None),
+               dict(to='nw_glade', label='循溪而行 · 古樟井庭', rect=[2183, 713, 64, 64], spawn=[2090, 745], face='up', arrow=None)],
+        notes=[[1743, 692, ['花瓣上浮着一层看不见的禁制，伸手过去，指尖被轻轻弹开。', '那朵花轻轻一颤。']]],
+        spots={'bridge': [1150, 760], 'flower': [1743, 692]}, meta=dict(grade='rgba(255,250,235,.02)')),
+    'nw_glade': dict(id='nw_glade', pfx='ngl_', json=G + 'nuwa-tree-glade/map.json', root=G, title='女娲秘境 · 古樟井庭',
+        exits=[dict(to='nw_creek', label='返回绛荚分溪', rect=[830, 1730, 146, 46], spawn=[902, 1640], face='left', arrow=None),
+               dict(to='nw_stones', label='穿林前往五色石山径', rect=[1072, 43, 146, 44], spawn=[1145, 175], face='up', arrow=None)],
+        spots={'tree': [909, 900], 'seal': [902, 1500]}, meta=dict(grade='rgba(255,250,235,.02)')),
+    'nw_stones': dict(id='nw_stones', pfx='nfs_', json=G + 'five-stone-pass/map.json', root=G, title='女娲秘境 · 五色石山径', drop=['chest-closed', 'chest-open'],
+        exits=[dict(to='nw_glade', label='返回古樟井庭', rect=[873, 1474, 146, 44], spawn=[946, 1368], face='down', arrow=None),
+               dict(to='nw_falls', label='前往碧潭听瀑', rect=[850, 20, 146, 44], spawn=[928, 180], face='up', arrow=None)],
+        chests=[[1550, 664]], notes=[[686, 856, ['苔色沿着旧石纹蔓开。', '举过顶的石头与盘绕的蛇尾，都是就着这块山石刻出来的。']]],
+        spots={'relief': [686, 856]}, meta=dict(grade='rgba(255,250,235,.02)')),
 }
 
 def build_all(ids=None):

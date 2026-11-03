@@ -7,7 +7,7 @@
 (function () {
   if (typeof TMAPS === 'undefined') return;
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
-  const BL = {"lk_nw_spring": "ff733fddd2a32bc8b2ba5e580d312a37", "w_moon_crane": "35478d97994c1f64a4774e111147f761", "w_moon_deer": "eb4f0a239486ce49c2f63680701887c6", "w_moon_sparrow": "fc7e03384ff291e1370a2f21499b95a7", "w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "b52c1b3504995fb669149d85b55bdf07", "g_cy_council": "857494286fc8c172a176b8f0555ddbdb", "g_cy_gate": "6e45126aed82009b9d446405c635d212", "g_cy_manor": "077dd98fd5292a8b6280656236952d49", "g_cy_north": "4c90e4e29c4c614f0dbfe4ac283c2d56", "g_nw_falls": "036c4d3efc1d6dc08bddc0f03992d92f", "g_nw_spring": "d91e4e902d4619fc08f54185599cf694", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec", "atlas_1": "f6874c05abb41af13f988a0df13a4c42", "g_cy_study": "a14b83136ee26ccd75c89dded6c5984e", "g_cy_bedroom": "0c775c16330c54e2288c98053a0762df", "g_cy_kitchen": "61afd56f14d81c1e894afe17d0de39ad", "g_cy_guest": "62e857916e61406ac73ce639600ffafd", "g_nw_passage": "363a43a6df01679bfae12a77701eb5d5", "lk_nw_passage": "cc38f02af1ab5142313fa53c23db7f0d", "w_fp_falls": "35fced1d8a714fc9883be50d7454ff76"};   // 发布版 blob
+  const BL = {"lk_nw_spring": "ff733fddd2a32bc8b2ba5e580d312a37", "w_moon_crane": "35478d97994c1f64a4774e111147f761", "w_moon_deer": "eb4f0a239486ce49c2f63680701887c6", "w_moon_sparrow": "fc7e03384ff291e1370a2f21499b95a7", "w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "6c19b5376487b6693861f06d5c9183a9", "g_cy_council": "857494286fc8c172a176b8f0555ddbdb", "g_cy_gate": "6e45126aed82009b9d446405c635d212", "g_cy_manor": "077dd98fd5292a8b6280656236952d49", "g_cy_north": "4c90e4e29c4c614f0dbfe4ac283c2d56", "g_nw_falls": "036c4d3efc1d6dc08bddc0f03992d92f", "g_nw_spring": "d91e4e902d4619fc08f54185599cf694", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec", "atlas_1": "7cf40b192cb395c7aae2bd21a903b581", "g_cy_study": "a14b83136ee26ccd75c89dded6c5984e", "g_cy_bedroom": "0c775c16330c54e2288c98053a0762df", "g_cy_kitchen": "61afd56f14d81c1e894afe17d0de39ad", "g_cy_guest": "62e857916e61406ac73ce639600ffafd", "g_nw_passage": "363a43a6df01679bfae12a77701eb5d5", "lk_nw_passage": "cc38f02af1ab5142313fa53c23db7f0d", "w_fp_falls": "35fced1d8a714fc9883be50d7454ff76", "g_nw_creek": "2a2d69368c3be110b4d3bb7d96591cf7", "g_nw_glade": "a501c436ef212be3f44faca327d3744d", "g_nw_stones": "a6c2bf1fea5352daffb028ebf0f50cd1", "lk_nw_creek": "c566484ca562130b6490ced370bae831", "lk_nw_glade": "c566484ca562130b6490ced370bae831"};   // 发布版 blob
   const SRC = k => LOC || !BL[k] ? 'r107/' + k + '.webp' : '/_blob/' + BL[k];
   const NAMES = __NAMES__, ATLAS = __ATLAS__, PAGES = __PAGES__;
   const DATA = __DATA__;
@@ -15,6 +15,18 @@
   // ---- 月湖水面（照搬 Codex lake-surface.mjs：同一张倒影图按行轻微错位成波纹 + 接触涟漪 + 泉眼气泡和游鱼；石瀑只有中间水流在动）----
   function drawLakeSurface(ctx, layer, sheet, seconds, viewport) {
     if (!sheet) return;
+    if (layer.channels) { for (const flowBanks of layer.channels) drawLakeSurface(ctx, { flowBanks, period: layer.period }, sheet, seconds, viewport); return; }
+    if (layer.flowBanks) {   // 溪流：石底不动，只有半透明的光点顺流往下漂（照搬 Codex）
+      const banks = layer.flowBanks.filter(([, , y]) => y >= viewport.y - 12 && y <= viewport.y + viewport.h + 12);
+      if (banks.length < 2 || banks.every(([l, r]) => r < viewport.x || l > viewport.x + viewport.w)) return;
+      ctx.save(); ctx.beginPath();
+      banks.forEach(([l, , y], i) => i ? ctx.lineTo(l, y) : ctx.moveTo(l, y));
+      for (let i = banks.length - 1; i >= 0; i--) ctx.lineTo(banks[i][1], banks[i][2]);
+      ctx.closePath(); ctx.clip();
+      const first = Math.min(...banks.map(b => b[0])), last = Math.max(...banks.map(b => b[1])), y0 = banks[0][2], y1 = banks[banks.length - 1][2];
+      const key = '_pat'; if (!sheet[key]) sheet[key] = ctx.createPattern(sheet, 'repeat');
+      const offset = (seconds / layer.period % 1) * sheet.height;
+      ctx.translate(0, offset); ctx.fillStyle = sheet[key]; ctx.fillRect(first, y0 - offset, last - first, y1 - y0); ctx.restore(); return; }
     const [width, height] = layer.size;
     const left = Math.max(0, Math.floor(viewport.x) - 8), right = Math.min(width, Math.ceil(viewport.x + viewport.w) + 8);
     const top = Math.max(0, Math.floor(viewport.y / 6) * 6), bottom = Math.min(height, viewport.y + viewport.h);
@@ -130,6 +142,7 @@
         const v = st(); if (v === 0) await say('', '一块灰白的岩石，石脚生着青苔。');
         else if (v === 1) { await say('', '找准阵眼，一击而下——血印寸寸崩散，巨石从中裂开，露出往下的石阶。'); put(2); } else await done(); } });
       for (const e of def.exits) if (e.to === PFX + F.exit) { const c0 = e.cond; e.cond = () => st() >= 2 && c0(); delete e.msg; } }
+    for (const [x, y, lines] of d.nt || []) def.npcs.push({ key: 'none', c: x / 64 - .5, r: y / 64 - .8, name: '', hidden: true, h: 150, talk: async () => { for (const l of lines) await say('', l); } });   // 可调查的地方（只有旁白）
     if (d.mobs) { const Z = d.z; def.mobs = Object.assign({}, d.mobs, { zone: (c, r) => { const x = (c + .5) * 16, y = (r + .8) * 16; return Z.some(([zx, zy, zr]) => Math.hypot(x - zx, y - zy) < zr); } }); }
     TMAPS[key] = def;
     if (d.meta && d.meta.zoom && typeof MAP_ZOOM === 'object' && !MAP_ZOOM[key]) MAP_ZOOM[key] = d.meta.zoom;   // 人物和地图比例

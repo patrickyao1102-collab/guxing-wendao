@@ -95,7 +95,7 @@ def build():
         B[max(0, int(y0 // cs)):max(0, int(y1 // cs)) + 1, max(0, int(x0 // cs)):max(0, int(x1 // cs)) + 1] = True
     B[:int(330 // cs)] = True                         # 北边崖顶以上不可走
     B[:, :2] = True; B[:, -2:] = True; B[-2:, :] = True
-    exits = [dict(to='yy_deep', label='返回秘境裂隙', rect=[650, 928, 140, 32], spawn=[720, 880], face='up', arrow=None),
+    exits = [dict(to='nw_stones', label='返回五色石山径', rect=[650, 928, 140, 32], spawn=[720, 880], face='down', arrow=None),
              dict(to='nw_passage', label='穿过水帘 · 瀑后归径', rect=[690, 530, 60, 30], spawn=[720, 640], face='down', arrow=None)]
     for e in exits:
         x, y, w, h = e['rect']; B[y // cs:(y + h) // cs + 1, x // cs:(x + w) // cs + 1] = False

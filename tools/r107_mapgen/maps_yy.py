@@ -116,7 +116,7 @@ def yy_deep():
     # 空地：魔虎撕斗处（中部）、秘境裂隙（西北）、死胡同里的宝箱
     t = N[(2, 2)]; M.blob(t[0], t[1], 260, 170, dirt=.55)
     r = N[(0, 0)]; M.blob(r[0], r[1], 230, 150, dirt=.4)
-    M.exit('nw_falls', '误入秘境 · 灵花天瀑', (int(r[0]) - 60, int(r[1]) - 120, 120, 70), (r[0], r[1] + 40), 'down')
+    M.exit('nw_creek', '误入秘境 · 绛荚分溪', (int(r[0]) - 60, int(r[1]) - 120, 120, 70), (r[0], r[1] + 40), 'right')
     dead = [k for k, d in M.mz_deg.items() if d == 1 and k not in ((0, 3), (4, 1), (0, 0), (2, 2))]
     for k in dead[:4]: M.blob(*N[k], 130, 95, dirt=.5)
     def ground(M):
