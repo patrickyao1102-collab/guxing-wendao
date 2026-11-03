@@ -51,11 +51,14 @@ def rle(s):
 
 P = lambda x, y: [round(x / 64 - .5, 2), round(y / 64 - .8, 2)]
 names = sorted(need)
-D = {}
+D = {}; ANIM = {}
 for m in maps:
     os.system(f"cp {OUT}/{m['id']}/ground.webp {DST}/g_{m['id']}.webp")
     first, runs = rle(m['blocked'])
-    objs = [[names.index(o['id']), round(o['x']), round(o['y']), round(o['w']), round(o['h']), round(o['sy']), (1 if o['flat'] else 0) | (2 if o['flip'] else 0)] for o in m['objs']]
+    objs = [[names.index(o['id']), round(o['x']), round(o['y']), round(o['w']), round(o['h']), round(o['sy']), (1 if o['flat'] else 0) | (2 if o['flip'] else 0) | (4 if 'anim' in o else 0)] + ([o['anim']] if 'anim' in o else []) for o in m['objs']]
+    if m.get('anim'):
+        ANIM.update(m['anim'])
+        for k, v in m['anim'].items(): os.system(f"cp {OUT}/{v['src']}.webp {DST}/{v['src']}.webp")
     exits = []
     for e in m['exits']:
         x, y, w, h = e['rect']; to = e['to']
@@ -69,6 +72,6 @@ for m in maps:
                      start=P(*m['exits'][0]['spawn']) if m['exits'] else None, ch=[[round(x / 64 - .5), round((y - 20) / 64 - 1)] for x, y in m['chests']],
                      z=[[z['x'], z['y'], z['r']] for z in m['zones']], mobs=m['mobs'], spots={k: list(v) for k, v in m['spots'].items()}, meta=m.get('meta') or {}, lights=m['lights'], wa=m.get('water') or [])
 js = open(os.path.dirname(__file__) + '/r107_tpl.js', encoding='utf-8').read()
-js = js.replace('__NAMES__', json.dumps(names)).replace('__ATLAS__', json.dumps(amap)).replace('__PAGES__', str(len(pages))).replace('__DATA__', json.dumps(D, ensure_ascii=False, separators=(',', ':'))).replace('__PFX__', PFX)
+js = js.replace('__NAMES__', json.dumps(names)).replace('__ATLAS__', json.dumps(amap)).replace('__PAGES__', str(len(pages))).replace('__DATA__', json.dumps(D, ensure_ascii=False, separators=(',', ':'))).replace('__PFX__', PFX).replace('__ANIM__', json.dumps(ANIM))
 open(GAME + '/r107_maps.js', 'w', encoding='utf-8').write(js)
 print('js', len(js) // 1024, 'KB', 'maps', len(D))

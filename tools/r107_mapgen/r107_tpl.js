@@ -7,11 +7,19 @@
 (function () {
   if (typeof TMAPS === 'undefined') return;
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
-  const BL = {"atlas_0": "49841b622ff1901d195a1bf20296c15a", "g_cy_council": "8681516d6b911d4a5862d8ef97d385d5", "g_cy_gate": "c52acf8f9317438ba31e1c67e530855e", "g_cy_guest_lin": "0f7151f69000646968dd04ac250e79f7", "g_cy_guest_ye": "e461a196ec19d7b89851694e3e7eff47", "g_cy_guest_yun": "55a3537fd8d3d0d17ee883e8dce84aea", "g_cy_manor": "d79384eb14cdfe08a8c173296a2e8b09", "g_cy_north": "6438f2370415dd70bd27a9bc37545f54", "g_cy_street": "d61e3799eccacb7654d3b31f0da185f3", "g_nw_court": "1f02dd1a4d392d484764a26b3db7121f", "g_nw_falls": "f2d0612a2c973254405f786ac6bc7ff8", "g_nw_inner": "bb4f25b5be2336d71d0af4b3a2ad51dc", "g_nw_path": "1c855ce897b0abb37a305cf384a49cea", "g_nw_spring": "4e3c669ca26a50ba017097dd50054e31", "g_nw_temple": "82e4ad44033603c3002d191d5e2800a8", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec"};   // 发布版 blob
+  const BL = {"w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "d7941225063b873c2e78d993e54ec114", "g_cy_council": "8681516d6b911d4a5862d8ef97d385d5", "g_cy_gate": "c52acf8f9317438ba31e1c67e530855e", "g_cy_guest_lin": "0f7151f69000646968dd04ac250e79f7", "g_cy_guest_ye": "e461a196ec19d7b89851694e3e7eff47", "g_cy_guest_yun": "55a3537fd8d3d0d17ee883e8dce84aea", "g_cy_manor": "d79384eb14cdfe08a8c173296a2e8b09", "g_cy_north": "6438f2370415dd70bd27a9bc37545f54", "g_cy_street": "d61e3799eccacb7654d3b31f0da185f3", "g_nw_court": "1f02dd1a4d392d484764a26b3db7121f", "g_nw_falls": "f2d0612a2c973254405f786ac6bc7ff8", "g_nw_inner": "bb4f25b5be2336d71d0af4b3a2ad51dc", "g_nw_path": "1c855ce897b0abb37a305cf384a49cea", "g_nw_spring": "4e3c669ca26a50ba017097dd50054e31", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec"};   // 发布版 blob
   const SRC = k => LOC || !BL[k] ? 'r107/' + k + '.webp' : '/_blob/' + BL[k];
   const NAMES = __NAMES__, ATLAS = __ATLAS__, PAGES = __PAGES__;
   const DATA = __DATA__;
   const PFX = '__PFX__';
+  // 会动的物件（女娲神殿的丝帷随风飘）：Codex 画的逐帧风动图集，按格播放
+  const ANIM = __ANIM__, ACV = [], ASH = {};
+  const animSheet = k => { const A = ANIM[k]; if (!ASH[A.src]) { const im = new Image(); im.src = SRC(A.src); ASH[A.src] = im; } return ASH[A.src]; };
+  setInterval(() => { const cur = typeof world !== 'undefined' && world.map && world.map.def && world.map.def.r107; if (!cur) return; const t = performance.now() / 1000;
+    for (const a of ACV) { if (a.mid !== cur) continue; const A = ANIM[a.id], sh = animSheet(a.id); if (!sh.complete || !sh.naturalWidth) continue;
+      let c = a.cv; if (!c) { c = a.cv = document.createElement('canvas'); c.width = A.fw; c.height = A.fh; }
+      const f = (Math.floor(t * A.fps) + a.ph) % A.count, g = c.getContext('2d'); g.clearRect(0, 0, A.fw, A.fh);
+      g.drawImage(sh, (f % A.cols) * A.fw, Math.floor(f / A.cols) * A.fh, A.fw, A.fh, 0, 0, A.fw, A.fh); IMG[a.key] = c; } }, 1000 / 12);
   // ---- 物件图集：用到时才载，载完切成单张 ----
   let atlasLoading = false;
   const loadAtlas = () => { if (atlasLoading) return; atlasLoading = true;
@@ -22,7 +30,9 @@
     const key = PFX + id; if (TMAPS[key]) continue;
     // 碰撞：游程编码还原成 '0'/'1' 字符串
     let s = '', v = d.b0; for (const n of d.b) { s += v.repeat(n); v = v === '1' ? '0' : '1'; }
-    const objs = d.o.map(([i, x, y, w, h, sy, f]) => ({ id: NAMES[i], img: 'r107_' + NAMES[i], x, y, w, h, sy, flat: !!(f & 1), flip: !!(f & 2) }));
+    const objs = d.o.map(([i, x, y, w, h, sy, f, ph]) => { const nm = NAMES[i]; let img = 'r107_' + nm;
+      if ((f & 4) && ANIM[nm]) { img = 'r107_anim_' + id + '_' + ACV.length; ACV.push({ key: img, id: nm, mid: id, ph: ph || 0 }); }
+      return { id: nm, img, x, y, w, h, sy, flat: !!(f & 1), flip: !!(f & 2) }; });
     const baked = { ground: 'r107g_' + id, w: d.w, h: d.h, cs: 16, cols: d.cols, rows: d.rows, blocked: s, objs };
     const def = { title: d.t, baked, r107: id, water: d.wa || [], indoor: !!(d.meta && d.meta.indoor), start: d.start, npcs: [], leaves: /^yy_|^nw_|cy_north/.test(id),
       chests: d.ch.map(([c, r], i) => ({ c, r, items: LOOT[i % LOOT.length] })),
