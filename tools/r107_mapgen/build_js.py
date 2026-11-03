@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from core import asset, GAME, OUT
 import common, maps_xx  # 注册额外素材
 import codexmap; codexmap.register_all()   # Codex 整图：女娲神殿、月湖灵泉、苍月城
+import veil   # 遮天灵瀑（照 Codex 概念图 01 拼）
 
 PFX = 'm_'          # 游戏里的地图 id 前缀（不和老地图撞名）
 DST = GAME + '/r107'; os.makedirs(DST, exist_ok=True)
