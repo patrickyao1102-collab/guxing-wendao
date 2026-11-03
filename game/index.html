@@ -4311,8 +4311,8 @@ function equipCards(L) {
 }
 function skillList(k) {
   const h = S.hero;
-  if (k === 'hero') return Object.entries(SKILL_DB).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: s.star, on: h.skills.includes(id), need: s.lv ? s.lv + ' 级（' + realmOf(s.lv) + '）领悟' : '剧情中领悟' }));
-  const out = Object.entries(ALLY_SKILLS).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: '天剑', on: !s.lv || h.lv >= s.lv, need: s.lv + ' 级领悟' }));
+  if (k === 'hero') return Object.entries(SKILL_DB).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: s.star, on: h.skills.includes(id), need: s.lv ? realmOf(s.lv) + '领悟' : '剧情中领悟' }));
+  const out = Object.entries(ALLY_SKILLS).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: '天剑', on: !s.lv || h.lv >= s.lv, need: realmOf(s.lv || 1) + '领悟' }));
   const u = PARTY_DB[k].ult === 'jiutian' ? ['九天神雷', '引九天雷霆劈落，攻击全体并可能麻痹'] : ['大雪纷飞', '漫天风雪冰封全体敌人'];
   out.push({ id: 'ult', name: u[0], cost: '怒气 100', desc: u[1], badge: '必杀', on: true }); return out;
 }
@@ -4836,7 +4836,7 @@ Object.assign(MOB_DB, {
 });
 makeEnemy = (orig => function (t, lv) { const e = orig(t, lv); if (MOB_DB[t] && MOB_DB[t].xie) e.xie = true; return e; })(makeEnemy);
 // 青霄剑：云霆攻击 +14
-allyStats = (orig => function (k) { const o = orig(k); if (k === 'yunting' && S.flags && S.flags.qingxiao) o.atk += 14; return o; })(allyStats);
+allyStats = (orig => function (k) { const o = orig(k); if (k === 'yunting' && S.flags && S.flags.qingxiao && !window.allyEqOf) o.atk += 14; return o; })(allyStats);   // 作者 11-03：青霄剑改成真物品（r101_allyeq.js），这里只在没有队友装备系统时兜底
 
 // ---------------- 小工具 ----------------
 const C3 = {
@@ -5814,7 +5814,7 @@ window.COMIC_TRIG = [
   let seal = null;
   window.breakSeal = function (cfg) {
     const n = cfg.n || 5, cost = cfg.cost || 0, h = S.hero;
-    if (cfg.lv && h.lv < cfg.lv) { toast('需要达到 ' + cfg.lv + ' 级才能破解这座锁灵阵'); return Promise.resolve(false); }
+    if (cfg.lv && h.lv < cfg.lv) { toast('需要达到' + realmOf(cfg.lv) + '才能破解这座锁灵阵'); return Promise.resolve(false); }
     if ((h.bag.yunxingshi || 0) < cost) { toast('破阵灵晶不够（需要 ' + cost + ' 颗）'); return Promise.resolve(false); }
     if (seal && seal.res) return seal.promise;   // 作者 11-03：锁灵阵经常卡住——已经在破阵中又被触发一次时，不再另起一局（旧的那局永远等不到结果）
     let pts = [];
@@ -10237,7 +10237,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ITEM_DB.k_xuanhun = { name: '玄魂丹', desc: '城主府宝库所赠。突破引魂境时服用，可稳固神魂。（剧情物品）', key: true };
     ITEM_DB.k_poxu = { name: '破空遁符', desc: '父亲临行前塞给你的保命符。激活后可撕开空间，瞬息遁走数百里。', key: true };
   }
-  if (typeof allyStats === 'function') allyStats = (orig => function (k) { const o = orig(k); const g = F().ly_gear; if (g) { if (k === 'yunting') o.atk += 16; if (k === 'linxue') { o.def += 12; o.maxhp += 120; } } return o; })(allyStats);
+  if (typeof allyStats === 'function') allyStats = (orig => function (k) { const o = orig(k); const g = F().ly_gear && !window.allyEqOf; if (g) { if (k === 'yunting') o.atk += 16; if (k === 'linxue') { o.def += 12; o.maxhp += 120; } } return o; })(allyStats);
 
   // ---------------- 美术：人物立绘 / 林沧走路 / 空床 / 摘过的药株 / 四兽动作 ----------------
   const CH = { lincang_walk: [0, 0, 640, 720], ly_lincang: [640, 0, 160, 240], ly_fang_tianheng: [800, 0, 160, 240], ly_fang_haoran: [960, 0, 160, 240], ly_black_elder: [1120, 0, 160, 240], bed_empty: [640, 480, 460, 256], fruit_empty: [1100, 480, 170, 170] };
@@ -16289,7 +16289,7 @@ window.MarketEffects = (() => {
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
 <script src="r97_walk8.js"></script>
-<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script>
+<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>

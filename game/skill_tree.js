@@ -94,10 +94,10 @@
     if (n.future) return { name: n.name, cost: n.cost, desc: n.desc, learned: false, why: '下次更新开放', max: 5, tier: 1 };
     const K4 = window.SK4, xd = K4 && K4.X[who] && K4.X[who][n.id];
     if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind !== 'gong';
-      return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (xd.lv + ' 级，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石）') : xd.lv + ' 级领悟', max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
+      return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (realmOf(xd.lv) + '，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石）') : realmOf(xd.lv) + '领悟', max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
     if (who === 'hero' && n.id === 'sun') { const sd = SKILL_DB.sun || {}; return { name: sd.name || n.name, cost: '灵力 ' + (sd.cost || 80), desc: sd.desc || n.desc, learned: !!(S.flags && S.flags.sun_unlocked), why: '解锁条件：无上境', max: 1, tier: 1 }; }
-    if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? src.lv + ' 级（' + realmOf(src.lv) + '）领悟' : '剧情中领悟'; }
-    else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = (src.lv || 0) + ' 级（' + realmOf(src.lv || 1) + '）领悟'; }
+    if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? realmOf(src.lv) + '领悟' : '剧情中领悟'; }
+    else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = realmOf(src.lv || 1) + '领悟'; }
     else { src = (ALLY2_SKILLS[who] || {})[n.id] || {}; learned = true; }
     const solo = TREE[who].solo, mx = solo ? 1 : MAXT(who, n.id);
     return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: mx, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
@@ -318,7 +318,7 @@
     y += 6; ctx.strokeStyle = 'rgba(232,194,122,.3)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22;
     const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || '#c9b48c'; ctx.fillText(lab, x, y); y += 22; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22; } y += 8; };
     if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', '#ff9a7a'); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], '#f5ead2');
-      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需 ' + I.book.lv + ' 级（现 ' + S.hero.lv + ' 级）', x, y); y += 24; } }
+      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', '#e9dcc0'); }
     else {
       const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], '#f5ead2');
@@ -344,7 +344,7 @@
     for (const R of G.roots) if (Math.hypot(tp.x - R.x, tp.y - R.y) < R.r + 14 || (Math.abs(tp.x - R.x) < 60 && tp.y > R.y + R.r && tp.y < R.y + R.r + 32)) { input.tapped = null; ACTIVE[G.who] = R.gongfa; selKey = 'root:' + G.who + ':' + R.gongfa; playSnd('ui_click'); return; }
     for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; selKey = key(G.who, o.n.id); playSnd('ui_click'); return; }
     if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
-      if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需 ' + cu.learn.lv + ' 级'); return; }
+      if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
         try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
       if (cu && cu.q) { input.tapped = null;
