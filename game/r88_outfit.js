@@ -7,11 +7,19 @@
       img: { b_yegx: src('b_yegx_baipao', 'aa08190ef1f8cecc1e006c85154ab9aa'), b_yegx_atk: src('b_yegx_baipao_atk', '0f4a3d35971dd952a41657262c302c65'), b_yegx_cast: src('b_yegx_baipao_cast', 'd9ebe54f3561a36ecb178040718ec6dc') },
       portrait: src('p_yegx_baipao', '306a503cff30fd19e874cb9b6375c6e4') },
     { id: 'orig', name: '原版劲装', desc: '最初的白蓝劲装', img: null, portrait: null },
-    // 11-03 Codex 按以前的立绘画的另外四套（目前只有地图行走造型，战斗建模和立绘沿用原版）
-    { id: 'heiyao', name: '白衣黑腰封', desc: '白衣配黑色腰封、蓝色衣缘', img: null, portrait: null, walkOnly: true },
-    { id: 'jiaoling', name: '蓝白交领', desc: '蓝白交领长衫、深蓝长裤', img: null, portrait: null, walkOnly: true },
-    { id: 'guxing', name: '孤星白衣', desc: '一身素白、金线滚边', img: null, portrait: null, walkOnly: true },
-    { id: 'tianjian', name: '天剑少主', desc: '米金长袍、黑金腰带', img: null, portrait: null, walkOnly: true },
+    // R88 另外四套（Codex 交付：战斗三姿势 + 全身立绘 + 对话表情；地图行走用 R92 五套换装八向里对应那套）
+    { id: 'heiyao', name: '白衣黑腰封', desc: '白衣配黑色腰封、蓝色衣缘',
+      img: { b_yegx: src('b_yegx_heiyao', 'f61e1deb2fa68f2aeb06014fec5c5106'), b_yegx_atk: src('b_yegx_heiyao_atk', 'a4e277939dd68442131ba95c9f10cf5a'), b_yegx_cast: src('b_yegx_heiyao_cast', '43febb4657e3755376d7fbab1d51efa0') },
+      portrait: src('p_yegx_heiyao', '6efbb8b9074282e7b84b3ef0821c627b') },
+    { id: 'jiaoling', name: '蓝白交领', desc: '蓝白交领长衫、深蓝长裤',
+      img: { b_yegx: src('b_yegx_jiaoling', '6db5b2cb70f850c2f91c14d40c4c3280'), b_yegx_atk: src('b_yegx_jiaoling_atk', 'db8988891fb200cea099de28958f12c1'), b_yegx_cast: src('b_yegx_jiaoling_cast', '4c45a7560e0fea9178d73bb3cb2e89a1') },
+      portrait: src('p_yegx_jiaoling', '82b06a546d22c73fc9d2446993d1ea1f') },
+    { id: 'guxing', name: '孤星白衣', desc: '一身素白、金线滚边',
+      img: { b_yegx: src('b_yegx_guxing', '76e277edac07023fa6832dd1e87b86ed'), b_yegx_atk: src('b_yegx_guxing_atk', 'e241d4eb932275ad80beefbc6252cc87'), b_yegx_cast: src('b_yegx_guxing_cast', '4b08acea606e63d9325fa4eac4df695c') },
+      portrait: src('p_yegx_guxing', '3e25319522296fca6e33d536203e7ac9') },
+    { id: 'tianjian', name: '天剑少主', desc: '米金长袍、黑金腰带',
+      img: { b_yegx: src('b_yegx_tianjian', '087576d969665841077a9cae28796bfe'), b_yegx_atk: src('b_yegx_tianjian_atk', '9927aa23dad2d2422934b33c93df012c'), b_yegx_cast: src('b_yegx_tianjian_cast', '0099a42a998ab9684ca6c0fe4edfdd5e') },
+      portrait: src('p_yegx_tianjian', 'f24e60bcbcec66d8b505bd030a27bd6a') },
   ];
   const ORIG = {}, LOADED = {};
   const load = (k, s) => new Promise(r => { if (LOADED[s]) return r(LOADED[s]); const im = new Image(); im.onload = () => { LOADED[s] = im; r(im); }; im.onerror = () => r(null); im.src = s; });

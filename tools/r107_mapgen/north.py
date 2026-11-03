@@ -113,6 +113,20 @@ def build():
         im = asset(nm)[0]
         objs.append(dict(id=nm, x=round(x - im.width / 2, 1), y=round(y - im.height, 1), w=im.width, h=im.height, sy=y, flat=False, flip=False))
         B[int((y - 18) // 16):int((y + 2) // 16) + 1, int((x - 14) // 16):int((x + 14) // 16) + 1] = True
+    # 笔直树扎根：树脚下压一片影子（往右下偏，左上来光），再围几丛草
+    G = Image.open(f'{OUT}/cy_north/ground.webp').convert('RGB'); A = np.asarray(G, np.float32)
+    yy, xx = np.mgrid[0:G.height, 0:G.width]
+    for nm, x, y in AVENUE:
+        x0, y0, x1, y1 = int(x - 120), int(y - 60), int(x + 140), int(y + 60)
+        sy_, sx_ = slice(max(0, y0), min(G.height, y1)), slice(max(0, x0), min(G.width, x1))
+        d = ((xx[sy_, sx_] - (x + 14)) / 74.0) ** 2 + ((yy[sy_, sx_] - (y + 4)) / 20.0) ** 2
+        A[sy_, sx_] *= (1 - .42 * np.exp(-d * 1.6))[..., None]
+        d2 = ((xx[sy_, sx_] - x) / 20.0) ** 2 + ((yy[sy_, sx_] - (y + 1)) / 7.0) ** 2   # 树根处一小团更深
+        A[sy_, sx_] *= (1 - .35 * np.exp(-d2 * 2))[..., None]
+        for dx, dy, gk, f in ((-34, 6, 'cyn_grass_clump_02', False), (30, 9, 'cyn_grass_clump_03', True), (-12, 14, 'cyn_grass_clump_03', False), (14, -2, 'cyn_grass_clump_02', True)):
+            im = asset(gk)[0]; w, h = im.width * .8, im.height * .8
+            objs.append(dict(id=gk, x=round(x + dx - w / 2, 1), y=round(y + dy - h, 1), w=round(w, 1), h=round(h, 1), sy=y + dy, flat=False, flip=f))
+    Image.fromarray(np.clip(A, 0, 255).astype(np.uint8)).save(f'{OUT}/cy_north/ground.webp', quality=86, method=6)
     J['objs'] = objs
     J['blocked'] = ''.join('1' if v else '0' for v in B.flatten())
     J['extra'] = ['cyn_fm_1', 'cyn_fm_2', 'cyn_fm_glow'] + [f'cyn_wl{i}' for i in range(4)]

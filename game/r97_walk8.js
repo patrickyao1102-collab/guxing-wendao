@@ -5,7 +5,8 @@
 (function () {
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
   // 11-03 Codex 又给五套换装各画了一套八向行走：跟着「换装」走，原版劲装用最早那套
-  const SHEETS = { orig: ['yegx_walk8', '5a332df968af88119ab41a77711c40e7'], baipao: ['yegx_w5_baipao', '73e66572017cf3af45d6e8dfef453f0c'], heiyao: ['yegx_w5_heiyao', 'dd079c113bc2776825f96148be355185'],
+  const SHEETS = { orig: ['yegx_walk8', '5a332df968af88119ab41a77711c40e7'], baipao: ['yegx_walk8', '5a332df968af88119ab41a77711c40e7'],   // 作者 11-04：默认还是最初那套行走，新画的不要替换
+    heiyao: ['yegx_w5_heiyao', 'dd079c113bc2776825f96148be355185'],
     jiaoling: ['yegx_w5_jiaoling', '2cdfe941cf6d1ff0475e81f67a528807'], guxing: ['yegx_w5_guxing', '0b44fe1458b78416549740d708403c97'], tianjian: ['yegx_w5_tianjian', '0a1e05eb218f471964f1e0a1480f30c2'] };
   const PICS = {};
   const pic = k => { if (!PICS[k]) { const m = new Image(); m.ok = false; m.onload = () => { m.ok = true; }; m.src = LOC ? 'walk8/' + SHEETS[k][0] + '.webp' : '/_blob/' + SHEETS[k][1]; PICS[k] = m; } return PICS[k]; };
