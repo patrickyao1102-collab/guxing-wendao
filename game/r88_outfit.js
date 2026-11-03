@@ -7,6 +7,11 @@
       img: { b_yegx: src('b_yegx_baipao', 'aa08190ef1f8cecc1e006c85154ab9aa'), b_yegx_atk: src('b_yegx_baipao_atk', '0f4a3d35971dd952a41657262c302c65'), b_yegx_cast: src('b_yegx_baipao_cast', 'd9ebe54f3561a36ecb178040718ec6dc') },
       portrait: src('p_yegx_baipao', '306a503cff30fd19e874cb9b6375c6e4') },
     { id: 'orig', name: '原版劲装', desc: '最初的白蓝劲装', img: null, portrait: null },
+    // 11-03 Codex 按以前的立绘画的另外四套（目前只有地图行走造型，战斗建模和立绘沿用原版）
+    { id: 'heiyao', name: '白衣黑腰封', desc: '白衣配黑色腰封、蓝色衣缘', img: null, portrait: null, walkOnly: true },
+    { id: 'jiaoling', name: '蓝白交领', desc: '蓝白交领长衫、深蓝长裤', img: null, portrait: null, walkOnly: true },
+    { id: 'guxing', name: '孤星白衣', desc: '一身素白、金线滚边', img: null, portrait: null, walkOnly: true },
+    { id: 'tianjian', name: '天剑少主', desc: '米金长袍、黑金腰带', img: null, portrait: null, walkOnly: true },
   ];
   const ORIG = {}, LOADED = {};
   const load = (k, s) => new Promise(r => { if (LOADED[s]) return r(LOADED[s]); const im = new Image(); im.onload = () => { LOADED[s] = im; r(im); }; im.onerror = () => r(null); im.src = s; });
@@ -38,28 +43,33 @@
   menuLayout = (orig => function () { const L = orig(); if (MTABS.length > 9) L.tabs = MTABS.map((t, i) => ({ x: MB.x + 26, y: MB.y + 104 + i * 55, w: 132, h: 48 })); return L; })(menuLayout);
   const isTab = () => S.menu && MTABS[S.menu.tab] === '换装';
   const thumb = {}; for (const o of OUTFITS) if (o.img) load('t', o.img.b_yegx).then(im => { thumb[o.id] = im; });
-  function lay(B) { const gw = 150, gh = 190, gx = B.x + 14, gy = B.y + 56;
-    const cells = OUTFITS.map((o, i) => ({ o, x: gx + (i % 2) * (gw + 10), y: gy + Math.floor(i / 2) * (gh + 10), w: gw, h: gh }));
-    const D = { x: gx + 2 * (gw + 10) + 8, y: B.y + 12, w: B.x + B.w - (gx + 2 * (gw + 10) + 8) - 12, h: B.h - 24 };
+  const WT = {};
+  function walkThumb(id) { if (WT[id]) return WT[id]; const W5 = window.WALK5; if (!W5) return null; const m = W5.pic(id); if (!m.ok) return null;
+    const c = document.createElement('canvas'); c.width = 224; c.height = 240; c.getContext('2d').drawImage(m, 8 * 224, 0, 224, 240, 0, 0, 224, 240);
+    const g = c.getContext('2d').getImageData(0, 0, 224, 240).data; let y0 = 0; for (let y = 0; y < 240 && !y0; y++) for (let x = 0; x < 224; x++) if (g[(y * 224 + x) * 4 + 3] > 40) { y0 = y; break; }
+    const t = document.createElement('canvas'); t.width = 140; t.height = 236 - y0; t.getContext('2d').drawImage(c, 42, y0, 140, 236 - y0, 0, 0, 140, 236 - y0); return (WT[id] = t); }
+  function lay(B) { const gw = 104, gh = 150, gx = B.x + 14, gy = B.y + 56;
+    const cells = OUTFITS.map((o, i) => ({ o, x: gx + (i % 3) * (gw + 8), y: gy + Math.floor(i / 3) * (gh + 10), w: gw, h: gh }));
+    const D = { x: gx + 3 * (gw + 8) + 8, y: B.y + 12, w: B.x + B.w - (gx + 3 * (gw + 8) + 8) - 12, h: B.h - 24 };
     return { cells, D, btn: { x: D.x + D.w - 250, y: D.y + D.h - 74, w: 220, h: 58 } }; }
   function drawOutfits(B) { const m0 = S.menu; if (!m0.of || !OUTFITS.some(o => o.id === m0.of)) m0.of = cur;
     const { cells, D, btn } = lay(B), sel = OUTFITS.find(o => o.id === m0.of), t = performance.now() / 1000;
     ctx.save(); ctx.textBaseline = 'middle';
     ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'left'; ctx.fillStyle = UI.title || UI.gold2; ctx.fillText('换 装', B.x + 18, B.y + 28);
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('叶孤星 · ' + OUTFITS.length + ' 套', B.x + 104, B.y + 30);
-    for (const c of cells) { const on = m0.of === c.o.id, im = c.o.img ? thumb[c.o.id] : ORIG.b_yegx;
+    for (const c of cells) { const on = m0.of === c.o.id, im = c.o.img ? thumb[c.o.id] : (c.o.walkOnly ? walkThumb(c.o.id) : ORIG.b_yegx);
       roundRect(c.x, c.y, c.w, c.h, 12); ctx.fillStyle = on ? 'rgba(142,42,28,.32)' : UI.slot; ctx.fill(); ctx.lineWidth = on ? 2.5 : 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
       if (im) { ctx.save(); roundRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4, 10); ctx.clip(); const k = Math.min((c.h - 30) / im.height, (c.w - 8) / im.width), w = im.width * k, h = im.height * k; ctx.drawImage(im, c.x + c.w / 2 - w / 2, c.y + c.h - 28 - h, w, h); ctx.restore(); }
-      ctx.font = `600 15px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = UI.text; ctx.fillText(c.o.name, c.x + c.w / 2, c.y + c.h - 13);
+      ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = UI.text; ctx.fillText(c.o.name, c.x + c.w / 2, c.y + c.h - 13);
       if (cur === c.o.id) { ctx.font = `600 12px ${FONT}`; roundRect(c.x + 6, c.y + 6, 50, 20, 10); ctx.fillStyle = 'rgba(142,42,28,.9)'; ctx.fill(); ctx.fillStyle = '#fff2cc'; ctx.fillText('穿着中', c.x + 31, c.y + 16); } }
     lacquer(D.x, D.y, D.w, D.h, { r: 14, thin: true, top: UI.cTop, bot: UI.cBot });
-    const big = sel.portrait ? LOADED[sel.portrait] : (IMG.p_yegx || ORIG.b_yegx);
+    const big = sel.portrait ? LOADED[sel.portrait] : sel.walkOnly ? walkThumb(sel.id) : (IMG.p_yegx || ORIG.b_yegx);
     if (big) { const maxH = D.h - 40, k = Math.min(maxH / big.height, (D.w * .55) / big.width), w = big.width * k, h = big.height * k, bob = Math.sin(t * 1.8) * 3;
       ctx.drawImage(big, D.x + D.w - 30 - w, D.y + 20 + maxH - h + bob, w, h); }
     let y = D.y + 60; ctx.textAlign = 'left';
     ctx.font = `40px ${BRUSH}`; ctx.fillStyle = UI.title || UI.gold2; ctx.fillText(sel.name, D.x + 30, y); y += 46;
     ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(sel.desc, D.x + 30, y); y += 30;
-    ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.id === 'paper' ? '#7a4a1c' : UI.gold; ctx.fillText('战斗建模与立绘一起更换', D.x + 30, y);
+    ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.id === 'paper' ? '#7a4a1c' : UI.gold; ctx.fillText(sel.walkOnly ? '地图上的行走造型更换（战斗建模、立绘暂用原版）' : '战斗建模、立绘、地图行走一起更换', D.x + 30, y);
     const bb = { x: D.x + 30, y: D.y + D.h - 84, w: 220, h: 58 }; sealText(cur === sel.id ? '穿着中' : '换上', bb.x, bb.y, bb.w, bb.h, cur !== sel.id);
     ctx.restore(); }
   drawQuest = (orig => function (B) { if (isTab()) return drawOutfits(B); return orig.apply(this, arguments); })(drawQuest);

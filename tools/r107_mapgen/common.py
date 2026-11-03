@@ -165,3 +165,15 @@ WILDFLOWERS = ['plant_daisy_white', 'plant_daisy_yellow', 'plant_dandelion', 'pl
 DRYGRASS = ['plant_foxtail', 'plant_thatch', 'plant_reed']
 LEAFPILES = ['plant_leaves_red', 'plant_leaves_gold', 'plant_leaves_brown']
 SPOTS9 = ['decal_leaf_litter', 'decal_straw', 'decal_earth', 'decal_grit', 'decal_lichen', 'decal_white_flowers', 'decal_yellow_flowers', 'decal_purple_flowers']
+
+def place_pond(M, name, cx, cy, sc=1.0, rim=22):
+    """用青阳镇那种画好的池塘整块贴上（水和石岸是一张图），按图的不透明区域定不可走。cx,cy = 池塘中心。"""
+    im = asset(name)[0]; w, h = im.width * sc, im.height * sc
+    o = M.place(name, cx, cy + h / 2, sc, flip=False, foot=False, shadow=False, collide=False); o['bake'] = True; o['flat'] = True
+    a = im.getchannel('A').resize((max(1, int(w)), max(1, int(h)))).point(lambda v: 255 if v > 128 else 0)
+    x0, y0 = int(cx - w / 2), int(cy - h / 2)
+    blk = a.filter(ImageFilter.MinFilter(max(3, int(rim) | 1)))
+    M.nowalk.paste(255, (x0, y0), blk)
+    M.noplant.paste(255, (x0, y0), a.filter(ImageFilter.MaxFilter(41)))
+    M.water_rects = getattr(M, 'water_rects', []) + [[x0, y0, int(w), int(h)]]
+    return (x0, y0, int(w), int(h))

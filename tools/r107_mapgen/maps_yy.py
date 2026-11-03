@@ -130,8 +130,8 @@ def yy_deep():
     M.spots['tiger'] = (t[0], t[1] + 20)
     # 秘境裂隙：灵晶、发光灵植——空间在这里有点不对劲
     M.place('crystal', r[0] - 130, r[1] + 10, 1.0); M.place('crystal', r[0] + 140, r[1] - 20, .8, flip=True)
-    M.place('spirit_crystal_tree', r[0] + 40, r[1] - 110, .9)
-    for dx, dy, nm in [(-60, 70, 'spirit_star_grass'), (90, 60, 'detail_spirit_violet_cluster'), (-160, -60, 'detail_flowers_blue'), (170, 60, 'spirit_star_grass')]: M.decal(nm, r[0] + dx, r[1] + dy)
+    M.place('tree_plum_white_a', r[0] + 40, r[1] - 110, .95)
+    for dx, dy, nm in [(-60, 70, 'detail_flowers_blue'), (90, 60, 'plant_iris'), (-160, -60, 'detail_flowers_blue'), (170, 60, 'plant_verbena')]: M.decal(nm, r[0] + dx, r[1] + dy)
     M.spots['rift'] = (r[0], r[1] + 50)
     M.lights.append(dict(x=r[0], y=r[1] - 30, r=260, c='120,170,255'))
     M.chests = [N[k] for k in dead[:4]]

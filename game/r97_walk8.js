@@ -4,7 +4,14 @@
 // 默认开；测试面板「叶孤星 · 新八向行走」可关掉换回原来的走路图。只换叶孤星，云霆、林雪不变。
 (function () {
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
-  const im = new Image(); let ok = false; im.onload = () => { ok = true; }; im.src = LOC ? 'walk8/yegx_walk8.webp' : '/_blob/5a332df968af88119ab41a77711c40e7';
+  // 11-03 Codex 又给五套换装各画了一套八向行走：跟着「换装」走，原版劲装用最早那套
+  const SHEETS = { orig: ['yegx_walk8', '5a332df968af88119ab41a77711c40e7'], baipao: ['yegx_w5_baipao', '73e66572017cf3af45d6e8dfef453f0c'], heiyao: ['yegx_w5_heiyao', 'dd079c113bc2776825f96148be355185'],
+    jiaoling: ['yegx_w5_jiaoling', '2cdfe941cf6d1ff0475e81f67a528807'], guxing: ['yegx_w5_guxing', 'a49d2fea9cb239f71087352f6b65da10'], tianjian: ['yegx_w5_tianjian', '8b15ee8ab6fb3ebf0ea47d685a1e160b'] };
+  const PICS = {};
+  const pic = k => { if (!PICS[k]) { const m = new Image(); m.ok = false; m.onload = () => { m.ok = true; }; m.src = LOC ? 'walk8/' + SHEETS[k][0] + '.webp' : '/_blob/' + SHEETS[k][1]; PICS[k] = m; } return PICS[k]; };
+  const im0 = pic('orig'); let ok = false; im0.addEventListener('load', () => { ok = true; });
+  const curIm = () => { const id = window.YEGX_OUTFIT ? YEGX_OUTFIT.get() : 'orig'; const m = SHEETS[id] ? pic(id) : im0; return m.ok ? m : im0; };
+  window.WALK5 = { sheets: SHEETS, pic };
   let on = true, hits = 0; try { on = localStorage.getItem('walk8') !== '0'; } catch (e) {}
   const ROW = { down: [0, 0], down_left: [1, 0], left: [2, 0], up_left: [3, 0], up: [4, 0], right: [2, 1], down_right: [1, 1], up_right: [3, 1] };
   const FRAME_MS = 160;
@@ -16,7 +23,7 @@
     const f = moving ? Math.floor((now - t0) / FRAME_MS) % 8 : 8;
     const sc = 0.44 * height / 95;
     c.save(); c.translate(x, y); if (r[1]) c.scale(-1, 1); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
-    c.drawImage(im, f * 224, r[0] * 240, 224, 240, -112 * sc, -232 * sc, 224 * sc, 240 * sc); c.restore(); hits++;
+    c.drawImage(curIm(), f * 224, r[0] * 240, 224, 240, -112 * sc, -232 * sc, 224 * sc, 240 * sc); c.restore(); hits++;
     return { frame: f };
   }
   const wrap = () => { if (typeof WalkLab === 'undefined' || !WalkLab.draw) return setTimeout(wrap, 300);
@@ -43,7 +50,7 @@
   (function addMenu(n) {
     if (typeof drawQuest !== 'function' || typeof menuUpdate !== 'function' || typeof MTABS === 'undefined' || !MTABS.includes('换装')) { if ((n || 0) < 60) setTimeout(() => addMenu((n || 0) + 1), 500); return; }
     const isTab = () => S.menu && MTABS[S.menu.tab] === '换装';
-    const G = B => { const y = B.y + 268; return { y, a: { x: B.x + 14, y: y + 26, w: 150, h: 52 }, b: { x: B.x + 174, y: y + 26, w: 150, h: 52 } }; };
+    const G = B => { const y = B.y + 384; return { y, a: { x: B.x + 14, y: y + 26, w: 150, h: 52 }, b: { x: B.x + 174, y: y + 26, w: 150, h: 52 } }; };
     drawQuest = (orig => function (B) { const r = orig.apply(this, arguments); if (!isTab()) return r;
       const g = G(B); ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText('行走动作', B.x + 18, g.y + 8);
       for (const [rc, lab, sel] of [[g.a, '新版八向', on], [g.b, '原版行走', !on]]) {

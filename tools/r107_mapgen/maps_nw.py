@@ -3,24 +3,24 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from common import *
 from maps_yy import forest_dress
-from common import patch9, walkdist, tex9
+from common import patch9, walkdist, tex9, place_pond
 
-SPIRIT_TREES = ['tree_magnolia', 'tree_cherry', 'tree_ginkgo', 'tree_camphor_ancient', 'tree_osmanthus', 'spirit_bellvine', 'tree_cypress_ancient', 'tree_albizia', 'pine_lush',
+SPIRIT_TREES = ['tree_magnolia', 'tree_cherry', 'tree_camphor_ancient', 'tree_cypress_ancient', 'pine_lush',
                 'tree_ginkgo_a', 'tree_maple_red_a', 'tree_maple_amber_a', 'tree_plum_white_a', 'tree_plum_red_a', 'tree_wisteria_a', 'tree_osmanthus_a', 'tree_pine_a']
-SPIRIT_W = [4, 3, 2, 3, 2, 2, 3, 2, 3, 4, 3, 3, 3, 2, 2, 3, 4]
-SPIRIT_FLORA = ['spirit_lantern_bloom', 'spirit_ribbon_orchid', 'spirit_fan_shroom', 'spirit_fern_arch', 'spirit_coral_shrub', 'detail_spirit_floating_bud', 'detail_spirit_seed_pod', 'detail_spirit_frost_fruit', 'detail_spirit_amber_reeds']
-SPIRIT_SMALL = ['spirit_star_grass', 'detail_spirit_violet_cluster', 'detail_flowers_blue', 'detail_flowers_gold', 'detail_orchid_white', 'detail_sacred_fern', 'detail_fern_fan', 'flowers1', 'flowers3', 'grass3',
-               'plant_daisy_white', 'plant_daisy_yellow', 'plant_iris', 'plant_verbena', 'plant_dandelion', 'decal_white_flowers', 'decal_yellow_flowers', 'decal_purple_flowers']
+SPIRIT_W = [3, 3, 3, 3, 3, 4, 3, 3, 3, 2, 2, 3, 4]
+SPIRIT_FLORA = ['plant_iris', 'plant_shrub_red', 'plant_shrub_gold', 'detail_orchid_white', 'flowerbed_s', 'plant_reed', 'mossrock', 'shrub_big']
+SPIRIT_SMALL = ['detail_flowers_blue', 'detail_flowers_gold', 'detail_orchid_white', 'detail_fern_fan', 'flowers1', 'flowers3', 'grass3',
+               'plant_daisy_white', 'plant_daisy_yellow', 'plant_iris', 'plant_verbena', 'plant_dandelion']
 
 def spirit_dress(M, flora_n=26, small_div=7000, trees=SPIRIT_TREES, tw=SPIRIT_W, spacing=128):
     M.freeze()
     M.forest(trees, spacing=spacing, margin=30, weights=tw, scale=(.85, 1.1))
     M.forest(['tree_plum', 'pine_lush', 'scholar', 'pine', 'tree_plum_white_a', 'tree_maple_amber_a', 'tree_pine_a'], spacing=200, margin=26, scale=(.55, .7), maxcover=.22)
-    M.forest(['shrub_big', 'detail_sacred_fern', 'detail_fern_fan', 'spirit_coral_shrub', 'mossrock', 'plant_shrub_red', 'plant_shrub_gold'], spacing=72, margin=14, scale=(.9, 1.25), maxcover=.6)
+    M.forest(['shrub_big', 'detail_fern_fan', 'fern', 'mossrock', 'plant_shrub_red', 'plant_shrub_gold'], spacing=72, margin=14, scale=(.9, 1.25), maxcover=.6)
     # 路边灵植（大一点的有碰撞）
     M.scatter(SPIRIT_FLORA, flora_n, lambda x, y: 10 <= M.dw(x, y) <= 60, decal=False, sc=(.8, 1.05))
     M.scatter(SPIRIT_SMALL, int(M.w * M.h / small_div), lambda x, y: 4 <= M.dw(x, y) <= 80, sc=(.75, 1.1))
-    M.scatter(['detail_fern_fan', 'shrub', 'spirit_star_grass', 'detail_ivy_mound'], int(M.w * M.h / 15000), lambda x, y: M.dw(x, y) > 60, sc=(.8, 1.2))
+    M.scatter(['detail_fern_fan', 'shrub', 'grass3', 'detail_ivy_mound'], int(M.w * M.h / 15000), lambda x, y: M.dw(x, y) > 60, sc=(.8, 1.2))
 
 def lush_ground(M, bright=1.02):
     g = meadow(M, bright, 1.02, (.97, 1.02, 1.0))
@@ -36,38 +36,28 @@ def lush_ground(M, bright=1.02):
 def nw_falls():
     M = Map('nw_falls', '秘境 · 遮天天瀑', 3072, 2304, 'closed', seed=31)
     M.path([(1400, 2330), (1380, 2050), (1300, 1800)], 220)
-    M.blob(1350, 1420, 820, 330, dirt=0, wob=.1)                    # 湖南岸的大片花甸
-    M.path([(1300, 1800), (1250, 1500), (1500, 1300), (1900, 1250), (2250, 1150)], 190)
-    M.path([(2250, 1150), (2520, 980), (2620, 700), (2500, 420), (2420, 180), (2400, -40)], 180)
+    M.blob(1400, 1460, 760, 260, dirt=0, wob=.08)                     # 湖南岸的花甸
+    M.path([(1300, 1800), (1300, 1560), (1700, 1480), (2250, 1400), (2500, 1150)], 190)
+    M.path([(2500, 1150), (2600, 800), (2500, 420), (2420, 180), (2400, -40)], 180)
     M.blob(2560, 760, 200, 140, dirt=.3)
-    M.path([(700, 1500), (420, 1350), (360, 1050)], 150); M.blob(360, 1010, 160, 120, dirt=.35)
+    M.path([(700, 1520), (420, 1350), (360, 1050)], 150); M.blob(360, 1010, 160, 120, dirt=.35)
     M.path([(1380, 2050), (1900, 1980), (2350, 1900), (2650, 1760)], 150); M.blob(2680, 1730, 170, 120, dirt=.35)
     M.exit('yy_deep', '返回秘境裂隙', (1320, 2240, 170, 64), (1390, 2140), 'up')
     M.exit('nw_path', '穿过天瀑', (2320, 0, 170, 60), (2400, 120), 'down')
     far = lush_ground(M)
-    # 湖：天瀑落进来，东边流出一条灵溪
-    wm = Image.new('L', (M.w, M.h), 0); d = ImageDraw.Draw(wm)
-    d.ellipse((880, 560, 2080, 1150), fill=255)
-    for x, y in M.spline([(2000, 900), (2200, 1100), (2350, 1250), (2700, 1350), (3120, 1330)]): d.ellipse((x - 60, y - 45, x + 60, y + 45), fill=255)
-    wm = wm.filter(ImageFilter.GaussianBlur(14)).point(lambda v: 255 if v > 128 else 0)
-    ImageDraw.Draw(M.walk)  # noqa
-    paint_water(M, wm, spirit=True)
-    bx, by = 2290, 1190
-    M.place('wonder_root_bridge', bx, by + 60, .95, flip=False, foot=False, shadow=False)
-    ImageDraw.Draw(M.nowalk).rectangle((bx - 110, by - 80, bx + 110, by + 80), fill=0)
-    M.place('nw_falls', 1480, 700, 1.6, flip=False, foot=(-330, -180, 330, 0))
-    M.place('cliff_high', 1000, 600, 1.0, flip=False); M.place('cliff_high', 1960, 610, 1.0, flip=True)
-    M.place('cliff', 760, 700, 1.0, flip=False); M.place('crag', 2200, 640, .8, flip=True)
-    shore(M, wm, ('rock1', 'rock2', 'rock3', 'reeds', 'detail_spirit_amber_reeds', 'fern', 'plant_iris', 'plant_reed', 'plant_iris', 'rock_river_pebbles'), 52)
-    for x, y in [(1150, 1000), (1750, 1050), (1300, 900), (1900, 950)]: M.place('spirit_lotus_giant', x, y, .55, foot=False, shadow=False)
-    M.place('wonder_leaf_arch', 820, 1330, 1.05, flip=False, foot=(-200, -30, -120, 4))
-    M.spots.update(leaf=(820, 1420), flowers=(1500, 1560), falls=(1480, 1230))
-    for a in range(6): M.place('spirit_lantern_bloom' if a % 2 else 'spirit_ribbon_orchid', 1500 + math.cos(a) * 110, 1500 + math.sin(a) * 50, .8)
-    M.lights += [dict(x=1500, y=1490, r=200, c='170,220,255'), dict(x=1480, y=800, r=340, c='140,210,255')]
+    # 湖：青阳镇那种画好的石岸大池塘，后面崖壁上落下瀑布
+    place_pond(M, 'pond_big', 1480, 900, 1.3)
+    M.place('cliff_high', 1060, 520, 1.0, flip=False); M.place('cliff_high', 1900, 520, 1.0, flip=True)
+    M.place('cliff', 820, 640, 1.0, flip=False); M.place('crag', 2140, 620, .8, flip=True)
+    M.place('waterfall', 1480, 640, 1.35, flip=False, foot=False)
+    M.rect(800, 300, 1400, 330, nowalk=True)
+    for x, y in [(860, 1010), (2090, 980), (1000, 1180), (1960, 1170)]: M.place(M.rng.choice(['plant_iris', 'plant_reed', 'reeds']), x, y, 1.0)
+    M.spots.update(leaf=(820, 1480), flowers=(1500, 1500), falls=(1480, 1320))
+    M.lights += [dict(x=1480, y=760, r=300, c='170,220,255')]
     M.chests = [(360, 990), (2680, 1710)]
     spirit_dress(M, flora_n=14, small_div=11000, spacing=150)
-    M.meta = dict(grade='rgba(40,70,90,.05)')
-    finish(M, far, [(1500, 1560), (820, 1420), (2290, 1190), (2560, 800)])
+    M.meta = dict(grade='rgba(40,70,90,.04)')
+    finish(M, far, [(1500, 1500), (820, 1480), (2250, 1400), (2560, 800)])
 
 # ======================= 秘境 · 回环神像古道 =======================
 POSES = ['nw_bless', 'nw_farewell', 'nw_grief', 'nw_guard', 'nw_listen', 'nw_mend', 'nw_moon', 'nw_mourn', 'nw_return', 'nw_seal', 'nw_shelter', 'nw_shrine', 'nw_stars', 'nw_teach', 'nw_vow', 'nw_wind']
@@ -219,31 +209,27 @@ def nw_inner():
 # ======================= 女娲庙后 · 无尘灵泉 =======================
 def nw_spring():
     M = Map('nw_spring', '女娲庙后 · 无尘灵泉', 2560, 1920, 'closed', seed=81)
-    M.path([(380, 1960), (420, 1700), (640, 1500), (900, 1380)], 170)          # 兰径
-    M.path([(900, 1380), (1250, 1330), (1600, 1380), (1950, 1300), (2180, 1050), (2150, 760)], 170)   # 沿岸 → 东岸
-    M.blob(1250, 1330, 260, 120, dirt=.35)    # 望莲石
+    M.path([(380, 1960), (420, 1700), (640, 1500), (900, 1440)], 170)          # 兰径
+    M.path([(900, 1440), (1300, 1420), (1700, 1430), (2000, 1320), (2180, 1050), (2150, 760)], 170)   # 沿岸 → 东岸
+    M.blob(1300, 1420, 260, 110, dirt=.35)    # 望泉石
     M.blob(2140, 720, 220, 160, dirt=.35)     # 观星树
     M.path([(2140, 720), (2300, 500), (2380, 300)], 150); M.blob(2380, 270, 150, 110, dirt=.3)
     M.exit('nw_temple', '返回小庙', (300, 1856, 170, 64), (400, 1760), 'up')
     M.exit('yy_deep', '秘境送返幽影林', (2320, 210, 120, 60), (2380, 330), 'down')
     far = lush_ground(M, 1.0)
-    wm = Image.new('L', (M.w, M.h), 0); d = ImageDraw.Draw(wm)
-    d.ellipse((780, 520, 1900, 1220), fill=255); d.ellipse((1500, 450, 1950, 900), fill=255)
-    wm = wm.filter(ImageFilter.GaussianBlur(30)).point(lambda v: 255 if v > 128 else 0)
-    paint_water(M, wm, deep=(40, 104, 118), shallow=(110, 178, 170), spirit=True)
     M.freeze()
-    M.place('waterfall', 1240, 560, 1.0, flip=False)
-    M.place('cliff_high', 960, 520, .9, flip=False); M.place('cliff_high', 1540, 500, .9, flip=True)
-    M.place('wonder_lotus_crown', 1500, 760, .8, flip=False, foot=False)      # 远岸托起的白莲（在水里）
-    for x, y in [(1100, 1000), (1350, 1100), (1700, 950), (1000, 800)]: M.place('spirit_lotus_giant', x, y, .6, foot=False, shadow=False)
-    M.place('rock_single', 1250, 1250, .8, flip=False)                         # 望莲石
-    M.place('wonder_star_tree', 2140, 640, .95, flip=False, foot=(-40, -20, 40, 6))
-    shore(M, wm, ('rock1', 'rock2', 'reeds', 'detail_spirit_amber_reeds', 'detail_orchid_white', 'fern', 'plant_iris', 'plant_iris', 'plant_reed', 'rock_river_pebbles'), 60)
+    place_pond(M, 'pond_big', 1300, 920, 1.2)
+    M.place('cliff_high', 960, 520, .9, flip=False); M.place('cliff_high', 1620, 500, .9, flip=True)
+    M.place('waterfall', 1300, 690, 1.15, flip=False, foot=False)
+    M.rect(760, 300, 1100, 380, nowalk=True)
+    M.place('rock_limestone', 1300, 1330, .55, flip=False)                     # 望泉石
+    M.place('tree_pine_b', 2140, 640, .95, flip=False)
+    for x, y in [(760, 1000), (1840, 980), (900, 1180), (1720, 1170), (820, 850), (1800, 820)]: M.place(M.rng.choice(['plant_iris', 'plant_reed', 'detail_orchid_white']), x, y, 1.0)
     for i in range(14):                                                        # 兰径两旁的白兰
-        t = i / 14; x = 420 + (900 - 420) * t + M.rng.uniform(-30, 30); y = 1700 - (1700 - 1380) * t
+        t = i / 14; x = 420 + (900 - 420) * t + M.rng.uniform(-30, 30); y = 1700 - (1700 - 1440) * t
         M.place('detail_orchid_white', x + M.rng.choice([-110, 110]), y + M.rng.uniform(-20, 20), M.rng.uniform(.8, 1.0), foot=False)
-    M.spots.update(orchid=(640, 1520), lotus=(1250, 1380), star=(2140, 780))
-    M.lights += [dict(x=1500, y=700, r=260, c='200,235,255'), dict(x=2140, y=520, r=220, c='160,200,255'), dict(x=2380, y=260, r=160, c='150,190,255')]
-    spirit_dress(M, trees=['bamboo_tall', 'bamboo_sun', 'bamboo_soft', 'bamboo_tall15', 'bamboo_dense', 'tree_magnolia', 'tree_cherry', 'pine_lush', 'tree_plum_white_a', 'tree_wisteria_a', 'tree_willow_a', 'tree_maple_amber_a'], tw=[6, 5, 4, 4, 4, 2, 2, 2, 3, 2, 2, 2], spacing=118)
-    M.meta = dict(grade='rgba(40,70,90,.05)')
-    finish(M, far, [(1250, 1380), (640, 1520), (2140, 800), (2380, 330)])
+    M.spots.update(orchid=(640, 1520), lotus=(1300, 1460), star=(2140, 780))
+    M.lights += [dict(x=1300, y=760, r=260, c='200,235,255')]
+    spirit_dress(M, trees=['bamboo_tall', 'bamboo_sun', 'bamboo_soft', 'bamboo_tall15', 'bamboo_dense', 'tree_plum_white_a', 'tree_wisteria_a', 'tree_willow_a', 'tree_maple_amber_a', 'pine_lush'], tw=[6, 5, 4, 4, 4, 3, 2, 2, 2, 2], spacing=118)
+    M.meta = dict(grade='rgba(40,70,90,.04)')
+    finish(M, far, [(1300, 1460), (640, 1520), (2140, 800), (2380, 330)])
