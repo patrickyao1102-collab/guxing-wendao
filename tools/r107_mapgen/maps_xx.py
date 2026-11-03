@@ -50,7 +50,7 @@ def xx_b1():
     M.spots.update(deep=(1150, 420), cell=(640, 1130))
     M.chests = [(1600, 1250)]
     M.zones = [dict(x=700, y=1300, r=200), dict(x=1200, y=850, r=220), dict(x=1450, y=650, r=180)]
-    M.mobs = dict(n=4, types=['xiexiu', 'corpse', 'ghost'], bg='bg_cellar', lv=3)
+    M.mobs = dict(n=4, types=['xiexiu', 'corpse'], bg='bg_cellar', lv=3)
     M.meta = dict(grade='rgba(20,10,30,.18)', indoor=True)
     finish(M, None, [(1000, 1700), (640, 1150), (1150, 420)])
 

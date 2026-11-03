@@ -3,7 +3,7 @@ import json, os, glob, math, sys
 from PIL import Image
 sys.path.insert(0, os.path.dirname(__file__))
 from core import asset, GAME, OUT
-import common, maps_xx  # 注册额外素材
+import common, maps_xx, maze_b1  # 注册额外素材（maze_b1：地下一层大迷宫）
 import codexmap; codexmap.register_all()   # Codex 整图：女娲神殿、月湖灵泉、苍月城
 import veil   # 遮天灵瀑（照 Codex 概念图 01 拼）
 import rooms_cy   # 城主府四厢（拆正堂构件拼）
@@ -57,7 +57,7 @@ P = lambda x, y: [round(x / 64 - .5, 2), round(y / 64 - .8, 2)]
 names = sorted(need)
 D = {}; ANIM = {}
 # Codex 按叶孤星 120px 画的整图：游戏里人物约 96px，整张图缩到 0.8 倍，人物和房子、台阶、树的比例才对（青阳镇不动）
-Z120 = {'nw_creek', 'nw_glade', 'nw_stones', 'nw_falls', 'nw_passage', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_manor', 'cy_council', 'cy_study', 'cy_bedroom', 'cy_kitchen', 'cy_guest', 'cy_north'}
+Z120 = {'xx_b1', 'nw_creek', 'nw_glade', 'nw_stones', 'nw_falls', 'nw_passage', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_manor', 'cy_council', 'cy_study', 'cy_bedroom', 'cy_kitchen', 'cy_guest', 'cy_north'}
 for m in maps:
     os.system(f"cp {OUT}/{m['id']}/ground.webp {DST}/g_{m['id']}.webp")
     first, runs = rle(m['blocked'])
