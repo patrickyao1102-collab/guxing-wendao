@@ -7,11 +7,73 @@
 (function () {
   if (typeof TMAPS === 'undefined') return;
   const LOC = window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:';
-  const BL = {"w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "d7941225063b873c2e78d993e54ec114", "g_cy_council": "8681516d6b911d4a5862d8ef97d385d5", "g_cy_gate": "c52acf8f9317438ba31e1c67e530855e", "g_cy_guest_lin": "0f7151f69000646968dd04ac250e79f7", "g_cy_guest_ye": "e461a196ec19d7b89851694e3e7eff47", "g_cy_guest_yun": "55a3537fd8d3d0d17ee883e8dce84aea", "g_cy_manor": "d79384eb14cdfe08a8c173296a2e8b09", "g_cy_north": "6438f2370415dd70bd27a9bc37545f54", "g_cy_street": "d61e3799eccacb7654d3b31f0da185f3", "g_nw_court": "1f02dd1a4d392d484764a26b3db7121f", "g_nw_falls": "f2d0612a2c973254405f786ac6bc7ff8", "g_nw_inner": "bb4f25b5be2336d71d0af4b3a2ad51dc", "g_nw_path": "1c855ce897b0abb37a305cf384a49cea", "g_nw_spring": "4e3c669ca26a50ba017097dd50054e31", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec"};   // 发布版 blob
+  const BL = {"lk_nw_spring": "ff733fddd2a32bc8b2ba5e580d312a37", "w_moon_crane": "35478d97994c1f64a4774e111147f761", "w_moon_deer": "eb4f0a239486ce49c2f63680701887c6", "w_moon_sparrow": "fc7e03384ff291e1370a2f21499b95a7", "w_loom_silk": "6ce607fc26ba8619d31c8e99e170cde8", "atlas_0": "419668fef21282084d93e463fc124620", "g_cy_council": "8681516d6b911d4a5862d8ef97d385d5", "g_cy_gate": "6e45126aed82009b9d446405c635d212", "g_cy_guest_lin": "0f7151f69000646968dd04ac250e79f7", "g_cy_guest_ye": "e461a196ec19d7b89851694e3e7eff47", "g_cy_guest_yun": "55a3537fd8d3d0d17ee883e8dce84aea", "g_cy_manor": "d79384eb14cdfe08a8c173296a2e8b09", "g_cy_north": "4ea43d76e4ca3482c6e1e12ad9fa2b4f", "g_cy_street": "d61e3799eccacb7654d3b31f0da185f3", "g_nw_court": "1f02dd1a4d392d484764a26b3db7121f", "g_nw_falls": "f2d0612a2c973254405f786ac6bc7ff8", "g_nw_inner": "bb4f25b5be2336d71d0af4b3a2ad51dc", "g_nw_path": "1c855ce897b0abb37a305cf384a49cea", "g_nw_spring": "d91e4e902d4619fc08f54185599cf694", "g_nw_temple": "511aa5e189f77b879cef64c1e9637b2a", "g_xx_b1": "a71f0cba585ba6617b1616870d69db0e", "g_xx_b2": "303a8130ea00aa528257f5acdf8dc843", "g_yy_deep": "9767ef76ed45c7232ef50b7d17d5a322", "g_yy_edge": "e75898842f196cf88f3a82ff15585eec"};   // 发布版 blob
   const SRC = k => LOC || !BL[k] ? 'r107/' + k + '.webp' : '/_blob/' + BL[k];
   const NAMES = __NAMES__, ATLAS = __ATLAS__, PAGES = __PAGES__;
   const DATA = __DATA__;
   const PFX = '__PFX__';
+  // ---- 月湖水面（照搬 Codex lake-surface.mjs：同一张倒影图按行轻微错位成波纹 + 接触涟漪 + 泉眼气泡和游鱼；石瀑只有中间水流在动）----
+  function drawLakeSurface(ctx, layer, sheet, seconds, viewport) {
+    if (!sheet) return;
+    const [width, height] = layer.size;
+    const left = Math.max(0, Math.floor(viewport.x) - 8), right = Math.min(width, Math.ceil(viewport.x + viewport.w) + 8);
+    const top = Math.max(0, Math.floor(viewport.y / 6) * 6), bottom = Math.min(height, viewport.y + viewport.h);
+    if (right <= left || bottom <= top) return;
+    const t = seconds * 2 * Math.PI / layer.period;
+    const yShift = y => 2.8 * Math.sin(y * .082 - t) + 1.9 * Math.sin(y * .034 + t);
+    for (let y = top; y < bottom; y += 6) {
+      const h = Math.min(6, height - y), sy = Math.max(0, y + yShift(y));
+      const end = Math.min(height, y + h + yShift(y + h)), dx = 3.1 * Math.sin(y * .065 - t) + 1.65 * Math.sin(y * .023 + t * 2);
+      if (end > sy) ctx.drawImage(sheet, left, sy, right - left, end - sy, left + dx, y, right - left, h);
+    }
+    ctx.save(); ctx.lineCap = 'round';
+    for (const { x, y, r, phase } of layer.contacts) {
+      if (x + r < left || x - r > right || y + 12 < top || y - 20 > bottom) continue;
+      for (let i = 0; i < 2; i++) {
+        const p = (seconds / layer.period * 2 + phase + i * .5) % 1;
+        const radius = r * (.56 + .55 * p), opacity = .36 * Math.sin(Math.PI * p) ** 1.15;
+        ctx.strokeStyle = 'rgba(220,242,225,' + opacity + ')'; ctx.lineWidth = 1.6 - p * .65;
+        ctx.beginPath(); ctx.ellipse(x, y, radius, radius * .17, 0, .08, 2.9); ctx.stroke();
+        ctx.strokeStyle = 'rgba(49,109,111,' + opacity * .72 + ')';
+        ctx.beginPath(); ctx.ellipse(x, y + 1.9, radius * .96, radius * .17, 0, .52, 2.65); ctx.stroke();
+      }
+    }
+    ctx.restore();
+    for (const s of layer.springs || []) if (s.x + s.r >= left && s.x - s.r <= right && s.y + 80 >= top && s.y - 80 <= bottom) springWater(ctx, s, seconds, layer.period);
+  }
+  function springWater(ctx, s, seconds, period) {
+    const t = seconds / period, tau = 2 * Math.PI;
+    ctx.save(); ctx.translate(s.x, s.y);
+    for (let j = 0; j < 4; j++) {
+      const u = (t + s.phase + j * .25) % 1, r = s.r * (.08 + .98 * u);
+      ctx.strokeStyle = 'rgba(211,250,231,' + (.46 * Math.sin(Math.PI * u) * (1 - .4 * u)) + ')'; ctx.lineWidth = 2.2 - u;
+      for (let k = 0; k < 3; k++) { const a = k * 2.13 + .25 * Math.sin(s.x + k + t * tau); ctx.beginPath(); ctx.ellipse(3 * Math.sin(s.y + j), 0, r, r * .32, .04, a, a + .8 + .24 * Math.cos(j + k)); ctx.stroke(); }
+    }
+    for (let j = 0; j < 15; j++) {
+      const p = (t * 2 + j * .618 + s.phase) % 1, x = Math.sin(j * 29.3) * s.r * .3 + 2 * Math.sin(p * tau + j), y = Math.cos(j * 8.8) * 8 - p * 15;
+      ctx.globalAlpha = Math.sin(Math.PI * p) * .7; ctx.strokeStyle = '#e4fff1'; ctx.fillStyle = '#beeadd'; ctx.lineWidth = .9;
+      ctx.beginPath(); ctx.arc(x, y, 1.1 + 2.1 * p, 0, tau); ctx.stroke(); ctx.fillRect(x - 1, y - 1, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    for (let j = 0; j < 3; j++) {
+      const a = t * tau + j * .48 + s.phase * 9, rx = s.r * (.66 + j * .14), ry = rx * .32, px = rx * Math.cos(a), py = ry * Math.sin(a) + 37;
+      ctx.save(); ctx.translate(px, py); ctx.rotate(Math.atan2(ry * Math.cos(a), -rx * Math.sin(a))); ctx.globalAlpha = .64;
+      const bend = 2.5 * Math.sin(t * tau * 5 + j); ctx.fillStyle = '#285954'; ctx.beginPath(); ctx.moveTo(8, 0); ctx.bezierCurveTo(5, -3.8, -2, -3.6, -7, bend * .55); ctx.lineTo(-12, bend - 2); ctx.lineTo(-11, bend + 2); ctx.lineTo(-6, bend * .55 + 1); ctx.quadraticCurveTo(3, 4, 8, 0); ctx.fill();
+      ctx.strokeStyle = '#b3bf88'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(4, -1); ctx.quadraticCurveTo(0, -2, -4, bend * .4); ctx.stroke(); ctx.restore();
+    }
+    ctx.restore();
+  }
+  // im：石瀑整图；在 (0,0)-(W,H) 坐标里画（调用方先 translate/scale 到物件框）
+  function springCascadeLocal(ctx, im, t) {
+    const W = im.width, H = im.height; ctx.save(); ctx.beginPath(); ctx.moveTo(.44 * W, .16 * H); ctx.lineTo(.58 * W, .16 * H); ctx.lineTo(.63 * W, .68 * H); ctx.lineTo(.39 * W, .68 * H); ctx.closePath(); ctx.clip();
+    for (let yy = Math.floor(H * .15); yy < H * .70; yy += 3) {
+      const shift = z => 1.7 * Math.sin(z * .12 - t * 2 * Math.PI / 1.4) + .8 * Math.sin(z * .22 - t * 2 * Math.PI / .8);
+      const sy = yy + shift(yy); ctx.drawImage(im, .36 * W, sy, .31 * W, 3 + shift(yy + 3) - shift(yy), .36 * W, yy, .31 * W, 3);
+    }
+    ctx.restore();
+  }
+  const CAS = [], LKS = {};
+  const lakeSheet = L => { if (!LKS[L.src]) { const im = new Image(); im.src = SRC(L.src); LKS[L.src] = im; } const m = LKS[L.src]; return m.complete && m.naturalWidth ? m : null; };
   // 会动的物件（女娲神殿的丝帷随风飘）：Codex 画的逐帧风动图集，按格播放
   const ANIM = __ANIM__, ACV = [], ASH = {};
   const animSheet = k => { const A = ANIM[k]; if (!ASH[A.src]) { const im = new Image(); im.src = SRC(A.src); ASH[A.src] = im; } return ASH[A.src]; };
@@ -20,6 +82,10 @@
       let c = a.cv; if (!c) { c = a.cv = document.createElement('canvas'); c.width = A.fw; c.height = A.fh; }
       const f = (Math.floor(t * A.fps) + a.ph) % A.count, g = c.getContext('2d'); g.clearRect(0, 0, A.fw, A.fh);
       g.drawImage(sh, (f % A.cols) * A.fw, Math.floor(f / A.cols) * A.fh, A.fw, A.fh, 0, 0, A.fw, A.fh); IMG[a.key] = c; } }, 1000 / 12);
+  setInterval(() => { const cur = typeof world !== 'undefined' && world.map && world.map.def && world.map.def.r107; if (!cur) return; const t = performance.now() / 1000;
+    for (const k of CAS) { if (k.mid !== cur) continue; const base = IMG[k.base]; if (!base || !base.width) continue;
+      let c = k.cv; if (!c) { c = k.cv = document.createElement('canvas'); c.width = base.width; c.height = base.height; }
+      const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); g.drawImage(base, 0, 0); springCascadeLocal(g, base, t); IMG[k.key] = c; } }, 1000 / 24);
   // ---- 物件图集：用到时才载，载完切成单张 ----
   let atlasLoading = false;
   const loadAtlas = () => { if (atlasLoading) return; atlasLoading = true;
@@ -32,6 +98,7 @@
     let s = '', v = d.b0; for (const n of d.b) { s += v.repeat(n); v = v === '1' ? '0' : '1'; }
     const objs = d.o.map(([i, x, y, w, h, sy, f, ph]) => { const nm = NAMES[i]; let img = 'r107_' + nm;
       if ((f & 4) && ANIM[nm]) { img = 'r107_anim_' + id + '_' + ACV.length; ACV.push({ key: img, id: nm, mid: id, ph: ph || 0 }); }
+      else if (d.cas && /_cascade$/.test(nm)) { img = 'r107_cas_' + id + '_' + CAS.length; CAS.push({ key: img, base: 'r107_' + nm, mid: id }); IMG[img] = IMG['r107_' + nm]; }
       return { id: nm, img, x, y, w, h, sy, flat: !!(f & 1), flip: !!(f & 2) }; });
     const baked = { ground: 'r107g_' + id, w: d.w, h: d.h, cs: 16, cols: d.cols, rows: d.rows, blocked: s, objs };
     const def = { title: d.t, baked, r107: id, water: d.wa || [], indoor: !!(d.meta && d.meta.indoor), start: d.start, npcs: [], leaves: /^yy_|^nw_|cy_north/.test(id),
@@ -42,6 +109,10 @@
   }
   // 进图时载地面和图集
   tileSetMap = (o => function (name) { const d = TMAPS[name]; if (d && d.r107) { loadAtlas(); loadGround(d.r107); } return o.apply(this, arguments); })(tileSetMap);
+  if (typeof tileAmbientLow === 'function') tileAmbientLow = (o => function (T, cam, now) {
+    const r = o.apply(this, arguments); const d = world.map && world.map.def; if (!d || !d.r107) return r; const D = DATA[d.r107];
+    if (D && D.lake) { const sh = lakeSheet(D.lake); const z = (typeof VZ === 'function' ? VZ() : 1) || 1; if (sh) drawLakeSurface(ctx, D.lake, sh, performance.now() / 1000, { x: cam.x, y: cam.y, w: W / z, h: H / z }); }
+    return r; })(tileAmbientLow);
   // 每张图自己的色调（幽影林偏暗偏青）和灵光
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now) {
     const r = o.apply(this, arguments); const d = world.map && world.map.def; if (!d || !d.r107) return r; const D = DATA[d.r107];

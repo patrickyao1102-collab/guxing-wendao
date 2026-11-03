@@ -191,7 +191,10 @@ def cy_manor():
 def cy_council():
     M = Map('cy_council', '苍月城主府 · 议事正堂', 1536, 1152, 'open', seed=121)
     room(M, 'wall_steward', 'wood')
-    M.exit('cy_manor', '返回府院', (700, 1100, 136, 52), (768, 1010), 'up')
+    M.exit('cy_gate', '踏法阵 · 回到府门外', (700, 1100, 136, 52), (768, 1010), 'up')
+    M.exit('cy_guest_ye', '西厢 · 叶孤星客舍', (30, 760, 40, 120), (110, 820), 'right')
+    M.exit('cy_guest_yun', '东厢 · 云霆客舍', (1466, 700, 40, 110), (1420, 760), 'left')
+    M.exit('cy_guest_lin', '东厢 · 林雪客舍', (1466, 900, 40, 110), (1420, 960), 'left')
     cx = 768
     M.place('manor_rug', cx, 800, 1.1, flip=False)
     M.place('silk_screen', cx, 470, 1.0, flip=False)
@@ -212,7 +215,7 @@ def cy_council():
 def guest(id, title, wall, seed, extra):
     M = Map(id, title, 1024, 832, 'open', seed=seed)
     room(M, wall, 'wood')
-    M.exit('cy_manor', '返回客院', (446, 784, 132, 48), (512, 710), 'up')
+    M.exit('cy_council', '返回议事正堂', (446, 784, 132, 48), (512, 710), 'up')
     extra(M)
     M.meta = dict(indoor=True)
     finish(M, None, [(512, 600), (512, 740)])
@@ -249,7 +252,7 @@ def cy_north():
     M.blob(1420, 800, 420, 220, dirt=.45)                       # 山坡下的空地（阵门）
     M.path([(1250, 1700), (900, 1600), (600, 1350), (520, 1050)], 150); M.blob(500, 1010, 170, 110, dirt=.5)
     M.path([(1300, 1350), (1700, 1300), (2100, 1450), (2350, 1700)], 150); M.blob(2380, 1740, 180, 120, dirt=.5)
-    M.exit('cy_street', '返回苍月城', (1320, 2240, 170, 64), (1400, 2140), 'up')
+    M.exit('cy_gate', '返回苍月城', (1320, 2240, 170, 64), (1400, 2140), 'up')
     M.exit('xx_b1', '进入山坡下密道', (1360, 600, 120, 56), (1420, 740), 'down')
     g = grade(meadow(M), .82, .55, (1.08, 1.0, .82))
     nd = fbm(M.w, M.h, 320, 4, seed=M.seed + 77)

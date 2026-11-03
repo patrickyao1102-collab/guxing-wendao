@@ -3,13 +3,13 @@ import json, os, glob, math, sys
 from PIL import Image
 sys.path.insert(0, os.path.dirname(__file__))
 from core import asset, GAME, OUT
-import common, maps_xx, maps_loom  # 注册额外素材
-import json as _j; maps_loom._register(_j.load(open(maps_loom.LOOM + 'map.json')))
+import common, maps_xx  # 注册额外素材
+import codexmap; codexmap.register_all()   # Codex 整图：女娲神殿、月湖灵泉、苍月城
 
 PFX = 'm_'          # 游戏里的地图 id 前缀（不和老地图撞名）
 DST = GAME + '/r107'; os.makedirs(DST, exist_ok=True)
 maps = []
-order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_path', 'nw_court', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_street', 'cy_manor', 'cy_council', 'cy_guest_ye', 'cy_guest_yun', 'cy_guest_lin', 'cy_north', 'xx_b1', 'xx_b2']
+order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_path', 'nw_court', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_council', 'cy_guest_ye', 'cy_guest_yun', 'cy_guest_lin', 'cy_north', 'xx_b1', 'xx_b2']
 for mid in order:
     f = f'{OUT}/{mid}/map.json'
     if os.path.exists(f): maps.append(json.load(open(f)))
@@ -59,6 +59,7 @@ for m in maps:
     if m.get('anim'):
         ANIM.update(m['anim'])
         for k, v in m['anim'].items(): os.system(f"cp {OUT}/{v['src']}.webp {DST}/{v['src']}.webp")
+    if m.get('lake'): os.system(f"cp {OUT}/{m['lake']['src']}.webp {DST}/{m['lake']['src']}.webp")
     exits = []
     for e in m['exits']:
         x, y, w, h = e['rect']; to = e['to']
@@ -70,7 +71,7 @@ for m in maps:
         exits.append(dict(x=int(x // 16), y=int(y // 16), w=max(1, math.ceil(w / 16)), h=max(1, math.ceil(h / 16)), to=(PFX + to) if to in ids else to, at=at, face=e['face'], label=e['label']))
     D[m['id']] = dict(t=m['title'], w=m['w'], h=m['h'], cols=m['cols'], rows=m['rows'], b0=first, b=runs, o=objs, ex=exits,
                      start=P(*m['exits'][0]['spawn']) if m['exits'] else None, ch=[[round(x / 64 - .5), round((y - 20) / 64 - 1)] for x, y in m['chests']],
-                     z=[[z['x'], z['y'], z['r']] for z in m['zones']], mobs=m['mobs'], spots={k: list(v) for k, v in m['spots'].items()}, meta=m.get('meta') or {}, lights=m['lights'], wa=m.get('water') or [])
+                     z=[[z['x'], z['y'], z['r']] for z in m['zones']], mobs=m['mobs'], spots={k: list(v) for k, v in m['spots'].items()}, meta=m.get('meta') or {}, lights=m['lights'], wa=m.get('water') or [], lake=m.get('lake'), cas=bool(m.get('cascade')))
 js = open(os.path.dirname(__file__) + '/r107_tpl.js', encoding='utf-8').read()
 js = js.replace('__NAMES__', json.dumps(names)).replace('__ATLAS__', json.dumps(amap)).replace('__PAGES__', str(len(pages))).replace('__DATA__', json.dumps(D, ensure_ascii=False, separators=(',', ':'))).replace('__PFX__', PFX).replace('__ANIM__', json.dumps(ANIM))
 open(GAME + '/r107_maps.js', 'w', encoding='utf-8').write(js)
