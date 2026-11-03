@@ -1,5 +1,5 @@
 import sys, importlib
-mods = ['maps_yy', 'maps_nw', 'maps_cy', 'maps_xx']
+mods = ['maps_yy', 'maps_nw', 'maps_cy', 'maps_xx', 'maps_loom']
 for f in sys.argv[1:]:
     for m in mods:
         try: M = importlib.import_module(m)

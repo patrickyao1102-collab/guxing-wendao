@@ -3,12 +3,13 @@ import json, os, glob, math, sys
 from PIL import Image
 sys.path.insert(0, os.path.dirname(__file__))
 from core import asset, GAME, OUT
-import common, maps_xx  # 注册额外素材
+import common, maps_xx, maps_loom  # 注册额外素材
+import json as _j; maps_loom._register(_j.load(open(maps_loom.LOOM + 'map.json')))
 
 PFX = 'm_'          # 游戏里的地图 id 前缀（不和老地图撞名）
 DST = GAME + '/r107'; os.makedirs(DST, exist_ok=True)
 maps = []
-order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_path', 'nw_court', 'nw_temple', 'nw_inner', 'nw_spring', 'cy_gate', 'cy_street', 'cy_manor', 'cy_council', 'cy_guest_ye', 'cy_guest_yun', 'cy_guest_lin', 'cy_north', 'xx_b1', 'xx_b2']
+order = ['yy_edge', 'yy_deep', 'nw_falls', 'nw_path', 'nw_court', 'nw_temple', 'nw_spring', 'cy_gate', 'cy_street', 'cy_manor', 'cy_council', 'cy_guest_ye', 'cy_guest_yun', 'cy_guest_lin', 'cy_north', 'xx_b1', 'xx_b2']
 for mid in order:
     f = f'{OUT}/{mid}/map.json'
     if os.path.exists(f): maps.append(json.load(open(f)))

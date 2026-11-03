@@ -117,7 +117,7 @@ def asset(name):
     elif r['src'] == 'r61': im = Image.open(R61 + r['key'] + '.png').convert('RGBA')
     else: im = Image.open(r['key']).convert('RGBA')
     bb = im.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
-    if bb: im = im.crop(bb)
+    if bb and not r.get('notrim'): im = im.crop(bb)
     if r['h']:
         s = r['h'] / im.height; im = im.resize((max(1, round(im.width * s)), max(1, round(im.height * s))), Image.LANCZOS)
     if r.get('tint'): im = tint_img(im, r['tint'])
