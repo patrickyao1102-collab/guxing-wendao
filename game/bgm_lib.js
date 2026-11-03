@@ -1675,10 +1675,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:dianxing",
 "file": "lib29/n3_hero__dianxing.mp4",
-"blob": "054a6065cb194810fa2d892535e5f56c",
+"blob": "7881959600397b01cf5f43c0cc11e2ef",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.23
+"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
+"dur": 2.14
 },
 "lib_n3_hero__duopo": {
 "no": "癸A02",
@@ -1687,10 +1687,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:duopo",
 "file": "lib29/n3_hero__duopo.mp4",
-"blob": "add058764aa985ae5d9c804282457f45",
+"blob": "e971f97c3cfb8b980c4f061cae97e757",
 "vol": 1,
 "desc": "即梦配音·清朗少年风 · “贪狼剑意，夺魄！”（11-01 重录）",
-"dur": 2.10
+"dur": 1.7
 },
 "lib_n3_hero__huti": {
 "no": "癸A03",
@@ -1699,10 +1699,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:huti",
 "file": "lib29/n3_hero__huti.mp4",
-"blob": "12c916b7c71fdc65df8b92f91f6f77c7",
+"blob": "462e9af9ecd3cf0ea290284de66cc8b4",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “护体！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 0.67
+"desc": "即梦配音·清朗少年风 · “护体！”（11-03 重录·尾字完整）",
+"dur": 0.84
 },
 "lib_n3_hero__jueying": {
 "no": "癸A04",
@@ -1711,10 +1711,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:jueying",
 "file": "lib29/n3_hero__jueying.mp4",
-"blob": "0364f650ad21c4ad7557ae926191d773",
+"blob": "c5331b235b0b0942e48db8ac07900545",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，绝影！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.50
+"desc": "即梦配音·清朗少年风 · “贪狼剑意，绝影！”（11-03 重录·尾字完整）",
+"dur": 2.37
 },
 "lib_n3_hero__juling": {
 "no": "癸A05",
@@ -1723,9 +1723,9 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:juling",
 "file": "lib29/n3_hero__juling.mp4",
-"blob": "1d7bff0d259cb4a272509f2354d92188",
+"blob": "08e0623c1f29838fa96e2f28485e33f0",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “聚灵！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
+"desc": "即梦配音·清朗少年风 · “聚灵！”（11-03 重录·尾字完整）",
 "dur": 0.77
 },
 "lib_n3_hero__ningshen": {
@@ -1735,10 +1735,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:ningshen",
 "file": "lib29/n3_hero__ningshen.mp4",
-"blob": "d90a9e06fffa9869e101a1a43aaf3f8d",
+"blob": "dfb3fb71828f4f712bd495e8d1be820e",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “凝神！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 0.72
+"desc": "即梦配音·清朗少年风 · “凝神！”（11-03 重录·尾字完整）",
+"dur": 0.88
 },
 "lib_n3_hero__pojun": {
 "no": "癸A07",
@@ -1747,10 +1747,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:pojun",
 "file": "lib29/n3_hero__pojun.mp4",
-"blob": "3589eaebf3588ac7bc9d3124eccf7188",
+"blob": "a0fe91ceb7b49a14bd2192d5cd419317",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天璇！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.23
+"desc": "即梦配音·清朗少年风 · “破军剑意，天璇！”（11-03 重录·尾字完整）",
+"dur": 1.88
 },
 "lib_n3_hero__sun": {
 "no": "癸A08",
@@ -1759,10 +1759,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:sun",
 "file": "lib29/n3_hero__sun.mp4",
-"blob": "c01c0713b369fe5e478c652da419edd1",
+"blob": "b14be3bac36e86cf3b8fcc705b676a2c",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，太阳！（大招·热血激昂）”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.15
+"desc": "即梦配音·清朗少年风 · “破军剑阵，太阳！（大招·热血激昂）”（11-03 重录·尾字完整）",
+"dur": 2.21
 },
 "lib_n3_hero__tanlang": {
 "no": "癸A09",
@@ -1771,10 +1771,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tanlang",
 "file": "lib29/n3_hero__tanlang.mp4",
-"blob": "0d38bfea7c3149fa1794e0e99f2aed8c",
+"blob": "e42427cd8fa5f9fe2a4cc9c735766182",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “贪狼剑意，追魂！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.76
+"desc": "即梦配音·清朗少年风 · “贪狼剑意，追魂！”（11-03 重录·尾字完整）",
+"dur": 1.83
 },
 "lib_n3_hero__tianshu": {
 "no": "癸A10",
@@ -1783,10 +1783,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tianshu",
 "file": "lib29/n3_hero__tianshu.mp4",
-"blob": "e092d81cf6cc4f292c6a0725fc551fb3",
+"blob": "c9651332c3f43d9b14a79f9ab9017a6d",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，天枢！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.23
+"desc": "即梦配音·清朗少年风 · “破军剑意，天枢！”（11-03 重录·尾字完整）",
+"dur": 1.76
 },
 "lib_n3_hero__xingluo": {
 "no": "癸A11",
@@ -1795,10 +1795,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingluo",
 "file": "lib29/n3_hero__xingluo.mp4",
-"blob": "70a056a58bd532065a2c0962db8a0b2f",
+"blob": "2d68fb1536fd63aab3df232c0441ed77",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑阵，起！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.10
+"desc": "即梦配音·清朗少年风 · “破军剑阵，起！”（11-03 重录·尾字完整）",
+"dur": 1.32
 },
 "lib_n3_hero__xingluo2": {
 "no": "癸A12",
@@ -1819,10 +1819,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingyun",
 "file": "lib29/n3_hero__xingyun.mp4",
-"blob": "0543b305a9488bb83b5df28aa90c6a59",
+"blob": "774fa0410d028fc83a9bf871fee1a91c",
 "vol": 1,
-"desc": "即梦配音·清朗少年风 · “破军剑意，星陨！”（11-03 下午重录·照「星落」的语气，更有力；断句：前半句蓄力、停半拍、后半句喝出）",
-"dur": 2.48
+"desc": "即梦配音·清朗少年风 · “破军剑意，星陨！”（11-03 重录·尾字完整）",
+"dur": 1.97
 },
 "lib_n3_hero__xl_wushang": {
 "no": "癸A14",

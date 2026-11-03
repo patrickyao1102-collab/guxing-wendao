@@ -6133,8 +6133,10 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   // 测灵碑光柱：地图会滚动，换成世界坐标
   steleScene = async function (color, label, height) {
     const st = world.stele; const o = { t: 0 }; S.overlay.push(o);
-    const sx = () => st.x - (world.map && world.map.tile && world.cam ? world.cam.x : 0), sy = () => st.y - (world.map && world.map.tile && world.cam ? world.cam.y : 0);
-    o.draw = () => { const k = Math.min(1, o.t / 1600) * height, X = sx(), Y = sy(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const top = Y - st.h * k; const gr = ctx.createLinearGradient(0, Y, 0, top); gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(255,255,255,.9)'); ctx.fillStyle = gr; ctx.globalAlpha = .55; ctx.fillRect(X - 14, top, 28, Y - top); ctx.globalAlpha = .2; ctx.fillRect(X - 40, top, 80, Y - top); ctx.restore(); };
+    // 作者 11-03：广场缩放（MAP_ZOOM .8）后光柱偏到右边 → 世界坐标转屏幕要乘缩放
+    const Z = () => (world.map && world.map.tile ? VZ() : 1);
+    const sx = () => (st.x - (world.map && world.map.tile && world.cam ? world.cam.x : 0)) * Z(), sy = () => (st.y - (world.map && world.map.tile && world.cam ? world.cam.y : 0)) * Z();
+    o.draw = () => { const k = Math.min(1, o.t / 1600) * height, X = sx(), Y = sy(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const z = Z(), top = Y - st.h * k * z; const gr = ctx.createLinearGradient(0, Y, 0, top); gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(255,255,255,.9)'); ctx.fillStyle = gr; ctx.globalAlpha = .55; ctx.fillRect(X - 14 * z, top, 28 * z, Y - top); ctx.globalAlpha = .2; ctx.fillRect(X - 40 * z, top, 80 * z, Y - top); ctx.restore(); };
     sfx('magic'); const t0 = performance.now(); while (performance.now() - t0 < 1800) { o.t = performance.now() - t0; await nextFrame(); }
     floatText(st.x, st.y - st.h * height - 30, label, '#ffffff', 44, 2.2);
     await sleep(1200); S.overlay.splice(S.overlay.indexOf(o), 1);
@@ -6444,7 +6446,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   })(tileSetMap);
 
   // 世界坐标的演出层（地图会滚动）
-  const wx = x => x - (world.cam ? world.cam.x : 0), wy = y => y - (world.cam ? world.cam.y : 0);
+  const wx = x => (x - (world.cam ? world.cam.x : 0)) * VZ(), wy = y => (y - (world.cam ? world.cam.y : 0)) * VZ();   // 后山缩放 .9：转屏幕坐标要乘缩放
   async function meteorWorld(tx, ty) {
     sfx('magic');
     await new Promise(res => { const o = { t0: performance.now() }; o.draw = () => {
