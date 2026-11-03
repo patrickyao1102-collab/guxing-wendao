@@ -12,7 +12,7 @@ FOREST_W = [6, 6, 3, 3, 3, 5, 4, 3, 2, 2, 2, 7, 2, 4, 4, 3, 1, 2]
 
 def forest_ground(M, dark=.80, litter=True):
     gr = grade(bomb(M.w, M.h, patches('grass'), seed=M.seed), dark, .82, (.9, 1, .93))
-    dt = grade(bomb(M.w, M.h, patches('dirt'), seed=M.seed + 1), .9, .9, (1, .97, .92))
+    dt = grade(bomb(M.w, M.h, patches('dirt'), seed=M.seed + 1), 1.06, .85, (1.02, .98, .9))
     # 林下：草地里掺一层枯叶土（越远离路越多），整体更暗
     M.freeze()
     D, st = M._D, M._st
@@ -24,8 +24,8 @@ def forest_ground(M, dark=.80, litter=True):
     M.paint_ground(g, dirt_tex=dt)
     W = smooth(Df, 10, 160)
     patch9(M, 'moss', cover=.30, nscale=240, seed=1, where=W, bright=.92)
-    patch9(M, 'maple', cover=.15, nscale=300, seed=2, bright=.9, sat=.9, onpath=.5)
-    patch9(M, 'ginkgo', cover=.10, nscale=260, seed=3, bright=.9, sat=.85, onpath=.5)
+    patch9(M, 'maple', cover=.15, nscale=300, seed=2, bright=.9, sat=.9, onpath=0)
+    patch9(M, 'ginkgo', cover=.10, nscale=260, seed=3, bright=.9, sat=.85, onpath=0)
     far = 1 - .42 * smooth(Df, 40, 420) - .12 * (n - .5)
     return far
 
@@ -41,10 +41,10 @@ def forest_dress(M, species=FOREST_TREES, weights=FOREST_W, spacing=118, edge_pr
         M.scatter(['shrub', 'shrub2', 'shrub_big', 'fern', 'fern', 'detail_fern_fan', 'detail_fern_redtip', 'detail_sacred_fern', 'detail_ivy_mound'], int(M.w * M.h / 9000), lambda x, y: 4 <= M.dw(x, y) <= 70, sc=(.8, 1.2))
         M.scatter(['plant_shrub_red', 'plant_shrub_gold', 'plant_reed', 'plant_spider_lily', 'plant_iris'], int(M.w * M.h / 40000), lambda x, y: 6 <= M.dw(x, y) <= 60, sc=(.85, 1.1))
         M.scatter(['rock_moss_boulder'], int(M.w * M.h / 900000) + 1, lambda x, y: 30 <= M.dw(x, y) <= 90, decal=False, sc=(.42, .55))
-        M.scatter(LEAFPILES + ['decal_leaf_litter', 'decal_lichen', 'decal_leaf_litter'], int(M.w * M.h / 30000), lambda x, y: M.dw(x, y) <= 40, sc=(.8, 1.15))
+        M.scatter(LEAFPILES + ['decal_leaf_litter', 'decal_lichen', 'decal_leaf_litter'], int(M.w * M.h / 30000), lambda x, y: 6 <= M.dw(x, y) <= 50, sc=(.8, 1.15))
         M.scatter(['rock1', 'rock2', 'rock3', 'stump', 'mossrock', 'detail_fallen_log', 'detail_mushroom_amber', 'rock_slate'], int(M.w * M.h / 60000), lambda x, y: 18 <= M.dw(x, y) <= 60, decal=False, sc=(.8, 1.1))
         # 路面上零星的草丛、落叶、小花、蘑菇
-        M.scatter(['grass1', 'grass2', 'grass3', 'grass4', 'mush', 'flowers1', 'flowers3', 'detail_mushroom_ivory', 'detail_root_knotted', 'detail_root_hollow'], int(M.w * M.h / 15000), lambda x, y: M.dw(x, y) == 0 and M.din(x, y) < 90, sc=(.75, 1.05))
+        M.scatter(['grass1', 'grass2', 'grass3', 'grass4', 'mush', 'flowers1', 'flowers3', 'detail_mushroom_ivory', 'detail_root_knotted', 'detail_root_hollow'], int(M.w * M.h / 15000), lambda x, y: 3 <= M.dw(x, y) <= 26, sc=(.75, 1.05))
         # 林子深处的地面也别空着
         M.scatter(['fern', 'shrub', 'detail_fern_fan', 'detail_ivy_mound', 'mush', 'grass3'], int(M.w * M.h / 14000), lambda x, y: M.dw(x, y) > 70, sc=(.8, 1.2))
 

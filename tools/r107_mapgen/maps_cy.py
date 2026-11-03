@@ -16,8 +16,8 @@ def town_ground(M, bright=.96, sat=.86, mul=(1.03, 1.0, .9), stone=.18, sb=1.16,
     pv = mulmap(pv, .86 + .26 * n1)
     pv = blend(pv, grade(tex9('sand_grit', M.w, M.h), .95, .8), .1 + .25 * smooth(n2, .45, .8))
     M.paint_ground(g, dirt_tex=dirt(M, .92), pave_tex=pv, pave_edge=.06)
-    patch9(M, 'sand_grit', cover=.12, nscale=200, seed=21, onpath=.6, strength=.8)
-    patch9(M, 'gravel', cover=.06, nscale=160, seed=22, onpath=.6, strength=.7)
+    patch9(M, 'sand_grit', cover=.12, nscale=200, seed=21, onpath=0, strength=.8)
+    patch9(M, 'gravel', cover=.06, nscale=160, seed=22, onpath=0, strength=.7)
 
 def row(M, names, x0, x1, y, gap=30, sc=1.0):
     # 一排房子（门朝南），从 x0 往右排
@@ -31,7 +31,7 @@ def row(M, names, x0, x1, y, gap=30, sc=1.0):
 def cy_gate():
     M = Map('cy_gate', '苍月城 · 斑驳南门', 2560, 1920, 'open', seed=91)
     gx, wy = 1280, 470
-    M.path([(1280, 1980), (1240, 1700), (1310, 1350), (1270, 1000), (gx, wy + 200)], 240, walk=False, dk=.62)
+    M.path([(1280, 1980), (1240, 1700), (1310, 1350), (1270, 1000), (gx, wy + 200)], 240, walk=False)
     M.blob(gx, wy + 110, 190, 120, walk=False, pave=True, wob=.08)   # 门前一段石板
     M.rect(0, 0, 2560, wy - 70, nowalk=True)
     M.exit('cy_street', '进入苍月城', (gx - 70, wy - 90, 140, 80), (gx, wy + 80), 'up')
@@ -256,8 +256,8 @@ def cy_north():
     g = blend(g, grade(tex9('dry_grass', M.w, M.h), .8, .75, (1.0, .97, .92)), np.clip(.45 + .5 * smooth(nd, .35, .7), 0, 1))
     M.ground = g; M.paint_ground(g, dirt_tex=dirt(M, .85))
     M.freeze()
-    patch9(M, 'red_earth', cover=.10, nscale=260, seed=31, bright=.78, sat=.6, onpath=.7)
-    patch9(M, 'gravel', cover=.10, nscale=200, seed=32, bright=.85, onpath=.6)
+    patch9(M, 'red_earth', cover=.10, nscale=260, seed=31, bright=.78, sat=.6, onpath=0)
+    patch9(M, 'gravel', cover=.10, nscale=200, seed=32, bright=.85, onpath=0)
     D = np.asarray(Image.fromarray(M._D.astype(np.float32)).resize((M.w, M.h), Image.BILINEAR))
     far = 1 - .35 * smooth(D, 40, 380)
     # 山坡：一排崖石，正中藏着洞口；四周符文石柱
@@ -273,7 +273,7 @@ def cy_north():
     M.chests = [(500, 990), (2380, 1720)]
     M.forest(['dead_tree', 'tree_deadwood_a', 'tree_deadwood_b', 'tree_pine_a', 'pine', 'tree_tallow_a', 'tree_maple_amber_a', 'dead_tree', 'tree_deadwood_a'], spacing=150, margin=30, scale=(.85, 1.1), maxcover=.14)
     M.forest(['shrub_big', 'rock2b', 'plant_shrub_gold', 'plant_shrub_red', 'rock_sandstone', 'rock_slate', 'dead_tree'], spacing=110, margin=14, scale=(.8, 1.1), maxcover=.6)
-    M.scatter(['grass3', 'detail_root_knotted', 'rock1', 'crow', 'bones', 'plant_foxtail', 'plant_thatch', 'plant_reed', 'plant_spider_lily', 'rock_gravel_heap', 'plant_leaves_brown', 'decal_straw', 'decal_grit'], 170, lambda x, y: M.dw(x, y) < 90, sc=(.8, 1.1))
+    M.scatter(['grass3', 'detail_root_knotted', 'rock1', 'crow', 'bones', 'plant_foxtail', 'plant_thatch', 'plant_reed', 'plant_spider_lily', 'rock_gravel_heap', 'plant_leaves_brown', 'decal_straw', 'decal_grit'], 170, lambda x, y: 4 <= M.dw(x, y) < 90, sc=(.8, 1.1))
     M.zones = [dict(x=900, y=1600, r=220), dict(x=2000, y=1400, r=220), dict(x=1300, y=1300, r=180)]
     M.mobs = dict(n=5, types=['xiexiu', 'corpse', 'xiexiu'], bg='bg_cangyue', lv=3)
     M.meta = dict(grade='rgba(60,50,70,.12)')

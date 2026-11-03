@@ -223,10 +223,10 @@ class Map:
                 t = i / m; x = x0 + (x1 - x0) * t; y = y0 + (y1 - y0) * t
                 r = width / 2 * (1 + wobble * (n[k % 4096] * 2 - 1)); k += 3
                 for d in dr: d.ellipse((x - r, y - r, x + r, y + r), fill=255)
-    def path(s, pts, width, dirt=True, walk=True, pave=False, wobble=.22, walkextra=44, dk=.5):
+    def path(s, pts, width, dirt=True, walk=True, pave=False, wobble=.12, walkextra=44, dk=.82):
         # width = 可走宽度；土路只占中间 dk 那么宽，两边是可走的草边
         pts = s.spline(pts)
-        if dirt: s._stroke([s.dirt], pts, width * dk, wobble * 1.3)
+        if dirt: s._stroke([s.dirt], pts, width * dk, wobble * .6)
         if pave: s._stroke([s.pave], pts, width * dk, wobble * .3)
         if walk: s._stroke([s.walk], pts, width + walkextra * 0, wobble * .5)
         return pts
@@ -396,11 +396,11 @@ class Map:
         x, y, w, h = rect; s.rect(x, y, w, h, walk=True)
 
     # ---- 烘焙 ----
-    def paint_ground(s, base, dirt_tex=None, pave_tex=None, dirt_edge=.5, pave_edge=.1, dirt_rim=.22, extra=None):
+    def paint_ground(s, base, dirt_tex=None, pave_tex=None, dirt_edge=.14, pave_edge=.1, dirt_rim=.38, extra=None):
         w, h = s.w, s.h
         g = base
         if dirt_tex is not None and np.asarray(s.dirt).any():
-            m = np.asarray(s.dirt.resize((w // 4, h // 4), Image.BILINEAR).filter(ImageFilter.GaussianBlur(5)).resize((w, h), Image.BILINEAR), np.float32) / 255
+            m = np.asarray(s.dirt.resize((w // 4, h // 4), Image.BILINEAR).filter(ImageFilter.GaussianBlur(1.5)).resize((w, h), Image.BILINEAR), np.float32) / 255
             n = fbm(w, h, 48, 4, seed=s.seed + 3)
             a = smooth(m + (n - .5) * dirt_edge * 2, .4, .6)
             dv = fbm(w, h, 70, 3, seed=s.seed + 13)

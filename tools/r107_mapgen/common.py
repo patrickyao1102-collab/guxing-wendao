@@ -142,7 +142,7 @@ def tex9(name, w, h, bomb_it=True, scale=1.0):
     pats = [t.crop((x, y, x + q, y + q)) for x in (0, q // 2, q) for y in (0, q // 2, q)]
     return bomb(w, h, pats, seed=hash(name) % 997)
 
-def patch9(M, name, cover=.3, nscale=300, seed=0, where=None, bright=1.0, sat=1.0, mul=(1, 1, 1), soft=.08, onpath=.35, strength=1.0, scale=1.0):
+def patch9(M, name, cover=.3, nscale=300, seed=0, where=None, bright=1.0, sat=1.0, mul=(1, 1, 1), soft=.08, onpath=0, strength=1.0, scale=1.0):
     """用 R109 地面贴图在现有地面上铺一块块不规则的颜色（落叶、枯草、苔藓…）。where: HxW 0..1 限定区域。"""
     t = grade(tex9(name, M.w, M.h, scale=scale), bright, sat, mul)
     n = fbm(M.w, M.h, nscale, 4, seed=M.seed + 101 + seed * 17)

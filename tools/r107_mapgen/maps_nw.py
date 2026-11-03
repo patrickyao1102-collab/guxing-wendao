@@ -19,7 +19,7 @@ def spirit_dress(M, flora_n=26, small_div=7000, trees=SPIRIT_TREES, tw=SPIRIT_W,
     M.forest(['shrub_big', 'detail_sacred_fern', 'detail_fern_fan', 'spirit_coral_shrub', 'mossrock', 'plant_shrub_red', 'plant_shrub_gold'], spacing=72, margin=14, scale=(.9, 1.25), maxcover=.6)
     # 路边灵植（大一点的有碰撞）
     M.scatter(SPIRIT_FLORA, flora_n, lambda x, y: 10 <= M.dw(x, y) <= 60, decal=False, sc=(.8, 1.05))
-    M.scatter(SPIRIT_SMALL, int(M.w * M.h / small_div), lambda x, y: M.dw(x, y) <= 80 and M.din(x, y) < 120, sc=(.75, 1.1))
+    M.scatter(SPIRIT_SMALL, int(M.w * M.h / small_div), lambda x, y: 4 <= M.dw(x, y) <= 80, sc=(.75, 1.1))
     M.scatter(['detail_fern_fan', 'shrub', 'spirit_star_grass', 'detail_ivy_mound'], int(M.w * M.h / 15000), lambda x, y: M.dw(x, y) > 60, sc=(.8, 1.2))
 
 def lush_ground(M, bright=1.02):
@@ -29,16 +29,16 @@ def lush_ground(M, bright=1.02):
     M.paint_ground(M.ground, dirt_tex=dirt(M), pave_tex=grade(stone_tex(M.w, M.h, .22, (1.05, 1.0, .9)), 1.18, .8))
     M.freeze()
     D = np.asarray(Image.fromarray(M._D.astype(np.float32)).resize((M.w, M.h), Image.BILINEAR))
-    patch9(M, 'ginkgo', cover=.08, nscale=280, seed=4, bright=1.0, sat=.9, onpath=.3, strength=.6, soft=.14)
+    patch9(M, 'ginkgo', cover=.08, nscale=280, seed=4, bright=1.0, sat=.9, onpath=0, strength=.6, soft=.14)
     return 1 - .3 * smooth(D, 60, 420)
 
 # ======================= 秘境 · 遮天天瀑 =======================
 def nw_falls():
     M = Map('nw_falls', '秘境 · 遮天天瀑', 3072, 2304, 'closed', seed=31)
-    M.path([(1400, 2330), (1380, 2050), (1300, 1800)], 220, dk=.4)
+    M.path([(1400, 2330), (1380, 2050), (1300, 1800)], 220)
     M.blob(1350, 1420, 820, 330, dirt=0, wob=.1)                    # 湖南岸的大片花甸
-    M.path([(1300, 1800), (1250, 1500), (1500, 1300), (1900, 1250), (2250, 1150)], 190, dk=.4)
-    M.path([(2250, 1150), (2520, 980), (2620, 700), (2500, 420), (2420, 180), (2400, -40)], 180, dk=.45)
+    M.path([(1300, 1800), (1250, 1500), (1500, 1300), (1900, 1250), (2250, 1150)], 190)
+    M.path([(2250, 1150), (2520, 980), (2620, 700), (2500, 420), (2420, 180), (2400, -40)], 180)
     M.blob(2560, 760, 200, 140, dirt=.3)
     M.path([(700, 1500), (420, 1350), (360, 1050)], 150); M.blob(360, 1010, 160, 120, dirt=.35)
     M.path([(1380, 2050), (1900, 1980), (2350, 1900), (2650, 1760)], 150); M.blob(2680, 1730, 170, 120, dirt=.35)
@@ -73,7 +73,7 @@ def nw_falls():
 POSES = ['nw_bless', 'nw_farewell', 'nw_grief', 'nw_guard', 'nw_listen', 'nw_mend', 'nw_moon', 'nw_mourn', 'nw_return', 'nw_seal', 'nw_shelter', 'nw_shrine', 'nw_stars', 'nw_teach', 'nw_vow', 'nw_wind']
 def nw_path():
     M = Map('nw_path', '秘境 · 回环神像古道', 3072, 2304, 'closed', seed=41)
-    road = M.path([(560, 2330), (600, 2000), (900, 1800), (1500, 1820), (2050, 1700), (2400, 1450), (2350, 1150), (1900, 1000), (1300, 1040), (850, 900), (760, 620), (1050, 400), (1600, 330), (2200, 300), (2600, 200), (2700, -40)], 270, pave=True, dirt=False, dk=.62)
+    road = M.path([(560, 2330), (600, 2000), (900, 1800), (1500, 1820), (2050, 1700), (2400, 1450), (2350, 1150), (1900, 1000), (1300, 1040), (850, 900), (760, 620), (1050, 400), (1600, 330), (2200, 300), (2600, 200), (2700, -40)], 270, pave=True, dirt=False)
     M.exit('nw_falls', '返回天瀑', (480, 2240, 170, 64), (560, 2140), 'up')
     M.exit('nw_court', '步入群像遗庭', (2620, 0, 170, 60), (2690, 130), 'down')
     # 两处歇脚的小平台
@@ -99,7 +99,7 @@ def nw_path():
     M.place('statue_border', 1300, 990, 1.0, flip=False)
     M.chests = [(2810, 1910)]
     Dw = walkdist(M)
-    patch9(M, 'ginkgo', cover=.45, nscale=200, seed=9, where=1 - smooth(Dw, 120, 420), sat=.95, onpath=.25)
+    patch9(M, 'ginkgo', cover=.45, nscale=200, seed=9, where=1 - smooth(Dw, 120, 420), sat=.95, onpath=0)
     spirit_dress(M, trees=['tree_ginkgo_a', 'tree_ginkgo_b', 'tree_cypress_ancient', 'tree_maple_amber_a', 'tree_pine_a', 'pine_lush', 'tree_osmanthus_a', 'tree_camphor_ancient'], tw=[8, 3, 4, 3, 4, 3, 2, 2], spacing=150, flora_n=12, small_div=12000)
     M.meta = dict(grade='rgba(30,50,70,.07)')
     finish(M, far, [(1500, 1900), (1300, 1100), (900, 1800), (2400, 1450)])
@@ -155,7 +155,7 @@ def nw_temple():
     g = blend(g, grade(tex9('dry_grass', M.w, M.h), .92, .85), np.clip(.22 + .5 * smooth(nd, .4, .75), 0, 1))
     M.ground = g; M.paint_ground(g, dirt_tex=dirt(M), pave_tex=grade(stone_tex(M.w, M.h, .2, (1.06, 1.0, .9)), 1.2, .78))
     M.freeze()
-    patch9(M, 'ginkgo', cover=.08, nscale=240, seed=7, sat=.9, onpath=.2, strength=.75)
+    patch9(M, 'ginkgo', cover=.08, nscale=240, seed=7, sat=.9, onpath=0, strength=.75)
     # 云海：平台以外渐渐变成云
     D = np.asarray(Image.fromarray(M._D.astype(np.float32)).resize((M.w, M.h), Image.BILINEAR))
     mist(M, smooth(D, 80, 380))
@@ -189,7 +189,7 @@ def nw_temple():
     M.place('lantern_stone', 1290, 1560, 1.0); M.place('lantern_stone', 1490, 1560, 1.0, flip=True)
     M.spots.update(door=(1400, 920), bell=(900, 1260), stele=(1930, 1220))
     M.lights += [dict(x=1400, y=980, r=180, c='255,190,110'), dict(x=1180, y=920, r=110, c='255,180,100'), dict(x=1620, y=920, r=110, c='255,180,100')]
-    M.scatter(['flowers1', 'flowers2', 'flowers3', 'flowers4', 'grass1', 'grass3', 'grass2', 'detail_flowers_gold', 'detail_flowers_blue', 'detail_orchid_white', 'shrub', 'plant_daisy_white', 'plant_daisy_yellow', 'plant_verbena', 'plant_iris'], 300, lambda x, y: M.dw(x, y) == 0 and M.din(x, y) < 160 and not M.pave.getpixel((int(x), int(y))), sc=(.8, 1.1))
+    M.scatter(['flowers1', 'flowers2', 'flowers3', 'flowers4', 'grass1', 'grass3', 'grass2', 'detail_flowers_gold', 'detail_flowers_blue', 'detail_orchid_white', 'shrub', 'plant_daisy_white', 'plant_daisy_yellow', 'plant_verbena', 'plant_iris'], 300, lambda x, y: M.dw(x, y) == 0 and M.din(x, y) < 160 and not M.pave.getpixel((int(x), int(y))) and not M.dirt.getpixel((int(x), int(y))), sc=(.8, 1.1))
     M.scatter(['rock1', 'rock2', 'mossrock', 'shrub_big'], 26, lambda x, y: 10 <= M.dw(x, y) <= 90, decal=False)
     # 平台边缘一圈松树、古柏（崖边）
     M.forest(['tj_pine', 'tree_pine_a', 'tree_pine_b', 'tree_maple_red_a', 'tree_ginkgo_a', 'tree_cypress_ancient', 'tree_maple_amber_a'], spacing=190, margin=10, band=(10, 150), scale=(.8, 1.0), maxcover=.3)
