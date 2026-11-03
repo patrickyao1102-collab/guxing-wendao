@@ -34,7 +34,7 @@
     if (/^(qy_|xt_|market|jishi)/.test(m)) return 3;
     return 0;
   }
-  window.R65_CHEST = { styleOf, force: null };
+  window.R65_CHEST = { styleOf, force: null, draw: (...a) => drawChest(...a) };
   function preload(i) { const s = stem(i); for (const n of ['chest_' + s + '_closed', 'chest_' + s + '_open', 'glow_' + s, 'inner_' + s, 'sparkle']) img(n); }
   const SC = 1.5;   // 逻辑尺寸放大倍数
   function drawChest(x, y, open, i, tms) {
@@ -44,20 +44,21 @@
     ctx.save(); ctx.translate(x, y); ctx.scale(SC, SC);
     if (gl) {
       const pulse = 1 + .035 * Math.sin(2 * Math.PI * t / 2.4);
-      ctx.save(); ctx.globalAlpha = (open ? .22 : .48) + .12 * Math.sin(2 * Math.PI * t / 2.4);
+      ctx.save(); ctx.globalAlpha = open ? .14 : .72 + .18 * Math.sin(2 * Math.PI * t / 2.4);   // 作者 11-03：没开的箱子要散发光芒，开过的就暗下去
       ctx.translate(0, -3); ctx.scale(40 * pulse, 16 * pulse); ctx.rotate(t * Math.PI * 2 / 18);
       ctx.drawImage(gl, -1, -1, 2, 2); ctx.restore();
     }
     ctx.drawImage(open ? op : cl, -32, -56, 64, 56);
-    if (open && inn) {
-      ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .6 + .12 * Math.sin(2 * Math.PI * t / 1.8);
-      const st = 1 + .035 * Math.sin(2 * Math.PI * t / 2.1); ctx.translate(0, -24); ctx.scale(1, st); ctx.drawImage(inn, -32, -54, 64, 64); ctx.restore();
+    if (!open && inn) {   // 没开：箱缝里透出灵光往上溢
+      ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .5 + .2 * Math.sin(2 * Math.PI * t / 1.8);
+      const st = 1 + .06 * Math.sin(2 * Math.PI * t / 2.1); ctx.translate(0, -30); ctx.scale(1.05, st); ctx.drawImage(inn, -32, -58, 64, 64); ctx.restore();
     }
     if (sp) {   // 没开的箱子也飘一点星芒，让人远远就看见
       ctx.save(); ctx.globalCompositeOperation = 'screen';
-      const n = open ? 3 : 2;
+      if (open) { ctx.restore(); ctx.restore(); return true; }   // 开过的箱子不再冒星芒
+      const n = 3;
       for (let k = 0; k < n; k++) {
-        const ph = (t / 2.2 + k / 3) % 1; ctx.globalAlpha = Math.sin(Math.PI * ph) * (open ? .7 : .5);
+        const ph = (t / 2.2 + k / 3) % 1; ctx.globalAlpha = Math.sin(Math.PI * ph) * .85;
         const sx = [-14, 9, 1][k] + 2 * Math.sin(t + k), sy = (open ? -30 : -40) - ph * 33, sz = [6, 8, 5][k];
         ctx.save(); ctx.translate(sx, sy); ctx.rotate(t * .4 + k); ctx.drawImage(sp, -sz / 2, -sz / 2, sz, sz); ctx.restore();
       }

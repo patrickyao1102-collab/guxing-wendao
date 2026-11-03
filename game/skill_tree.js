@@ -93,7 +93,7 @@
     if (n.id === 'ult') { learned = !(n.lock && n.lock()); why = n.why || ''; return Object.assign({ name: n.name, cost: n.cost, desc: n.desc, learned, why, ult: true, max: 1, tier: 1 }, {}); }
     if (n.future) return { name: n.name, cost: n.cost, desc: n.desc, learned: false, why: '下次更新开放', max: 5, tier: 1 };
     const K4 = window.SK4, xd = K4 && K4.X[who] && K4.X[who][n.id];
-    if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind !== 'gong';
+    if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind === 'mi';   // 辅助第一重不需要书
       return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (realmOf(xd.lv) + '，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石）') : realmOf(xd.lv) + '领悟', max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
     if (who === 'hero' && n.id === 'sun') { const sd = SKILL_DB.sun || {}; return { name: sd.name || n.name, cost: '灵力 ' + (sd.cost || 80), desc: sd.desc || n.desc, learned: !!(S.flags && S.flags.sun_unlocked), why: '解锁条件：无上境', max: 1, tier: 1 }; }
     if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? realmOf(src.lv) + '领悟' : '剧情中领悟'; }

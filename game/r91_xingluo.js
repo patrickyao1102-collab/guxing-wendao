@@ -13,7 +13,7 @@
   heroSkills = (orig => function () {
     const list = orig(); const b = battle, P = b && b.P; if (!P || P.ally) return list;
     const lend = !!(b.cfg && b.cfg.xlLend);
-    if (lend || F().xlw_seen) {
+    if (lend) {   // 作者 11-03：剧情借力那一战之后，仙术列表里不再出现无上境
       const it = { k: 'xl_wushang', name: NAME, cost: 0, desc: lend ? '星旋借力 · 仅此一次' : '星落的最终形态：星河倾落，北斗镇世（无上境）', disabled: !lend, why: '解锁条件：无上境' };
       const i = list.findIndex(x => x.k === 'xingluo2'); if (i >= 0) list.splice(i + 1, 0, it); else list.unshift(it);
     }
