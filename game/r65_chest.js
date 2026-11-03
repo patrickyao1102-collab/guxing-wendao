@@ -38,6 +38,7 @@
   function preload(i) { const s = stem(i); for (const n of ['chest_' + s + '_closed', 'chest_' + s + '_open', 'glow_' + s, 'inner_' + s, 'sparkle']) img(n); }
   const SC = 1.5;   // 逻辑尺寸放大倍数
   function drawChest(x, y, open, i, tms) {
+    if (window.R103_CHEST && R103_CHEST(x, y, open, i, tms)) return true;   // R103：Codex 正面宝箱（分层灵光），没载好前先用旧箱子
     const s = stem(i), t = tms / 1000;
     const cl = img('chest_' + s + '_closed'), op = img('chest_' + s + '_open'), gl = img('glow_' + s), inn = img('inner_' + s), sp = img('sparkle');
     if (!cl || !op) return false;
