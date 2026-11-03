@@ -4412,7 +4412,7 @@ function drawEquip(B, L, mi) {
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `24px ${BRUSH}`; ctx.fillStyle = UI.gold2; ctx.fillText(c.n, c.x + 16, c.y + 24);
     if (c.id) { itemIcon(c.id, c.x + 40, c.y + 70, 24); ctx.font = `700 20px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(ITEM_DB[c.id].name, c.x + 76, c.y + 60); ctx.font = `15px ${FONT}`; ctx.fillStyle = (UI.id === 'paper' ? '#2f7a2a' : '#9fe0a0'); ctx.fillText(statText(ITEM_DB[c.id]), c.x + 76, c.y + 86); }
     else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.dim; ctx.fillText('（空）', c.x + 20, c.y + 70); } }
-  ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(list.length ? '背包里的装备（点击换上）' : '背包里没有可换的装备', B.x + 14, B.y + 148);
+  ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(list.length ? '背包里的装备（点击查看 / 换上）' : '背包里没有可换的装备', B.x + 14, B.y + 148);
   for (const c of list) { const it = ITEM_DB[c.id], cur = h.equip[it.slot] ? ITEM_DB[h.equip[it.slot]] : {};
     roundRect(c.x, c.y, c.w, c.h, 10); ctx.fillStyle = UI.slot; ctx.fill(); ctx.strokeStyle = UI.line; ctx.stroke(); itemIcon(c.id, c.x + 36, c.y + c.h / 2, 22);
     ctx.font = `700 19px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(it.name + (h.bag[c.id] > 1 ? ' ×' + h.bag[c.id] : ''), c.x + 70, c.y + 24);
@@ -6027,7 +6027,12 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       await say('星旋', '小子，你爹说这是极品灵器？他骗你的！这是实打实的极品仙器！');
       await say('叶孤星·思', '……');
       await narrate('叶孤星想起父亲书房里那盏亮到深夜的灯，眼底一阵发酸，没有说话。');
-      S.flags.ch2_liuyun = 1; S.quest = '回演武广场，从南边山门出发'; toast(world.mapName === 'tj_houshan' ? '从南边白玉石阶下山，直接回演武广场' : '从林间南边回演武广场', 2200);
+      S.flags.ch2_liuyun = 1;
+      // 作者 11-03：离开天剑宗前先去集市一趟，买点装备、剑诀卷册、丹药再出门
+      await say('星旋', '仙衣到手！不过小子，下山可不是逛后山——丹药、护具、剑诀卷册，一样都不能少。');
+      await say('星旋', '先去问剑坪东口的天剑集市备齐了，再从南边山门出发。');
+      S.hero.gold = (S.hero.gold || 0) + 300; playSnd('ui_confirm'); await showPanel('盘缠', ['!灵石 ×300', '执事堂按一等任务拨下的历练盘缠']);
+      S.quest = '下山前去天剑集市采买（问剑坪东口），再从南边山门出发'; toast(world.mapName === 'tj_houshan' ? '从南边白玉石阶下山回问剑坪，东口就是集市' : '从林间南边回问剑坪，东口就是集市', 2600);
       world.locked = false;
     }
     // 画锁灵阵：星钉/阵眼/锁链/仙衣/光效按状态切换
@@ -6224,7 +6229,13 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   function plazaHooks() {
     if (!S.flags.ch2_roam) return;
     if (!S.flags.ch2_hall) { const [x, y] = near(1792, 760); addTrigger(x, y, 70, ch2Hall); }
-    if (S.flags.ch2_liuyun && !S.flags.ch2_depart) { const [x, y] = near(1792, 2420); addTrigger(x, y, 90, ch2Depart); }
+    if (S.flags.ch2_liuyun && !S.flags.ch2_depart) { const [x, y] = near(1792, 2420); addTrigger(x, y, 90, async () => {
+      if (!S.flags.ch2_market) {   // 没去过集市：提醒一下，可以先去买东西
+        await say('星旋', '就这么走了？集市都不逛一下？丹药没备够，到了黑风寨可没地方买。');
+        const c = await choose('出发之前……', ['先去天剑集市（问剑坪东口）', '不买了，直接出发']);
+        if (c === 0) { S.flags.ch2_market_skip = 0; const t = world.triggers.find(t => t.fn && t.x === x && t.y === y); if (t) t.done = false; world.player.y -= 120; toast('问剑坪东口就是天剑集市', 2200); return; }
+      }
+      return ch2Depart(); }); }
   }
   // —— 大殿：任务分配 + 赠宝（流云仙衣改为：封在后山九曜锁灵阵，要他自己去取）——
   window.YW_HALL = () => { if (!S.flags.ch2_hall) return ch2Hall(); };
@@ -16321,6 +16332,7 @@ window.MarketEffects = (() => {
 <script src="r97_walk8.js"></script>
 <script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js"></script>
 <script src="r102_misc.js"></script>
+<script src="r103_equipinfo.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 </body></html>
