@@ -118,3 +118,50 @@ def room(M, wall, floor='wood', wall_h=None, door=(None, None)):
     M.ground = Image.fromarray(np.clip(G, 0, 255).astype(np.uint8))
     M.rect(0, 0, 28, h, nowalk=True); M.rect(w - 28, 0, 28, h, nowalk=True); M.rect(0, h - 26, w, 26, nowalk=True)
     return (40, wh + 20, w - 40, h - 40)
+
+# ======================= R109 配色素材（Codex 按游戏尺寸出图，1:1 直接用）=======================
+import os as _os
+R9 = S + '/r109/R109_地图配色素材/'
+_FLAT9 = {'plant_leaves_red', 'plant_leaves_gold', 'plant_leaves_brown', 'plant_moss', 'rock_river_pebbles', 'rock_gravel_heap'}
+for _f in sorted(_os.listdir(R9 + 'objects')):
+    _n = _f[:-4]
+    _k = 'tree' if _n.startswith('tree_') else 'flat' if _n in _FLAT9 else 'small' if _n.startswith('plant_') else 'prop'
+    reg(_n, 'pk', R9 + 'objects/' + _f, None, _k)
+for _f in sorted(_os.listdir(R9 + 'decals')):
+    reg(_f[:-4], 'pk', R9 + 'decals/' + _f, None, 'flat')
+
+def tex9(name, w, h, bomb_it=True, scale=1.0):
+    t = Image.open(R9 + 'ground/ground_' + name + '.png').convert('RGB')
+    if scale != 1: t = t.resize((round(t.width * scale), round(t.height * scale)), Image.LANCZOS)
+    if not bomb_it: 
+        out = Image.new('RGB', (w, h))
+        for y in range(0, h, t.height):
+            for x in range(0, w, t.width): out.paste(t, (x, y))
+        return out
+    q = t.width // 2
+    pats = [t.crop((x, y, x + q, y + q)) for x in (0, q // 2, q) for y in (0, q // 2, q)]
+    return bomb(w, h, pats, seed=hash(name) % 997)
+
+def patch9(M, name, cover=.3, nscale=300, seed=0, where=None, bright=1.0, sat=1.0, mul=(1, 1, 1), soft=.08, onpath=.35, strength=1.0, scale=1.0):
+    """用 R109 地面贴图在现有地面上铺一块块不规则的颜色（落叶、枯草、苔藓…）。where: HxW 0..1 限定区域。"""
+    t = grade(tex9(name, M.w, M.h, scale=scale), bright, sat, mul)
+    n = fbm(M.w, M.h, nscale, 4, seed=M.seed + 101 + seed * 17)
+    lo = np.quantile(n[::8, ::8], 1 - cover)
+    a = smooth(n, lo - soft, lo + soft) * strength
+    if where is not None: a = a * where
+    pm = np.asarray(Image.merge('L', [M.dirt]).resize((M.w // 4, M.h // 4)).filter(ImageFilter.GaussianBlur(4)).resize((M.w, M.h)), np.float32) / 255
+    pv = np.asarray(M.pave.resize((M.w // 4, M.h // 4)).filter(ImageFilter.GaussianBlur(3)).resize((M.w, M.h)), np.float32) / 255
+    a = a * (1 - (1 - onpath) * pm) * (1 - .92 * pv)
+    M.ground = blend(M.ground, t, a)
+    return a
+
+def walkdist(M):
+    M.freeze()
+    return np.asarray(Image.fromarray(M._D.astype(np.float32)).resize((M.w, M.h), Image.BILINEAR))
+
+AUTUMN = ['tree_maple_red_a', 'tree_maple_amber_a', 'tree_ginkgo_a', 'tree_tallow_a']
+AUTUMN_B = ['tree_maple_red_b', 'tree_maple_amber_b', 'tree_ginkgo_b', 'tree_tallow_b']
+WILDFLOWERS = ['plant_daisy_white', 'plant_daisy_yellow', 'plant_dandelion', 'plant_iris', 'plant_verbena', 'plant_spider_lily']
+DRYGRASS = ['plant_foxtail', 'plant_thatch', 'plant_reed']
+LEAFPILES = ['plant_leaves_red', 'plant_leaves_gold', 'plant_leaves_brown']
+SPOTS9 = ['decal_leaf_litter', 'decal_straw', 'decal_earth', 'decal_grit', 'decal_lichen', 'decal_white_flowers', 'decal_yellow_flowers', 'decal_purple_flowers']

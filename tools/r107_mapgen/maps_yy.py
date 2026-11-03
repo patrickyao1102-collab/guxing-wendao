@@ -3,9 +3,12 @@ import numpy as np
 from PIL import Image
 from core import *
 from export import save_map, preview, views
+import common
+from common import patch9, LEAFPILES
 
-FOREST_TREES = ['pine', 'pine_lush', 'maple', 'birch', 'scholar', 'yy_tree', 'tree_cypress_ancient', 'tree_camphor_ancient', 'tree_banyan_ancient', 'pine_big', 'pine_lush_big']
-FOREST_W = [10, 10, 5, 4, 4, 7, 5, 4, 3, 3, 3]
+FOREST_TREES = ['pine', 'pine_lush', 'maple', 'birch', 'scholar', 'yy_tree', 'tree_cypress_ancient', 'tree_camphor_ancient', 'tree_banyan_ancient', 'pine_big', 'pine_lush_big',
+                'tree_pine_a', 'tree_pine_b', 'tree_maple_red_a', 'tree_maple_amber_a', 'tree_tallow_a', 'tree_deadwood_a', 'tree_ginkgo_a']
+FOREST_W = [6, 6, 3, 3, 3, 5, 4, 3, 2, 2, 2, 7, 2, 4, 4, 3, 1, 2]
 
 def forest_ground(M, dark=.80, litter=True):
     gr = grade(bomb(M.w, M.h, patches('grass'), seed=M.seed), dark, .82, (.9, 1, .93))
@@ -19,6 +22,10 @@ def forest_ground(M, dark=.80, litter=True):
     g = blend(gr, grade(dt, .8, .8), lit)
     M.ground = g
     M.paint_ground(g, dirt_tex=dt)
+    W = smooth(Df, 10, 160)
+    patch9(M, 'moss', cover=.30, nscale=240, seed=1, where=W, bright=.92)
+    patch9(M, 'maple', cover=.15, nscale=300, seed=2, bright=.9, sat=.9, onpath=.5)
+    patch9(M, 'ginkgo', cover=.10, nscale=260, seed=3, bright=.9, sat=.85, onpath=.5)
     far = 1 - .42 * smooth(Df, 40, 420) - .12 * (n - .5)
     return far
 
@@ -27,12 +34,15 @@ def forest_dress(M, species=FOREST_TREES, weights=FOREST_W, spacing=118, edge_pr
     # 林墙：靠路的一圈密一点、大小错落
     M.forest(species, spacing=spacing, margin=34, weights=weights, scale=(.86, 1.12))
     # 第二遍：小一号的树、灌木团补在大树之间（路南侧那圈只能种矮的）
-    M.forest(['pine', 'pine_lush', 'maple', 'birch', 'yy_tree', 'scholar'], spacing=150, margin=30, scale=(.55, .72), maxcover=.22)
-    M.forest(['shrub_big', 'bamboo_young', 'detail_fern_fan', 'detail_sacred_fern', 'mossrock'], spacing=70, margin=16, scale=(.9, 1.3), maxcover=.6)
+    M.forest(['pine', 'pine_lush', 'maple', 'birch', 'yy_tree', 'scholar', 'tree_maple_red_a', 'tree_maple_amber_a', 'tree_pine_a', 'tree_tallow_a'], spacing=150, margin=30, scale=(.55, .72), maxcover=.22)
+    M.forest(['shrub_big', 'bamboo_young', 'detail_fern_fan', 'detail_sacred_fern', 'mossrock', 'plant_shrub_red', 'plant_shrub_gold'], spacing=70, margin=16, scale=(.9, 1.3), maxcover=.6)
     if edge_props:
         # 路边灌木、蕨、石头、树桩：贴着可走区外沿
         M.scatter(['shrub', 'shrub2', 'shrub_big', 'fern', 'fern', 'detail_fern_fan', 'detail_fern_redtip', 'detail_sacred_fern', 'detail_ivy_mound'], int(M.w * M.h / 9000), lambda x, y: 4 <= M.dw(x, y) <= 70, sc=(.8, 1.2))
-        M.scatter(['rock1', 'rock2', 'rock3', 'stump', 'mossrock', 'detail_fallen_log', 'detail_mushroom_amber'], int(M.w * M.h / 60000), lambda x, y: 18 <= M.dw(x, y) <= 60, decal=False, sc=(.8, 1.1))
+        M.scatter(['plant_shrub_red', 'plant_shrub_gold', 'plant_reed', 'plant_spider_lily', 'plant_iris'], int(M.w * M.h / 40000), lambda x, y: 6 <= M.dw(x, y) <= 60, sc=(.85, 1.1))
+        M.scatter(['rock_moss_boulder'], int(M.w * M.h / 900000) + 1, lambda x, y: 30 <= M.dw(x, y) <= 90, decal=False, sc=(.42, .55))
+        M.scatter(LEAFPILES + ['decal_leaf_litter', 'decal_lichen', 'decal_leaf_litter'], int(M.w * M.h / 30000), lambda x, y: M.dw(x, y) <= 40, sc=(.8, 1.15))
+        M.scatter(['rock1', 'rock2', 'rock3', 'stump', 'mossrock', 'detail_fallen_log', 'detail_mushroom_amber', 'rock_slate'], int(M.w * M.h / 60000), lambda x, y: 18 <= M.dw(x, y) <= 60, decal=False, sc=(.8, 1.1))
         # 路面上零星的草丛、落叶、小花、蘑菇
         M.scatter(['grass1', 'grass2', 'grass3', 'grass4', 'mush', 'flowers1', 'flowers3', 'detail_mushroom_ivory', 'detail_root_knotted', 'detail_root_hollow'], int(M.w * M.h / 15000), lambda x, y: M.dw(x, y) == 0 and M.din(x, y) < 90, sc=(.75, 1.05))
         # 林子深处的地面也别空着
@@ -125,7 +135,7 @@ def yy_deep():
     M.spots['rift'] = (r[0], r[1] + 50)
     M.lights.append(dict(x=r[0], y=r[1] - 30, r=260, c='120,170,255'))
     M.chests = [N[k] for k in dead[:4]]
-    forest_dress(M, species=['yy_tree', 'pine_big', 'pine_lush', 'tree_cypress_ancient', 'tree_camphor_ancient', 'tree_banyan_ancient', 'pine', 'maple', 'scholar_big'], weights=[10, 6, 6, 6, 5, 4, 6, 3, 3], spacing=112)
+    forest_dress(M, species=['yy_tree', 'pine_big', 'pine_lush', 'tree_cypress_ancient', 'tree_camphor_ancient', 'tree_banyan_ancient', 'pine', 'maple', 'scholar_big', 'tree_pine_a', 'tree_pine_b', 'tree_maple_red_a', 'tree_maple_amber_a', 'tree_tallow_a', 'tree_deadwood_a'], weights=[7, 4, 4, 5, 4, 3, 4, 2, 2, 7, 2, 3, 3, 2, 1], spacing=112)
     M.zones = [dict(x=x, y=y, r=230) for (x, y) in [N[k] for k in N if k not in ((0, 3), (2, 2), (0, 0))]][:9]
     M.mobs = dict(n=9, types=['ywolf', 'spider', 'treant', 'ywolf', 'spider'], bg='bg_youying', lv=2)
     M.meta = dict(grade='rgba(10,30,45,.22)')
