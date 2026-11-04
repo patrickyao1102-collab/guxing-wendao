@@ -7972,6 +7972,8 @@ if (typeof MEDAL_FACE !== 'undefined') for (const [k] of EXPR_ORDER) { MEDAL_FAC
     if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_c_' + c] = { fx: .47, fy: .2, span: .4 };
   }
   if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE.p_linxue = { fx: .46, fy: .21, span: .4 };
+  // 作者 11-04：林雪对话立绘一律用黑眼睛这张。旧的蓝眼 assets3/p_linxue.webp 有时比 chars1 晚载完，会把 IMG.p_linxue 盖回去——这里锁死：有新图就永远给新图
+  { let old = IMG.p_linxue; Object.defineProperty(IMG, 'p_linxue', { configurable: true, enumerable: true, get: () => IMG.p_c_linxue_default || old, set: v => { old = v; } }); }
 }
 
 // ---------------- 星旋确认版（Codex 精修交付/确认版）：少年七种表情 + 成年施法，一张 4×2 图集（每格 620×643）----------------
