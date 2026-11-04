@@ -397,7 +397,7 @@ def build2():
     M.spots.update(deep=(600, 600), entry=(2304, 3110), **{p['id']: tuple(p['use']) for p in M.prisons})
     M.zones = [dict(x=N[k][0], y=N[k][1], r=220) for k in N if k not in ((0, 0), (4, 5))][::3]
     M.mobs = dict(n=7, types=['xbat', 'xwraith', 'xspider', 'xiexiu', 'xbat', 'xspider'], bg='bg_cellar_b1', lv=3)
-    M.meta = dict(grade='rgba(20,10,30,.18)', indoor=True, prisons=M.prisons)
+    M.meta = dict(grade='rgba(20,10,30,.18)', indoor=True, fog=True, prisons=M.prisons)   # fog：小地图只显示走过的地方（迷宫）
     M.bake(); M.collision(); J = save_map(M)
     J['extra'] = sorted({p['cell'].replace('_关闭', '_开启') for p in M.prisons}); json.dump(J, open(f'{OUT}/xx_b1/map.json', 'w'), ensure_ascii=False)
     g = preview(M, 'full', hero=(2304, 3110), scale=.25)

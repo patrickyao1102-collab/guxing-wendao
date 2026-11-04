@@ -175,7 +175,7 @@
     if (d.fm) { const F = d.fm; F.id = id; F.wk = []; FMS.push(F);   // 阵法：巨石和阵楔按状态换图
       for (const o of objs) { if (o.id === F.st[0]) o.img = F.key = 'r107_fm_' + id; const wi = F.w.indexOf(o.id); if (wi >= 0) o.img = F.wk[wi] = 'r107_fmw_' + id + '_' + wi; } }
     const baked = { ground: 'r107g_' + id, w: d.w, h: d.h, cs: 16, cols: d.cols, rows: d.rows, blocked: s, objs };
-    const def = { title: d.t, baked, r107: id, water: d.wa || [], indoor: !!(d.meta && d.meta.indoor), start: d.start, npcs: [], leaves: /^yy_|^nw_|cy_north/.test(id),
+    const def = { title: d.t, baked, r107: id, water: d.wa || [], indoor: !!(d.meta && d.meta.indoor), fog: !!(d.meta && d.meta.fog), start: d.start, npcs: [], leaves: /^yy_|^nw_|cy_north/.test(id),
       chests: d.ch.map(([c, r], i) => ({ c, r, items: LOOT[i % LOOT.length] })),
       exits: d.ex.map(e => Object.assign({}, e, { cond: () => e.to.startsWith(PFX) && !!TMAPS[e.to], msg: e.label + '：这条路还没通（等接进剧情）' })) };
     if (d.fm) { const F = d.fm, st = () => (S.flags && S.flags[F.flag]) || 0, put = v => { S.flags = S.flags || {}; S.flags[F.flag] = v; S.flash = .45; S.flashColor = '#ff5a48'; };
