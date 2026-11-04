@@ -7,7 +7,7 @@ import common, maps_xx, maze_b1  # 注册额外素材（maze_b1：地下一层�
 import codexmap; codexmap.register_all()   # Codex 整图：女娲神殿、月湖灵泉、苍月城
 import veil   # 遮天灵瀑（照 Codex 概念图 01 拼）
 import rooms_cy   # 城主府四厢（旧：拆正堂构件拼）
-import rooms_dc; rooms_dc.register()   # 客舍：Codex 01_大城 客房样板房拆件 + 双人架子床
+# import rooms_dc; rooms_dc.register()   # 作者否了：橙光贴图风，和青竹小院家具不是一个画风   # 客舍：Codex 01_大城 客房样板房拆件 + 双人架子床
 # import rooms_xc   # R116 小城家具是民房档次，城主府不用（作者否了）
 import north; north.register()   # 苍月北郊 · 白岩沉坛
 
