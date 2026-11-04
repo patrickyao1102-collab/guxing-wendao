@@ -272,7 +272,7 @@ def build():
         rocks(M)
     M.spots.update(deep=(600, 600), entry=(ex[0], 3150), **{p['id']: tuple(p['use']) for p in M.prisons})
     M.zones = [dict(x=N[k][0], y=N[k][1], r=260) for k in N if k not in ((0, 0), (3, 3))][::2]
-    M.mobs = dict(n=7, types=['xbat', 'xwraith', 'xspider', 'xiexiu', 'xbat', 'xspider'], bg='bg_cellar', lv=3)
+    M.mobs = dict(n=7, types=['xbat', 'xwraith', 'xspider', 'xiexiu', 'xbat', 'xspider'], bg='bg_cellar_b1', lv=3)
     M.meta = dict(grade='rgba(20,10,30,.16)', indoor=True, prisons=M.prisons)
     M.bake(); M.collision(); J = save_map(M)
     J['extra'] = sorted({p['cell'].replace('_关闭', '_开启') for p in M.prisons}); json.dump(J, open(f'{OUT}/xx_b1/map.json', 'w'), ensure_ascii=False)   # 开门后的牢房图也打进图集
