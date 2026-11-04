@@ -3,7 +3,7 @@
 # 素材换成 Codex 断岩双桥私牢小图里画的岩石、五种私牢、灯，加 R116 邪修密室物件和旧素材库的看守杂物。
 import math, os, json
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 from common import *
 import maps_xx   # 原来那张地下一层的暗色碎岩 rock*_dk
 from export import save_map, preview, views
@@ -54,17 +54,18 @@ XS = [2304 + (i - 3) * 620 for i in range(7)]
 YS = [760 + j * 700 for j in range(4)]
 
 def ground(M):
-    fl = grade(tile_tex(R61 + 'dungeon_floor.png', M.w, M.h, .22), 1.22, .5, (1.0, .97, 1.06))   # 比原来暗一点、偏紫，和 D 洞穴岩一个色调
+    fl = grade(tile_tex(R61 + 'dungeon_floor.png', M.w, M.h, .22), 1.36, .5, (1.0, .98, 1.04))   # 路面亮一点、看得清（作者：这样的光线就够了）
+    fl = Image.blend(fl.convert('RGB'), fl.convert('RGB').filter(ImageFilter.GaussianBlur(6)), .45) if hasattr(fl, 'filter') else fl   # 石板上的黑斑压淡
     rock = grade(tile_tex(R61 + 'dungeon_floor.png', M.w, M.h, .6), .45, .5, (1.0, .95, .95))
     M.freeze()
     D = np.asarray(Image.fromarray(M._D.astype(np.float32)).resize((M.w, M.h), Image.BILINEAR))
     n = fbm(M.w, M.h, 40, 3, seed=M.seed + 7)
-    a = smooth(D + (n - .5) * 30, 0, 14)
+    a = smooth(D + (n - .5) * 30 * (D > 0), 0, 14)   # 路面里面不掺暗岩纹（原来会在路上留下一团团黑斑）
     g = blend(fl, rock, a)
     smoke = fbm(M.w, M.h, 160, 3, seed=M.seed + 11)            # 黑雾：边缘的暗不是一刀切，一团一团的
     g = mulmap(g, 1 - .88 * smooth(D + (smoke - .5) * 90, 10, 260))
     wet = smooth(fbm(M.w, M.h, 90, 3, seed=M.seed + 9), .66, .74) * (1 - a)
-    g = mulmap(g, 1 - .2 * wet)
+    g = mulmap(g, 1 - .1 * wet)
     M.ground = g
 
 def poisson(M, n, sp, cond):
@@ -281,4 +282,130 @@ def build():
     print('xx_b1 maze', len(M.objs), 'objs', len(M.dyn), 'dyn', 'prisons', len(M.prisons), 'leaves', len(leaves), 'lights', len(M.lights))
     return M
 
-if __name__ == '__main__': build()
+
+# ======================= v2：弯弯曲曲的真迷宫，两侧石头一块块堆砌成墙（作者 11-04） =======================
+# 作者喜欢的是原来那种暗色圆厚碎岩（rock*_dk）堆在路边、黑暗只在路外的样子，嫌它"堆得太乱、路边不成线"。
+# 这版：路边第一排是小圆石，一块挨一块排成线；往外一排比一排大、一排比一排暗，最后沉进黑里。不用 E 那套锋利岩墙。
+for _n in ['rock1b', 'rock2b', 'rock3b', 'rock1', 'rock2', 'rock3', 'rock_moss_boulder']:
+    _r = REG[_n]
+    for _j, _f in enumerate((.46, .34, .24, .15)):
+        reg(f'{_n}_s{_j}', _r['src'], _r['key'], _r['h'], 'prop', tint=(_f * .95, _f * .92, _f * 1.08))
+FRONT = ['rock1', 'rock3', 'rock1b', 'rock3b']          # 路边：矮、圆
+MIDR = ['rock1b', 'rock3b', 'rock2b', 'rock_moss_boulder']
+BACK = ['rock2b', 'rock_moss_boulder', 'rock3b']
+
+def stone_walls(M):
+    A = lambda n: asset(n)[0]
+    bands = [  # (离路远近 d0..d1, 石头, 色阶, 缩放, 间距)
+        (4, 34, FRONT, 0, (1.0, 1.2), 44),
+        (34, 90, MIDR, 1, (1.1, 1.35), 64),
+        (90, 170, BACK, 2, (1.15, 1.35), 84),
+    ]
+    LOW = ['rock1', 'rock3', 'rock3b']
+    for d0, d1, names, tone, (s0, s1), sp in bands:
+        for x, y in poisson(M, int(M.w * M.h / sp / sp * 7), sp, lambda x, y: d0 <= M.dw(x, y) <= d1):
+            for _ in range(3):
+                nm = M.rng.choice(names); sc = M.rng.uniform(s0, s1)
+                if nm == 'rock_moss_boulder': sc *= .75
+                if not covers(M, x, y, A(nm).height * sc): break
+            else:
+                nm = M.rng.choice(LOW); sc = M.rng.uniform(.9, 1.15)        # 夹在两条甬道中间的窄墙：用矮石填满，不留黑洞
+                if covers(M, x, y, A(nm).height * sc): continue
+            w = A(nm).width * sc
+            M.place(f'{nm}_s{tone}', x, y, sc, foot=False if tone else (-w * .3, -14, w * .3, 4), shadow=tone < 2)
+
+def tight_maze(M, x0, y0, x1, y1, nx, ny, width, extra, keep, wob=.1, jit=.12):
+    """墙要厚：节点只轻微抖动，每段路只弯一点点，相邻甬道之间留出整块的石墙。"""
+    rng = M.rng; N = {}
+    for j in range(ny):
+        for i in range(nx):
+            N[(i, j)] = (x0 + (x1 - x0) * (i + .5 + rng.uniform(-jit, jit)) / nx, y0 + (y1 - y0) * (j + .5 + rng.uniform(-jit, jit)) / ny)
+    for k, p in keep: N[k] = p
+    E = []; seen = {(0, 0)}; fr = [((0, 0), (1, 0)), ((0, 0), (0, 1))]
+    while fr:
+        a, b = fr.pop(rng.randrange(len(fr)))
+        if b in seen or b not in N: continue
+        seen.add(b); E.append((a, b))
+        for d in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            c = (b[0] + d[0], b[1] + d[1])
+            if c in N and c not in seen: fr.append((b, c))
+    for a in N:
+        for d in [(1, 0), (0, 1)]:
+            b = (a[0] + d[0], a[1] + d[1])
+            if b in N and (a, b) not in E and (b, a) not in E and rng.random() < extra: E.append((a, b))
+    for a, b in E:
+        (ax, ay), (bx, by) = N[a], N[b]; mx, my = (ax + bx) / 2, (ay + by) / 2; L = math.hypot(bx - ax, by - ay)
+        nxv, nyv = -(by - ay) / L, (bx - ax) / L; o = rng.uniform(-wob, wob) * L
+        M.path([(ax, ay), (mx + nxv * o, my + nyv * o), (bx, by)], width * rng.uniform(.92, 1.06))
+    for k, (x, y) in N.items(): M.blob(x, y, width * .62, width * .55, dirt=0, wob=.1)
+    deg = {k: 0 for k in N}
+    for a, b in E: deg[a] += 1; deg[b] += 1
+    M.mz_nodes, M.mz_edges, M.mz_deg = N, E, deg
+    return N, E
+
+def build2():
+    M = Map('xx_b1', '地下一层 · 阴湿密道', W, H, 'closed', seed=245)
+    M.prisons = []
+    # ---- 迷宫：抖动网格上的生成树，回环很少，岔路和死胡同多；甬道窄、弯 ----
+    N, E = tight_maze(M, 330, 540, 4290, 2880, 9, 6, 140, .06, keep=[((0, 0), (560, 660)), ((4, 5), (2304, 2760))])
+    deg = M.mz_deg
+    ex = (2304, 2760)
+    M.path([ex, (2290, 2960), (2304, 3080)], 200); M.blob(2304, 3110, 330, 165, dirt=0)       # 南口：先是一片开阔的洞厅
+    M.exit('cy_north', '返回山坡入口', (2224, 3290, 160, 64), (2304, 3180), 'up')
+    M.blob(600, 560, 430, 270, dirt=0)                                                           # 西北：剑阵洞厅 + 符锁石门
+    M.exit('xx_b2', '符锁石门 · 下行炼魂密室', (540, 262, 120, 50), (600, 410), 'down')
+    # ---- 私牢：挑五个互相离得远的死胡同，就地扩成小洞厅（入口不能从北边进，牢门靠北墙朝南）----
+    def nb_dir(k):
+        for a, b in E:
+            if k in (a, b): o = b if a == k else a; return (o[0] - k[0], o[1] - k[1])
+    leaves = [k for k in N if deg[k] == 1 and k not in ((0, 0), (4, 5))]
+    M.rng.shuffle(leaves); sites = []
+    for k in sorted(leaves, key=lambda k: nb_dir(k) == (0, -1)):
+        x, y = N[k]
+        if nb_dir(k) == (0, -1) or y < 420: continue
+        if any(math.hypot(x - a, y - b) < 820 for a, b, _ in sites): continue
+        if math.hypot(x - 2304, y - 3000) < 700 or math.hypot(x - 600, y - 600) < 600: continue
+        sites.append((x, y, k))
+        if len(sites) >= 5: break
+    M.cells_pending = []
+    for i, (x, y, k) in enumerate(sites):
+        M.blob(x, y - 30, 240, 150, dirt=0)
+        M.cells_pending.append((i, x, y - 10, CELLS[i % len(CELLS)]))
+    used = {k for *_, k in sites}
+    rest = [k for k in leaves if k not in used]
+    ground(M)
+    M._DI = M.inner()
+    for i, cx, cy, kind in M.cells_pending: cell_room(M, i, cx, cy, kind)
+    # 剑阵洞厅
+    M.decal('b1_镇剑八方阵', 600, 640); M.decal('b1_剑纹嵌石', 430, 760); M.decal('b1_剑纹嵌石', 780, 760)
+    M.place('b1_赤封碑', 340, 520); M.place('b1_赤封碑', 860, 520)
+    lamp(M, 430, 440, 'b1_铜灯', 210, '255,190,120'); lamp(M, 770, 440, 'b1_铜灯', 210, '255,190,120')
+    M.place('b1_丹炉', 960, 600); M.place('b1_符案', 260, 660); M.place('b1_incense_burner', 600, 470)
+    M.lights.append(dict(x=600, y=600, r=380, c='200,70,60'))
+    M.place('b1_符锁石门', 600, 312, 1.0, flip=False, foot=False)
+    M.rect(360, 0, 480, 262, nowalk=True)
+    lamp(M, 2134, 3200, 'b1_铜灯', 200, '255,190,120'); lamp(M, 2474, 3200, 'b1_铜灯', 200, '255,190,120')
+    # 甬道里灯少：隔很远才有一盏贴路边的火盆
+    lit = [(l['x'], l['y']) for l in M.lights]
+    for x, y in poisson(M, 20000, 760, lambda x, y: M.is_walk(x, y) and 10 <= M.din(x, y) <= 24 and not M.is_walk(x, y - 40)):
+        if any(math.hypot(x - a, y - b) < 720 for a, b in lit): continue
+        M.place('d_' + M.rng.choice(WLAMP), x, y, .9, foot=(-18, -10, 18, 4)); M.lights.append(dict(x=x, y=y - 50, r=170, c='255,150,70')); lit.append((x, y))
+    for k in rest:
+        x, y = N[k]; M.chests.append((x, y)); M.decal(M.rng.choice(['b1_赭骨堆', 'r116_bone_heap_ivory']), x + 50, y + 20)
+    stone_walls(M)
+    M.scatter(['detail_chain_pile', 'detail_mortar_cracks', 'bones'], int(M.w * M.h / 1200000), lambda x, y: M.dw(x, y) == 0 and M.din(x, y) > 40, sc=(.8, 1.0))
+    M.spots.update(deep=(600, 600), entry=(2304, 3110), **{p['id']: tuple(p['use']) for p in M.prisons})
+    M.zones = [dict(x=N[k][0], y=N[k][1], r=220) for k in N if k not in ((0, 0), (4, 5))][::3]
+    M.mobs = dict(n=7, types=['xbat', 'xwraith', 'xspider', 'xiexiu', 'xbat', 'xspider'], bg='bg_cellar_b1', lv=3)
+    M.meta = dict(grade='rgba(20,10,30,.18)', indoor=True, prisons=M.prisons)
+    M.bake(); M.collision(); J = save_map(M)
+    J['extra'] = sorted({p['cell'].replace('_关闭', '_开启') for p in M.prisons}); json.dump(J, open(f'{OUT}/xx_b1/map.json', 'w'), ensure_ascii=False)
+    g = preview(M, 'full', hero=(2304, 3110), scale=.25)
+    views(M, g, [(2304, 3080), (600, 640), N[(3, 3)], N[(6, 2)]] + [tuple(p['use']) for p in M.prisons[:4]])
+    print('xx_b1 v2', len(M.objs), 'objs', 'prisons', len(M.prisons), 'leaves', len(leaves), 'lights', len(M.lights))
+    return M
+
+if __name__ == '__main__':
+    import sys
+    (build if 'grid' in sys.argv else build2)()
+
