@@ -1046,13 +1046,13 @@ window.BGM_LIB = {
 },
 "lib_v07": {
 "no": "癸03",
-"name": "云霆·落雷·乙",
+"name": "云霆·收尾",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v07.mp3",
 "blob": "3da76a76197c86d254d9c109de67e2ed",
 "vol": 0.76,
-"desc": "即梦配音 · “九天神雷——落！” 单句，另一版",
+"desc": "即梦配音 · “灰飞烟灭。” 冷冷收束（11-06 核对：原先和落雷乙标反了）",
 "slot": "yunting:ult",
 "dur": 3.1
 },
@@ -1070,13 +1070,13 @@ window.BGM_LIB = {
 },
 "lib_v08": {
 "no": "癸05",
-"name": "云霆·收尾",
+"name": "云霆·落雷·乙",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/v08.mp3",
 "blob": "a222a1bfab71d006fc53c20296e56510",
 "vol": 0.86,
-"desc": "即梦配音 · “灰飞烟灭。” 冷冷收束",
+"desc": "即梦配音 · “九天神雷——落！” 单句，另一版（11-06 核对：原先和收尾标反了）",
 "slot": "yunting:ult",
 "dur": 3.1
 },
@@ -1687,10 +1687,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:duopo",
 "file": "lib29/n3_hero__duopo.mp4",
-"blob": "95952a4a855bc6c0ccfa1506a37d5a5e",
+"blob": "ab1bf40cf75e8814e58973ccbe6ba8f8",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，夺魄！”（11-03 定稿·整句原样切出）",
-"dur": 2.18
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，夺魄！”（11-03 定稿批里没有这句，用的是同日早一轮冷厉版）",
+"dur": 2.13
 },
 "lib_n3_hero__huti": {
 "no": "癸A03",
@@ -1711,10 +1711,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:jueying",
 "file": "lib29/n3_hero__jueying.mp4",
-"blob": "0bae7248b7c8c4c0536a2be26b40fea2",
+"blob": "08b4da58726006e4a1006f8a7cede309",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，绝影！”（11-03 定稿·整句原样切出）",
-"dur": 2.23
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，绝影！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
+"dur": 2.18
 },
 "lib_n3_hero__juling": {
 "no": "癸A05",
@@ -1747,10 +1747,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:pojun",
 "file": "lib29/n3_hero__pojun.mp4",
-"blob": "97784a686dfc7133b337fcf732b32b3e",
+"blob": "3c49eab92fa2e3b809a5735d39028216",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天璇！”（11-03 定稿·整句原样切出）",
-"dur": 2.32
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天璇！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
+"dur": 2.39
 },
 "lib_n3_hero__sun": {
 "no": "癸A08",
@@ -1771,9 +1771,9 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tanlang",
 "file": "lib29/n3_hero__tanlang.mp4",
-"blob": "85d9e595fe2d3e17a1bdae2758eff745",
+"blob": "0a917948175d0b17251069a065a769b4",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，追魂！”（11-03 定稿·整句原样切出）",
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “贪狼剑意，追魂！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
 "dur": 2.23
 },
 "lib_n3_hero__tianshu": {
@@ -1783,10 +1783,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:tianshu",
 "file": "lib29/n3_hero__tianshu.mp4",
-"blob": "3f870ab4967de56bae210296c3a53bec",
+"blob": "560ddf6a69edde671c12db8fb15836a4",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天枢！”（11-03 定稿·整句原样切出）",
-"dur": 2.25
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，天枢！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
+"dur": 2.23
 },
 "lib_n3_hero__xingluo": {
 "no": "癸A11",
@@ -1795,10 +1795,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingluo",
 "file": "lib29/n3_hero__xingluo.mp4",
-"blob": "22c09025da922121d6376be3d9b455ec",
+"blob": "168613fd7c41b24c1b18130ba8e71a41",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑阵，星罗！”（11-03 定稿·整句原样切出）",
-"dur": 2.39
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑阵，星罗！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
+"dur": 2.69
 },
 "lib_n3_hero__xingluo2": {
 "no": "癸A12",
@@ -1819,10 +1819,10 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:xingyun",
 "file": "lib29/n3_hero__xingyun.mp4",
-"blob": "919bc32b5297b458ae545d8e90d700f7",
+"blob": "c8ba6881a9b60961ce858bfa1298e2f2",
 "vol": 1,
-"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，星陨！”（11-03 定稿·整句原样切出）",
-"dur": 2.69
+"desc": "即梦配音·冷厉版（照点星的音色节奏） · “破军剑意，星陨！”（11-03 定稿·整句原样切出；11-06 核对：定稿批切片时顺序错位，按实际台词重新对应）",
+"dur": 2.25
 },
 "lib_n3_hero__xl_wushang": {
 "no": "癸A14",
