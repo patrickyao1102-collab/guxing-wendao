@@ -5651,9 +5651,12 @@ window.COMIC_TRIG = [
 ];
 
 // ================= 第一、二章剧情插画（小云雀）=================
+// 作者 11-05：插画全部不要了，剧情只用立绘对话（NO_CG）。图也不再加载。
+window.NO_CG = true;
 // 关键台词出现时，插画淡入铺满全屏（慢推镜 + 上下黑边），对话框照常显示在插画上；
 // 持续 hold 句台词后淡出，回到原场景 / 战斗。第一章重写时会改成直接在剧情里调用 storyCG()。
 (function () {
+  if (window.NO_CG) { window.storyCG = () => {}; window.CG_ON = () => false; return; }
   const KEYS = ['cg_meteor', 'cg_xingxuan', 'cg_library', 'cg_starsea', 'cg_stele', 'cg_father', 'cg_farewell', 'cg_shield', 'cg_zhuihun', 'cg_linxue_stele', 'cg_qunxing', 'cg_tanlang', 'cg_jianzhen', 'cg_lingquan', 'cg_jueying', 'cg_tunshi', 'mj_arrive', 'mj_statues', 'mj_teaching', 'mj_butian', 'mj_whoareyou'];
   const COMIC = window.COMIC_TRIG || [];
   for (const k of KEYS.concat(COMIC.map(c => c[1]))) { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = 'assets3/' + k + '.webp'; }
@@ -6550,24 +6553,55 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     world.camFocus = [z(760), z(360)]; world.cam = { x: z(120), y: 0 };
     await fadeIn(900);
     await caption('九州大陆 · 天剑宗后山', 1600);
-    await narrate('今夜，是叶孤星十八岁的生日。他独自站在后山崖边，望着满天星斗。');
-    await say('叶孤星', '十八年了……依旧只是练气六重。也难怪人人都叫我“天煞孤星”。');
-    await say('叶孤星·惊', '咦？那是什么光……');
+    // 作者 11-05：开场重写——玩家得先知道这是什么世界、他是谁、为什么被人瞧不起；不用插画，全靠立绘对话
+    await narrate('九州大陆，修士以练气入道，九重境界，步步登天。天剑宗位列九州顶级仙门，弟子十五六岁便能踏入第二境——凝丹。');
+    await narrate('今夜，是天剑宗宗主之子叶孤星的十八岁生日。');
+    // 崖下石径上两个弟子边走边嚼舌根（不用旁白说"人人嘲笑他"，让玩家亲耳听见）
+    const d1 = addActor('c_d1', z(1230), z(760), '弟子', '#8a9aaa'), d2 = addActor('c_d3', z(1290), z(775), '弟子', '#8a9aaa'); d1.h = d2.h = 108; d1.dir = d2.dir = -1;
+    const walk = Promise.all([moveActor(d1, z(880), z(760), 70), moveActor(d2, z(940), z(775), 70)]);
+    await sleep(500);
+    await say('弟子', '嘘——小声点，少宗主就在上头崖边呢。');
+    await say('弟子', '怕什么？练气六重卡了整整两年，连外门弟子都比他强。宗主大人威名盖世，偏生了这么个……');
+    await say('弟子', '天煞孤星嘛。听说他出生那夜流星落地，长老们都说是天降祥瑞——结果呢？');
+    await say('弟子', '祥瑞？我看是命中带煞，拖累宗门气运。走走走，别让他听见。');
+    await walk; await tween(500, t => { d1.alpha = d2.alpha = 1 - t; }); d1.hidden = d2.hidden = true;
+    await say('叶孤星·苦笑', '……听见了。这十八年，哪一天不是这些话。');
+    await say('叶孤星·思', '（出生那夜，流星坠地，一块黑玉落在我襁褓旁。爹说那是祥瑞，抱着我笑了一整夜。）');
+    await say('叶孤星·伤', '（可十八年过去，我连练气七重都迈不过去。他已经很久……没正眼看过我了。）');
+    await say('叶孤星', '天降祥瑞……天煞孤星……呵。');
+    await say('叶孤星·惊', '咦？那是什么光——');
     await meteorWorld(z(778), z(557));
+    await say('叶孤星·苦笑', '又是流星？老天爷嫌嘲讽得还不够，在我生日这天又送一颗？');
     await moveActor(p, z(778), z(625), 200); p.face = 'up';
-    await say('叶孤星·惊', '一块玉佩？连碎裂的痕迹都和我的对得上……');
+    await say('叶孤星·惊', '一块玉佩？……跟我这块一模一样，连碎裂的痕迹都对得上！');
     await jadeWorld(z(778), z(520));
     S.flags.hs_meet = 1;
-    await say('星旋', '哎呀，你终于十八岁了！我是这玉佩的器灵星旋，等你整整十八年了。');
-    await say('星旋', '天煞孤星修不了普通功法——可世间偏偏有一部专为你而生的：九曜剑典！');
+    await say('星旋·笑', '哎呀，你终于十八岁了！我可等得快无聊死了！');
+    await say('叶孤星·惊', '你……你是谁？！');
+    await say('星旋', '我叫星旋，你手里这块玉佩的器灵。十八年前玉佩碎成两半，一半陪你出生，另一半我留着，等今天才送给你。');
+    await say('叶孤星·怒', '所以这十八年，你就躲在玉佩里看我笑话？');
+    await say('星旋·坏笑', '话别说得这么难听嘛。他们说的倒也没错——你的确是万年一遇的天煞孤星。');
+    await say('星旋·严肃', '不过，这可是万中无一的绝世好命。天煞孤星命格，普通功法与你根本不契合，练一万年也不会寸进。');
+    await say('叶孤星·思', '普通功法没用……那我这十八年练的都是什么？');
+    await say('星旋·坏笑', '白练。');
+    await say('叶孤星·怒', '你这家伙说话能不能好听点？！');
+    await say('星旋·严肃', '世间只有一部功法为你这命格而生——九曜剑典。超越神阶的剑修功法，修之可连北斗九曜，每破一个大境，便融一颗曜星之力入剑。');
+    await say('叶孤星·惊', '九曜剑典？藏经阁里是有记载，可那不是失传千年、只剩残篇了吗？');
+    await say('星旋·得意', '别人那里没有，不代表我这里没有。完整的九曜剑典，整个九州只在我这儿。');
     await say('星旋', '先问你一句——你修炼，到底是为了什么？');
     const ch = await choose('你修炼，是为了什么？', ['让那些嘲笑我的人闭嘴', '不让爹再为我失望', '想看看九州之外的天地']);
-    if (ch === 0) { S.hero.atk += 4; S.hero.bonus = '攻击 +4'; await say('星旋', '好！够狠，够直接！本器灵喜欢。'); }
-    else if (ch === 1) { S.hero.maxhp += 40; S.hero.hp += 40; S.hero.bonus = '气血 +40'; await say('星旋', '啧，还挺孝顺……行吧，这份心性能扛事。'); }
-    else { S.hero.points += 10; S.hero.bonus = '星辰点 +10'; await say('星旋', '哦？有点意思，你小子心比天大。'); }
+    if (ch === 0) { S.hero.atk += 4; S.hero.bonus = '攻击 +4'; await say('星旋·笑', '好！够狠，够直接！本器灵喜欢。'); }
+    else if (ch === 1) { S.hero.maxhp += 40; S.hero.hp += 40; S.hero.bonus = '气血 +40'; await say('星旋·笑', '啧，还挺孝顺……行吧，这份心性能扛事。'); }
+    else { S.hero.points += 10; S.hero.bonus = '星辰点 +10'; await say('星旋·笑', '哦？有点意思，你小子心比天大。'); }
+    await say('星旋', '看着玉佩，把意念集中进去——你现在的底细和能换的东西，都在里面。');
     await showPanel('玉佩 · 宿主面板', ['宿主：叶孤星', '命格：天煞孤星（专属）', '境界：练气六重（99%）', '星辰点：' + S.hero.points, '!问心奖励：' + S.hero.bonus, '可兑换：九曜剑典（100点）']);
-    await say('星旋', '点数不够？藏经阁里就有九曜剑典的残本——拿来给你打一折！');
-    await say('叶孤星·坚定', '……好！今晚我就去藏经阁走一趟！');
+    await say('叶孤星·怒', '还要兑换？一百点？我才这么几点！你耍我呢？');
+    await say('星旋·忧', '咳……玉佩的规矩，宝物都得兑换。我也没想到你这么菜……');
+    await say('星旋·坏笑', '不过有办法：你们藏经阁不是有九曜剑典的残本吗？拿来，残本抵正版，我做主给你打一折！');
+    await say('叶孤星·惊', '残本锁在藏经阁禁区，连长老都不能随便取——你是让我去偷？！被发现了，我爹会把我逐出宗门！');
+    await say('星旋·坏笑', '你不说我不说，谁知道？再说你名声早就坏透了，也不差这一件。不拿残本，你就甘心当一辈子废柴？');
+    await say('叶孤星·思', '…………');
+    await say('叶孤星·坚定', '好！今晚我就去藏经阁走一趟！');
     await say('星旋', '对了，流星把星力撒得满山都是——崖边那几颗发亮的灵晶，捡上。右边石台上那圈星钉也亮了，有意思……');
     world.camFocus = null; S.hud = true; S.quest = '下山去藏经阁（后山可以四处看看）';
     toast('点地面行走。灵草、宝箱、陨星灵晶、右边的古阵都可以去看看', 3000);
@@ -8091,6 +8125,7 @@ window.MapBubble=(()=>{
 // ================= 小云雀新剧情插画（按最新建模：叶孤星定稿 / 星旋幼年体 / 叶擎苍重做）=================
 // 关键台词出现时铺满全屏（沿用 cg12 的 storyCG 渲染层）。
 (function () {
+  if (window.NO_CG) return;
   const TRIG = [
     ['书……自己飞到石台上了', 'cg_lib_rotunda', 2],      // 藏经阁三楼：转轮经藏，剑典飞向石台
     ['青竹小院在天剑峰山腰', 'cg_res_home', 2],          // 夜归青竹小院
