@@ -3880,8 +3880,10 @@ part6 = async function () { // 第一章收尾：父亲的独白（原著第八�
   S.hud = false; world.map = null; S.scene = () => { ctx.fillStyle = '#04050b'; ctx.fillRect(0, 0, W, H); };
   await fadeIn(600);
   await narrate('当夜，宗主居所。叶擎苍独自立在窗前，望着漫天星斗，久久不语。');
-  await say('叶擎苍', '孤星……你的命格特殊，其实在你出生那天，爹便知道了。');
-  await say('叶擎苍', '本想护你安安稳稳过完这一生……既然上天注定你要修九曜剑典，爹只能尽我所能，护你周全了。');
+  await say('叶擎苍·叹息', '练气九重……三天。');
+  await say('叶擎苍', '孤星，你的命格特殊，其实在你出生那天，爹便知道了。流星、黑玉、天煞孤星——那不是祥瑞，也不是灾厄，是上天给你的另一条路。');
+  await say('叶擎苍·叹息', '爹本想瞒你一辈子，护你安安稳稳过完这一生。既然上天注定你要修九曜剑典……');
+  await say('叶擎苍·严肃', '那爹只能尽我所能，护你周全了。');
   await fadeOut(700);
   await ch2Start();
 };
@@ -6165,20 +6167,30 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const yt = addActor('w_yunting', yx, yy, '云霆', '#b8c4ff'); yt.face = 'right'; const lx2 = addActor('w_linxue', lx, ly, '林雪', '#bff0ff'); lx2.face = 'left';
     await fadeIn(600);
     await caption('三日后 · 天剑宗演武广场', 1800);
-    await narrate('三日后的清晨，演武广场上格外热闹。西侧碑台上竖着一块测灵碑，约莫三丈高，碑身刻满灵纹。');
+    await narrate('天剑宗有规矩：弟子年满十八，必须下山历练，磨砺心性。下山之前，宗门要在测灵碑前检测每个人的修为，以定历练的去处。');
+    await narrate('清晨的演武广场格外热闹。西侧碑台上竖着一块三丈高的测灵碑，碑身刻满灵纹。');
+    await say('弟子', '这次下山，宗门就数云师兄和林师姐最受期待了。云师兄才十七岁半，已经练气九重；林师姐更厉害，上个月就踏入凝丹境了。');
+    await say('弟子', '嘿，叶孤星今年也满十八了，也得来检测。堂堂宗主之子，天赋却……真是让人唏嘘。');
+    await say('叶孤星·坏笑', '诸位师兄弟大清早的就这么关心我，我还真是受宠若惊啊。');
     await say('赵师弟', '哟，这不是咱们的天煞孤星少宗主吗？该不会是突破练气七重，给大家一个惊喜吧？');
     await narrate('（周围的弟子哄笑起来。）');
     await say('叶孤星·坚定', '说不定真有惊喜呢，到时候可别吓着赵师弟你。');
+    await say('执事长老', '时辰已到！检测开始，诸位弟子依次上前。——云霆！');
     // 云霆、林雪先测
     await walkSteleTest(yt, 'rgba(90,150,255,1)', '练气九重巅峰', .95, '云霆');
+    await say('执事长老', '云霆，练气九重巅峰！——林雪！');
     await walkSteleTest(lx2, 'rgba(190,110,255,1)', '凝丹初期！', 1, '林雪');
-    await narrate('（全场惊叹。）');
-    await narrate('长老：“下一位——叶孤星！”');
+    await say('执事长老', '林雪，凝丹初期！');
+    await narrate('（全场惊叹。其余弟子陆续测完，很快轮到了最后一个。）');
+    await say('执事长老', '下一位——叶孤星！');
+    await narrate('（场中瞬间安静下来，所有目光都落在叶孤星身上，带着浓浓的戏谑。高台之上，叶擎苍的手悄悄握紧了扶手。）');
     const [px, py] = near(STELE[0], STELE[1] + 60);
     await moveActor(world.player, px, py, 200); world.player.face = 'up';
     await steleScene('rgba(80,255,180,1)', '练气七重？', .45);
     await steleScene('rgba(80,160,255,1)', '练气九重巅峰！', 1);
-    S.shake = 8; await narrate('（全场哗然。高台上，宗主叶擎苍霍然起身。）');
+    S.shake = 8; await say('执事长老', '叶……叶孤星，练气九重巅峰！');
+    await narrate('（全场哗然。高台上，宗主叶擎苍霍然起身，死死盯着自己的儿子。）');
+    await say('弟子', '什么？！三天前他还是练气六重！');
     await say('赵师弟', '不……不可能！一定是宗主给你的神兵作弊！敢不敢上擂台比划比划？！');
     await say('叶孤星·坚定', '奉陪。');
     await say('星旋', '小心，他手里那个金铃铛是家传法宝“金铃罩”。普通攻击打不动。贪狼·追魂能直接贯穿护罩——两剑，就够他受的！');
@@ -6188,8 +6200,9 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     S.scene = drawMap; world.locked = true; world.camFocus = [880, 1200];
     { const [ax, ay] = near(STELE[0] - 60, STELE[1] + 160); world.player.x = ax; world.player.y = ay; const [bx, by] = near(STELE[0] + 90, STELE[1] + 170); zhao.x = bx; zhao.y = by; zhao.dir = -1; world.player.face = 'right'; }
     await say('赵师弟', '……');
-    await say('叶孤星·坚定', '这惊喜，够了吗？');
-    await narrate('（高台之上，叶擎苍看着自己的儿子，严肃的脸上浮现出一丝笑容，轻轻点了点头。）');
+    await say('叶孤星·坚定', '赵师弟，这惊喜，够了吗？');
+    await narrate('（赵师弟脸色惨白，半天说不出一句话。叶孤星没再理他，目光穿过人群，望向高台。）');
+    await narrate('（高台之上，叶擎苍看着这个让他担忧了十八年的儿子，严肃的脸上浮现出一丝笑容，轻轻点了点头。）');
     await fadeOut(900); world.camFocus = null;
     await part6();
   };
@@ -6618,9 +6631,10 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     const [c, r] = at(1405, 1180); tileSetMap('tj_houshan', c, r, 'down'); world.locked = true; S.scene = drawMap; S.hud = true;
     await fadeIn(600);
     await say('星旋', '这几只是打发了，可流星的星力还没散——山里的小妖还会被引过来。');
-    await say('星旋', '想练手就在后山多转转，碰上那些发光的兽火就是妖兽。练够了，顺着南边的石阶下山去藏经阁。');
-    await say('星旋', '不过……刚才流星一落，右边石台上那圈星钉好像亮了。你要是好奇，可以先去瞧一眼。');
-    S.quest = '去藏经阁（看左上角小地图的金圈，可先在后山打兽火历练）'; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('碰到发光的兽火就会开打。灵草、宝箱、古阵也都能去看看。走到南边石阶口就去藏经阁', 3600);
+    await say('星旋·严肃', '你拿根桃木剑跟妖兽拼命，看得本器灵心惊肉跳。刚才打着打着，我闻到溪边岩隙里有一股剑气——像是哪位前辈弟子藏了把剑在那儿。');
+    await say('星旋', '先去把剑取了。顺便在后山转转，碰上那些发光的兽火就是妖兽，练练手。练够了，顺着南边的石阶下山去藏经阁。');
+    await say('星旋', '对了……刚才流星一落，右边石台上那圈星钉好像亮了。你要是好奇，也可以去瞧一眼。');
+    S.quest = S.flags.hs_chest ? '去藏经阁（看左上角小地图的金圈，可先在后山打兽火历练）' : '去溪边岩隙取剑（看左上角小地图的金圈）'; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('碰到发光的兽火就会开打。灵草、宝箱、古阵也都能去看看。走到南边石阶口就去藏经阁', 3600);
     const [tx, ty] = near(1322, 1800);
     addTrigger(tx, ty, 110, async () => { world.hold = true; S.quest = ''; await fadeOut(500); await (window.LIB_PART3 || origPart3)(); });
     world.locked = false;
@@ -7120,19 +7134,25 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     const [c, r] = atOf(SC)(1430, 1250); tileSetMap('tj_scripture', c, r, 'down'); S.scene = drawMap; world.locked = true; S.quest = '';
     await fadeIn(500);
     const p = world.player;
-    await say('叶孤星', '差点就被你害惨了！');
-    await say('星旋', '怎么能叫害惨？咱们明明配合默契，天衣无缝！');
+    await say('叶孤星·苦笑', '差点就被你害惨了！');
+    await say('星旋·大笑', '怎么能叫害惨？咱们明明配合默契，天衣无缝！');
+    await say('叶孤星·怒', '还天衣无缝呢，差点就被你害死——');
     const [fx, fy] = nearOf(SC)(1300, 1560), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.dir = 1; f.alpha = 0; f.h = 112; await tween(500, t => f.alpha = t);
-    await say('叶擎苍', '孤星，你在和谁说话？');
+    await say('叶擎苍·严肃', '孤星，你在和谁说话？');
     await moveActor(f, p.x - 70, p.y + 70, 140); p.face = 'down';
-    await say('叶孤星', '爹……你怎么还没睡啊？');
-    await say('叶擎苍', '今日是你十八岁生辰，我本想看看你，房中却空无一人。你深夜来藏经阁做什么？');
-    await say('叶擎苍', '《九曜剑典》？这剑典失传千年，从没有人修炼成功过，你拿它干嘛？');
+    await say('叶孤星·惊', '爹……你怎么还没睡啊？');
+    await say('叶擎苍·严肃', '今日是你十八岁生辰，我本想去看看你，房中却空无一人——倒在这里撞见你鬼鬼祟祟。深夜来藏经阁做什么？');
+    await say('叶孤星·苦笑', '……孩儿想来找一本功法看看。');
+    await say('叶擎苍·严肃', '拿来我看看。');
+    await narrate('叶孤星只好把怀里的残本递了过去。叶擎苍看清封面上的字，脸色一变。');
+    await say('叶擎苍·严肃', '《九曜剑典》？这剑典失传千年，残缺不全，从没有人修炼成功过。你拿它做什么？');
     await say('叶孤星·坚定', '爹，别人修炼不成，不代表我修炼不成。我只想试试。');
-    await say('叶擎苍', '……你这孩子，总是不愿认命。也罢，今天是你生辰，这残本便先给你了。');
+    await say('叶擎苍·叹息', '……你这孩子，总是不愿认命。也罢，今天是你生辰，这残本便先给你了。');
     await say('叶擎苍', '只是以后，不许再做这种偷偷摸摸的事。回去吧，好好休息。');
+    await narrate('叶擎苍把残本递回他手里，转身离去。月光下，那道背影似乎也带着几分落寞。');
     await moveActor(f, fx, fy + 80, 140); await tween(400, t => f.alpha = 1 - t); f.hidden = true;
-    await say('星旋', '……你爹看起来，也挺不好过的嘛。');
+    await say('星旋·忧', '……你爹看起来，也挺不好过的嘛。');
+    await say('叶孤星·伤', '（他什么都没多问。……十八年来，他其实一直在等我开口。）');
     await fadeOut(600);
     S.flags.lib_ch1 = 0; S.flags.lib_sleep = 0; S.flags.lib_taken = 1; LX.story = null; world.locked = false;
     await (window.RES_PART4 || part4)();
@@ -7142,7 +7162,10 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     const [c, r] = atOf(SC)(1110, 1330); tileSetMap('tj_scripture', c, r, 'up'); S.scene = drawMap; S.hud = true; world.locked = true;
     await fadeIn(600);
     await caption('当夜 · 藏经阁', 1600);
-    await say('叶孤星', '门口有两个守阁弟子……怎么进去？');
+    await narrate('藏经阁在主峰旁一处僻静的院落里，四周竹林环绕。叶孤星贴着竹影摸到了院门外。');
+    await say('星旋·坏笑', '我说，你堂堂宗主之子，回自己宗门的藏经阁拿本功法而已，至于搞得跟贼一样吗？');
+    await say('叶孤星·怒', '你闭嘴！还不是你出的馊主意？要是被发现，我以后就彻底没脸见人了。');
+    await say('叶孤星·思', '门口有两个守阁弟子……怎么进去？');
     await say('星旋', '两个练气境的小家伙而已，看我的！');
     const cam = world.cam || { x: 0, y: 0 };
     const gp = SC.objs.filter(o => /guard/.test(o.id)).map(o => [o.ax, o.y + 40]);
@@ -7683,6 +7706,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
 
   // ---------- 获得物品框（仿老 java 仙侠游戏：屏幕中央卷轴框 + 物品格 + 名称/数量/说明）----------
   const icon = (k, x, y, s) => {
+    if (k && /^item:/.test(k)) { itemIcon(k.slice(5), x, y, s * .46); return; }
     if (k && IMG[k]) { const im = IMG[k], r = Math.min(s / im.width, s / im.height); ctx.drawImage(im, x - im.width * r / 2, y - im.height * r / 2, im.width * r, im.height * r); return; }
     ctx.save(); ctx.translate(x, y);
     if (k === 'gold') { for (let i = 0; i < 3; i++) { ctx.fillStyle = ['#c9a23a', '#e8c35a', '#ffe08a'][i]; ctx.beginPath(); ctx.ellipse(-8 + i * 8, 10 - i * 9, 20, 9, 0, 0, 7); ctx.fill(); ctx.strokeStyle = '#7a5a10'; ctx.lineWidth = 2; ctx.stroke(); } }
@@ -14050,6 +14074,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     [/见宗主|天剑大殿/, () => ({ map: TMAPS.tj_hall ? 'tj_hall' : 'tj_front' })],
     [/山门出发|山门/, () => ({ map: 'tj_front' })],
     [/集齐.*灵晶/, () => { const few = (S.hero.bag.yunxingshi || 0) < 3, left = few && world.mapName === 'tj_houshan' && (world.actors || []).some(a => a.npc && a.npc.name === '陨星灵晶'); return { map: 'tj_houshan', pt: left ? null : lockPt(), pick: few ? '陨星灵晶' : '九曜锁灵阵' }; }],   // 灵晶没捡够：金圈指向最近的灵晶，不再一直指着阵心
+    [/溪边岩隙|取剑/, () => ({ map: 'tj_houshan', pick: '溪边岩隙宝箱' })],
     [/锁灵阵|破阵灵晶|天剑后山|后山|崖边|星空/, () => ({ map: 'tj_houshan', pt: lockPt() })],
     [/侧廊|溜进藏经阁|藏经阁内|阁内/, () => ({ map: 'tj_library' })],
     [/转轮经藏/, () => ({ map: 'tj_forbidden', pick: '八方转轮经藏' })],
