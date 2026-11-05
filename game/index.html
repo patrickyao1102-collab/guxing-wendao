@@ -3508,7 +3508,7 @@ async function part4() { // 贪狼破军：连升三级 + 教学战 + 兑换
   await showPanel('任务完成', ['突破练气七重 +20', '突破练气八重 +30', '突破练气九重 +50', '凝聚破军剑意 +50', '凝聚贪狼剑意 +80', '!当前星辰点：' + S.hero.points]);
   await say('叶孤星·大笑', '发财了！快打开兑换列表！');
   await choose('玉佩 · 兑换', ['星痕剑（150点）· 攻击大增，贪狼每战可用两次']);   // 作者 11-03：剧情这里只能换剑
-  { S.hero.sword = true; S.hero.points -= 150; await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次']); await say('叶孤星', '不愧是专为九曜剑典打造的剑！'); }
+  { S.hero.points -= 150; addItem('w_xinghen'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次', '已放入背包——打开背包换上它']); await say('叶孤星', '不愧是专为九曜剑典打造的剑！'); }
   await caption('三日后', 1500);
   await fadeOut(500);
   await part5();
@@ -7364,7 +7364,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await showPanel('任务完成', ['突破练气七重 +20', '突破练气八重 +30', '突破练气九重 +50', '凝聚破军剑意 +50', '凝聚贪狼剑意 +80', '!当前星辰点：' + S.hero.points]);
     await say('叶孤星·大笑', '230 点！发财了！快快快，打开兑换列表！');
     await choose('玉佩 · 兑换', ['星痕剑（150点）· 专为九曜剑典打造，贪狼不再虚脱']);   // 作者 11-03：剧情这里只能换剑
-    { S.hero.sword = true; S.hero.points -= 150; playSnd('ui_confirm'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次']); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
+    { S.hero.points -= 150; addItem('w_xinghen'); playSnd('ui_confirm'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次', '已放入背包——打开背包换上它']); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
     RES_TOD('dawn'); await narrate('不知不觉，东边的天空泛起了鱼肚白。');
     await say('叶孤星', '折腾了一整夜……回屋睡会儿。');
     await fadeOut(600); S.flags.res_trained = 1; S.quest = '';
@@ -16443,4 +16443,15 @@ window.MarketEffects = (() => {
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 <script src="sfx_xyq.js"></script>
+<script src="hanxing_guide.js"></script><script>// 作者 11-06：换到星痕剑后背包里没有——以前只开了「佩剑」加成，没真的给剑。
+// 现在兑换时放进背包，自己去装备；老存档 / 测试面板跳关里已经拿到剑的，自动补上（武器栏空就直接装上，否则放进背包）。
+(function () {
+  const has = h => { const e = h.equip || {}, g = h.bag || {}; return e.weapon === 'w_xinghen' || e.weapon === 'w_xinghen2' || g.w_xinghen > 0 || g.w_xinghen2 > 0 ||
+    Object.values(S.allyEq || {}).some(x => x && (x.weapon === 'w_xinghen' || x.weapon === 'w_xinghen2')); };
+  setInterval(() => { try { const h = typeof S !== 'undefined' && S.hero; if (!h || !h.sword || has(h)) return;
+    h.equip = h.equip || {}; h.bag = h.bag || {};
+    if (!h.equip.weapon) h.equip.weapon = 'w_xinghen'; else { h.bag.w_xinghen = 1; h.sword = false; }
+  } catch (e) {} }, 1000);
+})();
+</script>
 </body></html>
