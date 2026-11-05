@@ -5401,7 +5401,7 @@ async function ch4ElderAI(e, b) {
     const eye = b.enemies.find(u => u.eye && u.alive);
     if (eye) { const dead = b.enemies.filter(u => u.ghost && !u.alive); if (dead.length) { const g = dead[0]; g.alive = true; g.hp = g.maxhp; floatText(g.x, g.y - g.h - 20, '阴魂复生', '#9fc0ff', 40); fx('fx3_orb_violet', { x: g.x, y: g.y - g.h * .5, scale: 1, alpha: 1.2 }); await sleep(500);
         if (!b.hintEye) { b.hintEye = 1; await say('星旋', '阴魂杀不完的！阵眼——牢笼顶上那个骷髅符印！先把它打碎！'); } return true; } }
-    if (!eye && !b.eyeBroken) { b.eyeBroken = 1; for (const g of b.enemies.filter(u => u.ghost)) { g.alive = false; g.hp = 0; } await say('炼魂谷长老', '阴煞鬼狱……竟被你们破了？！'); }
+    if (!eye && !b.eyeBroken) { b.eyeBroken = 1; for (const g of b.enemies.filter(u => u.ghost)) { g.alive = false; g.hp = 0; } await say('炼魂谷长老·怒', '阴煞鬼狱……竟被你们破了？！'); }
     if (e.turn % 3 === 0) return enemyAoE(e, '阴煞鬼狱', 'fx3_burst_violet', .7, '#ff6a6a');
     if (b.eyeBroken && e.hp < e.maxhp * .55) { b.phase = 2; return ch4Breakthrough(e, b); }
     return false;
@@ -5411,11 +5411,11 @@ async function ch4ElderAI(e, b) {
     b.incense++;
     if (b.incense === 2 && lx && lx.alive) { await say('林雪', '剑在，人在——以我精血，点星！'); S.flash = .8; S.flashColor = '#cff4ff'; playSnd('sfx_ice', 1);
       fx('fx3_burst_blue', { x: e.x, y: e.y - e.h * .5, scale: 2.2, alpha: 1.5 }); const { d } = dmgCalc(lx, e, 3.2, 0); applyDamage(e, d, true, { pierce: true }); await sleep(700);
-      await say('炼魂谷长老', '找死！'); lx.hp = 1; lx.hurt = 1; S.shake = 18; floatText(lx.x, lx.y - lx.h - 30, '被击飞', '#ff9a9a', 44); await sleep(600); return true; }
+      await say('炼魂谷长老·怒', '找死！'); lx.hp = 1; lx.hurt = 1; S.shake = 18; floatText(lx.x, lx.y - lx.h - 30, '被击飞', '#ff9a9a', 44); await sleep(600); return true; }
     if (b.incense === 4 && yt && yt.alive) { await say('云霆', '……以我心头血。'); await say('云霆', '天剑一式——点星！'); S.flash = 1; S.flashColor = '#e0d0ff'; playSnd('sfx_ult', 1);
       if (typeof skDianxing === 'function') { yt.mp += 30; await skDianxing(yt, e); } const { d } = dmgCalc(yt, e, 3.6, 0); applyDamage(e, d, true, { pierce: true });
       await narrate('点星剑芒刺入长老体内的瞬间，云霆体内那一丝纳月之力骤然爆发——长老的灵力竟被硬生生吞掉了一截！');
-      await say('炼魂谷长老', '你……你也会吞噬？！'); yt.hp = Math.max(1, Math.round(yt.hp * .3)); return true; }
+      await say('炼魂谷长老·伤', '你……你也会吞噬？！'); yt.hp = Math.max(1, Math.round(yt.hp * .3)); return true; }
     if (b.incense >= 6) { b.meditate = false; return ch4Jueying(e, b); }
     // 普通回合：攻击云霆或林雪（叶孤星在身后入定）
     const t = [yt, lx].filter(u => u && u.alive).sort(() => Math.random() - .5)[0];
@@ -5425,7 +5425,7 @@ async function ch4ElderAI(e, b) {
   return false;
 }
 async function ch4Breakthrough(e, b) {
-  await say('炼魂谷长老', '好……好！三个凝丹小辈，竟能逼本座到这一步！');
+  await say('炼魂谷长老·怒', '好……好！三个凝丹小辈，竟能逼本座到这一步！');
   b.state = 'act'; await dimTo(.5, 300);
   await narrate('叶孤星、云霆、林雪同时出手——三道剑光撞在长老身前，却被一张燃烧的血色符咒挡了下来。');
   S.flash = .9; S.flashColor = '#ff5040'; S.shake = 20; playSnd('sfx_boom', .9); await sleep(400);
@@ -5511,18 +5511,18 @@ async function ch4Start() {
   // 2. 城主府
   cyScene(.15); await fadeIn(700);
   await narrate('城主府。苍月城主是个方脸短须的中年人，热情得有些过头。');
-  await say('苍月城主', '天剑宗的高徒！快请坐快请坐！来人，上茶！');
+  await say('苍月城主·笑', '天剑宗的高徒！快请坐快请坐！来人，上茶！');
   await narrate('侍女端茶时脚下一滑，一整壶滚烫的茶水朝云霆泼了过去——叶孤星想都没想，抬手就挡在了前面。');
   await say('叶孤星', '嘶——');
   await say('云霆·苦笑', '……你是不是傻。');
   await say('叶孤星', '手快，没过脑子。');
   await say('云霆·坏笑', '你哪回过脑子了。');
   await say('林雪·笑', '（低头喝茶）……你们两个，出门在外倒是挺讲义气。');
-  await say('苍月城主', '哎呀哎呀，失礼失礼！叶少侠这一手……好快的身法！敢问修的是什么功法？');
+  await say('苍月城主·惊', '哎呀哎呀，失礼失礼！叶少侠这一手……好快的身法！敢问修的是什么功法？');
   await say('叶孤星', '呃……');
   await say('星旋', '（快！编一个！）');
   await say('叶孤星', '北、北斗剑诀。');
-  await say('苍月城主', '北斗剑诀！久仰久仰！（其实没听说过）');
+  await say('苍月城主·笑', '北斗剑诀！久仰久仰！（其实没听说过）');
   await say('星旋', '（哈哈哈哈哈北斗剑诀哈哈哈哈——）');
   await say('苍月城主', '说正事。我抓了一个炼魂谷的探子，审了三天，只问出两句：被抓的人关在城北地下，看守的长老，已经凝丹九重巅峰。');
   await say('苍月城主', '本城主凝丹七重……打不过，也破不开入口的阵法。');
@@ -5536,7 +5536,7 @@ async function ch4Start() {
     if (i === 2) ok = true; else { tries++; S.flash = .5; S.flashColor = '#ff3020'; S.shake = 8; await say('星旋', tries >= 2 ? '山！山之象！你是不是没听我说话！' : '不对！法阵反震了一下——再想想，「山之象」。'); } }
   await say('叶孤星', '（传音）云霆，东北角，第三道纹。');
   await narrate('云霆一步踏出，青霄剑出鞘，一剑点在东北角的阵纹上。整座法阵像玻璃一样碎成了漫天红光。');
-  await say('苍月城主', '……一剑？？');
+  await say('苍月城主·惊', '……一剑？？');
   if (!tries) C3.shard(1, '一次找对阵眼');
   // 4. 密室一层
   await narrate('石阶下是一条长长的地道，两侧铁栅后面关满了人，一个个面如死灰，灵力被抽得只剩一口气。');
@@ -5569,7 +5569,7 @@ async function ch4Start() {
   S.hero.points = Math.max(0, (S.hero.points || 0) - 200); partyRest();
   await narrate('奄奄一息的长老被收进了储物戒指。');
   await say('叶孤星', '炼魂谷在哪？');
-  await say('炼魂谷长老', '……云渺大陆西南……荒魂山脉……你们去了，也是送死……');
+  await say('炼魂谷长老·伤', '……云渺大陆西南……荒魂山脉……你们去了，也是送死……');
   if (S.flags.ch4_tofu_saved) { await narrate('第二天，卖豆腐的妇人抱着丈夫哭了很久，然后硬塞给叶孤星一块磨得发亮的小石头。'); await say('卖豆腐的妇人', '这是我们家祖上传下来的，说是天上掉下来的星星……仙长拿着！'); C3.shard(1, '豆腐娘子'); }
   await fadeOut(800);
   // 反派插叙
