@@ -4833,7 +4833,7 @@ drawUnit = (orig => function (u) {
 Object.assign(SPEAKERS, {
   '白衣男子': { p: 'p_bai', color: '#e9f2ff' }, '据点长老': { p: '', color: '#cfe0ff' }, '玄兵阁掌柜': { p: '', color: '#ffd9a0' },
   '炼魂谷头目': { p: '', color: '#ff8a8a' }, '邪修': { p: '', color: '#d28aff' }, '说书先生': { p: '', color: '#f0e0b0' }, '灯谜老人': { p: '', color: '#ffe7a8' },
-  '摊主': { p: '', color: '#f0d29a' }, '???': { p: '', color: '#ff6a6a' },
+  '摊主': { p: '', color: '#f0d29a' }, '???': { p: '', color: '#ff6a6a', name: '？？？' },
 });
 Object.assign(MOB_DB, {
   ywolf: { key: 'e_ywolf', name: '幽影狼', hp: 420, atk: 40, def: 10, spd: 17, h: 210, atkType: 'claw', mh: 86 },
@@ -10104,16 +10104,16 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('云霆', '滚。');
     playSnd('sfx_sword_ring'); if (window.shake) shake(6, 240);
     await Promise.all([moveActor(t1, t1.x + 70, t1.y, 260), moveActor(t2, t2.x + 70, t2.y, 260), moveActor(boss, boss.x + 40, boss.y, 200)]);
-    await say('飞云宗少爷', '你、你给我等着！');
+    await say('飞云宗少爷·惊', '你、你给我等着！');
     await narrate('一道剑气掠过，他脸颊上多了一道细长的血痕。');
     await say('云霆', '再多一句废话，我就直接杀了你。');
     await Promise.all([moveActor(t1, t1.x + 500, t1.y, 320), moveActor(t2, t2.x + 500, t2.y, 320), moveActor(boss, boss.x + 500, boss.y, 300)]);
     drop(t1, t2, boss);
     await say('林雪', '别怕。这里有些灵石和吃的，你拿着。');
-    await say('小乞丐', '我……我爹娘都不在了。落云岭外的村子，半个月前妖兽暴乱，只有我一个人逃出来……');
+    await say('小乞丐·哭', '我……我爹娘都不在了。落云岭外的村子，半个月前妖兽暴乱，只有我一个人逃出来……');
     await narrate('云霆蹲下身，从储物戒里取出一枚低阶护身符，塞进孩子手里。');
     await say('云霆', '戴上。再有人欺负你，就朝他扔过去。');
-    await say('小乞丐', '谢谢大哥……');
+    await say('小乞丐·笑', '谢谢大哥……');
     await say('叶孤星', '落云岭的妖兽暴乱……看来和我们要查的事有关。');
     await say('云霆', '若能早些解决，或许就能少些这样的孩子。');
     await say('叶孤星', '既然我们有普通人没有的本事，那就多担一些吧。');
@@ -10165,7 +10165,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await viewHall(); AUC.live = true; await fadeIn(600);
     await say(HOSTN, '欢迎诸位来到玄元拍卖场！今晚拍卖之物，皆是精挑细选的珍品——');
     // —— 1. 紫灵芝（观战）——
-    lot(LOTS.lingzhi); await say(HOSTN, '第一件拍品——地阶极品灵药，紫灵芝！底价三千，每次加价不少于一百！');
+    lot(LOTS.lingzhi); await say(HOSTN + '·正', '第一件拍品——地阶极品灵药，紫灵芝！底价三千，每次加价不少于一百！');
     await say('林雪', '地阶极品灵药……难怪这拍卖场这么有名。');
     for (const [n, w] of [[3200, 2], [3500, 7], [3800, 11]]) await bid(n, w);
     await bid(4000, 'luoyun', '四千，我落云宗要了！');
@@ -10176,7 +10176,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say(HOSTN, '七千灵石一次……两次……成交！'); await hammer();
     await say('叶孤星', '对我们用处不大，再看看。');
     // —— 2. 凝霜剑 ——
-    lot(LOTS.sword); await say(HOSTN, '诸位——此剑名为凝霜剑，极品灵器，以万年寒铁锻造！底价五千灵石！');
+    lot(LOTS.sword); await say(HOSTN + '·正', '诸位——此剑名为凝霜剑，极品灵器，以万年寒铁锻造！底价五千灵石！');
     await say('林雪', '（眼睛一亮）这把剑倒真不错。');
     await say('叶孤星', '师姐喜欢，就拍下来。');
     await bid(5500, 'me', '五千五百！'); for (const [n, w] of [[6000, 4], [6500, 13], [7000, 9]]) await bid(n, w);
@@ -10202,20 +10202,20 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('叶孤星', '冤家路窄。');
     await say('云霆', '他们若再找麻烦，就别怪我不客气。');
     // —— 3. 云纹霓裳（飞云宗抬价）——
-    lot(LOTS.nichang); await say(HOSTN, '此物名为云纹霓裳——防御类极品灵器，七彩天蚕丝织成，能吸收部分攻击化为灵力！底价七千，每次加价不少于五百！');
+    lot(LOTS.nichang); await say(HOSTN + '·正', '此物名为云纹霓裳——防御类极品灵器，七彩天蚕丝织成，能吸收部分攻击化为灵力！底价七千，每次加价不少于五百！');
     await say('林雪', '（轻声）真好看……不过我刚花了不少，这次算了。');
     await say('叶孤星', '师姐喜欢就买！');
     await bid(7500, 3); await bid(8000, 14);
     await bid(10000, 'fei', '三楼雅间——一万！');
-    await say('飞云宗少爷', '（隔着窗户，冲这边冷笑）');
+    await say('飞云宗少爷·伤', '（隔着窗户，冲这边冷笑）');
     let price = 10000, mine = false, fei = [15000, 18000, 21000], step = 0;
     while (true) {
       const opts = price >= 15000 ? ['「两万五！」（星旋：冤种实锤）', '罢了，听师姐的'] : ['加价！（+' + fmt(price >= 15000 ? 1000 : 1000) + '）', '不争了'];
       if (price >= 15000 && step === 1) { await say('林雪', '孤星，这价早就超过灵衣的价值了，他们就是故意抬价。'); }
-      if (price >= 15000) { await say('飞云宗少爷', '怎么，不敢了？堂堂玄元拍卖场的贵宾，连这点灵石都拿不出来？'); await say('星旋', '这口气你能忍？反正你是冤大头，一条路走到黑呗！'); }
+      if (price >= 15000) { await say('飞云宗少爷·伤', '怎么，不敢了？堂堂玄元拍卖场的贵宾，连这点灵石都拿不出来？'); await say('星旋', '这口气你能忍？反正你是冤大头，一条路走到黑呗！'); }
       const k = await choose('云纹霓裳 · 当前 ' + fmt(price) + '（飞云宗）', opts);
       if (k === 1) break;
-      if (price >= 15000) { price = 25000; mine = true; await bid(price, 'me', '两万五千灵石！'); await say('飞云宗少爷', '……'); await narrate('三楼雅间里传来茶盏摔碎的声音。没有人再出价。'); break; }
+      if (price >= 15000) { price = 25000; mine = true; await bid(price, 'me', '两万五千灵石！'); await say('飞云宗少爷·伤', '……'); await narrate('三楼雅间里传来茶盏摔碎的声音。没有人再出价。'); break; }
       price += 1000; await bid(price, 'me', fmt(price) + '！'); price = fei[step++]; await bid(price, 'fei', fmt(price) + '！');
       if (step >= 3 && price >= 18000) { continue; }
     }
@@ -10227,25 +10227,25 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       if (window.itemGet) await itemGet([{ icon: 'gold', name: '云纹霓裳', count: '×1', desc: '防御类极品灵器（可在行囊里装备）。两万五千灵石，离场时一并结账。' }], '拍得');
     } else {
       await say('林雪', '孤星，够了。再争下去，只会让他们占便宜。'); await say('云霆', '没必要为了意气，便宜这些人。'); await say('叶孤星', '……罢了，听你们的。');
-      await say('飞云宗少爷', '没钱就别学人逞能！玄元拍卖场可不是谁都消费得起的！');
+      await say('飞云宗少爷·伤', '没钱就别学人逞能！玄元拍卖场可不是谁都消费得起的！');
       await say(HOSTN, '云纹霓裳，' + fmt(price) + '灵石，成交！'); await hammer();
       await narrate('台下有人小声嘀咕：「一件极品灵器抬到' + fmt(price) + '，飞云宗这回才是冤大头。」');
       await say('星旋', '幸亏你师姐和云霆拦着，不然这“头号冤种”的名号就是你的了。');
       F().auc_nichang = 'fei'; F().auc_nichang_price = price;
     }
     // —— 4. 玄魂丹（压轴，观战）——
-    lot(LOTS.xuanhun); await say(HOSTN, '接下来，本场压轴——玄魂丹！突破引魂境的必备丹药，服之可增三成突破把握！');
+    lot(LOTS.xuanhun); await say(HOSTN + '·正', '接下来，本场压轴——玄魂丹！突破引魂境的必备丹药，服之可增三成突破把握！');
     await narrate('场中一片哗然。不少人眼里都冒出了光。');
     await bid(120000, 'fei', '十二万！'); await bid(130000, 5); await bid(145000, 12); await bid(160000, 'vip3', '三楼贵宾——十六万！'); await bid(200000, 1, '二十万！');
     await say('叶孤星', '（星旋，星辰宝库里的玄魂丹，好像才一千星辰点？）');
     await say('星旋', '那当然，这群人哪有咱们的星辰宝库！');
     await say('叶孤星', '（等云霆到了凝丹九重，星辰点富裕的话，就给他换一颗。）');
     await bid(250000, 'fei', '二十五万！'); await bid(280000, 'cold', '二十八万。'); await bid(300000, 'fei', '三……三十万！');
-    await say(HOSTN, '三十万灵石——成交！恭喜三楼贵宾席的客人！'); await hammer();
+    await say(HOSTN + '·惊', '三十万灵石——成交！恭喜三楼贵宾席的客人！'); await hammer();
     // —— 5. 残缺玉盘 ——
     AUC.lot = null; await narrate('众人以为拍卖已经结束，正要起身——');
     lot(LOTS.yupan); await say(HOSTN, '诸位稍等，今晚还有最后一件神秘之物。');
-    await say(HOSTN, '此物来历不明。本拍卖场请灵台境修士探查、攻击，均无功而返——材质远非极品灵器可比。起拍一万灵石！');
+    await say(HOSTN + '·正', '此物来历不明。本拍卖场请灵台境修士探查、攻击，均无功而返——材质远非极品灵器可比。起拍一万灵石！');
     await narrate('场内一片安静。灰白的玉盘没有一丝灵力波动，边缘还缺了一角。');
     await say('云霆', '连灵台境都破坏不了？……有点古怪。');
     await say('星旋', '小子——这玉盘你得拿下！');
@@ -10254,7 +10254,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     let y = await choose('残缺玉盘 · 起拍一万（无人出价）', ['举牌：「一万灵石。」', '一万买个破玉盘？算了。']);
     if (y === 1) { await say('星旋', '别算了！听我的，这次真不是坑你！'); y = await choose('星旋急得直跳', ['……行行行，举牌。']); }
     await bid(10000, 'me', '一万灵石。');
-    await say('飞云宗少爷', '（三楼）一万买个破烂？这乡下小子脑袋怕是坏掉了。');
+    await say('飞云宗少爷·伤', '（三楼）一万买个破烂？这乡下小子脑袋怕是坏掉了。');
     await say(HOSTN, '一万灵石一次……两次……三次！成交！恭喜二楼雅间的贵宾！'); await hammer();
     AUC.lot = null; AUC.live = false;
     give('k_yupan'); F().auc_yupan = 1;
@@ -10271,10 +10271,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     AUC.view = false; tileSetMap('xt_auction', ...atIn('xt_auction', 1136, 1000), 'up'); S.scene = drawMap; world.locked = true; S.hud = false; hideParty(false); world.banner = null;
     const [fx, fy] = nearOf(A)(960, 960), fyo = actor('wandering_blade', fx, fy, '飞云宗少爷', false);
     await fadeIn(500);
-    await say('飞云宗少爷', '有些人啊，没钱就别逞强，买不起好东西，只能捡个破烂回家。');
+    await say('飞云宗少爷·伤', '有些人啊，没钱就别逞强，买不起好东西，只能捡个破烂回家。');
     if (F().auc_nichang === 'fei') await say('叶孤星', '别忘了，花' + fmt(F().auc_nichang_price || 18000) + '灵石买件极品灵器的是你。真正的冤大头，到底是谁？');
     else await say('叶孤星', '那你的玄魂丹，三十万灵石——回去记得跟你爷爷报账。');
-    await say('飞云宗少爷', '你……你们给我等着！');
+    await say('飞云宗少爷·伤', '你……你们给我等着！');
     const total = 8500 + 10000 + (F().auc_nichang === 'won' ? 25000 : 0);
     await say('结账老者', '三位贵宾，请问是哪间雅间？');
     await say('叶孤星', '二楼三号雅间。');
@@ -10284,11 +10284,11 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await narrate('叶孤星从乾坤戒里取出一张深黑色、镶着淡金花纹的灵晶卡，随手放在柜台上。');
     await say('叶孤星', '从这里扣吧。');
     playSnd('sfx_star');
-    await say('结账老者', '这……！原来是黑卡贵宾光临，在下有眼不识泰山，还请恕罪！');
+    await say('结账老者·惊', '这……！原来是黑卡贵宾光临，在下有眼不识泰山，还请恕罪！');
     await narrate('老者深深一揖，双手捧着卡办完了手续。一旁的飞云宗少爷张大了嘴，脸上的得意荡然无存。');
     await say('飞云宗弟子', '（小声）师兄，那小子什么来头？拍卖场怎么对他这么客气？');
-    await say('飞云宗少爷', '我怎么知道！玄元拍卖场背后的势力深不可测，就是我爷爷来了，他们也未必这么客气……');
-    await say('结账老者', '叶少侠，账已结清。日后光临，还请提前知会一声，我等定然恭候大驾。');
+    await say('飞云宗少爷·伤', '我怎么知道！玄元拍卖场背后的势力深不可测，就是我爷爷来了，他们也未必这么客气……');
+    await say('结账老者·揖', '叶少侠，账已结清。日后光临，还请提前知会一声，我等定然恭候大驾。');
     drop(fyo);
     await fadeOut(500);
     await nightStreet();
@@ -10302,18 +10302,18 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('林雪', '（白了他一眼）还不是跟你学的。');
     await say('云霆', '你们两个，倒挺会互相带坏。');
     const N = nearOf(XC), [bx, by] = N(2240, 1360), fy = actor('wandering_blade', bx, by, '飞云宗少爷');
-    await say('飞云宗少爷', '叶少侠！叶少侠留步！');
+    await say('飞云宗少爷·伤', '叶少侠！叶少侠留步！');
     await moveActor(fy, world.player.x, world.player.y - 70, 260);
-    await say('飞云宗少爷', '之前是在下有眼无珠，冒犯了叶少侠，还请大人有大量！');
+    await say('飞云宗少爷·伤', '之前是在下有眼无珠，冒犯了叶少侠，还请大人有大量！');
     if (F().auc_nichang === 'fei') {
-      await say('飞云宗少爷', '这件云纹霓裳……就当在下赔罪了！');
+      await say('飞云宗少爷·伤', '这件云纹霓裳……就当在下赔罪了！');
       const k = await choose('飞云宗少爷双手捧着云纹霓裳', ['「东西收回去。以后再仗势欺人，别怪我不客气。」', '「……那我就不客气了。」（收下）']);
-      if (k === 0) { await say('飞云宗少爷', '叶少侠教训的是！以后绝对不敢了！'); await say('林雪', '（轻笑）'); }
-      else { give('a_nichang'); F().auc_nichang = 'gift'; await say('星旋', '白拿一件一万八的灵衣，冤种翻身了啊！'); await say('云霆', '……'); await say('叶孤星', '东西我收了。以后再让我看见你欺负弱小——'); await say('飞云宗少爷', '不敢不敢！');
+      if (k === 0) { await say('飞云宗少爷·伤', '叶少侠教训的是！以后绝对不敢了！'); await say('林雪', '（轻笑）'); }
+      else { give('a_nichang'); F().auc_nichang = 'gift'; await say('星旋', '白拿一件一万八的灵衣，冤种翻身了啊！'); await say('云霆', '……'); await say('叶孤星', '东西我收了。以后再让我看见你欺负弱小——'); await say('飞云宗少爷·伤', '不敢不敢！');
         if (window.itemGet) await itemGet([{ icon: 'gold', name: '云纹霓裳', count: '×1', desc: '飞云宗的赔罪礼。（可在行囊里装备）' }], '获得'); }
     } else {
       await say('叶孤星', '行了。以后若还仗势欺人、欺凌弱小，别怪我不客气。');
-      await say('飞云宗少爷', '是是是！以后绝对不敢了！');
+      await say('飞云宗少爷·伤', '是是是！以后绝对不敢了！');
     }
     await moveActor(fy, fy.x, fy.y - 400, 320); drop(fy);
     await say('林雪', '孤星，你那张卡到底是什么？连飞云宗都吓成这样。');
@@ -10621,10 +10621,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   async function cureScene() {
     loadArt(); world.locked = true;
     const p = world.player, ft = actor('ly_fang_tianheng', 600, 470, '方天恒', true);
-    await say('方天恒', '叶少侠！老夫等候多时了——');
+    await say('方天恒·忧', '叶少侠！老夫等候多时了——');
     await say('叶孤星', '城主放心，我办事。');
     await narrate('叶孤星取出一只玉盒。盒盖一开，一股逼人的寒气逸散而出，冰魄玄果静静躺在其中。');
-    await say('方天恒', '真是冰魄玄果！叶少侠大恩，老夫必定铭记于心！');
+    await say('方天恒·喜', '真是冰魄玄果！叶少侠大恩，老夫必定铭记于心！');
     await narrate('床榻上，方浩然脸色惨白如纸，气息微弱，额上满是细密的冷汗。');
     await say('叶孤星', '城主，快给令公子服下吧。');
     await moveActor(ft, 470, 470, 160);
@@ -10634,21 +10634,21 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await narrate('毒素被一点点凝结起来，化作黑色雾气排出体外。足足一炷香后，方浩然缓缓睁开了眼睛。');
     F().ly_fang = 1;
     const fh = actor('ly_fang_haoran', 520, 545, '方浩然');
-    await say('方天恒', '浩然！你终于醒了！');
+    await say('方天恒·喜', '浩然！你终于醒了！');
     await say('方浩然', '爹，我这是……');
     await say('方天恒', '你中了剧毒，若不是叶少侠及时送来冰魄玄果，只怕凶多吉少。');
-    await say('方浩然', '多谢叶少侠救命之恩！');
+    await say('方浩然·笑', '多谢叶少侠救命之恩！');
     await say('叶孤星', '方公子客气了。');
-    await say('方天恒', '浩然，那天你们在落云岭究竟遇上了什么？为何唯独你中的毒如此诡异？');
+    await say('方天恒·忧', '浩然，那天你们在落云岭究竟遇上了什么？为何唯独你中的毒如此诡异？');
     await say('方浩然', '那日我和朋友去落云岭历练，撞上了妖兽暴动，几条阴冥蛇和赤焰蜈蚣朝我们扑来……');
     await say('云霆', '阴冥蛇和赤焰蜈蚣虽然毒性猛烈，但还不至于让人昏迷这么久吧？');
-    await say('方浩然', '不错。真正让我中毒的……是一道黑影。速度极快，眨眼就冲到我面前，胸口一股冰寒至极的力量——');
+    await say('方浩然·惊', '不错。真正让我中毒的……是一道黑影。速度极快，眨眼就冲到我面前，胸口一股冰寒至极的力量——');
     await say('叶孤星', '黑影？');
-    await say('方浩然', '只看到一片漆黑。连是不是妖兽，都分辨不出。');
+    await say('方浩然·惊', '只看到一片漆黑。连是不是妖兽，都分辨不出。');
     await say('方天恒', '落云岭一带灵气充裕，妖兽虽多，大都是练气、凝丹境。这样的暴乱，从未有过。');
     await say('方浩然', '我受伤的地方，在落云岭中部偏北。那片林子之前还算安全。');
     await say('叶孤星', '城主，我们此行正要调查落云岭的兽乱。');
-    await say('方天恒', '那可太好了！老夫本就打算派人前去——不过先不急，诸位救了浩然，请随老夫去宝库一趟。');
+    await say('方天恒·喜', '那可太好了！老夫本就打算派人前去——不过先不急，诸位救了浩然，请随老夫去宝库一趟。');
     await fadeOut(500); drop(ft, fh);
     // —— 宝库 ——
     const [tc, tr] = atIn('xt_manor_treasury', 560, 700); tileSetMap('xt_manor_treasury', tc, tr, 'up'); S.scene = drawMap;
@@ -10670,9 +10670,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     F().ly_gear = 1; give('k_xuanhun');
     await showPanel('城主府宝库', ['!林雪 · 紫云天罗甲（下品玄器） 防御 +12 · 气血 +120', '!云霆 · 云雷剑（下品玄器） 攻击 +16', '!叶孤星 · 玄魂丹']);
     await say('星旋', '大赚特赚！玄魂丹一枚就值一千星辰点，两件玄器加起来也不止一千五百——远超冰魄玄果了！');
-    await say('方天恒', '今晚便在府中设宴——');
+    await say('方天恒·喜', '今晚便在府中设宴——');
     await say('叶孤星', '多谢城主好意。落云岭的事刻不容缓，我们这便动身。');
-    await say('方天恒', '叶少侠心怀苍生，老夫佩服。诸位千万小心！');
+    await say('方天恒·忧', '叶少侠心怀苍生，老夫佩服。诸位千万小心！');
     await fadeOut(500); drop(ft2);
     const [c2, r2] = xat(2240, 2860); tileSetMap('xt_city', c2, r2, 'down'); S.scene = drawMap;
     await narrate('回到客栈，林雪和云霆各自炼化新得的玄器。两个时辰后——');
@@ -10753,13 +10753,13 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     playSnd('sfx_heal', .7); S.flash = .4; S.flashColor = '#c8ffd8';
     await narrate('丹药入口，青袍修士的脸色总算缓过来几分。');
     await say('林沧', '多谢姑娘……在下百灵城散修林沧，本是来落云岭采灵药的，没想到撞上了兽乱。');
-    await say('林沧', '这些妖兽不是自己发疯的——有一名神秘的黑袍老者在操控它们。');
+    await say('林沧·正', '这些妖兽不是自己发疯的——有一名神秘的黑袍老者在操控它们。');
     await say('云霆', '黑袍老者？');
-    await say('林沧', '他像是在驱使妖兽，在落云岭里寻找什么东西。');
+    await say('林沧·正', '他像是在驱使妖兽，在落云岭里寻找什么东西。');
     await say('叶孤星', '那老者现在在哪？');
-    await say('林沧', '就在落云岭中心的落云谷。那里灵气最浓——谷里有好几头引魂境妖兽，还有一头归元境的恐怖妖兽，都被他操纵着。');
+    await say('林沧·惊', '就在落云岭中心的落云谷。那里灵气最浓——谷里有好几头引魂境妖兽，还有一头归元境的恐怖妖兽，都被他操纵着。');
     await say('云霆', '归元境的妖兽……我们根本没有一丝机会。');
-    await say('林沧', '我亲眼看见，那老者随手一击，便灭杀了数头凝丹后期的妖兽。');
+    await say('林沧·惊', '我亲眼看见，那老者随手一击，便灭杀了数头凝丹后期的妖兽。');
     await say('叶孤星', '我们必须亲自去落云谷探查一番。林前辈，我们先护你出岭——你去玄天城，请城主派人支援。');
     await say('林沧', '好……老夫一定把话带到。');
     F().ly = 6; partyRest();
@@ -10774,7 +10774,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     world.locked = true;
     const a = world.followers.find(f => f._lc);
     await say('叶孤星', '林前辈，接下来你便独自前往玄天城吧。');
-    await say('林沧', '老夫一定把话带到。三位少侠——小心再小心！');
+    await say('林沧·正', '老夫一定把话带到。三位少侠——小心再小心！');
     removeLincang();
     if (a) { a.npc.scripted = true; await moveActor(a, a.x, a.y + 260, 120); drop(a); }
     await say('叶孤星', '那黑袍老者的实力深不可测。我们只能小心探查，千万不要轻举妄动。');
@@ -11204,9 +11204,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('黑袍老者', '冰蟾，这里发生了什么事？为何如此混乱？');
     await say('剧毒冰蟾', '有三个人族小辈潜入谷中。其中一个小子有仙器护体，还有空间遁符……让他们逃了。');
     await say('黑袍老者', '能拿出此等宝物，背后的势力不小。不过——最重要的，是赶紧找到洛尘那小子。');
-    await say('黑袍老者', '妖皇之令，必须斩草除根！那小子极为擅长隐匿行踪……连落云岭周边的城镇，也给我派妖兽去找。');
+    await say('黑袍老者·怒', '妖皇之令，必须斩草除根！那小子极为擅长隐匿行踪……连落云岭周边的城镇，也给我派妖兽去找。');
     await say('剧毒冰蟾', '会不会引来天剑宗的注意？');
-    await say('黑袍老者', '只要杀了他就迅速离开，天剑宗插手也为时已晚！');
+    await say('黑袍老者·笑', '只要杀了他就迅速离开，天剑宗插手也为时已晚！');
     await fadeOut(600); drop(el); world.player.hidden = false;
     // —— 第48章：林府，第三日清晨 ——
     S.party = F().fz_party && F().fz_party.length ? F().fz_party : ['yunting', 'linxue']; delete F().fz_party;
@@ -11359,16 +11359,16 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       await say('叶孤星', '一起抗敌，此刻怎么能弃你而去？我们若是离开，镇上的居民必定被屠戮殆尽。');
       F().fzr = 2; refresh();
       S.shake = 16; playSnd('sfx_boom', .9);
-      await say('黑袍老者', '今日你们几个，一个都别想逃！');
+      await say('黑袍老者·笑', '今日你们几个，一个都别想逃！');
       await say('剧毒冰蟾', '妖皇大人要你死，你逃到云渺大陆也没用！');
       await say('叶孤星', '（灵台境……威压压得人动弹不得——）');
       await wait(300);
       F().fzr = 3; refresh(); S.flash = .9; S.flashColor = '#bfe7ff'; playSnd('sfx_thunder', .9);
-      await say('方天恒', '妖族竟敢在我人族的地盘撒野！');
+      await say('方天恒·忧', '妖族竟敢在我人族的地盘撒野！');
       await say('叶孤星', '方城主！');
       S.shake = 22; playSnd('sfx_boom', 1);
       await narrate('黑袍老者一声冷笑，周身黑雾翻涌——竟现出了本体：一条黑鳞覆身、背生骨刺的巨蟒，口中喷吐着黑色龙息。');
-      await say('方天恒', '黑魔龙蟒！');
+      await say('方天恒·忧', '黑魔龙蟒！');
       await say('黑魔龙蟒', '就凭你一个人族，也想阻止我？');
       await say('剧毒冰蟾', '小子，今日便是你们的死期！');
       await wait(300);
