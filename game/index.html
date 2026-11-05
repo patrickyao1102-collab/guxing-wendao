@@ -1634,7 +1634,7 @@ for (const k of ['jumen', 'lucun', 'wenqu', 'lianzhen', 'wuqu', 'qixing']) delet
 Object.assign(SKILL_DB, {
   pojun: { name: '破军剑意·天璇', cost: 20, desc: '天璇剑芒结成剑阵，横扫全体并护身', star: '天璇' },
   tanlang: { name: '贪狼剑意·追魂', cost: 30, desc: '剑意极致爆发，贯穿单体', star: '贪狼' },
-  tianshu: { name: '破军剑意·天枢', cost: 34, desc: '天枢星力化作巨剑镇压全体', star: '天枢', lv: 12 },
+  tianshu: { name: '破军剑意·天枢', cost: 34, desc: '天枢星力化作巨剑镇压全体', star: '天枢' },   // 作者 11-03 已删（r100_skswap）；不带 lv，开局抢跑时也不会被升级流程塞进「领悟剑诀」
   xingluo: { name: '破军剑阵·星罗', cost: 44, desc: '星罗剑芒铺天盖地，多段攻击全体', star: '星罗', lv: 10 },   // 作者：凝丹一重领悟
   jueying: { name: '贪狼剑意·绝影', cost: 60, desc: '万法皆破的杀招，可跨境界重创单体', star: '贪狼', lv: 16 },
 });
@@ -11429,7 +11429,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await fadeOut(700); drop(ye, jc, lx);
     await bigTitle('第七章 · 返宗', '完', 2400);
     S.party = ['yunting', 'linxue', 'luochen'].filter(k => PARTY_DB[k]);
-    await go('tj_front', 1792, 1760, 'up'); await fadeIn(500);
+    await go('tj_front', 1792, 1440, 'up'); await fadeIn(500);   // 11-06：原来落在山门牌楼底下（1760），人整个被屋檐盖住；改到祖师像前
     world.locked = false;
   }
 
@@ -11805,13 +11805,14 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   const setup = () => { const h = S.hero; try { h.realm = '凝丹九重'; } catch (e) {} h.maxhp = Math.max(h.maxhp, 760); h.maxmp = Math.max(h.maxmp, 230); h.atk = Math.max(h.atk, 80); h.def = Math.max(h.def, 30); h.hp = h.maxhp; h.mp = h.maxmp; h.sword = true;
     h.skills = Array.from(new Set([...(h.skills || []), 'pojun', 'tanlang', 'tianshu', 'xingluo', 'jueying'])); h.points = Math.max(h.points || 0, 3140);
     Object.assign(F(), { fz: 10, ly: 9, auc: 3 }); ['yunting', 'linxue', 'luochen'].forEach(joinParty); S.started = true; S.hud = true; imgs(); };
-  const jump = async q => { setup(); S.fade = 1;
-    if (q === 'ch8') { F().zm = 0; S.party = ['luochen']; S.quest = '回青竹小院，安顿洛尘'; await go('tj_front', 1792, 1760, 'up'); await fadeIn(300); return; }
+  const jump0 = async q => { setup(); S.fade = 1;
+    if (q === 'ch8') { F().zm = 0; S.party = ['luochen']; S.quest = '回青竹小院，安顿洛尘'; await go('tj_front', 1792, 1440, 'up'); await fadeIn(300); return; }
     if (q === 'ch8dawn') { F().zm = 2; S.party = ['luochen']; S.quest = '清晨 · 到院中空地放出银翼天鹏'; await go('qingzhu_court', 1088, 700, 'down'); await fadeIn(300); return; }
-    if (q === 'ch8hall') { F().zm = 3; F().zm_roc = 1; S.party = ['luochen']; S.quest = '与洛尘去悬剑大殿见父亲'; try { S.hero.realm = '引魂一重'; } catch (e) {} await go('tj_front', 1792, 1760, 'up'); await fadeIn(300); return; }
+    if (q === 'ch8hall') { F().zm = 3; F().zm_roc = 1; S.party = ['luochen']; S.quest = '与洛尘去悬剑大殿见父亲'; try { S.hero.realm = '引魂一重'; } catch (e) {} await go('tj_front', 1792, 1440, 'up'); await fadeIn(300); return; }
     if (q === 'ch8lin') { F().zm = 4; F().zm_roc = 1; S.party = ['luochen']; try { S.hero.realm = '引魂一重'; } catch (e) {} give('k_xuanhun'); await go('qingzhu_bamboo', 900, 600, 'up'); await fadeIn(300); S.quest = '回青竹小院'; return; }
     if (q === 'ch8yun') { F().zm = 5; F().zm_roc = 1; S.party = ['linxue', 'luochen']; try { S.hero.realm = '引魂一重'; } catch (e) {} give('k_xuanhun'); S.quest = '去云海大亭探望云霆'; await go('qingzhu_court', 1088, 700, 'down'); await fadeIn(300); return; }
   };
+  const jump = async q => { await jump0(q); world.locked = false; };   // 11-06：跳到第八章各段后世界一直是锁着的（开局的锁没人解开），人走不动
   (() => { const q = new URLSearchParams(location.search).get('part'); if (!q || !q.startsWith('ch8')) return; setTimeout(() => jump(q), 160); })();
   window.ZM_DEBUG = { jump, scene1, scene2, scene3, scene4, scene5, scene6 };
 })();
