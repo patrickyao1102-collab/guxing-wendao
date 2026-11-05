@@ -590,7 +590,8 @@ async function afterAct() {
   b.state = 'run'; b.active = null;
 }
 async function endBattle(win) {
-  const b = battle; b.state = 'end';
+  const b = battle; if (!b) return;   // 已经收过场了（重复调用时别再报错）
+  b.state = 'end';
   await sleep(600);
   if (win) {
     const exp = b.cfg.exp || 0, gold = b.cfg.gold || 0;
@@ -1370,7 +1371,7 @@ async function levelUpShow(lv0) {
 async function showLearns() {
   const h = S.hero;
   while (h.learnQ && h.learnQ.length) {
-    const k = h.learnQ.shift(), s = SKILL_DB[k]; playSnd('sfx_sword_ring');
+    const k = h.learnQ.shift(), s = SKILL_DB[k]; if (!s) { console.warn('learnQ: 没有这个剑诀', k); continue; } playSnd('sfx_sword_ring');
     S.flash = .5; S.flashColor = '#cfe6ff';
     await showPanel('领悟剑诀 · ' + s.star + '星', ['!' + s.name, s.desc, '灵力消耗 ' + s.cost]);
   }
@@ -3297,7 +3298,7 @@ titleScreen = (orig => async function () {
       ctx.font = `34px ${BRUSH}`; ctx.fillStyle = '#ffe08a'; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.x, b.y + 2); ctx.textBaseline = 'alphabetic';
     }
     ctx.globalAlpha = .55 + Math.sin(now * 3) * .3; ctx.font = `600 20px ${FONT}`; textOutline('点击选择章节', W * .3, 640, '#fff', 'rgba(0,0,0,.75)', 4);
-    ctx.globalAlpha = 1; ctx.font = `14px ${FONT}`; textOutline('素材 ' + assetsLoaded + '/' + assetsTotal, W * .3, 690, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
+    ctx.globalAlpha = 1; ctx.font = `14px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, W * .3, 690, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);   // 载完就不再挂着「素材 36/36」
     ctx.restore();
   };
   S.scene = draw0;
@@ -3321,7 +3322,7 @@ async function titleScreen() {
     ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', W * .3, 250, '#ffe08a', '#2a0f00', 10);
     ctx.font = `600 34px ${FONT}`; ctx.fillStyle = '#e8dcc0'; ctx.fillText('卷一 · 天煞孤星', W * .3, 325);
     ctx.globalAlpha = .6 + Math.sin(now * 3) * .4; ctx.font = `600 28px ${FONT}`; ctx.fillStyle = '#fff'; ctx.fillText('点击屏幕开始', W * .3, 560);
-    ctx.globalAlpha = 1; ctx.font = `16px ${FONT}`; textOutline('素材 ' + assetsLoaded + '/' + assetsTotal, W / 2, 690, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
+    ctx.globalAlpha = 1; ctx.font = `16px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, W / 2, 690, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
     ctx.restore();
   };
   await nextFrame(); consumeTap();
@@ -5344,7 +5345,7 @@ ch2EndNew = async function () {
 // 美术：Codex 第三批（苍月城、密室）和角色包（阴魂、尸傀、长老）还没交，先用现有素材顶上；文件一到 assets3/ 自动换成正式的。
 (function () {
   const add = (k, src) => { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = src; };
-  for (const k of ['e_ghost', 'e_ghost2', 'e_ghost3', 'e_corpse', 'e_corpse2', 'e_corpse3', 'e_elder', 'e_elder2', 'bg_cellar', 'bg_cangyue', 'p_cymaster', 'p_elder', 'n_cymaster', 'n_tofu']) add(k, 'assets3/' + k + '.webp');
+  for (const k of ['e_ghost', 'e_ghost2', 'e_ghost3', 'e_corpse', 'e_corpse2', 'e_corpse3', 'e_elder', 'e_elder2']) add(k, 'assets3/' + k + '.webp');   // 11-06：bg_cellar / bg_cangyue / p_cymaster / p_elder / n_cymaster / n_tofu 一直没有图（每次开游戏白白请求 36 次），已改用 Codex 的地图、立绘和行走图
 })();
 Object.assign(SPEAKERS, { '苍月城主': { p: 'p_cymaster', color: '#f0d29a' }, '炼魂谷长老': { p: 'p_elder', color: '#ff7a7a' }, '卖豆腐的妇人': { p: '', color: '#f0e0c0' }, '蒙面人': { p: '', color: '#d28aff' }, '邪修弟子': { p: '', color: '#d28aff' } });
 const K4 = { ghost: () => has('e_ghost') ? 'e_ghost' : 'e_ywolf', corpse: () => has('e_corpse') ? 'e_corpse' : 'e_treant', elder: () => has('e_elder') ? 'e_elder' : 'e_xxboss', elder2: () => has('e_elder2') ? 'e_elder2' : (has('e_elder') ? 'e_elder' : 'e_xxboss'), cellar: () => has('bg_cellar') ? 'bg_cellar' : 'bg_shandao', city: () => has('bg_cangyue') ? 'bg_cangyue' : 'bg_xuantian' };
@@ -12204,7 +12205,11 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     } }
 
   // ---------------- 2. 主线：章节 + 每一步在哪做 ----------------
-  const CHAP = () => { const f = F(); if ((f.auc || 0) >= 1 || /第五章/.test(S.quest || '')) return '第五章 · 玄天风云'; if (f.ch4) return '第四章 · 苍月城'; if (f.ch3) return '第三章 · 玄天城'; if (f.ch2_roam || f.res_trained) return '第二章 · 下山历练'; return '第一章 · 天煞孤星'; };
+  const CHAP = () => { const f = F(), q = S.quest || '';   // 11-06：原来只认到第五章，第六到第八章的任务页都写着「第五章」；章名和章节标题卡对齐
+    if ((f.zm || 0) >= 1 || (f.fz || 0) >= 10 || /第八章|安顿洛尘/.test(q)) return '第八章 · 引魂';
+    if ((f.fz || 0) >= 1 || /第七章/.test(q)) return '第七章 · 返宗';
+    if ((f.ly || 0) >= 1 || /第六章/.test(q)) return '第六章 · 落云岭';
+    if ((f.auc || 0) >= 1 || /第五章/.test(q)) return '第五章 · 玄天风云'; if (f.ch4) return '第四章 · 苍月炼魂'; if (f.ch3) return '第三章 · 剑心冰封'; if (f.ch2_roam || f.res_trained) return '第二章 · 下山历练'; return '第一章 · 天煞孤星'; };
   const MAIN_HINT = [
     [/藏经阁|侧廊|楼道|二层/, '天剑宗 · 藏经阁', '后山南边石阶下山，绕到藏经阁右侧竹林侧廊溜进去'],
     [/转轮经藏|剑典/, '藏经阁二层', '左后方的八方转轮经藏，点它取出系着青玉扣的剑典'],

@@ -48,7 +48,7 @@
   // 预载相邻地图（出口 / 门通向的图），下一次换图就不用等
   function preloadNear(name) {
     const d = TMAPS[name]; if (!d) return;
-    for (const e of (d.exits || []).concat(d.doors || [])) { const to = e && e.to; if (!to || !TMAPS[to]) continue; const B = TMAPS[to].baked; if (B && /^cx2g_/.test(B.ground || '') && !IMG[B.ground] && window.CX2_LAZY_LD) CX2_LAZY_LD(to); }
+    for (const e of (d.exits || []).concat(d.doors || [])) { const to = e && e.to; if (!to || !TMAPS[to]) continue; const B = TMAPS[to].baked; if (B && /^cx2g_/.test(B.ground || '') && !IMG[B.ground] && window.CX2_LAZY_LD) CX2_LAZY_LD(B.ground.slice(5)); }   // 按地面图的 id 预载（原来传的是地图名，玄天城南门外那张会去要一张不存在的 g_yy_forest）
   }
   tileSetMap = (orig => function (name) { const r = orig.apply(this, arguments); setTimeout(() => { try { preloadNear(name); } catch (e) {} }, 1200); return r; })(tileSetMap);
 })();
