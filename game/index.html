@@ -14086,7 +14086,8 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     [/黑风寨|寨门|寨主/, () => ({ map: 'hf_camp' })],
     [/黑风谷/, () => ({ map: 'hf_valley' })],
     [/青阳镇|打听消息|庙会/, () => ({ map: 'qy_town' })],
-    [/幽影林/, () => ({ map: 'yy_forest' })],
+    [/追查空间波动/, () => ({ map: TMAPS.m_yy_tiger ? 'm_yy_tiger' : 'yy_forest', pt: TMAPS.m_yy_tiger && !(S.flags && S.flags.ch3_tiger) ? [4380, 1776] : null })],
+    [/幽影林/, () => ({ map: TMAPS.m_yy_tiger ? 'm_yy_tiger' : 'yy_forest' })],
     [/拍卖场/, () => ({ map: 'xt_auction' })],
     [/玄天城|据点|玄兵阁/, () => ({ map: 'xt_city' })],
   ];

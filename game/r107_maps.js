@@ -380,6 +380,23 @@
         talk: async () => { await say('', '圆桌上压着一张字条，字迹娟秀：「恩公大德，幽影林白氏铭记。」'); } });
       R.onEnter = async () => { if (GY() !== 2) return; for (let i = 0; i < 50 && !IMG.r107g_cy_guiying; i++) await sleep(100); await gyMeet(); };
     } }
+  // ---- 第三章的幽影林剧情搬到 Codex 新图「追虎迷径」：玄天城南门 / 小道进林都落到南口；铁鳞魔虎在东北虎痕处 ----
+  { const T = TMAPS[PFX + 'yy_tiger'], OLD = TMAPS.yy_forest;
+    if (T && OLD && typeof ch3ForestEnter === 'function') {
+      const at = (x, y) => [x / 64 - .5, y / 64 - .8];
+      goMap = (o => function (name, c, r, face) { if (name === 'yy_forest') { const [cc, rr] = at(2112, 3440); return o.call(this, PFX + 'yy_tiger', cc, rr, 'up'); } return o.apply(this, arguments); })(goMap);
+      const ex = T.exits.find(e => e.to === 'xt_city'), oe = (OLD.exits || []).find(e => e.to === 'xt_city');
+      if (ex && oe) { ex.at = oe.at; ex.face = 'up'; ex.cond = () => true; delete ex.msg; }
+      ch3ForestEnter = async function () {
+        S.quest = '幽影林：追查空间波动'; S.hud = true;
+        if (!S.flags.ch3_forest) { S.flags.ch3_forest = 1;
+          await narrate('幽影林。古木遮天，林子里的树颜色怪得很——紫的、绛红的、银白的，枝杈间隐隐挂着什么。');
+          await say('云霆', '小心。树上那些……不是果子。');
+          await say('星旋', '东北边……林子深处，那股空间波动越来越强了。顺着虎爪印走。');
+          toast('东北方向林子深处有异常的气息（小地图金圈）', 2800); }
+        if (!S.flags.ch3_tiger) addTrigger(4380, 1776, 150, async () => ch3Tiger(), true, true); };
+      T.onEnter = async () => { const f = S.flags || {}; if (!(f.qingxiao && f.ch3_report) || f.ch3_tiger) return; await ch3ForestEnter(); };
+    } }
   // 进图时载地面和图集；幽影林两张的「树上挂魂」：走到树下就开打（打过一次就不再来）
   tileSetMap =(o => function (name) { const d = TMAPS[name]; if (d && d.r107) { loadAtlas(); loadGround(d.r107); } const r = o.apply(this, arguments);
     const D = d && d.r107 && DATA[d.r107]; if (D && D.ft) for (const f of D.ft) { if (S.flags && S.flags[f.flag]) continue;
