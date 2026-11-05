@@ -404,7 +404,7 @@
     } }
   // ---- R126：铁鳞魔虎重画——鳞甲妖兽、额心竖眼暗红光、周身淡淡黑气。静态大图 + 代码画的黑气从鳞缝里往上飘（一半垫在身后、一半盖在身前），替掉原来写实黑铁甲真虎的逐帧视频 ----
   { const im = new Image(); im.onload = () => { IMG.e_tiger2 = im; }; im.src = SRC('e_tiger2');
-    if (window.BATTLE_SIZE) BATTLE_SIZE.e_tiger2 = 320;
+    if (window.BATTLE_SIZE) BATTLE_SIZE.e_tiger2 = 250;   // 作者 11-06：320 太大只，缩到比叶孤星（240）略高
     if (typeof tigerBoss === 'function') tigerBoss = (o => function () { const t = o(), ai0 = t.ai; t.key = 'e_tiger2';
       t.ai = async (e, b) => { if (ai0 && await ai0(e, b)) return true; const P = b.P; if (!P || !P.alive) return false;   // 普攻：身子太长，扑到爪子够得着的地方就停，别整只盖在人身上
         e.pose = 'atk'; playSnd('sfx_claw', .7); await dashTo(e, P.x - e.h * .95, P.y + 6, 200);

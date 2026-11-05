@@ -4,6 +4,8 @@
 (function () {
   if (typeof doHeroAction !== 'function' || !window.BGM_LIB) return;
   const lib = BGM_LIB.tracks;
+  // 作者 11-06：喊话一律用 11-03 冷厉版。那批定稿切片时整体错了一位（「天璇」那条其实喊的是点星、「星罗」是天璇……），
+  // 已按语音识别逐条核对、重新切好 lib29/n3_hero__*.mp4（夺魄定稿批里没有，用同日早一轮冷厉版），这里不再换回 11-01 旧版。
   // 每个招式槽：候选 id 按优先顺序
   const SLOT = {};            // 'yunting:ult' -> [ids]
   const NAMES = {};           // 槽名（显示用）
