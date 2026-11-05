@@ -9425,6 +9425,13 @@ skillTanlang = (orig => async function (P, t) { const b = battle; if (!CXS.on ||
       exits: B.exits.filter(e => e.to && (CXB2[e.to] || TMAPS[e.to])).map(e => { const a = arrive(id, e); return cells(B, e, { to: e.to, label: e.label, at: a.at, face: a.face }); }),
       npcs: (B.inter || []).filter(t => t.p && t.kind !== 'door' && (t.text || t.name)).slice(0, 12).map(spot) };
   }
+  // 玄天城城主府（作者 11-05）：议事正堂整座殿都挡住（原来只挡了台基一条，人能绕到殿后钻进屋顶底下、从殿里穿出来）；进殿法阵挪到台阶下、两名护卫中间
+  { const B = CXB2.xt_manor, M = TMAPS.xt_manor;
+    if (B && M) { const b = M.baked.blocked.split(''), cs = B.cs;
+      const blk = (x0, y0, x1, y1) => { for (let r = Math.floor(y0 / cs); r <= Math.floor(y1 / cs); r++) for (let c = Math.floor(x0 / cs); c <= Math.floor(x1 / cs); c++) if (r >= 0 && c >= 0 && r < B.rows && c < B.cols) b[r * B.cols + c] = '1'; };
+      blk(930, 742, 1886, 1250); M.baked.blocked = b.join('');
+      const e = (M.exits || []).find(e => e.to === 'xt_manor_hall'); if (e) { e.y = Math.floor(1328 / cs); e.h = Math.max(1, Math.ceil(40 / cs)); }
+      const back = ((TMAPS.xt_manor_hall || {}).exits || []).find(e => e.to === 'xt_manor'); if (back) { back.at = atIn('xt_manor', 1408, 1432); back.face = 'down'; } } }
   const reroute = (map, pred, to) => { const M = TMAPS[map]; if (!M) return; const e = (M.exits || []).find(pred); if (!e) return;
     e.to = to; const sp = backSpot(to, map); if (sp) { e.at = atIn(to, sp[0], sp[1]); e.face = faceIn(CXB2[to], sp[0], sp[1]); } e.label = TITLE[to] || e.label; return e; };
   // 演武广场西口 → 竹林归径（原来直通小院）
@@ -9649,6 +9656,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     x.globalCompositeOperation = 'source-over'; f.c = c; f.dirty = false; return c;
   }
   window.FOG_RESET = id => { delete FOG[id]; if (S.flags) delete S.flags['fog_' + id]; };
+  window.MAZE_FOG_ON = (() => { try { return localStorage.getItem('gx_mazefog') === '1'; } catch (e) { return false; } })();
   function drawMinimap() {
     const M = world.map; if (!M || !M.tile || !M.T || !world.player) return; const T = M.T;
     const id = world.mapName, th = thumb(id, T), p = world.player, now = performance.now() / 1000;
@@ -9664,8 +9672,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ctx.fillStyle = '#1b1712'; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
     const [mx, my] = toM(0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(th.c, mx, my, th.mw * k, th.mh * k);
     // 迷宫类地图（作者 11-04）：小地图 / M 大地图只显示走过的地方，没走到的一片黑，出口、任务金圈、怪也藏起来
-    const fog = TMAPS[id] && TMAPS[id].fog ? fogOf(id, th) : null;
-    if (fog) { fogReveal(fog, p.x, p.y); ctx.drawImage(fogCanvas(fog), mx, my, th.mw * k, th.mh * k); }
+    // 作者 11-05：测试版默认不开迷雾（测试面板「工具」里有开关）；走过的地方照样记着，打开就能看到
+    const fogMap = TMAPS[id] && TMAPS[id].fog ? fogOf(id, th) : null, fog = fogMap && window.MAZE_FOG_ON ? fogMap : null;
+    if (fogMap) fogReveal(fogMap, p.x, p.y);
+    if (fog) ctx.drawImage(fogCanvas(fog), mx, my, th.mw * k, th.mh * k);
     const seenAt = (x, y) => !fog || fogSeen(fog, x, y);
     // 出口
     const cs = T.baked ? T.cs : TS;
@@ -14319,6 +14329,7 @@ ultJiutian = (orig => async function (P) {
         <button data-act="skip"${autoSkip ? ' class="on"' : ''}>${autoSkip ? '自动跳过对话：开' : '自动跳过对话：关'}</button>
         <button data-act="win">战斗直接胜利</button><button data-act="lc_bond">洛尘好感拉满</button><button data-act="lc_nayue">纳月降临测试</button>
         <button data-act="notrig">关掉本图剧情触发</button>
+        <button data-act="mazefog"${window.MAZE_FOG_ON ? ' class="on"' : ''}>${window.MAZE_FOG_ON ? '迷宫迷雾：开' : '迷宫迷雾：关'}</button>
         <button data-act="heal">满血满蓝</button>
         <button data-act="unlock">剧情标记全开（可自由逛）</button>
         <button data-act="close">关闭面板</button>
@@ -14359,6 +14370,7 @@ ultJiutian = (orig => async function (P) {
     if (a === 'bst_open') { pan.hidden = true; openMenu(); S.menu.tab = MTABS.indexOf('图鉴'); return; }
     if (a === 'xx_expr') { pan.hidden = true; (async () => { for (const [n, t] of [['星旋','平静：小子，醒了？'],['星旋·笑','笑：不错嘛。'],['星旋·坏笑','坏笑：啧啧，没想到你小子魅力还挺大啊。'],['星旋·惊','惊讶：这是……极品仙器？！'],['星旋·怒','生气：我是玉佩，不是钱庄！'],['星旋·忧','担忧：再这样下去，他会冻死的。'],['星旋·严肃','严肃：小心，是邪修的煞气。'],['星旋·施法','成年施法：九曜星辰，听我号令。']]) await say(n, t); })(); }
     if (a === 'cxs_toggle') { CXS.on = !CXS.on; render(); }
+    if (a === 'mazefog') { window.MAZE_FOG_ON = !window.MAZE_FOG_ON; try { localStorage.setItem('gx_mazefog', window.MAZE_FOG_ON ? '1' : '0'); } catch (e) {} render(); return; }
     if (a === 'allytest2') { clearStory(); pan.hidden = true; window.ALLY2 && ALLY2.test(['yunting', 'linxue']); }
     if (/^fire_(lin|hf|yy)$/.test(a)) return jumpMap({ fire_lin: 'lin_forest', fire_hf: 'hf_valley', fire_yy: 'yy_forest' }[a]);
     if (a === 'sq_accept') return SQ_DEBUG.acceptAll(); if (a === 'sq_finish') return SQ_DEBUG.finishAll(); if (a === 'sq_reset') return SQ_DEBUG.reset(); if (a === 'sq_town') return jumpMap('qy_town');
