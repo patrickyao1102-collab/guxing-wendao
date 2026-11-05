@@ -119,7 +119,7 @@
   }
   // 剑谱 / 玉简 进物品表
   for (const id of ['dianxing', 'xingluo2', 'pojun', 'tanlang', 'tianshu', 'qunxing', 'shaxing', 'tunshi', 'xingluo', 'jueying', 'xingyun', 'qingxin', 'liehun']) if (!ITEM_DB[bookId(id)])
-    ITEM_DB[bookId(id)] = { name: '《' + ((SKILL_DB[id] || ALLY_SKILLS[id] || {}).name || id).replace(/.*·/, '') + '》剑谱', price: 400, book: true, skill: id, desc: '旧版剑谱（已改为通用卷册），可折算：在「技能」页参悟时等同一本《剑诀·卷二》。' };
+    ITEM_DB[bookId(id)] = { name: '《' + ((SKILL_DB[id] || ALLY_SKILLS[id] || (typeof ALLY2_SKILLS !== 'undefined' && ALLY2_SKILLS.shenle && ALLY2_SKILLS.shenle[id]) || {}).name || id).replace(/.*·/, '').trim() + '》' + (/^(qingxin|liehun)$/.test(id) ? '乐谱' : '剑谱'), price: 400, book: true, skill: id, desc: '旧版剑谱（已改为通用卷册），可折算：在「技能」页参悟时等同一本《剑诀·卷二》。' };
   ITEM_DB.yujian = ITEM_DB.yujian || { name: '剑诀玉简', price: 0, book: true, desc: '记载剑诀精要的古玉，参悟四重、五重所需。支线与首领掉落。' };
 
   // ---------- 图标 ----------
