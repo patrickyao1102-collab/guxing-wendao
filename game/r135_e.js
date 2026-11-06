@@ -45,7 +45,7 @@ window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
   const addN = (map, o) => { const d = TMAPS[map]; d.npcs = d.npcs || []; const [c, r] = P(o.x, o.y); const n = Object.assign({ key: 'none', c, r, h: 108, wander: false, random: true }, o); delete n.x; delete n.y; d.npcs.push(n); return n; };
   // 青禾：东侧客舍门前石板路上扫地，扫一阵挪几步再扫（走路用行走图，停下来就是扫地动作）
   addN(COURT, { name: '侍女青禾', cx: 'maid', r135e: 'maid1', job: 'sweep', x: 1640, y: 566, route: [1640, 1790], face: 1, cond: dayOnly, _r135day: 1,
-    talk: ['少爷早。竹叶一夜落一层，扫完这头，那头又落了。', '管家交代了，院子得干干净净的，少爷带朋友回来才有面子。', '少爷练剑当心些，上回削下来的竹枝，奴婢扫了一早上呢。'] });
+    talk: ['少爷早。竹叶一夜落一层，扫完这头，那头又落了。', '管家交代了，院子得干干净净的，少爷带朋友回来才有面子。', '少爷练剑当心些，上回削下来的竹枝，我扫了一早上呢。'] });
   // 小桃：居室门前东边那一溜花圃，原地浇花
   addN(COURT, { name: '侍女小桃', cx: 'maid', r135e: 'maid2', job: 'water', x: 1292, y: 628, face: 1, cond: dayOnly, _r135day: 1,
     talk: ['这些花得趁日头没上来浇，晌午再浇要伤根的。', '石桌边那盆兰草开了，少爷路过闻闻？', '嘘——那块别踩，我才撒的花籽。'] });
@@ -179,7 +179,7 @@ window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
     spot(905, 760, '小灶台', '灶上温着一壶热水。管家吩咐过：少爷练完剑回来，随时有热水用。');
     // 夜里三个人都在屋里
     const nightOnly = () => night();
-    addN(window.R136W_ON ? 'qingzhu_room_qinghe' : ROOM, { name: '侍女青禾', cx: 'maid', r135e: 'maid1', x: window.R136W_ON ? 400 : 560, y: 600, row: 0, cond: nightOnly, _r135night: 1, talk: ['少爷怎么到下人房来了？屋里乱，您别嫌弃。', '明儿一早还得扫院子，奴婢先歇了。'] });
+    addN(window.R136W_ON ? 'qingzhu_room_qinghe' : ROOM, { name: '侍女青禾', cx: 'maid', r135e: 'maid1', x: window.R136W_ON ? 400 : 560, y: 600, row: 0, cond: nightOnly, _r135night: 1, talk: ['少爷怎么到下人房来了？屋里乱，您别嫌弃。', '明儿一早还得扫院子，我先歇了。'] });
     addN(window.R136W_ON ? 'qingzhu_room_xiaotao' : ROOM, { name: '侍女小桃', cx: 'maid', r135e: 'maid2', x: window.R136W_ON ? 430 : 700, y: window.R136W_ON ? 600 : 640, row: 0, cond: nightOnly, _r135night: 1, talk: ['嘘——青禾姐睡得浅。', '少爷要热水吗？灶上一直温着呢。'] });
     addN(window.R136W_ON ? 'qingzhu_room_afu' : ROOM, { name: '小厮阿福', cx: 'waiter', r135e: 'servant', x: window.R136W_ON ? 380 : 880, y: window.R136W_ON ? 620 : 720, row: 2, cond: nightOnly, _r135night: 1, talk: ['灶火我看着呢，少爷放心。', '今儿挑了六趟水，胳膊都抬不起来啦。'] });
   }

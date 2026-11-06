@@ -10,8 +10,10 @@
   function toItems(lines) {
     NAMES = NAMES || byName(); const out = [];
     for (const raw of lines || []) { const s = String(raw);
+      { const m2 = s.match(/^(经验|修为|灵石|星辰点|贡献点?)\s*\+\s*(\d+)/);   // 支线完成：经验 / 灵石 / 星辰点也画成一行奖励
+        if (m2) { const k = m2[1], n = +m2[2]; out.push(k === '灵石' ? { icon: window.LINGSHI_ICON(n), name: '灵石', count: '×' + n, desc: '' } : { icon: 'item:' + (k === '星辰点' ? 'ui_star' : /贡献/.test(k) ? 'ui_contrib' : 'ui_stat_exp'), name: k === '经验' ? '修为' : k, count: '+' + n, desc: '' }); continue; } }
       if (s[0] !== '!' && out.length && !/[×x]\s*\d+\s*$/.test(s)) { const it = out[out.length - 1]; it.desc = it.desc ? it.desc + '　' + s : s; continue; }
-      const t = s.replace(/^!/, '').trim(), m = t.match(/^(.+?)\s*[×x]\s*(\d+)\s*$/), name = (m ? m[1] : t).trim(), base = name.replace(/（.*?）|\(.*?\)/g, '').trim();
+      const t = s.replace(/^!/, '').replace(/^获得[：:]\s*/, '').trim(), m = t.match(/^(.+?)\s*[×x]\s*(\d+)\s*$/), name = (m ? m[1] : t).trim(), base = name.replace(/（.*?）|\(.*?\)/g, '').trim();
       const id = NAMES[name] || NAMES[base], db = id && ITEM_DB[id];
       out.push({ icon: base === '灵石' ? window.LINGSHI_ICON(m ? +m[2] : 1) : id ? 'item:' + id : (/剑典|剑谱|残本|秘籍|书/.test(base) ? 'item:book_jianpu' : 'item:p_small'), name, count: m ? '×' + m[2] : '×1', desc: (db && db.desc) || '' });
     }
@@ -35,7 +37,7 @@
     return o.apply(this, a);
   })(window.itemGet);
   showPanel = (orig => function (title, lines) {
-    try { if (TITLES.has(String(title || '')) && typeof window.itemGet === 'function' && Array.isArray(lines) && lines.length) { const items = toItems(lines); if (items.length) return window.itemGet(items, String(title)); } } catch (e) { console.warn('r138', e); }
+    try { const T = String(title || ''), sq = /^支线完成/.test(T); if ((TITLES.has(T) || sq) && typeof window.itemGet === 'function' && Array.isArray(lines) && lines.length) { const items = toItems(lines.filter(Boolean)); if (items.length) { if (sq) try { toast(T, 2000); } catch (e) {} return window.itemGet(items, sq ? '支线完成' : T); } } } catch (e) { console.warn('r138', e); }
     return orig.apply(this, arguments);
   })(showPanel);
 })();

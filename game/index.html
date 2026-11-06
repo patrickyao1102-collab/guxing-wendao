@@ -4274,8 +4274,8 @@ drawMapHud = function () {
     bar(x + 70, y + 34, 122, 11, m.hp / m.maxhp, UI.hp); bar(x + 70, y + 49, 122, 8, m.mp / m.maxmp, UI.mp);
     if (i === 0) bar(x + 70, y + 60, 122, 4, m.exp / m.need, UI.exp);
   });
-  if (!S.quest) window.QUEST_RECT = null;
-  if (S.quest) { ctx.font = `600 19px ${FONT}`; const tw = ctx.measureText(S.quest).width, maxTw = Math.max(260, W - 14 - (hx + 4) - 92);
+  window.HUD_HX = hx; if (!S.quest || window.QTRACK) window.QUEST_RECT = null;
+  if (S.quest && !window.QTRACK) { ctx.font = `600 19px ${FONT}`; const tw = ctx.measureText(S.quest).width, maxTw = Math.max(260, W - 14 - (hx + 4) - 92);
     // 任务太长：不再挪到下面压住地名牌，而是在右上角折成两行
     let lines = [S.quest]; if (tw > maxTw) { let cut = S.quest.length; while (cut > 1 && ctx.measureText(S.quest.slice(0, cut)).width > maxTw) cut--; const rest = S.quest.slice(cut); lines = [S.quest.slice(0, cut), rest]; if (ctx.measureText(rest).width > maxTw) { let c2 = rest.length; while (c2 > 1 && ctx.measureText(rest.slice(0, c2) + '…').width > maxTw) c2--; lines[1] = rest.slice(0, c2) + '…'; } }
     const lw = Math.max(...lines.map(l => ctx.measureText(l).width)), w = lw + 92, h = lines.length > 1 ? 70 : 46, x = W - w - 14, y = x < hx + 4 ? 96 : 12; window.QUEST_RECT = { x, y, w, h };
@@ -9620,7 +9620,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   npc('xt_auction', 'merchant', 1136, 960, '柜台账房', ['成交的拍品，离场时在这里结账。', '黑卡贵宾，九五折。']);
   npc('xt_auction', 'tea_guest', 620, 760, '竞拍的客人', ['凝霜剑……可惜我灵石不够。', '二楼雅间那几位，出手可真阔绰。']);
   npc('xt_auction', 'traveling_merchant', 960, 760, '外地富商', ['听说今天还有一块残缺玉盘，没人知道是什么来历。'], { flip: true });
-  npc('xt_auction_vip', 'maid', 862, 650, '雅间侍女', ['灵果灵茶请随意。', '拍品成交后，奴婢会送到雅间来。']);
+  npc('xt_auction_vip', 'maid', 862, 650, '雅间侍女', ['灵果灵茶请随意。', '拍品成交后，我们会送到雅间来。']);
   // 万宝楼
   npc('xt_wanbao', 'merchant', 260, 700, '万宝楼掌柜', ['灵材法器，小店应有尽有。客官要看点什么？', '鉴宝请到书案这边。']);
   npc('xt_wanbao', 'waiter', 760, 760, '万宝楼伙计', ['玉符在中间台子上，丹药在北墙柜里。', '客官慢慢看，有看中的叫我一声。']);
@@ -9638,7 +9638,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   ];
   async function teleportMenu() {
     const groups = DEST.map(([g, list]) => [g, list.filter(([id]) => TMAPS[id] && visited()[id] && id !== world.mapName)]).filter(([, l]) => l.length);
-    if (!groups.length) { await say('管家', '少爷，您去过的地方还太少，老奴的传送符记不住路。等您走过的地方多了再说。'); return; }
+    if (!groups.length) { await say('管家', '少爷，您去过的地方还太少，老朽的传送符记不住路。等您走过的地方多了再说。'); return; }
     let list;
     if (groups.length === 1) list = groups[0][1];
     else { const gi = await choose('去哪一带？', groups.map(([g]) => g).concat(['算了'])); if (gi >= groups.length) return; list = groups[gi][1]; }
@@ -9653,12 +9653,12 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   const stewardTalk = async () => {
     if (!F().steward_met) { F().steward_met = 1;
       await say('管家', '少爷回来了。');
-      await say('管家', '宗主早年留下一叠传送玉符，交代老奴：少爷去过的地方，都替您记着路。哪天要出门，跟老奴说一声就成。');
+      await say('管家', '宗主早年留下一叠传送玉符，交代老朽：少爷去过的地方，都替您记着路。哪天要出门，跟老朽说一声就成。');
       await say('星旋', '（嚯，你家连管家都这么阔气。）');
     }
     const i = await choose('管家', ['传送到去过的地方', '最近院里怎么样？', '没事了']);
     if (i === 0) return teleportMenu();
-    if (i === 1) await say('管家', ['院里的石雕，老奴每天都擦一遍。少爷那只石鸟，什么时候雕完？', '东边客舍又打扫过了。宗主说过，少爷迟早会带朋友回来住的。', '夜里风大，少爷练剑别练太晚。'][Math.floor(Math.random() * 3)]);
+    if (i === 1) await say('管家', ['院里的石雕，老朽每天都擦一遍。少爷那只石鸟，什么时候雕完？', '东边客舍又打扫过了。宗主说过，少爷迟早会带朋友回来住的。', '夜里风大，少爷练剑别练太晚。'][Math.floor(Math.random() * 3)]);
   };
   // 管家：青竹小院（原 R32 站位）+ 管事房里
   const st1 = npc('qingzhu_court', 'steward_elder', 520, 1380, '管家', stewardTalk, { mark: () => !F().steward_met });
@@ -11931,10 +11931,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     xt_manor: { town_guard: ['城主府护卫', ['城主府重地，来客请往正堂。', '少公子病了好些日子，城主连着几夜没合眼。', '府里上下都盼着有人能寻到冰魄玄果。']], maid: ['后苑侍女', ['少公子就在后面的养伤内堂……', '大夫说是中了奇毒，寻常丹药压不住。']] },
     xt_manor_recovery: { maid: ['照料侍女', ['（小声）少公子昏迷好几天了，一直在说胡话……', '床边的玉盒是给冰魄玄果预备的——可是谁也找不到。']] },
     xt_auction: { maid: ['引路侍女', ['贵客请出示请柬，二楼雅间请。', '左右楼梯都能上二楼三号雅间。']], library_elder: ['结账老者', ['成交的拍品，离场时在这里结账。', '（打量你一眼）贵客面生，头一回来玄元拍卖场？']] },
-    xt_auction_vip: { maid: ['雅间侍女', ['灵果灵茶请随意。', '拍品成交后，奴婢会送到雅间来。']] },
+    xt_auction_vip: { maid: ['雅间侍女', ['灵果灵茶请随意。', '拍品成交后，我们会送到雅间来。']] },
     xt_wanbao: { merchant: ['万宝楼掌柜', ['灵材法器，小店应有尽有。客官要看点什么？', '鉴宝请到书案这边。']] },
   };
-  const GENERIC = { town_guard: ['守卫', ['奉命在此站岗。', '少侠请便。']], maid: ['侍女', ['公子请。', '有什么吩咐，尽管叫奴婢。']], merchant: ['掌柜', ['客官里边请！']], library_elder: ['老者', ['年轻人，有事吗？']] };
+  const GENERIC = { town_guard: ['守卫', ['奉命在此站岗。', '少侠请便。']], maid: ['侍女', ['公子请。', '有什么吩咐，尽管开口。']], merchant: ['掌柜', ['客官里边请！']], library_elder: ['老者', ['年轻人，有事吗？']] };
   const LINES = { // 没有台词的 NPC 按名字补一句
     '守卫': ['奉命在此站岗。'], '侍女': ['公子请。'], '弟子': ['师兄好。'], '掌柜': ['客官看看？'], '': ['……（对方朝你点了点头）'] };
   const lineFor = n => { for (const [k, v] of Object.entries(LINES)) if (k && (n.name || '').includes(k)) return v; return LINES['']; };
@@ -12242,6 +12242,33 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
 
   // ---------------- 3. 支线 ----------------
   const SQ = [
+    // ---- 天剑宗（作者 11-07：前期就让玩家尝到支线的甜头；青竹小院的下人支线归另一个窗口做）----
+    { id: 'tj_fish', name: '胖师兄的烤鱼', giver: ['tj_front', '胖师兄'], where: '演武广场 · 胖师兄', cond: () => !!(F().ch2_roam || F().ch1_free),
+      desc: '胖师兄押少宗主赢，赚了三个馒头，现在想配点烤鱼。', goal: '去青竹小院的小池钓 2 条红鲤',
+      type: 'item', item: 'f_carp', n: 2,
+      accept: [['胖师兄', '少宗主！上回押你赢，我赚了三个馒头——光吃馒头太寡了。'], ['胖师兄', '听说你院子里那口小池养的红鲤，肥得都游不动了？钓两条给我，我分你一半……不，我拿好东西换！']],
+      done: [['胖师兄', '（吸溜）就是这个！这两颗大还丹是我攒了半年的，换你两条鱼，值！'], ['胖师兄', '下回比武，我还押你。']],
+      reward: { exp: 60, gold: 80, items: [['p_big', 2]] } },
+    { id: 'tj_book', name: '一本讲御剑的书', giver: ['tj_library', '借书的女弟子'], where: '藏经阁一层 · 借书的女弟子', cond: () => !!(F().ch2_roam || F().ch1_free),
+      desc: '借书的女弟子找了好几天的御剑书，书架上就是没有。', goal: '去演武广场问问书生弟子',
+      type: 'talk', target: ['tj_front', '书生弟子'],
+      accept: [['借书的女弟子', '少宗主，你见过一本《御风剑注》吗？登记簿上写着在阁里，可书架上翻遍了也没有。'], ['借书的女弟子', '……演武广场那个总念诗的书生师兄，好像什么书都看过。']],
+      targetTalk: [['书生弟子', '《御风剑注》？在下借去三月有余了……惭愧惭愧。'], ['书生弟子', '此书写得极好，只是第七页被在下的茶水洇了。劳烦少宗主带回去，替在下赔个不是。']],
+      done: [['借书的女弟子', '找到了！……第七页怎么是黄的？算了算了。'], ['借书的女弟子', '谢谢少宗主。这卷《点星》剑谱是我抄书时多抄的一份，你拿去参悟吧。']],
+      reward: { exp: 80, items: [['jp_dianxing', 1]] } },
+    { id: 'tj_copy', name: '抄够十遍', giver: ['tj_library', '抄经弟子'], where: '藏经阁一层 · 抄经弟子', cond: () => !!(F().ch2_roam || F().ch1_free),
+      desc: '抄经弟子被师兄告知：抄够十遍《天剑心法》，剑意自然就通了。', goal: '替他问问守阁长者，这话是真是假',
+      type: 'talk', target: ['tj_library', '守阁长者'],
+      accept: [['抄经弟子', '第七遍了……少宗主，你帮我问问守阁长者，抄十遍真能通剑意吗？'], ['抄经弟子', '我不敢问，他老人家一瞪眼，我手就抖。']],
+      targetTalk: [['守阁长者', '（老人头也不抬）抄十遍？'], ['守阁长者', '抄一百遍也通不了。让他别抄了，去练剑。——字倒是写得越来越好看了。']],
+      done: [['抄经弟子', '……一百遍也通不了？！那我这七遍……'], ['抄经弟子', '不过长老夸我字好看了！嘿嘿。这些丹药你收着，我去练剑了！']],
+      reward: { exp: 50, gold: 60, items: [['p_mp', 2]] } },
+    { id: 'tj_beast', name: '大师兄的考校', giver: ['tj_front', '大师兄'], where: '演武广场 · 大师兄', cond: () => !!(F().ch2_roam || F().ch1_free),
+      desc: '大师兄放心不下下山的师弟师妹，要先看看真本事。', goal: '在后山或松风林道打 3 团兽火',
+      type: 'kill', kill: { maps: ['tj_houshan', 'tj_xiashan'] }, n: 3,
+      accept: [['大师兄', '下山之前，我得先看看你的真本事。测灵碑测得出修为，测不出临阵的手。'], ['大师兄', '去后山或者松风林道，打三团兽火回来。别逞强，打不过就跑。']],
+      done: [['大师兄', '出手干脆，收得住。不错。'], ['大师兄', '这卷《星落》剑谱给你——你那招自创的星落，是该好好打磨了。']],
+      reward: { exp: 150, items: [['jp_xingluo2', 1], ['p_small', 3]] } },
     { id: 'kite', name: '贪玩的小虎子', giver: ['qy_town', '王婆婆'], where: '青阳镇 · 王婆婆',
       desc: '王婆婆的孙子小虎子拿着风筝跑出去玩，饭都凉了还没回家。', goal: '在青阳镇找到放风筝的小孩，叫他回家',
       type: 'talk', target: ['qy_town', '放风筝的小孩'],
@@ -12266,7 +12293,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       type: 'kill', kill: { maps: ['hf_valley'], kind: 'ghost' }, n: 4,
       accept: [['客栈掌柜', '仙长要去黑风谷？那正好……谷里的山贼天天设卡，商队都不敢走了。'], ['客栈掌柜', '您顺手清一清那些山贼，小店上下感激不尽！']],
       done: [['客栈掌柜', '商队又敢走黑风谷了！仙长，这是小店的谢礼，还有一件兽皮软甲，掌柜我年轻时穿的。']],
-      reward: { exp: 220, gold: 300, items: [['a_leather', 1]] } },
+      reward: { exp: 220, gold: 300, items: [['a_leather', 1], ['yujian', 1]] } },
     { id: 'horn', name: '醉仙楼的招牌菜', giver: ['qy_town', '醉仙楼厨子'], where: '青阳镇 · 醉仙楼厨子', cond: () => !!F().ch2_plan,
       desc: '醉仙楼的招牌「犀角炖」断货了。', goal: '在黑风谷打黑甲犀牛的兽火，收集黑犀角',
       type: 'item', item: 'm_horn', n: 2, drop: { maps: ['hf_valley'], mobs: ['rhino'], p: .8 },
@@ -12284,13 +12311,13 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       type: 'kill', kill: { maps: ['m_yy_tiger', 'm_yy_verge'], mobs: ['spider'] }, perEnemy: true, n: 4,
       accept: [['万宝楼掌柜', '贵客是要出城？幽影林里的影纹蛛姬，吐的丝能织法衣。'], ['万宝楼掌柜', '打上四只，蛛丝归我，这枚灵犀玉坠归您。']],
       done: [['万宝楼掌柜', '成色上佳！灵犀玉坠是您的了，另有一点心意。']],
-      reward: { exp: 400, gold: 500, items: [['c_jade', 1]] } },
+      reward: { exp: 400, gold: 500, items: [['c_jade', 1], ['yujian', 1]] } },
     { id: 'elite', name: '据点悬赏 · 精英妖物', giver: ['xt_city', '据点长老'], where: '玄天城 · 天剑宗据点 · 据点长老', cond: () => !!F().ch3_report,
       desc: '城外精英妖物伤人，据点挂出悬赏。', goal: '打败两团紫色的火（精英）',
       type: 'kill', kill: { tier: 'purple' }, n: 2,
       accept: [['据点长老', '城外近来有几只成了气候的精英妖物，伤了不少商旅。'], ['据点长老', '据点挂了悬赏——去打两只回来，宗门记你一功。']],
       done: [['据点长老', '干净利落。这份功劳，老夫替你记下了。']],
-      reward: { exp: 500, points: 80, items: [['p_big', 2]] } },
+      reward: { exp: 500, points: 80, items: [['yujian', 1], ['p_big', 2]] } },
   ];
   window.SQ_DEFS = SQ;
   const st = id => ((F().sq = F().sq || {})[id] = F().sq[id] || { s: 0, n: 0 });   // s: 0 未接 / 1 进行中 / 2 可交 / 3 完成
@@ -12300,6 +12327,10 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   const ready = q => st(q.id).s === 1 && prog(q) >= need(q) || st(q.id).s === 2;
   window.SQ_STATE = () => SQ.map(q => ({ id: q.id, name: q.name, s: st(q.id).s, p: prog(q), n: need(q) }));
 
+  // 报酬一句话：先写物品（最吸引人），再写修为 / 灵石 / 星辰点
+  function rewardText(q) { const r = q.reward || {}, a = (r.items || []).map(([id, n]) => (ITEM_DB[id] ? ITEM_DB[id].name : id) + (n > 1 ? ' ×' + n : ''));
+    if (r.exp) a.push('修为 +' + r.exp); if (r.gold) a.push('灵石 ' + r.gold); if (r.points) a.push('星辰点 ' + r.points); return a.join('、'); }
+  window.SQ_REWARD_TEXT = q => rewardText(typeof q === 'string' ? SQ.find(x => x.id === q) : q);
   async function lines(L) { for (const [w, t] of L) await say(w, t); }
   async function giveReward(q) {
     const r = q.reward, h = S.hero, out = []; const lv0 = h.lv;
@@ -12312,13 +12343,13 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   }
   async function offer(q, n) {
     await lines(q.accept);
-    const k = await choose('支线 · ' + q.name, ['接下（' + q.goal + '）', '下次再说']);
+    const k = await choose('支线 · ' + q.name, ['接下（报酬：' + rewardText(q) + '）', '下次再说']);
     if (k !== 0) return;
     st(q.id).s = 1; playSnd('ui_confirm'); toast('接取支线：' + q.name + ' —— ' + q.goal, 2600);
   }
   async function turnIn(q) {
     if (q.type === 'item') { const h = S.hero; h.bag[q.item] -= q.n; if (h.bag[q.item] <= 0) delete h.bag[q.item]; }
-    await lines(q.done); st(q.id).s = 3; await giveReward(q);
+    await lines(q.done); st(q.id).s = 3; await giveReward(q); if (window.SQ_AFTER) { try { await SQ_AFTER(q); } catch (e) { console.warn('SQ_AFTER', e); } }
   }
   // 包一层 NPC 的对话：有支线就先处理支线，否则照旧
   function wrapNpc(mid, name, fn) {
@@ -12375,11 +12406,13 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ctx.fillText(h ? '地点：' + h[1] + (h[2] ? '　｜　' + h[2] : '') : '点右上角任务栏可以自动寻路', x + 20, y + 56); y += 104;
     const act = SQ.filter(q => st(q.id).s === 1 || st(q.id).s === 2), can = SQ.filter(q => st(q.id).s === 0 && avail(q)), done = SQ.filter(q => st(q.id).s === 3).length;
     ctx.font = `34px ${BRUSH}`; textOutline('支线', x, y, UI.gold2, 'rgba(255,248,230,.6)', 3);
-    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('进行中 ' + act.length + '　可接 ' + can.length + '　已完成 ' + done + ' / ' + SQ.length, x + 90, y + 2); y += 34;
+    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('进行中 ' + act.length + '　可接 ' + can.length + '　已完成 ' + done + ' / ' + SQ.length + (window.SQ_MILESTONE_TEXT ? '　　' + SQ_MILESTONE_TEXT(done) : ''), x + 90, y + 2); y += 34;
     const row = (icon, col, title, sub, right) => { ctx.font = `700 18px ${FONT}`; ctx.fillStyle = col; ctx.fillText(icon, x + 4, y); ctx.fillStyle = UI.text; ctx.fillText(title, x + 30, y);
       ctx.font = `15px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(sub, x + 30, y + 22); if (right) { ctx.textAlign = 'right'; ctx.font = `700 16px ${FONT}`; ctx.fillStyle = col; ctx.fillText(right, x + w - 6, y); ctx.textAlign = 'left'; } y += 50; };
-    for (const q of act) { const r = ready(q); row(r ? '✔' : '◆', r ? '#2f7a2a' : '#9a2a1c', q.name, r ? '已完成，回去找 ' + q.where : q.goal + '（' + q.where + '）', q.type === 'talk' ? (r ? '可交' : '') : prog(q) + ' / ' + need(q)); }
-    for (const q of can) row('！', UI.id === 'paper' ? '#8a4600' : '#ffc04a', q.name, '可接：' + q.where + '　—　' + q.desc, '');
+    for (const q of act) { const r = ready(q); row(r ? '✔' : '◆', r ? '#2f7a2a' : '#9a2a1c', q.name, (r ? '已完成，回去找 ' + q.where : q.goal + '（' + q.where + '）') + '　报酬：' + rewardText(q), q.type === 'talk' ? (r ? '可交' : '') : prog(q) + ' / ' + need(q)); }
+    const room = Math.max(0, Math.floor((H - 50 - y) / 50)), canShow = can.length > room ? can.slice(0, Math.max(0, room - 1)) : can;   // 放不下就留一行「还有 N 条」
+    for (const q of canShow) row('！', UI.id === 'paper' ? '#8a4600' : '#ffc04a', q.name, '可接：' + q.where + '　报酬：' + rewardText(q), '');
+    if (canShow.length < can.length) { ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('还有 ' + (can.length - canShow.length) + ' 条可接：' + can.slice(canShow.length).map(q => q.name).join('、'), x + 30, y); }
     if (!act.length && !can.length) { ctx.font = `16px ${FONT}`; ctx.fillStyle = UI.dim; ctx.fillText(done === SQ.length ? '支线已全部完成。' : '这一带暂时没有可接的支线。头顶有金色「！」的人可以接任务。', x + 4, y); }
     ctx.restore();
   })(drawQuest);
@@ -14152,7 +14185,10 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     const p = world.player, T = world.map.T, here = world.mapName;
     // 括号里的是补充说明（如“后山可以四处看看”），不参与判断目的地
     const q0 = (S.quest || '').replace(/（[^）]*）|\([^)]*\)/g, '');
-    const rule = RULES.find(([re]) => re.test(q0)) || RULES.find(([re]) => re.test(S.quest || '')); const goal = rule && rule[1]();
+    const rule = RULES.find(([re]) => re.test(q0)) || RULES.find(([re]) => re.test(S.quest || '')); const goal = window.QNAV_GOAL ? window.QNAV_GOAL() : rule && rule[1]();
+    if (goal && goal.side && (goal.map === here || !goal.map)) {   // 支线：到了就找接任务 / 要找的人；没人可找就提示一句
+      const it = goal.map && goal.pick && (world.actors || []).filter(a => a.npc && !a.hidden && a.npc.name === goal.pick).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+      if (it) { walkTo(it.x, it.y + 40, 2, () => { stop(); doInteract({ type: 'npc', a: it }); }); toast('自动寻路：去找' + goal.pick, 1200); } else stop(goal.msg || '就在这张地图上，四处看看'); return; }
     if (!goal || !TMAPS[goal.map] || goal.map === here) {
       if (goal && goal.pick && goal.map === here) {   // 先去捡还没拿的东西（比如破阵灵晶）
         const it = (world.actors || []).filter(a => a.npc && a.npc.name === goal.pick).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
@@ -14176,10 +14212,10 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
       stop('目的地太远，得跟着剧情前往（或找管家传送）'); return; }
     const e = linksOf(here).find(e => e.to === hop), ep = e && exitPoint(T, e);
     if (!ep) { stop('找不到出口'); return; }
-    toast('自动寻路：前往' + ((TMAPS[hop] && TMAPS[hop].title) || hop) + (hop !== goal.map ? ' → ' + (TMAPS[goal.map].title || goal.map) : ''), 1600);
+    toast('自动寻路 · 前往' + ((TMAPS[hop] && TMAPS[hop].title) || hop).replace(/^天剑宗 · /, ''), 1600);   // 短一点：20 字以上会变成星旋对话框，挡住走路
     walkTo(ep[0], ep[1], 1, () => { if (!NAV.on) return; goMap(e.to, e.at[0], e.at[1], e.face || 'down'); }, 260);
   }
-  NAV.start = () => { if (!S.quest) return; NAV.on = true; playSnd('ui_click'); step(); };
+  NAV.start = () => { if (!S.quest && !window.QNAV_GOAL) return; NAV.on = true; playSnd('ui_click'); step(); };
   NAV.stop = stop;
   // 换图后继续
   tileSetMap = (orig => function (name, c, r, face) { const res = orig(name, c, r, face); if (NAV.on) setTimeout(() => { if (NAV.on && !world.locked) step(); else if (NAV.on) { const w = setInterval(() => { if (!NAV.on) return clearInterval(w); if (!world.locked) { clearInterval(w); step(); } }, 300); } }, 450); return res; })(tileSetMap);
@@ -14198,7 +14234,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     return r;
   })(updateMap);
   // 任务栏上画个“自动寻路”小提示
-  drawMapHud = (orig => function () { orig(); const R = window.QUEST_RECT; if (!R || !S.quest || S.hud === false || S.menu) return;
+  drawMapHud = (orig => function () { orig(); const R = window.QUEST_RECT; if (!R || !S.quest || window.QTRACK || S.hud === false || S.menu) return;
     ctx.save(); ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
     const txt = NAV.on ? '◆ 自动寻路中（点地面取消）' : '点任务栏自动寻路'; textOutline(txt, R.x + R.w - 6, R.y + R.h + 4, NAV.on ? '#ffe27a' : '#e8dcc0', 'rgba(0,0,0,.75)', 3); ctx.restore(); })(drawMapHud);
 })();
@@ -16499,4 +16535,6 @@ window.MarketEffects = (() => {
 <script src="r137_qz.js"></script>
 <script src="r138_pokong.js"></script>
 <script src="r138_panel.js"></script>
+<script src="r139_qz_life.js"></script>
+<script src="r140_quest.js"></script>
 </body></html>
