@@ -22,7 +22,7 @@
   const BANNED = new Set(['lib_nk1']);
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
   for (const k in PICK) if (BANNED.has(PICK[k])) delete PICK[k];
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm29_yunjianxing', battle: 'bgm_battle_kuaida', boss: 'lib_nk2', fair: 'lib_xm1', qytown: 'lib_xm2', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_jp1', linfu: 'lib_xp1', manor: 'lib_m09', hall: 'lib_tsy1', youying: 'lib_xyq_youying', nuwa: 'lib_xyq_nuwa', cellar1: 'lib_xyq_cellar1', cellar2: 'lib_xyq_cellar2' };   // 作者 11-06：幽影林 / 女娲秘境 / 地下一二层各自一首（小云雀生成）   // 作者 11-03：天剑大殿换自作「天剑殿钟」（仿天圣原，对味了）   // 作者 11-02：青竹小院还是清光升（作者说原来就挺好）；居室剑畔朝光；林府溪畔晴光；城主府镇间闲；天剑大殿宗风；野外云间行
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm29_yunjianxing', battle: 'bgm_battle_kuaida', boss: 'lib_nk2', fair: 'lib_xm1', qytown: 'lib_xm2', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_jp1', linfu: 'lib_xp1', manor: 'lib_m09', hall: 'lib_tsy1', youying: 'lib_xyq_youying', nuwa: 'lib_xyq_nuwa', nwtemple: 'lib_xyq_nwg06', cellar1: 'lib_xyq_cellar1', cellar2: 'lib_xyq_cellar2' };   // 作者 11-06：幽影林 / 女娲秘境 / 地下一二层各自一首（小云雀生成）   // 作者 11-03：天剑大殿换自作「天剑殿钟」（仿天圣原，对味了）   // 作者 11-02：青竹小院还是清光升（作者说原来就挺好）；居室剑畔朝光；林府溪畔晴光；城主府镇间闲；天剑大殿宗风；野外云间行
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
@@ -78,6 +78,7 @@
     if (m === 'tj_hall') return 'hall';
     if (/^xt_manor/.test(m)) return 'manor';
     if (/^(m_yy_|yy_)/.test(m)) return 'youying';   // 作者 11-06：幽影林、女娲秘境（含旧月界秘境）、地下一二层各自的曲子
+    if (m === 'm_nw_temple') return 'nwtemple';   // 作者 11-06 深夜：千丝织天殿单独用「神殿·天宫织锦」，秘境其他图不变
     if (/^(m_nw_|mijing)/.test(m)) return 'nuwa';
     if (/^m_xx_b1/.test(m)) return 'cellar1';
     if (/^m_xx_b2/.test(m)) return 'cellar2';

@@ -5,6 +5,7 @@ window.BGM_LIB = {
 "乙 · 宗门 / 广场",
 "丙 · 城镇 / 集市 / 喜庆",
 "丁 · 野外 / 探索 / 夜行",
+"神殿精选",
 "戊 · 战斗",
 "己 · 首领战 / 压迫",
 "庚 · 抒情 / 过场",
@@ -1029,6 +1030,83 @@ window.BGM_LIB = {
 "blob": "749faf4428b0b2232218f4b7deb200a7",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 女娲秘境探索曲：编钟古筝竹笛，圣洁空灵略带忧伤（作者 11-06，秘境现用）",
+"dur": 120
+},
+"lib_xyq_nwg01": {
+"no": "神01",
+"name": "神殿·庄严神圣",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg01.mp3",
+"blob": "8f7c15084b05b0427e7b3a78e12a95d8",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 01 版：编钟、古琴、低音弦乐铺底，缓慢庄重，上古女神殿堂的威严静穆",
+"dur": 120
+},
+"lib_xyq_nwg02": {
+"no": "神02",
+"name": "神殿·空灵飘渺",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg02.mp3",
+"blob": "987bb66636f8256f897aabff1e807075",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 02 版：箜篌、竹笛、风铃，如千丝锦缎随风轻扬",
+"dur": 120
+},
+"lib_xyq_nwg03": {
+"no": "神03",
+"name": "神殿·温柔慈悲",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg03.mp3",
+"blob": "5aa28f07b9da3a8a62b595deb8403b26",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 03 版：古筝流水琶音、二胡轻柔旋律，女神慈爱守护",
+"dur": 120
+},
+"lib_xyq_nwg04": {
+"no": "神04",
+"name": "神殿·宏大史诗",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg04.mp3",
+"blob": "f5c0da6d4d8157aa10e83245f9ece0a2",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 04 版：民族管弦乐与弦乐长音，定音鼓轻擂，神话殿堂恢弘",
+"dur": 120
+},
+"lib_xyq_nwg05": {
+"no": "神05",
+"name": "神殿·神秘古老",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg05.mp3",
+"blob": "d9ee928dcaa9c00599a0a4851e3e54a6",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 05 版：埙、颂钵、深沉低频长音，远古神迹的神秘幽深",
+"dur": 120
+},
+"lib_xyq_nwg06": {
+"no": "神06",
+"name": "神殿·天宫织锦",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg06.mp3",
+"blob": "5c52f6f73cbe14288e6e3a3c037f949e",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 06 版：琵琶轮指与扬琴颗粒交织，金丝银线穿梭织天（作者 11-06：千丝织天殿现用）",
+"dur": 120
+},
+"lib_xyq_nwg07": {
+"no": "神07",
+"name": "神殿·宁静冥想",
+"group": "神殿精选",
+"kind": "bgm",
+"file": "bgm29/xyq_nwg07.mp3",
+"blob": "2b479194af5a7387c4e37180a2134c44",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲神殿配乐第 07 版：古琴独奏为主，远处钟声悠长，清幽禅意",
 "dur": 120
 },
 "lib_xyq_cellar1": {
