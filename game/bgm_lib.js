@@ -1287,7 +1287,7 @@ window.BGM_LIB = {
 "slot": "yunting:qianggong",
 "file": "lib29/n6_yunting__qianggong.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “强攻！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “强攻！”",
 "dur": 0.69
 },
 "lib_n6_yunting__jifeng": {
@@ -1298,7 +1298,7 @@ window.BGM_LIB = {
 "slot": "yunting:jifeng",
 "file": "lib29/n6_yunting__jifeng.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “疾风！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “疾风！”",
 "dur": 0.72
 },
 "lib_n6_yunting__boming": {
@@ -1309,7 +1309,7 @@ window.BGM_LIB = {
 "slot": "yunting:boming",
 "file": "lib29/n6_yunting__boming.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “搏命！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “搏命！”",
 "dur": 0.59
 },
 "lib_n6_yunting__yunlei": {
@@ -1320,7 +1320,7 @@ window.BGM_LIB = {
 "slot": "yunting:yunlei",
 "file": "lib29/n6_yunting__yunlei.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “云雷踏影！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “云雷踏影！”",
 "dur": 1.25
 },
 "lib_n6_yunting__dianxing": {
@@ -1331,7 +1331,7 @@ window.BGM_LIB = {
 "slot": "yunting:dianxing",
 "file": "lib29/n6_yunting__dianxing.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑一式，点星！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑一式，点星！”",
 "dur": 2.22
 },
 "lib_n6_yunting__qunxing": {
@@ -1342,7 +1342,7 @@ window.BGM_LIB = {
 "slot": "yunting:qunxing",
 "file": "lib29/n6_yunting__qunxing.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑二式，群星！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑二式，群星！”",
 "dur": 2.39
 },
 "lib_n6_yunting__shaxing": {
@@ -1353,7 +1353,7 @@ window.BGM_LIB = {
 "slot": "yunting:shaxing",
 "file": "lib29/n6_yunting__shaxing.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑三式，杀星！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑三式，杀星！”",
 "dur": 2.21
 },
 "lib_n6_yunting__def": {
@@ -1364,18 +1364,18 @@ window.BGM_LIB = {
 "slot": "yunting:def",
 "file": "lib29/n6_yunting__def.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑凝锋，加持！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑凝锋，加持！”",
 "dur": 2.15
 },
 "lib_n6_yunting__jiutian": {
 "no": "癸M20",
-"name": "云霆·九天神雷·8号",
+"name": "云霆·九天神雷·8号·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:ult",
 "file": "lib29/n6_yunting__jiutian.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “九天之上，听我号令。九天神雷，落！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：九天神雷用 8 号，默认）· “九天之上，听我号令。九天神雷，落！”",
 "dur": 4.65
 },
 "lib_v09": {
