@@ -1009,6 +1009,46 @@ window.BGM_LIB = {
 "desc": "即梦 · 悬疑紧张月夜潜行，低音弦乐轻鼓点古琴",
 "dur": 123.1
 },
+"lib_xyq_youying": {
+"no": "丁05",
+"name": "幽影暗林",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/xyq_youying.mp3",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 幽影林探索曲：古琴泛音、低音弦、箫、风铃木鱼，阴森幽静带紧张（作者 11-06，幽影林现用）",
+"dur": 120
+},
+"lib_xyq_nuwa": {
+"no": "丁06",
+"name": "月界神泉",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/xyq_nuwa.mp3",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 女娲秘境探索曲：编钟古筝竹笛，圣洁空灵略带忧伤（作者 11-06，秘境现用）",
+"dur": 120
+},
+"lib_xyq_cellar1": {
+"no": "丁07",
+"name": "阴湿密道",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/xyq_cellar1.mp3",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 邪修巢穴地下一层潜行曲：低音弦暗涌、埙、滴水打击（作者 11-06，地下一层现用）",
+"dur": 120
+},
+"lib_xyq_cellar2": {
+"no": "丁08",
+"name": "炼魂深渊",
+"group": "丁 · 野外 / 探索 / 夜行",
+"kind": "bgm",
+"file": "bgm29/xyq_cellar2.mp3",
+"vol": 0.75,
+"desc": "小云雀 Seed Audio 1.0 · 地下二层：低频脉动、大提琴低铜管、古筝刮奏、沉钟，更压迫不祥（作者 11-06，地下二层现用）",
+"dur": 120
+},
 "lib_m33": {
 "no": "庚04",
 "name": "月夜离箫",

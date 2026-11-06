@@ -27,6 +27,11 @@
   // 地图 → 款式（0 起）
   function styleOf(m) {
     m = m || '';
+    if (/^m_nw_/.test(m)) return 1;   // 作者 11-06：Codex 新图组（m_ 开头）也按地方分款——女娲秘境星辰灵匣、幽影林古木藤纹箱、地下密道玄铁封印箱、苍月城描金 / 城主府富贵
+    if (/^m_(yy_|cy_north)/.test(m)) return 2;
+    if (/^m_xx_/.test(m)) return 5;
+    if (/^m_cy_(manor|council|study|bedroom|kitchen|guest|guiying)/.test(m)) return 4;
+    if (/^m_cy_/.test(m)) return 3;
     if (/^(tj_houshan|seal_field|mijing)/.test(m)) return 1;
     if (/^(lin_forest|hf_valley|yy_|ly_|qy_outer|qy_wild|xt_wild|qy_shelter)/.test(m)) return 2;
     if (/^(hf_camp|bl_|xie_|demon|mo_)/.test(m)) return 5;
