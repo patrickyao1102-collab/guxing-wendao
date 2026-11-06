@@ -5,9 +5,12 @@
 //            里面是 Codex 画的通铺室内（4 床 + 屏风 + 3 柜 + 公用桌 + 灶台，中间留通道），出门回到房门口。
 // 素材都在 r135e/（Codex R134_E 交付转 webp）：行走图 1120×720（下 / 上 / 左三行，0 列站立、1-6 列走路 8fps，右 = 左镜像，脚点 80,232）；
 // 干活动作 6 帧横排 1536×256（每帧 256×256，脚点 128,240，6fps，画的是朝右）；立绘 868×900。
+// 作者 11-07 05:44：Codex R135 仙侠重画（老管家白发白须交领长衫 / 青衣、粉衣侍女 / 英俊小厮）到了 → 素材换成 r135e2/，管家和三人重新打开；
+//   侍女、小厮走路换八向图集（下 / 左下 / 左 / 左上 / 上，右侧镜像），老管家仍四向；新增生活动作：管家闲时翻账册、少爷走近笑着招呼，小厮说话时比手势聊天。
+window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.qingzhu_court || typeof drawActorT !== 'function' || typeof tileSetMap !== 'function') return;
-  const D = 'r135e/', ROOM = 'qingzhu_servant_room', PAV = 'qingzhu_upper_pavilion', COURT = 'qingzhu_court';
+  const D = 'r135e2/', ROOM = 'qingzhu_servant_room', PAV = 'qingzhu_upper_pavilion', COURT = 'qingzhu_court';
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const F = () => (S.flags = S.flags || {});
   const night = () => { try { return window.TOD ? TOD() === 'night' : false; } catch (e) { return false; } };
@@ -15,16 +18,16 @@
 
   // ---------- 素材：进青竹一带才开始载（首屏不挡），15 秒后后台补载 ----------
   const IM = {}, REQ = {};
-  const get = f => { if (IM[f]) return IM[f]; if (!REQ[f]) { REQ[f] = 1; const im = new Image(); im.onload = () => { IM[f] = im; if (f === 'house_day') IMG.r135e_house_day = im; if (f === 'house_night') IMG.r135e_house_night = im; if (f === 'interior') IMG.r135e_interior = im; if (PORT[f]) { IMG['p_r135e_' + f.slice(2)] = im; for (const n of PORT[f]) if (SPEAKERS[n]) SPEAKERS[n].p = 'p_r135e_' + f.slice(2); } }; im.src = D + f + '.webp'; } return null; };
+  const get = f => { if (IM[f]) return IM[f]; if (!REQ[f]) { REQ[f] = 1; const im = new Image(); im.__dir = /^(house_|interior)/.test(f) ? 'r135e/' : D; im.onload = () => { IM[f] = im; if (f === 'house_day') IMG.r135e_house_day = im; if (f === 'house_night') IMG.r135e_house_night = im; if (f === 'interior') IMG.r135e_interior = im; if (PORT[f]) { IMG['p_r135e_' + f.slice(2)] = im; for (const n of PORT[f]) if (SPEAKERS[n]) SPEAKERS[n].p = 'p_r135e_' + f.slice(2); } }; im.src = im.__dir + f + '.webp'; } return null; };
   // 立绘载好才挂到 SPEAKERS 上（没载好时对话不会出现空白占位小人）
   // 作者 11-07：管家新形象（裹头巾）太丑，不像仙侠 → 先撤回原来的管家，等 Codex 重画
-  const PORT = { p_maid1: ['侍女青禾'], p_maid2: ['侍女小桃'], p_servant: ['小厮阿福'] };
+  const PORT = { p_steward: ['管家'], p_maid1: ['侍女青禾'], p_maid2: ['侍女小桃'], p_servant: ['小厮阿福'] };
   if (typeof SPEAKERS === 'object') {
     SPEAKERS['管家'] = Object.assign({ color: '#e8d7b0' }, SPEAKERS['管家'] || {});
     SPEAKERS['侍女青禾'] = { color: '#cfe8c4' }; SPEAKERS['侍女小桃'] = { color: '#f6c9d2' }; SPEAKERS['小厮阿福'] = { color: '#c6d4ec' };
   }
-  if (typeof MEDAL_FACE === 'object') { MEDAL_FACE.p_r135e_steward = { fx: .26, fy: .1, span: .24 }; MEDAL_FACE.p_r135e_maid1 = { fx: .73, fy: .08, span: .22 }; MEDAL_FACE.p_r135e_maid2 = { fx: .26, fy: .6, span: .22 }; MEDAL_FACE.p_r135e_servant = { fx: .76, fy: .62, span: .22 }; }
-  const ALL = ['steward_walk', 'maid1_walk', 'maid1_work', 'maid2_walk', 'maid2_work', 'servant_walk', 'servant_work', 'p_steward', 'p_maid1', 'p_maid2', 'p_servant', 'house_day', 'house_night', 'interior'];
+  if (typeof MEDAL_FACE === 'object') { MEDAL_FACE.p_r135e_steward = { fx: .5, fy: .17, span: .26 }; MEDAL_FACE.p_r135e_maid1 = { fx: .5, fy: .16, span: .24 }; MEDAL_FACE.p_r135e_maid2 = { fx: .5, fy: .16, span: .24 }; MEDAL_FACE.p_r135e_servant = { fx: .5, fy: .15, span: .24 }; }
+  const ALL = ['steward_walk', 'steward_ledger', 'steward_welcome', 'maid1_walk', 'maid1_work', 'maid2_walk', 'maid2_work', 'servant_walk', 'servant_work', 'servant_chat', 'p_steward', 'p_maid1', 'p_maid2', 'p_servant', 'house_day', 'house_night', 'interior'];
   const preload = name => { if (/^qingzhu_|^tj_room$/.test(name || '')) ALL.forEach(get); };
   setTimeout(() => ALL.forEach(get), 15000);
 
@@ -55,28 +58,45 @@
   // ---------- 画人 ----------
   const shadow = a => { ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 21, 7, 0, 0, 7); ctx.fill(); };
   const towardPlayer = a => { const p = world.player; if (!p) return null; const px = p.x - a.x, py = p.y - a.y; if (Math.abs(px) > Math.abs(py) * .8) return [2, px > 0]; return [py < 0 ? 1 : 0, false]; };
+  // 八向图集（侍女 / 小厮）：行 = 下 0 / 左下 1 / 左 2 / 左上 3 / 上 4，右侧镜像；老管家仍是四向（下 0 / 上 1 / 左 2）
+  const EIGHT = { maid1: 1, maid2: 1, servant: 1 };
+  const dirOf = (dx, dy) => { const ang = Math.atan2(dy, dx) * 180 / Math.PI;   // 0 = 右，90 = 下
+    const s = ((Math.round(ang / 45) % 8) + 8) % 8; return [[2, true], [1, true], [0, false], [1, false], [2, false], [3, false], [4, false], [3, true]][s]; };
+  const row8 = (k, row) => EIGHT[k] ? row : (row === 4 ? 1 : row === 1 || row === 3 ? (row === 1 ? 0 : 1) : row);
+  // 生活动作（256×256 六帧横排，脚点 128,240，画的是朝左前方）
+  const ACT = (a, k, name, now, flip, f) => { const im = get(name); if (!im) return false; ctx.save(); shadow(a); ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y); if (flip) ctx.scale(-1, 1); ctx.scale(SC, SC); ctx.drawImage(im, f * 256, 0, 256, 256, -128, -240, 256, 256); ctx.restore(); return true; };
   function drawR(a, now) {
-    const n = a.npc, k = n.r135e, st = a._r135 || {}, ph = (a.x * .013) % 1;
+    const n = a.npc, k = n.r135e, st = a._r135 || {}, ph = (a.x * .013) % 1, p = world.player;
     const talk = a.talking || dlgWho() === n.name;
     const job = night() && n._r135day ? null : n.job;
-    // 干活：扫地 / 浇花（停着时）、端水（一直）用 256 帧
+    const near = p ? Math.hypot(p.x - a.x, p.y - a.y) : 1e9, faceL = p ? p.x < a.x : true;
+    // 老管家：少爷走近笑着招呼一次（冷却 30 秒），平时站着翻账册（翻 3 轮歇 4 秒）
+    if (k === 'steward' && !a.moving) {
+      const L = a._life || (a._life = { t0: now + ph * 3, wel: -99 });
+      if (!talk && near < 140 && now - L.wel > 30) L.wel = now;
+      if (now - L.wel < 2.2) { const f = Math.min(5, Math.floor((now - L.wel) * 3.2)); if (ACT(a, k, 'steward_welcome', now, !faceL, f)) return true; }
+      else if (!talk) { const c = (now - L.t0) % 7; if (c > 0 && c < 3 && ACT(a, k, 'steward_ledger', now, !!a._flip, Math.floor(c * 6) % 6)) return true; }
+    }
+    // 小厮：跟少爷说话时比手势聊天
+    if (k === 'servant' && talk && ACT(a, k, 'servant_chat', now, !faceL, Math.floor(now * 5) % 6)) return true;
+    // 干活：扫地 / 浇花（停着时）、端水（一直）
     if (job && (job === 'carry' || !st.mv)) {
       const im = get(WORK[k]); if (!im) return false;
       let f, flip;
-      if (talk) { f = job === 'carry' ? 2 : 0; flip = world.player ? world.player.x < a.x : false; }
-      else { flip = (st.dir || n.face || 1) < 0; f = job === 'carry' ? (st.mv ? Math.floor(now * 7 + ph * 6) % 6 : 2) : Math.floor(now * 6 + ph * 6) % 6; }
+      if (talk) { f = job === 'carry' ? 2 : 0; flip = p ? p.x < a.x : false; if (job !== 'carry') flip = !flip; }
+      else { flip = (st.dir || n.face || 1) < 0; if (job !== 'carry') flip = !flip; f = job === 'carry' ? (st.mv ? Math.floor(now * 7 + ph * 6) % 6 : 2) : Math.floor(now * 6 + ph * 6) % 6; }
       ctx.save(); shadow(a); ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y); if (flip) ctx.scale(-1, 1); ctx.scale(SC, SC);
       ctx.drawImage(im, f * 256, 0, 256, 256, -128, -240, 256, 256); ctx.restore(); return true;
     }
     const im = get(WALK[k]); if (!im) return false;
-    let row = a._row ?? n.row ?? 0, flip = !!a._flip, col = 0;
+    let row = a._row ?? (EIGHT[k] ? ((n.row ?? 0) === 1 ? 4 : (n.row ?? 0)) : (n.row ?? 0)), flip = !!a._flip, col = 0;
     if (st.mv) { row = 2; flip = st.dir > 0; col = 1 + Math.floor(now * 8 + ph * 6) % 6; }
     else if (a.moving) {   // 剧情里被 moveActor 牵着走时也迈步
       let dx = (a.tx ?? a.x) - a.x, dy = (a.ty ?? a.y) - a.y; if (a._lx != null && Math.hypot(a.x - a._lx, a.y - a._ly) > .2) { dx = a.x - a._lx; dy = a.y - a._ly; }
-      if (Math.abs(dx) + Math.abs(dy) > .01) { if (Math.abs(dx) > Math.abs(dy) * .8) { row = 2; flip = dx > 0; } else row = dy < 0 ? 1 : 0; }
+      if (Math.abs(dx) + Math.abs(dy) > .01) { if (EIGHT[k]) [row, flip] = dirOf(dx, dy); else if (Math.abs(dx) > Math.abs(dy) * .8) { row = 2; flip = dx > 0; } else row = dy < 0 ? 1 : 0; }
       col = 1 + Math.floor(now * 8 + ph * 6) % 6;
     }
-    if (talk) { const t = towardPlayer(a); if (t) [row, flip] = t; }
+    if (talk && p) { if (EIGHT[k]) [row, flip] = dirOf(p.x - a.x, p.y - a.y); else { const t = towardPlayer(a); if (t) [row, flip] = t; } }
     a._lx = a.x; a._ly = a.y; if (!talk) { a._row = row; a._flip = flip; }
     ctx.save(); shadow(a); ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y); if (flip) ctx.scale(-1, 1); ctx.scale(SC, SC);
     ctx.drawImage(im, col * 160, row * 240, 160, 240, -80, -232, 160, 240); ctx.restore(); return true;
