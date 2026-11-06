@@ -4592,13 +4592,17 @@ drawMenu = (orig => function () { const want = S.uiTheme || 'paper'; if (want !=
 const B2 = {
   HS: { 1: [[1010, 600]], 2: [[985, 625], [1135, 505]], 3: [[975, 615], [1115, 490], [1180, 640]] },
   ES: [[455, 630], [395, 455], [190, 565], [140, 405], [175, 705]],
+  // 作者 11-06：敌人站位按人数排——以前 1、2 号位只差 60px 几乎叠在一起（蝙蝠压在看守身上），两三只怪挤成一团；现在左右前后都拉开
+  // 剑印菜单占着 x 480~800，敌人最靠右的也只到 x≈420，不和菜单叠
+  ESN: { 1: [[330, 610]], 2: [[410, 655], [180, 500]], 3: [[400, 675], [240, 490], [95, 650]], 4: [[425, 685], [285, 505], [130, 655], [95, 430]], 5: [[430, 690], [300, 525], [150, 665], [100, 440], [250, 395]] },
   heroScale: .9, enemyScale: .88,
 };
 startBattle = (orig => function (cfg) {
   const pr = orig(cfg); const b = battle; if (!b) return pr;
   const hs = b.heroes || [b.P], slots = B2.HS[hs.length] || B2.HS[3];
   hs.forEach((u, i) => { u.x = slots[i][0]; u.y = slots[i][1]; u.h = Math.round(u.h * B2.heroScale); });
-  b.enemies.forEach((e, i) => { const s = B2.ES[i % B2.ES.length]; if (!e.slot) { e.x = s[0]; e.y = s[1]; } else e.x = Math.min(e.x, 360); e.h = Math.round(e.h * (e.boss ? .94 : B2.enemyScale)); });
+  const EL = B2.ESN[Math.min(5, b.enemies.length)] || B2.ES;
+  b.enemies.forEach((e, i) => { const s = EL[i % EL.length]; if (!e.slot) { e.x = s[0]; e.y = s[1]; } else e.x = Math.min(e.x, 360); e.h = Math.round(e.h * (e.boss ? .94 : B2.enemyScale)); });
   return pr;
 })(startBattle);
 // 十字菜单出现在当前角色的左上方（不再堵在两队中间）
