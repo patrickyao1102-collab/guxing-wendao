@@ -1158,94 +1158,6 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰盾！”",
 "dur": 0.63
 },
-"lib_n5_yunting__jiutian_b1": {
-"no": "癸M01",
-"name": "云霆·九天神雷·补录1",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:ult",
-"file": "lib29/n5_yunting__jiutian_b1.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 九天神雷音色为参考补录 · “九天之上，听我号令。九天神雷，落！”（11-06 补上原版缺的「落」，默认）",
-"dur": 4.56
-},
-"lib_n5_yunting__boming_b1": {
-"no": "癸M02",
-"name": "云霆·搏命·补录1",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:boming",
-"file": "lib29/n5_yunting__boming_b1.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”咬牙迸出版（11-06 补气势，候选）",
-"dur": 0.71
-},
-"lib_n5_yunting__boming_b2": {
-"no": "癸M03",
-"name": "云霆·搏命·补录2",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:boming",
-"file": "lib29/n5_yunting__boming_b2.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”低吼拔高版（11-06 补气势，候选）",
-"dur": 0.9
-},
-"lib_n5_yunting__boming_b3": {
-"no": "癸M04",
-"name": "云霆·搏命·补录3",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:boming",
-"file": "lib29/n5_yunting__boming_b3.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”暴喝版（11-06 补气势，候选）",
-"dur": 0.66
-},
-"lib_n5_hero__dianxing_b1": {
-"no": "癸M05",
-"name": "叶孤星·点星·补录1",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b1.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”沉稳起、拔高刺出（11-06 补气势，候选）",
-"dur": 2.39
-},
-"lib_n5_hero__dianxing_b2": {
-"no": "癸M06",
-"name": "叶孤星·点星·补录2",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b2.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”短促爆发版（11-06 补气势，候选）",
-"dur": 1.91
-},
-"lib_n5_hero__dianxing_b3": {
-"no": "癸M07",
-"name": "叶孤星·点星·补录4",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b3.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
-"dur": 2.06
-},
-"lib_n5_hero__dianxing_b4": {
-"no": "癸M08",
-"name": "叶孤星·点星·补录5",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b4.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
-"dur": 2.19
-},
 "lib_n5_hero__dianxing_b5": {
 "no": "癸M09",
 "name": "叶孤星·点星·补录6·定稿",
@@ -1256,50 +1168,6 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重；作者 11-06 选定，默认）",
 "dur": 2.21
-},
-"lib_n5_hero__dianxing_b6": {
-"no": "癸M10",
-"name": "叶孤星·点星·补录7",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b6.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
-"dur": 2.28
-},
-"lib_n5_hero__dianxing_b7": {
-"no": "癸M11",
-"name": "叶孤星·点星·补录8",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b7.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
-"dur": 2.09
-},
-"lib_n6_yunting__qianggong": {
-"no": "癸M12",
-"name": "云霆·强攻·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:qianggong",
-"file": "lib29/n6_yunting__qianggong.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “强攻！”",
-"dur": 0.69
-},
-"lib_n6_yunting__jifeng": {
-"no": "癸M13",
-"name": "云霆·疾风·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:jifeng",
-"file": "lib29/n6_yunting__jifeng.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “疾风！”",
-"dur": 0.72
 },
 "lib_n6_yunting__boming": {
 "no": "癸M14",
@@ -1312,61 +1180,6 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：搏命用 8 号，默认）· “搏命！”",
 "dur": 0.59
 },
-"lib_n6_yunting__yunlei": {
-"no": "癸M15",
-"name": "云霆·云雷踏影·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:yunlei",
-"file": "lib29/n6_yunting__yunlei.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “云雷踏影！”",
-"dur": 1.25
-},
-"lib_n6_yunting__dianxing": {
-"no": "癸M16",
-"name": "云霆·点星·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:dianxing",
-"file": "lib29/n6_yunting__dianxing.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑一式，点星！”",
-"dur": 2.22
-},
-"lib_n6_yunting__qunxing": {
-"no": "癸M17",
-"name": "云霆·群星·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:qunxing",
-"file": "lib29/n6_yunting__qunxing.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑二式，群星！”",
-"dur": 2.39
-},
-"lib_n6_yunting__shaxing": {
-"no": "癸M18",
-"name": "云霆·杀星·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:shaxing",
-"file": "lib29/n6_yunting__shaxing.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑三式，杀星！”",
-"dur": 2.21
-},
-"lib_n6_yunting__def": {
-"no": "癸M19",
-"name": "云霆·凝锋·8号",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:def",
-"file": "lib29/n6_yunting__def.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “天剑凝锋，加持！”",
-"dur": 2.15
-},
 "lib_n6_yunting__jiutian": {
 "no": "癸M20",
 "name": "云霆·九天神雷·8号·定稿",
@@ -1377,66 +1190,6 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：九天神雷用 8 号，默认）· “九天之上，听我号令。九天神雷，落！”",
 "dur": 4.65
-},
-"lib_v09": {
-"no": "癸01",
-"name": "云霆·九天神雷",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n3_yunting__jiutian.mp4",
-"blob": "49f5a8fc247df308a0dbcbf8f3a967c1",
-"vol": 0.94,
-"desc": "小云雀配音（原九天神雷音色）· “九天之上，听我号令。九天神雷，落！”（11-03 去掉灰飞烟灭）",
-"slot": "yunting:ult",
-"dur": 4.53
-},
-"lib_v06": {
-"no": "癸02",
-"name": "云霆·落雷·甲",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v06.mp3",
-"blob": "630d90a29a6cf54d1e9ef8a35335a7a3",
-"vol": 0.9,
-"desc": "即梦配音 · “九天神雷——落！” 单句，断喝",
-"slot": "yunting:ult",
-"dur": 3.1
-},
-"lib_v07": {
-"no": "癸03",
-"name": "云霆·收尾",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v07.mp3",
-"blob": "3da76a76197c86d254d9c109de67e2ed",
-"vol": 0.76,
-"desc": "即梦配音 · “灰飞烟灭。” 冷冷收束（11-06 核对：原先和落雷乙标反了）",
-"slot": "yunting:ult",
-"dur": 3.1
-},
-"lib_v05": {
-"no": "癸04",
-"name": "云霆·起手",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v05.mp3",
-"blob": "0a5181179fb25c036821aab69be455de",
-"vol": 0.97,
-"desc": "即梦配音 · “九天之上，听我号令。”",
-"slot": "yunting:ult",
-"dur": 3.1
-},
-"lib_v08": {
-"no": "癸05",
-"name": "云霆·落雷·乙",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v08.mp3",
-"blob": "a222a1bfab71d006fc53c20296e56510",
-"vol": 0.86,
-"desc": "即梦配音 · “九天神雷——落！” 单句，另一版（11-06 核对：原先和收尾标反了）",
-"slot": "yunting:ult",
-"dur": 3.1
 },
 "lib_v35": {
 "no": "癸06",
@@ -1510,42 +1263,6 @@ window.BGM_LIB = {
 "slot_old": "yunting:qunxing",
 "dur": 3.1
 },
-"lib_n_dx0": {
-"no": "癸N03",
-"name": "林雪·大雪纷飞（新一）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_dx0.mp4",
-"blob": "9a154b15af74043e96c7606790adfa10",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “大雪纷飞！”",
-"slot": "linxue:ult",
-"dur": 1.3
-},
-"lib_n_dx1": {
-"no": "癸N04",
-"name": "林雪·大雪纷飞（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_dx1.mp4",
-"blob": "c67e412e0787df5e5605f90ac7144b15",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “大雪纷飞！”",
-"slot": "linxue:ult",
-"dur": 1.3
-},
-"lib_v14": {
-"no": "癸10",
-"name": "林雪·大雪纷飞（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v14.mp3",
-"blob": "8b74d8fb3c251c795076f8c95b517541",
-"vol": 0.9,
-"desc": "即梦配音 · “大雪——纷飞！”",
-"slot": "linxue:ult",
-"dur": 3.1
-},
 "lib_n_ds0": {
 "no": "癸N05",
 "name": "林雪·点星（新一）",
@@ -1581,42 +1298,6 @@ window.BGM_LIB = {
 "desc": "即梦配音 · “点星。”",
 "slot_old": "linxue:dianxing",
 "dur": 2.1
-},
-"lib_n_ss0": {
-"no": "癸N07",
-"name": "林雪·杀星（新一）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_ss0.mp4",
-"blob": "86700afc9df8c085b1060ace06e2c1fb",
-"vol": 0.95,
-"desc": "即梦配音·一气呵成版 · “杀星！”",
-"slot": "linxue:shaxing",
-"dur": 0.8
-},
-"lib_n_ss1": {
-"no": "癸N08",
-"name": "林雪·杀星（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_ss1.mp4",
-"blob": "d5462c6f458e3326b1f044d3218c7f9e",
-"vol": 0.95,
-"desc": "即梦配音·一气呵成版 · “杀星！”",
-"slot": "linxue:shaxing",
-"dur": 0.8
-},
-"lib_v29": {
-"no": "癸12",
-"name": "林雪·杀星（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v29.mp3",
-"blob": "e14729e0c4935cdf1b40bf06e7697620",
-"vol": 0.95,
-"desc": "即梦配音 · “杀星！”",
-"slot": "linxue:shaxing",
-"dur": 1.1
 },
 "lib_n_lq0": {
 "no": "癸N09",
@@ -1666,30 +1347,6 @@ window.BGM_LIB = {
 "slot": "shenle:ult",
 "dur": 2.4
 },
-"lib_n_jm1": {
-"no": "癸N12",
-"name": "神乐·寂灭仙曲（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_jm1.mp4",
-"blob": "597db7af248079417d7fb48f6a6b5ed1",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “九音录，寂灭仙曲！”",
-"slot": "shenle:ult",
-"dur": 2.7
-},
-"lib_v15": {
-"no": "癸14",
-"name": "神乐·寂灭仙曲（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v15.mp3",
-"blob": "fc6257574bb814d598d5e93523b924ed",
-"vol": 0.82,
-"desc": "即梦配音 · “九音录——寂灭仙曲。”",
-"slot": "shenle:ult",
-"dur": 4.1
-},
 "lib_n_c_qingxin": {
 "no": "癸N13d",
 "name": "神乐·仙音镇魂（统一音色版）",
@@ -1702,102 +1359,6 @@ window.BGM_LIB = {
 "slot": "shenle:qingxin",
 "dur": 2.2
 },
-"lib_n_xz4": {
-"no": "癸N13c",
-"name": "神乐·九音录，仙音镇魂（干脆圆润版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_xz4.mp4",
-"blob": "71cf1db8807df5b4a08de2347974378c",
-"vol": 1,
-"desc": "作者：上一条风格对但太尖 → 小云雀按“清亮圆润、略偏中音”重抽，挑音高最低、高频最少的一条，分离出人声 · “九音录，仙音镇魂！”",
-"slot": "shenle:qingxin",
-"dur": 2.3
-},
-"lib_n_xz3": {
-"no": "癸N13b",
-"name": "神乐·九音录，仙音镇魂（干脆版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_xz3.mp4",
-"blob": "1adc4e03cd315c970251cc1fcda94f74",
-"vol": 1,
-"desc": "小云雀视频生成·按作者说的“像大掌门2那样”干脆有力地喊，再分离出人声 · “九音录，仙音镇魂！”",
-"slot": "shenle:qingxin",
-"dur": 2.1
-},
-"lib_n_xz2": {
-"no": "癸N13a",
-"name": "神乐·仙音镇魂（配乐中喊）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_xz2.mp4",
-"blob": "3a7fb27fb2a8228ac1d388d0fa1db3d5",
-"vol": 1,
-"desc": "即梦视频生成·在完整战斗配乐里喊招，再分离出人声 · “仙音镇魂！”（作者 11-02 建议的做法）",
-"slot": "shenle:qingxin",
-"dur": 1.8
-},
-"lib_n_xz0": {
-"no": "癸N13",
-"name": "神乐·仙音镇魂（新一）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_xz0.mp4",
-"blob": "df3d2479852324569bdefe01b0f1d9c1",
-"vol": 0.99,
-"desc": "即梦配音·一气呵成版 · “仙音镇魂！”",
-"slot": "shenle:qingxin",
-"dur": 1.6
-},
-"lib_n_xz1": {
-"no": "癸N14",
-"name": "神乐·仙音镇魂（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_xz1.mp4",
-"blob": "8ab5b1c9c67d8f6d2fb2c6e157b2d5f6",
-"vol": 0.97,
-"desc": "即梦配音·一气呵成版 · “仙音镇魂！”",
-"slot": "shenle:qingxin",
-"dur": 1.6
-},
-"lib_n_as0": {
-"no": "癸N15",
-"name": "神乐·安神（新一）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_as0.mp4",
-"blob": "56beb860036fb0ce67417d8b143524fd",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “九音归一，安神！”",
-"slot": "shenle:qingxin",
-"dur": 2
-},
-"lib_n_as1": {
-"no": "癸N16",
-"name": "神乐·安神（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_as1.mp4",
-"blob": "5c0c6b4cc9771d684220668742fd4cff",
-"vol": 0.98,
-"desc": "即梦配音·一气呵成版 · “九音归一，安神！”",
-"slot": "shenle:qingxin",
-"dur": 2
-},
-"lib_v31": {
-"no": "癸15",
-"name": "神乐·仙音镇魂（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v31.mp3",
-"blob": "c7e8742a16b9e4d72697e8f723500268",
-"vol": 0.79,
-"desc": "即梦配音 · “仙音——镇魂。”",
-"slot": "shenle:qingxin",
-"dur": 3.1
-},
 "lib_n_sh0": {
 "no": "癸N17",
 "name": "神乐·摄魂乱神（新一）",
@@ -1809,42 +1370,6 @@ window.BGM_LIB = {
 "desc": "即梦配音·一气呵成版 · “摄魂乱神！”",
 "slot": "shenle:liehun",
 "dur": 1.1
-},
-"lib_n_sh1": {
-"no": "癸N18",
-"name": "神乐·摄魂乱神（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_sh1.mp4",
-"blob": "30ce0b3ca890d5548504abb34ad080c6",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “摄魂乱神！”",
-"slot": "shenle:liehun",
-"dur": 1.5
-},
-"lib_v32": {
-"no": "癸16",
-"name": "神乐·摄魂乱神（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v32.mp3",
-"blob": "f2272b277a62071c8eb462feca665d38",
-"vol": 0.97,
-"desc": "即梦配音 · “摄魂，乱神！”",
-"slot": "shenle:liehun",
-"dur": 2.1
-},
-"lib_v33": {
-"no": "癸17",
-"name": "神乐·安神（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v33.mp3",
-"blob": "de161e2f5b6c81b7db044c2b99a7f764",
-"vol": 0.89,
-"desc": "即梦配音 · “九音归一，安神。”",
-"slot": "shenle:qingxin",
-"dur": 3.1
 },
 "lib_n2_lx_bingfeng": {
 "no": "癸40",
@@ -2026,18 +1551,6 @@ window.BGM_LIB = {
 "desc": "即梦配音·参考音色 · “搏命！”（11-01 补齐）",
 "dur": 0.5
 },
-"lib_n3_hero__dianxing": {
-"no": "癸A01",
-"name": "叶孤星·点星（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "hero:dianxing",
-"file": "lib29/n3_hero__dianxing.mp4",
-"blob": "7881959600397b01cf5f43c0cc11e2ef",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
-"dur": 2.14
-},
 "lib_n3_hero__duopo": {
 "no": "癸A02",
 "name": "叶孤星·夺魄（冷厉版）",
@@ -2194,42 +1707,6 @@ window.BGM_LIB = {
 "desc": "即梦配音·清朗少年风 · “星落！（大招·热血激昂）”（11-03 重录·尾字完整）",
 "dur": 0.74
 },
-"lib_n3_linxue__bingdun": {
-"no": "癸A15",
-"name": "林雪·冰盾（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:bingdun",
-"file": "lib29/n3_linxue__bingdun.mp4",
-"blob": "46b23fb4e5070325936d6d0921167264",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰盾！”（11-03 重录·尾字完整）",
-"dur": 0.77
-},
-"lib_n3_linxue__bingfeng": {
-"no": "癸A16",
-"name": "林雪·冰封（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:bingfeng",
-"file": "lib29/n3_linxue__bingfeng.mp4",
-"blob": "535c5c0aa55d54536e996dfe0cb7ca0d",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰封！”（11-03 重录·尾字完整）",
-"dur": 0.77
-},
-"lib_n3_linxue__bingxin": {
-"no": "癸A17",
-"name": "林雪·冰心（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:bingxin",
-"file": "lib29/n3_linxue__bingxin.mp4",
-"blob": "08fef76c1f030b719c440042de8aba0c",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “冰心！”（11-03 重录·尾字完整）",
-"dur": 0.74
-},
 "lib_n_c_qxq": {
 "no": "癸N14a",
 "name": "神乐·清心曲（统一音色版）",
@@ -2277,150 +1754,6 @@ window.BGM_LIB = {
 "desc": "同一条小云雀视频里神乐一口气喊完五招，切开分给各招，保证音色统一（参考了仙音镇魂定稿声线）· “九音录，九音灵河！”",
 "slot": "shenle:jiuyinhe",
 "dur": 2.3
-},
-"lib_n_c_lx_dianxing": {
-"no": "癸A18d",
-"name": "林雪·点星（统一音色版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_c_lx_dianxing.mp4",
-"blob": "017aaaa3b2fb90eb549390f053e9da49",
-"vol": 1,
-"desc": "同一条小云雀视频里林雪连喊两招，切开分给两招，保证音色统一 · “天剑一式，点星！”",
-"slot": "linxue:dianxing",
-"dur": 1.8
-},
-"lib_n_c_lx_qunxing": {
-"no": "癸A19d",
-"name": "林雪·群星（统一音色版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_c_lx_qunxing.mp4",
-"blob": "47792cdfa64169d6dfb3821d621110cb",
-"vol": 1,
-"desc": "同一条小云雀视频里林雪连喊两招，切开分给两招，保证音色统一 · “天剑二式，群星！”",
-"slot": "linxue:qunxing",
-"dur": 1.9
-},
-"lib_n_lx_dianxing4": {
-"no": "癸A18c",
-"name": "林雪·点星（干脆版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_lx_dianxing4.mp4",
-"blob": "4296912efa9ee73222e2e350042e6526",
-"vol": 1,
-"desc": "小云雀视频生成·林雪立绘作参考，清冷干净、略偏中音，像大掌门2的干脆喊招，分离出人声 · “天剑一式，点星！”",
-"slot": "linxue:dianxing",
-"dur": 2.0
-},
-"lib_n_lx_qunxing4": {
-"no": "癸A19c",
-"name": "林雪·群星（干脆版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_lx_qunxing4.mp4",
-"blob": "a86a0060effa78e99bbf10579be712d6",
-"vol": 1,
-"desc": "小云雀视频生成·林雪立绘作参考，清冷干净、略偏中音，像大掌门2的干脆喊招，分离出人声 · “天剑二式，群星！”",
-"slot": "linxue:qunxing",
-"dur": 2.0
-},
-"lib_n_sl_qxq": {
-"no": "癸N14",
-"name": "神乐·清心曲",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_sl_qxq.mp4",
-"blob": "c28de5f4247f26ac32fb0c517016379d",
-"vol": 1,
-"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，清心曲！”",
-"slot": "shenle:qxq",
-"dur": 2.0
-},
-"lib_n_sl_yinzhang": {
-"no": "癸N15",
-"name": "神乐·音障",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_sl_yinzhang.mp4",
-"blob": "9f67db8cb6a1b0fe251d2665584da3f5",
-"vol": 1,
-"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，音障！”",
-"slot": "shenle:yinzhang",
-"dur": 1.8
-},
-"lib_n_sl_shenfa": {
-"no": "癸N16",
-"name": "神乐·神罚仙音",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_sl_shenfa.mp4",
-"blob": "26a7e605746acfe14a2fd7df4f16ee13",
-"vol": 1,
-"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，神罚仙音！”",
-"slot": "shenle:shenfa",
-"dur": 2.7
-},
-"lib_n_sl_jiuyinhe": {
-"no": "癸N17",
-"name": "神乐·九音灵河",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_sl_jiuyinhe.mp4",
-"blob": "4dcdc431bcc88ecf371c1840bed8aa64",
-"vol": 1,
-"desc": "小云雀视频生成·与仙音镇魂同一声线（干脆、圆润略偏中音，像大掌门2的喊招），分离出人声 · “九音录，九音灵河！”",
-"slot": "shenle:jiuyinhe",
-"dur": 2.3
-},
-"lib_n3_linxue__dianxing": {
-"no": "癸A18",
-"name": "林雪·点星（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:dianxing",
-"file": "lib29/n3_linxue__dianxing.mp4",
-"blob": "8b0cf0b9368b8cb376f4bcb6fb2cf0b9",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑一式，点星！”（11-03 重录·尾字完整）",
-"dur": 2.53
-},
-"lib_n3_linxue__qunxing": {
-"no": "癸A19",
-"name": "林雪·群星（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:qunxing",
-"file": "lib29/n3_linxue__qunxing.mp4",
-"blob": "5781d1a7f7bf76d13fcb8af80649dbbf",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “天剑二式，群星！”（11-03 重录·尾字完整）",
-"dur": 1.74
-},
-"lib_n3_linxue__shuangjia": {
-"no": "癸A20",
-"name": "林雪·霜甲（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "linxue:shuangjia",
-"file": "lib29/n3_linxue__shuangjia.mp4",
-"blob": "15fb63b41cd55a4f6a6c85815a509aee",
-"vol": 1,
-"desc": "即梦配音·清朗少年风 · “霜甲！”（11-03 重录·尾字完整）",
-"dur": 0.93
-},
-"lib_n3_yunting__boming": {
-"no": "癸A21",
-"name": "云霆·搏命（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:boming",
-"file": "lib29/n3_yunting__boming.mp4",
-"blob": "b58667ffc2e0aebf25ac7ebbf4052261",
-"vol": 1,
-"desc": "小云雀配音·九天神雷同款音色 · “搏命！”（11-03 按九天神雷音色重录）",
-"dur": 0.58
 },
 "lib_n3_yunting__def": {
 "no": "癸A22",
