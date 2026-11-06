@@ -1164,6 +1164,17 @@ window.BGM_LIB = {
 "desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
 "dur": 147.1
 },
+"lib_n7_yunting__yunlei": {
+"no": "癸P05",
+"name": "云霆·云雷踏影·少年意气·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:yunlei",
+"file": "lib29/n7_yunting__yunlei.mp4",
+"vol": 1,
+"desc": "小云雀配音 · “云雷踏影！”（11-07 五版里作者选定 05 少年意气）",
+"dur": 1.68
+},
 "lib_n7_yunting__dianxing": {
 "no": "癸P01",
 "name": "云霆·点星·8号·定稿",
