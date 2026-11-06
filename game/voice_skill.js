@@ -26,6 +26,9 @@
     'shenle:qxq': '神乐·清心曲', 'shenle:yinzhang': '神乐·音障', 'shenle:shenfa': '神乐·神罚仙音', 'shenle:jiuyinhe': '神乐·九音灵河',
   });
   const pickKey = s => 'voice:' + s;
+  // 作者 11-06 夜：「林雪的接进去了吗，木人桩听着没变化」——本机以前在配乐库里「指定」过旧候选的话，换了定稿也永远听不到新的。
+  // 这里按版本号清一次：指定的那条比现在的默认还旧（rank 更低）就删掉指定，让新定稿生效；作者之后再指定的不受影响（改 V 才会再清）
+  try { const CLR = 'voice_pin_clear', V = 1; if (+(localStorage.getItem(CLR) || 0) < V) { const B = window.BGM29; if (B && B.PICK) { for (const s in SLOT) { const k = pickKey(s), pk = B.PICK[k]; if (pk && SLOT[s][0] && rank(pk) < rank(SLOT[s][0])) delete B.PICK[k]; } try { localStorage.setItem('bgm29_pick', JSON.stringify(B.PICK)); } catch (e) {} } localStorage.setItem(CLR, V); } } catch (e) {}
   function chosen(slot) { const B = window.BGM29; const pk = B && B.PICK[pickKey(slot)]; if (pk && lib[pk] && lib[pk].slot === slot) return pk; const c = SLOT[slot]; if (!c) return null; return /:atk$/.test(slot) ? c[Math.floor(Math.random() * c.length)] : c[0]; }
   let cur = null;
   const cache = {};
