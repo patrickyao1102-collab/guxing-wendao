@@ -71,14 +71,7 @@
   const BEI = [[.30, .16], [.36, .13], [.42, .15], [.47, .19], [.50, .28], [.58, .30], [.60, .22]];   // 北斗七星（屏幕比例）
 
   // ---------- 画 ----------
-  drawBaked = (orig => function (o, now) {
-    if (o && o.uid === 'r137pav_pavilion_roof') {   // 人走进亭子：屋顶半透明
-      const p = world.player, r = D.pav.roof, under = p && p.x > r[0] && p.x < r[0] + r[2] && p.y > r[1] + 150 && p.y < r[1] + r[3] + 120;
-      const k = o._a == null ? 1 : o._a; o._a = k + ((under ? .42 : 1) - k) * .15;
-      ctx.save(); ctx.globalAlpha *= o._a; const v = orig(o, now); ctx.restore(); return v;
-    }
-    return orig(o, now);
-  })(drawBaked);
+  // 作者 11-07：游戏里所有建筑都不许变透明——屋顶就照常画在最上层（亭内站人的位置在屋檐下方，不会被挡）
   // 观星：整张图压成夜色，屏幕上方（云海上空）星点渐亮 + 北斗连线 + 一道流星；全是代码画在地图上，不切插画
   tileDraw = (orig => function () {
     orig.apply(this, arguments);
