@@ -3862,7 +3862,7 @@ function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', 
       await say('魔族高手·怒', '够了！本座没空陪你们玩——先送这个姓云的小子上路！');
       fx('fx3_burst_violet', { x: (yt || P).x, y: (yt || P).y - 120, life: .7, scale: 2.2, alpha: 1.2 }); playSnd('sfx_hit_heavy'); S.shake = 18;
       if (yt) { yt.hp = Math.max(1, Math.round(yt.maxhp * .08)); yt.hurt = 1; }
-      await sleep(500); await say('云霆·伤', '（视线开始模糊……）爹，娘……孩儿……这就来陪你们了。');
+      await sleep(500); await say('云霆·伤', '（视线开始模糊）……爹，娘。……也好。');
       await narrate('黑煞魔掌再次压下。就在掌风落下的刹那，一道白影挡在了云霆身前——叶孤星张开双臂，硬生生接下了这一掌。');
       if (P) { P.hp = Math.max(1, Math.round(P.hp * .45)); P.hurt = 1; } S.shake = 22; S.flash = .9; S.flashColor = '#ffffff'; playSnd('sfx_ult', .8);
       await say('叶孤星', '（咳出一口血）云霆，你要是敢死在这儿，回去我就跟全宗门说你是被吓死的。');
@@ -3958,12 +3958,12 @@ async function ch2Start() {
   const yt2 = addActor('b_yunting', 700, 560, '云霆', '#b8c4ff'); yt2.h = 118; yt2.dir = -1;
   await fadeIn(600);
   await say('叶孤星·苦笑', '云霆，早啊。……嗯？你也突破凝丹了？我还想在你面前得意一下呢。');
-  await say('云霆', '昨夜宗主突然将我召去，给了我一颗凝元丹，所以才能这么快突破。');
+  await say('云霆', '宗主昨夜叫我去了一趟。一颗凝元丹。');
   await narrate('叶孤星笑意微微一僵。以爹的性子，从没见他对哪个弟子这么上心——他这是在替自己铺路。');
   const f2 = addActor('w_father', 120, 560, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
   await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
   await say('叶擎苍', '孤星性格冒失，你比他稳重些，此行还需你多加费心。');
-  await say('云霆·笑', '宗主放心。有我在，他死不了。');
+  await say('云霆·笑', '宗主放心。我盯着，他死不了。');
   await say('叶孤星', '喂！'); 
   await say('叶擎苍', '好了，你们去吧。');
   joinParty('yunting');
@@ -3975,8 +3975,8 @@ async function ch2Forest() {
   S.flags.ch2_forest = 1; { const st = TMAPS.lin_forest.start || [24, 28]; tileSetMap('lin_forest', st[0], st[1], 'up'); } S.hud = true; S.quest = '穿过山外树林'; world.locked = true; S.scene = drawMap;
   await fadeIn(600);
   await say('叶孤星', '说起来，这还是我第一次下山。十八年来，我都没踏出过天剑宗一步。');
-  await say('云霆·伤', '……我小时候，爹娘被土匪杀了。后来被长老带回宗门，一直一个人。');
-  await say('叶孤星·笑', '那正好，以后路上有人跟你斗嘴了。');
+  await say('云霆·伤', '……我是从山下上来的。七岁那年土匪进村，爹娘把我从刀底下推了出去。');
+  await say('叶孤星·笑', '……那这趟你跟紧点。天煞孤星，专克土匪。');
   await say('云霆·苦笑', '……你话真多。');
   await say('叶孤星·坏笑', '这叫活泼。');
   await say('云霆·苦笑', '这叫吵。');
@@ -4070,7 +4070,7 @@ TMAPS.hf_camp.onEnter = async function () {
   if (S.flags.ch2_camp) return; S.flags.ch2_camp = 1;
   const p = world.player;
   await narrate('寨门内，一群山贼正押着十几个被抓来的村民，刀已经架在了脖子上——灵石搜刮干净了，他们准备杀人灭口。');
-  await narrate('叶孤星转头，只见云霆冷峻的脸上浮现出一丝无法掩盖的杀意，握剑的手微微颤抖。');
+  await narrate('叶孤星转头。云霆一个字都没说，握剑的指节已经捏得发白。');
   await say('叶孤星', '云霆！');
   // 云霆暴怒：群星（演出）
   await fadeOut(200);
@@ -4105,7 +4105,7 @@ TMAPS.hf_camp.onEnter = async function () {
   await narrate('为祸四方多年的黑风寨，终于被彻底清扫一空。');
   await showPanel('玉佩浮现', ['!【任务完成】击杀黑风寨寨主周虎　星辰点 +100', '!【任务完成】弄清楚神秘高手的真实身份　星辰点 +200', '!【任务完成】击败神秘高手　星辰点 +500', '超额完成　星辰点 +100']);
   S.hero.points = (S.hero.points || 0) + 900;
-  await say('云霆', '魔族出现非同小可，我们还是尽快……');
+  await say('云霆', '魔族的事，得尽快报回宗……');
   await narrate('话未说完，云霆身子一晃，脸色瞬间惨白，嘴角渗出一丝鲜血，整个人无力地朝后倒去。');
   await say('叶孤星', '云霆！');
   S.flags.ch2_done = 1;
@@ -5522,7 +5522,7 @@ async function ch4Start() {
   await say('云霆·苦笑', '……你是不是傻。');
   await say('叶孤星', '手快，没过脑子。');
   await say('云霆·坏笑', '你哪回过脑子了。');
-  await say('林雪·笑', '（低头喝茶）……你们两个，出门在外倒是挺讲义气。');
+  await say('林雪·笑', '（低头喝茶）……两个傻子。');
   await say('苍月城主·惊', '哎呀哎呀，失礼失礼！叶少侠这一手……好快的身法！敢问修的是什么功法？');
   await say('叶孤星', '呃……');
   await say('星旋', '（快！编一个！）');
@@ -5674,7 +5674,7 @@ window.NO_CG = true;
     ['九曜剑典第一重', 'cg_starsea', 1],
     ['这惊喜，够了吗', 'cg_stele', 2],
     ['你的命格特殊', 'cg_father', 2],
-    ['有我在，他死不了', 'cg_farewell', 2],
+    ['我盯着，他死不了', 'cg_farewell', 2],
     ['你要是敢死在这儿', 'cg_shield', 2],
     ['趁现在——追魂', 'cg_zhuihun', 1],
     // —— 燃点 ——
@@ -6323,12 +6323,12 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const [yx, yy] = near(1900, 2300); const yt2 = addActor('b_yunting', yx, yy, '云霆', '#b8c4ff'); yt2.h = 118; yt2.dir = -1;
     await fadeIn(600);
     await say('叶孤星·苦笑', '云霆，早啊。……嗯？你也突破凝丹了？我还想在你面前得意一下呢。');
-    await say('云霆', '昨夜宗主突然将我召去，给了我一颗凝元丹，所以才能这么快突破。');
+    await say('云霆', '宗主昨夜叫我去了一趟。一颗凝元丹。');
     await narrate('叶孤星笑意微微一僵。以爹的性子，从没见他对哪个弟子这么上心——他这是在替自己铺路。');
     const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
     await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
     await say('叶擎苍', '孤星性格冒失，你比他稳重些，此行还需你多加费心。');
-    await say('云霆·笑', '宗主放心。有我在，他死不了。');
+    await say('云霆·笑', '宗主放心。我盯着，他死不了。');
     await say('叶孤星', '喂！');
     await say('叶擎苍', '好了，你们去吧。');
     joinParty('yunting');
@@ -10081,7 +10081,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('玄兵阁掌柜', '对了！今晚玄元拍卖场开拍，小店是合作商，有几张贵宾席请柬——特地留给三位，一定赏光！');
     await narrate('掌柜双手递上三张烫金请柬。');
     await say('林雪', '拍卖会？我还从没去过呢，正好见识见识。');
-    await say('云霆', '……希望你今晚别再乱买东西。');
+    await say('云霆', '……今晚管好你的手。');
     await say('叶孤星', '放心，我又不是见什么都买的人。');
     await say('星旋', '你就是。我倒要看看你今晚能不能忍住不剁手。');
     F().auc = 1;
@@ -10125,8 +10125,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('云霆', '戴上。再有人欺负你，就朝他扔过去。');
     await say('小乞丐·笑', '谢谢大哥……');
     await say('叶孤星', '落云岭的妖兽暴乱……看来和我们要查的事有关。');
-    await say('云霆', '若能早些解决，或许就能少些这样的孩子。');
-    await say('叶孤星', '既然我们有普通人没有的本事，那就多担一些吧。');
+    await say('云霆', '（看着孩子跑远，半晌）……落云岭的事，早点了。');
+    await say('叶孤星', '（拍了拍他的肩膀）嗯。');
     if (window.C3 && C3.bond) C3.bond(1);
     drop(kid);
     await fadeOut(500);
@@ -10158,8 +10158,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await fadeIn(500);
     await say('林雪', '玄天城不愧是附近最繁华的城池，这拍卖场竟如此宏大。');
     await say('叶孤星', '（拿起一枚灵果咬了一口）据说每次拍的东西都极为珍稀，外地修士专程赶来的不少。');
-    await say('云霆', '你一会儿别又乱花灵石。');
-    await say('叶孤星', '放心，这次我一定不随便出手。');
+    await say('云霆', '一会儿把手揣袖子里。');
+    await say('叶孤星', '放心，今晚我就是来看热闹的。');
     await say('星旋', '你要能忍住，我名字倒过来写！');
     await fadeOut(400);
     await auctionShow();
@@ -10249,7 +10249,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await bid(120000, 'fei', '十二万！'); await bid(130000, 5); await bid(145000, 12); await bid(160000, 'vip3', '三楼贵宾——十六万！'); await bid(200000, 1, '二十万！');
     await say('叶孤星', '（星旋，星辰宝库里的玄魂丹，好像才一千星辰点？）');
     await say('星旋', '那当然，这群人哪有咱们的星辰宝库！');
-    await say('叶孤星', '（等云霆到了凝丹九重，星辰点富裕的话，就给他换一颗。）');
+    await say('叶孤星', '（一千点……等那冰块脸到了凝丹九重，给他换一颗。）');
     await bid(250000, 'fei', '二十五万！'); await bid(280000, 'cold', '二十八万。'); await bid(300000, 'fei', '三……三十万！');
     await say(HOSTN + '·惊', '三十万灵石——成交！恭喜三楼贵宾席的客人！'); await hammer();
     // —— 5. 残缺玉盘 ——
@@ -10609,9 +10609,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       await say('叶孤星', '师姐，前天我单独出去了一趟——城门外有告示，城主的儿子中了毒，要冰魄玄果解毒。');
       await say('林雪', '冰魄玄果？那么稀有的灵药，你……');
       await say('叶孤星', '昨天去落云岭外岭采的。');
-      await say('云霆', '一个人去的？最近落云岭妖兽暴乱，你也不怕——');
-      await say('叶孤星', '只在外岭转了转。而且城主说，他儿子就是在落云岭中的毒——这事恐怕和兽乱有关。');
-      await say('云霆', '原来如此。落云岭的妖兽突然暴乱、袭击附近村庄，果然有蹊跷。');
+      await say('云霆', '一个人去的？……命挺硬。');
+      await say('叶孤星', '跟你学的。再说只在外岭转了转。城主说他儿子就是在落云岭中的毒——这事恐怕和兽乱有关。');
+      await say('云霆', '……落云岭的兽乱，果然有蹊跷。');
       await say('叶孤星', '所以我想带你们一起去城主府，顺便把落云岭的情况问清楚。');
       F().ly = 2; S.quest = '去城主府（城北正中）救治方浩然 · 少公子在府院最北的寝房';
       world.locked = false; return;
@@ -10673,8 +10673,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     await say('星旋', '右边第三排第一把，云雷剑，也是下品玄器，剑意霸道，给云霆那小子正合适。');
     await say('叶孤星', '师姐，上次那件防御衣服没拍成——这件紫云天罗甲，送你正合适。');
     await say('林雪', '（脸微红）你还记着这件事呢？');
-    await say('叶孤星', '云霆，你的青霄剑只是极品灵器。这柄云雷剑，比它强。');
-    await say('云霆', '……既然你都这么说了，那我便恭敬不如从命。');
+    await say('叶孤星', '云霆，云雷剑归你。青霄剑那笔账，一起记上。');
+    await say('云霆', '……记上。');
     await say('星旋', '还有！那颗淡紫色的丹药——玄魂丹！拿走，省得将来突破引魂境还得花星辰点买。');
     await say('方天恒', '叶少侠好眼光。这玄魂丹，本是老夫留给浩然突破引魂境用的……不过救命之恩，理当如此。');
     F().ly_gear = 1; give('k_xuanhun');
@@ -11118,7 +11118,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     playSnd('sfx_wind', 1); S.shake = 18; S.flash = .8; S.flashColor = '#e8f2ff';
     await narrate('叶孤星挡在两人身前，双曜灵力凝成星罗剑阵——剑阵只撑了一瞬，便被羽刃轰得粉碎。');
     await narrate('即便有流云仙衣护体，一口鲜血还是从他嘴里喷了出来。');
-    await say('云霆', '孤星，你怎么样！');
+    await say('云霆', '孤星！');
     await say('叶孤星', '你们快退！');
     await narrate('谷中妖兽齐齐扑来。一道幽蓝残影快得看不清——');
     await say('叶孤星', '不好！是那只冰蟾！');
@@ -11171,7 +11171,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   async function fruitAgain() {
     world.locked = true;
     await narrate('寒泉边，那株晶莹的药株还在。枝后先前没熟透的几颗冰魄玄果，如今已经泛起了饱满的冰蓝色。');
-    await say('叶孤星', '果然还在……师姐，云霆，等我。');
+    await say('叶孤星', '果然还在。……师姐一颗，冰块脸一颗——他那颗记账。');
     await say('星旋', '落云岭还乱着，拿了果子就走，别恋战。');
     playSnd('sfx_ice', .8); S.flash = .5; S.flashColor = '#bfe6ff';
     give('k_bingpo2', 2);
@@ -11191,7 +11191,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   async function cure(who) {
     const done = who === 'yun' ? F().fz_yun : F().fz_lin, name = who === 'yun' ? '云霆' : '林雪';
     if (fz() < 2) return narrate('床榻收拾得干干净净。');
-    if (done) return say(name, who === 'yun' ? '……我没事了。这次多亏了你。' : '孤星，我已经好多了，你别担心。');
+    if (done) return say(name, who === 'yun' ? '……死不了。玄果钱，记我账上。' : '孤星，我已经好多了，你别担心。');
     if (fz() < 3) return narrate(name + '昏迷不醒，嘴唇泛着青紫。得尽快拿到冰魄玄果。');
     world.locked = true; take('k_bingpo2');
     await narrate(`叶孤星将冰魄玄果喂入${name}口中，以灵力助其炼化。极寒之气涌入经脉，将冰蟾毒素一点点凝住，化作黑雾排出体外。`);
@@ -11222,9 +11222,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     S.party = F().fz_party && F().fz_party.length ? F().fz_party : ['yunting', 'linxue']; delete F().fz_party;
     const qt = CXB2.qingyang; await go('qy_town', 1504, 1000, 'down');
     await fadeIn(500);
-    await say('叶孤星', '云霆，你的修为……突破到凝丹七重了？');
-    await say('云霆', '昏迷的时候，体内那股力量自己炼化了一些毒素里的灵力。');
-    await say('叶孤星', '看来这次你倒是因祸得福了。');
+    await say('叶孤星', '云霆，你……睡一觉睡到凝丹七重了？');
+    await say('云霆', '昏迷的时候，体内那股力量自己炼化了毒里的灵力。');
+    await say('叶孤星', '早知道，我也让那冰蟾咬一口。');
     await say('林雪', '剧毒已经彻底清除了，再休息两日就能康复。我们得尽快回宗门禀报才是。');
     S.shake = 16; playSnd('sfx_boom', .9);
     await narrate('话音未落，镇外传来一阵震天的兽吼。十几道妖兽身影遮天蔽日，为首的正是那头赤焰魔狮！');
@@ -11659,7 +11659,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     const lc = actor('ly_luochen', 1700, 700, '洛尘', true); await moveActor(lc, world.player.x + 90, world.player.y - 20, 260);
     await L(['洛尘：叶兄，看来你昨晚的修炼成果颇丰啊。',
       '洛尘：（拥有纳月灵力在身，修炼速度如此之快，倒也不奇怪了。）',
-      '叶孤星：我准备等云霆伤势恢复后，再让他吸收银翼天鹏的灵力，助他也突破到引魂境。',
+      '叶孤星：等云霆伤好了，也让他吸点这天鹏的灵力。我一个人进了引魂境，没人陪练。',
       '洛尘：云霆恐怕只需要吸收一小部分灵力，剩下的灵力岂不是浪费了？',
       '洛尘：我的妖族血脉对于这些妖兽而言，有着绝对的压制力。要让它臣服，并不困难。',
       '叶孤星：可当初它追杀你的时候……',
@@ -11689,7 +11689,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       '叶擎苍：孤星，你已经突破到引魂境了？',
       '叶孤星：其实我也是用玄魂丹突破的……玄天城主赠予了我一枚玄魂丹。',
       '叶擎苍：原来是方城主所赠，倒是为我省了一枚玄魂丹。',
-      '叶孤星：这颗玄魂丹倒是不必浪费，正好可以留给云霆使用。',
+      '叶孤星：那这颗别浪费——留给云霆。',
       '叶擎苍：好。那这一枚，便由你带去给他。']);
     give('k_xuanhun'); playSnd('ui_confirm'); toast('获得：玄魂丹（叶擎苍所赠）', 2200);
     await L(['叶孤星：爹，宗门大比——我想让洛尘也一起去。',
@@ -11750,55 +11750,55 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       '洛尘：真正让它重伤的，还是靠你们两个。',
       '叶孤星：若非你及时回报情况，剑尘长老也不可能这么快赶到支援我们。']);
     const bed = actor('yunting_bed', 1056, 900, '云霆'); bed.npc.scale = 1.1;
-    await L(['云霆：孤星、师姐，你们来了。多亏了宗门长老出手，才能这么快恢复。',
-      '洛尘：你们同门之间的感情，倒真是令人羡慕啊。',
-      '叶孤星：洛尘，我们也算是共患难过的人了，自然也是把你当作自己人的。',
+    await L(['云霆：……来了。长老看过了，死不了。',
+      '洛尘：你们二位……倒是不怎么客套。',
+      '叶孤星：跟他客套，他嫌烦。洛尘，你也一样——在这儿都是自己人。',
       '叶孤星：星旋，兑换一颗星华丹吧。',
-      '星旋：又要给你的好兄弟花星辰点了啊，一百星辰点一颗，扣除成功！']);
+      '星旋：又给这冰块脸花星辰点？一百点一颗，扣除成功！']);
     await addPts(-100, '兑换：星华丹');
-    await say('云霆', '又是星华丹？这已经是我第三次吃星华丹了吧？');
+    await say('云霆', '又是星华丹。……第三颗了，你给我记着数。');
     await fadeOut(700); drop(bed); await narrate('——翌日清晨。');
     const yt = actor('ly_yunting', 980, 1100, '云霆');
     placeRoc('qingzhu_upper_pavilion', 1300, 1180, { kneel: true, s: .95 }); await fadeIn(600);
-    await L(['云霆：果然还是你的星华丹管用，才一晚上的功夫，我的伤势就彻底好了！',
-      '云霆：这……这不是那头引魂六重的银翼天鹏吗？',
-      '叶孤星：你昏迷之后，它被剑尘长老封了灵力，又被洛尘降服了。今天，就借它的灵力给你提升修为。',
+    await L(['云霆：（活动了一下肩膀）一晚上，好利索了。',
+      '云霆：……这不是那头把我扇晕的天鹏？',
+      '叶孤星：你躺着的时候，剑尘长老封了它的灵力，洛尘又把它收服了。今天让它还债——借它的灵力给你提修为。',
       '叶孤星：（对天鹏）放心吧，不会彻底吸干你的灵力。只需要你配合一下，日后必不会亏待你。']);
     await devour(ptOf(yt), '255,230,150', 2600);
-    await L(['云霆：凝丹九重巅峰！没想到如此轻松便突破了！',
-      '云霆：我们这样吸取它的灵力，它会不会撑不住啊？',
+    await L(['云霆：……凝丹九重巅峰。这么容易？',
+      '云霆：它撑得住？',
       '叶孤星：如今它依旧有着引魂四重的修为，就算再多帮几个人提升修为，估计都没事。',
       '叶孤星：云霆，接下来——继续冲击引魂境。',
-      '云霆：继续冲击引魂境？你不是在开玩笑吧？',
-      '叶孤星：这是我父亲给我的玄魂丹。我已经用方城主送的那颗突破了，所以这一颗，正好给你用。',
-      '云霆：孤星，这玄魂丹极为珍贵……我实在不好意思收。',
-      '叶孤星：我们兄弟之间，说这些做什么！赶紧服用玄魂丹，争取快点踏入引魂境！']);
+      '云霆：……你认真的？',
+      '叶孤星：（把玄魂丹往他手里一塞）我爹给的。方城主那颗我已经吃了，这颗放着也是放着。',
+      '云霆：……这东西太贵。',
+      '叶孤星：嫌贵就记账上。赶紧吃，别磨蹭。']);
     take('k_xuanhun');
     await narrate('云霆盘膝而坐，运转天剑诀炼化丹力，这一坐便是一整天。识海之中，一道剑影缓缓凝聚成形——');
     S.flash = 1; S.flashColor = '#fff2c8'; S.shake = 24; playSnd('sfx_sword_ring', 1); await wait(300); playSnd('sfx_thunder', .9);
     await bigTitle('引魂境', '云霆 · 剑魂之影', 1800);
-    await say('云霆', '引魂境！！！');
+    await say('云霆', '……引魂境。');
     await narrate('天剑诀，唯有踏入引魂境，才能于识海中凝出剑魂之影。前三式：一式点星，单体；二式群星，群攻；三式杀星——点星的终极强化，全身灵力凝聚于一点，爆发超越自身修为极限的极致剑意。');
-    await L(['叶孤星：云霆，你现在终于可以真正修炼天剑诀的第三式了。',
+    await L(['叶孤星：恭喜啊冰块脸。天剑诀第三式，总算能练了。',
       '……半日之后，云雷剑上雷霆缠绕。',
       '云霆：天剑三式——杀星！']);
     S.flash = 1; S.flashColor = '#ffd0c0'; S.shake = 26; playSnd('sfx_boom', 1);
     await L(['剑光过处，空间都随之一震。',
-      '云霆：这杀星剑诀果然厉害，不愧是天剑诀中的最强杀招！',
-      '叶孤星：恐怕一般的引魂境中期修士，都抵挡不住吧！',
-      '云霆：那我们不如切磋一下？反正你有流云仙衣护体，肯定伤不了你。',
-      '叶孤星：好你个云霆，刚一突破到引魂境就想拿我当靶子，亏我刚刚还给你一颗玄魂丹！',
-      '叶孤星：那来吧，我可不会手下留情的！破军剑意——星陨！']);
+      '云霆：……杀星。名不虚传。',
+      '叶孤星：一般的引魂中期，怕是接不住这一剑。',
+      '云霆：试试？反正你那衣服抗揍。',
+      '叶孤星：好你个冰块脸，刚吃了我的玄魂丹，就拿我当靶子？',
+      '叶孤星：来就来，打哭了别找师姐告状！破军剑意——星陨！']);
     S.flash = .8; S.flashColor = '#cfe6ff'; S.shake = 10; playSnd('sfx_sword_ring', 1);
     await narrate('星辉化作数十道剑芒，在叶孤星身前结成一座星陨剑阵——足以挡下引魂三重的全力一击。');
-    await say('云霆', '小心了！天剑三式——杀星！');
+    await say('云霆', '接好。天剑三式——杀星！');
     S.flash = 1; S.flashColor = '#ffffff'; S.shake = 34; playSnd('sfx_boom', 1); await wait(400); playSnd('sfx_crit', 1);
     await L(['一道赤金剑芒如杀星坠落，瞬间洞穿剑阵，正中叶孤星胸口——流云仙衣泛起一层水波般的光晕，将剑气尽数卸去。',
-      '云霆：你没事吧？',
-      '叶孤星：幸亏我身上有流云仙衣护体，不然刚才这一下，恐怕还真得受点伤了。',
-      '叶孤星：我这星陨剑阵能挡下引魂三重的攻击，你这杀星剑气却能直接洞穿——威力至少也达到了引魂五重的层次！',
-      '云霆：只是这一招消耗的灵力实在太过恐怖。仅仅施展一次，我体内的灵力就消耗了一半。',
-      '叶孤星：以你现在引魂一重的修为，配合云雷剑……到时候宗门大比，就看你大出风头了啊！']);
+      '云霆：……还活着？',
+      '叶孤星：（揉着胸口）活着。这衣服是真贵。',
+      '叶孤星：我这星陨剑阵能挡引魂三重，你一剑就捅穿了——这一剑，少说也有引魂五重。',
+      '云霆：代价也大。一剑下去，灵力去了一半。',
+      '叶孤星：够用了。宗门大比，我押你一把。']);
     await showPanel('云霆 · 突破', ['!引魂境 · 剑魂之影', '天剑三式·杀星：剑出如杀星坠落，重创单体。']);
     drop(yt); hideRoc(); F().zm = 6;
     S.party = ['yunting', 'linxue', 'luochen'].filter(k => PARTY_DB[k]); for (const k of S.party) joinParty(k);

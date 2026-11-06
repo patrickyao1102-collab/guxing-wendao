@@ -346,11 +346,11 @@
   async function ytLearn() {
     const f = F(); if (f.yt_jiutian) return; f.yt_jiutian = 1; const h = S.hero; if (h.bag && h.bag.bk_yt_jiutian) { delete h.bag.bk_yt_jiutian; }
     world.locked = true; try {
-      await say('云霆', '《九天神雷》！我在典籍阁门口盯了它三年了！孤星，借我看一眼——');
+      await say('云霆', '……《九天神雷》。典籍阁那本，我盯了三年。');
       await narrate('云霆捧着秘卷，指尖电光噼啪作响。片刻之后，一道细小的紫雷绕着他的手腕转了三圈，钻进了经脉。');
       S.flash = .7; S.flashColor = '#d8c8ff'; try { playSnd('sfx_thunder'); } catch (e) {}
       await showPanel('云霆 · 领悟秘传', ['!九天神雷', '引九天雷霆劈落全体，30% 麻痹', '（怒气满 100 时，在「秘传」中使用）']);
-      await say('云霆', '成了！黑风寨那帮家伙，等着挨雷劈吧！');
+      await say('云霆', '……成了。黑风寨那帮人，正好拿来试雷。');
       if (shopping()) S.quest = shopQuest();
     } finally { world.locked = false; }
   }
@@ -372,7 +372,7 @@
   // 出发前：云霆还没学会九天神雷 → 他自己掏钱去买（剧情保证学会）
   window.R134_BEFORE_DEPART = async function () {
     const f = F(); if (f.yt_jiutian) return true;
-    await say('云霆', '等等孤星！典籍阁那本《九天神雷》——我还是没忍住，自己掏钱买下来了。');
+    await say('云霆', '等等。（从怀里摸出一卷秘卷）自己掏钱买的。走之前，得先学会。');
     await ytLearn(); return true;
   };
 })();
