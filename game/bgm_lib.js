@@ -1020,6 +1020,72 @@ window.BGM_LIB = {
 "desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
 "dur": 147.1
 },
+"lib_n4_linxue__shaxing": {
+"no": "癸L01",
+"name": "林雪·杀星·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:shaxing",
+"file": "lib29/n4_linxue__shaxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑三式，杀星！”",
+"dur": 1.91
+},
+"lib_n4_linxue__qunxing": {
+"no": "癸L02",
+"name": "林雪·群星·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:qunxing",
+"file": "lib29/n4_linxue__qunxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑二式，群星！”",
+"dur": 2.13
+},
+"lib_n4_linxue__shuangjia": {
+"no": "癸L03",
+"name": "林雪·霜甲·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:shuangjia",
+"file": "lib29/n4_linxue__shuangjia.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “霜甲！”",
+"dur": 1.02
+},
+"lib_n4_linxue__bingxin": {
+"no": "癸L04",
+"name": "林雪·冰心·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingxin",
+"file": "lib29/n4_linxue__bingxin.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰心！”",
+"dur": 0.81
+},
+"lib_n4_linxue__bingfeng": {
+"no": "癸L05",
+"name": "林雪·冰封·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingfeng",
+"file": "lib29/n4_linxue__bingfeng.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰封！”",
+"dur": 0.71
+},
+"lib_n4_linxue__ult": {
+"no": "癸L06",
+"name": "林雪·大雪纷飞·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:ult",
+"file": "lib29/n4_linxue__ult.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰魄凝天——大雪纷飞！”",
+"dur": 3.05
+},
 "lib_v09": {
 "no": "癸01",
 "name": "云霆·九天神雷",
