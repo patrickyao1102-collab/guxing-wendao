@@ -16,8 +16,11 @@
   setTimeout(loadAll, 12000);
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const BB = D.by, YC = BB.cols;                                  // 扩建区 192 列 × 192 行（8px）
-  const BOBJ = BB.objs.map(o => Object.assign({}, o, { x: o.x - OX }));
+  const BOBJ = BB.objs.map(o => Object.assign({}, o, { x: o.x - OX }, /cx2_flowers_0/.test(o.img) ? { id: 'flowers_01' } : {}));   // 小花丛借原有的随风轻摆
   const SP = {}; for (const k in BB.spots) SP[k] = [BB.spots[k][0] - OX, BB.spots[k][1]];
+
+  // 小地图：往西扩出来的部分也画进去（青竹西院同理），不再一片黑
+  window.MM_EXTG = Object.assign(window.MM_EXTG || {}, { [PAV]: 'r137_by_ground', qingzhu_court: 'r136w_ground' });
 
   // ---------- 碰撞 + 物件：地图构建时把西边接上 ----------
   const M = TMAPS[PAV];
@@ -49,9 +52,11 @@
     await say('', '一张青玉面的长桌，六把圈椅。桌上只摆了一瓶花、一件小玉饰。');
     await say('叶孤星', '（管家说，以后院里的人都在这儿一起吃饭——不分主仆。）');
   }, 130);
-  spot('崖边观星台', SP.star, () => window.R137_STARGAZE && R137_STARGAZE(), 110);
-  spot('牡丹花圃', SP.garden_l, ['花圃里的牡丹开得正好，土还是湿的——早上刚浇过。'], 110);
-  spot('百合花圃', SP.garden_r, ['百合的香气淡淡的。花丛边插着一块小木牌：「小桃种，勿踩」。'], 110);
+  spot('崖边', SP.star, () => window.R137_STARGAZE && R137_STARGAZE(), 110);   // 观星仙器 Codex 设计中，到了换成仙器互动
+  spot('白玉花槽', SP.garden_l, ['白玉花槽里种着几株小花，土还是湿的——早上刚浇过。'], 110);
+  spot('白玉花槽', SP.garden_r, ['花槽边插着一块小木牌：「小桃种，勿踩」。'], 110);
+  spot('桃树', SP.peach, ['一株老桃树，花开得正盛。风一吹，花瓣落在长桌上。'], 140);
+  spot('桂花树', SP.osm, ['桂花还没开，叶子绿得发亮。管家说，等秋天开了，满院子都是香的。'], 140);
 
   // ---------- 观星：在地图里演（作者 11-07：禁止插画）——走到崖边、天色暗下来、云海上空星星一颗颗亮起、划过一道流星 ----------
   const SG = { a: 0, on: false, t0: 0 };

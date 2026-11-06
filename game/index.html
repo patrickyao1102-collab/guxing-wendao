@@ -9687,20 +9687,20 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   window.MM_CLEAR = id => { if (id) delete MM.cache[id]; else MM.cache = {}; };   // 地图物件改动后重画小地图
   function thumb(id, T) {
     const k = id, old = MM.cache[k], tnow = performance.now(); if (old && (old.ok || tnow - old.t < 1200)) return old;
-    const def = TMAPS[id]; const mw = T.mw, mh = T.mh, s = Math.min(1, 520 / Math.max(mw, mh));
+    const def = TMAPS[id]; const X0 = T.x0 || 0, mw = T.mw - X0, mh = T.mh, s = Math.min(1, 520 / Math.max(mw, mh));   // R137：往西扩建的地图（T.x0 < 0）缩略图也从 x0 画起
     const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(mw * s)); c.height = Math.max(1, Math.round(mh * s)); const x = c.getContext('2d');
     let ok = false;
-    if (def && def.baked) { const im = IMG[def.baked.ground]; if (im && im.width > 8) { x.drawImage(im, 0, 0, c.width, c.height); ok = true; } else if (window.CX2_LAZY_LD && /^cx2g_/.test(def.baked.ground)) CX2_LAZY_LD(def.baked.ground.slice(5)); }
+    if (def && def.baked) { const im = IMG[def.baked.ground]; if (im && im.width > 8) { x.drawImage(im, -X0 * s, 0, T.mw * s, c.height); ok = true; const eg = X0 && window.MM_EXTG && MM_EXTG[id]; if (eg) { if (IMG[eg]) x.drawImage(IMG[eg], 0, 0, -X0 * s, c.height); else ok = false; } } else if (window.CX2_LAZY_LD && /^cx2g_/.test(def.baked.ground)) CX2_LAZY_LD(def.baked.ground.slice(5)); }
     // 整图地图：把房屋、树木、摆件也按位置画进缩略图（像一张真正的地图，不再是黑白方块）
     if (ok) { let miss = 0; const os = (T.objs || []).filter(o => o.bk && !o.r60 && o.img).sort((a, b) => (a.flat ? -1e9 : a.sy) - (b.flat ? -1e9 : b.sy));
-      for (const o of os) { const oi = IMG[o.img]; if (!oi) { miss++; continue; } x.save(); if (o.flip) { x.translate((o.x + o.w / 2) * s, 0); x.scale(-1, 1); x.translate(-(o.x + o.w / 2) * s, 0); } x.drawImage(oi, o.x * s, o.y * s, o.w * s, o.h * s); x.restore(); }
+      for (const o of os) { const oi = IMG[o.img]; if (!oi) { miss++; continue; } x.save(); if (o.flip) { x.translate((o.x - X0 + o.w / 2) * s, 0); x.scale(-1, 1); x.translate(-(o.x - X0 + o.w / 2) * s, 0); } x.drawImage(oi, (o.x - X0) * s, o.y * s, o.w * s, o.h * s); x.restore(); }
       if (miss) ok = false;
       const vg = x.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * .35, c.width / 2, c.height / 2, Math.max(c.width, c.height) * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(10,8,6,.35)'); x.fillStyle = vg; x.fillRect(0, 0, c.width, c.height); }
     // 碰撞格叠一层：墙暗、路亮（只给没有整图的老地图用）
     const bl = def && def.baked ? null : T.block, cs = T.baked ? T.cs : TS;
     if (bl) { x.fillStyle = ok ? 'rgba(10,8,6,.42)' : '#2c2a24'; for (let r = 0; r < bl.length; r++) for (let q = 0; q < (bl[r] || []).length; q++) if (bl[r][q]) x.fillRect(q * cs * s, r * cs * s, cs * s + .6, cs * s + .6);
       if (!ok) { x.globalCompositeOperation = 'destination-over'; x.fillStyle = '#b9a77e'; x.fillRect(0, 0, c.width, c.height); x.globalCompositeOperation = 'source-over'; } }
-    return (MM.cache[k] = { c, s, ok: ok || !(def && def.baked), mw, mh, t: tnow });
+    return (MM.cache[k] = { c, s, ok: ok || !(def && def.baked), mw, mh, x0: X0, t: tnow });
   }
   // ---- 迷宫雾：按 96 像素一格记下走过的地方（存在存档的 flags 里，读档后还在）----
   const FOG = {};
@@ -9732,7 +9732,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     const id = world.mapName, th = thumb(id, T), p = world.player, now = performance.now() / 1000;
     const big = MM.big, R = big ? 250 : MM.r, cx = big ? W / 2 : MM.cx, cy = big ? H / 2 + 10 : MM.cy;
     const view = big ? Math.max(th.mw, th.mh) * .56 : MM.view, k = R / view;     // 世界像素 → 小地图像素
-    const ox = big ? th.mw / 2 : p.x, oy = big ? th.mh / 2 : p.y;
+    const ox = big ? (th.x0 || 0) + th.mw / 2 : p.x, oy = big ? th.mh / 2 : p.y;
     const toM = (x, y) => [cx + (x - ox) * k, cy + (y - oy) * k];
     ctx.save();
     if (big) { ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H); }
@@ -9740,7 +9740,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ctx.beginPath(); ctx.arc(cx, cy, R + 7, 0, 7); const g = ctx.createRadialGradient(cx, cy, R, cx, cy, R + 8); g.addColorStop(0, '#6b4a22'); g.addColorStop(1, '#2a1708'); ctx.fillStyle = g; ctx.fill();
     ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.clip();
     ctx.fillStyle = '#1b1712'; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
-    const [mx, my] = toM(0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(th.c, mx, my, th.mw * k, th.mh * k);
+    const [mx, my] = toM(th.x0 || 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(th.c, mx, my, th.mw * k, th.mh * k);
     // 迷宫类地图（作者 11-04）：小地图 / M 大地图只显示走过的地方，没走到的一片黑，出口、任务金圈、怪也藏起来
     // 作者 11-05：测试版默认不开迷雾（测试面板「工具」里有开关）；走过的地方照样记着，打开就能看到
     const fogMap = TMAPS[id] && TMAPS[id].fog ? fogOf(id, th) : null, fog = fogMap && window.MAZE_FOG_ON ? fogMap : null;
