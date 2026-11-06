@@ -16,14 +16,15 @@
     "inner_01_tianjian_jade":"47024101ca86561a484673b69c78e4b4","inner_02_star_celestial":"d2c820adc3797a229c9fb0e10cec2287","inner_03_ancient_vine":"eae8b30c20039672b6f6cdc43be7d53b","inner_04_vermilion_lacquer":"93b5d0295ac4f45ebce19d385f30c735","inner_05_gilded_zitan":"65b10deca067769cb5e242593d8eea0f","inner_06_sealed_iron":"9cfb72f66ac99ad0a7834c81a8d67417",
     "seam_01_tianjian_jade":"1be90a1612ca3421bdf8c41a9b68d1b3","seam_02_star_celestial":"39afae9ccb8156264f1462169db68420","seam_03_ancient_vine":"5a97469217351c5fd4de88b675f39d25","seam_04_vermilion_lacquer":"3d7a7f633fe46cb9d50d5e93d3e93e98","seam_05_gilded_zitan":"e0532da3301aa27f21b5a2c98f73f12b","seam_06_sealed_iron":"6cb01fb09d2e72b4e87094e2feeb9460"};
   const IM = {}, want = {};
-  function img(n) { if (IM[n]) return IM[n]; if (want[n]) return null; want[n] = 1; const im = new Image(); im.onload = () => { IM[n] = im; }; im.src = LOC ? 'r103/' + n + '.webp' : '/_blob/' + BLOB[n]; return null; }
+  function img(n) { if (IM[n]) return IM[n]; if (want[n]) return null; want[n] = 1; const im = new Image(); im.onload = () => { IM[n] = im; }; im.src = (/^(chest|halo|seam|inner)_/.test(n) ? (LOC ? 'r130/' : 'https://raw.githubusercontent.com/patrickyao1102-collab/guxing-wendao/main/game/r130/') + n + '.webp' : (LOC ? 'r103/' + n + '.webp' : '/_blob/' + BLOB[n])); return null; }   // 作者 11-06：宝箱换成 R130 方正小宝箱（r130/），其余仍走 r103
   const rnd = (a, b) => a + Math.random() * (b - a);
 
   // ================= 3) 正面宝箱 =================
   const SL = ['01_tianjian_jade', '02_star_celestial', '03_ancient_vine', '04_vermilion_lacquer', '05_gilded_zitan', '06_sealed_iron'];
   // manifest.json：各光层相对箱体脚点的偏移 + 自身锚点
-  const OFF = { seam: [-64, -61, -69, -64, -70, -65], inner: [-89, -95, -96, -91, -96, -99] };
-  const K = .25 * 1.5;   // 素材 256×224 → 逻辑 64×56，再按原宝箱的 1.5 倍放大
+  // 作者 11-06：换 R130 方正宝箱——偏移按 R130 manifest（缝光 / 内微光相对脚点），箱体可见宽 160 → 按 K 缩成约 48px，比原来小一圈
+  const OFF = { seam: [-59, -59, -58, -58, -57, -54], inner: [-80, -80, -75, -74, -73, -68] };
+  const K = .25 * 1.2;
   function chest(x, y, open, i, tms) {
     const s = SL[i] || SL[0], body = img('chest_' + s + (open ? '_open' : '_closed'));
     const halo = img('halo_' + s), seam = img('seam_' + s), inner = img('inner_' + s);
