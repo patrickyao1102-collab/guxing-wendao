@@ -1285,17 +1285,17 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰盾！”",
 "dur": 0.63
 },
-"lib_n5_hero__dianxing_b5": {
-"no": "癸M09",
-"name": "叶孤星·点星·补录6·定稿",
+"lib_n7_hero__dianxing": {
+"no": "癸P05",
+"name": "叶孤星·点星·冷厉04·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:dianxing",
-"file": "lib29/n5_hero__dianxing_b5.mp4",
-"blob": "2ba2beecc8f0f88af1c2146e7b53c3c3",
+"file": "lib29/n7_hero__dianxing.mp4",
+"blob": "ca6a2dbeba111174f8136441cc3f28a0",
 "vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重；作者 11-06 选定，默认）",
-"dur": 2.21
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 夜冷厉十版第 04 条「冰冷霸气、傲视群敌」，作者选定）",
+"dur": 2.36
 },
 "lib_n6_yunting__boming": {
 "no": "癸M14",
