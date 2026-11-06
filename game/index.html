@@ -9638,7 +9638,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   ];
   async function teleportMenu() {
     const groups = DEST.map(([g, list]) => [g, list.filter(([id]) => TMAPS[id] && visited()[id] && id !== world.mapName)]).filter(([, l]) => l.length);
-    if (!groups.length) { await say('管家', '少爷，您去过的地方还太少，老朽的传送符记不住路。等您走过的地方多了再说。'); return; }
+    if (!groups.length) { await say('管家', '少爷，您去过的地方还太少，我的传送符记不住路。等您走过的地方多了再说。'); return; }
     let list;
     if (groups.length === 1) list = groups[0][1];
     else { const gi = await choose('去哪一带？', groups.map(([g]) => g).concat(['算了'])); if (gi >= groups.length) return; list = groups[gi][1]; }
@@ -9653,12 +9653,12 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   const stewardTalk = async () => {
     if (!F().steward_met) { F().steward_met = 1;
       await say('管家', '少爷回来了。');
-      await say('管家', '宗主早年留下一叠传送玉符，交代老朽：少爷去过的地方，都替您记着路。哪天要出门，跟老朽说一声就成。');
+      await say('管家', '宗主早年留下一叠传送玉符，交代我：少爷去过的地方，都替您记着路。哪天要出门，跟松伯说一声就成。');
       await say('星旋', '（嚯，你家连管家都这么阔气。）');
     }
     const i = await choose('管家', ['传送到去过的地方', '最近院里怎么样？', '没事了']);
     if (i === 0) return teleportMenu();
-    if (i === 1) await say('管家', ['院里的石雕，老朽每天都擦一遍。少爷那只石鸟，什么时候雕完？', '东边客舍又打扫过了。宗主说过，少爷迟早会带朋友回来住的。', '夜里风大，少爷练剑别练太晚。'][Math.floor(Math.random() * 3)]);
+    if (i === 1) await say('管家', ['院里的石雕，我每天都擦一遍。少爷那只石鸟，什么时候雕完？', '东边客舍又打扫过了。宗主说过，少爷迟早会带朋友回来住的。', '夜里风大，少爷练剑别练太晚。'][Math.floor(Math.random() * 3)]);
   };
   // 管家：青竹小院（原 R32 站位）+ 管事房里
   const st1 = npc('qingzhu_court', 'steward_elder', 520, 1380, '管家', stewardTalk, { mark: () => !F().steward_met });
@@ -12254,8 +12254,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       type: 'talk', target: ['tj_front', '书生弟子'],
       accept: [['借书的女弟子', '少宗主，你见过一本《御风剑注》吗？登记簿上写着在阁里，可书架上翻遍了也没有。'], ['借书的女弟子', '……演武广场那个总念诗的书生师兄，好像什么书都看过。']],
       targetTalk: [['书生弟子', '《御风剑注》？在下借去三月有余了……惭愧惭愧。'], ['书生弟子', '此书写得极好，只是第七页被在下的茶水洇了。劳烦少宗主带回去，替在下赔个不是。']],
-      done: [['借书的女弟子', '找到了！……第七页怎么是黄的？算了算了。'], ['借书的女弟子', '谢谢少宗主。这卷《点星》剑谱是我抄书时多抄的一份，你拿去参悟吧。']],
-      reward: { exp: 80, items: [['jp_dianxing', 1]] } },
+      done: [['借书的女弟子', '找到了！……第七页怎么是黄的？算了算了。'], ['借书的女弟子', '谢谢少宗主。这卷《剑诀·卷二》是我抄书时多抄的一份，你拿去参悟吧。']],
+      reward: { exp: 80, items: [['juan2', 1]] } },
     { id: 'tj_copy', name: '抄够十遍', giver: ['tj_library', '抄经弟子'], where: '藏经阁一层 · 抄经弟子', cond: () => !!(F().ch2_roam || F().ch1_free),
       desc: '抄经弟子被师兄告知：抄够十遍《天剑心法》，剑意自然就通了。', goal: '替他问问守阁长者，这话是真是假',
       type: 'talk', target: ['tj_library', '守阁长者'],
@@ -12267,8 +12267,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       desc: '大师兄放心不下下山的师弟师妹，要先看看真本事。', goal: '在后山或松风林道打 3 团兽火',
       type: 'kill', kill: { maps: ['tj_houshan', 'tj_xiashan'] }, n: 3,
       accept: [['大师兄', '下山之前，我得先看看你的真本事。测灵碑测得出修为，测不出临阵的手。'], ['大师兄', '去后山或者松风林道，打三团兽火回来。别逞强，打不过就跑。']],
-      done: [['大师兄', '出手干脆，收得住。不错。'], ['大师兄', '这卷《星落》剑谱给你——你那招自创的星落，是该好好打磨了。']],
-      reward: { exp: 150, items: [['jp_xingluo2', 1], ['p_small', 3]] } },
+      done: [['大师兄', '出手干脆，收得住。不错。'], ['大师兄', '这卷《剑诀·卷二》给你——你那招自创的星落，是该好好打磨打磨了。']],
+      reward: { exp: 150, items: [['juan2', 1], ['p_small', 3]] } },
     { id: 'kite', name: '贪玩的小虎子', giver: ['qy_town', '王婆婆'], where: '青阳镇 · 王婆婆',
       desc: '王婆婆的孙子小虎子拿着风筝跑出去玩，饭都凉了还没回家。', goal: '在青阳镇找到放风筝的小孩，叫他回家',
       type: 'talk', target: ['qy_town', '放风筝的小孩'],
@@ -12293,7 +12293,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       type: 'kill', kill: { maps: ['hf_valley'], kind: 'ghost' }, n: 4,
       accept: [['客栈掌柜', '仙长要去黑风谷？那正好……谷里的山贼天天设卡，商队都不敢走了。'], ['客栈掌柜', '您顺手清一清那些山贼，小店上下感激不尽！']],
       done: [['客栈掌柜', '商队又敢走黑风谷了！仙长，这是小店的谢礼，还有一件兽皮软甲，掌柜我年轻时穿的。']],
-      reward: { exp: 220, gold: 300, items: [['a_leather', 1], ['yujian', 1]] } },
+      reward: { exp: 220, gold: 300, items: [['a_leather', 1], ['juan3', 1]] } },
     { id: 'horn', name: '醉仙楼的招牌菜', giver: ['qy_town', '醉仙楼厨子'], where: '青阳镇 · 醉仙楼厨子', cond: () => !!F().ch2_plan,
       desc: '醉仙楼的招牌「犀角炖」断货了。', goal: '在黑风谷打黑甲犀牛的兽火，收集黑犀角',
       type: 'item', item: 'm_horn', n: 2, drop: { maps: ['hf_valley'], mobs: ['rhino'], p: .8 },
@@ -12311,13 +12311,13 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       type: 'kill', kill: { maps: ['m_yy_tiger', 'm_yy_verge'], mobs: ['spider'] }, perEnemy: true, n: 4,
       accept: [['万宝楼掌柜', '贵客是要出城？幽影林里的影纹蛛姬，吐的丝能织法衣。'], ['万宝楼掌柜', '打上四只，蛛丝归我，这枚灵犀玉坠归您。']],
       done: [['万宝楼掌柜', '成色上佳！灵犀玉坠是您的了，另有一点心意。']],
-      reward: { exp: 400, gold: 500, items: [['c_jade', 1], ['yujian', 1]] } },
+      reward: { exp: 400, gold: 500, items: [['c_jade', 1], ['juan3', 1]] } },
     { id: 'elite', name: '据点悬赏 · 精英妖物', giver: ['xt_city', '据点长老'], where: '玄天城 · 天剑宗据点 · 据点长老', cond: () => !!F().ch3_report,
       desc: '城外精英妖物伤人，据点挂出悬赏。', goal: '打败两团紫色的火（精英）',
       type: 'kill', kill: { tier: 'purple' }, n: 2,
       accept: [['据点长老', '城外近来有几只成了气候的精英妖物，伤了不少商旅。'], ['据点长老', '据点挂了悬赏——去打两只回来，宗门记你一功。']],
       done: [['据点长老', '干净利落。这份功劳，老夫替你记下了。']],
-      reward: { exp: 500, points: 80, items: [['yujian', 1], ['p_big', 2]] } },
+      reward: { exp: 500, points: 80, items: [['juan4', 1], ['p_big', 2]] } },
   ];
   window.SQ_DEFS = SQ;
   const st = id => ((F().sq = F().sq || {})[id] = F().sq[id] || { s: 0, n: 0 });   // s: 0 未接 / 1 进行中 / 2 可交 / 3 完成
@@ -16537,4 +16537,5 @@ window.MarketEffects = (() => {
 <script src="r138_panel.js"></script>
 <script src="r139_qz_life.js"></script>
 <script src="r140_quest.js"></script>
+<script src="r143_songfeng.js"></script>
 </body></html>

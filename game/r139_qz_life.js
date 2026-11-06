@@ -132,7 +132,7 @@
         await narrate('叶孤星没理他，接过扁担往肩上一搭。灵力往下一沉，两桶满满的井水稳稳当当，一滴没晃出来。');
         await narrate('从井边到厨房水缸，他走了一趟，又走了一趟。');
         await fadeIn(350);
-        await sayN('小厮阿福', '……少爷，您走一趟，我得走三趟。');
+        await sayN('小厮阿福', '……少爷，您走一趟，阿福得走三趟。');
         await sayN('小厮阿福', '这事要让管家知道了，我可要挨骂的。您可千万别说出去！');
         await sayN('星旋', '（挑水也是练下盘，不亏。）');
         f.qz_afu_help = 1; giveFx(); toast('阿福偷偷记下了这份情', 1800);
@@ -141,12 +141,12 @@
       }
       return;
     }
-    await sayN('小厮阿福', pick(['少爷上回帮我挑水的事，我谁也没说——青禾姐还是知道了，笑了我半天。', '灶上烧着热水，少爷练完剑回来就能用。', '小桃说要给新花圃多浇点，我这就给她送一桶去。', '少爷，水缸满着呢，您可别再抢扁担了。']));
+    await sayN('小厮阿福', pick(['少爷上回帮阿福挑水的事，阿福谁也没说——青禾姐还是知道了，笑了我半天。', '灶上烧着热水，少爷练完剑回来就能用。', '小桃说要给新花圃多浇点，我这就给她送一桶去。', '少爷，水缸满着呢，您可别再抢扁担了。']));
   };
   // 小桃：新花圃种什么
   const bedName = () => FLOWER[F().qz_bed] || '';
   async function askBed(first) {
-    if (first) { await sayN('侍女小桃', '少爷！青禾姐门前石板路左边那块新花圃还空着呢——种什么好？'); await sayN('侍女小桃', '我想种点好看的，少爷路过一眼就能瞧见。'); }
+    if (first) { await sayN('侍女小桃', '少爷！青禾姐门前石板路左边那块新花圃还空着呢——种什么好？'); await sayN('侍女小桃', '小桃想种点好看的，少爷路过一眼就能瞧见。'); }
     const i = await choose('种什么？', ['月季——一年开好几茬', '绣球——一团一团的', '菊花——秋天也开', first ? '你看着办' : '还是原来的吧']);
     const keys = ['rose', 'hydrangea', 'chrysanthemum'];
     let k = keys[i]; if (i === 3) { if (!first) return; k = 'rose'; }
@@ -166,7 +166,7 @@
   if (NPC.maid1) NPC.maid1.talk = async a => {
     const f = F();
     if (!f.qz_qh1) { f.qz_qh1 = 1; await sayN('侍女青禾', '少爷早。西院的石桌我每天都擦——您练剑累了，就过去坐坐。'); await sayN('侍女青禾', '小桃沏的茶比我好，我就……管着把桌子擦干净。'); return; }
-    await sayN('侍女青禾', pick(['竹叶一夜落一层，扫完这头，那头又落了。', '少爷练剑当心些，上回削下来的竹枝，我扫了一早上呢。', '我这几晚在绣个小玩意儿……少爷别问，还没好呢。', '管家交代了，院子得干干净净的，少爷带朋友回来才有面子。']));
+    await sayN('侍女青禾', pick(['竹叶一夜落一层，扫完这头，那头又落了。', '少爷练剑当心些，上回削下来的竹枝，我扫了一早上呢。', '青禾这几晚在绣个小玩意儿……少爷别问，还没好呢。', '管家交代了，院子得干干净净的，少爷带朋友回来才有面子。']));
   };
   // 青禾：夜里在自己屋里 —— 香囊
   const qhNight = ((TMAPS.qingzhu_room_qinghe || {}).npcs || []).find(x => x.name === '侍女青禾');
@@ -176,7 +176,7 @@
       const fl = bedName() || '月季';
       await sayN('侍女青禾', '少爷……您来得正好。');
       await narrate('青禾从枕边的针线笸箩里拿出一只青缎小香囊，上头绣着几竿细竹，针脚密得看不出线头。');
-      await sayN('侍女青禾', '里头是西院新开的' + fl + '，小桃摘了晒干的。我绣了三个晚上。');
+      await sayN('侍女青禾', '里头是西院新开的' + fl + '，小桃摘了晒干的。青禾绣了三个晚上。');
       await sayN('侍女青禾', '阿福说……少爷那天替他挑水。我们没什么能谢少爷的，就这么个小东西。');
       await sayN('侍女青禾', '少爷出门在外，带着它——就当青竹小院一直跟着您。');
       ITEM_DB.acc_qz_sachet = ITEM_DB.acc_qz_sachet || { name: '青竹香囊', slot: 'acc', def: 4, maxhp: 60, desc: '' };
@@ -240,5 +240,351 @@
     o.apply(this, arguments);
     try { if (!nightTold && world.mapName === COURT && night() && world.player && world.player.x < -60 && !world.locked) { nightTold = true; toast('西院几扇窗还亮着灯，隐约听见青禾和小桃在屋里说笑。', 2600); } } catch (e) {}
   })(tileUpdate);
+
+  // ================= 五、管家起名「松伯」+ 更多小事 =================
+  // 作者 11-07：仙侠游戏，下人不自称奴婢 / 奴才（改成「我」「我们」，也会叫自己的名字；松伯也自称「我」）；管家起个名字 → 院里都叫他「松伯」
+  const QZ = () => /^qingzhu_|^tj_room$/.test(world.mapName || '');
+  try { if (typeof SPEAKERS === 'object') { SPEAKERS['管家'] = SPEAKERS['管家'] || { color: '#e8d7b0' }; SPEAKERS['松伯'] = SPEAKERS['管家']; } } catch (e) {}
+  if (typeof say === 'function') say = (o => function (who, text, ...rest) {
+    try { if (QZ()) { if (who === '管家') who = '松伯'; if (typeof text === 'string') text = text.replace(/管家/g, '松伯'); } } catch (e) {}
+    return o.call(this, who, text, ...rest);
+  })(say);
+  for (const id of [COURT, 'qingzhu_steward_room']) for (const n of (TMAPS[id] && TMAPS[id].npcs) || []) if (n.name === '管家' && !n.hidden) {
+    n.name = '松伯';
+    if (id === COURT) { const t0 = n.talk; n.talk = async a => {
+      const f = F();
+      if (f.steward_met && !f.qz_song) { f.qz_song = 1;
+        await say('松伯', '少爷回来了。西院那边，您去转过了？');
+        await say('叶孤星', '转过了。松伯，西院那几间屋子是什么时候盖的？');
+        await say('松伯', '去年开春。那块地原先荒着，宗主说——孤星大了，身边该有几个贴心的人，就让我盖了这几间屋子。');
+        await say('松伯', '青禾是山下绣娘的女儿，手巧，心细；小桃是青阳镇卖花人家的丫头，见了花就走不动道。');
+        await say('松伯', '阿福……是我那年冬天在山门外雪地里捡回来的。那会儿他才这么高，冻得话都说不出来。');
+        await say('松伯', '三个孩子都是跟着少爷长大的。少爷待他们好，他们心里都记着。');
+        await say('星旋', '（你这院子，倒比别处的宗门暖和。）');
+        return; }
+      return typeof t0 === 'function' ? t0(a) : say('松伯', '少爷回来了。');
+    }; }
+  }
+  // 阿福夜里：想学写字
+  const afuNight = ((TMAPS.qingzhu_room_afu || {}).npcs || []).find(x => x.name === '小厮阿福');
+  if (afuNight) afuNight.talk = async a => {
+    const f = F();
+    if (!f.qz_afu_write) {
+      await narrate('阿福趴在书案上，一笔一画地描账本上的字，描得满头大汗。');
+      await say('小厮阿福', '少爷……您能教我写几个字吗？账本上的字，我都是照着松伯写的描下来的。');
+      const i = await choose('教他写什么？', ['教他写「勤」——墙上那个', '教他写他自己的名字', '改天吧']);
+      if (i === 2) { await say('小厮阿福', '那……改天！少爷说话算话啊。'); return; }
+      f.qz_afu_write = i === 0 ? 'qin' : 'name';
+      if (i === 0) { await narrate('叶孤星握着他的手，一笔一划写了个「勤」字。阿福盯着看了半天，又自己写了十几遍。'); await say('小厮阿福', '原来墙上那个字是这么写的！我天天看，一直不知道。'); }
+      else { await narrate('叶孤星蘸了墨，在纸上写下「阿福」两个字。阿福捧着那张纸，看了又看。'); await say('小厮阿福', '这……这就是我的名字啊。'); await say('小厮阿福', '阿福要把它贴在床头。明儿记账，阿福也写自己的名字！'); }
+      await say('星旋', '（教人写字比教人练剑还累。……不过这小子学得挺认真。）'); giveFx(); return;
+    }
+    await say('小厮阿福', pick([f.qz_afu_write === 'qin' ? '少爷教的那个「勤」字，我写在账本第一页了。' : '少爷，您看——账本上那行「阿福记」，是我自己写的！', '灶火我看着呢，少爷放心。', '今儿挑了好几趟水，胳膊都抬不起来啦。']));
+  };
+  // 小桃夜里
+  const xtNight = ((TMAPS.qingzhu_room_xiaotao || {}).npcs || []).find(x => x.name === '侍女小桃');
+  if (xtNight) xtNight.talk = async a => {
+    const f = F(), fl = bedName();
+    if (fl && !f.qz_xt_vase) { f.qz_xt_vase = 1;
+      await say('侍女小桃', '少爷！您看——窗台上这瓶' + fl + '，是西院头一茬开的。');
+      await say('侍女小桃', '明儿一早给您屋里送过去。青禾姐说，少爷屋里太素了，得有点颜色。');
+      return; }
+    await say('侍女小桃', pick(['嘘——青禾姐睡得浅。', '少爷要热水吗？灶上一直温着呢。', '明天要是不下雨，小桃就把西院的花都换盆土。']));
+  };
+
+  // ================= 六、厨房做饭小游戏 =================
+  // 玩法：选菜谱 → 按菜谱顺序把食材下锅（点错扣一颗星）→ 看火候三次（指针扫到金色区域时点）→ 起锅。
+  // 两颗星以上出菜（三颗星出两份），做好的菜放进行囊，战斗里也能吃。同一道菜行囊里最多放 5 份。
+  // 素材：Codex R139（灶台近景、锅、冒泡、火候条、12 种食材、8 道菜）到了以后替换下面的占位画法（COOK_ART）。
+  const RECIPES = [
+    { id: 'cook_lianzi', name: '莲子羹', pot: 'soup', ing: ['莲子', '红枣', '蜂蜜'], hp: 260, mp: 60, desc: '莲子炖得软糯，甜得刚好。' },
+    { id: 'cook_sun', name: '竹笋鲜汤', pot: 'soup', ing: ['竹笋', '香菇', '青菜'], hp: 340, mp: 0, desc: '后山新挖的竹笋，汤清味鲜。' },
+    { id: 'cook_guihua', name: '桂花糕', pot: 'steam', ing: ['糯米', '桂花', '蜂蜜'], hp: 80, mp: 140, desc: '入口即化，满嘴桂花香。' },
+    { id: 'cook_doufu', name: '青菜豆腐', pot: 'wok', ing: ['青菜', '豆腐'], hp: 220, mp: 30, desc: '家常小菜，清清白白。' },
+    { id: 'cook_zhou', name: '香菇灵米粥', pot: 'soup', ing: ['灵米', '香菇', '山药'], hp: 420, mp: 80, desc: '灵米熬得开了花，暖胃养气。' },
+    { id: 'cook_zao', name: '红枣山药汤', pot: 'soup', ing: ['红枣', '山药', '莲子'], hp: 300, mp: 110, desc: '补气养血，松伯最爱喝。' },
+  ];
+  const ING = { 竹笋: '#c8b46a', 莲子: '#efe6c8', 红枣: '#b8322e', 桂花: '#f2b33c', 糯米: '#f4f1e6', 青菜: '#5fa84a', 豆腐: '#f1ead2', 香菇: '#8a5a36', 鸡蛋: '#f3d9a4', 灵米: '#d9e8f0', 山药: '#e8dcc4', 蜂蜜: '#e0a228' };
+  for (const r of RECIPES) ITEM_DB[r.id] = Object.assign(ITEM_DB[r.id] || {}, { name: r.name, use: 'heal', hp: r.hp, mp: r.mp, price: 40, desc: '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') });
+  window.COOK_ART = window.COOK_ART || {};   // Codex 素材到了挂在这里：bg / pot_soup / pot_wok / pot_steamer / ing_<名> / dish_<id>
+  let G = null;
+  const BOARD = () => G.board.map((n, i) => ({ n, x: 300 + i * 136, y: 600, r: 50 }));
+  const BTN_QUIT = { x: 1110, y: 30, w: 140, h: 54 };
+  function drawCook() {
+    if (!G) return; const t = now(), A = window.COOK_ART;
+    ctx.save();
+    if (A.bg) ctx.drawImage(A.bg, 0, 0, W, H);
+    else { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1f1712'); g.addColorStop(1, '#3a2a1d'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const st = IMG['r136w_c_kitchen_double_stove']; if (st) ctx.drawImage(st, 400, 210, 480, 332);
+      const fg = ctx.createRadialGradient(640, 470, 10, 640, 470, 260); fg.addColorStop(0, `rgba(255,150,60,${.25 + .06 * Math.sin(t * 9)})`); fg.addColorStop(1, 'rgba(255,120,40,0)'); ctx.fillStyle = fg; ctx.fillRect(380, 210, 520, 420); }
+    // 锅里冒泡 / 热气
+    const pot = A['pot_' + G.r.pot];
+    if (pot) ctx.drawImage(pot, 640 - pot.width / 2, 330 - pot.height / 2);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 7; k++) { const ph = (t * .6 + k / 7) % 1; ctx.fillStyle = `rgba(255,255,255,${.12 * (1 - ph)})`; ctx.beginPath(); ctx.ellipse(560 + k * 26 + Math.sin(t * 2 + k) * 8, 300 - ph * 160, 18 + ph * 22, 12 + ph * 16, 0, 0, 7); ctx.fill(); }
+    ctx.globalCompositeOperation = 'source-over';
+    if (G.added) for (let k = 0; k < G.added; k++) { ctx.fillStyle = ING[G.r.ing[k]] || '#ddd'; ctx.globalAlpha = .85; ctx.beginPath(); ctx.ellipse(600 + k * 40, 318 + Math.sin(t * 5 + k) * 3, 16, 9, 0, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
+    // 标题、菜谱卡
+    ctx.font = `46px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('西院厨房 · ' + G.r.name, 640, 60, '#ffe7b0', '#2a1406', 6);
+    panel(40, 130, 250, 300); ctx.font = `30px ${BRUSH}`; ctx.fillStyle = '#ffe7b0'; ctx.fillText('菜 谱', 165, 168);
+    G.r.ing.forEach((n, i) => { ctx.font = `600 24px ${FONT}`; ctx.fillStyle = i < G.added ? '#9fe08a' : '#fbefd5'; ctx.fillText((i < G.added ? '✓ ' : (i + 1) + '. ') + n, 165, 220 + i * 46); });
+    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e8c98a'; ctx.fillText('★'.repeat(G.stars) + '☆'.repeat(3 - G.stars), 165, 400);
+    // 提示
+    ctx.font = `600 24px ${FONT}`; ctx.fillStyle = '#fbefd5'; ctx.fillText(G.phase === 'add' ? '照菜谱的顺序，把食材下锅' : G.phase === 'heat' ? '火候第 ' + (G.round + 1) + ' / 3 次：指针到金色那段时点一下' : '', 640, 120);
+    if (G.msg && t - G.msgT < 1.2) { ctx.font = `40px ${BRUSH}`; textOutline(G.msg, 640, 200, G.msgOk ? '#ffe08a' : '#ff9a8a', '#2a1406', 6); }
+    // 食材
+    if (G.phase === 'add') for (const b of BOARD()) { const im = A['ing_' + b.n];
+      if (im) ctx.drawImage(im, b.x - 60, b.y - 60, 120, 120);
+      else { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(b.x, b.y + 6, b.r, 0, 7); ctx.fill(); ctx.fillStyle = ING[b.n]; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#d9b46a'; ctx.stroke(); }
+      ctx.font = `600 22px ${FONT}`; textOutline(b.n, b.x, b.y + 70, '#fff3d6', '#2a1406', 4); }
+    // 火候条
+    if (G.phase === 'heat') { const x0 = 320, w = 640, y = 590, p = G.needle;
+      const g2 = ctx.createLinearGradient(x0, 0, x0 + w, 0); g2.addColorStop(0, '#3f6fa8'); g2.addColorStop(.5, '#e0a64a'); g2.addColorStop(1, '#c2382a'); ctx.fillStyle = g2; roundRect(x0, y - 18, w, 36, 12); ctx.fill();
+      ctx.fillStyle = `rgba(255,230,140,${.55 + .25 * Math.sin(t * 8)})`; ctx.fillRect(x0 + w * (G.zone[0]), y - 18, w * (G.zone[1] - G.zone[0]), 36);
+      ctx.lineWidth = 3; ctx.strokeStyle = '#d9b46a'; roundRect(x0, y - 18, w, 36, 12); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.fillRect(x0 + w * p - 4, y - 34, 8, 68);
+      ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#cfe0ff'; ctx.fillText('火小', x0 - 40, y); ctx.fillStyle = '#ffb0a0'; ctx.fillText('火大', x0 + w + 40, y); }
+    // 收手
+    panel(BTN_QUIT.x, BTN_QUIT.y, BTN_QUIT.w, BTN_QUIT.h); ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#fbefd5'; ctx.fillText('不做了', BTN_QUIT.x + BTN_QUIT.w / 2, BTN_QUIT.y + BTN_QUIT.h / 2);
+    ctx.restore();
+  }
+  if (S.overlay) S.overlay.push({ draw() { try { drawCook(); } catch (e) {} } });
+  // 做饭界面开着时，点击直接截下来（不让地图 / 小地图 / 行囊按钮抢走）
+  const TAPS = [];
+  try { cv.addEventListener('pointerdown', e => { if (!G) return; const q = toLogical(e); TAPS.push(q); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
+  const takeTap = () => TAPS.shift() || null;
+  const flash = (m, ok) => { G.msg = m; G.msgOk = ok; G.msgT = now(); try { playSnd(ok ? 'ui_confirm' : 'sfx_hurt', .5); } catch (e) {} };
+  async function cookGame(pre) {
+    const opts = RECIPES.map(r => r.name + '（' + r.ing.join('、') + '）');
+    const i = pre != null ? pre : await choose('做什么菜？', opts.concat(['不做了'])); if (i >= RECIPES.length) return;
+    const r = RECIPES[i];
+    if (itemCount(r.id) >= 5) { await narrate('行囊里的' + r.name + '还有好几份没吃呢，先别做了。'); return; }
+    const deco = Object.keys(ING).filter(n => !r.ing.includes(n)).sort(() => Math.random() - .5).slice(0, 6 - r.ing.length);
+    G = { r, board: r.ing.concat(deco).sort(() => Math.random() - .5), added: 0, stars: 3, phase: 'add', round: 0, needle: 0, zone: [.42, .64] };
+    world.locked = true; let quit = false; const hud0 = S.hud; S.hud = false; TAPS.length = 0;
+    while (G.phase === 'add') { await nextFrame(); const tp = takeTap(); if (!tp) continue;
+      if (inR(tp, BTN_QUIT)) { quit = true; break; }
+      for (const b of BOARD()) if (Math.hypot(tp.x - b.x, tp.y - b.y) < b.r + 10) {
+        if (b.n === r.ing[G.added]) { G.added++; G.board = G.board.filter(n => n !== b.n); flash('下锅！', true); if (G.added >= r.ing.length) { G.phase = 'heat'; G.t0 = now(); } }
+        else { G.stars = Math.max(0, G.stars - 1); flash(r.ing.includes(b.n) ? '顺序不对——' + r.ing[G.added] + '先放' : b.n + '可不是这道菜的料', false); }
+        break; } }
+    const widths = [.22, .16, .11];
+    while (!quit && G.phase === 'heat') { await nextFrame(); const sp = 1.3 + G.round * .45; G.needle = (Math.sin((now() - G.t0) * sp * 2.2) + 1) / 2;
+      const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { quit = true; break; }
+      const [a0, a1] = G.zone;
+      if (G.needle >= a0 && G.needle <= a1) flash('火候正好！', true); else { G.stars = Math.max(0, G.stars - 1); flash(G.needle < a0 ? '火小了' : '火大了', false); }
+      G.round++; if (G.round >= 3) { G.phase = 'done'; break; }
+      const c = .3 + Math.random() * .4, w = widths[G.round]; G.zone = [c - w / 2, c + w / 2]; G.t0 = now() - Math.random() * 2; }
+    if (quit) { G = null; S.hud = hud0; world.locked = false; return; }
+    await sleep(500); const stars = G.stars; G = null; S.hud = hud0;
+    try { if (window.R139_USEING) R139_USEING(r); } catch (e) {}
+    if (stars >= 2) {
+      const n = stars === 3 ? 2 : 1; addItem(r.id, n); giveFx();
+      try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×' + n, desc: ITEM_DB[r.id].desc }], stars === 3 ? '火候十足 · 三星' : '出锅'); else toast('做好了：' + r.name + ' ×' + n, 1800); } catch (e) { toast('做好了：' + r.name + ' ×' + n, 1800); }
+      if (!F().qz_cook1) { F().qz_cook1 = 1;
+        await narrate('香味飘出厨房，没一会儿，门口探进来三个脑袋。');
+        await say('侍女小桃', '少爷亲自下厨？！……能、能尝一口吗？');
+        await narrate('小桃尝了一口，眼睛一下子亮了。');
+        await say('侍女小桃', '比我做的还好吃！青禾姐你快尝尝！');
+        await say('侍女青禾', '……是好吃。少爷以后别抢小桃的活了，她要哭的。');
+        await say('小厮阿福', '我也要我也要——');
+        await say('星旋', '（修仙的手，拿来颠勺，倒也稳。）'); }
+    } else {
+      await narrate('锅底冒出一股黑烟……这锅' + r.name + '，糊了。');
+      await say('星旋', '（噗——小子，你这火候，比你出剑还猛。）');
+    }
+    world.locked = false;
+  }
+  window.R139_COOK = cookGame; window.R139_G = () => G && { G, board: BOARD() };
+  if (stove) stove.talk = async () => {
+    await narrate(night() ? '灶膛里压着余火，锅里温着一锅莲子羹。锅盖上压着一张字条：「给少爷留的，喝了早点歇。——小桃」' : '两口锅都烧着，一锅温水，一锅莲子羹。案上的竹篮里，菜和料都备齐了。');
+    const i = await choose('灶台', ['盛一碗莲子羹', '自己下厨做点吃的', '不了']);
+    if (i === 0) { if (now() - SOUP_T < 90) { await narrate('刚喝过一碗，撑得慌。'); return; } SOUP_T = now(); healAll(false); await narrate('莲子炖得软糯，甜得刚好。一碗下肚，浑身都暖了。'); toast('气血、灵力都回满了', 1800); }
+    else if (i === 1) await cookGame();
+  };
+
+
+  // ================= 七、食材（天剑宗集市「灶膳摊」买）+ 菜肴「食补」=================
+  // 作者 11-07：菜回气血、灵力，怒气做成特殊玩法；食材去天剑宗交易集市买。
+  // 食补：吃一道菜（行囊里「使用」）当场回气血 / 灵力，并记下「食补」——接下来 3 场战斗，开局全队怒气 +N（不同菜 N 不同，后吃的顶掉先吃的）。
+  const INGS = ['竹笋', '莲子', '红枣', '桂花', '糯米', '青菜', '豆腐', '香菇', '鸡蛋', '灵米', '山药', '蜂蜜'];
+  const ING_PRICE = { 竹笋: 12, 莲子: 15, 红枣: 10, 桂花: 18, 糯米: 10, 青菜: 6, 豆腐: 8, 香菇: 14, 鸡蛋: 8, 灵米: 30, 山药: 16, 蜂蜜: 20 };
+  const ING_ID = n => 'ing_' + INGS.indexOf(n);
+  INGS.forEach((n, i) => { ITEM_DB[ING_ID(n)] = Object.assign(ITEM_DB[ING_ID(n)] || {}, { name: n, price: ING_PRICE[n], sell: Math.round(ING_PRICE[n] / 2), cat: '食材', desc: '做菜用的食材。天剑宗集市灶膳摊有卖，拿到青竹西院厨房的灶台上做菜。' }); });
+  const RAGE = { cook_lianzi: 20, cook_sun: 30, cook_guihua: 20, cook_doufu: 10, cook_zhou: 40, cook_zao: 30 };
+  for (const r of RECIPES) { const d = ITEM_DB[r.id]; d.rage = RAGE[r.id]; d.desc = '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') + '；食补：之后 3 场战斗开局全队怒气 +' + d.rage; }
+  // 做菜前先看料够不够（错点不耗料，做成才扣）
+  const lack = r => r.ing.filter(n => itemCount(ING_ID(n)) < 1);
+  const useIng = window.R139_USEING = r => { for (const n of r.ing) { const id = ING_ID(n); S.hero.bag[id]--; if (S.hero.bag[id] <= 0) delete S.hero.bag[id]; } };
+  // 第一次站到灶台前：小桃给一份「试手」的料
+  const starter = async () => { if (F().qz_ing0) return; F().qz_ing0 = 1;
+    for (const n of ['莲子', '红枣', '蜂蜜', '竹笋', '香菇', '青菜', '豆腐']) addItem(ING_ID(n), 2);
+    await say('侍女小桃', '少爷要下厨？灶边这篮料先拿去试手——莲子、红枣、竹笋、豆腐都有。');
+    await say('侍女小桃', '用完了就去天剑宗集市，灶膳摊的大娘什么都卖，报青竹小院的名号还能便宜点。');
+    toast('获得：一篮试手的食材', 1800); };
+  // 行囊里吃菜：吃饱了也能吃（为了食补）
+  if (typeof useItemOn === 'function') useItemOn = (o => function (id, who) {
+    const d = ITEM_DB[id]; if (!d || !/^cook_/.test(id)) return o.apply(this, arguments);
+    if (!itemCount(id)) return;
+    const h = S.hero; h.bag[id]--; if (!h.bag[id]) delete h.bag[id];
+    let tgt; if (who === 'hero' || !who) tgt = h; else { try { const a = allyState(who), st = allyStats(who); tgt = { get hp() { return a.hp; }, set hp(v) { a.hp = v; }, get mp() { return a.mp; }, set mp(v) { a.mp = v; }, maxhp: st.maxhp, maxmp: st.maxmp }; } catch (e) { tgt = h; } }
+    tgt.hp = Math.min(tgt.maxhp, tgt.hp + (d.hp || 0)); tgt.mp = Math.min(tgt.maxmp, tgt.mp + (d.mp || 0));
+    F().meal = { id, name: d.name, rage: d.rage || 10, left: 3 };
+    try { playSnd('sfx_heal'); } catch (e) {}
+    toast('吃了' + d.name + '　食补：接下来 3 场战斗开局怒气 +' + (d.rage || 10), 2400);
+    if (!itemCount(id) && S.menu) S.menu.sel = null;
+  })(useItemOn);
+  // 开战：食补生效（全队怒气）
+  let mealB = null;
+  if (typeof drawBattle === 'function') drawBattle = (o => function () {
+    try { const b = typeof battle !== 'undefined' && battle; const m = F().meal;
+      if (b && b !== mealB) { mealB = b; if (m && m.left > 0) { m.left--; const us = (b.heroes || (b.units || []).filter(u => u.side === 'hero')).filter(u => u.alive !== false); if (!us.length && b.P) us.push(b.P);
+          for (const u of us) { u.rage = Math.min(100, (u.rage || 0) + m.rage); try { floatText(u.x, u.y - (u.h || 200) - 30, '怒气 +' + m.rage, '#ffb24a', 34); } catch (e) {} }
+          try { toast('食补 · ' + m.name + '：全队怒气 +' + m.rage + (m.left ? '（还剩 ' + m.left + ' 场）' : '（食补用完了）'), 2200); } catch (e) {}
+          if (m.left <= 0) F().meal = null; } } } catch (e) {}
+    return o.apply(this, arguments);
+  })(drawBattle);
+  // 天剑宗集市：灶膳摊
+  if (TMAPS.tj_market) { const [c, r] = [(2276 + 300) / 64 - .5, (3285 - 60) / 64 - .8];
+    TMAPS.tj_market.npcs.push({ key: 'none', cx: 'kitchen_helper', c, r, h: 118, wander: false, name: '灶膳摊大娘', r139stall: 1,
+      shop: INGS.map(ING_ID),
+      talk: async () => { await say('灶膳摊大娘', pick(['新鲜的竹笋、山里的香菇、今早才摘的青菜——要什么自己挑！', '青竹小院来的？小桃那丫头常来我这儿买莲子，说少爷爱喝莲子羹。', '灵米贵是贵了点，熬粥可补人了。'])); } }); }
+  tileSetMap = (o => function (name) { const res = o.apply(this, arguments);
+    try { if (name === 'tj_market') { const T = world.map.T, a = (world.actors || []).find(x => x.npc && x.npc.r139stall);
+      if (a && typeof canStand === 'function' && !canStand(T, a.x, a.y)) { let best = null;
+        for (let d = 16; d < 400 && !best; d += 16) for (let k = 0; k < 16 && !best; k++) { const x = a.x + Math.cos(k / 16 * 6.283) * d, y = a.y + Math.sin(k / 16 * 6.283) * d; if (canStand(T, x, y)) best = [x, y]; }
+        if (best) { a.x = best[0]; a.y = best[1]; } } } } catch (e) {}
+    return res; })(tileSetMap);
+  // 做菜入口改成要料
+  const cook0 = cookGame;
+  window.R139_COOK = async function () { await starter(); return cook1(); };
+  async function cook1() {
+    const opts = RECIPES.map(r => { const l = lack(r); return r.name + (l.length ? '（缺' + l.join('、') + '）' : '　✓料齐'); });
+    const i = await choose('做什么菜？', opts.concat(['不做了'])); if (i >= RECIPES.length) return;
+    const r = RECIPES[i], l = lack(r);
+    if (l.length) { await narrate('料不够：还缺' + l.join('、') + '。天剑宗集市的灶膳摊有卖。'); return; }
+    return cook0(i);
+  }
+  if (stove) stove.talk = async () => {
+    await narrate(night() ? '灶膛里压着余火，锅里温着一锅莲子羹。锅盖上压着一张字条：「给少爷留的，喝了早点歇。——小桃」' : '两口锅都烧着，一锅温水，一锅莲子羹。');
+    const i = await choose('灶台', ['盛一碗莲子羹', '自己下厨做点吃的', '不了']);
+    if (i === 0) { if (now() - SOUP_T < 90) { await narrate('刚喝过一碗，撑得慌。'); return; } SOUP_T = now(); healAll(false); await narrate('莲子炖得软糯，甜得刚好。一碗下肚，浑身都暖了。'); toast('气血、灵力都回满了', 1800); }
+    else if (i === 1) await window.R139_COOK();
+  };
+
+  // ================= 八、松伯的传送玉符：可上下滑的地点列表（作者 11-07：传送可以下拉；Codex 画专门的界面，到了替换 TP_ART）=================
+  const CUR = { qingzhu_court: '青竹小院', tj_front: '演武广场', tj_hall: '天剑大殿', qingzhu_upper_pavilion: '云海大亭', tj_houshan: '天剑后山', tj_scripture: '藏经阁', tj_market: '天剑宗集市', tj_xiashan: '松风林道',
+    qy_town: '青阳镇', lin_manor: '林府', lin_court: '林府 · 曲水花庭', lin_forest: '林外山林', hf_valley: '黑风谷', xt_city: '玄天城', xt_manor: '城主府', xt_auction: '玄元拍卖场', xt_wanbao: '万宝楼', ly_ridge: '落云岭 · 外岭' };
+  const NO_TP = /room|kitchen|steward|servant|vip|treasury|recovery|escape|rescue|defense|shelter|seal|forbidden|_b1|_b2|council|study|bedroom|guest|guiying|cave|valley$|library|camp/;
+  const REG = id => /^(tj_|qingzhu_)/.test(id) ? '天剑宗' : /^(qy_|lin_)/.test(id) ? '青阳镇' : /^hf_/.test(id) ? '黑风谷' : /^xt_/.test(id) ? '玄天城' : /^ly_/.test(id) ? '落云岭' : /^m_cy/.test(id) ? '苍月城' : /^m_(yy|nw)/.test(id) ? '秘境' : '其他';
+  const REGS = ['全部', '天剑宗', '青阳镇', '黑风谷', '玄天城', '落云岭', '苍月城', '秘境', '其他'];
+  function tpList() { const v = F().visited || {}, out = [];
+    for (const id in TMAPS) { if (!v[id] || !TMAPS[id]) continue; if (!CUR[id] && (TMAPS[id].indoor || NO_TP.test(id))) continue;
+      const nm = CUR[id] || String(TMAPS[id].title || id).replace(/^天剑宗 · /, ''); out.push({ id, name: nm, reg: REG(id), here: id === world.mapName }); }
+    const order = Object.keys(CUR); out.sort((a, b) => (REGS.indexOf(a.reg) - REGS.indexOf(b.reg)) || ((order.indexOf(a.id) + 1 || 99) - (order.indexOf(b.id) + 1 || 99))); return out; }
+  const spawnOf = id => { const d = TMAPS[id]; if (!d) return null; if (d.start) return d.start; if (d.arrive) { const v = Object.values(d.arrive)[0]; if (v) return v; }
+    const B = typeof CXB2 !== 'undefined' && CXB2[id]; if (B && typeof atIn === 'function') return atIn(id, ...(B.spawn || [B.w / 2, B.h * .7])); return null; };
+  window.TP_ART = window.TP_ART || {};
+  let TP = null;
+  const TPB = { x: 160, y: 26, w: 960, h: 668 }, LIST = { x: 400, y: 150, w: 680, h: 400 }, ROWH = 78;
+  const tpBtn = () => ({ go: { x: TPB.x + TPB.w / 2 - 160, y: TPB.y + TPB.h - 104, w: 240, h: 58 }, close: { x: TPB.x + TPB.w / 2 + 96, y: TPB.y + TPB.h - 104, w: 120, h: 58 } });
+  const tabR = i => ({ x: TPB.x + 56, y: TPB.y + 126 + i * 48, w: 172, h: 42 });
+  const tpRows = () => TP.list.filter(e => TP.reg === '全部' || e.reg === TP.reg);
+  // 字体：标题、按钮用毛笔行楷（马善政），地名、页签用清雅的小薇体（ZCOOL XiaoWei），都预先载好再画（画布不会自己去下载网页字体）
+  const TF = '"Ma Shan Zheng","STKaiti","KaiTi",serif', NF = '"ZCOOL XiaoWei","Noto Serif SC","Songti SC","STSong",serif';
+  try { if (!document.querySelector('link[data-r139font]')) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.dataset.r139font = 1; l.href = 'https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap'; document.head.appendChild(l); } } catch (e) {}
+  const fontsReady = () => { try { document.fonts.load('40px "Ma Shan Zheng"', '传送玉符松伯关闭'); document.fonts.load('30px "ZCOOL XiaoWei"', '青竹小院演武广场天剑大殿云海大亭后山藏经阁集市松风林道青阳镇林府黑风谷玄天城落云岭苍月城秘境全部你在这里'); } catch (e) {} };
+  fontsReady();
+  const LS = (px) => { try { ctx.letterSpacing = px; } catch (e) {} };
+  function seal(x, y, s, ch) { ctx.save(); ctx.translate(x, y); ctx.rotate(-.04); ctx.fillStyle = '#b3382c'; roundRect(-s / 2, -s / 2, s, s, 4); ctx.fill(); ctx.strokeStyle = 'rgba(255,235,220,.6)'; ctx.lineWidth = 1; roundRect(-s / 2 + 3, -s / 2 + 3, s - 6, s - 6, 3); ctx.stroke();
+    ctx.font = `${Math.round(s * .62)}px ${TF}`; ctx.fillStyle = '#fff4ea'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ch, 0, 1); ctx.restore(); }
+  // 仙侠版面：金边宣纸大框（升级面板同款 lvp）+ 白玉列表条（获得物品框同款 igf2）+ Codex 地图徽章（r135c/mapicons）
+  const UIK = {}; const uik = k => UIK[k] || (UIK[k] = (() => { const im = new Image(); im.src = k; return im; })());
+  const ok = im => im && im.complete && im.naturalWidth;
+  const MI = { temple: 0, mountain: 1, bamboo: 2, market: 3, town: 4, forest: 5, cave: 6, realm: 7, waterside: 8, estate: 9, inn: 10, library: 11 };
+  const iconOf = id => /^qingzhu_/.test(id) ? (id === 'qingzhu_upper_pavilion' ? 'estate' : 'bamboo') : id === 'tj_scripture' ? 'library' : id === 'tj_market' ? 'market' : /^tj_(houshan|xiashan)/.test(id) ? 'mountain' : /^tj_/.test(id) ? 'temple'
+    : id === 'qy_town' || id === 'xt_city' ? 'town' : /^lin_(manor|court)/.test(id) || id === 'xt_manor' ? 'estate' : /forest|^ly_/.test(id) ? 'forest' : /^hf_/.test(id) ? 'mountain' : /^xt_(auction|wanbao)/.test(id) ? 'market'
+    : /^m_cy/.test(id) ? 'waterside' : /^m_(nw|yy)/.test(id) ? 'realm' : 'cave';
+  // 横向九宫：左 L、右 R 像素不拉伸，中间拉伸
+  function slice3(im, x, y, w, h, L, R) { if (!ok(im)) return false; const s = h / im.height, l = L * s, r = R * s;
+    ctx.drawImage(im, 0, 0, L, im.height, x, y, l, h); ctx.drawImage(im, L, 0, im.width - L - R, im.height, x + l, y, w - l - r, h); ctx.drawImage(im, im.width - R, 0, R, im.height, x + w - r, y, r, h); return true; }
+  // 作者 11-07：要白色、仙侠，不要金灿灿的网游元宝风 → 素白玉框（获得物品框同一套 igf2：云纹回纹白玉边、宣纸心），顶上用底边翻过来当题签
+  function frame(x, y, w, h) { const B = uik('igf2/frame_bottom.webp'), M = uik('igf2/frame_body_tile.webp'); if (!ok(B) || !ok(M)) { panel(x, y, w, h); return; }
+    const s = w / B.width, bh = B.height * s;
+    ctx.save(); ctx.translate(x, y + bh); ctx.scale(1, -1); ctx.drawImage(B, 0, 0, w, bh); ctx.restore();
+    ctx.drawImage(M, x, y + bh - 2, w, h - bh * 2 + 4); ctx.drawImage(B, x, y + h - bh, w, bh); }
+  function drawTP() {
+    if (!TP) return; const A = window.TP_ART, rows = tpRows(), t = now();
+    ctx.save(); ctx.fillStyle = 'rgba(14,20,26,.5)'; ctx.fillRect(0, 0, W, H);
+    if (A.frame) ctx.drawImage(A.frame, TPB.x, TPB.y, TPB.w, TPB.h); else frame(TPB.x - 20, TPB.y - 10, TPB.w + 40, TPB.h + 20);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `50px ${TF}`; LS('6px'); ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillText('传送玉符', TPB.x + TPB.w / 2 + 2, TPB.y + 66); ctx.fillStyle = '#2b2924'; ctx.fillText('传送玉符', TPB.x + TPB.w / 2, TPB.y + 64); LS('0px');
+    seal(TPB.x + TPB.w / 2 + 128, TPB.y + 70, 30, '松');
+    ctx.font = `17px ${NF}`; LS('4px'); ctx.fillStyle = '#8b877c'; ctx.fillText('松伯替少爷记着的路 · 上下滑动翻看', TPB.x + TPB.w / 2, TPB.y + 104); LS('0px');
+    // 地区页签（白玉小牌；选中换金牌）
+    const regs = REGS.filter(r => r === '全部' || TP.list.some(e => e.reg === r)); TP.regs = regs;
+    regs.forEach((r, i) => { const R0 = tabR(i), on = TP.reg === r, im = uik('igf2/button_normal.webp');
+      if (!slice3(im, R0.x, R0.y, R0.w, R0.h, 56, 56)) { ctx.fillStyle = '#f1ede4'; roundRect(R0.x, R0.y, R0.w, R0.h, 20); ctx.fill(); }
+      if (on) { ctx.save(); ctx.fillStyle = 'rgba(96,150,134,.22)'; roundRect(R0.x + 6, R0.y + 5, R0.w - 12, R0.h - 10, 16); ctx.fill(); ctx.strokeStyle = 'rgba(70,120,108,.7)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); }
+      ctx.font = `${on ? 23 : 21}px ${NF}`; LS('2px'); ctx.fillStyle = on ? '#2f5a50' : '#5c584e'; ctx.fillText(r, R0.x + R0.w / 2, R0.y + R0.h / 2 + 2); LS('0px'); });
+    // 列表（白玉条，可滑）
+    const maxS = Math.max(0, rows.length * ROWH - LIST.h); TP.scroll = Math.max(0, Math.min(maxS, TP.scroll)); TP.maxS = maxS;
+    ctx.save(); ctx.beginPath(); ctx.rect(LIST.x - 6, LIST.y, LIST.w + 6, LIST.h); ctx.clip();
+    const RW = uik('igf2/reward_row.webp'), MIC = uik('r135c/mapicons.webp');
+    rows.forEach((e, i) => { const y = LIST.y + i * ROWH - TP.scroll; if (y < LIST.y - ROWH || y > LIST.y + LIST.h) return; const on = TP.sel === e.id, rw = LIST.w - 26, rh = ROWH - 6;
+      ctx.globalAlpha = e.here ? .62 : 1;
+      if (!slice3(RW, LIST.x, y + 3, rw, rh, 236, 44)) { ctx.fillStyle = '#efe3c8'; roundRect(LIST.x, y + 3, rw, rh, 12); ctx.fill(); }
+      if (on) { ctx.save(); ctx.shadowColor = 'rgba(120,190,170,.8)'; ctx.shadowBlur = 14; ctx.strokeStyle = `rgba(78,138,122,${.75 + .2 * Math.sin(t * 4)})`; ctx.lineWidth = 2.5; roundRect(LIST.x + 2, y + 5, rw - 4, rh - 4, 12); ctx.stroke(); ctx.restore(); }
+      const ix = LIST.x + 44 * rh / 70, iy = y + 3 + rh / 2, ir = rh * .36;
+      if (ok(MIC)) { const k = MI[iconOf(e.id)]; ctx.save(); ctx.beginPath(); ctx.arc(ix, iy, ir, 0, 7); ctx.clip(); ctx.drawImage(MIC, (k % 4) * 128, Math.floor(k / 4) * 128, 128, 128, ix - ir * 1.12, iy - ir * 1.12, ir * 2.24, ir * 2.24); ctx.restore(); }
+      ctx.textAlign = 'left'; ctx.font = `31px ${NF}`; LS('3px'); ctx.fillStyle = '#2f2c26'; ctx.fillText(e.name, LIST.x + 104, iy); LS('0px');
+      ctx.textAlign = 'right'; ctx.font = `17px ${NF}`; LS('2px'); ctx.fillStyle = e.here ? '#a24a3a' : '#8b877c'; ctx.fillText(e.here ? '你在这里' : e.reg, LIST.x + rw - 30, iy); LS('0px'); ctx.textAlign = 'center'; ctx.globalAlpha = 1; });
+    ctx.restore();
+    if (!rows.length) { ctx.font = `24px ${NF}`; ctx.fillStyle = '#8b877c'; ctx.fillText('这一带还没去过。', LIST.x + LIST.w / 2, LIST.y + 80); }
+    // 滚动条（细金线 + 玉珠）
+    if (maxS > 0) { const tx = LIST.x + LIST.w - 10, th = Math.max(44, LIST.h * LIST.h / (rows.length * ROWH)), ty = LIST.y + (LIST.h - th) * (TP.scroll / maxS);
+      ctx.strokeStyle = 'rgba(120,116,104,.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tx, LIST.y + 6); ctx.lineTo(tx, LIST.y + LIST.h - 6); ctx.stroke();
+      const g = ctx.createLinearGradient(tx - 5, 0, tx + 5, 0); g.addColorStop(0, '#e8f0ea'); g.addColorStop(1, '#9ab8ae'); ctx.fillStyle = g; roundRect(tx - 5, ty, 10, th, 5); ctx.fill(); }
+    // 按钮
+    const B2 = tpBtn(), sel = tpRows().find(e => e.id === TP.sel), can = !!sel && !sel.here;
+    ctx.globalAlpha = can ? 1 : .5; if (!slice3(uik('igf2/button_normal.webp'), B2.go.x, B2.go.y, B2.go.w, B2.go.h, 56, 56)) panel(B2.go.x, B2.go.y, B2.go.w, B2.go.h);
+    if (can) { ctx.save(); ctx.fillStyle = 'rgba(96,150,134,.2)'; roundRect(B2.go.x + 8, B2.go.y + 7, B2.go.w - 16, B2.go.h - 14, 18); ctx.fill(); ctx.restore(); }
+    ctx.font = `30px ${TF}`; LS('2px'); ctx.fillStyle = '#2f5a50'; ctx.fillText(can ? '传送 · ' + sel.name.slice(0, 5) : '传 送', B2.go.x + B2.go.w / 2, B2.go.y + B2.go.h / 2 + 2); ctx.globalAlpha = 1;
+    if (!slice3(uik('igf2/button_normal.webp'), B2.close.x, B2.close.y, B2.close.w, B2.close.h, 56, 56)) panel(B2.close.x, B2.close.y, B2.close.w, B2.close.h);
+    ctx.font = `28px ${TF}`; ctx.fillStyle = '#5c584e'; ctx.fillText('关 闭', B2.close.x + B2.close.w / 2, B2.close.y + B2.close.h / 2 + 2); LS('0px');
+    
+    ctx.restore();
+  }
+  if (S.overlay) S.overlay.push({ draw() { try { drawTP(); } catch (e) {} } });
+  try {
+    cv.addEventListener('pointerdown', e => { if (!TP) return; const q = toLogical(e); TP.down = { x: q.x, y: q.y, s: TP.scroll, moved: false }; e.stopImmediatePropagation(); e.preventDefault(); }, true);
+    cv.addEventListener('pointermove', e => { if (!TP || !TP.down) return; const q = toLogical(e), dy = q.y - TP.down.y; if (Math.abs(dy) > 6) TP.down.moved = true; if (TP.down.moved && inR(TP.down, LIST)) TP.scroll = TP.down.s - dy; }, true);
+    window.addEventListener('pointerup', e => { if (!TP || !TP.down) return; const d = TP.down; TP.down = null; if (!d.moved) TP.tap = { x: d.x, y: d.y }; }, true);
+    cv.addEventListener('wheel', e => { if (!TP) return; TP.scroll += e.deltaY * .8; e.preventDefault(); }, { passive: false, capture: true });
+  } catch (e) {}
+  async function tpMenu() {
+    const list = tpList();
+    if (list.filter(e => !e.here).length < 1) { await say('松伯', '少爷，您去过的地方还太少，我的传送符记不住路。等您走过的地方多了再说。'); return; }
+    fontsReady(); TP = { list, reg: '全部', scroll: 0, sel: null, tap: null }; world.locked = true; const hud0 = S.hud; S.hud = false; let go = null;
+    try { playSnd('ui_open'); } catch (e) {}
+    for (;;) { await nextFrame(); const t = TP.tap; if (!t) continue; TP.tap = null; const B2 = tpBtn();
+      if (inR(t, B2.close)) break;
+      if (inR(t, B2.go)) { const e = tpRows().find(e => e.id === TP.sel); if (e && !e.here) { go = e; break; } continue; }
+      const ti = (TP.regs || []).findIndex((r, i) => inR(t, tabR(i))); if (ti >= 0) { TP.reg = TP.regs[ti]; TP.scroll = 0; try { playSnd('ui_click'); } catch (e) {} continue; }
+      if (inR(t, LIST)) { const i = Math.floor((t.y - LIST.y + TP.scroll) / ROWH), e = tpRows()[i]; if (e) { if (TP.sel === e.id && !e.here) { go = e; break; } TP.sel = e.id; try { playSnd('ui_click'); } catch (e2) {} } } }
+    TP = null; S.hud = hud0;
+    if (!go) { world.locked = false; return; }
+    const sp = spawnOf(go.id); if (!sp) { world.locked = false; toast('那里暂时去不了'); return; }
+    try { playSnd('sfx_star', .6); } catch (e) {} S.flash = .5; S.flashColor = '#cfe6ff';
+    await fadeOut(400); tileSetMap(go.id, sp[0], sp[1], 'down'); S.scene = drawMap; S.hud = true;
+    await fadeIn(400); world.locked = false; toast('已传送到：' + go.name, 1600);
+  }
+  window.R139_TP = tpMenu;
+  // 松伯的「传送到去过的地方」换成新列表：拦下他对话里的那个 choose
+  if (typeof choose === 'function') choose = (o => function (title, opts) {
+    try { if (QZ() && (title === '管家' || title === '松伯') && Array.isArray(opts) && opts[0] === '传送到去过的地方') return o.call(this, '松伯', opts).then(i => i === 0 ? tpMenu().then(() => 2) : i); } catch (e) {}
+    return o.apply(this, arguments);
+  })(choose);
+
   window.R139 = { R, NPC, setBed, get tea() { return TEA_T; } };
 })();

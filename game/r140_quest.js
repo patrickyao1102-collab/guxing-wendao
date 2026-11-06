@@ -2,7 +2,7 @@
 // 作者：「要鼓励玩家做支线；任务栏你看看显示在哪里比较好」。左下是摇杆、右下是行囊 / 坐骑，右上本来就是任务位，所以任务栏留在右上：
 //  · 第一行主线（红「主」），下面最多两条正在做的支线（蓝「支」）带进度，最底一行金字「附近可接 · 某支线　报酬：……」
 //  · 点哪一条就自动寻路到哪（主线照旧走 QUEST_NAV；支线去接 / 交任务的人，或去打怪的地图）；点「收起」只留主线一行
-//  · 进入有支线可接的地图，提示一句；支线完成满 3 / 6 / 10 条，当场发「历练嘉奖」（剑诀玉简等）
+//  · 进入有支线可接的地图，提示一句；支线完成满 3 / 6 / 10 条，当场发「历练嘉奖」（剑诀卷册等技能书）
 (function () {
   if (typeof drawMapHud !== 'function' || typeof updateMap !== 'function' || !window.SQ_DEFS) return;
   window.QTRACK = true;
@@ -128,9 +128,9 @@
 
   // ---------------- 历练嘉奖：完成满 3 / 6 / 10 条支线 ----------------
   const MS = [
-    { n: 3, items: [['yujian', 1]], gold: 200, line: '剑诀玉简' },
-    { n: 6, items: [['yujian', 1], ['p_revive', 2]], points: 60, line: '剑诀玉简、星华丹' },
-    { n: 10, items: [['yujian', 2], ['p_revive', 3]], gold: 1000, line: '剑诀玉简 ×2、星华丹' },
+    { n: 3, items: [['juan2', 1]], gold: 200, line: '《剑诀·卷二》' },
+    { n: 6, items: [['juan3', 1], ['p_revive', 2]], points: 60, line: '《剑诀·卷三》' },
+    { n: 10, items: [['juan4', 1], ['juan5', 1]], gold: 1000, line: '《剑诀·卷四》《剑诀·卷五》' },
   ];
   const doneN = () => SQ_STATE().filter(s => s.s === 3).length;
   window.SQ_MILESTONE_TEXT = d => { const m = MS.find(m => !(F().sq_ms || {})[m.n]); if (!m) return '历练嘉奖已全部领取'; return d >= m.n ? '历练嘉奖可领' : '再完成 ' + (m.n - d) + ' 条：' + m.line; };
