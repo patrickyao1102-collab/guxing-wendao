@@ -14,7 +14,8 @@
   // 作者 11-06：林雪全套重录（lib_n4_*，年轻清冷战斗喊招）通过的几招，排在 11-03 版之前当默认
   // 作者 11-06 晚：九天神雷原版漏了「落」，补录 1 直接当默认；搏命 / 点星补录先当候选，作者在配乐库里指定
   // 作者 11-06 夜：云霆只有九天神雷、搏命换成全套抽卡 8 号那条切出的（lib_n6_yunting__jiutian / boming）当默认，其余几招不换（8 号切出的其他招只进库当候选）；叶孤星点星选定第二轮补录 6（lib_n5_hero__dianxing_b5）；林雪杀星退回原来那条「新一」（lib_n_ss0），11-06 定稿那条作者嫌难听已下线
-  const rank = id => id === 'lib_n6_yunting__jiutian' || id === 'lib_n6_yunting__boming' || id === 'lib_n5_hero__dianxing_b5' || id === 'lib_n_ss0' ? 4 : /^lib_n5_yunting__jiutian/.test(id) ? 3 : /^lib_n4_/.test(id) ? 2 : /^lib_n3_/.test(id) ? 1 : /^lib_n6_yunting__/.test(id) ? -1 : 0;
+  // 作者 11-06 深夜：云霆点星（8 号）、林雪杀星 B 选定；云霆群星 / 杀星 8 号先放进游戏试听（lib_n7_*，排最前）
+  const rank = id => /^lib_n7_/.test(id) ? 5 : id === 'lib_n6_yunting__jiutian' || id === 'lib_n6_yunting__boming' || id === 'lib_n5_hero__dianxing_b5' || id === 'lib_n_ss0' ? 4 : /^lib_n5_yunting__jiutian/.test(id) ? 3 : /^lib_n4_/.test(id) ? 2 : /^lib_n3_/.test(id) ? 1 : /^lib_n6_yunting__/.test(id) ? -1 : 0;
   for (const s in SLOT) SLOT[s].sort((a, b) => rank(b) - rank(a));
   Object.assign(NAMES, {
     'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:xl_wushang': '叶孤星·星落·无上境',
@@ -28,7 +29,7 @@
   const pickKey = s => 'voice:' + s;
   // 作者 11-06 夜：「林雪的接进去了吗，木人桩听着没变化」——本机以前在配乐库里「指定」过旧候选的话，换了定稿也永远听不到新的。
   // 这里按版本号清一次：指定的那条比现在的默认还旧（rank 更低）就删掉指定，让新定稿生效；作者之后再指定的不受影响（改 V 才会再清）
-  try { const CLR = 'voice_pin_clear', V = 1; if (+(localStorage.getItem(CLR) || 0) < V) { const B = window.BGM29; if (B && B.PICK) { for (const s in SLOT) { const k = pickKey(s), pk = B.PICK[k]; if (pk && SLOT[s][0] && rank(pk) < rank(SLOT[s][0])) delete B.PICK[k]; } try { localStorage.setItem('bgm29_pick', JSON.stringify(B.PICK)); } catch (e) {} } localStorage.setItem(CLR, V); } } catch (e) {}
+  try { const CLR = 'voice_pin_clear', V = 2; if (+(localStorage.getItem(CLR) || 0) < V) { const B = window.BGM29; if (B && B.PICK) { for (const s in SLOT) { const k = pickKey(s), pk = B.PICK[k]; if (pk && SLOT[s][0] && rank(pk) < rank(SLOT[s][0])) delete B.PICK[k]; } try { localStorage.setItem('bgm29_pick', JSON.stringify(B.PICK)); } catch (e) {} } localStorage.setItem(CLR, V); } } catch (e) {}
   function chosen(slot) { const B = window.BGM29; const pk = B && B.PICK[pickKey(slot)]; if (pk && lib[pk] && lib[pk].slot === slot) return pk; const c = SLOT[slot]; if (!c) return null; return /:atk$/.test(slot) ? c[Math.floor(Math.random() * c.length)] : c[0]; }
   let cur = null;
   const cache = {};

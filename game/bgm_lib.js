@@ -1075,17 +1075,53 @@ window.BGM_LIB = {
 "desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
 "dur": 147.1
 },
-"lib_n_ss0": {
-"no": "癸N07",
-"name": "林雪·杀星·定稿（原新一）",
+"lib_n7_yunting__dianxing": {
+"no": "癸P01",
+"name": "云霆·点星·8号·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
-"file": "lib29/n_ss0.mp4",
-"blob": "5b46d74f76db8a480daa97236fa51219",
-"vol": 0.95,
-"desc": "即梦配音·一气呵成版 · “杀星！”（作者 11-06 夜：杀星就用这条，不换）",
+"slot": "yunting:dianxing",
+"file": "lib29/n7_yunting__dianxing.mp4",
+"blob": "0669449ae93b7ae946d14314b436ab59",
+"vol": 1,
+"desc": "小云雀音频生成 · “天剑一式，点星！”（11-06 夜按 8 号音色重录三式；作者选定点星 1）",
+"dur": 2.04
+},
+"lib_n7_yunting__qunxing": {
+"no": "癸P02",
+"name": "云霆·群星·8号（试听）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:qunxing",
+"file": "lib29/n7_yunting__qunxing.mp4",
+"blob": "78e7118d4d747f212d5e8c08b396b352",
+"vol": 1,
+"desc": "小云雀音频生成 · “天剑二式，群星！”（11-06 夜 8 号三式同一条切出；作者要放进游戏里听，暂为默认）",
+"dur": 2.09
+},
+"lib_n7_yunting__shaxing": {
+"no": "癸P03",
+"name": "云霆·杀星·8号（试听）",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:shaxing",
+"file": "lib29/n7_yunting__shaxing.mp4",
+"blob": "5a02fb2b4569c600eab60bb80cc92ad6",
+"vol": 1,
+"desc": "小云雀音频生成 · “天剑三式，杀星！”（11-06 夜 8 号三式同一条切出；作者要放进游戏里听，暂为默认）",
+"dur": 2.35
+},
+"lib_n7_linxue__shaxing": {
+"no": "癸P04",
+"name": "林雪·杀星·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
 "slot": "linxue:shaxing",
-"dur": 0.8
+"file": "lib29/n7_linxue__shaxing.mp4",
+"blob": "dea29cfd65418a453f580f3b4dce4564",
+"vol": 1,
+"desc": "小云雀音频生成 · “天剑三式，杀星！”（11-06 夜以她定稿几招为音色参考重录；作者选定 B）",
+"dur": 1.7
 },
 "lib_n4_linxue__qunxing": {
 "no": "癸L02",
@@ -1782,18 +1818,6 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "小云雀配音·九天神雷同款音色 · “天剑凝锋，加持！”（11-03 按九天神雷音色重录）",
 "dur": 1.81
-},
-"lib_n3_yunting__dianxing": {
-"no": "癸A23",
-"name": "云霆·点星（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:dianxing",
-"file": "lib29/n3_yunting__dianxing.mp4",
-"blob": "4bbe67b90afa168004ffead70c8ea815",
-"vol": 1,
-"desc": "小云雀配音·九天神雷同款音色 · “天剑一式，点星！”（11-03 按九天神雷音色重录）",
-"dur": 1.95
 },
 "lib_n3_yunting__jifeng": {
 "no": "癸A24",
