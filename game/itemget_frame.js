@@ -1,11 +1,11 @@
-// ================= 作者 11-07：获得物品框换成 Codex 定稿「暖绢旧金·孤星剑印」=================
+// ================= 作者 11-07：获得物品框换成 Codex 定稿「素白 A·题签下落款孤星问道」（原暖绢旧金，拆件尺寸坐标完全一致，只换图和字色）=================
 // 拆件（2x 透明 PNG→webp）在 igf/；框顶 / 可平铺中段 / 框底 / 奖励条 / 星芒分隔 / 按钮按 layout.json 拼，1~6 行纵向拉长，
 // 图标、名称、数量、按钮字由代码画。原来的 itemGet 调用链（音效、点击关闭）不动，只换掉画面。
 (function () {
   if (typeof window.itemGet !== 'function' || !S || !S.overlay) return;
   const K = ['frame_top', 'frame_body_tile', 'frame_bottom', 'reward_row', 'divider_star_cloud', 'button_normal', 'button_pressed'], A = {};
   let ready = 0;
-  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; ready++; }; im.src = 'igf/' + k + '.webp'; });
+  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; ready++; }; im.src = 'igf2/' + k + '.webp'; });
 
   // 记录当前弹窗（最外层包一层，原链照走）
   let MY = null;
@@ -48,19 +48,19 @@
       ctx.save(); ctx.beginPath(); ctx.rect(x + 24, y + 20, 164, 164); ctx.clip();
       const rg = ctx.createRadialGradient(x + 106, y + 102, 6, x + 106, y + 102, 96); rg.addColorStop(0, 'rgba(255,226,150,.38)'); rg.addColorStop(1, 'rgba(255,210,120,0)'); ctx.fillStyle = rg; ctx.fillRect(x + 24, y + 20, 164, 164);
       const pop = 1 + .22 * Math.max(0, 1 - d / .3); drawIcon(it.icon, x + 106, y + 102, 150 * pop); ctx.restore();
-      ctx.fillStyle = '#2c1a0a'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+      ctx.fillStyle = '#594A35'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
       const c = cnt(it.count); let cf = 50; ctx.font = `${cf}px ${FONT}`; while (cf > 30 && ctx.measureText(c).width > 120) { cf -= 4; ctx.font = `${cf}px ${FONT}`; }
       ctx.fillText(c, x + 742, y + 101); const cw = ctx.measureText(c).width;
       const maxN = Math.min(344, 742 - cw - 24 - 260);
       ctx.textAlign = 'left'; let nf = 58; ctx.font = `${nf}px ${BRUSH}`; while (nf > 40 && ctx.measureText(String(it.name)).width > maxN) { nf -= 4; ctx.font = `${nf}px ${BRUSH}`; }
       const desc = it.desc ? String(it.desc) : '';
       ctx.fillText(ell(it.name, maxN), x + 260, y + (desc ? 82 : 101));
-      if (desc) { ctx.font = `500 28px ${FONT}`; ctx.fillStyle = 'rgba(60,38,18,.78)'; ctx.fillText(ell(desc, 742 - 260), x + 262, y + 142); }
+      if (desc) { ctx.font = `500 28px ${FONT}`; ctx.fillStyle = 'rgba(89,74,53,.78)'; ctx.fillText(ell(desc, 742 - 260), x + 262, y + 142); }
       ctx.restore();
     });
     const bx = 236, by = bottomY + 40, pressed = t > .6 && input && input.down;
     ctx.drawImage(pressed ? A.button_pressed : A.button_normal, bx, by, 458, 126);
-    ctx.font = `64px ${BRUSH}`; ctx.fillStyle = '#f6e8c7'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `64px ${BRUSH}`; ctx.fillStyle = pressed ? '#463A2B' : '#594A35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (t > .6) ctx.globalAlpha = k * (.82 + .18 * Math.sin(now / 220));
     ctx.fillText('收下', bx + 229, by + 63);
     ctx.restore();
@@ -77,4 +77,5 @@
   if (!hook()) { let tries = 0; const iv = setInterval(() => { if (hook() || ++tries > 40) clearInterval(iv); }, 250); }
   window.ITEMGET_FRAME = { test: () => itemGet([{ icon: 'ic_hanxing', name: '寒星剑', count: '×1', desc: '溪边岩隙里沉睡多年的寒剑。' }, { icon: 'pill', name: '回春丹', count: '×2' }, { icon: 'gold', name: '灵石', count: '×80' }]) };
 })();
+
 
