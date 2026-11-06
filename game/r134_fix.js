@@ -115,24 +115,15 @@
     if (im && im.width) { const r = Math.max(W / im.width, H / im.height), z = 1 + ((performance.now() - t0) / 1000) * .01; ctx.drawImage(im, W / 2 - im.width * r * z / 2, H / 2 - im.height * r * z / 2, im.width * r * z, im.height * r * z); }
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 18px ${FONT}`; ctx.fillStyle = 'rgba(232,220,192,.85)'; ctx.fillText('载入中……', W / 2, H - 60); ctx.restore(); } }); }
 
-  // ---- 第 10 条（提示）：顶上那条长提示看不全 → 改成屏幕中间的「星旋提示」框，带星旋立绘 ----
+  // ---- 第 10 条（提示）：顶上那条长提示看不全 → 改成星旋在屏幕下方说一句（对话框样式，点击关闭）----
   const LONG = t => { const s = String(t || ''); return s.length >= 20 || /→|；/.test(s); };
   let TIP = null;
   if (typeof drawToast === 'function') drawToast = (orig => function (dt) {
     const t = S.toast; if (!t || !LONG(t.text) || (typeof battle !== 'undefined' && battle) || S.scene !== drawMap) { TIP = null; return orig.apply(this, arguments); }
-    if (!t.r134) { t.r134 = 1; t.ms = Math.max(t.ms * 1.6, 3600); }
-    if (dialog || choice) return;   // 有对话时先不显示，不计时
-    t.t += dt * 1000; if (t.t > t.ms) { S.toast = null; return; }
-    const a = t.t < 250 ? t.t / 250 : t.t > t.ms - 400 ? (t.ms - t.t) / 400 : 1, rise = (1 - Math.min(1, t.t / 250)) * 16;
-    ctx.save(); ctx.globalAlpha = a; ctx.font = `600 26px ${FONT}`;
-    const lines = wrapText(t.text.replace(/^自由行动：/, ''), 560).slice(0, 4), pw = 760, ph = 70 + lines.length * 38, px = W / 2 - pw / 2, py = H * .30 - ph / 2 + rise;
-    roundRect(px, py, pw, ph, 18); const g = ctx.createLinearGradient(0, py, 0, py + ph); g.addColorStop(0, 'rgba(14,20,38,.92)'); g.addColorStop(1, 'rgba(8,10,20,.92)'); ctx.fillStyle = g; ctx.fill();
-    ctx.strokeStyle = 'rgba(216,190,120,.9)'; ctx.lineWidth = 2; ctx.stroke(); ctx.strokeStyle = 'rgba(216,190,120,.35)'; ctx.lineWidth = 1; roundRect(px + 6, py + 6, pw - 12, ph - 12, 14); ctx.stroke();
-    const pk = ['p_xx_smile', 'p_xx_xiao', 'p_xx'].find(k => IMG[k] && IMG[k].width), pim = pk && IMG[pk];
-    if (pim) { const sh = Math.min(ph + 70, 230), sw = sh * pim.width / pim.height; ctx.save(); roundRect(px, py - 70, 170, ph + 70, 18); ctx.clip(); ctx.drawImage(pim, px + 85 - sw / 2, py + ph - sh, sw, sh); ctx.restore(); }
-    ctx.font = `30px ${typeof BRUSH !== 'undefined' ? BRUSH : FONT}`; ctx.fillStyle = '#ffd98a'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('星旋提示', px + 182, py + 16);
-    ctx.font = `600 24px ${FONT}`; ctx.fillStyle = '#f3ead2'; lines.forEach((l, i) => ctx.fillText(l, px + 182, py + 58 + i * 36));
-    ctx.restore();
+    // 作者 11-07：星旋提示放到屏幕下方（和平常人物对话同一个位置、同一个框），点一下就关
+    if (dialog || choice || sysPanel || world.locked) return;   // 有对话 / 弹窗 / 剧情时先等着
+    const txt = String(t.text).replace(/^自由行动：/, ''); S.toast = null;
+    try { void say('星旋', txt); } catch (e) {}
   })(drawToast);
 
   // ---- 第 13 条：后山历练必须打满 5 团兽火才能去测灵碑；打满领悟新技能「凝神」 ----
@@ -228,17 +219,37 @@
         ctx.beginPath(); ctx.moveTo(26, 0); ctx.lineTo(0, -16); ctx.lineTo(0, -7); ctx.lineTo(-20, -7); ctx.lineTo(-20, 7); ctx.lineTo(0, 7); ctx.lineTo(0, 16); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); } }
     ctx.restore();
   }
+  // 家具自己发光（衣柜）：外轮廓柔光 + 柜门缝里透出的光 + 往上飘的光点 + 小标签，不用大光柱
+  function objGlow(o, now, label, col = [170, 220, 255]) {
+    const im = IMG[o.img]; const rgba = al => `rgba(${col[0]},${col[1]},${col[2]},${al})`, pulse = .6 + .4 * Math.sin(now * 2.6);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    if (im && im.width) { ctx.save(); ctx.globalCompositeOperation = 'source-over';   // 亮色房间里加色看不出来：用彩色描边光晕（shadow）叠两遍，再把柜子本体盖回去
+      for (const bl of [52, 30, 14]) { ctx.shadowColor = rgba(.95); ctx.shadowBlur = bl * (.7 + .5 * pulse); ctx.drawImage(im, o.x, o.y, o.w, o.h); }
+      ctx.shadowBlur = 0; ctx.drawImage(im, o.x, o.y, o.w, o.h); ctx.restore();
+      ctx.save(); ctx.globalAlpha = .18 + .14 * pulse; ctx.drawImage(im, o.x, o.y, o.w, o.h); ctx.restore(); }
+    const cx = o.x + o.w * .7, cy = o.y + o.h * .45, g = ctx.createRadialGradient(cx, cy, 4, cx, cy, o.w * .55);
+    g.addColorStop(0, rgba(.8 * pulse)); g.addColorStop(.45, rgba(.3 * pulse)); g.addColorStop(1, rgba(0)); ctx.fillStyle = g; ctx.fillRect(cx - o.w, cy - o.w, o.w * 2, o.w * 2);
+    for (let i = 0; i < 14; i++) { const k = (now * .35 + i / 14) % 1, x = o.x + o.w * (.15 + .7 * ((i * 37 % 14) / 14)) + Math.sin(now * 2 + i) * 6, y = o.y + o.h * .9 - k * o.h * 1.1, r = 2 + (i % 3);
+      ctx.fillStyle = rgba((1 - k) * Math.sin(k * Math.PI) * .9); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+    ctx.globalCompositeOperation = 'source-over';
+    if (label) { const x = o.x + o.w / 2, y = o.y - 26 + Math.sin(now * 3) * 4; ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'center'; const w = ctx.measureText(label).width + 28;
+      ctx.fillStyle = 'rgba(16,10,6,.8)'; roundRect(x - w / 2, y - 16, w, 32, 16); ctx.fill(); ctx.strokeStyle = rgba(.9); ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#e8f4ff'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y); }
+    ctx.restore();
+  }
   window.R134_BEACON = { list: [] };   // 其他段落往这里放：{ map, name, label, when() }
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) {
     orig.apply(this, arguments);
     try { if (world.locked && !(world.player && world.player.moving)) {}
       if (swordNeed()) { const a = findActor('溪边岩隙宝箱'); if (a) beacon(a, now, '寒星剑在这里'); }
-      for (const B of window.R134_BEACON.list) { if (B.map !== world.mapName || !B.when()) continue; const a = findActor(typeof B.name === 'function' ? B.name() : B.name); if (a) beacon(a, now, typeof B.label === 'function' ? B.label() : B.label, B.col); }
+      for (const B of window.R134_BEACON.list) { if (B.map !== world.mapName || !B.when()) continue; const lb = typeof B.label === 'function' ? B.label() : B.label; if (B.glowObj) { objGlow(B.glowObj, now, lb, B.col); continue; } const a = findActor(typeof B.name === 'function' ? B.name() : B.name); if (a) beacon(a, now, lb, B.col); }
     } catch (e) {}
   })(tileAmbientHigh);
 
   // ---- 第 17 条：居室衣柜可以拾取 → 踏云靴（速度 +3、防御 +4），带拾取光效 ----
   { const R = TMAPS.tj_room; const sp = R && (R.npcs || []).find(n => n.name === '弟子服');
+    // 作者 11-07：拾取点原来落在地上的「弟子服」坐垫上，挪到真正的衣柜（plain_cabinet）跟前；光效改成衣柜自己发光
+    const cab = R.baked && (R.baked.objs || []).find(o => o.id === 'plain_cabinet');
+    if (sp && cab) { sp.c = cab.ax / 64 - .5; sp.r = (cab.ay + 40) / 64 - .8; }
     if (sp) { const old = sp.talk; sp.name = '衣柜 · 弟子服'; sp.pick = () => !F().r134_boots;
       sp.talk = async function () { const f = F(); if (f.r134_boots) { if (typeof old === 'function') return old.apply(this, arguments); return narrate(Array.isArray(old) ? old[0] : '叠好的天剑宗弟子服。'); }
         world.locked = true; if (world.player) world.player.moving = false;
@@ -248,7 +259,7 @@
           await say('星旋', '咦，这靴子有点意思，穿上走路轻快不少。去行囊里「饰品」栏换上吧！');
           const c = await choose('踏云靴', ['立刻换上', '先收进行囊']); if (c === 0) { equipItem('c_tayun'); toast('已装备踏云靴：速度 +3，防御 +4', 2200); }
         } finally { world.locked = false; } };
-      window.R134_BEACON.list.push({ map: 'tj_room', name: '衣柜 · 弟子服', label: '衣柜里好像有东西', when: () => !F().r134_boots && !!S.flags.hs_meet, col: [170, 220, 255] });
+      window.R134_BEACON.list.push({ map: 'tj_room', name: '衣柜 · 弟子服', label: '衣柜里好像有东西', when: () => !F().r134_boots && !!S.flags.hs_meet, col: [170, 220, 255], glowObj: cab });
     } }
 
   // ---- 第 16 条：叶擎苍夜访时就把宝物交给叶孤星（从大殿挪到这里） ----

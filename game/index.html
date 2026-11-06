@@ -472,7 +472,7 @@ function updateMap(dt) {
     const tap = consumeTap();
     if (tap && !tap.key) { if (pointInPoly(tap.x, tap.y, world.map.walk)) { world.walkTarget = { x: tap.x, y: tap.y }; } }
     let kx = 0, ky = 0; const K = input.keys;
-    if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1;
+    if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1; if (input.joy) { kx = input.joy.x; ky = input.joy.y; }
     let vx = 0, vy = 0; const spd = 180;
     if (kx || ky) { world.walkTarget = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
     else if (input.down && !tap) { /* 按住拖动 */ const dx = input.x - p.x, dy = input.y - p.y; if (Math.hypot(dx, dy) > 20 && pointInPoly(input.x, input.y, world.map.walk)) world.walkTarget = { x: input.x, y: input.y }; }
@@ -2405,7 +2405,7 @@ function tileUpdate(dt) {
       else { const [tc, tr] = cellOf(wx, wy), [sc, sr] = cellOf(p.x, p.y); const path = findPath(T, sc, sr, tc, tr); if (path) { world.path = smoothPath(T, p.x, p.y, path.slice(1)); world.pending = null; world.walkTarget = { x: wx, y: wy }; } }
     }
     let kx = 0, ky = 0; const K = input.keys;
-    if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1;
+    if (K.ArrowLeft || K.a) kx -= 1; if (K.ArrowRight || K.d) kx += 1; if (K.ArrowUp || K.w) ky -= 1; if (K.ArrowDown || K.s) ky += 1; if (input.joy) { kx = input.joy.x; ky = input.joy.y; }
     if (kx || ky) { world.path = null; world.walkTarget = null; world.pending = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
     else if (input.down && !tap && !world.path) { const wx = input.x / VZ() + cam.x, wy = input.y / VZ() + cam.y, dx = wx - p.x, dy = wy - p.y; if (Math.hypot(dx, dy) > 30) { const l = Math.hypot(dx, dy); vx = dx / l * spd; vy = dy / l * spd; } }
     if (world.path && world.path.length) { let [tx, ty] = world.path[0], dx = tx - p.x, dy = ty - p.y, l = Math.hypot(dx, dy); if (l < Math.max(2.5, spd * dt * 1.2)) { if (canStand(T, tx, ty)) { p.x = tx; p.y = ty; } world.path.shift(); if (!world.path.length) { world.path = null; world.walkTarget = null; if (world.pending) { const h = world.pending; world.pending = null; doInteract(h); } } else { [tx, ty] = world.path[0]; dx = tx - p.x; dy = ty - p.y; l = Math.hypot(dx, dy); if (l > .5) { vx = dx / l * spd; vy = dy / l * spd; } } }   // 作者：拐点不停步——到达一个路点同一帧就朝下一个路点走，不闪站立帧
@@ -16481,4 +16481,5 @@ window.MarketEffects = (() => {
 <script src="r134_nayue.js"></script>
 <script src="levelup_panel.js"></script>
 <script src="lvpanel.js"></script>
+<script src="joystick.js"></script>
 </body></html>

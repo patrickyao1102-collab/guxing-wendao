@@ -54,7 +54,7 @@
       if (P && !(SINGLE.has(k) && !b.__picked && aliveEnemies().length > 1)) {   // 还在点选目标时不喊
         const who = P.ally || 'hero';
         if (!(who === 'yunting' && k === 'ult')) {   // 云霆大招由下面 playVoice 的替换来播（跟动画对拍）
-          if (k === 'atk' && Math.random() < .5) { /* 普攻一半概率不喊 */ } else if (play(who + ':' + k)) { const id = lastId; vEnd = performance.now() + ((lib[id] && lib[id].dur) || 1.8) * 1000; }
+          if (k === 'atk' && Math.random() < .5) { /* 普攻一半概率不喊 */ } else if (play(who + ':' + k)) { const id = lastId; window.VOICE29_LAST = { slot: who + ':' + k, id, t: performance.now() }; vEnd = performance.now() + ((lib[id] && lib[id].dur) || 1.8) * 1000; }
           if (who === 'shenle' && k === 'jiuyinhe' && !window.R96_JYH3) jiuyinheSfx();   // v3 流萤光河自己按时间轴放音效
         }
       }
@@ -69,6 +69,20 @@
   function jiuyinheSfx() { if (typeof playSnd !== 'function') return; const at = (ms, n, v) => setTimeout(() => { try { playSnd(n, v); } catch (e) {} }, ms);
     at(150, 'sfx_xz_flute', .7); [850, 1250, 1650].forEach(ms => at(ms, 'sfx_xz_reunion', .6)); at(2100, 'sfx_xz_soul', .7); }
   if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
+  // 作者 11-07：叶孤星「天剑一式，点星！」喊话和剑招不同频——喊话 2.4 秒，「点星」在 1.7 秒、「星！」在 2.05 秒，剑招 0.9 秒就命中了。
+  // 改成：先喊「天剑一式」，剑芒凝成；「点——星！」那一下剑芒刺出命中（剑招整体晚起步，命中对在「星」字上）
+  const DX_HIT = { lib_n7_hero__dianxing: 2.05 };   // 各条喊话里「星」字的时间（秒）；没标的按时长 − 0.3 估
+  const installDX = () => { if (typeof skDianxing !== 'function' || skDianxing.__vsync) return;
+    const o = skDianxing; skDianxing = async function (Pc, tg) {
+      const L = window.VOICE29_LAST;
+      if (Pc && !Pc.ally && L && L.slot === 'hero:dianxing' && performance.now() - L.t < 1500) {
+        const hit = DX_HIT[L.id] != null ? DX_HIT[L.id] : Math.max(0, ((lib[L.id] && lib[L.id].dur) || 1.2) - .3);
+        const wait = Math.min(1.4, hit - .9) * 1000 - (performance.now() - L.t);   // 剑招开始后 0.9 秒命中
+        if (wait > 30) await new Promise(r => setTimeout(r, wait));
+      }
+      return o.apply(this, arguments);
+    }; skDianxing.__vsync = 1; };
+  if (document.readyState === 'complete') setTimeout(installDX, 0); else window.addEventListener('load', () => setTimeout(installDX, 0));
   // 云霆九天神雷：有库里的候选（或配乐库里指定了）时，用它顶掉 index.html 里原来的三段配音
   if (typeof playVoice === 'function') playVoice = (orig => function (name, vol) {
     if (/^yt_jt/.test(name) && (window.BGM29.PICK[pickKey('yunting:ult')] || SLOT['yunting:ult'])) {

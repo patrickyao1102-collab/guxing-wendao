@@ -32,31 +32,36 @@
   })(drawUnit);
   // 作者 11-07：「纳月峰主降临」不要通用招式横幅（黑条太丑）——月光银字逐字浮现，两侧细线，底下一行小字，月亮落下前收掉
   const sm = (a, b, t) => { const u = Math.max(0, Math.min(1, (t - a) / (b - a))); return u * u * (3 - 2 * u); };
+  // 作者 11-07 晚：毛笔字太潦草 → 换端正的宋体粗体（Noto Serif SC 900），外面一个细银线双框 + 四角回纹，月光银渐变字
   function drawTitle(t) {
     const A = sm(.7, 1.15, t) * (1 - sm(2.75, 3.3, t)); if (A <= .001) return;
-    const TXT = [...'纳月峰主降临'], y = 168, fs = 76, gap = 22;
+    const TXT = [...'纳月峰主降临'], y = 168, fs = 66, gap = 26;
     ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-    ctx.font = `${fs}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
+    ctx.font = `900 ${fs}px "Noto Serif SC","Songti SC","STSong","SimSun",serif`;
     const ws = TXT.map(c => ctx.measureText(c).width), tw = ws.reduce((a, b) => a + b, 0) + gap * (TXT.length - 1);
-    // 很淡的一团夜色托住字，不用黑条
-    ctx.save(); ctx.translate(640, y + 14); ctx.scale(1, .3); const R = tw * .8, bg = ctx.createRadialGradient(0, 0, 10, 0, 0, R); bg.addColorStop(0, `rgba(0,4,16,${.45 * A})`); bg.addColorStop(.6, `rgba(0,4,16,${.22 * A})`); bg.addColorStop(1, 'rgba(0,4,16,0)');
-    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-    // 两侧细线：从字边向外淡出，内端一颗菱形光点
-    const L = sm(.9, 1.6, t) * A;
-    for (const sd of [-1, 1]) { const x0 = 640 + sd * (tw / 2 + 26), x1 = x0 + sd * 210 * sm(.9, 1.6, t);
-      const lg = ctx.createLinearGradient(x0, 0, x1, 0); lg.addColorStop(0, `rgba(214,232,255,${.75 * L})`); lg.addColorStop(1, 'rgba(214,232,255,0)');
-      ctx.strokeStyle = lg; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x0, y + 4); ctx.lineTo(x1, y + 4); ctx.stroke();
-      ctx.save(); ctx.translate(x0 - sd * 8, y + 4); ctx.rotate(Math.PI / 4); ctx.fillStyle = `rgba(240,248,255,${.9 * L})`; ctx.shadowColor = 'rgba(150,200,255,.9)'; ctx.shadowBlur = 10; ctx.fillRect(-3.5, -3.5, 7, 7); ctx.restore(); }
-    // 逐字浮现：每字晚 0.08 秒，自下而上 10px，带月白辉光
+    const open = sm(.7, 1.25, t), bw = (tw + 120) * (.7 + .3 * open), bh = 128, bx = 640 - bw / 2, by = y - 56;
+    // 底：半透明夜蓝，上下渐隐
+    ctx.globalAlpha = A; ctx.save(); ctx.translate(640, y); ctx.scale(1, bh / bw * 1.3); const fr = bw * .62, fill = ctx.createRadialGradient(0, 0, fr * .2, 0, 0, fr);
+    fill.addColorStop(0, 'rgba(6,12,30,.66)'); fill.addColorStop(.7, 'rgba(6,12,30,.45)'); fill.addColorStop(1, 'rgba(6,12,30,0)'); ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(0, 0, fr, 0, 7); ctx.fill(); ctx.restore();
+    // 双线框（上下两条长线 + 两端短竖线）与四角回纹
+    const line = (x1, y1, x2, y2, a, w) => { ctx.strokeStyle = `rgba(214,230,255,${a})`; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+    ctx.shadowColor = 'rgba(140,190,255,.8)'; ctx.shadowBlur = 8;
+    line(bx, by + 8, bx + bw, by + 8, .85, 1.2); line(bx + 10, by + 14, bx + bw - 10, by + 14, .45, 1);
+    line(bx, by + bh - 8, bx + bw, by + bh - 8, .85, 1.2); line(bx + 10, by + bh - 14, bx + bw - 10, by + bh - 14, .45, 1);
+    const corner = (cx, cy, sx, sy) => { ctx.strokeStyle = 'rgba(232,242,255,.95)'; ctx.lineWidth = 1.6; ctx.beginPath();
+      ctx.moveTo(cx, cy + sy * 26); ctx.lineTo(cx, cy); ctx.lineTo(cx + sx * 26, cy); ctx.moveTo(cx + sx * 6, cy + sy * 16); ctx.lineTo(cx + sx * 6, cy + sy * 6); ctx.lineTo(cx + sx * 16, cy + sy * 6); ctx.stroke();
+      ctx.fillStyle = 'rgba(240,248,255,.95)'; ctx.save(); ctx.translate(cx + sx * 12, cy + sy * 12); ctx.rotate(Math.PI / 4); ctx.fillRect(-2.5, -2.5, 5, 5); ctx.restore(); };
+    corner(bx - 6, by + 2, 1, 1); corner(bx + bw + 6, by + 2, -1, 1); corner(bx - 6, by + bh - 2, 1, -1); corner(bx + bw + 6, by + bh - 2, -1, -1);
+    // 逐字浮现：月光银渐变 + 冷蓝辉光
     let x = 640 - tw / 2;
-    TXT.forEach((c, i) => { const k = sm(.72 + i * .08, 1.12 + i * .08, t), cx = x + ws[i] / 2; x += ws[i] + gap; if (k <= 0) return;
-      ctx.globalAlpha = A * k; const yy = y + (1 - k) * 10;
-      ctx.shadowColor = 'rgba(130,185,255,.95)'; ctx.shadowBlur = 26; ctx.fillStyle = 'rgba(205,226,255,.55)'; ctx.fillText(c, cx, yy);
-      const g = ctx.createLinearGradient(0, yy - fs / 2, 0, yy + fs / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(.6, '#e6f0ff'); g.addColorStop(1, '#b9d2f5');
-      ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(180,215,255,.8)'; ctx.fillStyle = g; ctx.fillText(c, cx, yy); });
+    TXT.forEach((c, i) => { const k = sm(.78 + i * .07, 1.18 + i * .07, t), cx = x + ws[i] / 2; x += ws[i] + gap; if (k <= 0) return;
+      ctx.globalAlpha = A * k; const yy = y + (1 - k) * 8;
+      ctx.shadowColor = 'rgba(120,175,255,.9)'; ctx.shadowBlur = 22; ctx.fillStyle = 'rgba(190,215,255,.5)'; ctx.fillText(c, cx, yy);
+      const g = ctx.createLinearGradient(0, yy - fs / 2, 0, yy + fs / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(.55, '#eef4ff'); g.addColorStop(1, '#a9c4ec');
+      ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(20,40,90,.9)'; ctx.fillStyle = g; ctx.fillText(c, cx, yy); });
     // 小字
-    const sub = '借洛尘之身 · 亲临'; try { ctx.letterSpacing = '6px'; } catch (e) {} ctx.globalAlpha = A * sm(1.3, 1.8, t); ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(120,170,255,.8)';
-    ctx.font = `600 20px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = 'rgba(222,234,255,.9)'; ctx.fillText(sub, 640, y + 62);
+    ctx.globalAlpha = A * sm(1.35, 1.85, t); ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(120,170,255,.8)'; try { ctx.letterSpacing = '8px'; } catch (e) {}
+    ctx.font = `600 18px "Noto Serif SC","Songti SC",serif`; ctx.fillStyle = 'rgba(222,234,255,.92)'; ctx.fillText('借洛尘之身 · 亲临', 640, y + 48);
     ctx.restore();
   }
   const old = LC_NAYUE.cast;
