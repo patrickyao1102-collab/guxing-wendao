@@ -1089,26 +1089,26 @@ window.BGM_LIB = {
 },
 "lib_n7_yunting__qunxing": {
 "no": "癸P02",
-"name": "云霆·群星·8号（试听）",
+"name": "云霆·群星·8号·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:qunxing",
 "file": "lib29/n7_yunting__qunxing.mp4",
 "blob": "78e7118d4d747f212d5e8c08b396b352",
 "vol": 1,
-"desc": "小云雀音频生成 · “天剑二式，群星！”（11-06 夜 8 号三式同一条切出；作者要放进游戏里听，暂为默认）",
+"desc": "小云雀音频生成 · “天剑二式，群星！”（11-06 夜 8 号三式同一条切出；作者 11-06 深夜：云霆全部定稿）",
 "dur": 2.09
 },
 "lib_n7_yunting__shaxing": {
 "no": "癸P03",
-"name": "云霆·杀星·8号（试听）",
+"name": "云霆·杀星·8号·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:shaxing",
 "file": "lib29/n7_yunting__shaxing.mp4",
 "blob": "5a02fb2b4569c600eab60bb80cc92ad6",
 "vol": 1,
-"desc": "小云雀音频生成 · “天剑三式，杀星！”（11-06 夜 8 号三式同一条切出；作者要放进游戏里听，暂为默认）",
+"desc": "小云雀音频生成 · “天剑三式，杀星！”（11-06 夜 8 号三式同一条切出；作者 11-06 深夜：云霆全部定稿）",
 "dur": 2.35
 },
 "lib_n7_linxue__shaxing": {
@@ -1242,78 +1242,6 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：九天神雷用 8 号，默认）· “九天之上，听我号令。九天神雷，落！”",
 "dur": 4.65
-},
-"lib_v35": {
-"no": "癸06",
-"name": "云霆·天剑凝锋",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v35.mp3",
-"blob": "649031d95e9c95fa67170cd60a201ef2",
-"vol": 0.86,
-"desc": "即梦配音 · “天剑凝锋，加持！”",
-"slot_old": "yunting:def",
-"dur": 3.1
-},
-"lib_v34": {
-"no": "癸07",
-"name": "云霆·点星",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v34.mp3",
-"blob": "0cc5560ff8cd69f88cf9d123156d17d2",
-"vol": 1,
-"desc": "即梦配音 · “点星。”",
-"slot_old": "yunting:dianxing",
-"dur": 2.1
-},
-"lib_v36": {
-"no": "癸08",
-"name": "云霆·杀星",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v36.mp3",
-"blob": "cf2e0c9a8f23d863bd1710fd4d1897c4",
-"vol": 0.95,
-"desc": "即梦配音 · “杀星！”",
-"slot": "yunting:shaxing",
-"dur": 2.1
-},
-"lib_n_yq0": {
-"no": "癸N01",
-"name": "云霆·群星（新一）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_yq0.mp4",
-"blob": "e7180a7aee5a048126d00ef8c76739ce",
-"vol": 1,
-"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
-"slot_old": "yunting:qunxing",
-"dur": 1.7
-},
-"lib_n_yq1": {
-"no": "癸N02",
-"name": "云霆·群星（新二）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/n_yq1.mp4",
-"blob": "9d527c4afcdee12ec11e73f019842c41",
-"vol": 0.95,
-"desc": "即梦配音·一气呵成版 · “群星乱舞！”",
-"slot_old": "yunting:qunxing",
-"dur": 1.4
-},
-"lib_v37": {
-"no": "癸09",
-"name": "云霆·群星（旧）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"file": "lib29/v37.mp3",
-"blob": "f7366fadbfe21b8019137cbcbb680e5e",
-"vol": 0.82,
-"desc": "即梦配音 · “群星——乱舞！”",
-"slot_old": "yunting:qunxing",
-"dur": 3.1
 },
 "lib_n_ds0": {
 "no": "癸N05",
@@ -1555,54 +1483,6 @@ window.BGM_LIB = {
 "desc": "即梦配音·参考音色 · “聚灵。”（11-01 补齐）",
 "dur": 0.7
 },
-"lib_n2_yt_yunlei": {
-"no": "癸51",
-"name": "云霆·云雷踏影",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot_old": "yunting:yunlei",
-"file": "lib29/n2_yt_yunlei.mp4",
-"blob": "b36ab7d6439dcf7cb42672b3b4d96d18",
-"vol": 1,
-"desc": "即梦配音·参考音色 · “云雷踏影！”（11-01 补齐）",
-"dur": 2.0
-},
-"lib_n2_yt_qianggong": {
-"no": "癸52",
-"name": "云霆·强攻",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot_old": "yunting:qianggong",
-"file": "lib29/n2_yt_qianggong.mp4",
-"blob": "c1de3d65c33d6c8c7c09f1fd32642a86",
-"vol": 1,
-"desc": "即梦配音·参考音色 · “强攻！”（11-01 补齐）",
-"dur": 0.6
-},
-"lib_n2_yt_jifeng": {
-"no": "癸53",
-"name": "云霆·疾风",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot_old": "yunting:jifeng",
-"file": "lib29/n2_yt_jifeng.mp4",
-"blob": "988dad154aa1ebe24a2cb7990de5f71f",
-"vol": 1,
-"desc": "即梦配音·参考音色 · “疾风！”（11-01 补齐）",
-"dur": 0.7
-},
-"lib_n2_yt_boming": {
-"no": "癸54",
-"name": "云霆·搏命",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot_old": "yunting:boming",
-"file": "lib29/n2_yt_boming.mp4",
-"blob": "255dc3f8e61353fa0ad41d290c26e658",
-"vol": 1,
-"desc": "即梦配音·参考音色 · “搏命！”（11-01 补齐）",
-"dur": 0.5
-},
 "lib_n3_hero__duopo": {
 "no": "癸A02",
 "name": "叶孤星·夺魄（冷厉版）",
@@ -1809,7 +1689,7 @@ window.BGM_LIB = {
 },
 "lib_n3_yunting__def": {
 "no": "癸A22",
-"name": "云霆·天剑凝锋（清朗版）",
+"name": "云霆·天剑凝锋·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:def",
@@ -1821,7 +1701,7 @@ window.BGM_LIB = {
 },
 "lib_n3_yunting__jifeng": {
 "no": "癸A24",
-"name": "云霆·疾风（清朗版）",
+"name": "云霆·疾风·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:jifeng",
@@ -1833,7 +1713,7 @@ window.BGM_LIB = {
 },
 "lib_n3_yunting__qianggong": {
 "no": "癸A25",
-"name": "云霆·强攻（清朗版）",
+"name": "云霆·强攻·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:qianggong",
@@ -1843,21 +1723,9 @@ window.BGM_LIB = {
 "desc": "小云雀配音·九天神雷同款音色 · “强攻！”（11-03 按九天神雷音色重录）",
 "dur": 0.77
 },
-"lib_n3_yunting__qunxing": {
-"no": "癸A26",
-"name": "云霆·群星（清朗版）",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:qunxing",
-"file": "lib29/n3_yunting__qunxing.mp4",
-"blob": "1b7991ffde19da51447fb75dea674057",
-"vol": 1,
-"desc": "小云雀配音·九天神雷同款音色 · “天剑二式，群星！”（11-03 按九天神雷音色重录）",
-"dur": 1.67
-},
 "lib_n3_yunting__yunlei": {
 "no": "癸A27",
-"name": "云霆·云雷踏影（清朗版）",
+"name": "云霆·云雷踏影·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:yunlei",
