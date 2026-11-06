@@ -120,12 +120,13 @@
     let flip = false, ex = p.x + gap;
     if (ex > M.mw - 110) { flip = true; ex = p.x - gap; }
     ex = Math.max(110, Math.min(M.mw - 110, ex));
-    const ey = Math.max(560, Math.min(M.mh - 110, p.y + 8));
-    const el = addActor('', 672, Math.min(M.mh - 70, 1010), '张长老', '#c8f0b0'); el._r135 = 'elder'; el._f = 0; el.h = 104; el.alpha = 0; el._flip = false;
+    const G = window.R135A_GEO || { from: [672, 1010], cx: 672, minY: 560 };   // R136 新二层：从南门进来
+    const ey = Math.max(G.minY, Math.min(M.mh - 110, p.y + 8));
+    const el = addActor('', G.from[0], Math.min(M.mh - 70, G.from[1]), '张长老', '#c8f0b0'); el._r135 = 'elder'; el._f = 0; el.h = 104; el.alpha = 0; el._flip = false;
     Object.assign(P, { on: true, map: world.mapName, el, flip, ex, ey, t0: 0 });
     tw(300, t => el.alpha = t);
     // 先斜着走到石台一侧，再往上走到位（不穿过中间的剑典石台）；星旋现身时还没走到就直接到位
-    const mid = Math.abs(ex - 672) > 140 ? [672 + (ex > 672 ? 150 : -150), Math.max(ey, 860)] : null;
+    const mid = Math.abs(ex - G.cx) > 140 ? [G.cx + (ex > G.cx ? 150 : -150), Math.max(ey, G.from[1] > 1100 ? ey : 860)] : null;
     walk(el, mid ? [mid, [ex, ey]] : [[ex, ey]], 150);
   }
   async function walk(a, pts, spd) {
