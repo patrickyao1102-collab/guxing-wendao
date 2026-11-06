@@ -16,7 +16,7 @@
   setTimeout(loadAll, 12000);
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const BB = D.by, YC = BB.cols;                                  // 扩建区 192 列 × 192 行（8px）
-  const BOBJ = BB.objs.map(o => Object.assign({}, o, { x: o.x - OX }, /cx2_flowers_0/.test(o.img) ? { id: 'flowers_01' } : {}));   // 小花丛借原有的随风轻摆
+  const BOBJ = BB.objs.map(o => Object.assign({}, o, { x: o.x - OX }, o.ax != null ? { ax: o.ax - OX } : {}, /cx2_flowers_0/.test(o.img) ? { id: 'flowers_01' } : {}));   // 小花丛借原有的随风轻摆
   const SP = {}; for (const k in BB.spots) SP[k] = [BB.spots[k][0] - OX, BB.spots[k][1]];
 
   // 小地图：往西扩出来的部分也画进去（青竹西院同理），不再一片黑
@@ -53,10 +53,6 @@
     await say('叶孤星', '（管家说，以后院里的人都在这儿一起吃饭——不分主仆。）');
   }, 130);
   spot('崖边', SP.star, () => window.R137_STARGAZE && R137_STARGAZE(), 110);   // 观星仙器 Codex 设计中，到了换成仙器互动
-  spot('白玉花槽', SP.garden_l, ['白玉花槽里种着几株小花，土还是湿的——早上刚浇过。'], 110);
-  spot('白玉花槽', SP.garden_r, ['花槽边插着一块小木牌：「小桃种，勿踩」。'], 110);
-  spot('桃树', SP.peach, ['一株老桃树，花开得正盛。风一吹，花瓣落在长桌上。'], 140);
-  spot('桂花树', SP.osm, ['桂花还没开，叶子绿得发亮。管家说，等秋天开了，满院子都是香的。'], 140);
 
   // ---------- 观星：在地图里演（作者 11-07：禁止插画）——走到崖边、天色暗下来、云海上空星星一颗颗亮起、划过一道流星 ----------
   const SG = { a: 0, on: false, t0: 0 };
@@ -88,7 +84,7 @@
     let g = ctx.createLinearGradient(0, yT, 0, H); g.addColorStop(0, `rgba(30,36,90,${.5 * a})`); g.addColorStop(1, `rgba(10,14,48,${.7 * a})`); ctx.fillStyle = g; ctx.fillRect(0, yT, W, bh);
     ctx.globalCompositeOperation = 'lighter';
     { const z = VZ(); ctx.save(); ctx.scale(z, z); ctx.translate(-Math.round(cam.x), -Math.round(cam.y));   // 石灯在夜里亮起
-      for (const o of BOBJ) if (o.id === 'r137_lantern') { const x = o.x + o.w / 2, y = o.y + o.h * .32, f = .9 + .1 * Math.sin(t * 6 + o.x);
+      for (const o of BOBJ) if (o.tjl) { const x = o.x + o.w / 2, y = o.y + o.h * .32, f = .9 + .1 * Math.sin(t * 6 + o.x);
         let gg = ctx.createRadialGradient(x, y, 0, x, y, 120); gg.addColorStop(0, `rgba(255,214,140,${.55 * a * f})`); gg.addColorStop(.35, `rgba(255,180,90,${.18 * a * f})`); gg.addColorStop(1, 'rgba(255,170,80,0)'); ctx.fillStyle = gg; ctx.fillRect(x - 120, y - 120, 240, 240);
         gg = ctx.createRadialGradient(x, o.y + o.h, 0, x, o.y + o.h, 150); gg.addColorStop(0, `rgba(255,196,120,${.22 * a})`); gg.addColorStop(1, 'rgba(255,196,120,0)'); ctx.save(); ctx.translate(x, o.y + o.h); ctx.scale(1, .45); ctx.translate(-x, -(o.y + o.h)); ctx.fillStyle = gg; ctx.fillRect(x - 150, o.y + o.h - 150, 300, 300); ctx.restore(); }
       ctx.restore(); }
