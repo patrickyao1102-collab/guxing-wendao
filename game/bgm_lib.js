@@ -1158,6 +1158,72 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰盾！”",
 "dur": 0.63
 },
+"lib_n5_yunting__jiutian_b1": {
+"no": "癸M01",
+"name": "云霆·九天神雷·补录1",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:ult",
+"file": "lib29/n5_yunting__jiutian_b1.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 九天神雷音色为参考补录 · “九天之上，听我号令。九天神雷，落！”（11-06 补上原版缺的「落」，默认）",
+"dur": 4.56
+},
+"lib_n5_yunting__boming_b1": {
+"no": "癸M02",
+"name": "云霆·搏命·补录1",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:boming",
+"file": "lib29/n5_yunting__boming_b1.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”咬牙迸出版（11-06 补气势，候选）",
+"dur": 0.71
+},
+"lib_n5_yunting__boming_b2": {
+"no": "癸M03",
+"name": "云霆·搏命·补录2",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:boming",
+"file": "lib29/n5_yunting__boming_b2.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”低吼拔高版（11-06 补气势，候选）",
+"dur": 0.9
+},
+"lib_n5_yunting__boming_b3": {
+"no": "癸M04",
+"name": "云霆·搏命·补录3",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:boming",
+"file": "lib29/n5_yunting__boming_b3.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·九天神雷音色参考 · “搏命！”暴喝版（11-06 补气势，候选）",
+"dur": 0.66
+},
+"lib_n5_hero__dianxing_b1": {
+"no": "癸M05",
+"name": "叶孤星·点星·补录1",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b1.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”沉稳起、拔高刺出（11-06 补气势，候选）",
+"dur": 2.39
+},
+"lib_n5_hero__dianxing_b2": {
+"no": "癸M06",
+"name": "叶孤星·点星·补录2",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b2.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”短促爆发版（11-06 补气势，候选）",
+"dur": 1.91
+},
 "lib_v09": {
 "no": "癸01",
 "name": "云霆·九天神雷",
