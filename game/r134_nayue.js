@@ -44,6 +44,9 @@
       yeguxing: Y ? { x: Y.x, y: Y.y } : undefined,
       enemies: es.map(e => ({ x: e.x, y: e.y - e.h * .5, h: e.h })),
     });
+    // 作者 11-07：放之前洛尘要先开口（以前有，换万点归月后没了）；放的时候要打出「纳月峰主降临」
+    const LINE = String(opts.line || '……还不到你倒下的时候。').replace(/^“|”$/g, '');
+    if (V3) { RUN = { pre: 1 }; try { await say('洛尘', LINE); } catch (e) {} RUN = null; if (battle !== b) return; }
     const run = RUN = { t0: performance.now(), s: null, snap: es, spare: !!opts.spare, hit: false, heal: false, v3: V3 };
     const hold = setInterval(() => { if (battle === b && RUN === run) { b.state = 'act'; b.menu = null; } }, 30);   // 演出期间锁住回合，别让别人插队 / 提前结算胜利
     const T = () => (performance.now() - run.t0) / 1000;
@@ -51,6 +54,7 @@
     const front = addFx({ life: 40, layer: 2, draw() { try { run.s = FXM.front(ctx, Math.min(10, T()), VAR, anchors(), { lowFlash: false }); } catch (e) {} } });
     const own = playScene(); const sfx = (n, v) => { if (!own) playSnd(n, v); };
     sfx('sfx_charge', 1);
+    if (V3) setTimeout(() => { try { if (battle === b && RUN === run) skillBanner('纳月峰主降临', '#e6efff', '借洛尘之身 · 亲临'); } catch (e) {} }, 850);
     const at = (sec, fn) => new Promise(res => { const id = setInterval(() => { if (T() >= sec || battle !== b) { clearInterval(id); try { if (battle === b) fn(); } catch (e) {} res(); } }, 16); });
     await at(TI.wind, () => sfx('sfx_wind', 1));
     await at(TI.beam, () => sfx('sfx_beam', .8));
