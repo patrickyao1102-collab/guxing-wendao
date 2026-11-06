@@ -1,0 +1,116 @@
+// ================= R137 · 后山亭子（云海大亭）换小亭 + 西侧新地图「云海后庭」（Claude 11-07，Codex R134 E2 / E2b 素材）=================
+// 作者：亭子换成 Codex 新画的青绿单层小亭；西边扩出一块叶孤星和下人们一起吃饭、看星星的地方（长饭桌 A 青玉流云 + 花圃 + 崖边观星台）。
+// 下人房不放这里（作者 11-07：已挪到青竹小院），所以云海大亭里原来那栋仆役房外观和门一并撤掉。
+// 云海大亭原图坐标不动（剧情、天鹏、宝箱都按原坐标写的）；新地块做成独立小地图，从亭子西边竹林口走过去。
+// 关掉：localStorage.r137qz = '0'
+(function () {
+  const D = window.R137QZ, PAV = 'qingzhu_upper_pavilion', BY = 'qingzhu_backyard';
+  if (!D || typeof TMAPS === 'undefined' || !TMAPS[PAV] || typeof tileSetMap !== 'function') return;
+  try { if (localStorage.getItem('r137qz') === '0') return; } catch (e) {}
+  const R = 'r137/', ld = (k, f) => { if (IMG[k]) return; const i = new Image(); i.onload = () => { IMG[k] = i; }; i.src = R + f + '.webp'; };
+  let loaded = false;
+  const loadAll = () => { if (loaded) return; loaded = true;
+    for (const o of D.pav.objs.concat(D.by.objs)) if (/^r137_/.test(o.img)) ld(o.img, o.img.slice(5));
+    ld('r137_by_ground', 'by_ground'); };
+  setTimeout(loadAll, 12000);
+  const P = (x, y) => [x / 64 - .5, y / 64 - .8];
+  const cellsX = (x0, x1) => [Math.floor(x0 / 8), Math.ceil((x1 - x0) / 8)];
+
+  // ---------- 云海大亭：撤旧大亭 / 仆役房，换小亭 ----------
+  const M = TMAPS[PAV];
+  M.exits = (M.exits || []).filter(e => e.to !== 'qingzhu_servant_room');
+  M.exits.push({ x: 0, y: 100, w: 2, h: 16, to: BY, label: '西 · 云海后庭', at: P(1470, 868), face: 'left' });
+  try { if (typeof MAP_ZOOM !== 'undefined') MAP_ZOOM[BY] = .75; } catch (e) {}
+  const fixPav = () => {
+    const T = world.map && world.map.T; if (!T || !T.block) return;
+    T.objs = T.objs.filter(o => !(o.uid && /^r90-/.test(o.uid)) && o.id !== 'r135e_house' && !/^qingzhu-r24-pavilion/.test(o.id || '') && !/^r137pav_/.test(o.uid || ''));
+    for (const o of D.pav.objs) T.objs.push(Object.assign({ bk: true }, o));
+    const B = D.pav.blocked; for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) T.block[r][c] = B.charCodeAt(r * 256 + c) === 49 ? 1 : 0;
+  };
+
+  // ---------- 云海后庭（新地图）----------
+  const BB = D.by, sp = BB.spots;
+  const spot = (name, [x, y], talk, h) => { const [c, r] = P(x, y); return { key: 'none', c, r, name, hidden: true, h: h || 120, talk }; };
+  TMAPS[BY] = {
+    title: '云海后庭', leaves: true, chests: [],
+    baked: { ground: 'r137_by_ground', w: BB.w, h: BB.h, cs: BB.cs, cols: BB.cols, rows: BB.rows, blocked: BB.blocked, objs: BB.objs },
+    start: P(1460, 868),
+    exits: [{ x: 189, y: 100, w: 3, h: 16, to: PAV, label: '东 · 云海大亭', at: P(64, 868), face: 'right' }],
+    npcs: [
+      spot('青玉长桌', sp.dining, [async () => {
+        await say('', '一张青玉面的长桌，六把圈椅。桌上只摆了一瓶花、一件小玉饰。');
+        await say('叶孤星', '（管家说，以后院里的人都在这儿一起吃饭——不分主仆。）');
+      }], 130),
+      spot('崖边观星台', sp.star, [() => window.R137_STARGAZE && R137_STARGAZE()], 110),
+      spot('牡丹花圃', sp.garden_l, ['花圃里的牡丹开得正好，土还是湿的——早上刚浇过。'], 110),
+      spot('百合花圃', sp.garden_r, ['百合的香气淡淡的。花丛边插着一块小木牌：「小桃种，勿踩」。'], 110),
+    ],
+  };
+  // 每个 spot 的 talk 如果是函数数组，按顺序执行（和游戏里 talk: async fn 的写法兼容）
+  for (const n of TMAPS[BY].npcs) if (Array.isArray(n.talk) && typeof n.talk[0] === 'function') { const fs = n.talk; n.talk = async () => { for (const f of fs) await f(); }; }
+
+  // ---------- 观星：在地图里演（作者 11-07：禁止插画）——走到崖边、天色暗下来、云海上空星星一颗颗亮起、划过一道流星 ----------
+  const SG = { a: 0, on: false, t0: 0 };
+  window.R137_STARGAZE = async function () {
+    if (SG.on) return; SG.on = true; world.locked = true;
+    const p = world.player, seat = BB.spots.star;
+    try { if (typeof moveActor === 'function') await moveActor(p, seat[0], seat[1], 170); p.face = 'down'; } catch (e) {}
+    SG.t0 = performance.now() / 1000;
+    await (typeof tween === 'function' ? tween(1400, t => SG.a = t) : Promise.resolve(SG.a = 1));
+    await say('', '叶孤星在崖边站定。天色一点点暗下去，云海上空的星星一颗接一颗亮了起来。');
+    await say('星旋', '看见北边那七颗没有？那是北斗。你的九曜，就从那里开始。');
+    await say('叶孤星', '……总有一天，我要把它们一颗一颗点亮。');
+    await (typeof tween === 'function' ? tween(1200, t => SG.a = 1 - t) : Promise.resolve(SG.a = 0));
+    SG.on = false; world.locked = false;
+  };
+  const STARS = [...Array(90)].map((_, i) => { const r = k => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5; return v - Math.floor(v); }; return { x: r(1), y: r(2), s: .6 + r(3) * 1.8, p: r(4) * 6.3, d: r(5) }; });
+  const BEI = [[.30, .16], [.36, .13], [.42, .15], [.47, .19], [.50, .28], [.58, .30], [.60, .22]];   // 北斗七星（屏幕比例）
+
+  // ---------- 画 ----------
+  drawBaked = (orig => function (o, now) {
+    if (o && o.uid === 'r137pav_pavilion_roof') {   // 人走进亭子：屋顶半透明
+      const p = world.player, r = D.pav.roof, under = p && p.x > r[0] && p.x < r[0] + r[2] && p.y > r[1] + 150 && p.y < r[1] + r[3] + 120;
+      const k = o._a == null ? 1 : o._a; o._a = k + ((under ? .42 : 1) - k) * .15;
+      ctx.save(); ctx.globalAlpha *= o._a; const v = orig(o, now); ctx.restore(); return v;
+    }
+    return orig(o, now);
+  })(drawBaked);
+  // 观星：整张图压成夜色，屏幕上方（云海上空）星点渐亮 + 北斗连线 + 一道流星；全是代码画在地图上，不切插画
+  tileDraw = (orig => function () {
+    orig.apply(this, arguments);
+    if (!(SG.a > 0) || world.mapName !== BY) return;
+    const a = SG.a, t = performance.now() / 1000 - SG.t0, cam = world.cam || { x: 0, y: 0 }, yT = Math.max(0, Math.min(H, (1300 - cam.y) * VZ())), bh = H - yT;   // 星星只出在崖外云海上空
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(${255 - 190 * a | 0},${255 - 180 * a | 0},${255 - 120 * a | 0},1)`; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    let g = ctx.createLinearGradient(0, yT, 0, H); g.addColorStop(0, `rgba(30,36,90,${.5 * a})`); g.addColorStop(1, `rgba(10,14,48,${.7 * a})`); ctx.fillStyle = g; ctx.fillRect(0, yT, W, bh);
+    ctx.globalCompositeOperation = 'lighter';
+    { const z = VZ(); ctx.save(); ctx.scale(z, z); ctx.translate(-Math.round(cam.x), -Math.round(cam.y));   // 石灯在夜里亮起
+      for (const o of BB.objs) if (o.id === 'r137_lantern') { const x = o.x + o.w / 2, y = o.y + o.h * .32, f = .9 + .1 * Math.sin(t * 6 + o.x);
+        let gg = ctx.createRadialGradient(x, y, 0, x, y, 120); gg.addColorStop(0, `rgba(255,214,140,${.55 * a * f})`); gg.addColorStop(.35, `rgba(255,180,90,${.18 * a * f})`); gg.addColorStop(1, 'rgba(255,170,80,0)'); ctx.fillStyle = gg; ctx.fillRect(x - 120, y - 120, 240, 240);
+        gg = ctx.createRadialGradient(x, o.y + o.h, 0, x, o.y + o.h, 150); gg.addColorStop(0, `rgba(255,196,120,${.22 * a})`); gg.addColorStop(1, 'rgba(255,196,120,0)'); ctx.save(); ctx.translate(x, o.y + o.h); ctx.scale(1, .45); ctx.translate(-x, -(o.y + o.h)); ctx.fillStyle = gg; ctx.fillRect(x - 150, o.y + o.h - 150, 300, 300); ctx.restore(); }
+      ctx.restore(); }
+    for (const st of STARS) { const on = Math.min(1, Math.max(0, (t - st.d * 2.5) / .8)); if (!on) continue;
+      const x = st.x * W, y = st.y < .55 ? st.y / .55 * H * .62 : yT + 8 + (st.y - .55) / .45 * Math.max(0, bh - 16), land = st.y < .55 ? .45 : 1, al = a * on * land * (.45 + .55 * Math.abs(Math.sin(t * (1.2 + st.d) + st.p))), R = st.s * 3;
+      const gg = ctx.createRadialGradient(x, y, 0, x, y, R); gg.addColorStop(0, `rgba(255,252,236,${al})`); gg.addColorStop(1, 'rgba(255,250,230,0)'); ctx.fillStyle = gg; ctx.fillRect(x - R, y - R, R * 2, R * 2); }
+    const bon = Math.min(1, Math.max(0, (t - 2.6) / 1.2)) * a;
+    if (bon > 0) { ctx.strokeStyle = `rgba(200,220,255,${.35 * bon})`; ctx.lineWidth = 1.2; ctx.beginPath(); const by = y => y * H; BEI.forEach(([x, y], i) => i ? ctx.lineTo(x * W, by(y)) : ctx.moveTo(x * W, by(y))); ctx.stroke();
+      for (const [x, y0] of BEI) { const y = by(y0) / H; const gg = ctx.createRadialGradient(x * W, y * H, 0, x * W, y * H, 9); gg.addColorStop(0, `rgba(255,248,215,${bon})`); gg.addColorStop(.4, `rgba(255,220,150,${.5 * bon})`); gg.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = gg; ctx.fillRect(x * W - 9, y * H - 9, 18, 18); } }
+    const mt = (t - 4.2) % 7; if (mt > 0 && mt < .9) { const u = mt / .9, x0 = W * .82, y0 = H * .06, x = x0 - u * W * .35, y = y0 + u * H * .2;
+      const lg = ctx.createLinearGradient(x, y, x + 120, y - 60); lg.addColorStop(0, `rgba(255,255,240,${a * (1 - u)})`); lg.addColorStop(1, 'rgba(255,255,240,0)');
+      ctx.strokeStyle = lg; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 120, y - 60); ctx.stroke(); }
+    ctx.restore();
+  })(tileDraw);
+  // 路南小花丛：R136 随风轻摆 8 帧（336×224 一帧，5fps）
+  drawBaked = (orig => function (o, now) {
+    if (o && o.id === 'r137_fw') { const im = IMG[o.img]; if (!im) return; const f = Math.floor(now * 5 + o.x * .01) % 8; ctx.drawImage(im, f * 336, 0, 336, 224, o.x, o.y, o.w, o.h); return; }
+    return orig(o, now);
+  })(drawBaked);
+
+  tileSetMap = (orig => function (name) {
+    if (name === PAV || name === BY || /^qingzhu_/.test(name || '')) loadAll();
+    const res = orig.apply(this, arguments);
+    try { if (name === PAV) fixPav(); } catch (e) { console.warn('r137', e); }
+    return res;
+  })(tileSetMap);
+})();
