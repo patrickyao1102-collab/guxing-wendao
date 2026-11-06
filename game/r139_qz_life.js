@@ -303,49 +303,103 @@
     { id: 'cook_doufu', name: '青菜豆腐', pot: 'wok', ing: ['青菜', '豆腐'], hp: 220, mp: 30, desc: '家常小菜，清清白白。' },
     { id: 'cook_zhou', name: '香菇灵米粥', pot: 'soup', ing: ['灵米', '香菇', '山药'], hp: 420, mp: 80, desc: '灵米熬得开了花，暖胃养气。' },
     { id: 'cook_zao', name: '红枣山药汤', pot: 'soup', ing: ['红枣', '山药', '莲子'], hp: 300, mp: 110, desc: '补气养血，松伯最爱喝。' },
+    { id: 'cook_dan', name: '香菇蒸蛋', pot: 'steam', ing: ['鸡蛋', '香菇'], hp: 200, mp: 90, desc: '蛋羹蒸得嫩滑，香菇提鲜，青禾的拿手菜。' },
   ];
   const ING = { 竹笋: '#c8b46a', 莲子: '#efe6c8', 红枣: '#b8322e', 桂花: '#f2b33c', 糯米: '#f4f1e6', 青菜: '#5fa84a', 豆腐: '#f1ead2', 香菇: '#8a5a36', 鸡蛋: '#f3d9a4', 灵米: '#d9e8f0', 山药: '#e8dcc4', 蜂蜜: '#e0a228' };
   for (const r of RECIPES) ITEM_DB[r.id] = Object.assign(ITEM_DB[r.id] || {}, { name: r.name, use: 'heal', hp: r.hp, mp: r.mp, price: 40, desc: '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') });
-  window.COOK_ART = window.COOK_ART || {};   // Codex 素材到了挂在这里：bg / pot_soup / pot_wok / pot_steamer / ing_<名> / dish_<id>
+  // —— Codex R139 厨房素材（灶台近景 / 三口锅 / 冒泡·翻炒·蒸汽·溅水·成菜金光 / 火候条 / 12 种食材 / 8 道菜）打成三张图 ——
+  const CM = {"U":{"recipe_card":[0,0,300,420],"btn_cook":[0,1046,260,80],"btn_cook_pressed":[262,1046,260,80],"heat_bar":[558,1046,640,64],"heat_needle":[524,1046,32,80],"heat_ok_glow":[764,744,200,200],"cook_burnt":[966,744,192,192],"pot_wok":[342,744,420,260],"pot_soup":[962,422,360,300],"pot_steamer":[0,744,340,300],"ingredients_atlas":[0,422,960,320],"dishes_atlas":[302,0,768,384]},"FX":{"boil_8f":{"y":0,"fw":260,"fh":132,"n":8,"fps":8,"loop":true,"ax":130,"ay":66},"stirfry_8f":{"y":134,"fw":420,"fh":260,"n":8,"fps":8,"loop":true,"ax":210,"ay":215},"steam_8f":{"y":396,"fw":256,"fh":320,"n":8,"fps":6,"loop":true,"ax":128,"ay":286},"splash_6f":{"y":718,"fw":256,"fh":192,"n":6,"fps":12,"loop":false,"ax":128,"ay":155},"cook_success_8f":{"y":912,"fw":512,"fh":512,"n":8,"fps":12,"loop":false,"ax":256,"ay":256}},"P":{"pot_wok":{"ax":210,"ay":234,"mx":210,"my":112},"pot_soup":{"ax":180,"ay":276,"mx":180,"my":104},"pot_steamer":{"ax":170,"ay":280,"mx":170,"my":112}}};
+  const CA = {}; let caReq = false;
+  const ICK = { cook_lianzi: 0, cook_sun: 1, cook_guihua: 2, cook_doufu: 3, cook_zhou: 4, cook_zao: 5, cook_dan: 6 };
+  const INGK = Object.keys(ING);   // 与食材图集顺序一致：竹笋 莲子 红枣 桂花 糯米 青菜 豆腐 香菇 鸡蛋 灵米 山药 蜂蜜
+  function mkIcons() { const im = CA.cook_ui; if (!im || typeof IMG === 'undefined') return;
+    const mk = (k, i, cols, sz, id) => { const c = document.createElement('canvas'); c.width = c.height = 128; const u = CM.U[k];
+      c.getContext('2d').drawImage(im, u[0] + (i % cols) * sz, u[1] + Math.floor(i / cols) * sz, sz, sz, 0, 0, 128, 128); IMG['ic_' + id] = c; };
+    INGK.forEach((n, i) => mk('ingredients_atlas', i, 6, 160, 'ing_' + i));
+    for (const id in ICK) mk('dishes_atlas', ICK[id], 4, 192, id); }
+  const needCook = () => { if (caReq) return; caReq = true;
+    for (const k of ['cook_ui', 'cook_fx', 'cook_bg']) { const im = new Image(); im.onload = () => { CA[k] = im; if (k === 'cook_ui') mkIcons(); }; im.src = 'r139/' + k + '.webp'; } };
+  setTimeout(needCook, 4000);
+  // 行囊 / 获得物品里的图标：食材、菜肴用新图
+  if (typeof itemIcon === 'function') itemIcon = (o => function (id, x, y, r) {
+    const c = /^(cook_|ing_)/.test(id) && typeof IMG !== 'undefined' && IMG['ic_' + id];
+    if (c) { ctx.drawImage(c, x - r * 1.2, y - r * 1.2, r * 2.4, r * 2.4); return; }
+    return o.apply(this, arguments); })(itemIcon);
+  const UI_ = (k, x, y, w, h) => { const u = CM.U[k], im = CA.cook_ui; if (!im) return false; ctx.drawImage(im, u[0], u[1], u[2], u[3], x, y, w == null ? u[2] : w, h == null ? u[3] : h); return true; };
+  const ingCell = (n, x, y, s) => { const i = INGK.indexOf(n), u = CM.U.ingredients_atlas, im = CA.cook_ui; if (!im || i < 0) return; ctx.drawImage(im, u[0] + (i % 6) * 160, u[1] + Math.floor(i / 6) * 160, 160, 160, x, y, s, s); };
+  const dishCell = (id, x, y, s) => { const i = ICK[id], u = CM.U.dishes_atlas, im = CA.cook_ui; if (!im || i == null) return; ctx.drawImage(im, u[0] + (i % 4) * 192, u[1] + Math.floor(i / 4) * 192, 192, 192, x, y, s, s); };
+  const fxf = (k, fi, x, y, sc = 1) => { const f = CM.FX[k], im = CA.cook_fx; if (!im) return; ctx.drawImage(im, fi * f.fw, f.y, f.fw, f.fh, x - f.ax * sc, y - f.ay * sc, f.fw * sc, f.fh * sc); };
+  const fxi = (k, t) => { const f = CM.FX[k]; return Math.floor(t * f.fps) % f.n; };
+  const POTK = { soup: 'pot_soup', steam: 'pot_steamer', wok: 'pot_wok' }, POTN = { soup: '砂锅 · 慢炖', steam: '竹笼 · 清蒸', wok: '铁锅 · 快炒' };
+  const MOUNT = [820, 505];
+  const potAt = r => { const pk = POTK[r.pot], P = CM.P[pk], px = MOUNT[0] - P.ax, py = MOUNT[1] - P.ay; return { pk, px, py, mx: px + P.mx, my: py + P.my }; };
   let G = null;
-  const BOARD = () => G.board.map((n, i) => ({ n, x: 300 + i * 136, y: 600, r: 50 }));
-  const BTN_QUIT = { x: 1110, y: 30, w: 140, h: 54 };
+  const BOARD = () => G.board.map((n, i) => ({ n, x: [100, 262, 424][i % 3], y: [360, 466][Math.floor(i / 3)], r: 52 }));
+  const PICK = () => RECIPES.map((r, i) => { const row = i < 4 ? 0 : 1, k = row ? i - 4 : i, cx = row ? 460 + k * 180 : 370 + k * 180, cy = row ? 500 : 280; return { r, cx, cy, x: cx - 76, y: cy - 106, w: 152, h: 212 }; });
+  const BTN_QUIT = { x: 20, y: 18, w: 170, h: 54 }, BTN_SERVE = { x: 690, y: 566, w: 260, h: 80 };
+  const HB = { x: 500, y: 648 }, TR = { x: HB.x + 24, y: HB.y + 12, w: 592, h: 40 };
+  const INK = '#4a2a12';
   function drawCook() {
-    if (!G) return; const t = now(), A = window.COOK_ART;
-    ctx.save();
-    if (A.bg) ctx.drawImage(A.bg, 0, 0, W, H);
-    else { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1f1712'); g.addColorStop(1, '#3a2a1d'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      const st = IMG['r136w_c_kitchen_double_stove']; if (st) ctx.drawImage(st, 400, 210, 480, 332);
-      const fg = ctx.createRadialGradient(640, 470, 10, 640, 470, 260); fg.addColorStop(0, `rgba(255,150,60,${.25 + .06 * Math.sin(t * 9)})`); fg.addColorStop(1, 'rgba(255,120,40,0)'); ctx.fillStyle = fg; ctx.fillRect(380, 210, 520, 420); }
-    // 锅里冒泡 / 热气
-    const pot = A['pot_' + G.r.pot];
-    if (pot) ctx.drawImage(pot, 640 - pot.width / 2, 330 - pot.height / 2);
+    if (!G) return; const t = now(); needCook(); ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (CA.cook_bg) ctx.drawImage(CA.cook_bg, 0, 0, W, H); else { ctx.fillStyle = '#2a1d14'; ctx.fillRect(0, 0, W, H); }
+    // 灶膛的火：跟着火候指针变旺 / 变弱
+    const heat = G.phase === 'heat' ? G.needle : G.phase === 'pick' ? .25 : .5;
     ctx.globalCompositeOperation = 'lighter';
-    for (let k = 0; k < 7; k++) { const ph = (t * .6 + k / 7) % 1; ctx.fillStyle = `rgba(255,255,255,${.12 * (1 - ph)})`; ctx.beginPath(); ctx.ellipse(560 + k * 26 + Math.sin(t * 2 + k) * 8, 300 - ph * 160, 18 + ph * 22, 12 + ph * 16, 0, 0, 7); ctx.fill(); }
-    ctx.globalCompositeOperation = 'source-over';
-    if (G.added) for (let k = 0; k < G.added; k++) { ctx.fillStyle = ING[G.r.ing[k]] || '#ddd'; ctx.globalAlpha = .85; ctx.beginPath(); ctx.ellipse(600 + k * 40, 318 + Math.sin(t * 5 + k) * 3, 16, 9, 0, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
-    // 标题、菜谱卡
-    ctx.font = `46px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('西院厨房 · ' + G.r.name, 640, 60, '#ffe7b0', '#2a1406', 6);
-    panel(40, 130, 250, 300); ctx.font = `30px ${BRUSH}`; ctx.fillStyle = '#ffe7b0'; ctx.fillText('菜 谱', 165, 168);
-    G.r.ing.forEach((n, i) => { ctx.font = `600 24px ${FONT}`; ctx.fillStyle = i < G.added ? '#9fe08a' : '#fbefd5'; ctx.fillText((i < G.added ? '✓ ' : (i + 1) + '. ') + n, 165, 220 + i * 46); });
-    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e8c98a'; ctx.fillText('★'.repeat(G.stars) + '☆'.repeat(3 - G.stars), 165, 400);
-    // 提示
-    ctx.font = `600 24px ${FONT}`; ctx.fillStyle = '#fbefd5'; ctx.fillText(G.phase === 'add' ? '照菜谱的顺序，把食材下锅' : G.phase === 'heat' ? '火候第 ' + (G.round + 1) + ' / 3 次：指针到金色那段时点一下' : '', 640, 120);
-    if (G.msg && t - G.msgT < 1.2) { ctx.font = `40px ${BRUSH}`; textOutline(G.msg, 640, 200, G.msgOk ? '#ffe08a' : '#ff9a8a', '#2a1406', 6); }
-    // 食材
-    if (G.phase === 'add') for (const b of BOARD()) { const im = A['ing_' + b.n];
-      if (im) ctx.drawImage(im, b.x - 60, b.y - 60, 120, 120);
-      else { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(b.x, b.y + 6, b.r, 0, 7); ctx.fill(); ctx.fillStyle = ING[b.n]; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#d9b46a'; ctx.stroke(); }
-      ctx.font = `600 22px ${FONT}`; textOutline(b.n, b.x, b.y + 70, '#fff3d6', '#2a1406', 4); }
+    const fg = ctx.createRadialGradient(820, 640, 8, 820, 640, 110 + heat * 150); fg.addColorStop(0, `rgba(255,150,60,${.12 + heat * .4 + .05 * Math.sin(t * 11)})`); fg.addColorStop(1, 'rgba(255,120,40,0)');
+    ctx.fillStyle = fg; ctx.fillRect(560, 420, 520, 300); ctx.globalCompositeOperation = 'source-over';
+    const r = G.r;
+    if (r) { const p = potAt(r);
+      UI_(p.pk, p.px, p.py);
+      if (G.phase === 'end' && !G.win) { UI_('cook_burnt', p.mx - 96, p.my - 150);
+        for (let k = 0; k < 6; k++) { const ph = ((t - G.endT) * .7 + k / 6) % 1; ctx.fillStyle = `rgba(40,34,30,${.45 * (1 - ph)})`; ctx.beginPath(); ctx.ellipse(p.mx - 30 + k * 12 + Math.sin(t * 2 + k) * 14, p.my - 60 - ph * 200, 22 + ph * 40, 16 + ph * 26, 0, 0, 7); ctx.fill(); } }
+      else {
+        if (r.pot === 'soup' && G.added > 0) fxf('boil_8f', fxi('boil_8f', t), p.mx, p.my);
+        if (r.pot === 'wok') { if (G.phase === 'heat' || G.phase === 'serve' || G.phase === 'end') fxf('stirfry_8f', fxi('stirfry_8f', t), p.mx, p.my);
+          else for (let k = 0; k < G.added; k++) ingCell(r.ing[k], p.mx - 70 + k * 60, p.my - 44 + Math.sin(t * 4 + k) * 2, 76); }
+        if (r.pot !== 'wok' && G.added > 0) { ctx.globalAlpha = r.pot === 'steam' ? .95 : .7; fxf('steam_8f', fxi('steam_8f', t), p.mx, p.my - 6); ctx.globalAlpha = 1; }
+        if (G.splT != null) { const f = CM.FX.splash_6f, k = Math.floor((t - G.splT) * f.fps); if (k < f.n) fxf('splash_6f', k, p.mx, p.my); else G.splT = null; } }
+      if (G.fly) { const q = Math.min(1, (t - G.fly.t0) / .38), x = G.fly.x + (p.mx - G.fly.x) * q, y = G.fly.y + (p.my - 24 - G.fly.y) * q - Math.sin(q * Math.PI) * 150, s = 110 * (1 - .4 * q);
+        ingCell(G.fly.n, x - s / 2, y - s / 2, s); if (q >= 1) { G.fly = null; G.splT = t; } }
+      if (G.phase === 'end' && G.win) { const f = CM.FX.cook_success_8f, k = Math.min(f.n - 1, Math.floor((t - G.endT) * f.fps));
+        fxf('cook_success_8f', k, p.mx, p.my - 90); const q = Math.min(1, (t - G.endT) / .45), s = 120 + 90 * q; dishCell(r.id, p.mx - s / 2, p.my - 90 - 80 * q - s / 2, s); }
+    }
+    // 标题、提示
+    if (r) { ctx.font = `46px ${BRUSH}`; textOutline('西院厨房 · ' + r.name, 640, 58, '#ffe7b0', '#2a1406', 6); }
+    const hint = G.phase === 'pick' ? '' : G.phase === 'add' ? '照菜谱的顺序，把案板上的食材下锅' : G.phase === 'heat' ? '看火候 ' + (G.round + 1) + ' / 3：指针走到亮的那段时点一下' : G.phase === 'serve' ? '火候到了——起锅！' : '';
+    if (hint) { ctx.font = `600 24px ${FONT}`; textOutline(hint, 640, 112, '#fbefd5', '#2a1406', 4); }
+    // 菜谱卡
+    if (r) { const cx = 1052, cy = 14, s = .7; UI_('recipe_card', cx, cy, 300 * s, 420 * s); const mx = cx + 105;
+      ctx.font = `32px ${BRUSH}`; ctx.fillStyle = INK; ctx.fillText(r.name, mx, cy + 52);
+      ctx.font = `600 15px ${FONT}`; ctx.fillStyle = '#8a6a48'; ctx.fillText(POTN[r.pot], mx, cy + 82);
+      ctx.strokeStyle = 'rgba(120,80,40,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 34, cy + 96); ctx.lineTo(cx + 176, cy + 96); ctx.stroke();
+      r.ing.forEach((n, i) => { const y = cy + 124 + i * 44, done = i < G.added; ctx.globalAlpha = done ? .45 : 1; ingCell(n, cx + 38, y - 20, 40);
+        ctx.textAlign = 'left'; ctx.font = `600 22px ${FONT}`; ctx.fillStyle = done ? '#5a7a3a' : INK; ctx.fillText((done ? '✓ ' : (i + 1) + '　') + n, cx + 84, y); ctx.textAlign = 'center'; ctx.globalAlpha = 1; });
+      ctx.font = `26px ${FONT}`; ctx.fillStyle = '#b0602a'; ctx.fillText('★'.repeat(G.stars) + '☆'.repeat(3 - G.stars), mx, cy + 262); }
+    // 选菜：七张小菜谱
+    if (G.phase === 'pick') { ctx.fillStyle = 'rgba(18,10,4,.45)'; ctx.fillRect(0, 0, W, H);
+      ctx.font = `44px ${BRUSH}`; textOutline('做 什 么 菜', 640, 126, '#ffe7b0', '#2a1406', 6);
+      for (const c of PICK()) { const l = window.R139_LACK ? R139_LACK(c.r) : [], full = itemCount(c.r.id) >= 5, ok = !l.length && !full;
+        UI_('recipe_card', c.x, c.y, c.w, c.h); ctx.globalAlpha = ok ? 1 : .55; dishCell(c.r.id, c.cx - 56, c.cy - 100, 112); ctx.globalAlpha = 1;
+        ctx.font = `26px ${BRUSH}`; ctx.fillStyle = INK; ctx.fillText(c.r.name, c.cx, c.cy + 30);
+        ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#8a6a48'; ctx.fillText(c.r.ing.join(' · '), c.cx, c.cy + 56);
+        ctx.font = `600 15px ${FONT}`; ctx.fillStyle = full ? '#8a6a48' : l.length ? '#b0402a' : '#4f7a2e';
+        ctx.fillText(full ? '行囊里还有' : l.length ? '缺' + l.join('、') : '✓ 料齐', c.cx, c.cy + 80); } }
+    // 案板上的食材
+    if (G.phase === 'add') for (const b of BOARD()) { ingCell(b.n, b.x - 56, b.y - 60 + Math.sin(t * 2 + b.x) * 1.5, 112);
+      ctx.font = `600 19px ${FONT}`; textOutline(b.n, b.x, b.y + 44, '#fff3d6', '#2a1406', 4); }
     // 火候条
-    if (G.phase === 'heat') { const x0 = 320, w = 640, y = 590, p = G.needle;
-      const g2 = ctx.createLinearGradient(x0, 0, x0 + w, 0); g2.addColorStop(0, '#3f6fa8'); g2.addColorStop(.5, '#e0a64a'); g2.addColorStop(1, '#c2382a'); ctx.fillStyle = g2; roundRect(x0, y - 18, w, 36, 12); ctx.fill();
-      ctx.fillStyle = `rgba(255,230,140,${.55 + .25 * Math.sin(t * 8)})`; ctx.fillRect(x0 + w * (G.zone[0]), y - 18, w * (G.zone[1] - G.zone[0]), 36);
-      ctx.lineWidth = 3; ctx.strokeStyle = '#d9b46a'; roundRect(x0, y - 18, w, 36, 12); ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.fillRect(x0 + w * p - 4, y - 34, 8, 68);
-      ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#cfe0ff'; ctx.fillText('火小', x0 - 40, y); ctx.fillStyle = '#ffb0a0'; ctx.fillText('火大', x0 + w + 40, y); }
-    // 收手
-    panel(BTN_QUIT.x, BTN_QUIT.y, BTN_QUIT.w, BTN_QUIT.h); ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#fbefd5'; ctx.fillText('不做了', BTN_QUIT.x + BTN_QUIT.w / 2, BTN_QUIT.y + BTN_QUIT.h / 2);
+    if (G.phase === 'heat' || G.phase === 'serve') { UI_('heat_bar', HB.x, HB.y);
+      if (G.phase === 'heat') { const [a0, a1] = G.zone; ctx.fillStyle = `rgba(255,244,200,${.32 + .18 * Math.sin(t * 8)})`; ctx.fillRect(TR.x + TR.w * a0, TR.y, TR.w * (a1 - a0), TR.h);
+        ctx.fillStyle = 'rgba(255,252,235,.95)'; ctx.fillRect(TR.x + TR.w * a0 - 1, TR.y - 3, 3, TR.h + 6); ctx.fillRect(TR.x + TR.w * a1 - 1, TR.y - 3, 3, TR.h + 6); }
+      UI_('heat_needle', TR.x + TR.w * G.needle - 16, HB.y + 60 - 77);
+      if (G.hitT != null && t - G.hitT < .5) { const q = (t - G.hitT) / .5, s = 120 + 80 * q; ctx.globalAlpha = 1 - q; UI_('heat_ok_glow', G.hitX - s / 2, HB.y + 32 - s / 2, s, s); ctx.globalAlpha = 1; }
+      ctx.font = `30px ${BRUSH}`; textOutline('文火', HB.x - 40, HB.y + 32, '#cfe0ff', '#14202e', 4); textOutline('武火', HB.x + 680, HB.y + 32, '#ffb0a0', '#2e1410', 4); }
+    if (G.phase === 'serve') { const pr = G.pressT != null && t - G.pressT < .15; UI_(pr ? 'btn_cook_pressed' : 'btn_cook', BTN_SERVE.x, BTN_SERVE.y + (pr ? 2 : 0));
+      ctx.font = `38px ${BRUSH}`; textOutline('起　锅', BTN_SERVE.x + 130, BTN_SERVE.y + 41 + (pr ? 2 : 0), '#fff3d6', '#3a1a06', 5); }
+    if (G.msg && t - G.msgT < 1.3) { ctx.font = `40px ${BRUSH}`; textOutline(G.msg, 640, 196, G.msgOk ? '#ffe08a' : '#ff9a8a', '#2a1406', 6); }
+    // 不做了
+    if (G.phase !== 'end') { UI_('btn_cook', BTN_QUIT.x, BTN_QUIT.y, BTN_QUIT.w, BTN_QUIT.h) || panel(BTN_QUIT.x, BTN_QUIT.y, BTN_QUIT.w, BTN_QUIT.h);
+      ctx.font = `600 22px ${FONT}`; textOutline('不做了', BTN_QUIT.x + BTN_QUIT.w / 2, BTN_QUIT.y + BTN_QUIT.h / 2 + 1, '#fff3d6', '#3a1a06', 4); }
     ctx.restore();
   }
   if (S.overlay) S.overlay.push({ draw() { try { drawCook(); } catch (e) {} } });
@@ -354,32 +408,43 @@
   try { cv.addEventListener('pointerdown', e => { if (!G) return; const q = toLogical(e); TAPS.push(q); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
   const takeTap = () => TAPS.shift() || null;
   const flash = (m, ok) => { G.msg = m; G.msgOk = ok; G.msgT = now(); try { playSnd(ok ? 'ui_confirm' : 'sfx_hurt', .5); } catch (e) {} };
-  async function cookGame(pre) {
-    const opts = RECIPES.map(r => r.name + '（' + r.ing.join('、') + '）');
-    const i = pre != null ? pre : await choose('做什么菜？', opts.concat(['不做了'])); if (i >= RECIPES.length) return;
-    const r = RECIPES[i];
-    if (itemCount(r.id) >= 5) { await narrate('行囊里的' + r.name + '还有好几份没吃呢，先别做了。'); return; }
-    const deco = Object.keys(ING).filter(n => !r.ing.includes(n)).sort(() => Math.random() - .5).slice(0, 6 - r.ing.length);
-    G = { r, board: r.ing.concat(deco).sort(() => Math.random() - .5), added: 0, stars: 3, phase: 'add', round: 0, needle: 0, zone: [.42, .64] };
-    world.locked = true; let quit = false; const hud0 = S.hud; S.hud = false; TAPS.length = 0;
+  async function cookGame() {
+    needCook();
+    G = { r: null, phase: 'pick', stars: 3, added: 0, round: 0, needle: .5, zone: [.42, .64] };
+    world.locked = true; const hud0 = S.hud; S.hud = false; TAPS.length = 0;
+    const close = () => { G = null; S.hud = hud0; world.locked = false; };
+    let r = null;
+    while (!r) { await nextFrame(); const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { close(); return; }
+      for (const c of PICK()) if (inR(tp, c)) { const l = window.R139_LACK ? R139_LACK(c.r) : [];
+        if (itemCount(c.r.id) >= 5) flash('行囊里的' + c.r.name + '还有好几份呢', false);
+        else if (l.length) flash('还缺' + l.join('、') + '——集市灶膳摊有卖', false);
+        else r = c.r; break; } }
+    const deco = INGK.filter(n => !r.ing.includes(n)).sort(() => Math.random() - .5).slice(0, 6 - r.ing.length);
+    Object.assign(G, { r, board: r.ing.concat(deco).sort(() => Math.random() - .5), phase: 'add', msg: null });
+    let quit = false;
     while (G.phase === 'add') { await nextFrame(); const tp = takeTap(); if (!tp) continue;
       if (inR(tp, BTN_QUIT)) { quit = true; break; }
-      for (const b of BOARD()) if (Math.hypot(tp.x - b.x, tp.y - b.y) < b.r + 10) {
-        if (b.n === r.ing[G.added]) { G.added++; G.board = G.board.filter(n => n !== b.n); flash('下锅！', true); if (G.added >= r.ing.length) { G.phase = 'heat'; G.t0 = now(); } }
+      for (const b of BOARD()) if (Math.hypot(tp.x - b.x, tp.y - b.y) < b.r + 12) {
+        if (b.n === r.ing[G.added]) { G.added++; G.board = G.board.filter(n => n !== b.n); G.fly = { n: b.n, x: b.x, y: b.y, t0: now() }; flash('下锅！', true);
+          if (G.added >= r.ing.length) { await sleep(450); G.phase = 'heat'; G.t0 = now(); } }
         else { G.stars = Math.max(0, G.stars - 1); flash(r.ing.includes(b.n) ? '顺序不对——' + r.ing[G.added] + '先放' : b.n + '可不是这道菜的料', false); }
         break; } }
-    const widths = [.22, .16, .11];
+    const widths = [.2, .15, .11];
     while (!quit && G.phase === 'heat') { await nextFrame(); const sp = 1.3 + G.round * .45; G.needle = (Math.sin((now() - G.t0) * sp * 2.2) + 1) / 2;
       const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { quit = true; break; }
       const [a0, a1] = G.zone;
-      if (G.needle >= a0 && G.needle <= a1) flash('火候正好！', true); else { G.stars = Math.max(0, G.stars - 1); flash(G.needle < a0 ? '火小了' : '火大了', false); }
-      G.round++; if (G.round >= 3) { G.phase = 'done'; break; }
+      if (G.needle >= a0 && G.needle <= a1) { flash('火候正好！', true); G.hitT = now(); G.hitX = TR.x + TR.w * G.needle; }
+      else { G.stars = Math.max(0, G.stars - 1); flash(G.needle < a0 ? '火小了' : '火大了', false); }
+      G.round++; if (G.round >= 3) { G.phase = 'serve'; break; }
       const c = .3 + Math.random() * .4, w = widths[G.round]; G.zone = [c - w / 2, c + w / 2]; G.t0 = now() - Math.random() * 2; }
-    if (quit) { G = null; S.hud = hud0; world.locked = false; return; }
-    await sleep(500); const stars = G.stars; G = null; S.hud = hud0;
+    while (!quit && G.phase === 'serve') { await nextFrame(); const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { quit = true; break; }
+      if (inR(tp, BTN_SERVE)) { G.pressT = now(); try { playSnd('ui_confirm', .5); } catch (e) {} await sleep(160); G.phase = 'end'; } }
+    if (quit) { close(); return; }
+    const stars = G.stars; G.win = stars >= 2; G.endT = now();
     try { if (window.R139_USEING) R139_USEING(r); } catch (e) {}
+    await sleep(G.win ? 1300 : 1600); close(); world.locked = true;
     if (stars >= 2) {
-      const n = stars === 3 ? 2 : 1; addItem(r.id, n); giveFx();
+      const n = stars === 3 ? 2 : 1; addItem(r.id, n); try { giveFx(); } catch (e) {}
       try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×' + n, desc: ITEM_DB[r.id].desc }], stars === 3 ? '火候十足 · 三星' : '出锅'); else toast('做好了：' + r.name + ' ×' + n, 1800); } catch (e) { toast('做好了：' + r.name + ' ×' + n, 1800); }
       if (!F().qz_cook1) { F().qz_cook1 = 1;
         await narrate('香味飘出厨房，没一会儿，门口探进来三个脑袋。');
@@ -395,7 +460,7 @@
     }
     world.locked = false;
   }
-  window.R139_COOK = cookGame; window.R139_G = () => G && { G, board: BOARD() };
+  window.R139_COOK = cookGame; window.R139_G = () => G && { G, board: G.board ? BOARD() : [], pick: PICK() };
   if (stove) stove.talk = async () => {
     await narrate(night() ? '灶膛里压着余火，锅里温着一锅莲子羹。锅盖上压着一张字条：「给少爷留的，喝了早点歇。——小桃」' : '两口锅都烧着，一锅温水，一锅莲子羹。案上的竹篮里，菜和料都备齐了。');
     const i = await choose('灶台', ['盛一碗莲子羹', '自己下厨做点吃的', '不了']);
@@ -411,14 +476,14 @@
   const ING_PRICE = { 竹笋: 12, 莲子: 15, 红枣: 10, 桂花: 18, 糯米: 10, 青菜: 6, 豆腐: 8, 香菇: 14, 鸡蛋: 8, 灵米: 30, 山药: 16, 蜂蜜: 20 };
   const ING_ID = n => 'ing_' + INGS.indexOf(n);
   INGS.forEach((n, i) => { ITEM_DB[ING_ID(n)] = Object.assign(ITEM_DB[ING_ID(n)] || {}, { name: n, price: ING_PRICE[n], sell: Math.round(ING_PRICE[n] / 2), cat: '食材', desc: '做菜用的食材。天剑宗集市灶膳摊有卖，拿到青竹西院厨房的灶台上做菜。' }); });
-  const RAGE = { cook_lianzi: 20, cook_sun: 30, cook_guihua: 20, cook_doufu: 10, cook_zhou: 40, cook_zao: 30 };
+  const RAGE = { cook_lianzi: 20, cook_sun: 30, cook_guihua: 20, cook_doufu: 10, cook_zhou: 40, cook_zao: 30, cook_dan: 20 };
   for (const r of RECIPES) { const d = ITEM_DB[r.id]; d.rage = RAGE[r.id]; d.desc = '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') + '；食补：之后 3 场战斗开局全队怒气 +' + d.rage; }
   // 做菜前先看料够不够（错点不耗料，做成才扣）
-  const lack = r => r.ing.filter(n => itemCount(ING_ID(n)) < 1);
+  const lack = window.R139_LACK = r => r.ing.filter(n => itemCount(ING_ID(n)) < 1);
   const useIng = window.R139_USEING = r => { for (const n of r.ing) { const id = ING_ID(n); S.hero.bag[id]--; if (S.hero.bag[id] <= 0) delete S.hero.bag[id]; } };
   // 第一次站到灶台前：小桃给一份「试手」的料
   const starter = async () => { if (F().qz_ing0) return; F().qz_ing0 = 1;
-    for (const n of ['莲子', '红枣', '蜂蜜', '竹笋', '香菇', '青菜', '豆腐']) addItem(ING_ID(n), 2);
+    for (const n of ['莲子', '红枣', '蜂蜜', '竹笋', '香菇', '青菜', '豆腐', '鸡蛋']) addItem(ING_ID(n), 2);
     await say('侍女小桃', '少爷要下厨？灶边这篮料先拿去试手——莲子、红枣、竹笋、豆腐都有。');
     await say('侍女小桃', '用完了就去天剑宗集市，灶膳摊的大娘什么都卖，报青竹小院的名号还能便宜点。');
     toast('获得：一篮试手的食材', 1800); };
@@ -457,14 +522,7 @@
     return res; })(tileSetMap);
   // 做菜入口改成要料
   const cook0 = cookGame;
-  window.R139_COOK = async function () { await starter(); return cook1(); };
-  async function cook1() {
-    const opts = RECIPES.map(r => { const l = lack(r); return r.name + (l.length ? '（缺' + l.join('、') + '）' : '　✓料齐'); });
-    const i = await choose('做什么菜？', opts.concat(['不做了'])); if (i >= RECIPES.length) return;
-    const r = RECIPES[i], l = lack(r);
-    if (l.length) { await narrate('料不够：还缺' + l.join('、') + '。天剑宗集市的灶膳摊有卖。'); return; }
-    return cook0(i);
-  }
+  window.R139_COOK = async function () { await starter(); return cook0(); };
   if (stove) stove.talk = async () => {
     await narrate(night() ? '灶膛里压着余火，锅里温着一锅莲子羹。锅盖上压着一张字条：「给少爷留的，喝了早点歇。——小桃」' : '两口锅都烧着，一锅温水，一锅莲子羹。');
     const i = await choose('灶台', ['盛一碗莲子羹', '自己下厨做点吃的', '不了']);
