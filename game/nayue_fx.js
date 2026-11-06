@@ -88,10 +88,15 @@ function front(ctx,t,key,anchors={},options={}){
   const a=s.moonAlpha*(1-seg(t,7.32,8.0));
   const breath=1+Math.sin(t*.85)*.012,rr=m.r*breath;
   glow(ctx,m.x,m.y,480,a*.52);glow(ctx,m.x,m.y,325,a*.56);
-  sprite(ctx,'moon',m.x,m.y,rr*3.15,rr*3.15,a*.64,0,'lighter');
+  // 作者 11-07：月亮「一边有光一边没光」——月光素材的雾丝只长在一侧、核心渐变又往左上偏。改成：四周一圈均匀的柔光晕；素材正反各叠一层（雾丝四周都有），慢慢转
+  { ctx.save();ctx.globalCompositeOperation='lighter';const co=ctx.createRadialGradient(m.x,m.y,rr*.9,m.x,m.y,rr*2.05);
+    co.addColorStop(0,`rgba(205,230,255,${.42*a})`);co.addColorStop(.35,`rgba(170,208,250,${.18*a})`);co.addColorStop(1,'rgba(140,185,245,0)');
+    ctx.fillStyle=co;ctx.beginPath();ctx.arc(m.x,m.y,rr*2.05,0,TAU);ctx.fill();ctx.restore(); }
+  sprite(ctx,'moon',m.x,m.y,rr*3.15,rr*3.15,a*.36,t*.025,'lighter');
+  sprite(ctx,'moon',m.x,m.y,rr*3.15,rr*3.15,a*.36,Math.PI+t*.025,'lighter');
   // Smooth luminous core follows the author's original radial-gradient style.
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a;
-  const moonlight=ctx.createRadialGradient(m.x-rr*.12,m.y-rr*.13,rr*.05,m.x,m.y,rr*1.22);
+  const moonlight=ctx.createRadialGradient(m.x,m.y,rr*.05,m.x,m.y,rr*1.22);
   moonlight.addColorStop(0,'rgba(255,255,255,.98)');
   moonlight.addColorStop(.55,'rgba(249,252,255,.97)');
   moonlight.addColorStop(.72,'rgba(235,246,255,.94)');
@@ -110,7 +115,7 @@ function front(ctx,t,key,anchors={},options={}){
  // 0.7 second squeeze then a single flash: intensity is a deliberate contrast beat.
  if(t>=6.6&&t<7.32){
   const p=seg(t,6.6,7.28);glow(ctx,m.x,m.y,200-130*p,p*.65);sprite(ctx,'shockwave',m.x,m.y,560-420*p,560-420*p,Math.sin(p*Math.PI)*.7);
-  ctx.fillStyle=`rgba(0,3,12,${p*.20})`;ctx.fillRect(0,0,1280,720);
+  {const dk=ctx.createRadialGradient(m.x,m.y,m.r*1.15,m.x,m.y,m.r*2.6);dk.addColorStop(0,'rgba(0,3,12,0)');dk.addColorStop(1,`rgba(0,3,12,${p*.20})`);ctx.fillStyle=dk;ctx.fillRect(0,0,1280,720);}   // 作者 11-07：收拢那一下的压暗别盖到月亮上（以前月亮会变成一块灰盘）
  }
  if(t>=7.3&&t<8.6){
   const p=clamp((t-7.3)/1.25);glow(ctx,m.x,m.y,180+p*1050,(1-p)*.95);
