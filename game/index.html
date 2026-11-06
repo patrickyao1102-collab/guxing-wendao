@@ -12251,7 +12251,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       reward: { exp: 120, gold: 120, items: [['p_big', 2]] } },
     { id: 'fang', name: '王铁匠的狼牙', giver: ['qy_smith', '王铁匠'], where: '青阳镇 · 铁匠铺 · 王铁匠',
       desc: '王铁匠想用妖狼牙给一把好剑淬火。', goal: '打狼形的兽火（妖狼 / 银纹妖狼），收集狼牙',
-      type: 'item', item: 'm_fang', n: 5, drop: { maps: ['lin_forest', 'hf_valley', 'yy_forest'], mobs: ['wolf', 'wolf2', 'ywolf'], p: .6 },
+      type: 'item', item: 'm_fang', n: 5, drop: { maps: ['lin_forest', 'hf_valley', 'm_yy_tiger', 'm_yy_verge', 'tj_xiashan'], mobs: ['wolf', 'wolf2', 'ywolf'], p: .6 },
       accept: [['王铁匠', '小兄弟，我手上有把剑，就差最后一道淬火——要用妖狼的牙磨粉入水。'], ['王铁匠', '给我弄五颗狼牙来，这把青锋剑就归你！']],
       done: [['王铁匠', '（叮——叮——）成了！青锋剑，镇上独一把。小兄弟，好好用！']],
       reward: { exp: 150, items: [['w_qingfeng', 1]] } },
@@ -12275,7 +12275,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       reward: { exp: 300, items: [['w_chixiao', 1]] } },
     { id: 'spider', name: '万宝楼收蛛丝', giver: ['xt_wanbao', '万宝楼掌柜'], where: '玄天城 · 万宝楼掌柜', cond: () => !!F().ch3,
       desc: '影纹蛛姬吐的蛛丝能织法衣，万宝楼高价收。', goal: '在幽影林打影纹蛛姬（兽火里出来的半人半蛛）',
-      type: 'kill', kill: { maps: ['yy_forest'], mobs: ['spider'] }, perEnemy: true, n: 4,
+      type: 'kill', kill: { maps: ['m_yy_tiger', 'm_yy_verge'], mobs: ['spider'] }, perEnemy: true, n: 4,
       accept: [['万宝楼掌柜', '贵客是要出城？幽影林里的影纹蛛姬，吐的丝能织法衣。'], ['万宝楼掌柜', '打上四只，蛛丝归我，这枚灵犀玉坠归您。']],
       done: [['万宝楼掌柜', '成色上佳！灵犀玉坠是您的了，另有一点心意。']],
       reward: { exp: 400, gold: 500, items: [['c_jade', 1]] } },
@@ -14445,7 +14445,7 @@ ultJiutian = (orig => async function (P) {
     if (a === 'cxs_toggle') { CXS.on = !CXS.on; render(); }
     if (a === 'mazefog') { window.MAZE_FOG_ON = !window.MAZE_FOG_ON; try { localStorage.setItem('gx_mazefog', window.MAZE_FOG_ON ? '1' : '0'); } catch (e) {} render(); return; }
     if (a === 'allytest2') { clearStory(); pan.hidden = true; window.ALLY2 && ALLY2.test(['yunting', 'linxue']); }
-    if (/^fire_(lin|hf|yy)$/.test(a)) return jumpMap({ fire_lin: 'lin_forest', fire_hf: 'hf_valley', fire_yy: 'yy_forest' }[a]);
+    if (/^fire_(lin|hf|yy)$/.test(a)) return jumpMap({ fire_lin: 'lin_forest', fire_hf: 'hf_valley', fire_yy: 'm_yy_tiger' }[a]);
     if (a === 'sq_accept') return SQ_DEBUG.acceptAll(); if (a === 'sq_finish') return SQ_DEBUG.finishAll(); if (a === 'sq_reset') return SQ_DEBUG.reset(); if (a === 'sq_town') return jumpMap('qy_town');
     if (a && a.startsWith('lcv_')) { window.LC_CUR = a.slice(4); a = 'lc_auto'; }
     if (a === 'lc_fight' || a === 'lc_auto') { pan.hidden = true; S.started = true; S.fade = 0; S.hud = true; if (typeof LC_DRAGON_LOAD === 'function') LC_DRAGON_LOAD();
@@ -16451,7 +16451,7 @@ window.MarketEffects = (() => {
 <script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js"></script>
 <script src="r102_misc.js"></script>
 <script src="r103_equipinfo.js"></script><script src="r104_sound.js"></script><script src="r104_linyi.js"></script><script src="r103_world.js"></script><script src="r105_crane.js"></script><script src="r106_sfxfix.js"></script><script src="r107_maps.js"></script>
-<script src="r131_chests.js"></script>
+<script src="r131_chests.js"></script><script src="r132_xiashan.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
 <script src="sfx_xyq.js"></script>
