@@ -50,6 +50,8 @@
   addN(COURT, { name: '小厮阿福', cx: 'waiter', r135e: 'servant', job: 'carry', x: 240, y: 948, route: [240, 490], face: 1, cond: dayOnly, _r135day: 1,
     talk: ['少爷让让——水洒了要挨管家骂的！', '灶上烧着热水，少爷练完剑回来就能用。', '后山那口泉可真远，一早上挑了六趟。'] });
 
+  // 作者 11-07 04:35：两个侍女画成了围裙头巾的厨娘、小厮也是农家打扮——不是仙门侍女。先全部撤下（院里、仆役房里都不出现），等 Codex 按仙侠重画后再打开（window.R135E_PEOPLE_OK）
+  setTimeout(() => { for (const id in TMAPS) for (const n of (TMAPS[id] && TMAPS[id].npcs) || []) if (n.r135e && n.r135e !== 'steward') { const c0 = n.cond; n.cond = function () { return !!window.R135E_PEOPLE_OK && (!c0 || c0.apply(this, arguments)); }; } }, 0);
   // ---------- 画人 ----------
   const shadow = a => { ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 21, 7, 0, 0, 7); ctx.fill(); };
   const towardPlayer = a => { const p = world.player; if (!p) return null; const px = p.x - a.x, py = p.y - a.y; if (Math.abs(px) > Math.abs(py) * .8) return [2, px > 0]; return [py < 0 ? 1 : 0, false]; };
