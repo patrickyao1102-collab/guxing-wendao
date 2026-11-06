@@ -61,23 +61,46 @@ public class Updater extends Thread {
             }
             if (todo.isEmpty()) { l.onFinished(false, rv.equals(lv) ? "已是最新版本" : "已是最新版本"); return; }
             dir.mkdirs(); File tmp = new File(dir, "_tmp"); tmp.mkdirs();
-            long got = 0; int n = 0;
+            // 作者 11-06：以前只要有一个文件没下下来，整次更新就作废，手机上永远停在老版本。
+            // 现在：每个文件最多试 3 次、按哈希校验；下好的先用上、清单按文件合并，没下好的下次启动接着下。
+            long got = 0; int n = 0; List<String> ok = new ArrayList<>(), bad = new ArrayList<>();
             for (String p : todo) {
-                if (cancelled) { l.onFinished(false, "已跳过更新"); return; }
+                if (cancelled) break;
                 n++; l.onStatus("正在下载更新 " + n + " / " + todo.size() + "　" + mb(got) + " / " + mb(total), n, todo.size(), got);
+                JSONObject e = rf.getJSONObject(p); String want = e.optString("sha", "");
                 File out = new File(tmp, p); out.getParentFile().mkdirs();
-                got += download(BASE + encode(p), out);
+                boolean fine = out.isFile() && (want.isEmpty() || want.equals(sha20(out)));   // 上次没完成的，哈希对得上就直接用
+                for (int tryN = 0; !fine && tryN < 3; tryN++) {
+                    try { download(BASE + encode(p), out); fine = want.isEmpty() || want.equals(sha20(out)); }
+                    catch (Exception ex) { fine = false; }
+                    if (!fine) { out.delete(); try { Thread.sleep(400L * (tryN + 1)); } catch (InterruptedException ignored) {} }
+                }
+                if (fine) { ok.add(p); got += out.length(); } else bad.add(p);
             }
-            // 全部下完：把临时文件搬到正式目录，再写清单
-            for (String p : todo) { File src = new File(tmp, p), dst = new File(dir, p); dst.getParentFile().mkdirs(); if (dst.exists()) dst.delete(); if (!src.renameTo(dst)) copy(src, dst); }
+            if (ok.isEmpty()) { l.onFinished(false, cancelled ? "已跳过更新" : "更新下载失败，使用本地版本"); return; }
+            // 下好的搬进正式目录；清单按文件合并（没下好的保留旧记录，下次再补）
+            for (String p : ok) { File src = new File(tmp, p), dst = new File(dir, p); dst.getParentFile().mkdirs(); if (dst.exists()) dst.delete(); if (!src.renameTo(dst)) copy(src, dst); }
+            JSONObject merged = new JSONObject(remoteText); JSONObject mf = merged.getJSONObject("files");
+            for (String p : bad) { JSONObject le = lf.optJSONObject(p); if (le != null) mf.put(p, le); else mf.remove(p); }
+            if (!bad.isEmpty() || cancelled) merged.put("version", lv.isEmpty() ? rv + "-部分" : lv + "→" + rv + "(" + bad.size() + "个未完成)");
             // 远端清单里没有的旧文件删掉（避免越积越多）
             for (Iterator<String> it = lf.keys(); it.hasNext();) { String p = it.next(); if (!rf.has(p)) new File(dir, p).delete(); }
-            writeText(new File(dir, "version.json"), remoteText);
-            deleteDir(tmp);
-            l.onFinished(true, "更新完成（" + rv + "），正在启动");
+            writeText(new File(dir, "version.json"), merged.toString());
+            if (bad.isEmpty() && !cancelled) { deleteDir(tmp); l.onFinished(true, "更新完成（" + rv + "），正在启动"); }
+            else l.onFinished(true, (cancelled ? "已跳过剩余更新" : "还有 " + bad.size() + " 个文件没下完，下次启动继续") + "（已更新 " + ok.size() + " 个）");
         } catch (Exception e) {
             l.onFinished(false, "暂时无法检查更新，使用本地版本");
         }
+    }
+
+    /** 和 tools/make_manifest.py 一样：sha256 前 20 位十六进制 */
+    private static String sha20(File f) {
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[65536]; int r; while ((r = in.read(buf)) > 0) md.update(buf, 0, r);
+            StringBuilder sb = new StringBuilder(); for (byte b : md.digest()) sb.append(String.format("%02x", b));
+            return sb.substring(0, 20);
+        } catch (Exception e) { return ""; }
     }
 
     private static String mb(long b) { return String.format(java.util.Locale.CHINA, "%.1fMB", b / 1048576.0); }
