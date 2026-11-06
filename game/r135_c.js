@@ -91,7 +91,7 @@
   if (window.UI_ICON2) { const U = window.UI_ICON2, h0 = U.has, d0 = U.draw;
     U.has = k => !!((ready(EQU) && eqKey(k)) || (ready(BKI) && bookKey(k)) || (isPokong(k) && ready(PKI))) || h0(k);
     U.draw = (k, x, y, s) => {
-      const ek = ready(EQU) && eqKey(k); if (ek) { eqDraw(ek, false, x, y, s * 1.12); return true; }
+      const ek = ready(EQU) && eqKey(k); if (ek) { eqDraw(ek, false, x, y, s * 1.02); return true; }
       const bk = ready(BKI) && bookKey(k); if (bk) { bkDraw(bk, x, y, s * 1.05); return true; }
       if (isPokong(k) && ready(PKI)) { ctx.drawImage(PKI, x - s / 2, y - s / 2, s, s); return true; }
       return d0(k, x, y, s);
@@ -131,7 +131,7 @@
     if (!b || t > FX_DUR + FX_FADE || !ready(FXI)) { PK = null; return; }
     const u = PK.u || b.P; if (!u) return;
     const fi = Math.min(9, Math.floor(t * 10)), a = t <= FX_DUR ? 1 : Math.max(0, 1 - (t - FX_DUR) / FX_FADE);
-    const hh = u.h || 240, s = Math.max(300, hh * 1.4), cx = u.x + (u.ox || 0), cy = u.y - hh * .45;   // 空间门中心对胸腹
+    const hh = u.h || 240, s = Math.max(280, hh * 1.2), cx = u.x + (u.ox || 0), cy = u.y - hh * .45;   // 空间门中心对胸腹
     ctx.save(); ctx.globalAlpha = a; ctx.drawImage(FXI, (fi % 5) * 384, Math.floor(fi / 5) * 384, 384, 384, cx - s / 2, cy - s / 2, s, s); ctx.restore();
   })(drawBattle);
 

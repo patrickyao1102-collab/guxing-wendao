@@ -51,7 +51,7 @@
   function open(o) {
     o.t0 = performance.now(); o.tapAt = o.t0 + 350; input.tapped = null; CUR = o; S.overlay.push(o);
     o.close = () => { const i = S.overlay.indexOf(o); if (i >= 0) S.overlay.splice(i, 1); if (CUR === o) CUR = null; };
-    const d = o.draw; o.draw = () => { ctx.save(); try { resetXf(); d(); } catch (e) { (window.__gameErrs = window.__gameErrs || []).push('R135G：' + (e && e.message || e)); o.close(); o.res && o.res(); } ctx.restore(); };
+    o.draw = () => { if (!o.paint) return; ctx.save(); try { resetXf(); o.paint(); } catch (e) { (window.__gameErrs = window.__gameErrs || []).push('R135G：' + (e && e.message || e)); o.close(); o.res && o.res(); } ctx.restore(); };
     return o;
   }
   // 取一次点击（刚打开的 0.35 秒内不算：防止关上一句对话的那一下直接点穿）
@@ -75,7 +75,7 @@
       let skip = 0, flashed = false;
       const o = open({ res });
       snd('jingle_levelup');
-      o.draw = () => {
+      o.paint = () => {
         const t = (performance.now() - o.t0) / 1000 + skip, k = ease(t / .3);
         ctx.fillStyle = `rgba(3,5,12,${.8 * k})`; ctx.fillRect(0, 0, W, H);
         ctx.globalAlpha = k; ctx.translate(640, 360); ctx.scale(.96 + .04 * k, .96 + .04 * k); ctx.translate(-640, -360);
@@ -152,7 +152,7 @@
       const o = open({ res });
       snd('ui_open', .7);
       const FX = 405, FY = 365, MOUTH = 238, SLOT = [930, 215, 160, 160];
-      o.draw = () => {
+      o.paint = () => {
         const now = performance.now(), t = (now - o.t0) / 1000, k = ease(t / .3), ft = st === 'idle' ? -1 : (now - ts) / 1000;
         if (st === 'feed' && ft >= 1.4) { st = 'fire'; snd('sfx_charge', .7); }
         if (st === 'fire' && ft >= 2.4) { st = 'done'; S.flash = .7; S.flashColor = '#efe6ff'; snd('sfx_sword_ring'); try { onSuccess && onSuccess(); } catch (e) { console.warn('R135G forge', e); } }
@@ -183,9 +183,9 @@
         pic('material_slot', SLOT[0], SLOT[1], SLOT[2], SLOT[3]);
         const scx = SLOT[0] + 80, scy = SLOT[1] + 80;
         if (st === 'idle') { glow(scx, scy, 80, '200,170,255', .2 + .1 * Math.sin(t * 3)); picC('star_sand', scx, scy + 4, 120); }
-        else if (st === 'feed') { const v = clamp01(ft / 1.3), u = v * v * (3 - 2 * v), x = scx + (FX - scx) * u, y = scy + (MOUTH - scy) * u - 170 * Math.sin(u * Math.PI), s = 120 - 50 * u;
+        else if (st === 'feed') { const v = clamp01(ft / 1.3), u = v * v * (3 - 2 * v), x = scx + (FX - scx) * u, y = scy + (MOUTH - scy) * u - 130 * Math.sin(u * Math.PI), s = 120 - 50 * u;
           // 拖尾：几粒星砂跟在后面
-          for (let j = 1; j <= 5; j++) { const w = clamp01(v - j * .05), uu = w * w * (3 - 2 * w); glow(scx + (FX - scx) * uu, scy + (MOUTH - scy) * uu - 170 * Math.sin(uu * Math.PI), 26 - j * 3, '210,190,255', .5 - j * .08); }
+          for (let j = 1; j <= 5; j++) { const w = clamp01(v - j * .05), uu = w * w * (3 - 2 * w); glow(scx + (FX - scx) * uu, scy + (MOUTH - scy) * uu - 130 * Math.sin(uu * Math.PI), 26 - j * 3, '210,190,255', .5 - j * .08); }
           picC('star_sand', x, y, s, 1 - clamp01((v - .9) / .1)); sparkles(x, y, 50, 40, 12, t, .9, '220,200,255'); }
         else if (st === 'done') { const pk = ease((ft - 2.4) / .4); glow(scx, scy, 80, '200,170,255', .3); picC('xingchen', scx, scy, 128 * (.7 + .3 * pk), pk); }
         if (st !== 'done') {
@@ -241,8 +241,8 @@
   // 孤星白衣在取得流云仙衣前（R134_OUTFIT_OK 为假）显示锁定。行囊里点「换装」页签打开这里；右上「更多造型」进原来 R88 的六套网格（另外几套和行走切换都还在那）。
   const OUT = window.YEGX_OUTFIT;
   const CARDS = [
-    { id: 'baipao', name: '天剑弟子服', sub: '白袍正蓝 · 宗门弟子常服', icon: 'disciple_robe', box: [850, 160, 360, 175] },
-    { id: 'guxing', name: '流云仙衣', sub: '孤星白衣 · 一身素白、金线滚边', icon: 'liuyun_robe', box: [850, 365, 360, 175] },
+    { id: 'baipao', name: '天剑弟子服', sub: '白袍正蓝 · 宗门弟子常服', icon: 'disciple_robe', box: [852, 154, 374, 187] },   // 卡片框是底图里烘好的（852,154）–（1226,341），点选区域跟它对齐
+    { id: 'guxing', name: '流云仙衣', sub: '孤星白衣 · 一身素白、金线滚边', icon: 'liuyun_robe', box: [852, 364, 374, 187] },
   ];
   const locked = c => c.id === 'guxing' && window.R134_OUTFIT_OK && !R134_OUTFIT_OK();
   const HERO = {};
@@ -258,7 +258,7 @@
       snd('ui_open', .7);
       const BTN_BACK = { x: 912, y: 589, w: 256, h: 46 }, BTN_MORE = { x: 1004, y: 58, w: 160, h: 44 }, BTN_X = { x: 1170, y: 54, w: 52, h: 52 };
       const closeAll = (more) => { o.close(); res(); if (more && S.menu && typeof MTABS !== 'undefined') { const i = MTABS.indexOf('换装'); if (i >= 0) { S.menu.tab = i; S.menu.of = OUT.get(); } } };
-      o.draw = () => {
+      o.paint = () => {
         const now = performance.now(), t = (now - o.t0) / 1000, k = ease(t / .25), cur = OUT.get();
         ctx.fillStyle = `rgba(3,5,12,${.8 * k})`; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = k;
         pic('wardrobe_frame', 0, 0, 1280, 720);
@@ -284,11 +284,11 @@
             ctx.save(); ctx.shadowColor = 'rgba(255,215,130,.8)'; ctx.shadowBlur = 14 + 4 * Math.sin(t * 3); ctx.strokeStyle = '#e6c777'; ctx.lineWidth = 3; roundRect(x - 2, y - 2, w + 4, h + 4, 10); ctx.stroke(); ctx.restore(); }
           if (pr) { ctx.fillStyle = 'rgba(255,240,200,.12)'; roundRect(x, y, w, h, 8); ctx.fill(); }
           const iy = y + h / 2;
-          ctx.save(); if (lk) ctx.globalAlpha *= .35; if (on) glow(x + 80, iy, 80, '255,230,170', .25); picC(c.icon, x + 80, iy, 140); ctx.restore();
-          ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(c.name, x + 245, iy - 38, lk ? '#a99f8a' : '#fff0c8', 'rgba(10,8,4,.85)', 4);
-          ctx.font = `600 15px ${FONT}`; ctx.fillStyle = lk ? '#8a8578' : '#b7cbdc'; ctx.fillText(c.sub, x + 245, iy + 2);
-          if (lk) { lockGlyph(x + 80, iy, 54, 1); ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#d0a860'; ctx.fillText('未解锁 · 取得流云仙衣后开放', x + 245, iy + 42); }
-          else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = on ? '#ffd77a' : '#cdbf9c'; ctx.fillText(on ? '✦ 已穿戴' : '点击换上', x + 245, iy + 42); } }
+          ctx.save(); if (lk) ctx.globalAlpha *= .35; if (on) glow(x + 88, iy, 80, '255,230,170', .25); picC(c.icon, x + 88, iy, 140); ctx.restore();
+          ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(c.name, x + 254, iy - 38, lk ? '#a99f8a' : '#fff0c8', 'rgba(10,8,4,.85)', 4);
+          ctx.font = `600 15px ${FONT}`; ctx.fillStyle = lk ? '#8a8578' : '#b7cbdc'; ctx.fillText(c.sub, x + 254, iy + 2);
+          if (lk) { lockGlyph(x + 88, iy, 54, 1); ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#d0a860'; ctx.fillText('未解锁 · 取得流云仙衣后开放', x + 254, iy + 42); }
+          else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = on ? '#ffd77a' : '#cdbf9c'; ctx.fillText(on ? '✦ 已穿戴' : '点击换上', x + 254, iy + 42); } }
         // 底牌：返回
         ctx.font = `24px ${BRUSH}`; ctx.textAlign = 'center'; textOutline('返回行囊', 1040, 612, '#fbe6b0', 'rgba(20,12,4,.85)', 4);
         const tap = takeTap(o); if (!tap) return;
