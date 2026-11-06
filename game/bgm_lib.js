@@ -1248,13 +1248,13 @@ window.BGM_LIB = {
 },
 "lib_n5_hero__dianxing_b5": {
 "no": "癸M09",
-"name": "叶孤星·点星·补录6",
+"name": "叶孤星·点星·补录6·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "hero:dianxing",
 "file": "lib29/n5_hero__dianxing_b5.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重；作者 11-06 选定，默认）",
 "dur": 2.21
 },
 "lib_n5_hero__dianxing_b6": {
@@ -1278,6 +1278,105 @@ window.BGM_LIB = {
 "vol": 1,
 "desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
 "dur": 2.09
+},
+"lib_n6_yunting__qianggong": {
+"no": "癸M12",
+"name": "云霆·强攻·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:qianggong",
+"file": "lib29/n6_yunting__qianggong.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “强攻！”",
+"dur": 0.69
+},
+"lib_n6_yunting__jifeng": {
+"no": "癸M13",
+"name": "云霆·疾风·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:jifeng",
+"file": "lib29/n6_yunting__jifeng.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “疾风！”",
+"dur": 0.72
+},
+"lib_n6_yunting__boming": {
+"no": "癸M14",
+"name": "云霆·搏命·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:boming",
+"file": "lib29/n6_yunting__boming.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “搏命！”",
+"dur": 0.59
+},
+"lib_n6_yunting__yunlei": {
+"no": "癸M15",
+"name": "云霆·云雷踏影·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:yunlei",
+"file": "lib29/n6_yunting__yunlei.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “云雷踏影！”",
+"dur": 1.25
+},
+"lib_n6_yunting__dianxing": {
+"no": "癸M16",
+"name": "云霆·点星·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:dianxing",
+"file": "lib29/n6_yunting__dianxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑一式，点星！”",
+"dur": 2.22
+},
+"lib_n6_yunting__qunxing": {
+"no": "癸M17",
+"name": "云霆·群星·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:qunxing",
+"file": "lib29/n6_yunting__qunxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑二式，群星！”",
+"dur": 2.39
+},
+"lib_n6_yunting__shaxing": {
+"no": "癸M18",
+"name": "云霆·杀星·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:shaxing",
+"file": "lib29/n6_yunting__shaxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑三式，杀星！”",
+"dur": 2.21
+},
+"lib_n6_yunting__def": {
+"no": "癸M19",
+"name": "云霆·凝锋·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:def",
+"file": "lib29/n6_yunting__def.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “天剑凝锋，加持！”",
+"dur": 2.15
+},
+"lib_n6_yunting__jiutian": {
+"no": "癸M20",
+"name": "云霆·九天神雷·8号",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "yunting:ult",
+"file": "lib29/n6_yunting__jiutian.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定音色，整套同一条生成，默认）· “九天之上，听我号令。九天神雷，落！”",
+"dur": 4.65
 },
 "lib_v09": {
 "no": "癸01",

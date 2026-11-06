@@ -13,7 +13,8 @@
   // 作者 11-03：核对喊话要用最新配音——同一招有 11-03 重录版（lib_n3_*）时排在最前（以前林雪点星 / 群星默认还是旧的统一音色版，和她其余几招音色不一致）
   // 作者 11-06：林雪全套重录（lib_n4_*，年轻清冷战斗喊招）通过的几招，排在 11-03 版之前当默认
   // 作者 11-06 晚：九天神雷原版漏了「落」，补录 1 直接当默认；搏命 / 点星补录先当候选，作者在配乐库里指定
-  const rank = id => /^lib_n5_yunting__jiutian/.test(id) ? 3 : /^lib_n4_/.test(id) ? 2 : /^lib_n3_/.test(id) ? 1 : 0;
+  // 作者 11-06 夜：云霆整套换成全套抽卡 8 号（lib_n6_yunting__*，同一条生成、音色统一）当默认；叶孤星点星选定第二轮补录 6（lib_n5_hero__dianxing_b5）
+  const rank = id => /^lib_n6_yunting__/.test(id) || id === 'lib_n5_hero__dianxing_b5' ? 4 : /^lib_n5_yunting__jiutian/.test(id) ? 3 : /^lib_n4_/.test(id) ? 2 : /^lib_n3_/.test(id) ? 1 : 0;
   for (const s in SLOT) SLOT[s].sort((a, b) => rank(b) - rank(a));
   Object.assign(NAMES, {
     'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:xl_wushang': '叶孤星·星落·无上境',
