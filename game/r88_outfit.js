@@ -14,7 +14,7 @@
     { id: 'jiaoling', name: '蓝白交领', desc: '蓝白交领长衫、深蓝长裤',
       img: { b_yegx: src('b_yegx_jiaoling', '6db5b2cb70f850c2f91c14d40c4c3280'), b_yegx_atk: src('b_yegx_jiaoling_atk', 'db8988891fb200cea099de28958f12c1'), b_yegx_cast: src('b_yegx_jiaoling_cast', '4c45a7560e0fea9178d73bb3cb2e89a1') },
       portrait: src('p_yegx_jiaoling', '82b06a546d22c73fc9d2446993d1ea1f') },
-    { id: 'guxing', name: '孤星白衣', desc: '一身素白、金线滚边',
+    { id: 'guxing', name: '孤星白衣', get desc() { return window.R134_OUTFIT_OK && !R134_OUTFIT_OK() ? '🔒 取得流云仙衣后解锁 · 一身素白、金线滚边' : '流云仙衣幻化的白衣 · 一身素白、金线滚边'; },
       img: { b_yegx: src('b_yegx_guxing', '76e277edac07023fa6832dd1e87b86ed'), b_yegx_atk: src('b_yegx_guxing_atk', 'e241d4eb932275ad80beefbc6252cc87'), b_yegx_cast: src('b_yegx_guxing_cast', '4b08acea606e63d9325fa4eac4df695c') },
       portrait: src('p_yegx_guxing', '3e25319522296fca6e33d536203e7ac9') },
     { id: 'tianjian', name: '天剑少主', desc: '米金长袍、黑金腰带',
@@ -87,6 +87,7 @@
     const { cells, D } = lay(L.body), m0 = S.menu;
     for (const c of cells) if (inR(t, c)) { consumeTap(); m0.of = c.o.id; playSnd('ui_click'); return; }
     const bb = { x: D.x + 30, y: D.y + D.h - 84, w: 220, h: 58 };
+    if (inR(t, bb) && m0.of !== cur && m0.of === 'guxing' && window.R134_OUTFIT_OK && !R134_OUTFIT_OK()) { consumeTap(); playSnd('ui_cancel'); toast('取得九曜神器「流云仙衣」后解锁这套白衣', 2200); return; }   // 作者 11-07
     if (inR(t, bb) && m0.of !== cur) { consumeTap(); playSnd('ui_confirm'); apply(m0.of); return; }
     return orig.apply(this, arguments);
   })(menuUpdate);

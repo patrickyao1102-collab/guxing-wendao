@@ -6033,7 +6033,9 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       world.locked = true;
       S.flags.seal_liuyun = 'claimed'; S.flash = .9; S.flashColor = '#e8f6ff'; playSnd('jingle_levelup');
       addItem('a_liuyun'); equipItem('a_liuyun'); const i = SHENQI.findIndex(s => s.item === 'a_liuyun'); if (i >= 0) giveShenqi(i);
-      await showPanel('九曜神器 · 流云仙衣', ['!流云仙衣（已装备）', '防御 +22　气血 +160', '神器图鉴 · 天璇位点亮（1 / 9）']);
+      if (window.R134_UNLOCK) await R134_UNLOCK({ item: 'a_liuyun', kicker: '九曜神器 · 解锁', title: '流云仙衣', lines: ['已装备　防御 +22　气血 +160', '神器图鉴 · 天璇位点亮（1 / 9）', '换装开启：可在「行囊 · 换装」里自由切换叶孤星的衣着'] });
+      else await showPanel('九曜神器 · 流云仙衣', ['!流云仙衣（已装备）', '防御 +22　气血 +160', '神器图鉴 · 天璇位点亮（1 / 9）']);
+      try { if (window.YEGX_OUTFIT) YEGX_OUTFIT.set('guxing'); } catch (e) {}
       await narrate('白衣落入手中，轻得像一片云。一穿上身，衣袍便自行幻化成一身寻常白衣。');
       await say('星旋', '小子，你爹说这是极品灵器？他骗你的！这是实打实的极品仙器！');
       await say('叶孤星·思', '……');
@@ -6257,6 +6259,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
         const c = await choose('出发之前……', ['先去天剑集市（问剑坪东口）', '不买了，直接出发']);
         if (c === 0) { S.flags.ch2_market_skip = 0; const t = world.triggers.find(t => t.fn && t.x === x && t.y === y); if (t) t.done = false; world.player.y -= 120; toast('问剑坪东口就是天剑集市', 2200); return; }
       }
+      if (window.R134_BEFORE_DEPART) await R134_BEFORE_DEPART();
       return ch2Depart(); }); }
   }
   // —— 大殿：任务分配 + 赠宝（流云仙衣改为：封在后山九曜锁灵阵，要他自己去取）——
@@ -6270,6 +6273,10 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await fadeIn(600);
     await narrate('天剑大殿。长老宣读任务——一等任务：凝丹境弟子林雪，前往苍月城，协助城主府击杀邪修余孽；');
     await narrate('一等任务：云霆、叶孤星，组队前往青阳镇外黑风谷，剿灭黑风寨。黑风寨首领，已有凝丹境实力。');
+    if (S.flags.r134_gift) {   // 作者 11-07：宝物昨夜已经给了，这里只叮嘱一句
+      await say('叶擎苍', '孤星，昨夜给你的东西都收好了吧？流云仙衣还在后山九曜锁灵阵里，你那小院后面的山阶，就通后山。');
+      await say('叶孤星', '孩儿记下了。');
+    } else {
     await say('叶擎苍', '孤星，随我来一趟，有些东西要交给你。');
     await narrate('叶擎苍轻拍书桌，桌面缓缓打开，露出几个精致的木盒。');
     await say('叶擎苍', '这是破空遁符，危机之时可撕裂空间，瞬间遁出千里之外，就连法相境修士也难以阻拦。');
@@ -6280,6 +6287,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await say('叶孤星·惊', '九曜……锁灵阵？');
     await say('叶擎苍', '那阵只认九曜之力。别人破不开，你能。去吧——你那小院后面的山阶，就通后山。');
     await say('星旋', '（九曜锁灵阵？你爹……果然什么都知道。）');
+    }
     await say('叶擎苍', '时候不早了，取了仙衣就去山门。路上一定要谨慎小心。');
     S.flags.ch2_seal_open = 1; S.quest = window.HS12_ON ? '上天剑后山（演武广场西侧平台有法阵直通）' : '回青竹小院，经云海大亭上天剑后山';
     // 省掉来回跑：可以直接上后山，也可以自己在宗门里逛过去
@@ -6299,13 +6307,16 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await narrate('当夜，叶孤星服下凝元丹，运转九曜剑典第二重——凝丹境的功法口诀。');
     await starSea(5200, lv => { if (lv === 3) { S.flash = .8; S.flashColor = '#fff'; } });
     await say('星旋', '用破军剑意稳定天璇星之力，用贪狼剑意引导天枢星之力，两种剑意同时催动，才能真正融合这两颗星辰！');
-    h.realm = '凝丹一重'; h.maxhp += 60; h.maxmp += 25; h.atk += 6; h.def += 4; h.hp = h.maxhp; h.mp = h.maxmp; S.hero.learnQ = [];
+    // 作者 11-07（修改1 第 16 条）：凝元丹直接冲到凝丹二重
+    if (h.bag && h.bag.n_ningyuan) { h.bag.n_ningyuan--; if (!h.bag.n_ningyuan) delete h.bag.n_ningyuan; }
+    h.realm = '凝丹二重'; h.maxhp += 84; h.maxmp += 31; h.atk += 9; h.def += 5; h.hp = h.maxhp; h.mp = h.maxmp; S.hero.learnQ = [];
     playSnd('jingle_levelup'); S.flash = .9; S.flashColor = '#fff3c0';
-    await showPanel('突破 · 凝丹境', ['!练气九重 → 凝丹一重', '丹田中凝出一颗灵丹，天枢、天璇双星图案浮现其上', '破军剑意·天璇　贪狼剑意·追魂　重新凝聚', '气血 +60　灵力 +25　攻击 +6　防御 +4']);
+    await showPanel('突破 · 凝丹境', ['!练气九重 → 凝丹二重', '丹田中凝出一颗灵丹，天枢、天璇双星图案浮现其上', '破军剑意·天璇　贪狼剑意·追魂　重新凝聚', '凝元丹药力磅礴，一口气冲开了凝丹一重、二重', '气血 +84　灵力 +31　攻击 +9　防御 +5']);
+    if (window.R134_FORGE) await R134_FORGE(); else {   // 作者 11-07（修改1 第 17 条）：星辰商店 + 炼器，玩家自己动手升一次剑
     await say('星旋', '不错啊小子！对了，凝丹境的星辰宝库开张了——星痕剑升级用的星辰砂，350 点，要不要？');
     await say('叶孤星·苦笑', '贵了点……好歹物有所值。换了！');
     h.atk += 8; S.flash = .6; S.flashColor = '#cfe6ff'; playSnd('sfx_sword_ring');
-    await showPanel('星痕剑升级', ['!星痕剑 → 下品玄器', '剑身浮现璀璨的星辰纹路', '攻击 +8']);
+    await showPanel('星痕剑升级', ['!星痕剑 → 下品玄器', '剑身浮现璀璨的星辰纹路', '攻击 +8']); }
     await fadeOut(500);
     // 山门送别：在演武广场南边山门前
     const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); world.locked = true; S.scene = drawMap;
@@ -6574,16 +6585,8 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     // 作者 11-05：开场重写——玩家得先知道这是什么世界、他是谁、为什么被人瞧不起；不用插画，全靠立绘对话
     await narrate('九州大陆，修士以练气入道，九重境界，步步登天。天剑宗位列九州顶级仙门，弟子十五六岁便能踏入第二境——凝丹。');
     await narrate('今夜，是天剑宗宗主之子叶孤星的十八岁生日。');
-    // 崖下石径上两个弟子边走边嚼舌根（不用旁白说"人人嘲笑他"，让玩家亲耳听见）
-    const d1 = addActor('c_d1', z(1230), z(760), '弟子', '#8a9aaa'), d2 = addActor('c_d3', z(1290), z(775), '弟子', '#8a9aaa'); d1.h = d2.h = 108; d1.dir = d2.dir = -1;
-    const walk = Promise.all([moveActor(d1, z(880), z(760), 70), moveActor(d2, z(940), z(775), 70)]);
-    await sleep(500);
-    await say('弟子', '嘘——小声点，少宗主就在上头崖边呢。');
-    await say('弟子', '怕什么？练气六重卡了整整两年，连外门弟子都比他强。宗主大人威名盖世，偏生了这么个……');
-    await say('弟子', '天煞孤星嘛。听说他出生那夜流星落地，长老们都说是天降祥瑞——结果呢？');
-    await say('弟子', '祥瑞？我看是命中带煞，拖累宗门气运。走走走，别让他听见。');
-    await walk; await tween(500, t => { d1.alpha = d2.alpha = 1 - t; }); d1.hidden = d2.hidden = true;
-    await say('叶孤星·苦笑', '……听见了。这十八年，哪一天不是这些话。');
+    // 作者 11-07（修改1 第 3 条）：弟子议论那段画面取消（建模总是做不好），改成叶孤星自己心里想
+    await say('叶孤星·苦笑', '（十八年了。宗门上下背地里都叫我「天煞孤星」——练气六重卡了整整两年，连外门弟子都比我强。）');
     await say('叶孤星·思', '（出生那夜，流星坠地，一块黑玉落在我襁褓旁。爹说那是祥瑞，抱着我笑了一整夜。）');
     await say('叶孤星·伤', '（可十八年过去，我连练气七重都迈不过去。他已经很久……没正眼看过我了。）');
     await say('叶孤星', '天降祥瑞……天煞孤星……呵。');
@@ -7417,7 +7420,10 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await say('星旋', '咳咳……那个，我那叫策略，怎么能算教唆？');
     await narrate('叶擎苍嘴角抽搐了两下。原本以为是何等德高望重的前辈……');
     await say('星旋', '嗯，不错不错，你比你这儿子懂事多了。');
-    await say('叶擎苍', '孤星，虽然你突破到了练气九重，下山历练还是要小心谨慎。早点休息吧。');
+    // 作者 11-07（修改1 第 16 条）：宝物就在这一晚交给叶孤星（原来在第二天大殿里给）
+    await say('叶擎苍', '孤星，下山历练凶险。为父有几样东西，本想明日在大殿交给你——既然前辈也在，今晚就给你吧。');
+    if (window.R134_GIFT) await R134_GIFT();
+    await say('叶擎苍', '虽然你突破到了练气九重，下山历练还是要小心谨慎。早点休息吧。');
     await moveActor(f, fx, fy, 120); await tween(400, t => f.alpha = 1 - t); f.hidden = true;
     await say('叶孤星', '你能不能不要摆出一副神棍的模样？你知道丢人二字怎么写吗？');
     await say('星旋', '你懂什么，这叫高手风范！');
@@ -14978,7 +14984,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   window.MIZHUAN_LIST = function () {
     const b = battle, P = b.P, who = whoOf(P), list = [];
     if (P.ally) { const un = PARTY_DB[P.ally] && PARTY_DB[P.ally].ult, nm = (typeof ULT_NAME !== 'undefined' && ULT_NAME[un]) || '必杀'; const r = Math.floor(P.rage || 0);
-      const lock = un === 'jiutian' && !(F().yt_jiutian); list.push({ k: 'ult', name: nm, cost: 0, costLabel: '怒气 100', tag: '必杀', desc: lock ? '城主府之后领悟' : un === 'jiutian' ? '引九天雷霆劈落全体，30% 麻痹' : un === 'daxue' ? '漫天风雪冰封全体敌人一回合' : un === 'tianlai' ? '一曲寂灭，音杀全场' : '必杀', disabled: lock || r < 100, why: lock ? '尚未领悟' : '怒气不足（' + r + '/100）' }); }
+      const lock = un === 'jiutian' && !(F().yt_jiutian); list.push({ k: 'ult', name: nm, cost: 0, costLabel: '怒气 100', tag: '必杀', desc: lock ? '天剑集市典籍阁购《九天神雷》后领悟' : un === 'jiutian' ? '引九天雷霆劈落全体，30% 麻痹' : un === 'daxue' ? '漫天风雪冰封全体敌人一回合' : un === 'tianlai' ? '一曲寂灭，音杀全场' : '必杀', disabled: lock || r < 100, why: lock ? '尚未领悟' : '怒气不足（' + r + '/100）' }); }
     // 现有的秘传：纳月 / 太阳（从仙术列表里挪过来）
     const base = (() => { try { const b2 = battle; const L = []; if (!P.ally) { for (const k of S.hero.skills) { const s = SKILL_DB[k]; if (s && MI.has(k)) L.push({ k, name: s.name, cost: s.cost, desc: s.desc, disabled: P.mp < s.cost, why: '灵力不足' }); }
         const lend = !!b2.cfg.allowUlt, open = lend || !!F().sun_unlocked; if (lend || F().sun_seen) L.push({ k: 'sun', name: SKILL_DB.sun.name, cost: lend ? 0 : SKILL_DB.sun.cost, desc: lend ? '星旋借力 · 仅此一次' : SKILL_DB.sun.desc, disabled: !open || (!lend && P.mp < SKILL_DB.sun.cost), why: open ? '灵力不足' : '解锁条件：无上境' }); } return L; } catch (e) { return []; } })();
@@ -15944,7 +15950,8 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   let PLAN = null;
   function meteorPlan() {
     if (PLAN) return PLAN;
-    const n = nT(), map = n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0], off = [-14, 12, -21, 19, -18, 22, 0], used = new Set();
+    // 作者 11-07（修改1 第 4 条）：星落最多打 5 个目标（原来星星只分给前 3 个）
+    const n = nT(), map = n >= 5 ? [0, 3, 1, 4, 2, 1, 2] : n === 4 ? [0, 2, 1, 3, 2, 0, 1] : n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0], off = [-14, 12, -21, 19, -18, 22, 0], used = new Set();
     return (PLAN = map.map((j, i) => {
       const launch = 2.7 + i * .2, hit = 3.2 + i * .2, array = ninePose(launch), nodes = (window.XLARR && XLARR.ready()) ? XLARR.nodes(launch, SKY) : R68JiuyaoSky.nodePositions(launch, array), end = { x: target(j).x + off[i], y: target(j).y + (i === 6 ? 8 : 0) };
       const ranked = nodes.filter(nd => !used.has(nd.index)).map(nd => ({ nd, cost: Math.abs(Math.atan2(end.y - nd.y, nd.x - end.x) * 180 / Math.PI - 35) + (nd.x < end.x + 150 ? 80 : 0) })).sort((a, b) => a.cost - b.cost), chosen = ranked[0].nd; used.add(chosen.index);
@@ -16048,7 +16055,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     Pc.pose = 'cast'; playSnd('sfx_charge', .7);
     const mult = window.XL_MULT || 2.0, cnt = new Map();
     // 每个目标挨几颗星：总伤害按颗数分摊（倍率与原版一致）
-    const n = ts.length, map = n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0]; for (const j of map) cnt.set(j % n, (cnt.get(j % n) || 0) + 1);
+    const n = ts.length, map = n >= 5 ? [0, 3, 1, 4, 2, 1, 2] : n === 4 ? [0, 2, 1, 3, 2, 0, 1] : n >= 3 ? [0, 2, 1, 0, 2, 1, 1] : n === 2 ? [0, 1, 0, 1, 0, 1, 0] : [0, 0, 0, 0, 0, 0, 0]; for (const j of map) cnt.set(j % n, (cnt.get(j % n) || 0) + 1);
     setTimeout(() => playSnd('sfx_star', .6), 2700);
     await play('xingluo', Pc, ts, (e, u) => { if (!u || !u.alive) return; playSnd(e.main ? 'sfx_boom' : 'sfx_hit', e.main ? .9 : .55); const share = mult / (cnt.get(e.target % n) || 1); const { d, crit } = dmgCalc(Pc, u, share, .1); applyDamage(u, d, e.main ? crit : false); }, 5.0);
     Pc.pose = null;
@@ -16466,4 +16473,5 @@ window.MarketEffects = (() => {
   } catch (e) {} }, 1000);
 })();
 </script>
+<script src="r134_fix.js"></script>
 </body></html>

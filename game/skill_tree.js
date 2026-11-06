@@ -62,7 +62,7 @@
         ['贪狼', [N('tanlang', 'zhuihun', '追魂'), N('jueying', 'jueying', '绝影'), N('duopo', 'duopo', '夺魄')]],
         ['辅助', [N('huti', 'huti', '护体'), N('ningshen', 'ningshen', '凝神'), N('juling', 'juling', '聚灵')]],
         ['秘传', [N('tunshi', 'tunshi', '纳月'), N('sun', 'sun', '太阳')]]] },
-    yunting: { title: '天剑诀', gongfa: 'tianjian', ult: N('ult', 'jiutian', '九天神雷', { name: '九天神雷', cost: '怒气 100', desc: '引九天雷霆劈落，攻击全体并可能麻痹', lock: () => !(S.flags && S.flags.yt_jiutian), why: '城主府之后领悟' }),
+    yunting: { title: '天剑诀', gongfa: 'tianjian', ult: N('ult', 'jiutian', '九天神雷', { name: '九天神雷', cost: '怒气 100', desc: '引九天雷霆劈落，攻击全体并可能麻痹', lock: () => !(S.flags && S.flags.yt_jiutian), why: '天剑集市典籍阁购《九天神雷》后领悟' }),
       cols: [['剑式', [N('dianxing', 'dianxing', '点星'), N('qunxing', 'qunxing', '群星'), N('shaxing', 'shaxing', '杀星')]],
         ['辅助', [N('qianggong', 'qianggong', '强攻'), N('jifeng', 'jifeng', '疾风'), N('boming', 'boming', '搏命')]],
         ['秘传', [N('yunlei', 'yunlei', '云雷踏影')]]] },
