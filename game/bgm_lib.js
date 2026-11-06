@@ -1303,13 +1303,13 @@ window.BGM_LIB = {
 },
 "lib_n6_yunting__boming": {
 "no": "癸M14",
-"name": "云霆·搏命·8号",
+"name": "云霆·搏命·8号·定稿",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:boming",
 "file": "lib29/n6_yunting__boming.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·云霆全套抽卡 8 号（11-06 全套抽卡 8 号切出，候选；作者只定了九天神雷用 8 号）· “搏命！”",
+"desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：搏命用 8 号，默认）· “搏命！”",
 "dur": 0.59
 },
 "lib_n6_yunting__yunlei": {
