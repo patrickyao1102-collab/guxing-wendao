@@ -20,6 +20,17 @@ window.R136W_ON = true;
   const loadAll = () => KEYS.forEach(get);
   setTimeout(loadAll, 20000);
   const YB = unrle(DATA.b), YC = DATA.cols, YR = DATA.rows;   // 扩建区碰撞（208 列 × 224 行，8px）
+  // 接缝口子同时写进小院原始碰撞数据（别处会按 CXB2 原数据重刷碰撞表，只改 T 会被刷回去）
+  try { const QB = CXB2[COURT]; if (QB && QB.cs === CS0) { const bl = QB.blocked.split(''); for (let r = Math.floor(984 / CS0); r <= Math.floor(1088 / CS0); r++) for (let c = 0; c < 6; c++) bl[r * QB.cols + c] = '0'; QB.blocked = bl.join('');
+      // 挡在口子上的那丛竹子（route_bamboo_soft，-80,919）从原始数据里拿掉：别处会按贴图轮廓再补碰撞
+      const keep = ob => !(/route_bamboo_soft/.test(ob.img_id || ob.img || ob.id || '') && ob.x < 0 && Math.abs(ob.y - 919) < 30);
+      QB.objs = (QB.objs || []).filter(keep); const BK = TMAPS[COURT].baked; if (BK) { BK.objs = (BK.objs || []).filter(keep); BK.blocked = QB.blocked; } } } catch (e) {}
+  // 接缝处地面过渡：扩建区最右一条（镜像）渐隐着压在小院地面最左边，免得一条硬边
+  let SEAM = null;
+  const seam = () => { if (SEAM || !IMG.r136w_ground) return SEAM; const g = IMG.r136w_ground, w = 120, c = document.createElement('canvas'); c.width = w; c.height = g.height; const x = c.getContext('2d');
+    x.save(); x.translate(w, 0); x.scale(-1, 1); x.drawImage(g, g.width - w, 0, w, g.height, 0, 0, w, g.height); x.restore();
+    x.globalCompositeOperation = 'destination-in'; const lg = x.createLinearGradient(0, 0, w, 0); lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = lg; x.fillRect(0, 0, w, g.height);
+    return (SEAM = c); };
   const ROOMS = { qinghe: 'qingzhu_room_qinghe', xiaotao: 'qingzhu_room_xiaotao', afu: 'qingzhu_room_afu', kitchen: 'qingzhu_kitchen' };
   // ---- 小院地图构建时把西边接上 ----
   buildTileMap = (o => function (def) {
@@ -42,7 +53,9 @@ window.R136W_ON = true;
   // 扩建区地面：画在小院地面左边
   drawGroundVis = (o => function (g, cam) {
     try { const T = world.map && world.map.T; if (T && T.x0 && world.mapName === COURT && IMG.r136w_ground) ctx.drawImage(IMG.r136w_ground, T.x0, 0); } catch (e) {}
-    return o.apply(this, arguments);
+    const r = o.apply(this, arguments);
+    try { const T = world.map && world.map.T; if (T && T.x0 && world.mapName === COURT && cam.x < 200 && seam()) ctx.drawImage(SEAM, 0, 0); } catch (e) {}
+    return r;
   })(drawGroundVis);
   // ---- 扩建区里的可调查点 ----
   const court = TMAPS[COURT]; court.npcs = court.npcs || [];
