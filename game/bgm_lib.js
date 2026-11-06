@@ -1070,16 +1070,17 @@ window.BGM_LIB = {
 "desc": "即梦 · 古琴洞箫，悲伤离别，缓慢月夜",
 "dur": 147.1
 },
-"lib_n4_linxue__shaxing": {
-"no": "癸L01",
-"name": "林雪·杀星·定稿",
+"lib_n_ss0": {
+"no": "癸N07",
+"name": "林雪·杀星·定稿（原新一）",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
+"file": "lib29/n_ss0.mp4",
+"blob": "86700afc9df8c085b1060ace06e2c1fb",
+"vol": 0.95,
+"desc": "即梦配音·一气呵成版 · “杀星！”（作者 11-06 夜：杀星就用这条，不换）",
 "slot": "linxue:shaxing",
-"file": "lib29/n4_linxue__shaxing.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑三式，杀星！”",
-"dur": 1.91
+"dur": 0.8
 },
 "lib_n4_linxue__qunxing": {
 "no": "癸L02",
