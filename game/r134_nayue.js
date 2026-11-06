@@ -13,8 +13,8 @@
   let SND = null, sndRaw = null; fetch('nayue/nayue_bgm08.mp3').then(r => r.ok ? r.arrayBuffer() : null).then(b => { sndRaw = b; }).catch(() => {});
   function playScene() {
     try { if (AUD.muted || AUD.mode !== 'webaudio' || !AC) return false;
-      const go = buf => { const s = AC.createBufferSource(); s.buffer = buf; const g = AC.createGain(); g.gain.value = 1; s.connect(g); g.connect(AUD.sfxGain); s.start();
-        if (AUD.musicGain) { const t = AC.currentTime, mg = AUD.musicGain.gain, v0 = mg.value; mg.cancelScheduledValues(t); mg.setValueAtTime(v0, t); mg.linearRampToValueAtTime(v0 * .2, t + .4); mg.setValueAtTime(v0 * .2, t + 9.6); mg.linearRampToValueAtTime(v0, t + 10.6); } };
+      const go = buf => { const s = AC.createBufferSource(); s.buffer = buf; const g = AC.createGain(); g.gain.value = .8; s.connect(g); g.connect(AUD.sfxGain); s.start();
+        if (AUD.musicGain) { const t = AC.currentTime, mg = AUD.musicGain.gain, v0 = mg.value; mg.cancelScheduledValues(t); mg.setValueAtTime(v0, t); mg.linearRampToValueAtTime(v0 * .72, t + .4); mg.setValueAtTime(v0 * .72, t + 9.6); mg.linearRampToValueAtTime(v0, t + 10.6); } };
       if (SND) { go(SND); return true; }
       if (sndRaw) { AC.decodeAudioData(sndRaw.slice(0), buf => { SND = buf; go(buf); }); return true; }
     } catch (e) {} return false; }
@@ -30,6 +30,35 @@
     if (u && u.side === 'enemy' && s.dead && RUN.snap.includes(u) && !RUN.spare) ctx.globalAlpha *= Math.max(0, s.enemyAlpha);
     try { return orig.apply(this, arguments); } finally { ctx.restore(); }
   })(drawUnit);
+  // 作者 11-07：「纳月峰主降临」不要通用招式横幅（黑条太丑）——月光银字逐字浮现，两侧细线，底下一行小字，月亮落下前收掉
+  const sm = (a, b, t) => { const u = Math.max(0, Math.min(1, (t - a) / (b - a))); return u * u * (3 - 2 * u); };
+  function drawTitle(t) {
+    const A = sm(.7, 1.15, t) * (1 - sm(2.75, 3.3, t)); if (A <= .001) return;
+    const TXT = [...'纳月峰主降临'], y = 168, fs = 76, gap = 22;
+    ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    ctx.font = `${fs}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
+    const ws = TXT.map(c => ctx.measureText(c).width), tw = ws.reduce((a, b) => a + b, 0) + gap * (TXT.length - 1);
+    // 很淡的一团夜色托住字，不用黑条
+    ctx.save(); ctx.translate(640, y + 14); ctx.scale(1, .3); const R = tw * .8, bg = ctx.createRadialGradient(0, 0, 10, 0, 0, R); bg.addColorStop(0, `rgba(0,4,16,${.45 * A})`); bg.addColorStop(.6, `rgba(0,4,16,${.22 * A})`); bg.addColorStop(1, 'rgba(0,4,16,0)');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // 两侧细线：从字边向外淡出，内端一颗菱形光点
+    const L = sm(.9, 1.6, t) * A;
+    for (const sd of [-1, 1]) { const x0 = 640 + sd * (tw / 2 + 26), x1 = x0 + sd * 210 * sm(.9, 1.6, t);
+      const lg = ctx.createLinearGradient(x0, 0, x1, 0); lg.addColorStop(0, `rgba(214,232,255,${.75 * L})`); lg.addColorStop(1, 'rgba(214,232,255,0)');
+      ctx.strokeStyle = lg; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x0, y + 4); ctx.lineTo(x1, y + 4); ctx.stroke();
+      ctx.save(); ctx.translate(x0 - sd * 8, y + 4); ctx.rotate(Math.PI / 4); ctx.fillStyle = `rgba(240,248,255,${.9 * L})`; ctx.shadowColor = 'rgba(150,200,255,.9)'; ctx.shadowBlur = 10; ctx.fillRect(-3.5, -3.5, 7, 7); ctx.restore(); }
+    // 逐字浮现：每字晚 0.08 秒，自下而上 10px，带月白辉光
+    let x = 640 - tw / 2;
+    TXT.forEach((c, i) => { const k = sm(.72 + i * .08, 1.12 + i * .08, t), cx = x + ws[i] / 2; x += ws[i] + gap; if (k <= 0) return;
+      ctx.globalAlpha = A * k; const yy = y + (1 - k) * 10;
+      ctx.shadowColor = 'rgba(130,185,255,.95)'; ctx.shadowBlur = 26; ctx.fillStyle = 'rgba(205,226,255,.55)'; ctx.fillText(c, cx, yy);
+      const g = ctx.createLinearGradient(0, yy - fs / 2, 0, yy + fs / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(.6, '#e6f0ff'); g.addColorStop(1, '#b9d2f5');
+      ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(180,215,255,.8)'; ctx.fillStyle = g; ctx.fillText(c, cx, yy); });
+    // 小字
+    const sub = '借洛尘之身 · 亲临'; try { ctx.letterSpacing = '6px'; } catch (e) {} ctx.globalAlpha = A * sm(1.3, 1.8, t); ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(120,170,255,.8)';
+    ctx.font = `600 20px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = 'rgba(222,234,255,.9)'; ctx.fillText(sub, 640, y + 62);
+    ctx.restore();
+  }
   const old = LC_NAYUE.cast;
   LC_NAYUE.cast = async function (opts = {}) {
     const b = battle; if (!b || !ready()) return old.apply(this, arguments);
@@ -54,7 +83,7 @@
     const front = addFx({ life: 40, layer: 2, draw() { try { run.s = FXM.front(ctx, Math.min(10, T()), VAR, anchors(), { lowFlash: false }); } catch (e) {} } });
     const own = playScene(); const sfx = (n, v) => { if (!own) playSnd(n, v); };
     sfx('sfx_charge', 1);
-    if (V3) setTimeout(() => { try { if (battle === b && RUN === run) skillBanner('纳月峰主降临', '#e6efff', '借洛尘之身 · 亲临'); } catch (e) {} }, 850);
+    const ttl = V3 ? addFx({ life: 40, layer: 2, draw() { try { drawTitle(T()); } catch (e) {} } }) : null;
     const at = (sec, fn) => new Promise(res => { const id = setInterval(() => { if (T() >= sec || battle !== b) { clearInterval(id); try { if (battle === b) fn(); } catch (e) {} res(); } }, 16); });
     await at(TI.wind, () => sfx('sfx_wind', 1));
     await at(TI.beam, () => sfx('sfx_beam', .8));
@@ -63,7 +92,7 @@
       b.quietCrit = 1; for (const e of es) { const d = run.spare ? Math.max(0, e.hp - 1) : e.hp; if (d > 0) applyDamage(e, d, false, { pierce: true }); } b.quietCrit = 0; });   // 只要 Codex 的白闪和「必杀」字，不要暴击的红闪和「爆」
     await at(TI.heal, () => { run.heal = true; if (Y) { Y.hp = Y.maxhp; Y.alive = true; if (Y.buffs) { Y.buffs.stun = 0; Y.buffs.frozen = 0; } } sfx('sfx_heal', 1); });
     await at(10, () => {});
-    clearInterval(hold); back.life = 0; back.t = 99; front.life = 0; front.t = 99; RUN = null; b._cineHide = 0;
+    clearInterval(hold); if (ttl) { ttl.life = 0; ttl.t = 99; } back.life = 0; back.t = 99; front.life = 0; front.t = 99; RUN = null; b._cineHide = 0;
     F().nayue_seen = (F().nayue_seen || 0) + 1;
     if (battle === b && opts.after !== false) { await sl(200); await say('洛尘', '……刚才，发生了什么？我好像……睡着了。'); }
     if (battle === b) { b.state = st === 'menu' ? 'run' : st; if (!aliveEnemies().length) await endBattle(true); }
