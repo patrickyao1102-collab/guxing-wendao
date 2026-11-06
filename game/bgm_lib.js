@@ -1086,6 +1086,28 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰魄凝天——大雪纷飞！”",
 "dur": 3.05
 },
+"lib_n4_linxue__dianxing": {
+"no": "癸L07",
+"name": "林雪·点星·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:dianxing",
+"file": "lib29/n4_linxue__dianxing.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑一式，点星！”",
+"dur": 1.9
+},
+"lib_n4_linxue__bingdun": {
+"no": "癸L08",
+"name": "林雪·冰盾·定稿",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "linxue:bingdun",
+"file": "lib29/n4_linxue__bingdun.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰盾！”",
+"dur": 0.63
+},
 "lib_v09": {
 "no": "癸01",
 "name": "云霆·九天神雷",
