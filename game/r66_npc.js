@@ -150,7 +150,7 @@
     if (B.spawn) open(B.spawn[0], B.spawn[1], Math.ceil(24 / cs));
     B.blocked = b.join(''); done[id] = changed;
     // 当前就在这张图上：直接改碰撞表
-    if (world.mapName === id && world.map && world.map.T && world.map.T.block) { const T = world.map.T; for (let r = 0; r < rows && r < T.block.length; r++) for (let c = 0; c < cols; c++) T.block[r][c] = b[r * cols + c] === '1' ? 1 : 0; }
+    if (world.mapName === id && world.map && world.map.T && world.map.T.block) { const T = world.map.T; for (let r = 0; r < rows && r < T.block.length; r++) for (let c = 0; c < cols; c++) T.block[r][c - (T.c0 || 0)] = b[r * cols + c] === '1' ? 1 : 0; T._stand = null; }
     return true;
   }
   // ---- 集市访客按新阻挡重新寻路 ----

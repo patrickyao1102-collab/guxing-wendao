@@ -2354,7 +2354,7 @@ async function goMap(name, c, r, face) {
   await fadeOut(220); tileSetMap(name, c, r, face); world.locked = false; if (TMAPS[name].onEnter) { world.locked = true; await fadeIn(260); await TMAPS[name].onEnter(); world.locked = false; } else await fadeIn(260);
 }
 // ---- 寻路（A*，四向 + 拉直）----
-function walkable(T, c, r) { return c >= 0 && r >= 0 && c < T.cols && r < T.rows && !T.block[r][c]; }
+function walkable(T, c, r) { if (T.c0) c -= T.c0; return c >= 0 && r >= 0 && c < T.cols && r < T.rows && !T.block[r][c]; }   // R136：T.c0 = 地图左边界的格子号（青竹小院往西扩建后为负）
 let CS = 64;   // 当前地图碰撞格大小（普通格子图 64，Codex 整图 32）
 function cellOf(x, y) { return [Math.floor(x / CS), Math.floor(y / CS)]; }
 function findPath(T, sc, sr, tc, tr) {
@@ -2457,7 +2457,7 @@ function tileUpdate(dt) {
   // 野外小怪
   tileMobs(dt, T, free);
   // 镜头
-  const VWd = W / VZ(), VHd = H / VZ(), tx = T.mw <= VWd ? (T.mw - VWd) / 2 : clamp(p.x - VWd / 2, 0, T.mw - VWd), ty = T.mh <= VHd ? (T.mh - VHd) / 2 : clamp(p.y - VHd * .55, 0, T.mh - VHd);
+  const VWd = W / VZ(), VHd = H / VZ(), tx = T.mw <= VWd ? (T.mw - VWd) / 2 : clamp(p.x - VWd / 2, T.x0 || 0, T.mw - VWd), ty = T.mh <= VHd ? (T.mh - VHd) / 2 : clamp(p.y - VHd * .55, 0, T.mh - VHd);
   if (!world.cam) world.cam = { x: tx, y: ty }; else { world.cam.x = lerp(world.cam.x, tx, Math.min(1, dt * 8)); world.cam.y = lerp(world.cam.y, ty, Math.min(1, dt * 8)); }
 }
 // ---- 交互：NPC / 宝箱 ----
@@ -6137,7 +6137,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
 
   // 剧情镜头：world.camFocus = [x, y] 时镜头对准这一点（演出用），清掉就回到跟随主角
   updateMap = (orig => function (dt) { const c0 = world.cam && { x: world.cam.x, y: world.cam.y }; orig(dt); let f = typeof world.camFocus === 'function' ? world.camFocus() : world.camFocus, m = world.map; if (Array.isArray(world.camFocus) && !world.locked && !dialog && !choice) { world.camFocus = null; f = null; }   // 剧情定点镜头只在锁住时有效：一旦能自由走动，镜头必须跟着主角（之前剧情跳转后镜头卡住不动）
-    if (f && m && m.tile && world.cam) { const T = m.T; const vw = W / VZ(), vh = H / VZ(), tx = clamp(f[0] - vw / 2, 0, T.mw - vw), ty = clamp(f[1] - vh / 2, 0, T.mh - vh); const b = c0 || { x: tx, y: ty }; world.cam.x = lerp(b.x, tx, Math.min(1, dt * 4)); world.cam.y = lerp(b.y, ty, Math.min(1, dt * 4)); } })(updateMap);
+    if (f && m && m.tile && world.cam) { const T = m.T; const vw = W / VZ(), vh = H / VZ(), tx = clamp(f[0] - vw / 2, T.x0 || 0, T.mw - vw), ty = clamp(f[1] - vh / 2, 0, T.mh - vh); const b = c0 || { x: tx, y: ty }; world.cam.x = lerp(b.x, tx, Math.min(1, dt * 4)); world.cam.y = lerp(b.y, ty, Math.min(1, dt * 4)); } })(updateMap);
   // 隐形交互点（悬剑台、碑、灵晶等）+ 进图钩子
   tileSetMap = (orig => function (name, c, r, face) {
     orig(name, c, r, face);
@@ -7220,7 +7220,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   tileAmbientHigh = (orig => function (T, cam, now) {
     orig(T, cam, now); const m = world.mapName, t = tod() || (m === 'tj_scripture' && S.flags.lib_ch1 ? 'night' : '');
     if (!t) return; const L = LIGHT[m + '_' + t]; if (!L) return;
-    ctx.save(); if (t === 'night') { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = m === 'tj_room' ? 'rgb(190,185,205)' : 'rgb(165,175,220)'; ctx.fillRect(0, 0, T.mw, T.mh); ctx.globalCompositeOperation = 'source-over'; } ctx.drawImage(L, 0, 0, T.mw, T.mh); ctx.restore();
+    ctx.save(); if (t === 'night') { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = m === 'tj_room' ? 'rgb(190,185,205)' : 'rgb(165,175,220)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.globalCompositeOperation = 'source-over'; } ctx.drawImage(L, 0, 0, T.mw, T.mh); ctx.restore();
     if (t === 'night' && (m === 'tj_room')) { const o = obj(TR, 'oil_desk'); if (o) { const f = .85 + .1 * Math.sin(now * 5); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(o.ax, o.y + 20, 0, o.ax, o.y + 20, 150); g.addColorStop(0, `rgba(255,200,120,${.35 * f})`); g.addColorStop(1, 'rgba(255,170,80,0)'); ctx.fillStyle = g; ctx.fillRect(o.ax - 150, o.y - 130, 300, 300); ctx.restore(); } }
   })(tileAmbientHigh);
   // 藏经阁外院夜里改用 Codex 的夜景层（不再用 library.js 的整体压暗）
@@ -9528,12 +9528,12 @@ skillTanlang = (orig => async function (P, t) { const b = battle; if (!CXS.on ||
 // 换成二叉堆 A*（类型数组，无步数上限），并且目标点在障碍上时就近找可站立的格子。
 // 可站立表：按人物脚下的实际占位（左右各 16px）算，避免路径贴墙走不过去
 function standMap(T) { if (T._stand) return T._stand; const cs = T.cs || TS, A = new Uint8Array(T.cols * T.rows);
-  for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) if (!T.block[r][c] && canStand(T, (c + .5) * cs, (r + .62) * cs)) A[r * T.cols + c] = 1;
+  for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) if (!T.block[r][c] && canStand(T, (c + (T.c0 || 0) + .5) * cs, (r + .62) * cs)) A[r * T.cols + c] = 1;
   return (T._stand = A); }
 (function () {
   let buf = null;
   findPath = function (T, sc, sr, tc, tr) {
-    const cols = T.cols, rows = T.rows, N = cols * rows;
+    const cols = T.cols, rows = T.rows, N = cols * rows, C0 = T.c0 || 0; sc -= C0; tc -= C0;   // R136：负坐标地图，内部按数组下标算
     const SA = standMap(T), ok = (c, r) => c >= 0 && r >= 0 && c < cols && r < rows && SA[r * cols + c] === 1;
     if (!ok(sc, sr)) { let f = null; for (let d = 1; d < 6 && !f; d++) for (let dy = -d; dy <= d && !f; dy++) for (let dx = -d; dx <= d; dx++) if (ok(sc + dx, sr + dy)) { f = [sc + dx, sr + dy]; break; } if (!f) return null; [sc, sr] = f; }
     if (!ok(tc, tr)) { let best = null, bd = 1e9; const R = Math.max(4, Math.round(220 / (T.cs || 64)));
@@ -9556,7 +9556,7 @@ function standMap(T) { if (T._stand) return T._stand; const cs = T.cs || TS, A =
         const nk = nr * cols + nc; if (closed[nk]) continue; const ng = gk + w; if (ng >= g[nk]) continue; g[nk] = ng; from[nk] = k; push(nk, ng + H(nc, nr)); }
     }
     if (!found) return null;
-    const path = []; let k = t; while (k !== s && k >= 0) { path.push([k % cols, Math.floor(k / cols)]); k = from[k]; } path.push([sc, sr]); path.reverse();
+    const path = []; let k = t; while (k !== s && k >= 0) { path.push([k % cols + C0, Math.floor(k / cols)]); k = from[k]; } path.push([sc + C0, sr]); path.reverse();
     return path;
   };
 })();
@@ -16489,6 +16489,7 @@ window.MarketEffects = (() => {
 <script src="r135_a.js"></script>
 <script src="r135_c.js"></script>
 <script src="r135_g.js"></script>
+<script src="r136_west.js"></script>
 <script src="r135_e.js"></script>
 <script src="r135_j2.js"></script>
 <script src="r136_lib_data.js"></script>

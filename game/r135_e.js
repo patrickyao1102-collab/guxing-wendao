@@ -131,14 +131,14 @@ window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
   // 西边草地只有 ~430 宽（再往东是去后山的石板路，不能挡），所以房子左边一间伸出地图边外（镜头到不了），看着像房子往西还有一截。
   const HW = 540, HK = HW / 768, HX = -135, HBASE = 700, HY = HBASE - 445 * HK, DOORX = HX + 362 * HK;   // 门前台阶中心约在原图 (362,440)
   const pav = TMAPS[PAV];
-  if (pav && pav.baked) {
+  if (pav && pav.baked && !window.R136W_ON) {   // 作者 11-07：下人搬去青竹西院，云海大亭这栋旧仆役房撤掉
     pav.exits = pav.exits || [];
     const cs = pav.baked.cs || 8;
     // 门：台阶前一小条（玩家脚底走进去就进屋）
     pav.exits.push({ x: Math.floor((DOORX - 36) / cs), y: Math.floor(HBASE / cs) + 1, w: Math.ceil(72 / cs), h: 3, to: ROOM, label: '仆役房', at: P(640, 820), face: 'up' });
   }
   function patchPav() {
-    const T = world.map && world.map.T; if (!T || T._r135e) return; T._r135e = 1;
+    const T = world.map && world.map.T; if (!T || T._r135e || window.R136W_ON) return; T._r135e = 1;
     // 原来那丛竹子（route_bamboo_sun，左上角 -17,391）挪掉，房子立在这里
     T.objs = T.objs.filter(o => !(o.id === 'route_bamboo_sun' && Math.abs(o.x + 17) < 30 && Math.abs(o.y - 391) < 30));
     T.objs.push({ id: 'r135e_house', bk: true, img: 'r135e_house_day', x: HX, y: HY, w: HW, h: 512 * HK, sy: HBASE, flat: false, flip: false });
@@ -179,9 +179,9 @@ window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
     spot(905, 760, '小灶台', '灶上温着一壶热水。管家吩咐过：少爷练完剑回来，随时有热水用。');
     // 夜里三个人都在屋里
     const nightOnly = () => night();
-    addN(ROOM, { name: '侍女青禾', cx: 'maid', r135e: 'maid1', x: 560, y: 600, row: 0, cond: nightOnly, _r135night: 1, talk: ['少爷怎么到下人房来了？屋里乱，您别嫌弃。', '明儿一早还得扫院子，奴婢先歇了。'] });
-    addN(ROOM, { name: '侍女小桃', cx: 'maid', r135e: 'maid2', x: 700, y: 640, row: 0, cond: nightOnly, _r135night: 1, talk: ['嘘——青禾姐睡得浅。', '少爷要热水吗？灶上一直温着呢。'] });
-    addN(ROOM, { name: '小厮阿福', cx: 'waiter', r135e: 'servant', x: 880, y: 720, row: 2, cond: nightOnly, _r135night: 1, talk: ['灶火我看着呢，少爷放心。', '今儿挑了六趟水，胳膊都抬不起来啦。'] });
+    addN(window.R136W_ON ? 'qingzhu_room_qinghe' : ROOM, { name: '侍女青禾', cx: 'maid', r135e: 'maid1', x: window.R136W_ON ? 400 : 560, y: 600, row: 0, cond: nightOnly, _r135night: 1, talk: ['少爷怎么到下人房来了？屋里乱，您别嫌弃。', '明儿一早还得扫院子，奴婢先歇了。'] });
+    addN(window.R136W_ON ? 'qingzhu_room_xiaotao' : ROOM, { name: '侍女小桃', cx: 'maid', r135e: 'maid2', x: window.R136W_ON ? 430 : 700, y: window.R136W_ON ? 600 : 640, row: 0, cond: nightOnly, _r135night: 1, talk: ['嘘——青禾姐睡得浅。', '少爷要热水吗？灶上一直温着呢。'] });
+    addN(window.R136W_ON ? 'qingzhu_room_afu' : ROOM, { name: '小厮阿福', cx: 'waiter', r135e: 'servant', x: window.R136W_ON ? 380 : 880, y: window.R136W_ON ? 620 : 720, row: 2, cond: nightOnly, _r135night: 1, talk: ['灶火我看着呢，少爷放心。', '今儿挑了六趟水，胳膊都抬不起来啦。'] });
   }
   // 室内夜里压暗一点，灶口留一团暖光（这张图没有 Codex 夜景光照层）
   // 云海大亭夜里整张图会被压暗偏蓝，仆役房夜景版窗里的暖光也跟着暗了 → 窗口再补一层暖光
@@ -206,3 +206,4 @@ window.R135E_STEWARD_OK = true; window.R135E_PEOPLE_OK = true;
   })(tileSetMap);
   window.R135E = { patchPav, get: get, IM };
 })();
+

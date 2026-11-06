@@ -144,13 +144,13 @@
   // 能走通的区域：从起飞点（或进图落点）出发洪泛，落地只落在这片区域里，绝不会落进围墙里的死角
   function reach(T, x, y) {
     const [c0, r0] = cellOf(x, y), C = T.cols, Rn = T.rows, m = new Uint8Array(C * Rn), q = [];
-    const ok = (c, r) => c >= 0 && r >= 0 && c < C && r < Rn && !T.block[r][c];
-    if (!ok(c0, r0)) return null; m[r0 * C + c0] = 1; q.push(c0, r0);
-    for (let i = 0; i < q.length; i += 2) { const c = q[i], r = q[i + 1]; for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nc = c + dc, nr = r + dr; if (ok(nc, nr) && !m[nr * C + nc]) { m[nr * C + nc] = 1; q.push(nc, nr); } } }
+    const Z = T.c0 || 0, ok = (c, r) => walkable(T, c, r);
+    if (!ok(c0, r0)) return null; m[r0 * C + c0 - Z] = 1; q.push(c0, r0);
+    for (let i = 0; i < q.length; i += 2) { const c = q[i], r = q[i + 1]; for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nc = c + dc, nr = r + dr; if (ok(nc, nr) && !m[nr * C + nc - Z]) { m[nr * C + nc - Z] = 1; q.push(nc, nr); } } }
     return { T, m };
   }
-  const inReach = (T, x, y) => { const z = R.reach; if (!z || z.T !== T) return true; const [c, r] = cellOf(x, y); return !!z.m[r * T.cols + c]; };
-  function nearestStand(T, x, y) { const good = (a, b) => a > 20 && b > 30 && a < T.mw - 20 && b < T.mh - 8 && canStand(T, a, b) && inReach(T, a, b); if (good(x, y)) return [x, y]; for (let d = 8; d < 900; d += 8) for (let a = 0; a < 6.28; a += 8 / d) { const nx = x + Math.cos(a) * d, ny = y + Math.sin(a) * d * .8; if (good(nx, ny)) return [nx, ny]; } return R.from || [x, y]; }
+  const inReach = (T, x, y) => { const z = R.reach; if (!z || z.T !== T) return true; const [c, r] = cellOf(x, y); return !!z.m[r * T.cols + c - (T.c0 || 0)]; };
+  function nearestStand(T, x, y) { const good = (a, b) => a > (T.x0 || 0) + 20 && b > 30 && a < T.mw - 20 && b < T.mh - 8 && canStand(T, a, b) && inReach(T, a, b); if (good(x, y)) return [x, y]; for (let d = 8; d < 900; d += 8) for (let a = 0; a < 6.28; a += 8 / d) { const nx = x + Math.cos(a) * d, ny = y + Math.sin(a) * d * .8; if (good(nx, ny)) return [nx, ny]; } return R.from || [x, y]; }
   async function takeOff() {
     if (R.on || R.anim || !has() || !allowed(world.mapName) || world.locked) return;
     const p = world.player; world.path = null; world.walkTarget = null; FX.clear();
@@ -184,7 +184,7 @@
     // 剧情触发点：先落地再触发
     for (const t of world.triggers) if (!t.done && Math.hypot(p.x - t.x, p.y - t.y) < t.r + 30) { land(true); return orig(dt); }
     const cam = world.cam || { x: 0, y: 0 }, spd = (typeof WALK_FINAL_SPEED !== 'undefined' ? WALK_FINAL_SPEED : 146) * CFG.speedMul * (typeof AZ === 'function' ? AZ() : 1 / VZ());
-    const tap = consumeTap(); if (tap && !tap.key) { world.walkTarget = { x: clamp(tap.x / VZ() + cam.x, 24, T.mw - 24), y: clamp(tap.y / VZ() + cam.y, 40, T.mh - 12) }; }
+    const tap = consumeTap(); if (tap && !tap.key) { world.walkTarget = { x: clamp(tap.x / VZ() + cam.x, (T.x0 || 0) + 24, T.mw - 24), y: clamp(tap.y / VZ() + cam.y, 40, T.mh - 12) }; }
     let vx = 0, vy = 0; const K = input.keys; let kx = 0, ky = 0;
     if (K.ArrowLeft || K.a || K.A) kx -= 1; if (K.ArrowRight || K.d || K.D) kx += 1; if (K.ArrowUp || K.w || K.W) ky -= 1; if (K.ArrowDown || K.s || K.S) ky += 1;
     if (kx || ky) { world.walkTarget = null; const l = Math.hypot(kx, ky); vx = kx / l * spd; vy = ky / l * spd; }
