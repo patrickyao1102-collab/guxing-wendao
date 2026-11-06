@@ -6,6 +6,15 @@
   const K = ['moon', 'halo', 'beam', 'feather', 'particle', 'bloom', 'shockwave', 'avatar'], IM = {}; let loaded = 0;
   K.forEach(k => { const im = new Image(); im.onload = () => { IM[k] = im; loaded++; }; im.src = 'nayue/' + k + '.webp'; });
   const ready = () => loaded >= 7 && IM.moon && IM.halo && IM.bloom;
+  // 作者 11-07：技能音频选定第 08 版「梵音钟磬」（够压迫感）。10 秒整段跟时间轴走，放的时候配乐压低
+  let SND = null, sndRaw = null; fetch('nayue/nayue_bgm08.mp3').then(r => r.ok ? r.arrayBuffer() : null).then(b => { sndRaw = b; }).catch(() => {});
+  function playScene() {
+    try { if (AUD.muted || AUD.mode !== 'webaudio' || !AC) return false;
+      const go = buf => { const s = AC.createBufferSource(); s.buffer = buf; const g = AC.createGain(); g.gain.value = 1; s.connect(g); g.connect(AUD.sfxGain); s.start();
+        if (AUD.musicGain) { const t = AC.currentTime, mg = AUD.musicGain.gain, v0 = mg.value; mg.cancelScheduledValues(t); mg.setValueAtTime(v0, t); mg.linearRampToValueAtTime(v0 * .2, t + .4); mg.setValueAtTime(v0 * .2, t + 9.6); mg.linearRampToValueAtTime(v0, t + 10.6); } };
+      if (SND) { go(SND); return true; }
+      if (sndRaw) { AC.decodeAudioData(sndRaw.slice(0), buf => { SND = buf; go(buf); }); return true; }
+    } catch (e) {} return false; }
   let VAR = 'A'; try { VAR = localStorage.getItem('nayue_var') || 'A'; } catch (e) {}
   window.NAYUE_READY = () => ready();
   window.NAYUE_SET = v => { if (!/^[ABC]$/.test(v)) return VAR; VAR = v; try { localStorage.setItem('nayue_var', v); } catch (e) {} return VAR; };
@@ -35,14 +44,15 @@
     const T = () => (performance.now() - run.t0) / 1000;
     const back = addFx({ life: 11, layer: 0, draw() { try { FXM.back(ctx, Math.min(10, T()), VAR, anchors()); } catch (e) {} } });
     const front = addFx({ life: 11, layer: 2, draw() { try { run.s = FXM.front(ctx, Math.min(10, T()), VAR, anchors(), { lowFlash: false }); } catch (e) {} } });
-    playSnd('sfx_charge', 1);
+    const own = playScene(); const sfx = (n, v) => { if (!own) playSnd(n, v); };
+    sfx('sfx_charge', 1);
     const at = (sec, fn) => new Promise(res => { const id = setInterval(() => { if (T() >= sec || battle !== b) { clearInterval(id); try { if (battle === b) fn(); } catch (e) {} res(); } }, 16); });
-    await at(1.8, () => playSnd('sfx_wind', 1));
-    await at(3.8, () => playSnd('sfx_beam', .8));
-    await at(7.3, () => { S.shake = 7; playSnd('sfx_boom', 1); });
+    await at(1.8, () => sfx('sfx_wind', 1));
+    await at(3.8, () => sfx('sfx_beam', .8));
+    await at(7.3, () => { S.shake = 7; sfx('sfx_boom', 1); });
     await at(7.42, () => { run.hit = true;
       b.quietCrit = 1; for (const e of es) { const d = run.spare ? Math.max(0, e.hp - 1) : e.hp; if (d > 0) applyDamage(e, d, false, { pierce: true }); } b.quietCrit = 0; });   // 只要 Codex 的白闪和「必杀」字，不要暴击的红闪和「爆」
-    await at(8.15, () => { run.heal = true; if (Y) { Y.hp = Y.maxhp; Y.alive = true; if (Y.buffs) { Y.buffs.stun = 0; Y.buffs.frozen = 0; } } playSnd('sfx_heal', 1); });
+    await at(8.15, () => { run.heal = true; if (Y) { Y.hp = Y.maxhp; Y.alive = true; if (Y.buffs) { Y.buffs.stun = 0; Y.buffs.frozen = 0; } } sfx('sfx_heal', 1); });
     await at(10, () => {});
     clearInterval(hold); back.life = 0; back.t = 99; front.life = 0; front.t = 99; RUN = null; b._cineHide = 0;
     F().nayue_seen = (F().nayue_seen || 0) + 1;
