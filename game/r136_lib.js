@@ -39,7 +39,7 @@
   // 传送阵 → 一层（自己画阵，不要通用光圈）；南门 → 外院（作者：这里应该是门）
   const LX0 = TMAPS.tj_library && (TMAPS.tj_library.exits || []).find(e => e.to === 'tj_scripture');
   M.exits = FB.exits.map(e => e.id === 'south_door'
-    ? exitOf(e, { to: 'tj_scripture', label: '南门 · 外院', at: LX0 ? LX0.at : oldEx.at, face: 'down', cond: oldEx.cond, msg: oldEx.msg })
+    ? exitOf(e, { to: 'tj_scripture', label: '南门 · 外院', at: LX0 ? LX0.at : oldEx.at, face: 'down', cond: oldEx.cond, msg: oldEx.msg, noGlow: true, door: true })   // 作者 11-07：二层自带传送阵，南门不要通用蓝色法阵
     : exitOf(e, { to: 'tj_library', label: '传送阵 · 一层', at: oldEx.at, face: oldEx.face || 'down', cond: oldEx.cond, msg: oldEx.msg, noGlow: true }));
   // 交互点：旧 npc（转轮经藏 / 九曜剑典台的 talk 已被剧情改写过）挪到新位置；没有对应家具的去掉；新书架补上说明
   const byName = { '八方转轮经藏': 'archive_rotunda_r4_collection', '叠阶秘本经架': 'ancestral_codices_r4_collection', '青玉简牍藏格': 'jade_slip_r4_collection', '悬简经屏架': 'hanging_sutras_r4_collection',
@@ -123,9 +123,11 @@
       if (a >= 0 && a < .67 && im.tpa) tpFrame(im.tpa, Math.min(11, Math.floor(a * 18)));
       else if (im.tpi) tpFrame(im.tpi, Math.floor(t * 8) % 12);
       if (window.ForbFX) ForbFX.overlay(ctx, t);
-      const p = world.player, ex = M.exits.find(e => e.noGlow);
-      if (p && ex && (!ex.cond || ex.cond()) && Math.hypot(p.x - TP.center[0], p.y - TP.center[1]) < 300 && typeof textOutline === 'function') {
-        ctx.save(); ctx.font = `600 20px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.textAlign = 'center'; textOutline('传送阵 · 一层', TP.center[0], TP.center[1] - 92, '#ffe7b0', '#2a1400', 4); ctx.restore(); }
+      const p = world.player, ex = M.exits.find(e => e.noGlow && !e.door), dr = M.exits.find(e => e.door);
+      if (p && typeof textOutline === 'function') { ctx.save(); ctx.font = `600 20px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.textAlign = 'center';
+        if (ex && (!ex.cond || ex.cond()) && Math.hypot(p.x - TP.center[0], p.y - TP.center[1]) < 300) textOutline('传送阵 · 一层', TP.center[0], TP.center[1] - 92, '#ffe7b0', '#2a1400', 4);
+        if (dr && (!dr.cond || dr.cond()) && Math.hypot(p.x - 864, p.y - 1250) < 220) textOutline('南门 · 外院', 864, 1286, '#ffe7b0', '#2a1400', 4);
+        ctx.restore(); }
     } catch (e) { console.warn('r136', e); }
   })(tileAmbientHigh);
 
