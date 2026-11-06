@@ -1175,6 +1175,39 @@ window.BGM_LIB = {
 "desc": "小云雀配音 · “云雷踏影！”（11-07 五版里作者选定 05 少年意气）",
 "dur": 1.68
 },
+"lib_n7_hero__tunshi_1": {
+"no": "癸P05",
+"name": "叶孤星·纳月吞噬·新台词1",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:tunshi",
+"file": "lib29/n7_hero__tunshi_1.mp4",
+"vol": 1,
+"desc": "小云雀配音·冷厉音色 · “你的灵力，归我了。”（11-07 纳月吞噬新台词三版之1，默认）",
+"dur": 2.67
+},
+"lib_n7_hero__tunshi_2": {
+"no": "癸P05",
+"name": "叶孤星·纳月吞噬·新台词2",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:tunshi",
+"file": "lib29/n7_hero__tunshi_2.mp4",
+"vol": 1,
+"desc": "小云雀配音·冷厉音色 · “月下众生，皆为我食。”（11-07 纳月吞噬新台词三版之2，候选）",
+"dur": 2.53
+},
+"lib_n7_hero__tunshi_3": {
+"no": "癸P05",
+"name": "叶孤星·纳月吞噬·新台词3",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:tunshi",
+"file": "lib29/n7_hero__tunshi_3.mp4",
+"vol": 1,
+"desc": "小云雀配音·冷厉音色 · “纳月——吞！”（11-07 纳月吞噬新台词三版之3，候选）",
+"dur": 1.30
+},
 "lib_n7_yunting__dianxing": {
 "no": "癸P01",
 "name": "云霆·点星·8号·定稿",

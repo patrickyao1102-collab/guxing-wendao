@@ -18,7 +18,7 @@
   const rank = id => /^lib_n7_/.test(id) ? 5 : id === 'lib_n6_yunting__jiutian' || id === 'lib_n6_yunting__boming' || id === 'lib_n5_hero__dianxing_b5' || id === 'lib_n_ss0' ? 4 : /^lib_n5_yunting__jiutian/.test(id) ? 3 : /^lib_n4_/.test(id) ? 2 : /^lib_n3_/.test(id) ? 1 : /^lib_n6_yunting__/.test(id) ? -1 : 0;
   for (const s in SLOT) SLOT[s].sort((a, b) => rank(b) - rank(a));
   Object.assign(NAMES, {
-    'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:xl_wushang': '叶孤星·星落·无上境',
+    'hero:atk': '叶孤星·普攻', 'hero:dianxing': '叶孤星·点星', 'hero:xingluo2': '叶孤星·星落', 'hero:pojun': '叶孤星·天璇', 'hero:xingluo': '叶孤星·星罗', 'hero:xingyun': '叶孤星·星陨', 'hero:tanlang': '叶孤星·追魂', 'hero:jueying': '叶孤星·绝影', 'hero:duopo': '叶孤星·夺魄', 'hero:huti': '叶孤星·护体', 'hero:ningshen': '叶孤星·凝神', 'hero:juling': '叶孤星·聚灵', 'hero:sun': '叶孤星·太阳', 'hero:tianshu': '叶孤星·天枢', 'hero:tunshi': '叶孤星·纳月吞噬', 'hero:xl_wushang': '叶孤星·星落·无上境',
     'yunting:qianggong': '云霆·强攻', 'yunting:jifeng': '云霆·疾风', 'yunting:boming': '云霆·搏命', 'yunting:yunlei': '云霆·云雷踏影',
     'linxue:shuangjia': '林雪·霜甲', 'linxue:bingxin': '林雪·冰心', 'linxue:bingdun': '林雪·冰盾', 'linxue:bingfeng': '林雪·冰封',
     'yunting:dianxing': '云霆·点星', 'yunting:qunxing': '云霆·群星', 'yunting:shaxing': '云霆·杀星', 'yunting:def': '云霆·凝锋', 'yunting:ult': '云霆·九天神雷',
