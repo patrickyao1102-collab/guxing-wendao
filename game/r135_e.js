@@ -17,7 +17,8 @@
   const IM = {}, REQ = {};
   const get = f => { if (IM[f]) return IM[f]; if (!REQ[f]) { REQ[f] = 1; const im = new Image(); im.onload = () => { IM[f] = im; if (f === 'house_day') IMG.r135e_house_day = im; if (f === 'house_night') IMG.r135e_house_night = im; if (f === 'interior') IMG.r135e_interior = im; if (PORT[f]) { IMG['p_r135e_' + f.slice(2)] = im; for (const n of PORT[f]) if (SPEAKERS[n]) SPEAKERS[n].p = 'p_r135e_' + f.slice(2); } }; im.src = D + f + '.webp'; } return null; };
   // 立绘载好才挂到 SPEAKERS 上（没载好时对话不会出现空白占位小人）
-  const PORT = { p_steward: ['管家'], p_maid1: ['侍女青禾'], p_maid2: ['侍女小桃'], p_servant: ['小厮阿福'] };
+  // 作者 11-07：管家新形象（裹头巾）太丑，不像仙侠 → 先撤回原来的管家，等 Codex 重画
+  const PORT = { p_maid1: ['侍女青禾'], p_maid2: ['侍女小桃'], p_servant: ['小厮阿福'] };
   if (typeof SPEAKERS === 'object') {
     SPEAKERS['管家'] = Object.assign({ color: '#e8d7b0' }, SPEAKERS['管家'] || {});
     SPEAKERS['侍女青禾'] = { color: '#cfe8c4' }; SPEAKERS['侍女小桃'] = { color: '#f6c9d2' }; SPEAKERS['小厮阿福'] = { color: '#c6d4ec' };
@@ -33,7 +34,7 @@
   const WORK = { maid1: 'maid1_work', maid2: 'maid2_work', servant: 'servant_work' };
 
   // 1) 管家：青竹小院 + 管事房里那两个「管家」换新行走图（位置、对话、传送功能都不动）
-  for (const id of [COURT, 'qingzhu_steward_room']) for (const n of (TMAPS[id] && TMAPS[id].npcs) || []) if (n.name === '管家' && !n.hidden) { n.r135e = 'steward'; n.h = 112; n.row = 0; }
+  for (const id of [COURT, 'qingzhu_steward_room']) for (const n of (TMAPS[id] && TMAPS[id].npcs) || []) if (n.name === '管家' && !n.hidden && window.R135E_STEWARD_OK) { n.r135e = 'steward'; n.h = 112; n.row = 0; }
 
   // 2) 白天在院里干活的三个人（夜里不出现，回仆役房）
   const court = TMAPS[COURT]; court.npcs = court.npcs || [];
