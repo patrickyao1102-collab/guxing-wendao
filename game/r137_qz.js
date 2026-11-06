@@ -1,11 +1,12 @@
-// ================= R137 · 后山亭子（云海大亭）换小亭 + 西侧新地图「云海后庭」（Claude 11-07，Codex R134 E2 / E2b 素材）=================
-// 作者：亭子换成 Codex 新画的青绿单层小亭；西边扩出一块叶孤星和下人们一起吃饭、看星星的地方（长饭桌 A 青玉流云 + 花圃 + 崖边观星台）。
-// 下人房不放这里（作者 11-07：已挪到青竹小院），所以云海大亭里原来那栋仆役房外观和门一并撤掉。
-// 云海大亭原图坐标不动（剧情、天鹏、宝箱都按原坐标写的）；新地块做成独立小地图，从亭子西边竹林口走过去。
+// ================= R137 · 后山云海大亭：换 Codex 小亭 + 往西扩建「云海后庭」（Claude 11-07，Codex R134 E2 / E2b 素材）=================
+// 作者：亭子换成 Codex 新画的青绿单层小亭；西边扩出一块叶孤星和下人们一起吃饭、看星星的地方（长饭桌 A 青玉流云 + 牡丹/百合大花圃 + 竹林石灯 + 崖边观星台）。
+// 下人房不放这里（作者 11-07：已挪到青竹小院西院），云海大亭原来那栋仆役房外观和门一并撤掉。
+// 和青竹小院西扩（r136_west.js）同一套做法：一张图直接走过去，不是另一张图——原坐标一个不动（剧情、天鹏、宝箱照旧），
+// 扩出来的 1536px 落在 x < 0（-1536 ~ 0），碰撞表每行前面接 192 列，T.x0 / T.c0 交给引擎处理镜头、寻路、站位。
 // 关掉：localStorage.r137qz = '0'
 (function () {
-  const D = window.R137QZ, PAV = 'qingzhu_upper_pavilion', BY = 'qingzhu_backyard';
-  if (!D || typeof TMAPS === 'undefined' || !TMAPS[PAV] || typeof tileSetMap !== 'function') return;
+  const D = window.R137QZ, PAV = 'qingzhu_upper_pavilion', OX = 1536;
+  if (!D || typeof TMAPS === 'undefined' || !TMAPS[PAV] || typeof tileSetMap !== 'function' || typeof buildTileMap !== 'function') return;
   try { if (localStorage.getItem('r137qz') === '0') return; } catch (e) {}
   const R = 'r137/', ld = (k, f) => { if (IMG[k]) return; const i = new Image(); i.onload = () => { IMG[k] = i; }; i.src = R + f + '.webp'; };
   let loaded = false;
@@ -14,46 +15,49 @@
     ld('r137_by_ground', 'by_ground'); };
   setTimeout(loadAll, 12000);
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
-  const cellsX = (x0, x1) => [Math.floor(x0 / 8), Math.ceil((x1 - x0) / 8)];
+  const BB = D.by, YC = BB.cols;                                  // 扩建区 192 列 × 192 行（8px）
+  const BOBJ = BB.objs.map(o => Object.assign({}, o, { x: o.x - OX }));
+  const SP = {}; for (const k in BB.spots) SP[k] = [BB.spots[k][0] - OX, BB.spots[k][1]];
 
-  // ---------- 云海大亭：撤旧大亭 / 仆役房，换小亭 ----------
+  // ---------- 碰撞 + 物件：地图构建时把西边接上 ----------
   const M = TMAPS[PAV];
   M.exits = (M.exits || []).filter(e => e.to !== 'qingzhu_servant_room');
-  M.exits.push({ x: 0, y: 100, w: 2, h: 16, to: BY, label: '西 · 云海后庭', at: P(1470, 868), face: 'left' });
-  try { if (typeof MAP_ZOOM !== 'undefined') MAP_ZOOM[BY] = .75; } catch (e) {}
-  const fixPav = () => {
-    const T = world.map && world.map.T; if (!T || !T.block) return;
-    T.objs = T.objs.filter(o => !(o.uid && /^r90-/.test(o.uid)) && o.id !== 'r135e_house' && !/^qingzhu-r24-pavilion/.test(o.id || '') && !/^r137pav_/.test(o.uid || ''));
-    for (const o of D.pav.objs) T.objs.push(Object.assign({ bk: true }, o));
-    const B = D.pav.blocked; for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) T.block[r][c] = B.charCodeAt(r * 256 + c) === 49 ? 1 : 0;
-  };
+  const applyBlock = T => { const PB = D.pav.blocked, YB = BB.blocked;
+    for (let r = 0; r < T.rows; r++) { const row = T.block[r]; for (let c = 0; c < YC; c++) row[c] = YB.charCodeAt(r * YC + c) === 49 ? 1 : 0; for (let c = 0; c < 256; c++) row[YC + c] = PB.charCodeAt(r * 256 + c) === 49 ? 1 : 0; }
+    T._stand = null; };
+  buildTileMap = (o => function (def) {
+    const T = o.apply(this, arguments);
+    try {
+      if (def !== M || !T || !T.baked || T.cs !== 8 || T.rows !== BB.rows || T.c0) return T;
+      for (let r = 0; r < T.rows; r++) T.block[r] = new Array(YC).fill(1).concat(T.block[r]);
+      T.c0 = -YC; T.x0 = -OX; T.cols += YC; applyBlock(T);
+      T.objs = T.objs.filter(ob => !(ob.uid && /^r90-/.test(ob.uid)) && ob.id !== 'r135e_house' && !/^qingzhu-r24-pavilion/.test(ob.id || ''));
+      for (const ob of D.pav.objs.concat(BOBJ)) T.objs.push(Object.assign({ bk: true }, ob));
+    } catch (e) { console.warn('r137', e); }
+    return T;
+  })(buildTileMap);
+  // 扩建区地面画在原图左边
+  drawGroundVis = (o => function (g, cam) {
+    try { const T = world.map && world.map.T; if (T && T.x0 === -OX && world.mapName === PAV && IMG.r137_by_ground) ctx.drawImage(IMG.r137_by_ground, T.x0, 0); } catch (e) {}
+    return o.apply(this, arguments);
+  })(drawGroundVis);
 
-  // ---------- 云海后庭（新地图）----------
-  const BB = D.by, sp = BB.spots;
-  const spot = (name, [x, y], talk, h) => { const [c, r] = P(x, y); return { key: 'none', c, r, name, hidden: true, h: h || 120, talk }; };
-  TMAPS[BY] = {
-    title: '云海后庭', leaves: true, chests: [],
-    baked: { ground: 'r137_by_ground', w: BB.w, h: BB.h, cs: BB.cs, cols: BB.cols, rows: BB.rows, blocked: BB.blocked, objs: BB.objs },
-    start: P(1460, 868),
-    exits: [{ x: 189, y: 100, w: 3, h: 16, to: PAV, label: '东 · 云海大亭', at: P(64, 868), face: 'right' }],
-    npcs: [
-      spot('青玉长桌', sp.dining, [async () => {
-        await say('', '一张青玉面的长桌，六把圈椅。桌上只摆了一瓶花、一件小玉饰。');
-        await say('叶孤星', '（管家说，以后院里的人都在这儿一起吃饭——不分主仆。）');
-      }], 130),
-      spot('崖边观星台', sp.star, [() => window.R137_STARGAZE && R137_STARGAZE()], 110),
-      spot('牡丹花圃', sp.garden_l, ['花圃里的牡丹开得正好，土还是湿的——早上刚浇过。'], 110),
-      spot('百合花圃', sp.garden_r, ['百合的香气淡淡的。花丛边插着一块小木牌：「小桃种，勿踩」。'], 110),
-    ],
-  };
-  // 每个 spot 的 talk 如果是函数数组，按顺序执行（和游戏里 talk: async fn 的写法兼容）
-  for (const n of TMAPS[BY].npcs) if (Array.isArray(n.talk) && typeof n.talk[0] === 'function') { const fs = n.talk; n.talk = async () => { for (const f of fs) await f(); }; }
+  // ---------- 扩建区里的可调查点 ----------
+  M.npcs = M.npcs || [];
+  const spot = (name, [x, y], talk, h) => { const [c, r] = P(x, y); M.npcs.push({ key: 'none', c, r, name, hidden: true, h: h || 120, talk }); };
+  spot('青玉长桌', SP.dining, async () => {
+    await say('', '一张青玉面的长桌，六把圈椅。桌上只摆了一瓶花、一件小玉饰。');
+    await say('叶孤星', '（管家说，以后院里的人都在这儿一起吃饭——不分主仆。）');
+  }, 130);
+  spot('崖边观星台', SP.star, () => window.R137_STARGAZE && R137_STARGAZE(), 110);
+  spot('牡丹花圃', SP.garden_l, ['花圃里的牡丹开得正好，土还是湿的——早上刚浇过。'], 110);
+  spot('百合花圃', SP.garden_r, ['百合的香气淡淡的。花丛边插着一块小木牌：「小桃种，勿踩」。'], 110);
 
   // ---------- 观星：在地图里演（作者 11-07：禁止插画）——走到崖边、天色暗下来、云海上空星星一颗颗亮起、划过一道流星 ----------
   const SG = { a: 0, on: false, t0: 0 };
   window.R137_STARGAZE = async function () {
     if (SG.on) return; SG.on = true; world.locked = true;
-    const p = world.player, seat = BB.spots.star;
+    const p = world.player, seat = SP.star;
     try { if (typeof moveActor === 'function') await moveActor(p, seat[0], seat[1], 170); p.face = 'down'; } catch (e) {}
     SG.t0 = performance.now() / 1000;
     await (typeof tween === 'function' ? tween(1400, t => SG.a = t) : Promise.resolve(SG.a = 1));
@@ -78,7 +82,7 @@
   // 观星：整张图压成夜色，屏幕上方（云海上空）星点渐亮 + 北斗连线 + 一道流星；全是代码画在地图上，不切插画
   tileDraw = (orig => function () {
     orig.apply(this, arguments);
-    if (!(SG.a > 0) || world.mapName !== BY) return;
+    if (!(SG.a > 0) || world.mapName !== PAV) return;
     const a = SG.a, t = performance.now() / 1000 - SG.t0, cam = world.cam || { x: 0, y: 0 }, yT = Math.max(0, Math.min(H, (1300 - cam.y) * VZ())), bh = H - yT;   // 星星只出在崖外云海上空
     ctx.save();
     ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(${255 - 190 * a | 0},${255 - 180 * a | 0},${255 - 120 * a | 0},1)`; ctx.fillRect(0, 0, W, H);
@@ -86,7 +90,7 @@
     let g = ctx.createLinearGradient(0, yT, 0, H); g.addColorStop(0, `rgba(30,36,90,${.5 * a})`); g.addColorStop(1, `rgba(10,14,48,${.7 * a})`); ctx.fillStyle = g; ctx.fillRect(0, yT, W, bh);
     ctx.globalCompositeOperation = 'lighter';
     { const z = VZ(); ctx.save(); ctx.scale(z, z); ctx.translate(-Math.round(cam.x), -Math.round(cam.y));   // 石灯在夜里亮起
-      for (const o of BB.objs) if (o.id === 'r137_lantern') { const x = o.x + o.w / 2, y = o.y + o.h * .32, f = .9 + .1 * Math.sin(t * 6 + o.x);
+      for (const o of BOBJ) if (o.id === 'r137_lantern') { const x = o.x + o.w / 2, y = o.y + o.h * .32, f = .9 + .1 * Math.sin(t * 6 + o.x);
         let gg = ctx.createRadialGradient(x, y, 0, x, y, 120); gg.addColorStop(0, `rgba(255,214,140,${.55 * a * f})`); gg.addColorStop(.35, `rgba(255,180,90,${.18 * a * f})`); gg.addColorStop(1, 'rgba(255,170,80,0)'); ctx.fillStyle = gg; ctx.fillRect(x - 120, y - 120, 240, 240);
         gg = ctx.createRadialGradient(x, o.y + o.h, 0, x, o.y + o.h, 150); gg.addColorStop(0, `rgba(255,196,120,${.22 * a})`); gg.addColorStop(1, 'rgba(255,196,120,0)'); ctx.save(); ctx.translate(x, o.y + o.h); ctx.scale(1, .45); ctx.translate(-x, -(o.y + o.h)); ctx.fillStyle = gg; ctx.fillRect(x - 150, o.y + o.h - 150, 300, 300); ctx.restore(); }
       ctx.restore(); }
@@ -108,9 +112,9 @@
   })(drawBaked);
 
   tileSetMap = (orig => function (name) {
-    if (name === PAV || name === BY || /^qingzhu_/.test(name || '')) loadAll();
+    if (/^qingzhu_/.test(name || '')) loadAll();
     const res = orig.apply(this, arguments);
-    try { if (name === PAV) fixPav(); } catch (e) { console.warn('r137', e); }
+    try { const T = world.map && world.map.T; if (name === PAV && T && T.x0 === -OX) { T.objs = T.objs.filter(ob => !(ob.uid && /^r90-/.test(ob.uid)) && ob.id !== 'r135e_house'); applyBlock(T); } } catch (e) { console.warn('r137', e); }   // 旧亭子 r90 进图时按老坐标改碰撞，这里整张重写
     return res;
   })(tileSetMap);
 })();
