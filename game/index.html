@@ -13799,7 +13799,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
 
   fn = ALLY2_ACT.luochen.riyue; ALLY2_ACT.luochen.riyue = keep; doHeroAction = keepDH; }
  let texP = null;
- const loadTex = () => texP || (texP = new Promise((res, rej) => { if (window.CODEX_DRAGON_TEXTURES && window.CODEX_DRAGON_TEXTURES['assets/sun_v6.png']) return res(); const s = document.createElement('script'); s.src = 'fx/lc_v8_tex.js'; s.onload = res; s.onerror = () => { texP = null; rej(new Error('v8素材加载失败')); }; document.head.appendChild(s); }));
+ const loadTex = () => texP || (texP = new Promise((res, rej) => { if (window.CODEX_DRAGON_TEXTURES && window.CODEX_DRAGON_TEXTURES['assets/sun_v6.png']) return res(); const s = document.createElement('script'); s.src = (window.FORCE_LOCAL || /^(localhost|127\.0\.0\.1|appassets\.local)$|\.github\.io$/.test(location.hostname) || location.protocol === 'file:') ? 'fx/lc_v8_tex.js' : '/_blob/a76b7c5a003cc524fc2186d2777791a7'; s.onload = res; s.onerror = () => { texP = null; rej(new Error('v8素材加载失败')); }; document.head.appendChild(s); }));
  const LV = window.LC_VERS = window.LC_VERS || {};
  LV.codex_v8 = { name: 'Codex v8 日月轮转·正式版', load: () => loadTex().then(() => { boot(); return window.CODEX_LUOCHEN_RIYUE && CODEX_LUOCHEN_RIYUE.preload && CODEX_LUOCHEN_RIYUE.preload(); }), run: async P => { await loadTex(); boot(); return fn(P); } };
  window.LC_CUR = 'codex_v8';

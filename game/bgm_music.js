@@ -45,6 +45,7 @@
     if (EL[n]) return EL[n];
     const a = new Audio(src(n)); a.loop = true; a.preload = 'auto'; a.crossOrigin = 'anonymous';
     const o = EL[n] = { a, g: null };
+    a.addEventListener('error', () => { o.err = 1; });   // 文件缺失 / 网络失败：载入画面不再等它
     // 高潮段循环：库里标了 loop:[起,止] 的曲子（战斗 / 首领战），只在高潮段里循环，开打就燃
     const lp = LIBT[n] && LIBT[n].loop;
     if (lp) { o.loop = lp; a.addEventListener('timeupdate', () => { if (a.currentTime >= lp[1] - .05) { try { a.currentTime = lp[0]; } catch (e) {} } }); a.addEventListener('ended', () => { try { a.currentTime = lp[0]; a.play(); } catch (e) {} }); }
@@ -114,6 +115,8 @@
   })(startBattle);
   // 测试面板用：试听 / 指定标题曲、广场曲、野外曲
   window.BGM29 = { list: J29, T, DEF, PICK, SDEF, src,
+    // 作者 11-06：「每次加载进度条的时候音乐也必须加载出来」——载入画面问这里：本地图的曲子缓冲够了没有
+    ready() { try { if (!AUD.mode || AUD.muted) return true; if (typeof battle !== 'undefined' && battle) return true; const k = T[mapKind()]; if (!NEW.has(k)) return true; const o = EL[k]; if (!o) { sync(); return false; } return !!o.err || o.a.readyState >= 3; } catch (e) { return true; } },
     pick(slot, k) { PICK[slot] = k; save(); if (slot in DEF) { T[slot] = k; NEW.add(k); if (slot === 'title' && (typeof S === 'undefined' || !S.started)) playBgm(k, true); else sync(); } else loadOne(slot); },
     unpick(slot) { delete PICK[slot]; save(); if (slot in DEF) { T[slot] = DEF[slot]; sync(); } else loadOne(slot); },
     reset() { for (const k in PICK) delete PICK[k]; save(); Object.assign(T, DEF); sync(); loadJingles(); },

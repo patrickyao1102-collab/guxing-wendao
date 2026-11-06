@@ -3,7 +3,11 @@
   if (typeof S === 'undefined' || !S.overlay) return;
   let shown = 0, prog = 0, mapAt = null, t0 = 0, forced = null;
   // 当前地图还差多少图没载好（0~1）
-  function readiness() {
+  // 作者 11-06：进度条走满之前，本地图的配乐也要缓冲好（最多等 8 秒，网络太慢就先进图，曲子随后接上）
+  const aw = { m: null, t: 0 };
+  function musicOk() { if (!window.BGM29 || !BGM29.ready) return true; if (aw.m !== world.mapName) { aw.m = world.mapName; aw.t = performance.now(); } if (performance.now() - aw.t > 8000) return true; return BGM29.ready(); }
+  function readiness() { const r = imgReady(); return r >= 1 && forced !== world.mapName && S.scene === drawMap && !musicOk() ? .97 : r; }
+  function imgReady() {
     const m = world.map; if (!m || S.scene !== drawMap) return 1;
     if (forced === world.mapName) return 1;   // 玩家在“网络很慢”提示里点了继续
     // 老式整图地图（藏经阁、后山等）：底图必须到齐

@@ -1015,6 +1015,7 @@ window.BGM_LIB = {
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
 "file": "bgm29/xyq_youying.mp3",
+"blob": "d249d786fae5f979a70248a3983db6b9",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 幽影林探索曲：古琴泛音、低音弦、箫、风铃木鱼，阴森幽静带紧张（作者 11-06，幽影林现用）",
 "dur": 120
@@ -1025,6 +1026,7 @@ window.BGM_LIB = {
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
 "file": "bgm29/xyq_nuwa.mp3",
+"blob": "749faf4428b0b2232218f4b7deb200a7",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 女娲秘境探索曲：编钟古筝竹笛，圣洁空灵略带忧伤（作者 11-06，秘境现用）",
 "dur": 120
@@ -1035,6 +1037,7 @@ window.BGM_LIB = {
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
 "file": "bgm29/xyq_cellar1.mp3",
+"blob": "f5f3b23cf9d77cc4d223ce7749e6de8b",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 邪修巢穴地下一层潜行曲：低音弦暗涌、埙、滴水打击（作者 11-06，地下一层现用）",
 "dur": 120
@@ -1045,6 +1048,7 @@ window.BGM_LIB = {
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
 "file": "bgm29/xyq_cellar2.mp3",
+"blob": "681774fcbc2b21f54bcc984782449427",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 地下二层：低频脉动、大提琴低铜管、古筝刮奏、沉钟，更压迫不祥（作者 11-06，地下二层现用）",
 "dur": 120
@@ -1055,6 +1059,7 @@ window.BGM_LIB = {
 "group": "丁 · 野外 / 探索 / 夜行",
 "kind": "bgm",
 "file": "bgm29/xyq_nuwa2.mp3",
+"blob": "02915978b5619713a7f123ae11a610f6",
 "vol": 0.75,
 "desc": "小云雀 Seed Audio 1.0 · 女娲秘境第3版：竹笛主奏、古筝流水琶音、编钟偶响，宁静圣洁略带暖意（作者 11-06 也通过，备选）",
 "dur": 120
@@ -1076,7 +1081,7 @@ window.BGM_LIB = {
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "file": "lib29/n_ss0.mp4",
-"blob": "86700afc9df8c085b1060ace06e2c1fb",
+"blob": "5b46d74f76db8a480daa97236fa51219",
 "vol": 0.95,
 "desc": "即梦配音·一气呵成版 · “杀星！”（作者 11-06 夜：杀星就用这条，不换）",
 "slot": "linxue:shaxing",
@@ -1089,6 +1094,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:qunxing",
 "file": "lib29/n4_linxue__qunxing.mp4",
+"blob": "ab1a475020187baa1974bba85aedae7f",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑二式，群星！”",
 "dur": 2.13
@@ -1100,6 +1106,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:shuangjia",
 "file": "lib29/n4_linxue__shuangjia.mp4",
+"blob": "416dd97a98410e8201a98ccfd81e60cd",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “霜甲！”",
 "dur": 1.02
@@ -1111,6 +1118,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingxin",
 "file": "lib29/n4_linxue__bingxin.mp4",
+"blob": "2b7bbd7df786f80addaf808407e629ef",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰心！”",
 "dur": 0.81
@@ -1122,6 +1130,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingfeng",
 "file": "lib29/n4_linxue__bingfeng.mp4",
+"blob": "96d897dc8af90319104c90b358a1f9d3",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰封！”",
 "dur": 0.71
@@ -1133,6 +1142,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:ult",
 "file": "lib29/n4_linxue__ult.mp4",
+"blob": "93fd275d50d90e0f5d69291eb99354f4",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰魄凝天——大雪纷飞！”",
 "dur": 3.05
@@ -1144,6 +1154,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:dianxing",
 "file": "lib29/n4_linxue__dianxing.mp4",
+"blob": "c4784d62d6d764661d1f0b44d27a7a39",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “天剑一式，点星！”",
 "dur": 1.9
@@ -1155,6 +1166,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "linxue:bingdun",
 "file": "lib29/n4_linxue__bingdun.mp4",
+"blob": "b3169de88c47254cf89356d6c17d7c98",
 "vol": 1,
 "desc": "小云雀音频生成·年轻清冷战斗喊招（以杀星 1 号为音色参考，作者 11-06 选定）· “冰盾！”",
 "dur": 0.63
@@ -1166,6 +1178,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "hero:dianxing",
 "file": "lib29/n5_hero__dianxing_b5.mp4",
+"blob": "2ba2beecc8f0f88af1c2146e7b53c3c3",
 "vol": 1,
 "desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重；作者 11-06 选定，默认）",
 "dur": 2.21
@@ -1177,6 +1190,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:boming",
 "file": "lib29/n6_yunting__boming.mp4",
+"blob": "dfdc52c9ed36d10c611895e537fcda96",
 "vol": 1,
 "desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：搏命用 8 号，默认）· “搏命！”",
 "dur": 0.59
@@ -1188,6 +1202,7 @@ window.BGM_LIB = {
 "kind": "voice",
 "slot": "yunting:ult",
 "file": "lib29/n6_yunting__jiutian.mp4",
+"blob": "9bc726a567ffe193808d16eecf59ac4b",
 "vol": 1,
 "desc": "小云雀音频生成·云霆全套抽卡 8 号（作者 11-06 选定：九天神雷用 8 号，默认）· “九天之上，听我号令。九天神雷，落！”",
 "dur": 4.65
