@@ -1224,6 +1224,61 @@ window.BGM_LIB = {
 "desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”短促爆发版（11-06 补气势，候选）",
 "dur": 1.91
 },
+"lib_n5_hero__dianxing_b3": {
+"no": "癸M07",
+"name": "叶孤星·点星·补录4",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b3.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"dur": 2.06
+},
+"lib_n5_hero__dianxing_b4": {
+"no": "癸M08",
+"name": "叶孤星·点星·补录5",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b4.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"dur": 2.19
+},
+"lib_n5_hero__dianxing_b5": {
+"no": "癸M09",
+"name": "叶孤星·点星·补录6",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b5.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"dur": 2.21
+},
+"lib_n5_hero__dianxing_b6": {
+"no": "癸M10",
+"name": "叶孤星·点星·补录7",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b6.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"dur": 2.28
+},
+"lib_n5_hero__dianxing_b7": {
+"no": "癸M11",
+"name": "叶孤星·点星·补录8",
+"group": "癸 · 角色配音（出招喊话）",
+"kind": "voice",
+"slot": "hero:dianxing",
+"file": "lib29/n5_hero__dianxing_b7.mp4",
+"vol": 1,
+"desc": "小云雀音频生成·以 11-03 冷厉版为音色参考 · “天剑一式，点星！”（11-06 第二轮重录，气势加重，候选）",
+"dur": 2.09
+},
 "lib_v09": {
 "no": "癸01",
 "name": "云霆·九天神雷",
