@@ -87,4 +87,16 @@
     R.RULES.unshift([/^今夜：/, () => (F().ch2_liuyun ? { map: 'tj_room' } : { map: 'tj_houshan' })]);
     R.RULES.unshift([/和云霆一起去天剑集市/, () => ({ map: 'tj_market' })]);
   } }
+
+  // ---- 山门送别：第二天大殿组队之后，走到天剑山门送别庭就开始送别 ----
+  window.CH2_GATE_OK = () => !!(TMAPS.tj_shanmen && window.CH2_DEPART_GO);
+  tileSetMap = (orig => function (name) {
+    const r = orig.apply(this, arguments);
+    try { const f = F(); if (name === 'tj_shanmen' && f.ch2_hall && f.ch2_liuyun && !f.ch2_depart && window.CH2_DEPART_GO) setTimeout(() => {
+      if (world.mapName !== 'tj_shanmen') return;
+      addTrigger(1728, 1760, 150, async () => { const ok = await CH2_DEPART_GO(); if (ok === false) { const t = world.triggers.find(t => t.x === 1728 && t.y === 1760); if (t) t.done = false; if (world.player) world.player.y -= 140; } });
+    }, 300); } catch (e) {}
+    return r;
+  })(tileSetMap);
+  { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/南边山门出发|山门出发/, () => ({ map: 'tj_shanmen' })]); }
 })();

@@ -6280,7 +6280,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   function plazaHooks() {
     if (!S.flags.ch2_roam) return;
     if (!S.flags.ch2_hall) { const [x, y] = near(1792, 760); addTrigger(x, y, 70, ch2Hall); }
-    if (S.flags.ch2_liuyun && !S.flags.ch2_depart) { const [x, y] = near(1792, 2420); addTrigger(x, y, 90, async () => {
+    if (S.flags.ch2_liuyun && !S.flags.ch2_depart && !(window.CH2_GATE_OK && CH2_GATE_OK())) { const [x, y] = near(1792, 2420); addTrigger(x, y, 90, async () => {
       if (!S.flags.ch2_market) {   // 没去过集市：提醒一下，可以先去买东西
         await say('星旋', '就这么走了？集市都不逛一下？丹药没备够，到了黑风寨可没地方买。');
         const c = await choose('出发之前……', ['先去天剑集市（问剑坪东口）', '不买了，直接出发']);
@@ -6389,17 +6389,30 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     S.hud = true; world.locked = false;
     await fadeIn(400); toast('问剑坪东口就是天剑集市', 2600);
   };
+  // 作者 11-07：出发改在天剑山门送别庭触发（走过云阶松径到山门，叶擎苍在那里送行）
+  window.CH2_DEPART_GO = async function () {
+    if (S.flags.ch2_depart) return;
+    if (!S.flags.ch2_market) { await say('星旋', '就这么走了？集市都不逛一下？丹药没备够，到了黑风寨可没地方买。');
+      const c = await choose('出发之前……', ['回去逛天剑集市（演武广场东口）', '不买了，直接出发']); if (c === 0) { toast('演武广场东口就是天剑集市', 2200); return false; } }
+    if (window.R134_BEFORE_DEPART) await R134_BEFORE_DEPART();
+    await ch2Depart(); return true;
+  };
   window.CH2_SEND_OFF = async function () {
     await fadeOut(500);
-    const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); world.locked = true; S.scene = drawMap;
-    await fadeIn(600);   // 云霆已在队里，跟在身后，不再另摆一个
-    const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
-    await narrate('山门前，叶擎苍早已等在那里。');
+    // 作者 11-07：送别放到天剑山门的送别庭（Codex 预留站位：宗主 1728,1600 / 叶孤星 1650,1800 / 云霆 1810,1800）
+    const SM = !!TMAPS.tj_shanmen, P64 = (x, y) => [x / 64 - .5, y / 64 - .8];
+    if (SM) { const [c, r] = P64(1650, 1800); tileSetMap('tj_shanmen', c, r, 'up'); }
+    else { const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); }
+    world.locked = true; S.scene = drawMap;
+    await fadeIn(600);   // 云霆已在队里，跟在身后
+    const [fx, fy] = SM ? [1728, 1600] : near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; if (SM) f2.face = 'down'; await tween(500, t => f2.alpha = t);
+    await narrate('天剑山门，送别庭前。叶擎苍早已等在那里。');
     await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
     await say('叶擎苍', '记住——遇事先保命，破空遁符别舍不得用。');
     await say('叶孤星', '爹，您放心。孩儿一定把黑风寨的事办妥。');
     await say('叶擎苍', '好了，你们去吧。');
     joinParty('yunting');
+    if (SM && world.player) { world.player.face = 'down'; await moveActor(world.player, 1728, 2300, 200); }   // 转身走下出山石阶
     await fadeOut(600);
     await ch2Forest();
   };
