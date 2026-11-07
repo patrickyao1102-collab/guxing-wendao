@@ -477,7 +477,7 @@
   if (typeof drawActorT === 'function') drawActorT = (o => function (a, t) {
     try {
       if (a && a._q162prop) { ctx.save(); undoAZ(a); a._q162prop(a); ctx.restore(); return; }
-      if (a && a.npc && a.npc.q162book) { ctx.save(); undoAZ(a); prop('ledger', 0, a.x - 6, a.y - 92, .5); ctx.restore(); return; }   // 桌上摊开的《青竹小记》
+      if (a && a.npc && a.npc.q162book) return;   // 作者 11-08：不另画一本书——《青竹小记》就是书桌上原本摊开的那本，光效在 tileAmbientHigh 里画
       const n = a && a.npc;
       if (n && ON() && a._q && !a._a142 && (n.q162 || n.r139cat)) { const y0 = a.y; a.y += a._q.oy || 0; let ok = false; try { ok = drawQ(a, n); } finally { a.y = y0; } if (ok) return; }
     } catch (e) {}
@@ -1292,9 +1292,29 @@
       [hidSeen('maid2:bdayhint') || hidSeen('maid1:bday') ? '青禾的生辰' : '？？？', hidSeen('maid1:bday') ? '已经过了 · 一起吃过了' : hidSeen('maid2:bdayhint') ? '第二十四日的黄昏　·　竹笋汤、蛋羹' : '……']];
     for (const [a, b] of rows) { ctx.fillStyle = 'rgba(255,253,246,.72)'; roundRect(RX, y, RW, 32, 10); ctx.fill(); ctx.font = `19px ${BKF}`; ctx.fillStyle = '#2b332e'; ctx.fillText(a, RX + 16, y + 16); ctx.font = `16px ${BKF}`; ctx.fillStyle = '#7d7666'; ctx.fillText(b, RX + 170, y + 16); y += 35; }
   }
-  { const R = TMAPS.tj_room; R.npcs = R.npcs || []; const [c, r] = P(742, 596);
-    R.npcs.push({ key: 'none', name: '青竹小记', c, r, h: 70, wander: false, q162book: 1, mark: () => !!F().qz_book_hint && !F().qz_book_open,
-      talk: async () => { F().qz_book_open = 1; await openBook(); } }); }
+  // 作者 11-08：「青竹小记翻不开」——原来的点选框落在书桌前面的地板上（名字和书画在上面，点上去点不到）。
+  //   改成：就用书桌上原本摊开的那本书（世界坐标约 786–871 × 443–480），点选框正好罩住它；书会发光，有新东西时更亮、往上飘光点。
+  const BKC = [829, 461];
+  const bookNews = () => { const f = F(); return Object.keys(f.qz_ev || {}).length + SECRETS.filter(e => hidSeen(e.id)).length + Object.keys(Q()).length; };
+  const bookNew = () => { const f = F(); return !f.qz_book_open || bookNews() > (f.qz_book_seen || 0); };
+  { const R = TMAPS.tj_room; R.npcs = R.npcs || []; const [c, r] = P(BKC[0], 486);
+    R.npcs.push({ key: 'none', name: '青竹小记', c, r, h: 76, hidden: true, wander: false, q162book: 1,
+      talk: async () => { const f = F(); f.qz_book_open = 1; f.qz_book_seen = bookNews(); await openBook(); } }); }
+  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function () {
+    o.apply(this, arguments);
+    try { if (world.mapName !== 'tj_room' || BOOK) return; const t = now(), nw = bookNew(), k = nw ? 1.1 : .85, [x, y] = BKC, pu = .8 + .2 * Math.sin(t * (nw ? 3 : 1.6));
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      // 书四周一圈暖光（落在桌面木头上看得出来），书页上一层柔亮
+      ctx.save(); ctx.translate(x, y); ctx.scale(1, .55); let g = ctx.createRadialGradient(0, 0, 20, 0, 0, 120); g.addColorStop(0, `rgba(255,214,130,${.5 * k * pu})`); g.addColorStop(.5, `rgba(255,186,90,${.2 * k * pu})`); g.addColorStop(1, 'rgba(255,180,90,0)'); ctx.fillStyle = g; ctx.fillRect(-120, -120, 240, 240); ctx.restore();
+      g = ctx.createRadialGradient(x, y - 2, 0, x, y - 2, 46); g.addColorStop(0, `rgba(255,236,180,${.4 * k * pu})`); g.addColorStop(1, 'rgba(255,230,170,0)'); ctx.fillStyle = g; ctx.fillRect(x - 50, y - 50, 100, 100);
+      // 书页上冒起的光点
+      const n = nw ? 10 : 6; for (let i = 0; i < n; i++) { const ph = (t * .38 + i / n) % 1, sx = x - 36 + ((i * 37) % 72) + Math.sin(t * 1.6 + i) * 5, sy = y - 6 - ph * (nw ? 70 : 44), al = Math.sin(ph * Math.PI) * (nw ? 1 : .7), rr = 2.6 + (i % 3);
+        const gg = ctx.createRadialGradient(sx, sy, 0, sx, sy, rr * 3); gg.addColorStop(0, `rgba(255,250,226,${al})`); gg.addColorStop(.35, `rgba(255,214,120,${al * .6})`); gg.addColorStop(1, 'rgba(255,200,110,0)'); ctx.fillStyle = gg; ctx.fillRect(sx - rr * 3, sy - rr * 3, rr * 6, rr * 6); }
+      // 书页上一闪一闪的小星芒
+      for (let i = 0; i < 3; i++) { const tw = Math.max(0, Math.sin(t * 2.3 + i * 2.1)), sx = x - 24 + i * 24, sy = y - 6 + (i % 2) * 8, L = (5 + 5 * tw) * (nw ? 1 : .7), al = tw * k;
+        if (al < .05) continue; ctx.strokeStyle = `rgba(255,248,215,${al})`; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(sx - L, sy); ctx.lineTo(sx + L, sy); ctx.moveTo(sx, sy - L); ctx.lineTo(sx, sy + L); ctx.stroke(); }
+      ctx.restore(); } catch (e) {}
+  })(tileAmbientHigh);
 
   // ---------- 子时敲门：多半没动静；满足条件时姑娘还没睡，开门进屋有一段隐藏剧情 ----------
   // 作者 11-08：「入睡以后不是完全进不了——轻轻敲门，里面没动静，就是睡了。然后会有隐藏剧情：比如叶孤星做饭小桃吃了三次以上，当晚去敲小桃的门，
