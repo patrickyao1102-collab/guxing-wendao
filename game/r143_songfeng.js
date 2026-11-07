@@ -176,7 +176,10 @@
 
 // ================= R156 下山两图 NPC 行走图集：7 列 × 3 行（下 / 上 / 左，右 = 左镜像），0 列站立，1-6 列走路 8fps =================
 (function () {
-  const K = ['gate_scribe', 'stele_elder', 'leaf_sweeper', 'herb_gatherer', 'stair_sweeper', 'mountain_patrol', 'young_seeker', 'village_mother'], IM = {};
+  const K = ['gate_scribe', 'stele_elder', 'leaf_sweeper', 'herb_gatherer', 'stair_sweeper', 'mountain_patrol', 'young_seeker', 'village_mother', 'discipline_elder', 'spirit_swordsmith', 'statue_keeper'], IM = {};
+  // 作者 11-08：Codex R156 补绘——天剑大殿戒律长老、演武广场铸剑师 / 守像老人换专属造型（落点、对白不变）
+  const RE = { tj_hall: { '戒律长老': 'discipline_elder' }, tj_front: { '铸剑师': 'spirit_swordsmith', '守像老人': 'statue_keeper' } };
+  if (typeof tileSetMap === 'function') tileSetMap = (o => function (name) { try { const R = RE[name], d = R && TMAPS[name]; if (d) for (const n of d.npcs || []) if (R[n.name]) n.cx = R[n.name]; } catch (e) {} return o.apply(this, arguments); })(tileSetMap);
   const get = k => { if (!IM[k]) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r156/' + k + '.webp'; IM[k] = im; } return IM[k]._ok ? IM[k] : null; };
   const SC = 0.52;   // 和其他 NPC 同高（屏幕上约 113px）
   drawActorT = (orig => function (a, now) {
