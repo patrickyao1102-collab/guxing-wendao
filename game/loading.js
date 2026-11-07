@@ -31,10 +31,12 @@
   const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/bg_' + String(i + 1).padStart(2, '0') + '.webp'; };
   for (const k of ['track', 'fill_left', 'fill_mid', 'fill_right', 'head']) { const im = new Image(); im.onload = () => { LB.parts[k] = im; }; im.src = 'r157/progress/' + k + '.webp'; }
   { const im = new Image(); im.onload = () => { LB.parts.tw = im; }; im.src = 'r157/anim/head_twinkle_8f.webp'; }
-  lbLoad(0); let lbNext = Math.floor(Math.random() * 10); lbLoad(lbNext); lbLoad((lbNext + 4) % 10); lbLoad((lbNext + 7) % 10);   // 开局就先下三张，第一次进图就有插画
+  // 作者 11-08：第 2、10 张不要；第 4 张还在精修，先不放（精修好替换 r157/bg_04.webp 后把 4 加回 USE）
+  const USE = [1, 3, 5, 6, 7, 8, 9].map(n => n - 1), pickU = () => USE[Math.floor(Math.random() * USE.length)];
+  lbLoad(USE[0]); let lbNext = pickU(); lbLoad(lbNext); lbLoad(pickU()); lbLoad(pickU());   // 开局就先下三张，第一次进图就有插画
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)];
-    lbNext = (lbNext + 1 + Math.floor(Math.random() * 9)) % 10; lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
+    lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
   function lbBar(p, now) { const P = LB.parts; if (!P.track) return false;
     ctx.drawImage(P.track, 160, 648, 960, 34);
     const w = 884 * Math.max(0, Math.min(1, p));
