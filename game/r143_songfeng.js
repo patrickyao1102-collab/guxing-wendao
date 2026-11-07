@@ -64,20 +64,20 @@
                        : [['少宗主，没有宗主吩咐，弟子不敢放您出山门。', '宗主那边点了头，弟子自然放行。'], ['山门重地，擅自下山要受戒律长老责罚的。', '少宗主先回大殿见过宗主吧。']][i];
           for (const l of L) await say(n, l); } }));
     }
-    // 作者 11-07：两张图上添些人（先用游戏里现有的 Codex NPC 造型；新造型交给 Codex 做，交付后换皮）
+    // 作者 11-07：两张图上添些人。R156 Codex 专门画了 8 个新造型（r156/ 下 8 张行走图集），行商仍用旧造型
     const NP = {
       tj_yunjie: [
-        ['disciple_f', 1500, 1560, '下山采药的师妹', ['云阶三段，每段九十九级。师父说走一趟就是一次修心。', '我去山下镇子收灵草，晌午前就得回来。'], true],
-        ['groundskeeper', 1360, 2480, '扫阶的杂役', ['这白玉阶一天要扫三遍，落叶一多，师兄们下山容易滑脚。', '少宗主这是要下山？路上小心些。']],
-        ['disciple_m', 1530, 3080, '巡山弟子', ['今日轮到我巡云阶。往下就是山门了，守门的师兄脾气不太好。']],
+        ['herb_gatherer', 1500, 1560, '下山采药的师妹', ['云阶三段，每段九十九级。师父说走一趟就是一次修心。', '我去山下镇子收灵草，晌午前就得回来。'], true],
+        ['stair_sweeper', 1360, 2480, '扫阶的杂役', ['这白玉阶一天要扫三遍，落叶一多，师兄们下山容易滑脚。', '少宗主这是要下山？路上小心些。']],
+        ['mountain_patrol', 1530, 3080, '巡山弟子', ['今日轮到我巡云阶。往下就是山门了，守门的师兄脾气不太好。']],
       ],
       tj_shanmen: [
-        ['scribe', 1250, 1480, '山门执事', ['出入山门都要在我这儿记一笔。少宗主……您的名字我就不写了。', '近来来拜山求道的人多，十个里能留下一个就不错了。']],
-        ['teaching_elder', 1020, 760, '守碑长老', ['这问剑碑上的剑痕，是历代宗主留下的。', '你若有朝一日能在碑上留下一道剑意，便算真正入了天剑之道。']],
-        ['groundskeeper', 2330, 990, '扫落叶的老仆', ['镇山灵杉的叶子落了又长，长了又落。老头子扫了四十年。', '夜里它会发光——你见过没有？']],
+        ['gate_scribe', 1250, 1480, '山门执事', ['出入山门都要在我这儿记一笔。少宗主……您的名字我就不写了。', '近来来拜山求道的人多，十个里能留下一个就不错了。']],
+        ['stele_elder', 1020, 760, '守碑长老', ['这问剑碑上的剑痕，是历代宗主留下的。', '你若有朝一日能在碑上留下一道剑意，便算真正入了天剑之道。']],
+        ['leaf_sweeper', 2330, 990, '扫落叶的老仆', ['镇山灵杉的叶子落了又长，长了又落。老头子扫了四十年。', '夜里它会发光——你见过没有？']],
         ['traveling_merchant', 640, 1660, '歇脚的行商', ['爬了半天山，总算到了山门。我是来给贵宗送药材的。', '听说山下松风林道最近有妖狼，几位少侠路上当心。']],
-        ['villager_m', 1560, 2080, '求道的少年', ['我从青阳镇走了三天才到这里！', '守门的师兄说要等考核……我一定能进天剑宗！']],
-        ['villager_f', 1880, 2080, '送儿子拜山的妇人', ['孩子他爹走得早，就盼着这孩子能有出息。', '少侠是天剑宗的人吧？求您……多照应照应他。']],
+        ['young_seeker', 1560, 2080, '求道的少年', ['我从青阳镇走了三天才到这里！', '守门的师兄说要等考核……我一定能进天剑宗！']],
+        ['village_mother', 1880, 2080, '送儿子拜山的妇人', ['孩子他爹走得早，就盼着这孩子能有出息。', '少侠是天剑宗的人吧？求您……多照应照应他。']],
       ],
     };
     for (const [cxk, x, y, name, lines, wander] of NP[id] || []) { const [c, r] = at(x, y);
@@ -121,4 +121,24 @@
       ctx.restore(); } catch (e) {}
   })(tileAmbientHigh);
   window.SF143 = { D, load };
+})();
+
+// ================= R156 下山两图 NPC 行走图集：7 列 × 3 行（下 / 上 / 左，右 = 左镜像），0 列站立，1-6 列走路 8fps =================
+(function () {
+  const K = ['gate_scribe', 'stele_elder', 'leaf_sweeper', 'herb_gatherer', 'stair_sweeper', 'mountain_patrol', 'young_seeker', 'village_mother'], IM = {};
+  const get = k => { if (!IM[k]) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r156/' + k + '.webp'; IM[k] = im; } return IM[k]._ok ? IM[k] : null; };
+  const SC = 0.52;   // 和其他 NPC 同高（屏幕上约 113px）
+  drawActorT = (orig => function (a, now) {
+    const k = a.npc && a.npc.cx; if (!k || !K.includes(k) || a.hidden) return orig(a, now);
+    const im = get(k); if (!im) return;
+    let dx = (a.tx ?? a.x) - a.x, dy = (a.ty ?? a.y) - a.y;
+    if (a._lx != null && Math.hypot(a.x - a._lx, a.y - a._ly) > .2) { dx = a.x - a._lx; dy = a.y - a._ly; }
+    a._lx = a.x; a._ly = a.y;
+    let row = a._row ?? 0, flip = !!a._flip;
+    if (a.moving && Math.abs(dx) + Math.abs(dy) > .01) { if (Math.abs(dx) > Math.abs(dy) * .8) { row = 2; flip = dx > 0; } else { row = dy < 0 ? 1 : 0; flip = false; } a._row = row; a._flip = flip; }
+    const col = a.moving ? 1 + Math.floor(now * 8 + (a.x * .013 % 1) * 6) % 6 : 0;
+    ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 22, 7, 0, 0, 7); ctx.fill();
+    ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y); if (flip) ctx.scale(-1, 1); ctx.scale(SC, SC);
+    ctx.drawImage(im, col * 160, row * 240, 160, 240, -80, -232, 160, 240); ctx.restore();
+  })(drawActorT);
 })();
