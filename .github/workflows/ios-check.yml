@@ -1,0 +1,35 @@
+name: iOS 编译检查（不签名，模拟器）
+
+on:
+  push:
+    branches: [main]
+    paths: ["ios/**", ".github/workflows/ios-check.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: 放一份最小网页资源（只验证编译，不打全部素材）
+        run: |
+          mkdir -p ios/App/web
+          cp android/app/src/main/assets/boot.html ios/App/web/boot.html
+          echo '<!doctype html><title>t</title>ok' > ios/App/web/index.html
+          echo '{"version":"ci","files":{}}' > ios/App/web/version.json
+      - name: Xcode 版本
+        run: xcodebuild -version
+      - name: 编译（iOS 模拟器，不签名）
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/Guxing.xcodeproj -scheme Guxing \
+            -sdk iphonesimulator -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -80
+      - name: 编译（真机 arm64，不签名，模拟 Archive 那条路）
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/Guxing.xcodeproj -scheme Guxing \
+            -sdk iphoneos -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -80
