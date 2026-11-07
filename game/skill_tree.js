@@ -354,7 +354,8 @@
   // 给技能详情页（r154）用
   const nodeOf = (who, id) => { const T = TREE[who]; if (!T) return null; if (T.ult && T.ult.id === id) return T.ult; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return n; return null; };
   const colOf = (who, id) => { const T = TREE[who]; if (!T) return ''; if (T.ult && T.ult.id === id) return '秘传'; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return c[0]; return ''; };
-  window.SKT = { info, need, tiersOf, TGT, CN, CAPTXT, realmCap, bookId, nodeOf, colOf,
+  const iconByName = name => { const s = String(name || '').replace(/^!/, '').trim(); for (const T of Object.values(TREE)) { const all = [T.ult, ...T.cols.flatMap(c => c[1])].filter(Boolean); for (const n of all) { const nm = n.name || n.short; if (nm && (nm === s || s.includes(nm) || nm.includes(s) || n.short === s)) return n.icon; } } return null; };
+  window.SKT = { iconByName, info, need, tiersOf, TGT, CN, CAPTXT, realmCap, bookId, nodeOf, colOf,
     canUp: (who, id) => { const n = nodeOf(who, id); return n ? canUp({ who }, { n }) : null; },
     upgrade: (who, id) => { const n = nodeOf(who, id); if (!n) return false; const G = { who }, o = { n }, cu = canUp(G, o); return cu && cu.q ? doUp(G, o, cu) : false; } };
 

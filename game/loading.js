@@ -31,7 +31,8 @@
   const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/bg_' + String(i + 1).padStart(2, '0') + '.webp'; };
   for (const k of ['track', 'fill_left', 'fill_mid', 'fill_right', 'head']) { const im = new Image(); im.onload = () => { LB.parts[k] = im; }; im.src = 'r157/progress/' + k + '.webp'; }
   { const im = new Image(); im.onload = () => { LB.parts.tw = im; }; im.src = 'r157/anim/head_twinkle_8f.webp'; }
-  let lbNext = Math.floor(Math.random() * 10); lbLoad(lbNext);
+  let lbNext = Math.floor(Math.random() * 10); lbLoad(lbNext); lbLoad((lbNext + 4) % 10); lbLoad((lbNext + 7) % 10);   // 开局就先下三张，第一次进图就有插画
+  window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)];
     lbNext = (lbNext + 1 + Math.floor(Math.random() * 9)) % 10; lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
   function lbBar(p, now) { const P = LB.parts; if (!P.track) return false;
@@ -52,6 +53,7 @@
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
     ctx.save(); ctx.globalAlpha = a;
+    if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
     const B = LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
     if (B) {   // R157 插画版
       const now = performance.now(), title0 = (world.map && world.map.def && world.map.def.title) || '', title = title0.replace(/^.*·\s*/, '') || title0, i = LB.idx;

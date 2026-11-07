@@ -102,6 +102,7 @@
   setTimeout(async () => { const F = S.flags = S.flags || {}; Object.assign(F, { res_ch1: 1, ch1_free: 1, ch1_hunt_done: 1, ch2_night: 1, ch2_roam: 1, ch2_hall: 1, ch2_liuyun: 1, ch2_pill: 1, ch2_market: 1, ch2_seal_open: 1, hs_explored: 1 });
     const h = S.hero; h.skills = ['pojun', 'tanlang']; h.sword = true; h.realm = '凝丹二重'; if (h.lv < 12) h.lv = 12; h.maxhp = h.hp = Math.max(h.maxhp, 420); h.maxmp = h.mp = Math.max(h.maxmp, 140); h.atk = Math.max(h.atk, 52);
     if (typeof joinParty === 'function') joinParty('yunting');
+    for (let i = 0; i < 100 && !(window.LOADING_ART_READY && LOADING_ART_READY()); i++) await new Promise(r => setTimeout(r, 100));   // 先等载入插画下好
     S.hero.learnQ = []; S.started = true; S.fade = 1; S.hud = true;
     // 先进演武广场、等地图载完淡入，再开始送别（以前直接在黑屏上就开始对话）
     tileSetMap('tj_front', 1792 / 64 - .5, 2200 / 64 - .8, 'down'); S.scene = drawMap; world.locked = true;

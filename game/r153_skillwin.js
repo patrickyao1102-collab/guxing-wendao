@@ -94,7 +94,8 @@
   }));
   // 按名字找技能键（图标用）
   const keyOf = name => { const s = String(name || '').replace(/^!/, ''); try { for (const [k, d] of Object.entries(SKILL_DB)) if (d && d.name && (d.name === s || s.includes(d.name) || d.name.includes(s))) return k; } catch (e) {}
-    try { const part = s.split(/[·・]/).pop().trim(); for (const [k, d] of Object.entries(SKILL_DB)) if (d && d.name && d.name.split(/[·・]/).pop().trim() === part) return k; } catch (e) {} return null; };
+    try { const part = s.split(/[·・]/).pop().trim(); for (const [k, d] of Object.entries(SKILL_DB)) if (d && d.name && d.name.split(/[·・]/).pop().trim() === part) return k; } catch (e) {}
+    try { return (window.SKT && SKT.iconByName(s)) || null; } catch (e) {} return null; };
   window.SKWIN = {
     learn: ({ k, name, desc, meta, note }) => { try { playSnd('sfx_sword_ring'); } catch (e) {} S.flash = .4; S.flashColor = '#cfe6ff'; return open({ kind: 'learn', title: '领悟技能', k: k || keyOf(name), name, desc, meta, note, btn: '知道了' }); },
     upgrade: ({ k, name, t0, t1, rows, desc }) => { try { playSnd('jingle_levelup'); } catch (e) {} S.flash = .4; S.flashColor = '#fff3c0'; return open({ kind: 'up', title: '技能升级', k: k || keyOf(name), name, t0r: t0, t1r: t1, rows, desc, btn: '确定' }); },
