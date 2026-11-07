@@ -46,14 +46,18 @@
   window.MAP_LOADING = () => { try { return readiness() < 1; } catch (e) { return false; } };
   // 作者 11-08：载入画面换成 Codex R157 十款插画（每次换图随机抽一张，整个载入过程用同一张）+ 黑金进度条
   const LB = { im: [], idx: -1, parts: {}, tip: '' };
-  const LCOL = ['#FFF2D5', '#25292A', '#25292A', '#25292A', '#FFF2D5', '#25292A', '#25292A', '#FFF2D5', '#FFF2D5', '#FFF2D5'];
+  // 作者 11-08：换成作者勾选的 22 张（R157 作者已选合集：主选 8 + 人物特写 14）。[编号, 左上亮(1)=墨黑题名 / 暗(0)=米白金题名, 角色]
+  const SEL = [["01",0,""],["03",0,""],["04A",1,""],["04B",1,""],["05",0,""],["06",0,""],["08",0,""],["09",0,""],["LC02",0,"luochen"],["LC03",0,"luochen"],["LC04",0,"luochen"],["YG01",0,""],["YG02",0,""],["YT01",0,"yunting"],["YT02",0,"yunting"],["YT03",0,"yunting"],["LX01",0,"linxue"],["LX02",0,"linxue"],["LX03",0,"linxue"],["SL01",0,"shenle"],["SL03",0,"shenle"],["E2",0,"luochen"]];
+  const LCOL = SEL.map(s => s[1] ? '#25292A' : '#FFF2D5');
   const TIPS = ['点地面行走，点人说话；地图边缘的光阵通往别处', '野外的鬼火、兽火碰到就开打：绿弱、蓝同级、紫精英、红越级', '行囊里的技能页，点一下已选中的招式就能看详情、参悟升重', '卷册在天剑集市 · 典籍阁有售，参悟升重要用', '打不过就先去别处历练，等级上去了再回来', '按 M 或点左上角小地图，可以看整张地图', '宝箱多藏在不起眼的角落', '星旋偶尔会多嘴两句，听听也许有用', '战斗里怒气攒满 100，就能施展必杀', '青竹小院里的东西，点一点会有作者留下的彩蛋'];
-  const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/bg_' + String(i + 1).padStart(2, '0') + '.webp'; };
+  const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/sel/' + SEL[i][0] + '.webp'; };
   for (const k of ['track', 'fill_left', 'fill_mid', 'fill_right', 'head']) { const im = new Image(); im.onload = () => { LB.parts[k] = im; }; im.src = 'r157/progress/' + k + '.webp'; }
   { const im = new Image(); im.onload = () => { LB.parts.tw = im; }; im.src = 'r157/anim/head_twinkle_8f.webp'; }
-  // 作者 11-08：第 2、10 张不要；第 4 张还在精修，先不放（精修好替换 r157/bg_04.webp 后把 4 加回 USE）
-  const USE = [1, 3, 5, 6, 7, 8, 9].map(n => n - 1), pickU = () => USE[Math.floor(Math.random() * USE.length)];
-  lbLoad(USE[0]); let lbNext = pickU(); lbLoad(lbNext); lbLoad(pickU()); lbLoad(pickU());   // 开局就先下三张，第一次进图就有插画
+  // 人物特写：这个角色已经认识（入过队）才会抽到，免得剧透
+  const metOk = k => { if (!k) return true; try { const F0 = S.flags || {}; return !!((F0.met || {})[k] || (S.party || []).includes(k)); } catch (e) { return false; } };
+  try { if (typeof joinParty === 'function') joinParty = (o => function (k) { try { (S.flags.met = S.flags.met || {})[k] = 1; } catch (e) {} return o.apply(this, arguments); })(joinParty); } catch (e) {}
+  const USEf = () => SEL.map((s, i) => metOk(s[2]) ? i : -1).filter(i => i >= 0), pickU = () => { const U = USEf(); return U[Math.floor(Math.random() * U.length)]; };
+  lbLoad(0); let lbNext = pickU(); lbLoad(lbNext); lbLoad(pickU()); lbLoad(pickU());   // 开局就先下三张，第一次进图就有插画
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)];
     lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
@@ -84,7 +88,7 @@
       const now = performance.now(), title0 = (world.map && world.map.def && world.map.def.title) || '', title = title0.replace(/^.*·\s*/, '') || title0, i = LB.idx;
       ctx.drawImage(B, 0, 0, W, H);
       const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150);
-      const four = !QA && i === 3, col = QA ? '#FFF2D5' : LCOL[i], dark = col !== '#FFF2D5';
+      const four = false, col = QA ? '#FFF2D5' : LCOL[i], dark = col !== '#FFF2D5';
       const TI = TITLE_IM(world.mapName, dark ? 'dark' : 'light');
       if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
         const sc = Math.min(1.3, (four ? 185 : 520) / TI.width), dw = TI.width * sc, dh = TI.height * sc;
