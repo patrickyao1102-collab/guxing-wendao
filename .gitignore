@@ -10,6 +10,8 @@ game/_tmp_walk/
 # 构建产物（本地/CI 生成，不入库）
 release/
 ios/App/web/
-ios/Guxing.xcodeproj/
 ios/build/
 ios/DerivedData/
+ios/Guxing.xcodeproj/xcuserdata/
+ios/Guxing.xcodeproj/project.xcworkspace/xcuserdata/
+__pycache__/

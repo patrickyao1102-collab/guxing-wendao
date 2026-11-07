@@ -36,16 +36,18 @@ def strip_test_panel(html):
     return html[:i] + '/* 测试面板：正式版已移除 */' + html[j + len('\n})();'):]
 
 def xor_bytes(data):
+    n = len(data)
+    if n == 0:
+        return data
     try:
         import numpy as np
         a = np.frombuffer(data, dtype=np.uint8)
-        k = np.frombuffer((KEY * (len(a) // len(KEY) + 1))[:len(a)], dtype=np.uint8)
+        k = np.frombuffer((KEY * (n // len(KEY) + 1))[:n], dtype=np.uint8)
         return (a ^ k).tobytes()
     except Exception:
-        b = bytearray(data); lk = len(KEY)
-        for i in range(len(b)):
-            b[i] ^= KEY[i % lk]
-        return bytes(b)
+        # 没 numpy 时的快速兜底：按文件整体用大整数 XOR（C 层位运算，比逐字节循环快几个量级）
+        key = (KEY * (n // len(KEY) + 1))[:n]
+        return (int.from_bytes(data, 'big') ^ int.from_bytes(key, 'big')).to_bytes(n, 'big')
 
 def main():
     if not os.path.isdir(SRC):

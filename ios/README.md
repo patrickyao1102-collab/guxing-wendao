@@ -4,15 +4,20 @@
 
 ## 一次准备（在 Mac 上）
 
+工程文件 `Guxing.xcodeproj` 已经在仓库里，**不需要 Homebrew、不需要 xcodegen**。只需要 `python3`（装了 Xcode 命令行工具就自带）。
+
 ```bash
 cd ios
 ./build.sh
 ```
 
 `build.sh` 会：
-1. 跑 `prepare_web.sh` —— 生成加扰正式版网页资源到 `App/web/`（去测试面板 + 删废图 + 字节加扰 + 明文 boot.html/version.json）。需要 `python3`，建议先 `pip3 install numpy`（加扰更快）。
-2. 装 `xcodegen`（没有会用 Homebrew 装）并生成 `Guxing.xcodeproj`。
-3. 打开工程。
+1. 跑 `prepare_web.sh` —— 生成加扰正式版网页资源到 `App/web/`（去测试面板 + 删废图 + 字节加扰 + 明文 boot.html/version.json）。没有 numpy 也行（会走大整数兜底），装了 `pip3 install numpy` 更快。
+2. 打开 `Guxing.xcodeproj`。
+
+> 也可以手动：先在 `ios/` 下跑一次 `./prepare_web.sh`（生成 `App/web/`），再双击 `Guxing.xcodeproj`。
+> `App/web/` 没生成之前，Xcode 里 web 文件夹会显示红色、编译会报缺资源——跑一次 `prepare_web.sh` 就好。
+> （`project.yml` 是给用 xcodegen 的人留的，可忽略。）
 
 ## 在 Xcode 里
 
