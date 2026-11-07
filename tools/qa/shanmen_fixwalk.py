@@ -34,7 +34,22 @@ new=orig.copy()
 un=orig&(grass|open_)&~keep&~foot
 new[un]=False
 new|=foot   # 草地上的石头/树脚挡住
-print('unblocked',un.sum())
+# 细墙：路和草地之间那条 1~3 格宽的挡线（原图的路沿）——两边都能走就打通
+fixed=~keep&~foot
+for it in range(2):
+    for axis in (1,0):
+        A=new if axis==1 else new.T; F=fixed if axis==1 else fixed.T
+        R_,C_=A.shape
+        for r in range(R_):
+            row=A[r]; c=0
+            while c<C_:
+                if row[c]:
+                    e=c
+                    while e<C_ and row[e]: e+=1
+                    if e-c<=3 and c>0 and e<C_ and not row[c-1] and not row[e] and F[r,c:e].all(): row[c:e]=False
+                    c=e
+                else: c+=1
+print('unblocked',un.sum(),'final open',(~new).sum())
 s=''.join('1' if v else '0' for v in new.ravel())
 # RLE
 out=[];cur=s[0];n=0
@@ -49,3 +64,5 @@ im[:M.shape[0],:M.shape[1]][M]=im[:M.shape[0],:M.shape[1]][M]*.45+np.array([255,
 Image.fromarray(im.astype('uint8')).resize((1152,853)).save('/tmp/claude-0/qa/wk_new.jpg')
 for x,y in [(500,1300),(450,1330),(2650,1400)]:
     r,c=y//cs,x//cs; print(x,y,'orig',orig[r,c],'grass',grass[r,c],'keep',keep[r,c],'foot',foot[r,c],'new',new[r,c])
+for x,y in [(1926,600),(1934,600),(1942,600),(1540,600)]:
+    r,c=y//cs,x//cs; print('dbg',x,y,'orig',orig[r,c],'grass',grass[r,c],'keep',keep[r,c],'foot',foot[r,c],'open',open_[r,c],'new',new[r,c])
