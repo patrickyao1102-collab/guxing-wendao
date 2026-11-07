@@ -147,7 +147,8 @@
     const fo = fadeOut; fadeOut = async function (ms) { if (GO && !USED && !(S.fade > .01) && PEND && PEND !== world.mapName && coverStart(PEND, Math.min(ms || 220, 260))) { USED = 1; await new Promise(r => setTimeout(r, COVER.ms)); return; } return fo.apply(this, arguments); };
     const fi = fadeIn; fadeIn = async function (ms) { if (GO && USED === 1) { USED = 2; S.fade = 0; return; } /* 只跳过过图自己的那一次 fadeIn；进图剧情里自己要的黑幕照旧 */ return fi.apply(this, arguments); };
   } catch (e) { console.warn('loading goMap', e); } };
-  if (document.readyState === 'complete') setTimeout(late, 0); else window.addEventListener('load', () => setTimeout(late, 0));
+  // 作者 11-08 体检：原来等 window load（手机上要等所有图下完，可能几十秒），这期间过图照旧黑屏 → 改成脚本都跑完（DOMContentLoaded）就装上
+  if (document.readyState !== 'loading') setTimeout(late, 0); else document.addEventListener('DOMContentLoaded', () => setTimeout(late, 0));
   // 作者 11-08：「没有加载完毕不允许出现任何游戏东西，只能是我们的插画」——载入中：对话 / 选项 / 面板一律不推进、不响应点击（r158 也不会把它们画到黑幕上）
   const loadingNow = () => { try { return S.scene === drawMap && world.map && readiness() < 1 && forced !== world.mapName; } catch (e) { return false; } };
   window.MAP_BLOCKING = loadingNow;
