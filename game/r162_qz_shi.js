@@ -565,6 +565,24 @@
     if (!mid) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { if (i % 3 === 0) A('eaves_halo_6f', x, y, .42, .4); }); ctx.restore(); }
   }
 
+  // ---------- 作者 11-08：入夜院里「很多漂亮的小灯」→ Codex R165 七款装饰灯（檐灯串、石灯、竹灯、莲灯、池中河灯、竹枝纸灯）----------
+  //   戌时两院 43 处全亮；子时只留主院居室西阶、池塘东岸和西院西北门外三盏石灯（光晕 ×0.51）。替换掉之前代码画的点光源。
+  const LP_A = {"eaves_amber":{"f":[320,136],"a":[160,26],"fps":6},"eaves_blush":{"f":[320,136],"a":[160,26],"fps":6},"stone_candle":{"f":[130,126],"a":[65,94],"fps":8},"garden_bamboo":{"f":[130,154],"a":[65,120],"fps":6},"path_lotus":{"f":[128,112],"a":[64,79],"fps":6},"pond_flotilla":{"f":[288,140],"a":[144,69],"fps":4},"twig_paper":{"f":[248,128],"a":[39,28],"fps":5}};
+  const LP_P = [["eaves_amber",961,276,"戌",0,0],["eaves_amber",1207,276,"戌",5,0],["eaves_blush",1699,347,"戌",4,0],["eaves_amber",1716,887,"戌",3,0],["eaves_blush",319,1116,"戌",3,0],["stone_candle",821,503,"戌子",2,0],["stone_candle",1505,519,"戌",1,0],["stone_candle",1385,967,"戌子",0,0],["stone_candle",1535,1090,"戌",0,0],["garden_bamboo",911,623,"戌",5,0],["garden_bamboo",1391,651,"戌",4,0],["garden_bamboo",879,901,"戌",3,0],["garden_bamboo",1550,1147,"戌",3,0],["path_lotus",849,695,"戌",2,0],["path_lotus",840,817,"戌",1,0],["path_lotus",842,935,"戌",0,0],["path_lotus",1423,703,"戌",0,0],["path_lotus",1417,832,"戌",5,0],["path_lotus",1367,1113,"戌",4,0],["pond_flotilla",1138,1020,"戌",3,0],["twig_paper",486,284,"戌",3,0],["twig_paper",1935,180,"戌",2,1],["twig_paper",1311,686,"戌",1,0],["eaves_amber",-1271,308,"戌",0,0],["eaves_blush",-680,305,"戌",5,0],["eaves_blush",-1333,954,"戌",4,0],["eaves_amber",-796,974,"戌",3,0],["stone_candle",-1192,502,"戌子",3,0],["stone_candle",-590,492,"戌",2,0],["stone_candle",-992,1150,"戌",1,0],["garden_bamboo",-1187,645,"戌",0,0],["garden_bamboo",-895,643,"戌",0,0],["garden_bamboo",-586,638,"戌",5,0],["garden_bamboo",-307,642,"戌",4,0],["garden_bamboo",-172,1006,"戌",3,0],["garden_bamboo",-173,1215,"戌",3,0],["path_lotus",-1386,733,"戌",2,0],["path_lotus",-1093,734,"戌",1,0],["path_lotus",-624,732,"戌",0,0],["path_lotus",-494,1105,"戌",0,0],["path_lotus",-446,1340,"戌",5,0],["twig_paper",-1580,421,"戌",4,0],["twig_paper",-482,159,"戌",3,1]];
+  const LPI = {}; const lpi = n => { let im = LPI[n]; if (!im) { im = LPI[n] = new Image(); const f = n + '.webp'; im.src = (window.R162_ASSETS && R162_ASSETS['r165lamp/' + f]) || ('r165lamp/' + f); } return im.complete && im.naturalWidth ? im : null; };
+  const lampsLoad = () => { for (const k in LP_A) { lpi(k + '_6f'); lpi(k + '_glow_6f'); } };
+  const lampsReady = () => { let n = 0, ok = 0; for (const k in LP_A) for (const v of [k + '_6f', k + '_glow_6f']) { n++; if (lpi(v)) ok++; } return ok / n; };
+  function lamps165(s, t) {
+    const ga = s === '子' ? .51 : .89, cam = world.cam || { x: 0, y: 0 }, vw = W / VZ(), vh = H / VZ();
+    for (const [id, x, y, tm, ph, fl] of LP_P) { if (tm.indexOf(s) < 0) continue; const A = LP_A[id], [fw, fh] = A.f, [ax, ay] = A.a;
+      if (x + fw < cam.x - 40 || x - fw > cam.x + vw + 40 || y + fh < cam.y - 40 || y - fh > cam.y + vh + 40) continue;
+      const i = (Math.floor(t * A.fps) + ph) % 6, gl = lpi(id + '_glow_6f'), bd = lpi(id + '_6f');
+      ctx.save(); ctx.translate(x, y); if (fl) ctx.scale(-1, 1);
+      if (gl) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = ga; ctx.drawImage(gl, i * fw, 0, fw, fh, -ax, -ay, fw, fh); }
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; if (bd) ctx.drawImage(bd, i * fw, 0, fw, fh, -ax, -ay, fw, fh);
+      ctx.restore(); }
+  }
+
   let WEST_NM = 'rgb(168,178,196)', WEST_NA = 'rgba(34,54,124,.26)';
   // ---------- 光影：时辰叠层 + 小动画 ----------
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now0) {
@@ -581,7 +599,8 @@
         if (s === '卯') { A('dawn_fog_8f', ...Y(190, 1400), 1.1, .85); A('dawn_fog_8f', 1130, 1080, 1.3, .7); A('dawn_fog_8f', ...Y(800, 760), 1.4, .5); }
         if (s === '酉') A('dusk_hearth_smoke', ...Y(465, 769), 1, .9);
         if (s === '戌') { A('fireflies_8f', ...Y(200, 1330), 1, 1); A('fireflies_8f', ...Y(1400, 900), 1, .9); A('fireflies_8f', 1130, 1040, 1.1, .9); }
-        if (s === '戌' || s === '子') nightLights(s, t, A);
+        if (s === '戌') { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { const f = .92 + Math.sin(t * 5.3 + i * 1.7) * .05, g = ctx.createRadialGradient(x, y, 2, x, y, 70); g.addColorStop(0, `rgba(255,214,150,${.26 * f})`); g.addColorStop(.4, `rgba(255,180,100,${.1 * f})`); g.addColorStop(1, 'rgba(255,170,90,0)'); ctx.fillStyle = g; ctx.fillRect(x - 70, y - 70, 140, 140); }); ctx.restore(); }   // 院里原有的灯杆、石灯入夜也点着（淡淡一层，不抢 R165 的灯）
+        if (s === '戌' || s === '子') lamps165(s, t);   // 旧的代码点光源 + 檐下小灯笼（nightLights）停用，换 Codex R165 装饰灯
         if (s === '戌' || (s === '酉' && Object.keys(DAY.lit).length)) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
           for (const k in LANT) { if (s === '酉' && !DAY.lit[k]) continue; const al = s === '酉' ? Math.min(1, (t - DAY.lit[k]) / .8) : 1; A('eaves_halo_6f', LANT[k][0], LANT[k][1], .62, .85 * al); } ctx.restore(); }
         if (s === '子') { A('moon_bamboo_8f', 120, 300, 1, .9); A('moon_bamboo_8f', 1960, 320, 1, .9); A('moon_bamboo_8f', ...Y(220, 120), 1, .85); A('moon_bamboo_8f', ...Y(1420, 160), 1, .85); }
@@ -1538,7 +1557,8 @@
     const need = [...SHEETS, ...(LIGHTS[shi()] || []).map(k => 'l_' + k)]; let ok = 0;
     for (const k of need) if (img(k)) ok++;
     let w = 0; for (const k of ['maid1', 'maid2', 'servant', 'steward']) if (walkIm(k)) w++;
-    return (ok + w) / (need.length + 4);
+    const ln = name === COURT && (shi() === '戌' || shi() === '子') ? 14 : 0; if (ln) lampsLoad();   // 入夜装饰灯也下好再开场
+    return (ok + w + (ln ? ln * lampsReady() : 0)) / (need.length + 4 + ln);
   };
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
