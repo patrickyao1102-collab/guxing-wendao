@@ -24,18 +24,32 @@
     }; atp.src = SRC('sf_atlas_' + pi); }
     for (const [k, a] of Object.entries(D.anim || {})) { const im = new Image(); im.onload = () => { ANIM[k] = im; }; im.src = SRC(a.file); }
     const wa = new Image(); wa.onload = () => { WATER.im = wa; }; wa.src = SRC('sf_water');
+    { const a = new Image(); a.onload = () => { M17I.atlas = a; for (const [k, r] of Object.entries(M17.rects)) { const c = document.createElement('canvas'); c.width = r[2]; c.height = r[3]; c.getContext('2d').drawImage(a, r[0], r[1], r[2], r[3], 0, 0, r[2], r[3]); IMG['m17_' + k] = c; } }; a.src = SRC('moon17_atlas');
+      const g = new Image(); g.onload = () => { M17I.glow = g; }; g.src = SRC('moon17_glow'); }
     if (D.ripple) { const ri = new Image(); ri.onload = () => { RIP.im = ri; }; ri.src = SRC('sf_ripple'); }
   }
   const WATER = { im: null }, ANIM = {}, RIP = { im: null };
+  // 作者 11-08：天剑山门用 Codex「17_松亭与月白箜篌」最新试摆：西庭松间凉亭、东庭朝露圆井神树（冠光）、月白凤首箜篌、蒲草坐团、云纹朝天炉、镇门剑幡、崖松花池
+  const M17 = {"rects":{"朝露圆井@1":[0,0,1008,959],"松间凉亭@481":[1010,0,481,443],"月白凤首箜篌@217":[1493,0,217,410],"镇门剑幡@172":[1712,0,172,390],"翠竹@164":[1886,0,164,197],"云纹朝天炉@212":[2052,0,212,196],"崖松花池@220":[2266,0,220,134],"暖枫@252":[2488,0,252,127],"松露汀草@168":[2742,0,168,112],"溪鸢尾@96":[2912,0,96,111],"松露汀草@125":[3010,0,125,83],"白雏菊@52":[3137,0,52,76],"松露汀草@107":[3191,0,107,71],"松露汀草@105":[3300,0,105,70],"山蕨@72":[3407,0,72,54],"蒲草坐团@84":[3481,0,84,52],"苔绒@77":[3567,0,77,37],"落金叶@65":[3646,0,65,13],"落金叶@43":[3713,0,43,9]},"props":[["镇门剑幡@172",864,1426,0,172],["镇门剑幡@172",2423,1426,1,172],["云纹朝天炉@212",563,1623,0,212],["崖松花池@220",1362,1940,0,220],["崖松花池@220",2075,1940,1,220],["松露汀草@168",1150,235,1,168],["松露汀草@125",2850,346,0,125],["松露汀草@105",2008,702,1,105],["山蕨@72",2960,402,1,72],["溪鸢尾@96",2610,761,0,96],["山蕨@72",2650,770,1,72],["暖枫@252",1244,2300,0,252],["翠竹@164",2870,148,0,164],["松露汀草@107",694,306,1,107],["白雏菊@52",2121,780,0,52],["落金叶@65",2310,727,1,65],["落金叶@43",2380,692,0,43],["苔绒@77",1990,708,0,77],["松间凉亭@481",774,276,0,481],["月白凤首箜篌@217",2995,400,0,217],["蒲草坐团@84",2850,494,0,84],["蒲草坐团@84",2656,602,1,84],["蒲草坐团@84",2372,624,0,84],["蒲草坐团@84",2122,562,1,84],["蒲草坐团@84",2033,482,0,84],["蒲草坐团@84",2122,326,1,84],["蒲草坐团@84",2294,273,0,84],["蒲草坐团@84",2603,274,1,84],["蒲草坐团@84",2810,352,0,84]],"tree":{"w":1008,"h":959,"x":2445,"y":550},"glow":[1965,-409,1139,809],"atlasH":959}, M17I = { atlas: null, glow: null };
   // ---------- 地图 ----------
   const gate = (TMAPS.tj_front.exits || []).find(e => /山门/.test(e.label || ''));
   const frontBack = gate ? at((gate.x + gate.w / 2) * 32, (gate.y - 3) * 32) : [26, 34];   // 回到演武广场山门内侧
   const xsIn = gate && gate.to === 'tj_xiashan' ? gate.at : null;                          // 松风林道的北口落点（r132 算好的）
+  // 新摆的炉、剑幡、花池放在可走的石板上：底座挡路
+  const m17Block = (str, m) => { const a = str.split(''), cs = m.cs;
+    for (const [x0, y0, x1, y1] of [[563 - 95, 1568, 563 + 95, 1628], [864 - 34, 1396, 864 + 34, 1430], [2423 - 34, 1396, 2423 + 34, 1430], [1362 - 104, 1888, 1362 + 104, 1944], [2075 - 104, 1888, 2075 + 104, 1944]])
+      for (let r = Math.floor(y0 / cs); r <= Math.floor(y1 / cs); r++) for (let c = Math.floor(x0 / cs); c <= Math.floor(x1 / cs); c++) if (r >= 0 && c >= 0 && r < m.rows && c < m.cols) a[r * m.cols + c] = '1';
+    return a.join(''); };
   const rleOf = m => { let s = '', v = m.b0; for (const n of m.b) { s += v.repeat(n); v = v === '1' ? '0' : '1'; } return s; };
   for (const id in IDS) {
     const m = D.maps[id]; if (!m) continue;
     const objs = []; let k = 0;
     const all = m.inst.concat((m.actors || []).filter(a => a[0] !== '亭中外门弟子').map(([aid, ax, ay, sc, flip]) => [aid, ax, ay, sc, flip, 'objects', null, 0]));   // 守山弟子：站岗的人物按物件画（按脚底排序，人能从他们身后走过）
+    if (id === 'tj_shanmen') {   // 按 Codex ground_chaolu / large_gate_courts 的改法：去掉旧灵杉和两面旧旗，西侧石组让开凉亭，竹溪叠石挪位缩小
+      for (let i = all.length - 1; i >= 0; i--) { const r = all[i]; if (r[0] === '天剑灵杉' || r[0] === '天剑宗旗') { all.splice(i, 1); continue; }
+        if (r[1] >= 1000 && r[1] <= 1200 && r[2] >= 225 && r[2] <= 320) all[i] = [r[0], r[1] + 139, r[2] + 15, ...r.slice(3)];
+        if (r[0] === '竹溪叠石') all[i] = [r[0], r[1] + 120, r[2] + 85, r[3] * .86, ...r.slice(4)]; }
+    }
     for (const [aid, ax, ay, sc, flip, layer, sortY, ph] of all) {
       if (aid === '亭中外门弟子') continue;   // Codex 预览演员 → 换成真 NPC
       const A = D.assets[aid]; if (!A) continue; k++;
@@ -44,8 +58,12 @@
       objs.push({ id: 'sf143_' + aid, img: 'sf143_' + aid, x, y, w, h, flip: !!flip, flat, sy: flat ? (layer === 'terrain' ? 0 : 100000) + k : (sortY != null ? sortY : ay), ax, ay,
         sfw: aid === '仙溪双瀑' ? { sc, ph: ph ? ph / D.water.fps : k * .37 } : null, sfa: D.anim && D.anim[aid] ? { k: aid, ph: k * .13 } : null, sfr: D.ripple && aid === D.ripple.k ? { ph: (ph || k) / D.ripple.fps } : null });
     }
+    if (id === 'tj_shanmen') {
+      const T = M17.tree; objs.push({ id: 'm17_tree', img: 'm17_朝露圆井@1', x: T.x - T.w / 2, y: T.y - T.h, w: T.w, h: T.h, flip: false, flat: false, sy: T.y, ax: T.x, ay: T.y, m17glow: true });
+      for (const [key, ax, ay, flip, w0] of M17.props) { const r = M17.rects[key]; if (!r) continue; objs.push({ id: 'm17_' + key, img: 'm17_' + key, x: ax - r[2] / 2, y: ay - r[3], w: r[2], h: r[3], flip: !!flip, flat: false, sy: ay, ax, ay, m17sh: w0 }); }
+    }
     const cs = m.cs, W = m.w, H = m.h, AX = W / 2, cx = Math.floor((AX - 160) / cs), cw = Math.ceil(320 / cs);
-    const def = { title: IDS[id], name: id, baked: { ground: 'sf143_g_' + id, w: W, h: H, cs, cols: m.cols, rows: m.rows, blocked: rleOf(m), objs },
+    const def = { title: IDS[id], name: id, baked: { ground: 'sf143_g_' + id, w: W, h: H, cs, cols: m.cols, rows: m.rows, blocked: id === 'tj_shanmen' ? m17Block(rleOf(m), m) : rleOf(m), objs },
       chests: [], leaves: true, npcs: [], start: at(AX, 240), sf143: id, exits: [] };
     if (id === 'tj_yunjie') {
       def.exits.push({ x: cx, y: 0, w: cw, h: 10, to: 'tj_front', at: frontBack, face: 'up', label: '上山 · 演武广场' });
@@ -88,7 +106,7 @@
         ['gate_scribe', 1250, 1480, '山门执事', ['出入山门都要在我这儿记一笔。少宗主……您的名字我就不写了。', '近来来拜山求道的人多，十个里能留下一个就不错了。']],
         ['stele_elder', 1020, 760, '守碑长老', ['这问剑碑上的剑痕，是历代宗主留下的。', '你若有朝一日能在碑上留下一道剑意，便算真正入了天剑之道。']],
         ['leaf_sweeper', 2330, 990, '扫落叶的老仆', ['镇山灵杉的叶子落了又长，长了又落。老头子扫了四十年。', '夜里它会发光——你见过没有？']],
-        ['traveling_merchant', 640, 1660, '歇脚的行商', ['爬了半天山，总算到了山门。我是来给贵宗送药材的。', '听说山下松风林道最近有妖狼，几位少侠路上当心。']],
+        ['traveling_merchant', 700, 1790, '歇脚的行商', ['爬了半天山，总算到了山门。我是来给贵宗送药材的。', '听说山下松风林道最近有妖狼，几位少侠路上当心。']],
         ['young_seeker', 1560, 2080, '求道的少年', ['我从青阳镇走了三天才到这里！', '守门的师兄说要等考核……我一定能进天剑宗！']],
         ['village_mother', 1880, 2080, '送儿子拜山的妇人', ['孩子他爹走得早，就盼着这孩子能有出息。', '少侠是天剑宗的人吧？求您……多照应照应他。']],
       ],
@@ -107,6 +125,9 @@
   if (typeof tileSetMap === 'function') tileSetMap = (o => function (name) { if (name in IDS || name === 'tj_front' || name === 'tj_xiashan') load(); return o.apply(this, arguments); })(tileSetMap);
   // ---------- 瀑布 24 帧流水 ----------
   if (typeof drawBaked === 'function') drawBaked = (o => function (ob, now) {
+    if (ob.m17sh) { const w = ob.m17sh, h = Math.max(4, w * .12); ctx.save(); ctx.fillStyle = 'rgba(39,44,29,.2)'; ctx.beginPath(); ctx.ellipse(ob.ax + 2, ob.ay, w * .54, h * .62, 0, 0, 7); ctx.fill(); ctx.restore(); }
+    if (ob.m17glow) { const r0 = o.apply(this, arguments); const g = M17I.glow; if (g) { const [gx, gy, gw, gh] = M17.glow, t = (now || performance.now() / 1000) / 3.6, u = t % 2 < 1 ? t % 1 : 2 - t % 2, e = u * u * (3 - 2 * u);
+      ctx.save(); ctx.globalAlpha *= .09 + .87 * e; ctx.drawImage(g, gx, gy, gw, gh); ctx.restore(); } return r0; }
     if (ob.sfr && RIP.im) {   // 松溪流纹：20 帧整张替换（10fps）
       const R = D.ripple, f = Math.floor(((now || performance.now() / 1000) + ob.sfr.ph) * R.fps) % R.n; ctx.save(); if (ob.flip) { ctx.translate(ob.x + ob.w / 2, 0); ctx.scale(-1, 1); ctx.translate(-(ob.x + ob.w / 2), 0); }
       ctx.drawImage(RIP.im, (f % R.cols) * R.fw, Math.floor(f / R.cols) * R.fh, R.fw, R.fh, ob.x, ob.y, ob.w, ob.h); ctx.restore(); return;
