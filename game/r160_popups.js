@@ -99,7 +99,7 @@
   const idOf = name => { try { const n = String(name).trim().replace(/[×x]\s*\d+$/, '').trim(); for (const [id, it] of Object.entries(ITEM_DB)) if (it && it.name === n) return id; } catch (e) {} return null; };
   showPanel = (orig => function (title, lines) {
     try {
-      if (String(title) === '战斗胜利' && typeof battle !== 'undefined' && battle && ok.victory) {
+      if (false && String(title) === '战斗胜利' && typeof battle !== 'undefined' && battle && ok.victory) {   // 作者 11-08：战斗结算改回原来的样子
         const L = (lines || []).filter(Boolean).map(String), num = re => { const l = L.find(x => re.test(x)); const m = l && l.match(/\+\s*(\d+)/); return m ? +m[1] : 0; };
         const exp = num(/经验/), gold = num(/灵石/), lv0 = battle._lv0 || S.hero.lv, up = S.hero.lv > lv0;
         const need = typeof expNeed === 'function' ? expNeed(S.hero.lv) : 0;

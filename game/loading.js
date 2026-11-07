@@ -85,6 +85,15 @@
     ctx.restore();
   } };
   S.overlay.push(layer);
+  window.LOADING_LAYER = layer;
+  // 作者 11-08：「没有加载完毕不允许出现任何游戏东西，只能是我们的插画」——载入中：对话 / 选项 / 面板一律不推进、不响应点击（r158 也不会把它们画到黑幕上）
+  const loadingNow = () => { try { return S.scene === drawMap && world.map && readiness() < 1 && forced !== world.mapName; } catch (e) { return false; } };
+  window.MAP_BLOCKING = loadingNow;
+  for (const fn of ['updateDialog', 'updateChoice', 'updatePanel']) {
+    if (typeof window[fn] !== 'function' && typeof eval(fn) !== 'function') continue;
+    const o = eval(fn); const w = function () { if (loadingNow()) { if (typeof input !== 'undefined') input.tapped = null; return; } return o.apply(this, arguments); };
+    if (fn === 'updateDialog') updateDialog = w; else if (fn === 'updateChoice') updateChoice = w; else updatePanel = w;
+  }
   // 载入画面期间：收起地图 HUD、不让角色乱走
   drawMapHud = (orig => function () { if (shown >= .99) return; return orig.apply(this, arguments); })(drawMapHud);
   updateMap = (orig => function (dt) { if (readiness() < 1) { if (world.player) world.player.moving = false; return; } return orig(dt); })(updateMap);

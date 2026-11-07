@@ -103,4 +103,8 @@
     const h = S.hero; h.skills = ['pojun', 'tanlang']; h.sword = true; h.realm = '凝丹二重'; if (h.lv < 12) h.lv = 12; h.maxhp = h.hp = Math.max(h.maxhp, 420); h.maxmp = h.mp = Math.max(h.maxmp, 140); h.atk = Math.max(h.atk, 52);
     if (typeof joinParty === 'function') joinParty('yunting');
     S.hero.learnQ = []; S.started = true; S.fade = 1; S.hud = true;
+    // 先进演武广场、等地图载完淡入，再开始送别（以前直接在黑屏上就开始对话）
+    tileSetMap('tj_front', 1792 / 64 - .5, 2200 / 64 - .8, 'down'); S.scene = drawMap; world.locked = true;
+    for (let i = 0; i < 300 && !(window.MAP_READY && MAP_READY()); i++) await new Promise(r => setTimeout(r, 100));
+    await fadeIn(500);
     try { await window.CH2_DEPART_GO(); } catch (e) { console.warn('ch2send', e); } }, 120); })();
