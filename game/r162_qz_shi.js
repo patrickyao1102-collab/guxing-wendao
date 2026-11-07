@@ -177,26 +177,15 @@
     steward: ['松伯睡得很轻，少爷一走近，他翻了个身，又睡着了。', '松伯的鞋整整齐齐摆在床边，老花镜压在账本上。'],
   };
 
-  // ---------- 彩蛋插画全屏 ----------
-  function cg(id) {
-    const ov = { t0: performance.now(), out: 0, draw() {
-      const im = img(id); const k = Math.min(1, (performance.now() - this.t0) / 450) * (this.out ? Math.max(0, 1 - (performance.now() - this.out) / 300) : 1);
-      ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
-      if (im) ctx.drawImage(im, 0, 0, W, H);
-      const g = ctx.createLinearGradient(0, H - 260, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.45)'); ctx.fillStyle = g; ctx.fillRect(0, H - 260, W, 260);
-      ctx.restore(); } };
-    S.overlay.push(ov); const hud0 = S.hud; S.hud = false;
-    return { ov, async close() { ov.out = performance.now(); await new Promise(r => setTimeout(r, 300)); const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); S.hud = hud0; } };
-  }
-  const waitImg = async (id, ms = 2500) => { const t = performance.now(); while (!img(id) && performance.now() - t < ms) await new Promise(r => setTimeout(r, 60)); };
+  // ---------- 十二件小事 ----------
   const seen = n => !!(F().qz_ev || {})[n];
   const markSeen = n => { const f = F(); f.qz_ev = f.qz_ev || {}; if (f.qz_ev[n]) return; f.qz_ev[n] = 1; const c = Object.keys(f.qz_ev).length;
     try { playSnd('ui_confirm', .5); } catch (e) {} toast(c >= 12 ? '青竹小院 · 十二件小事，都看过了' : '青竹小院 · 小事 ' + c + ' / 12', 2200); };
+  // 作者 11-08：剧情里不放插画（只用立绘对话）—— R144 这十二张插画的用处是青竹一带的载入图（见文件末尾 QZ_LOAD_ART）
   async function story(n, fn) {
-    const id = 'story_' + String(n).padStart(2, '0'); world.locked = true; if (world.player) world.player.moving = false;
-    let c = null;
-    try { await fn(async () => { await waitImg(id); c = cg(id); }); markSeen(n); }
-    finally { if (c) await c.close(); world.locked = false; }
+    world.locked = true; if (world.player) world.player.moving = false;
+    try { await fn(async () => {}); markSeen(n); }
+    finally { world.locked = false; }
   }
   const healAll = (mpOnly) => { try { const h = S.hero; if (!mpOnly) h.hp = h.maxhp; h.mp = h.maxmp; if (!mpOnly && typeof partyHealAll === 'function') partyHealAll(); } catch (e) {} };
   const cat = () => (window.R139_CATNAME ? R139_CATNAME() : '小猫');
@@ -575,7 +564,6 @@
     try {
       if (ON() && QZ(name)) { preload(); if (world.actors) world.actors.push(...propsFor(name, shi())); }
       FROM_ROOM = name === COURT && prev === 'tj_room'; NIGHT_T = 0;
-      if (name === COURT && ON() && shi() === '子') for (const k of [11, 12]) if (!seen(k)) img('story_' + String(k).padStart(2, '0'));
     } catch (e) { console.warn('r162 enter', e); }
     return r;
   })(tileSetMap);
@@ -617,10 +605,11 @@
     await new Promise(r => setTimeout(r, 700));
     return async () => { await new Promise(r => setTimeout(r, 1000)); const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); };
   }
+  // 换时辰：和过图一样走一遍载入画面（青竹专属插画 + 进度条），这个时辰要用的人物动作、光影都下好了才露出画面
   async function restTo(s) {
     const f = F(), p = world.player; world.locked = true; S.hud = false;
     try {
-      const done = await restFade();
+      if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
       f.qz_shi = s; setTod(s === '戌' || s === '子' ? 'night' : '');
       healAll(false);
       DAY.basin = 0; DAY.noodles = 0; DAY.lit = {};
@@ -629,7 +618,8 @@
       if (s === '酉' && seen(5)) for (const k in LANT) DAY.lit[k] = 0;
       for (const n of DEFS) n._q = null;
       tileSetMap(world.mapName, p.x / 64 - .5, p.y / 64 - .8, p.face || 'down');
-      await done;
+      await new Promise(r => setTimeout(r, 400));
+      for (let i = 0; i < 600 && window.MAP_READY && !MAP_READY(); i++) await new Promise(r => setTimeout(r, 100));
     } finally { world.locked = false; S.hud = true; }
     toast(NAME[s] + ' · ' + LAB[s] + '　（气血、灵力回满了）', 2200);
     const hint = { '卯': '院里的人都起来干活了。', '午': '晌午了，厨房里正热闹。', '酉': '日头偏西，该收衣裳、点灯笼了。', '戌': '大家都回屋了……好像有谁还没睡？', '子': '院里静悄悄的，都睡下了。' }[s];
@@ -643,15 +633,24 @@
 
   // ---------- 青竹小院专属载入图：十二张小事插画轮流放 ----------
   // loading.js 换图时问一句：是青竹一带就给一张（真正放出来了才轮到下一张）；从外面走进青竹，至少让这张图露个脸（0.9 秒）
+  let KICK = false;
   const sid = i => 'story_' + String(i % 12 + 1).padStart(2, '0');
   window.QZ_LOAD_ART = (name, prev) => {
     if (!QZ(name)) return null;
     const f = F(), i = (f.qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1));
-    const o = IM[sid(i)]; let used = false;
-    return { get im() { return o.im; }, get ok() { return o.ok; }, min: !QZ(prev) && prev ? 900 : 0, use() { if (used) return; used = true; f.qz_load_i = i + 1; } };
+    const o = IM[sid(i)]; let used = false; const min = KICK ? 1500 : !QZ(prev) && prev ? 900 : 0; KICK = false;
+    return { get im() { return o.im; }, get ok() { return o.ok; }, min, use() { if (used) return; used = true; f.qz_load_i = i + 1; } };
+  };
+  // 载入进度把五时辰的素材也算进去（loading.js 的 MAP_EXTRA_READY）
+  window.MAP_EXTRA_READY = name => {
+    if (!ON() || !QZ(name)) return 1;
+    const need = [...SHEETS, ...(LIGHTS[shi()] || []).map(k => 'l_' + k)]; let ok = 0;
+    for (const k of need) if (img(k)) ok++;
+    let w = 0; for (const k of ['maid1', 'maid2', 'servant', 'steward']) if (walkIm(k)) w++;
+    return (ok + w) / (need.length + 4);
   };
   // 开局就先下一张，第一次进青竹就有图
-  setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img('story_' + String(i + 1).padStart(2, '0')); } catch (e) {} }, 6000);
+  setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
   window.R162 = { PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
 })();

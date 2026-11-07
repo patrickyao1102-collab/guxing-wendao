@@ -8,7 +8,9 @@
   function musicOk() { if (!window.BGM29 || !BGM29.ready) return true; if (aw.m !== world.mapName) { aw.m = world.mapName; aw.t = performance.now(); } if (performance.now() - aw.t > 8000) return true; return BGM29.ready(); }
   // 作者 11-07：手机上图早就到齐了，还要再干等配乐好几秒 → 图到齐后最多再等 3 秒配乐，曲子随后接上
   let imgOkMap = null, imgOkT = 0;
-  function readiness() { const r = imgReady(); if (r < 1) { imgOkMap = null; return r; }
+  // 作者 11-08：各系统自己要的素材（青竹五时辰的人物动作、光影……）也算进载入：没下好之前一直是载入插画
+  const extraReady = () => { try { const e = window.MAP_EXTRA_READY ? MAP_EXTRA_READY(world.mapName) : 1; return e == null ? 1 : e; } catch (e) { return 1; } };
+  function readiness() { const r = Math.min(imgReady(), extraReady() < 1 ? .9 * extraReady() + .05 : 1); if (r < 1) { imgOkMap = null; return r; }
     if (imgOkMap !== world.mapName) { imgOkMap = world.mapName; imgOkT = performance.now(); }
     return forced !== world.mapName && S.scene === drawMap && performance.now() - imgOkT < 3000 && !musicOk() ? .97 : r; }
   function imgReady() {
@@ -23,6 +25,8 @@
     return (IMG[g] ? .65 : 0) + .35 * (n ? ok / n : 1);
   }
   window.MAP_READY = () => readiness() >= 1;
+  // 同一张图里换场面（比如青竹小院床边换时辰）也要过一次载入插画：下一帧当成刚进图
+  window.LOADING_KICK = () => { mapAt = null; shown = 1; };
   window.MAP_LOADING = () => { try { return readiness() < 1; } catch (e) { return false; } };
   // 作者 11-08：载入画面换成 Codex R157 十款插画（每次换图随机抽一张，整个载入过程用同一张）+ 黑金进度条
   const LB = { im: [], idx: -1, parts: {}, tip: '' };
