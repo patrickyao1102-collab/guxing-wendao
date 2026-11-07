@@ -93,9 +93,17 @@
     if (P) { const prev = P.res; P.res = () => { prev(); setTimeout(go, 60); }; } else go();
   }));
   // 按名字找技能键（图标用）
-  const keyOf = name => { const s = String(name || '').replace(/^!/, ''); try { for (const [k, d] of Object.entries(SKILL_DB)) if (d && d.name && (d.name === s || s.includes(d.name) || d.name.includes(s))) return k; } catch (e) {}
-    try { const part = s.split(/[·・]/).pop().trim(); for (const [k, d] of Object.entries(SKILL_DB)) if (d && d.name && d.name.split(/[·・]/).pop().trim() === part) return k; } catch (e) {}
-    try { return (window.SKT && SKT.iconByName(s)) || null; } catch (e) {} return null; };
+  // 作者 11-08：领悟窗图标空了（「破军剑意·破军剑阵」找不到、「破军剑阵」被错认成星罗）→ 先精确、再按「·」后半段、再技能树、最后才模糊（取最长的名字）
+  const ALIAS = { '破军剑阵': 'pojun' };
+  const keyOf = name => { const s = String(name || '').replace(/^!/, '').trim(), tail = s.split(/[·・]/).pop().trim(); let E = [];
+    try { E = Object.entries(SKILL_DB).filter(([k, d]) => d && d.name); } catch (e) {}
+    const tl = n => n.split(/[·・]/).pop().trim();
+    for (const [k, d] of E) if (d.name === s) return k;
+    if (ALIAS[s]) return ALIAS[s]; if (ALIAS[tail]) return ALIAS[tail];
+    for (const [k, d] of E) if (tl(d.name) === tail || d.name === tail) return k;
+    try { const k = window.SKT && SKT.iconByName(s); if (k) return k; } catch (e) {}
+    let best = null, bl = 0; for (const [k, d] of E) if ((s.includes(d.name) || d.name.includes(s)) && d.name.length > bl) { best = k; bl = d.name.length; }
+    return best; };
   window.SKWIN = {
     learn: ({ k, name, desc, meta, note }) => { try { playSnd('sfx_sword_ring'); } catch (e) {} S.flash = .4; S.flashColor = '#cfe6ff'; return open({ kind: 'learn', title: '领悟技能', k: k || keyOf(name), name, desc, meta, note, btn: '知道了' }); },
     upgrade: ({ k, name, t0, t1, rows, desc }) => { try { playSnd('jingle_levelup'); } catch (e) {} S.flash = .4; S.flashColor = '#fff3c0'; return open({ kind: 'up', title: '技能升级', k: k || keyOf(name), name, t0r: t0, t1r: t1, rows, desc, btn: '确定' }); },
