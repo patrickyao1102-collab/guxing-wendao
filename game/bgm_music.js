@@ -27,7 +27,7 @@
   try { if (!localStorage.getItem('bgm29_mig_boss1107')) { if (PICK.boss) { delete PICK.boss; localStorage.setItem('bgm29_pick', JSON.stringify(PICK)); } localStorage.setItem('bgm29_mig_boss1107', '1'); } } catch (e) {}
   try { if (!localStorage.getItem('bgm29_mig_plaza1107b')) { if (PICK.plaza) { delete PICK.plaza; localStorage.setItem('bgm29_pick', JSON.stringify(PICK)); } localStorage.setItem('bgm29_mig_plaza1107b', '1'); } } catch (e) {}
   try { if (!localStorage.getItem('bgm29_mig_plaza1107')) { if (PICK.plaza) { delete PICK.plaza; localStorage.setItem('bgm29_pick', JSON.stringify(PICK)); } localStorage.setItem('bgm29_mig_plaza1107', '1'); } } catch (e) {}
-  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', wild: 'bgm29_yunjianxing', battle: 'bgm_battle_kuaida', boss: 'lib_nk2', fair: 'lib_xm1', qytown: 'lib_xm2', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_jp1', linfu: 'lib_xp1', manor: 'lib_m09', hall: 'lib_tsy1', youying: 'lib_xyq_youying', nuwa: 'lib_xyq_nuwa', nwtemple: 'lib_xyq_nwg06', cellar1: 'lib_xyq_cellar1', cellar2: 'lib_xyq_cellar2' };   // 作者 11-06：幽影林 / 女娲秘境 / 地下一二层各自一首（小云雀生成）   // 作者 11-03：天剑大殿换自作「天剑殿钟」（仿天圣原，对味了）   // 作者 11-02：青竹小院还是清光升（作者说原来就挺好）；居室剑畔朝光；林府溪畔晴光；城主府镇间闲；天剑大殿宗风；野外云间行
+  const DEF = { title: 'bgm29_xingheyao', plaza: 'bgm29_yunkongyao', sect: 'bgm_sect_fenglin', town: 'bgm_town_xiyue', houshan: 'bgm29_yejingxingling', xiashan: 'lib_m27', wild: 'bgm29_yunjianxing', battle: 'bgm_battle_kuaida', boss: 'lib_nk2', fair: 'lib_xm1', qytown: 'lib_xm2', shop: 'bgm_town_jiyue', xtcity: 'lib_qgs_inst', qingzhu: 'lib_qgs_inst', room: 'lib_jp1', linfu: 'lib_xp1', manor: 'lib_m09', hall: 'lib_tsy1', youying: 'lib_xyq_youying', nuwa: 'lib_xyq_nuwa', nwtemple: 'lib_xyq_nwg06', cellar1: 'lib_xyq_cellar1', cellar2: 'lib_xyq_cellar2' };   // 作者 11-06：幽影林 / 女娲秘境 / 地下一二层各自一首（小云雀生成）   // 作者 11-03：天剑大殿换自作「天剑殿钟」（仿天圣原，对味了）   // 作者 11-02：青竹小院还是清光升（作者说原来就挺好）；居室剑畔朝光；林府溪畔晴光；城主府镇间闲；天剑大殿宗风；野外云间行
   const T = {}; for (const k in DEF) T[k] = (PICK[k] && (J29[PICK[k]] || (window.BGM_LIB && BGM_LIB.tracks[PICK[k]]) || /^bgm_/.test(PICK[k]))) ? PICK[k] : DEF[k];
   const NEW = new Set([...Object.values(T), ...Object.keys(J29), ...Object.keys((window.BGM_LIB && BGM_LIB.tracks) || {})]);
   try { BGM_LIST.splice(0); } catch (e) {}   // 旧的 4 首合成配乐不再预先下载解码
@@ -80,6 +80,7 @@
     const m = (typeof world !== 'undefined' && world.mapName) || '', def = world && world.map && world.map.def;
     if (m === 'tj_front') return 'plaza';   // 演武广场（问剑坪）：作者 11-07 夜：天剑大殿 04 太闷，换回原来的「云空遥·纯乐」
     if (m === 'tj_houshan') return 'houshan';
+    if (/^tj_(yunjie|shanmen|xiashan)$/.test(m)) return 'xiashan';   // 作者 11-08：下山路（云阶松径 → 天剑山门 → 松风林道）用「剑鸣」高潮段，热血男儿初出茅庐
     if (m === 'tj_room') return 'room';   // 作者：卧室原来的枫林太难听
     if (/^xt_city/.test(m)) return 'xtcity';   // 玄天城：清光升·纯乐
     if (/^qingzhu_/.test(m)) return 'qingzhu';   // 青竹小院：清光升·纯乐   // 后山：夜径星铃（古琴、箫、风铃，幽静带点紧张）
