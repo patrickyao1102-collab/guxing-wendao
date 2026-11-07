@@ -134,7 +134,7 @@
     steward: { map: COURT, at: [736, 1350], steps: [{ go: [736, 720], w: 'steward_lantern' }, { go: [1300, 640], w: 'steward_lantern' }, { wait: 2 }, { go: Y(800, 1320), w: 'steward_lantern' }, { wait: 2 }, { go: [736, 1350], w: 'steward_lantern' }, { wait: 3 }, { loop: 0 }] },
   };
   const DAY = { basin: 0, noodles: 0, lit: {} };
-  const planOf = (k, s) => { if (s === '子' && AWAKE() === k && NIGHT_PLAN[F().qz_awake]) return NIGHT_PLAN[F().qz_awake]; if (s === '戌' && F().qz_out === k) return OUT[k]; if (s === '子' && k === 'steward' && F().qz_letter) return PLAN['戌'].steward; return (PLAN[s] || {})[k]; };
+  const planOf = (k, s) => { if (k === 'steward' && (s === '卯' || s === '午') && F().qz_shi && (F().qz_day || 1) % 5 === 2) return null; if (s === '子' && AWAKE() === k && NIGHT_PLAN[F().qz_awake]) return NIGHT_PLAN[F().qz_awake]; if (s === '戌' && F().qz_out === k) return OUT[k]; if (s === '子' && k === 'steward' && F().qz_letter) return PLAN['戌'].steward; return (PLAN[s] || {})[k]; };
 
   // ---------- 对白：每人每个时辰一套 ----------
   const WHO = { maid1: '侍女青禾', maid2: '侍女小桃', servant: '小厮阿福', steward: '松伯' };
@@ -380,6 +380,7 @@
     const s = shi(), f = F(), q = n.q162, out = s === '戌' && f.qz_out === who && q.map === (OUT[who] || {}).map;
     const day = s === '卯' || s === '午' || s === '酉';
     if (s === '子' && AWAKE() === who) { await say(WHO[who] + '·笑', who === 'maid2' ? '少爷快回去睡吧，小桃也要睡啦……明天见！' : '夜深了，少爷早些歇着。青禾把灯熄了就睡。'); return; }
+    { const qid = questTalk(who); if (qid) return qRun(qid); }   // 支线这一步要找他
     // 1) 这个时辰的小事
     if (who === 'maid2' && s === '卯' && !seen(1)) return EV[1]();
     if (who === 'steward' && s === '午' && !seen(3)) return EV[3]();
@@ -606,9 +607,10 @@
   const KIN = { maid1: '像姐姐一样', maid2: '像妹妹一样', servant: '好兄弟', steward: '像爷爷一样', cat: '家里的猫' };
   const lvOf = v => { let l = 0; for (let i = 0; i < LV.length; i++) if (v >= LV[i]) l = i; return l; };
   const BOND_NAME = { maid1: '青禾', maid2: '小桃', servant: '阿福', steward: '松伯', get cat() { return cat(); } };
-  const bondV = k => { const f = F(), b = (f.qz_bond || {})[k] || 0; return k === 'cat' ? b + (f.cat_feeds || 0) * 2 : b; };
+  // 作者 11-08：松伯永远是家人，情谊永远最高（不用攒）；他珍藏的东西改成「找到松伯的秘密」时一件件交给少爷
+  const bondV = k => { if (k === 'steward') return LV[5]; const f = F(), b = (f.qz_bond || {})[k] || 0; return k === 'cat' ? b + (f.cat_feeds || 0) * 2 : b; };
   const LVQ = [];
-  const bond = (k, n, quiet) => { const f = F(); f.qz_bond = f.qz_bond || {}; const l0 = lvOf(bondV(k)); f.qz_bond[k] = (f.qz_bond[k] || 0) + n; const l1 = lvOf(bondV(k));
+  const bond = (k, n, quiet) => { if (k === 'steward') return; const f = F(); f.qz_bond = f.qz_bond || {}; const l0 = lvOf(bondV(k)); f.qz_bond[k] = (f.qz_bond[k] || 0) + n; const l1 = lvOf(bondV(k));
     if (!quiet) toast('♥ ' + BOND_NAME[k] + ' · 情谊 +' + n, 1600); if (l1 > l0) LVQ.push([k, l1]);
     if (!f.qz_book_hint) { f.qz_book_hint = 1; setTimeout(() => toast('院里每个人的情谊，都记在少爷居室桌上的《青竹小记》里', 2800), 2400); } };
   window.QZ_BOND = bond;
@@ -696,7 +698,7 @@
       2: [['认真', '老头子把宗主早年练剑的心得抄了一份，少爷闲了翻翻。'], () => stat({ atk: 2, def: 2 }, '攻击 +2　防御 +2（宗主的练剑心得）')],
       3: [['点头', '少爷打坐的蒲团，松伯换了个新的，里头填的是后山的灵草。'], () => stat({ maxmp: 50 }, '灵力上限 +50')],
       4: [['感动', '这是宗主年轻时挂过的剑穗。老头子收了二十年……如今，该给少爷了。'], () => giveItem('acc_qz_jiusui', 1, '松伯所赠')],
-      5: [['感动', '老头子没儿没女。看着少爷长大……就跟看着自家孙儿一样。'], () => stat({ maxhp: 100 }, '气血上限 +100 · 松伯：像爷爷一样')] },
+      5: [['感动', '老头子没儿没女。看着少爷长大……就跟看着自家孙儿一样。'], () => stat({ maxhp: 100 }, '气血上限 +100')] },
   };
   async function levelUp(k, lv) {
     world.locked = true; if (world.player) world.player.moving = false;
@@ -705,7 +707,7 @@
       const R = (LVR[k] || {})[lv]; if (!R) return;
       await narrate(BOND_NAME[k] + '寻了过来，手里像是捧着什么。');
       await say(WHO[k] + '·' + R[0][0], R[0][1]); await R[1]();
-      toast('♥ ' + BOND_NAME[k] + ' · 情谊升至「' + LVN[lv] + '」' + (lv === 5 ? '（' + KIN[k] + '）' : ''), 2600);
+      toast(k === 'steward' ? '松伯珍藏的东西 · ' + lv + ' / 5' : '♥ ' + BOND_NAME[k] + ' · 情谊升至「' + LVN[lv] + '」' + (lv === 5 ? '（' + KIN[k] + '）' : ''), 2600);
     } finally { world.locked = false; }
   }
 
@@ -803,7 +805,7 @@
       await say('小厮阿福·笑', '以后少爷出远门，阿福就照着这两个字，一天写一遍。'); } },
     { id: 'maid2:home', who: 'maid2', shi: '戌', type: 'talk', once: 1, need: () => mood('maid2') === '忧' || bondV('maid2') >= 20, b: 4, title: '青阳镇的桃花', hint: '入夜 · 她心里一直惦记着一个地方', run: async () => {
       await say('侍女小桃·委屈', '少爷……青阳镇这时候，该开桃花了吧。'); await say('侍女小桃', '小桃的爹娘在镇上卖花。小桃上山以后，就再没见过镇上的桃花了。');
-      const i = await choose('', ['「下回下山，替你折一枝回来。」', '「那就在西院种一棵桃树。」']); F().qz_peach = i + 1;
+      const i = await choose('', ['「下回下山，替你折一枝回来。」', '「那就在西院种一棵桃树。」']); F().qz_peach = i + 1; setTimeout(() => qStart('peach', i === 0 ? 'branch' : 'ask'), 600);
       await say('侍女小桃·感动', i === 0 ? '……少爷要说话算话哦。小桃会一直等的。' : '……种一棵桃树？！那小桃天天给它浇水，浇到它开花为止！'); } },
     // —— 子时 ——
     { id: 'steward:cough', who: 'steward', shi: '子', type: 'enter', at: RM.steward, p: .35, need: () => !F().qz_letter, b: 3, title: '夜里的咳嗽', hint: '子夜 · 管事房里有压低了的声音', run: async () => {
@@ -837,6 +839,7 @@
     let r; try { r = await e.run(); } finally { world.locked = false; }
     if (r === 'later') return;
     f.qz_hid = f.qz_hid || {}; const first = !f.qz_hid[e.id]; f.qz_hid[e.id] = 1; bond(e.who, e.b || 2);
+    if (first && e.who === 'steward') { const c = secretsOf('steward').filter(x => hidSeen(x.id)).length; if (LVR.steward[c]) LVQ.push(['steward', c]); }
     if (first) setTimeout(() => toast('《青竹小记》· 新的秘密：' + e.title, 2200), 1900);
   }
   let EV_T = 0;
@@ -864,6 +867,190 @@
   // 子夜阿福的梦话（看过「阿福的梦话」以后，每夜随机一句）
   const DREAMS = ['……烤鸡腿……再来一个……就一个……', '……少爷……阿福也会御剑了……飞……飞起来了……', '……松伯……阿福没偷吃……真的没有……', '……小桃……别揪阿福耳朵……', '……阿福……阿福能保护大家……', '……娘……雪好大……'];
 
+  // ================= 院中支线（几段连着走、跨时辰跨天、几个人串在一起）+ 特别的日子 + 更多随机小事 =================
+  // 作者 11-08：「还有各种隐藏支线结合起来啊，特殊事件，随机事件」
+  // 支线：桃树之约（小桃）· 雪夜的长命锁（阿福 / 松伯）· 青禾的银针（青禾 / 小桃 / 小猫）· 宗主的回信（松伯）· 小猫不见了（小猫 / 小桃）
+  // 特别的日子：每七日家宴；每五日松伯赶集（清早出门、黄昏带回食材）；第十二日小桃生辰、第二十四日青禾生辰（前两天会有人透口风）
+  const curShi = () => shi() || (night() ? '戌' : '午');
+  const keyItem = (id, name, desc) => { ITEM_DB[id] = ITEM_DB[id] || { name, desc, cat: '杂物' }; };
+  keyItem('k_qz_sapling', '桃树苗', '竹影山阶老野桃根边挖的小苗，根上还带着土。要交给小桃。');
+  keyItem('k_qz_peach', '一枝桃花', '青阳镇口老桃树上折的，用帕子包着。要带回去给小桃。');
+  keyItem('k_qz_lock', '旧长命锁', '一把磨得发亮的小银锁，背面刻着一个「安」字。松伯收了好些年。');
+  keyItem('k_qz_needle', '娘的银针', '青禾的娘留给她的银针，针尾缠着一圈褪了色的红线。');
+  const take = id => { try { const b = S.hero.bag; if (b[id]) { b[id]--; if (b[id] <= 0) delete b[id]; } } catch (e) {} };
+  const giveKey = async (id, why) => { await giveItem(id, 1, why); };
+  const Q = () => { const f = F(); return f.qz_q = f.qz_q || {}; };
+  const qNew = name => { toast('《青竹小记》· 新的支线：' + name, 2400); };
+  const ING_IDS = ['ing_0', 'ing_1', 'ing_2', 'ing_3', 'ing_4', 'ing_5', 'ing_6', 'ing_7', 'ing_8', 'ing_9', 'ing_10', 'ing_11'];
+  const QUESTS = {
+    peach: { name: '桃树之约', who: 'maid2', hint: '入夜 · 小桃心里惦记着青阳镇的桃花', steps: {
+      ask: { desc: '问问松伯，哪里能挖到桃树苗', type: 'talk', who: 'steward', run: async () => {
+        await say('松伯·笑', '桃树苗？竹影山阶半山腰有棵老野桃，根边年年冒小苗。挖的时候轻着点，别伤了老树的根。'); return 'dig'; } },
+      dig: { desc: '去竹影山阶，找那棵老野桃', type: 'spot', at: 'qingzhu_stairs', xy: [880, 1020], run: async () => {
+        await narrate('石阶边的老桃树下，冒着一株细细的小苗，叶子嫩得发亮。叶孤星连土带根，小心地挖了出来。'); await giveKey('k_qz_sapling', '老野桃根边'); return 'give'; } },
+      give: { desc: '白天把树苗交给小桃', type: 'talk', who: 'maid2', shi: ['卯', '午', '酉'], run: async q => {
+        take('k_qz_sapling'); await say('侍女小桃·惊喜', '桃树苗！！少爷真的去挖了？！'); await narrate('小桃挑了西院花圃边向阳的一块地，挖坑、培土、浇水，一样一样做得仔仔细细。');
+        await say('侍女小桃·笑', '等它开花，小桃就不想家啦。'); q.d = qday(); return 'sprout'; } },
+      sprout: { desc: '等它扎根（过两三天的清晨，去花圃看看）', type: 'near', who: 'maid2', shi: ['卯'], need: q => qday() >= q.d + 2, run: async q => {
+        await say('侍女小桃·大笑', '少爷！发芽了！冒了两片新叶子！'); await narrate('树苗还不到膝盖高，可枝头确实鼓起了两个小小的芽苞。'); q.d = qday(); return 'bloom'; } },
+      bloom: { desc: '等桃花开', type: 'near', who: 'maid2', shi: ['卯', '午'], need: q => qday() >= q.d + 3, run: async () => {
+        await narrate('西院那株小桃树，竟开了三朵花。粉粉的，在一片绿里格外显眼。'); await say('侍女小桃·感动', '……跟青阳镇的一模一样。少爷，谢谢您。');
+        await narrate('小桃用落下的花瓣酿了一小坛桃花酿，非要少爷尝第一口。'); stat({ maxhp: 60, maxmp: 30 }, '气血上限 +60　灵力上限 +30（桃花酿）'); bond('maid2', 8); return 'done'; } },
+      branch: { desc: '下山去青阳镇时，替小桃折一枝桃花', type: 'enter', at: 'qy_town', run: async () => {
+        await narrate('青阳镇口的老桃树开得正好。叶孤星想起小桃的话，折下一枝，用帕子包好，揣进怀里。'); await giveKey('k_qz_peach', '青阳镇口'); return 'bring'; } },
+      bring: { desc: '把桃花带回青竹小院给小桃', type: 'talk', who: 'maid2', run: async () => {
+        take('k_qz_peach'); await narrate('叶孤星把那枝桃花递过去。花瓣有些蔫了，香味却还在。'); await say('侍女小桃·感动', '……是镇口那棵老桃树的。小桃认得，小时候天天在树底下卖花。');
+        await say('侍女小桃·羞', '小桃要把花瓣压干，缝进香包里，一直带着。'); stat({ maxmp: 30 }, '灵力上限 +30'); bond('maid2', 8); return 'done'; } },
+    } },
+    lock: { name: '雪夜的长命锁', who: 'servant', hint: '子夜 · 阿福在梦里喊过「雪好大」', startNeed: () => seen(9) && bondV('servant') >= 20, first: 'ask', steps: {
+      ask: { desc: '入夜去管事房问问松伯：阿福是怎么来的', type: 'talk', who: 'steward', shi: ['戌'], at: RM.steward, run: async () => {
+        await say('松伯·叹气', '少爷想问阿福的事？……那年冬天雪大，山门外的石狮子都埋了半截。'); await say('松伯', '老头子去扫雪，在石狮子底下看见一个孩子，冻得嘴唇发紫，怀里死死攥着这个。');
+        await narrate('松伯从柜子最里头摸出一只小布包，里面是一把磨得发亮的小银锁，背面刻着一个「安」字。');
+        await say('松伯·感动', '老头子怕他看了伤心，一直没给他。……少爷，这锁，交不交给他，您来定。'); await giveKey('k_qz_lock', '松伯交给少爷'); return 'give'; } },
+      give: { desc: '把长命锁交给阿福——或者，再等等', type: 'talk', who: 'servant', run: async q => {
+        const i = await choose('长命锁', ['把锁交给阿福', '再等等']); if (i === 1) { await say('小厮阿福·笑', '少爷找阿福有事？'); return 'give'; }
+        take('k_qz_lock'); await narrate('阿福接过银锁，翻过来，看见那个「安」字，愣了很久。'); await say('小厮阿福·感动', '……这是娘给的。阿福记得，娘说，戴着它，就平平安安的。');
+        await say('小厮阿福·感动', '少爷……阿福不知道自己哪天生的。松伯捡到阿福那天，能不能……就算阿福的生辰？');
+        await say('叶孤星', '好。过几天就是那天——到时候，给你做点好吃的。'); q.d = qday() + 3; return 'feast'; } },
+      feast: { desc: '阿福的生辰（过几天的入夜）：带一道菜去他屋里', type: 'talk', who: 'servant', shi: ['戌'], at: RM.servant, need: q => qday() >= q.d, run: async () => {
+        const have = dishesHave(); if (!have.length) { await say('小厮阿福·笑', '少爷来啦！……（阿福偷偷瞄了一眼少爷空着的手）'); await narrate('……该带点吃的来的。去厨房做一道吧。'); return 'feast'; }
+        take(have[0]); await narrate('叶孤星端着一碗' + DISH[have[0]] + '推开门。身后，青禾端着长寿面，小桃捧着一盘桂花糕，松伯提着一壶酒。');
+        await say('小厮阿福·惊喜', '……你们、你们怎么都来了？！'); await say('侍女小桃·大笑', '阿福生辰快乐！'); await say('松伯·笑', '这孩子，长这么大了。');
+        await say('小厮阿福·感动', '……阿福有生辰了。阿福有家了。'); stat({ atk: 3 }, '攻击 +3（阿福把长命锁的红绳编进了少爷的剑穗）'); bond('servant', 10); bond('maid1', 2, true); bond('maid2', 2, true); return 'done'; } },
+    } },
+    needle: { name: '青禾的银针', who: 'maid1', hint: '黄昏 · 青禾好像在地上找什么', steps: {
+      ask: { desc: '问问小桃有没有看见', type: 'talk', who: 'maid2', run: async () => {
+        await say('侍女小桃·担心', '银针？……啊！小桃午后看见小猫叼着个亮晶晶的东西跑来跑去，还以为是鱼骨头！'); await say('侍女小桃', '它晌午最爱找块太阳地打盹，少爷去看看？'); return 'cat'; } },
+      cat: { desc: '去找小猫——正午它爱在太阳地里打盹', type: 'near', who: 'cat', shi: ['午'], run: async () => {
+        await narrate(cat() + '蜷在太阳地里睡得正香。叶孤星轻轻把它抱起来——它肚皮底下，压着一根细细的银针。'); await narrate(cat() + '睁开眼，看了看银针，又看了看少爷，「喵」了一声，像是在说：我替她看着呢。');
+        await giveKey('k_qz_needle', '小猫肚皮底下'); return 'back'; } },
+      back: { desc: '把银针还给青禾', type: 'talk', who: 'maid1', run: async () => {
+        take('k_qz_needle'); await say('侍女青禾·惊喜', '……找到了？！'); await narrate('青禾接过银针，捏着针尾那圈褪色的红线，眼圈一下子红了。');
+        await say('侍女青禾·感动', '这是娘留给青禾的……青禾以为再也找不着了。'); await say('侍女青禾·笑', '少爷的护腕旧了，青禾用这根针给少爷绣副新的。');
+        stat({ def: 3 }, '防御 +3（青禾用娘的银针绣的护腕）'); bond('maid1', 6); bond('cat', 2, true); return 'done'; } },
+    } },
+    reply: { name: '宗主的回信', who: 'steward', hint: '子夜 · 管事房的灯亮着的那一晚以后', startNeed: () => seen(10), first: 'wait', steps: {
+      wait: { desc: '等宗主回信（过两天的清晨，院里会落下一只灵鹤）', type: 'enter', at: COURT, shi: ['卯'], need: q => qday() >= (q.d || 0) + 2, run: async () => {
+        await narrate('一只白羽灵鹤从云里落下来，收起翅膀，停在石桌上，脚上绑着一卷信。'); await say('松伯·惊喜', '宗主的回信！');
+        await narrate('信里的字龙飞凤舞：「信收到了。孤星长高了，好。替阿福挑水，替小桃摘花，也好。院里那几个孩子，替我谢谢他们。」');
+        await narrate('信的末尾还有一行小字：「附竹叶青一坛，院里人人有份。——叶擎苍」'); await say('星旋', '（你爹的字，跟他的剑一样，一笔都不肯收。）'); return 'write'; } },
+      write: { desc: '给宗主回一句话（找松伯）', type: 'talk', who: 'steward', run: async () => {
+        await say('松伯·笑', '少爷，给宗主回一句吧。老头子替您捎去。'); const i = await choose('回一句', ['「爹，我很好，院里的人都很好。」', '「爹，我想你了。」', '「爹，下回回来，我舞剑给你看。」']);
+        await say('松伯·感动', ['好，好。宗主看了，准放心。', '……这句，宗主看了，怕是要在书房里坐一夜。', '好！宗主等着这一天，等了好些年了。'][i]);
+        await narrate('信的夹层里还藏着一页剑诀心得，是宗主的亲笔。'); stat({ atk: 3 }, '攻击 +3（宗主的剑诀心得）');
+        for (const k of ['maid1', 'maid2', 'servant']) bond(k, 3, true); toast('竹叶青 · 院里人人有份（青禾、小桃、阿福 情谊 +3）', 2400); return 'done'; } },
+    } },
+    cat: { name: '小猫不见了', who: 'cat', hint: '清晨 · 某天，小猫一整个早上都没露面', steps: {
+      find: { desc: '找小猫：院子、厨房、竹影山阶……还是云海大亭？', type: 'spot', at: 'qingzhu_upper_pavilion', xy: [1240, 1180], run: async () => {
+        await narrate('云海大亭的栏杆外，一棵歪脖子松树上，传来细细的「喵」声。' + cat() + '蹲在最高那根枝头，下不来了。');
+        await narrate('叶孤星足尖一点上了树，把它揣进怀里。小东西在他胸口蹭了又蹭，抖个不停。'); return 'home'; } },
+      home: { desc: '把小猫抱回去给小桃', type: 'talk', who: 'maid2', run: async () => {
+        await say('侍女小桃·惊喜', '找到了！！少爷找到它了！！'); await narrate('小桃把' + cat() + '抱过去，又是亲又是骂。' + cat() + '缩在她怀里，乖得像只小鹌鹑。');
+        await say('侍女小桃·笑', '以后不许乱跑了！……少爷，谢谢您。'); bond('maid2', 4); bond('cat', 4); return 'done'; } },
+    } },
+  };
+  const qState = id => (Q()[id] || {}).s || '';
+  const qStep = id => { const s = qState(id); return s && s !== 'done' ? QUESTS[id].steps[s] : null; };
+  function qStart(id, s, extra) { const q = Q(); if (q[id]) return; q[id] = Object.assign({ s, d: qday() }, extra || {}); qNew(QUESTS[id].name);
+    if (id === 'cat' && world.actors) world.actors = world.actors.filter(a => !(a.npc && a.npc.r139cat)); }
+  let Q_BUSY = false;
+  async function qRun(id) { const st = qStep(id); if (!st || Q_BUSY) return; Q_BUSY = true; world.locked = true; if (world.player) world.player.moving = false;
+    try { const q = Q()[id]; const nx = await st.run(q); if (nx) { q.s = nx; if (nx === 'done') { toast('《青竹小记》· 支线完成：' + QUESTS[id].name, 2600); } } }
+    catch (e) { console.warn('r162 quest', e); } finally { world.locked = false; Q_BUSY = false; } }
+  const qOk = (st, q) => (!st.shi || st.shi.includes(curShi())) && (!st.at || st.at === world.mapName) && (!st.need || st.need(q));
+  // 跟某人说话时：有支线这一步就先走支线
+  function questTalk(who) { for (const id in QUESTS) { const st = qStep(id); if (st && st.type === 'talk' && st.who === who && qOk(st, Q()[id])) return id; } return null; }
+  // 找东西的地方（亮一点微光）
+  const spotFix = {};
+  function spotXY(id, st) { const k = id + ':' + qState(id); if (spotFix[k]) return spotFix[k]; let [x, y] = st.xy; try { const T = world.map.T; if (typeof canStand === 'function' && !canStand(T, x, y)) {
+      for (let r = 16; r < 240; r += 16) { let hit = null; for (let a = 0; a < 12 && !hit; a++) { const xx = x + Math.cos(a / 12 * 6.283) * r, yy = y + Math.sin(a / 12 * 6.283) * r; if (canStand(T, xx, yy)) hit = [xx, yy]; } if (hit) { [x, y] = hit; break; } } } } catch (e) {}
+    return (spotFix[k] = [x, y]); }
+  function sparkle(x, y, t) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const a = .55 + Math.sin(t * 3) * .2; const g = ctx.createRadialGradient(x, y - 20, 2, x, y - 20, 46); g.addColorStop(0, `rgba(255,240,190,${a})`); g.addColorStop(1, 'rgba(255,220,140,0)'); ctx.fillStyle = g; ctx.fillRect(x - 50, y - 70, 100, 100); ctx.restore(); prop('firefly', null, x, y - 26, 1.2); }
+  // 支线 / 特别的日子：每帧检查（任何地图都查——青阳镇折桃花在青竹外面）
+  const SP = {};   // 特别的日子今天放过没有
+  if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) { o.apply(this, arguments);
+    try {
+      if (!world.map || world.locked || Q_BUSY || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || (window.MAP_READY && !MAP_READY())) return;
+      const f = F(), p = world.player; if (!p) return;
+      for (const id in QUESTS) { const Qd = QUESTS[id]; if (!Q()[id] && Qd.startNeed && Qd.startNeed(f)) qStart(id, Qd.first, { d: qday() }); }
+      if (EV_T < 1.2) return;
+      for (const id in QUESTS) { const st = qStep(id); if (!st || !qOk(st, Q()[id])) continue;
+        if (st.type === 'enter') { qRun(id); return; }
+        if (st.type === 'spot') { const [x, y] = spotXY(id, st); if (Math.hypot(p.x - x, p.y - y) < 64) { qRun(id); return; } }
+        if (st.type === 'near') { const a = (world.actors || []).find(x => x.npc && (st.who === 'cat' ? x.npc.r139cat : (x.npc.q162 && x.npc.q162.who === st.who) || x.npc.r135e === st.who) && x.x > -9e4); if (a && Math.hypot(p.x - a.x, p.y - a.y) < 110) { qRun(id); return; } } }
+      if (!ON() || !QZ(world.mapName)) return;
+      const d = qday(), s = shi();
+      // 七日家宴：第 7、14、21……日的黄昏，西院石桌
+      if (d % 7 === 0 && s === '酉' && world.mapName === COURT && SP.feast !== d) { SP.feast = d; f.qz_feast = (f.qz_feast || 0) + 1; world.locked = true; (async () => { try { await feast(); } finally { world.locked = false; } })(); return; }
+      // 生辰
+      for (const [k, day, dish] of [['maid2', 12, ['cook_guihua', 'cook_lianzi']], ['maid1', 24, ['cook_sun', 'cook_dan']]]) {
+        const id = k + ':bday'; if (d >= day && s === '酉' && world.mapName === COURT && !hidSeen(id) && SP[id] !== d) { SP[id] = d; world.locked = true; (async () => { try { await bday(k, dish); f.qz_hid = f.qz_hid || {}; f.qz_hid[id] = 1; } finally { world.locked = false; } })(); return; } }
+    } catch (e) { console.warn('r162 quest tick', e); } })(tileUpdate);
+  async function feast() {
+    await narrate('今天是第 ' + qday() + ' 日——院里的规矩，每七日，大家围着西院的石桌吃一顿。');
+    await narrate('青禾端上一锅竹笋鲜汤，小桃摆了一盘桂花糕，阿福抱来一坛松伯珍藏的米酒，' + cat() + '蹲在桌角，盯着鱼。');
+    const L = pick([[['小厮阿福·大笑', '少爷，阿福敬您一杯！……就一小口，松伯说阿福还小。'], ['松伯·念叨', '是一小口，不是一小坛。']],
+      [['侍女小桃·得意', '今天的桂花糕是小桃蒸的！谁说不好吃，就不给他夹第二块！'], ['侍女青禾·嗔', '……盐放多了，小桃。']],
+      [['松伯·笑', '少爷小时候吃饭，饭粒能撒一桌子，阿福都没你撒得多。'], ['小厮阿福·得意', '真的？！少爷也有这时候？']]]);
+    for (const [w, t] of L) await say(w, t);
+    await say('星旋', '（……这一桌，比天剑宗的大宴热闹多了。）'); await narrate('月亮升起来的时候，石桌上的碗碟都空了。'); healAll(false);
+    for (const k of ['maid1', 'maid2', 'servant']) bond(k, 2, true); bond('cat', 1, true); toast('七日家宴 · 院里人人情谊 +2', 2400);
+  }
+  async function bday(k, dish) {
+    const nm = BOND_NAME[k], have = dish.find(id => itemCount(id) > 0);
+    await narrate('黄昏时，院里的人都悄悄聚到了西院石桌边——今天是' + nm + '的生辰。');
+    if (have) { take(have); await narrate('叶孤星把一碗' + DISH[have] + '放到' + nm + '面前。');
+      await say(WHO[k] + '·感动', k === 'maid2' ? '……少爷记得小桃的生辰？还做了小桃最爱吃的！……呜，小桃要哭了。' : '……少爷记得青禾的生辰。还是青禾最爱的。……青禾不知道该说什么好。');
+      bond(k, 10); stat(k === 'maid2' ? { maxmp: 40 } : { maxhp: 80 }, nm + '生辰 · ' + (k === 'maid2' ? '灵力上限 +40' : '气血上限 +80')); }
+    else { await say(WHO[k] + '·笑', k === 'maid2' ? '大家都来了！……少爷也来了，小桃就很高兴啦！' : '……大家都记着呢。少爷能来，青禾就很高兴了。'); await narrate('……要是带上她最爱吃的那道菜就好了。'); bond(k, 3); }
+    setTimeout(() => toast('《青竹小记》· 特别的日子：' + nm + '的生辰', 2200), 1500);
+  }
+  // 赶集日：每五日（第 2、7、12……日）松伯清早下山赶集（卯、午不在院里，见 planOf），黄昏回来带了食材
+  const marketDay = () => qday() % 5 === 2;
+  // 子时以外，原来那几位（没选时辰时在院里的人）说话也先走支线
+  setTimeout(() => { for (const key in ORIG) { const n = ORIG[key], who = key.split('_')[0]; const t0 = n.talk; n.talk = async a => { const id = questTalk(who); if (id) return qRun(id); return typeof t0 === 'function' ? t0(a) : undefined; }; } }, 0);
+  // 小猫不见了：找到之前院里没有它
+  { const cn = catNpc(); if (cn) { const c0 = cn.cond; cn.cond = function () { if (qState('cat') === 'find') return false; return !c0 || c0.apply(this, arguments); }; } }
+  // 更多随机小事（几个人串在一起的）+ 支线的开头 + 特别日子的透口风
+  EVS.push(
+    { id: 'maid2:quarrel', who: 'maid2', shi: '午', type: 'near', p: .3, b: 1, title: '小桃和阿福拌嘴', hint: '正午 · 院里有两个人谁也不让谁', run: async () => {
+      await say('侍女小桃·委屈', '少爷你评评理！阿福说小桃种的花是「草」！'); await say('小厮阿福·委屈', '阿福没说是草！阿福说的是……长得像草。');
+      const i = await choose('', ['帮小桃', '帮阿福', '「各罚一碗桂花糕，给我。」']);
+      if (i === 0) { await say('小厮阿福·委屈', '……少爷偏心。'); bond('maid2', 2, true); }
+      else if (i === 1) { await say('侍女小桃·嗔', '哼！少爷和阿福一伙的！'); bond('servant', 2, true); }
+      else { await narrate('两个人对看了一眼，噗嗤一声，都笑了。'); bond('maid2', 1, true); bond('servant', 1, true); } } },
+    { id: 'maid1:contest', who: 'maid1', shi: '酉', type: 'near', p: .25, need: () => bondV('maid1') >= 8 && bondV('maid2') >= 8, b: 1, title: '谁绣得好', hint: '黄昏 · 两个姑娘拿着绣绷来找少爷', run: async () => {
+      await narrate('青禾和小桃一人拿着一块绣绷跑过来，一块绣的是竹子，一块绣的……大概是一只猫。'); await say('侍女小桃·得意', '少爷！哪个好看？说实话！');
+      const i = await choose('', ['青禾的竹子', '小桃的……猫', '「都好看。」']);
+      if (i === 0) { await say('侍女小桃·委屈', '……小桃这是兔子！'); await say('侍女青禾·笑', '小桃的兔子也很好看。'); bond('maid1', 2, true); }
+      else if (i === 1) { await say('侍女小桃·大笑', '少爷有眼光！'); await say('侍女青禾·嗔', '……那是兔子，少爷。'); bond('maid2', 2, true); }
+      else { await say('侍女青禾·嗔', '少爷就会和稀泥。'); await say('侍女小桃·笑', '不过小桃爱听！'); bond('maid1', 1, true); bond('maid2', 1, true); } } },
+    { id: 'steward:birds2', who: 'steward', shi: '卯', type: 'near', p: .35, need: f => !!f.qz_bird, b: 1, title: '雀儿又来了', hint: '清晨 · 治好过一只雀儿以后', run: async () => {
+      await narrate('窗台上那只雀儿又来了，还带来了两只伴儿，叽叽喳喳地抢松伯手里的米。'); await say('松伯·笑', '少爷救下的那只，如今成了这一片的头儿了。'); } },
+    { id: 'servant:practice', who: 'servant', shi: '卯', type: 'near', p: .4, need: f => !!f.qz_afu_sword, b: 2, title: '阿福练剑', hint: '清晨 · 教过他一招以后', run: async () => {
+      const f = F(); f.qz_afu_sw_n = (f.qz_afu_sw_n || 0) + 1; const n = f.qz_afu_sw_n;
+      await narrate(['阿福拿着扫帚又在院门后比划，起手式已经像模像样了。', '阿福一招一式练得认真，扫帚带起的风，把落叶卷成了一个小圈。', '阿福练完一套，收势站定，冲少爷抱了抱拳。'][Math.min(2, n - 1)]);
+      await say('小厮阿福·得意', ['少爷，阿福练了一百遍了！', '少爷您看，阿福这一下是不是有点剑气了？', '少爷……阿福以后，也能跟着您下山吗？'][Math.min(2, n - 1)]);
+      if (n === 3) { await say('叶孤星', '……先把院子守好。等你练成了，我带你下山。'); await say('小厮阿福·感动', '一言为定！'); stat({ spd: 1 }, '速度 +1（陪阿福练剑）'); } } },
+    { id: 'steward:market', who: 'steward', shi: '酉', type: 'talk', p: 1, need: () => marketDay(), b: 1, title: '赶集回来', hint: '每五日 · 松伯清早下山赶集', run: async () => {
+      await say('松伯·笑', '少爷，老头子今儿下山赶了趟集，给厨房添了些东西——少爷拿去做菜吧。');
+      const got = {}; for (let i = 0; i < 3; i++) { const id = pick(ING_IDS); got[id] = (got[id] || 0) + 1; }
+      const list = Object.entries(got).map(([id, n]) => { addItem(id, n); return ITEM_DB[id].name + '×' + n; }); toast('松伯带回来的：' + list.join('、'), 2600); } },
+    { id: 'servant:marketsay', who: 'servant', shi: '卯', type: 'talk', p: 1, need: () => marketDay(), b: 1, title: '松伯去赶集了', hint: '每五日 · 一大早院里少了一个人', run: async () => {
+      await say('小厮阿福·笑', '少爷找松伯？松伯天不亮就下山赶集去了，说黄昏回来。……他不在，阿福能偷个懒！'); } },
+    { id: 'maid1:bdayhint', who: 'maid1', shi: '午', type: 'talk', once: 1, p: 1, need: () => qday() >= 10 && !hidSeen('maid2:bday'), b: 1, title: '青禾透的口风', hint: '第十日以后 · 有人的生辰快到了', run: async () => {
+      await say('侍女青禾·笑', '少爷……小声跟您说，第十二日是小桃的生辰。她嘴上不说，心里盼着呢。'); await say('侍女青禾', '她最爱吃甜的——桂花糕、莲子羹，都行。'); } },
+    { id: 'maid2:bdayhint', who: 'maid2', shi: '午', type: 'talk', once: 1, p: 1, need: () => qday() >= 22 && !hidSeen('maid1:bday'), b: 1, title: '小桃透的口风', hint: '第二十二日以后 · 又有人的生辰快到了', run: async () => {
+      await say('侍女小桃·得意', '少爷少爷，告诉您个秘密——第二十四日是青禾姐的生辰！'); await say('侍女小桃', '青禾姐最爱竹笋汤，还有她自己蒸的那种蛋羹。少爷做给她吃，她肯定高兴坏了！'); } },
+    { id: 'maid1:needle', who: 'maid1', shi: '酉', type: 'near', once: 1, p: .5, need: () => bondV('maid1') >= 8, b: 1, title: '丢了的银针', hint: '黄昏 · 青禾好像在地上找什么', run: async () => {
+      await narrate('青禾蹲在晾衣架下，一寸一寸地翻着草丛。'); await say('侍女青禾·担心', '少爷……青禾的银针不见了。是娘留给青禾的，就那一根。'); qStart('needle', 'ask'); } },
+    { id: 'cat:gone', who: 'cat', shi: '卯', type: 'door', once: 1, p: .4, need: f => !!f.cat_name && (f.cat_feeds || 0) >= 3, b: 1, title: '一早上没露面', hint: '清晨 · 某天，小猫一整个早上都没露面', run: async () => {
+      await say('侍女小桃·担心', '少爷！' + cat() + '不见了！一早上都没看见它，碗里的饭也没动！'); qStart('cat', 'find'); } },
+  );
+  for (const e of EVS.slice(-10)) EVBY[e.id] = e;
+  SECRETS.push(...EVS.slice(-10).filter(e => !SECRETS.includes(e)));
+  SECRETS.push({ id: 'maid2:bday', who: 'maid2', shi: '酉', title: '小桃的生辰', hint: '特别的日子 · 第十二日' }, { id: 'maid1:bday', who: 'maid1', shi: '酉', title: '青禾的生辰', hint: '特别的日子 · 第二十四日' });
+
   // ---------- 《青竹小记》（少爷居室桌上）----------
   const BKF_T = '"GuxingDF","GuxingWKB","Kaiti SC","STKaiti",serif', BKF = '"GuxingWKB","GuxingKai","Kaiti SC","STKaiti",serif';
   const UIK = {}; const uik = k => UIK[k] || (UIK[k] = (() => { const im = new Image(); im.src = k; return im; })()); const okIm = im => im && im.complete && im.naturalWidth;
@@ -884,7 +1071,8 @@
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#2d3a32'; ctx.font = `46px ${BKF_T}`; ctx.fillText(BOOK.who ? BOND_NAME[BOOK.who] + ' · 小记' : '青竹小记', 640, BY + 72);
     const nEv = Object.keys(f.qz_ev || {}).length, nHid = SECRETS.filter(e => hidSeen(e.id)).length;
     ctx.font = `18px ${BKF}`; ctx.fillStyle = '#6f7a6c'; ctx.fillText('第 ' + qday() + ' 日' + (shi() ? ' · ' + NAME[shi()] + LAB[shi()] : '') + '　·　十二件小事 ' + nEv + ' / 12　·　院里的秘密 ' + nHid + ' / ' + SECRETS.length, 640, BY + 140);
-    if (!BOOK.who) ROWS.forEach((k, i) => { const y = RY0 + i * (RH + 6), v = bondV(k), lv = lvOf(v), nx = LV[lv + 1];
+    if (BOOK.page === 'quest') { drawQuestPage(); }
+    else if (!BOOK.who) ROWS.forEach((k, i) => { const y = RY0 + i * (RH + 6), v = bondV(k), lv = lvOf(v), nx = LV[lv + 1];
       ctx.fillStyle = 'rgba(255,253,246,.72)'; roundRect(RX, y, RW, RH, 14); ctx.fill(); ctx.strokeStyle = 'rgba(150,140,115,.35)'; ctx.lineWidth = 1.5; ctx.stroke();
       const cx = RX + 46, cy = y + RH / 2, r = 30; let im = IMG[POR[k]];
       if (k === 'cat' && !im) { const ci = uik('r139/cat.webp'); if (okIm(ci)) { const c = document.createElement('canvas'); c.width = c.height = 256; c.getContext('2d').drawImage(ci, 768, 0, 256, 256, 0, 0, 256, 256); im = IMG.p_r139_cat = c; } }
@@ -896,14 +1084,14 @@
       ctx.font = `19px ${BKF}`; ctx.fillStyle = '#5d7a68'; ctx.fillText(LVN[lv] + (lv === 5 ? ' · ' + KIN[k] : ''), RX + 92, y + 53);
       for (let h = 0; h < 5; h++) heart(RX + 262 + h * 28, y + 26, 20, h < lv);
       const bw = 190, p0 = nx ? (v - LV[lv]) / (nx - LV[lv]) : 1; ctx.fillStyle = 'rgba(120,110,95,.18)'; roundRect(RX + 250, y + 46, bw, 9, 5); ctx.fill(); ctx.fillStyle = '#c8726a'; roundRect(RX + 250, y + 46, Math.max(6, bw * p0), 9, 5); ctx.fill();
-      ctx.font = `15px ${BKF}`; ctx.fillStyle = '#7d7666'; ctx.fillText(nx ? v + ' / ' + nx : '已是家人', RX + 250 + bw + 10, y + 51);
+      ctx.font = `15px ${BKF}`; ctx.fillStyle = '#7d7666'; ctx.fillText(k === 'steward' ? '永远是家人' : nx ? v + ' / ' + nx : '已是家人', RX + 250 + bw + 10, y + 51);
       ctx.font = `19px ${BKF}`; ctx.fillStyle = '#4a5a50';
       const mt = k === 'cat' ? '喂过 ' + (f.cat_feeds || 0) + ' 回' : '今日 · ' + MOODT[mood(k)]; ctx.fillText(mt, RX + 560, y + 25);
       const ss = secretsOf(k), got = ss.filter(e => hidSeen(e.id)).length; ctx.fillStyle = '#8a6d4a'; ctx.fillText('秘密 ' + got + ' / ' + ss.length + '　›', RX + 560, y + 53);
     });
-    else { const k = BOOK.who, ss = secretsOf(k), lv = lvOf(bondV(k)), R = (LVR[k] || {})[lv + 1];
+    else if (BOOK.who) { const k = BOOK.who, ss = secretsOf(k), lv = lvOf(bondV(k)), R = (LVR[k] || {})[lv + 1];
       ctx.textAlign = 'left'; ctx.font = `19px ${BKF}`; ctx.fillStyle = '#5d7a68';
-      ctx.textBaseline = 'middle'; ctx.fillText('情谊「' + LVN[lv] + '」' + (lv < 5 ? '　·　再亲近些，到「' + LVN[lv + 1] + '」时' + (k === 'cat' ? '，它会更黏少爷' : '，' + BOND_NAME[k] + '会来找少爷') : '　·　' + KIN[k]), RX, RY0 - 4);
+      ctx.textBaseline = 'middle'; if (k === 'steward') ctx.fillText('松伯永远是家人　·　找到松伯的秘密，他会把珍藏的东西一件件交给少爷（' + ss.filter(e => hidSeen(e.id)).length + ' / ' + ss.length + '）', RX, RY0 - 4); else ctx.fillText('情谊「' + LVN[lv] + '」' + (lv < 5 ? '　·　再亲近些，到「' + LVN[lv + 1] + '」时' + (k === 'cat' ? '，它会更黏少爷' : '，' + BOND_NAME[k] + '会来找少爷') : '　·　' + KIN[k]), RX, RY0 - 4);
       const cols = 2, cw = (RW - 20) / cols, chh = 44;
       ss.forEach((e, i) => { const x = RX + (i % cols) * (cw + 20), y = RY0 + 22 + Math.floor(i / cols) * (chh + 8), got = hidSeen(e.id);
         ctx.fillStyle = got ? 'rgba(255,253,246,.82)' : 'rgba(235,230,218,.6)'; roundRect(x, y, cw, chh, 10); ctx.fill();
@@ -912,19 +1100,39 @@
         const tx = got ? e.title : '？？？　' + (e.hint || '').replace(/^.*? · /, ''); ctx.fillText(tx.length > 24 ? tx.slice(0, 24) + '…' : tx, x + 64, y + 23); });
       if (!ss.length) { ctx.textAlign = 'center'; ctx.fillStyle = '#8d8676'; ctx.fillText('……', 640, RY0 + 80); }
     }
-    // 底部：合上 / 返回
-    const bx = 640 - 90, by = BY + BH - 74; ctx.fillStyle = 'rgba(90,120,104,.9)'; roundRect(bx, by, 180, 46, 23); ctx.fill(); ctx.fillStyle = '#f6f2e6'; ctx.font = `22px ${BKF}`; ctx.textAlign = 'center'; ctx.fillText(BOOK.who ? '返　回' : '合　上', 640, by + 24);
+    // 底部：合上 / 返回；总览页左边多一个「院中支线」
+    const sub = BOOK.who || BOOK.page, bx = 640 - 90, by = BY + BH - 74; ctx.fillStyle = 'rgba(90,120,104,.9)'; roundRect(bx, by, 180, 46, 23); ctx.fill(); ctx.fillStyle = '#f6f2e6'; ctx.font = `22px ${BKF}`; ctx.textAlign = 'center'; ctx.fillText(sub ? '返　回' : '合　上', 640, by + 24);
+    if (!sub) { const qx = 640 - 300; ctx.fillStyle = 'rgba(150,110,70,.88)'; roundRect(qx, by, 180, 46, 23); ctx.fill(); ctx.fillStyle = '#f8f1e2'; ctx.fillText('院中支线', qx + 90, by + 24);
+      const act = Object.keys(QUESTS).filter(id => qStep(id)).length; if (act) { ctx.fillStyle = '#c8504a'; ctx.beginPath(); ctx.arc(qx + 170, by + 6, 11, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = `15px ${BKF}`; ctx.fillText(act, qx + 170, by + 7); } }
     ctx.restore(); } };
   S.overlay.push(bookLayer);
   async function openBook() {
-    BOOK = { who: null }; BTAPS.length = 0; const hud0 = S.hud; S.hud = false; world.locked = true;
+    BOOK = { who: null, page: null }; BTAPS.length = 0; const hud0 = S.hud; S.hud = false; world.locked = true;
     try { for (;;) { await nextFrame(); const tp = BTAPS.shift(); if (!tp) continue;
       const btn = { x: 640 - 90, y: BY + BH - 74, w: 180, h: 46 };
-      if (inR(tp, btn) || !inR(tp, { x: BX, y: BY, w: BW, h: BH })) { if (BOOK.who) { BOOK.who = null; continue; } return; }
+      if (inR(tp, btn) || !inR(tp, { x: BX, y: BY, w: BW, h: BH })) { if (BOOK.who || BOOK.page) { BOOK.who = null; BOOK.page = null; continue; } return; }
+      if (!BOOK.who && !BOOK.page && inR(tp, { x: 640 - 300, y: BY + BH - 74, w: 180, h: 46 })) { BOOK.page = 'quest'; try { playSnd('ui_confirm', .5); } catch (e) {} continue; }
+      if (BOOK.page) continue;
       if (!BOOK.who) ROWS.forEach((k, i) => { if (inR(tp, { x: RX, y: RY0 + i * (RH + 6), w: RW, h: RH })) { BOOK.who = k; try { playSnd('ui_confirm', .5); } catch (e) {} } });
     } } finally { BOOK = null; S.hud = hud0; world.locked = false; }
   }
   window.QZ_BOOK = openBook;
+  function drawQuestPage() {
+    const f = F(), d = qday(); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    let y = RY0 + 4; ctx.font = `21px ${BKF_T}`; ctx.fillStyle = '#4f6b5a'; ctx.fillText('院中支线', RX, y); y += 26;
+    for (const id in QUESTS) { const Qd = QUESTS[id], q = Q()[id], st = qStep(id), done = q && q.s === 'done';
+      ctx.fillStyle = done ? 'rgba(235,242,236,.85)' : q ? 'rgba(255,251,240,.9)' : 'rgba(235,230,218,.6)'; roundRect(RX, y, RW, 37, 10); ctx.fill();
+      ctx.font = `20px ${BKF}`; ctx.fillStyle = q ? '#2b332e' : '#8d8676'; ctx.fillText(q ? Qd.name : '？？？', RX + 16, y + 19);
+      ctx.font = `17px ${BKF}`; ctx.fillStyle = done ? '#5d8a6a' : q ? '#8a5a3a' : '#9a9280';
+      ctx.fillText(done ? '已完成' : st ? '▸ ' + st.desc : (Qd.hint || ''), RX + 170, y + 19); y += 41; }
+    y += 6; ctx.font = `21px ${BKF_T}`; ctx.fillStyle = '#4f6b5a'; ctx.fillText('特别的日子', RX, y); y += 26;
+    const nx7 = d % 7 === 0 ? d : Math.ceil(d / 7) * 7, nx5 = d + ((2 - d % 5 + 5) % 5);
+    const rows = [['七日家宴', '每七日的黄昏，西院石桌' + (f.qz_feast ? '（吃过 ' + f.qz_feast + ' 回）' : '') + '　·　下一回：第 ' + nx7 + ' 日'],
+      ['松伯赶集', '每五日清早下山，黄昏带回食材　·　下一回：第 ' + nx5 + ' 日'],
+      [hidSeen('maid1:bdayhint') || hidSeen('maid2:bday') ? '小桃的生辰' : '？？？', hidSeen('maid2:bday') ? '已经过了 · 一起吃过了' : hidSeen('maid1:bdayhint') ? '第十二日的黄昏　·　她最爱吃甜的' : '听说院里有人的生辰快到了'],
+      [hidSeen('maid2:bdayhint') || hidSeen('maid1:bday') ? '青禾的生辰' : '？？？', hidSeen('maid1:bday') ? '已经过了 · 一起吃过了' : hidSeen('maid2:bdayhint') ? '第二十四日的黄昏　·　竹笋汤、蛋羹' : '……']];
+    for (const [a, b] of rows) { ctx.fillStyle = 'rgba(255,253,246,.72)'; roundRect(RX, y, RW, 32, 10); ctx.fill(); ctx.font = `19px ${BKF}`; ctx.fillStyle = '#2b332e'; ctx.fillText(a, RX + 16, y + 16); ctx.font = `16px ${BKF}`; ctx.fillStyle = '#7d7666'; ctx.fillText(b, RX + 170, y + 16); y += 35; }
+  }
   { const R = TMAPS.tj_room; R.npcs = R.npcs || []; const [c, r] = P(742, 596);
     R.npcs.push({ key: 'none', name: '青竹小记', c, r, h: 70, wander: false, q162book: 1, mark: () => !!F().qz_book_hint && !F().qz_book_open,
       talk: async () => { F().qz_book_open = 1; await openBook(); } }); }
@@ -1021,6 +1229,9 @@
     const r = orig.apply(this, arguments);
     try {
       if (ON() && QZ(name)) { preload(); if (world.actors) world.actors.push(...propsFor(name, shi())); }
+      // 支线里要找东西的地方：一点微光
+      if (world.actors) for (const id in QUESTS) { const st = qStep(id); if (st && st.type === 'spot' && st.at === name) { const sp = { _q162prop: a => { const st2 = qStep(id); if (!st2 || st2.type !== 'spot') return; const [x, y] = spotXY(id, st2); a.y = y; sparkle(x, y, now()); }, x: st.xy[0], y: st.xy[1], moving: false }; world.actors.push(sp); } }
+      if (LOST && name === COURT && world.actors) world.actors.push({ x: LOST[0], y: LOST[1], moving: false, _q162prop: a => { if (!LOST) return; sparkle(LOST[0], LOST[1], now()); } });
       // 作者 11-08：子时都睡下了，两个姑娘的屋子不能进（只能去松伯、阿福屋里）
       if (name === COURT && world.map && world.map.T) for (const d of world.map.T.doors || []) {
         const who = d.to === RM.maid1 ? '青禾' : d.to === RM.maid2 ? '小桃' : ''; if (!who) continue;
@@ -1119,5 +1330,5 @@
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
-  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
+  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
 })();
