@@ -644,5 +644,94 @@
     return o.apply(this, arguments);
   })(choose);
 
+  // ================= 九、西院小猫（Codex R139：橘白小猫，单帧 128，脚点 64,120，按 0.5 倍画）=================
+  // 白天在西院里溜达：走走、坐下舔爪、找块太阳地睡一觉（醒了伸懒腰）；少爷走近会过来蹭蹭腿；夜里蜷在厨房门口（灶边暖和）。
+  // 第一次摸它：小桃说是前些天溜进西院的小野猫，大家偷偷喂着——少爷给它起名字，留下来当家猫。
+  // 喂它（隔一阵才能再喂）：它跑去厨房门口低头吃饭；喂过三回，它开始跟着少爷在院里走。
+  const CATI = new Image(); let catOk = false; CATI.onload = () => { catOk = true;
+    try { const c = document.createElement('canvas'); c.width = c.height = 256; c.getContext('2d').drawImage(CATI, 768, 0, 256, 256, 0, 0, 256, 256); IMG.p_r139_cat = c;
+      if (typeof MEDAL_FACE === 'object') MEDAL_FACE.p_r139_cat = { fx: .5, fy: .36, span: .5 }; for (const n of catNames()) if (SPEAKERS[n]) SPEAKERS[n].p = 'p_r139_cat'; } catch (e) {} };
+  let catReq = false; const needCat = () => { if (!catReq) { catReq = true; CATI.src = 'r139/cat.webp'; } };
+  const CROW = { down: 0, up: 1, left: 2, lick: 3, sleep: 4, eat: 5, stretch: 6, rub: 7 }, CFPS = { down: 8, up: 8, left: 8, lick: 6, sleep: 3, eat: 7, stretch: 6, rub: 6 }, CN = { sleep: 4 };
+  const catName = () => F().cat_name || '小猫';
+  const catNames = () => ['小猫', '团子', '阿橘', '馒头', '雪团'];
+  try { for (const n of catNames()) SPEAKERS[n] = SPEAKERS[n] || { color: '#f4c890' }; } catch (e) {}
+  const CPOI = [[560, 1300], [820, 1300], [1000, 1380], [700, 1150], [450, 1250], [900, 1000], [640, 820], [1150, 900], [380, 900], [760, 1420]].map(p => Y(p[0], p[1]));
+  const BOWL = Y(400, 1236), WARM = Y(430, 1200);
+  const catDef = { key: 'none', name: '小猫', c: BOWL[0] / 64 - .5, r: BOWL[1] / 64 - .8, h: 44, wander: false, r139cat: 1, dir: -1 };
+  court.npcs.push(catDef);
+  const stand = (T, x, y) => { try { return typeof canStand !== 'function' || canStand(T, x, y); } catch (e) { return true; } };
+  function catPick(a, T) {
+    const p = world.player, follow = (F().cat_feeds || 0) >= 3 && p && p.x < 0 && Math.random() < .5;
+    for (let k = 0; k < 12; k++) { const b = follow ? [p.x, p.y] : CPOI[Math.floor(Math.random() * CPOI.length)];
+      const x = b[0] + (Math.random() - .5) * (follow ? 120 : 90), y = b[1] + (Math.random() - .5) * (follow ? 80 : 60); if (stand(T, x, y)) return [x, y]; }
+    return null; }
+  function catDo(a, T, st, extra) { const c = a._cat; c.st = st; c.t0 = now(); c.dur = 0; c.path = null; Object.assign(c, extra || {});
+    if (st === 'walk') { const to = c.to || catPick(a, T); c.to = null; if (!to) { c.st = 'lick'; c.dur = 3; return; } c.path = plan(a, T, to); }
+    else if (st === 'lick') c.dur = 4 + Math.random() * 4;
+    else if (st === 'sleep') c.dur = night() ? 1e9 : 12 + Math.random() * 14;
+    else if (st === 'stretch' || st === 'rub') c.dur = 1.0;
+    else if (st === 'eat') c.dur = 7;
+  }
+  function catNext(a, T) { const c = a._cat, r = Math.random();
+    if (c.st === 'sleep') return catDo(a, T, 'stretch');
+    if (c.st === 'walk') { if (c.thenEat) { c.thenEat = false; return catDo(a, T, 'eat'); } return catDo(a, T, r < .45 ? 'lick' : r < .7 ? 'sleep' : 'walk'); }
+    return catDo(a, T, 'walk'); }
+  if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) {
+    o.apply(this, arguments);
+    try {
+      if (world.mapName !== COURT || !world.actors) return;
+      const T = world.map.T, p = world.player, a = world.actors.find(x => x.npc && x.npc.r139cat); if (!a) return; needCat();
+      a.label = catName(); a.npc.name = catName();
+      if (!a._cat) { a._cat = { st: 'lick', t0: now(), dur: 2 }; if (night()) { a.x = WARM[0]; a.y = WARM[1]; catDo(a, T, 'sleep'); } }
+      const c = a._cat; if (a.talking || (typeof dialog !== 'undefined' && dialog && dialog.who === catName())) return;
+      if (night() && c.st !== 'sleep' && !(c.st === 'walk' && c.night)) { catDo(a, T, 'walk', { to: WARM, night: true }); }
+      // 少爷走近：醒着的时候过来蹭一蹭（隔一阵一次）
+      if (p && !night() && c.st !== 'sleep' && c.st !== 'eat' && c.st !== 'rub' && Math.hypot(p.x - a.x, p.y - a.y) < 70 && now() - (c.rubT || 0) > 25) { c.rubT = now(); a._face = p.x > a.x ? 1 : -1; catDo(a, T, 'rub'); }
+      if (c.st === 'walk') { const tgt = c.path && c.path[0]; if (!tgt) { if (c.night) { c.night = false; catDo(a, T, 'sleep'); } else catNext(a, T); return; }
+        const dx = tgt[0] - a.x, dy = tgt[1] - a.y, d = Math.hypot(dx, dy), sp = (c.fast ? 80 : 42) * Math.min(dt, .05);
+        if (d <= sp) { a.x = tgt[0]; a.y = tgt[1]; c.path.shift(); } else { a.x += dx / d * sp; a.y += dy / d * sp; }
+        c.dir = Math.abs(dx) > Math.abs(dy) * .8 ? 'left' : dy > 0 ? 'down' : 'up'; if (Math.abs(dx) > .3) a._face = dx > 0 ? 1 : -1; a.moving = true;
+      } else { a.moving = false; if (now() - c.t0 >= c.dur) catNext(a, T); }
+    } catch (e) { console.warn('r139 cat', e); }
+  })(tileUpdate);
+  if (typeof drawActorT === 'function') drawActorT = (o => function (a, t) {
+    if (a && a.npc && a.npc.r139cat) { if (!catOk) return; const c = a._cat || { st: 'lick', t0: 0 };
+      const st = c.st === 'walk' ? c.dir || 'left' : c.st, row = CROW[st] != null ? CROW[st] : 3, n = CN[st] || 6, el = now() - c.t0;
+      let f = (st === 'stretch' || st === 'rub') ? Math.min(n - 1, Math.floor(el * CFPS[st] * 1.2)) : Math.floor(el * CFPS[st]) % n;
+      const flip = (st === 'left' || st === 'up' || st === 'down') ? (st === 'left' && a._face > 0) : a._face > 0;
+      ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(a.x, a.y - 1, 17, 5, 0, 0, 7); ctx.fill();
+      ctx.translate(a.x, a.y); if (flip) ctx.scale(-1, 1); ctx.scale(.5, .5);
+      ctx.drawImage(CATI, f * 128, row * 128, 128, 128, -64, -120, 128, 128); ctx.restore(); return; }
+    return o.apply(this, arguments);
+  })(drawActorT);
+  catDef.talk = async () => {
+    const a = (world.actors || []).find(x => x.npc && x.npc.r139cat); const f = F();
+    if (a && a._cat && a._cat.st === 'sleep' && !night()) { await narrate(catName() + '蜷成一团睡得正香，肚皮一起一伏。少爷没舍得吵它。'); return; }
+    if (!f.cat_met) { f.cat_met = 1;
+      await narrate('一只橘白小猫从花圃边钻出来，绕着少爷的脚边转了一圈，仰头「喵」了一声。');
+      await say('侍女小桃', '呀，它又溜进来了！少爷，这是前些日子从墙头跳进西院的小野猫，我们几个……偷偷喂着它。');
+      await say('小厮阿福', '它可乖了，从来不偷厨房的鱼！……就偷过一回。');
+      await say('侍女小桃', '少爷，能把它留下吗？它好像很喜欢您。');
+      const i = await choose('给小猫起个名字', ['团子', '阿橘', '馒头', '雪团']);
+      f.cat_name = ['团子', '阿橘', '馒头', '雪团'][i] || '团子'; try { if (IMG.p_r139_cat) SPEAKERS[f.cat_name].p = 'p_r139_cat'; } catch (e) {}
+      await say('侍女小桃', '「' + f.cat_name + '」！好听！' + f.cat_name + '，以后你就是青竹小院的猫啦。');
+      await say(f.cat_name, '喵～');
+      await say('星旋', '（……这院子里，连猫都比你招人疼。）');
+      return; }
+    const i = await choose(catName(), ['摸摸它', '给它添点吃的', '走开']);
+    if (i === 0) { if (a && a._cat) { a._face = world.player && world.player.x > a.x ? 1 : -1; catDo(a, world.map.T, 'rub'); a._cat.rubT = now(); }
+      await narrate(pick([catName() + '眯起眼，在少爷手心里蹭来蹭去，喉咙里呼噜呼噜的。', catName() + '翻过身，把软乎乎的肚皮露出来。', catName() + '用脑袋顶了顶少爷的手，又顶了顶，意思是：再摸一会儿。']));
+      return; }
+    if (i === 1) { if (Date.now() - (f.cat_fedT || 0) < 6 * 60 * 1000) { await narrate(catName() + '的小碗里还剩着一点，肚子圆滚滚的，吃不下啦。'); return; }
+      f.cat_fedT = Date.now(); f.cat_feeds = (f.cat_feeds || 0) + 1;
+      await narrate('少爷往厨房门口的小瓷碗里添了些吃的。' + catName() + '「喵」的一声，尾巴竖得笔直，一溜小跑过去了。');
+      if (a && a._cat) catDo(a, world.map.T, 'walk', { to: BOWL, thenEat: true, fast: true });
+      if (f.cat_feeds === 3 && !f.cat_follow) { f.cat_follow = 1;
+        await say('侍女小桃', '少爷您看，' + catName() + '现在少爷走到哪儿它跟到哪儿，跟个小尾巴似的。');
+        await say('侍女青禾', '……前两天它还叼了片竹叶，放在少爷屋门口。大概是谢礼吧。'); }
+    }
+  };
+
   window.R139 = { R, NPC, setBed, get tea() { return TEA_T; } };
 })();
