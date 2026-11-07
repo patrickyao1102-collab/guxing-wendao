@@ -111,9 +111,8 @@
   { let shown = 0, t0 = 0; S.overlay.push({ draw() {
     const need = S.scene === drawMap && world && world.player && !walkOK() && performance.now() - (window.__r134boot || (window.__r134boot = performance.now())) < 15000;
     if (need) { if (!shown) t0 = performance.now(); shown = Math.min(1, shown + .2); } else { shown = Math.max(0, shown - .06); if (!shown) return; }
-    const im = IMG.title_art; ctx.save(); ctx.globalAlpha = shown; ctx.fillStyle = '#05070d'; ctx.fillRect(0, 0, W, H);
-    if (im && im.width) { const r = Math.max(W / im.width, H / im.height), z = 1 + ((performance.now() - t0) / 1000) * .01; ctx.drawImage(im, W / 2 - im.width * r * z / 2, H / 2 - im.height * r * z / 2, im.width * r * z, im.height * r * z); }
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 18px ${FONT}`; ctx.fillStyle = 'rgba(232,220,192,.85)'; ctx.fillText('载入中……', W / 2, H - 60); ctx.restore(); } }); }
+    // 作者 11-08：老版封面载入（孤星问道封面 +「载入中……」）取消 → 用同一套 R157 插画载入画面
+    ctx.save(); ctx.globalAlpha = shown; try { if (window.LOADING_LAYER) LOADING_LAYER.draw(Math.min(.95, (performance.now() - t0) / 6000)); else { ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H); } } catch (e) {} ctx.restore(); } }); }
 
   // ---- 第 10 条（提示）：顶上那条长提示看不全 → 改成星旋在屏幕下方说一句（对话框样式，点击关闭）----
   const LONG = t => { const s = String(t || ''); return s.length >= 20 || /→|；/.test(s); };

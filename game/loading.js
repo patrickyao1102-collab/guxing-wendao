@@ -31,7 +31,7 @@
   const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/bg_' + String(i + 1).padStart(2, '0') + '.webp'; };
   for (const k of ['track', 'fill_left', 'fill_mid', 'fill_right', 'head']) { const im = new Image(); im.onload = () => { LB.parts[k] = im; }; im.src = 'r157/progress/' + k + '.webp'; }
   { const im = new Image(); im.onload = () => { LB.parts.tw = im; }; im.src = 'r157/anim/head_twinkle_8f.webp'; }
-  let lbNext = Math.floor(Math.random() * 10); lbLoad(lbNext); lbLoad((lbNext + 4) % 10); lbLoad((lbNext + 7) % 10);   // 开局就先下三张，第一次进图就有插画
+  lbLoad(0); let lbNext = Math.floor(Math.random() * 10); lbLoad(lbNext); lbLoad((lbNext + 4) % 10); lbLoad((lbNext + 7) % 10);   // 开局就先下三张，第一次进图就有插画
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)];
     lbNext = (lbNext + 1 + Math.floor(Math.random() * 9)) % 10; lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
@@ -44,9 +44,9 @@
       const tw = P.tw; if (tw) { const f = Math.floor(now / 125) % 8; ctx.drawImage(tw, f * 96, 0, 96, 64, 198 + w - 24, 665 - 16, 48, 32); } else if (P.head) ctx.drawImage(P.head, 198 + w - 24, 649, 48, 32);
     }
     return true; }
-  const layer = { draw() {
+  const layer = { draw(force) {
     if (world.mapName !== mapAt) { mapAt = world.mapName; t0 = performance.now(); prog = 0; lbPick(); }
-    let r = readiness();
+    let r = force != null ? Math.min(.97, force) : readiness();
     // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
     if (window.__GPH && performance.now() - window.__GPH < 250 && forced !== world.mapName) r = Math.min(r, .6);
     if (r >= 1) { shown = Math.max(0, shown - .08); if (!shown) return; } else shown = 1;
@@ -70,20 +70,10 @@
       if (r < 1 && typeof input !== 'undefined' && input.tapped) { if (waited > 40) forced = world.mapName; input.tapped = null; }
       ctx.restore(); return;
     }
-    ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
-    const g = ctx.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * .6); g.addColorStop(0, 'rgba(60,70,120,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    const title = (world.map && world.map.def && world.map.def.title) || '';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `48px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`; ctx.fillStyle = '#ffe2a0'; ctx.fillText(title, W / 2, H / 2 - 50);
-    const bw = 420, bh = 8, bx = W / 2 - bw / 2, by = H / 2 + 10;
-    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(bx, by, bw, bh);
-    const lg = ctx.createLinearGradient(bx, 0, bx + bw, 0); lg.addColorStop(0, '#d8a752'); lg.addColorStop(1, '#ffe8a8'); ctx.fillStyle = lg; ctx.fillRect(bx, by, bw * Math.max(.04, prog), bh);
-    // 流星光点
-    const sx = bx + bw * Math.max(.04, prog); ctx.globalCompositeOperation = 'lighter'; const sg = ctx.createRadialGradient(sx, by + 4, 0, sx, by + 4, 18); sg.addColorStop(0, 'rgba(255,240,200,.9)'); sg.addColorStop(1, 'rgba(255,200,120,0)'); ctx.fillStyle = sg; ctx.fillRect(sx - 18, by - 14, 36, 36); ctx.globalCompositeOperation = 'source-over';
-    ctx.font = `600 18px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(232,220,192,.8)'; ctx.fillText('载入中…… ' + Math.round(prog * 100) + '%', W / 2, by + 36);
-    const waited = (performance.now() - t0) / 1000;
-    if (r < 1 && waited > 12) { ctx.font = `600 15px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(232,220,192,.65)'; ctx.fillText(waited > 40 ? '网络较慢，素材仍在下载。点击屏幕可先进入（可能缺图）' : '网络较慢，正在重试下载……', W / 2, by + 66); }
-    if (r < 1 && typeof input !== 'undefined' && input.tapped) { if (waited > 40) forced = world.mapName; input.tapped = null; }
+    // 作者 11-08：老版载入画面（深蓝底 + 地图名 + 细进度条）全部取消。插画还没下好的那一小会儿只铺黑底 + R157 进度条，插画一到马上换上
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
+    { const now = performance.now(); if (!lbBar(prog, now)) { ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(198, 661, 884, 8); ctx.fillStyle = '#e8c27a'; ctx.fillRect(198, 661, 884 * prog, 8); } }
+    if (r < 1 && typeof input !== 'undefined' && input.tapped) input.tapped = null;
     ctx.restore();
   } };
   S.overlay.push(layer);
