@@ -230,7 +230,7 @@
 
   // 西院新花圃按小桃种的花换图（月季 / 绣球 / 菊花，都是 Codex 方形花圃轻摆 8 帧）
   function setBed() {
-    try { const T = world.map && world.mapName === COURT && world.map.T; if (!T) return; const k = F().qz_bed || 'rose';
+    try { const T = world.map && world.mapName === COURT && world.map.T; if (!T) return; const k = F().qz_bed || 'hydrangea';
       for (const ob of T.objs) if (ob.id === 'r136w_garden_5' && ob.r) { ob.r.an = 'flower_' + k + '_wind'; ob.r.img = 'c_flower_' + k + '_wind'; } } catch (e) {}
   }
   // 夜里头一回走进西院
@@ -417,7 +417,7 @@
     while (!r) { await nextFrame(); const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { close(); return; }
       for (const c of PICK()) if (inR(tp, c)) { const l = window.R139_LACK ? R139_LACK(c.r) : [];
         if (itemCount(c.r.id) >= 5) flash('行囊里的' + c.r.name + '还有好几份呢', false);
-        else if (l.length) flash('还缺' + l.join('、') + '——集市灶膳摊有卖', false);
+        else if (l.length) flash(l.length === 1 && l[0] === '水' ? '水缸里的水不够了——去井边打水' : '还缺' + l.filter(n => n !== '水').join('、') + '——集市灶膳摊有卖', false);
         else r = c.r; break; } }
     const deco = INGK.filter(n => !r.ing.includes(n)).sort(() => Math.random() - .5).slice(0, 6 - r.ing.length);
     Object.assign(G, { r, board: r.ing.concat(deco).sort(() => Math.random() - .5), phase: 'add', msg: null });
@@ -732,6 +732,178 @@
         await say('侍女青禾', '……前两天它还叼了片竹叶，放在少爷屋门口。大概是谢礼吧。'); }
     }
   };
+
+  // ================= 十、厨房门口的大水缸 + 井边打水（Codex R142 A/F）=================
+  // 作者 11-07：做饭要用水，去井里打水或者用厨房门口大水缸里的水；水缸空了阿福会被松伯说两句。基调：院里的人都疼少爷，全是暖的。
+  // · 水缸 0～10 桶：炖汤用 2 桶，清蒸 / 快炒用 1 桶。阿福每挑一担到厨房门口 +1（他一个人最多挑到大半缸 6 桶）。
+  // · 每到新的一天（夜里 → 白天）院里用掉 3 桶。早上缸里只剩 2 桶以下 → 少爷再进西院时，松伯在缸边念叨阿福（温和的唠叨）。
+  //   少爷说「我帮阿福一起挑」→ 去井边打水，把缸挑满以后阿福高兴得一蹦。
+  // · 井边打水小游戏：桶先放下井自己打满水；按住 = 摇辘轳往上拉，桶会越晃越厉害；松手 = 停下来让桶稳住。
+  //   玉槽里的小玉珠跑出中间那段，桶一歪就洒掉一截（满 → 半 → 空）。拉上来：满桶 +2、半桶 +1。
+  const WA = {"windlass_8f":{"x":0,"y":142,"w":360,"h":360,"n":8,"fps":8,"ax":266,"ay":144,"axle":[266,144]},"well_ripple_8f":{"x":0,"y":0,"w":420,"h":140,"n":8,"fps":8,"ax":210,"ay":70},"vat_pour_6f":{"x":0,"y":504,"w":256,"h":256,"n":6,"fps":12,"ax":128,"ay":198},"water_spill_6f":{"x":0,"y":1020,"w":256,"h":192,"n":6,"fps":12,"ax":44,"ay":52},"steward_wag_6f":{"x":1538,"y":504,"w":256,"h":256,"n":6,"fps":8,"ax":128,"ay":240},"servant_bow_6f":{"x":0,"y":762,"w":256,"h":256,"n":6,"fps":8,"ax":128,"ay":240},"servant_cheer_6f":{"x":1538,"y":762,"w":256,"h":256,"n":6,"fps":8,"ax":128,"ay":240},"water_vat_empty_day":{"x":2548,"y":1020,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"water_vat_half_day":{"x":2750,"y":1020,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"water_vat_full_day":{"x":2952,"y":1020,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"water_vat_empty_night":{"x":3154,"y":1020,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"water_vat_half_night":{"x":0,"y":1242,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"water_vat_full_night":{"x":202,"y":1242,"w":200,"h":200,"n":1,"fps":0,"ax":100,"ay":188,"mouth":[96,88],"map_scale":0.62},"bucket_empty":{"x":1538,"y":1020,"w":200,"h":220,"n":1,"fps":0,"ax":100,"ay":12,"hook":[100,12]},"bucket_half":{"x":1740,"y":1020,"w":200,"h":220,"n":1,"fps":0,"ax":100,"ay":12,"hook":[100,12]},"bucket_full":{"x":1942,"y":1020,"w":200,"h":220,"n":1,"fps":0,"ax":100,"ay":12,"hook":[100,12]},"bucket_tilt_l":{"x":2144,"y":1020,"w":200,"h":220,"n":1,"fps":0,"ax":100,"ay":12,"hook":[100,12]},"bucket_tilt_r":{"x":2346,"y":1020,"w":200,"h":220,"n":1,"fps":0,"ax":100,"ay":12,"hook":[100,12]},"tilt_meter":{"x":404,"y":1242,"w":520,"h":56,"n":1,"fps":0,"ax":260,"ay":28,"track":{"start":[24,28],"end":[496,28],"safe_range":[0.3,0.7]}},"tilt_marker":{"x":926,"y":1242,"w":40,"h":40,"n":1,"fps":0,"ax":20,"ay":20}};
+  const WI = new Image(), WB = new Image(); let waOk = false, wbOk = false; WI.onload = () => { waOk = true; }; WB.onload = () => { wbOk = true; };
+  let waReq = false; const needWater = () => { if (!waReq) { waReq = true; WI.src = 'r142/water.webp'; WB.src = 'r142/well_bg.webp'; } };
+  const wspr = (k, fi, x, y, sc = 1) => { const a = WA[k]; if (!a || !waOk) return; fi = fi || 0; ctx.drawImage(WI, a.x + fi * a.w, a.y, a.w, a.h, x - a.ax * sc, y - a.ay * sc, a.w * sc, a.h * sc); };
+  const VAT_MAX = 10, VAT_POS = Y(196, 1222), WATER_NEED = { soup: 2, steam: 1, wok: 1 };
+  const vat = () => { const f = F(); if (f.vat == null) f.vat = 6; return f.vat; };
+  const setVat = v => { F().vat = Math.max(0, Math.min(VAT_MAX, v)); };
+  let VAT_POUR_T = -9;
+  const vatDef = { key: 'none', name: '水缸', c: VAT_POS[0] / 64 - .5, r: VAT_POS[1] / 64 - .8, h: 96, wander: false, r142vat: 1 };
+  court.npcs.push(vatDef);
+  // 做饭：缺水也算「缺」，下锅时把水用掉
+  { const lack0 = window.R139_LACK; if (lack0) window.R139_LACK = r => { const l = lack0(r); if (vat() < (WATER_NEED[r.pot] || 1)) l.push('水'); return l; }; }
+  { const use0 = window.R139_USEING; if (use0) window.R139_USEING = r => { use0(r); setVat(vat() - (WATER_NEED[r.pot] || 1)); }; }
+  // 画水缸、松伯 / 阿福的小动作
+  if (typeof drawActorT === 'function') drawActorT = (o => function (a, t) {
+    if (a && a.npc && a.npc.r142vat) { needWater(); if (!waOk) return; const v = vat(), st = v <= 0 ? 'empty' : v < 7 ? 'half' : 'full', k = 'water_vat_' + st + (night() ? '_night' : '_day'), sc = WA[k].map_scale || .62;
+      ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(a.x, a.y - 2, 50 * sc / .62 * .62, 13, 0, 0, 7); ctx.fill();
+      wspr(k, 0, a.x, a.y, sc);
+      const pf = Math.floor((now() - VAT_POUR_T) * 12); if (pf >= 0 && pf < 6) { const A = WA[k]; wspr('vat_pour_6f', pf, a.x + (A.mouth[0] - A.ax) * sc, a.y + (A.mouth[1] - A.ay) * sc, sc); }
+      ctx.restore(); return; }
+    const X = a && a._a142;
+    if (X && waOk && !a.hidden) { const A = WA[X.k], f = X.loop ? Math.floor((now() - X.t0) * A.fps) % A.n : Math.min(A.n - 1, Math.floor((now() - X.t0) * A.fps));
+      ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 21, 7, 0, 0, 7); ctx.fill();
+      ctx.translate(a.x, a.y); if (X.face > 0) ctx.scale(-1, 1); wspr(X.k, f, 0, 0, SC); ctx.restore(); return; }
+    return o.apply(this, arguments);
+  })(drawActorT);
+  vatDef.talk = async () => {
+    const v = vat();
+    await narrate(v <= 0 ? '缸底干得发白，一瓢水也舀不出来了。' : v >= VAT_MAX ? '一缸清水满到缸沿，水面上映着天光。' : '缸里还有大半缸……不，' + (v < 5 ? '只剩个缸底了。' : '还剩一半多。'));
+    toast('水缸：' + v + ' / ' + VAT_MAX + ' 桶（炖汤 2 桶，清蒸、快炒 1 桶）', 2400);
+    const i = await choose('水缸', v > 0 ? ['舀一瓢喝', '去井边打水', '走开'] : ['去井边打水', '走开']);
+    const opt = v > 0 ? i : i + 1;
+    if (opt === 0) { setVat(v - 1); healAll(true); await narrate('井水凉丝丝的，一瓢下去，灵台都清亮了。'); toast('灵力回满了', 1600); }
+    else if (opt === 1) await narrate('水井就在厨房边上，走过去就能打水。');
+  };
+  // 一天过去：院里用掉 3 桶；阿福挑水到厨房门口 +1（最多挑到 6 桶）
+  let lastTod = null, fillI = -1;
+  if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) {
+    o.apply(this, arguments);
+    try {
+      const td = window.TOD ? TOD() : ''; if (lastTod === 'night' && td !== 'night') { const f = F(); setVat(vat() - 3); if (vat() <= 2) f.vat_scold = 1; }
+      lastTod = td;
+      if (world.mapName !== COURT || !world.actors) return;
+      const sv = world.actors.find(x => x.npc && x.npc.r139 === 'servant');
+      if (sv && sv._s && sv._s.step && sv._s.step.fill && fillI !== sv._s.i) { fillI = sv._s.i; if (vat() < 6) { setVat(vat() + 1); VAT_POUR_T = now(); } }
+      const p = world.player, f = F();
+      if (f.vat_scold && !night() && p && p.x < -60 && !world.locked && !(typeof dialog !== 'undefined' && dialog) && !(typeof choice !== 'undefined' && choice) && !SCOLDING) { SCOLDING = true; scold().finally(() => { SCOLDING = false; }); }
+      if (f.vat_help && vat() >= VAT_MAX && !world.locked && !SCOLDING) { f.vat_help = 0; SCOLDING = true; cheer().finally(() => { SCOLDING = false; }); }
+    } catch (e) { console.warn('r142 vat', e); }
+  })(tileUpdate);
+  for (const st of R.servant) if (st.wait && st.carry === 'water' && R.servant[R.servant.indexOf(st) - 1] && String(R.servant[R.servant.indexOf(st) - 1].go) === String(Y(335, 1196))) st.fill = 1;
+  let SCOLDING = false;
+  const actorOf = test => (world.actors || []).find(test);
+  function stage(a, x, y, k, face) { if (!a) return null; const keep = { x: a.x, y: a.y, s: a._s }; a.x = x; a.y = y; a._a142 = { k, t0: now(), face }; a.moving = false; return keep; }
+  function unstage(a, keep) { if (!a || !keep) return; a._a142 = null; a.x = keep.x; a.y = keep.y; if (a.npc && a.npc.r139) a._s = null; }
+  async function scold() {
+    needWater(); const f = F(); f.vat_scold = 0;
+    const sv = actorOf(x => x.npc && x.npc.r139 === 'servant'), sb = actorOf(x => x.npc && /管家|松伯/.test(x.npc.name || '') && !x.npc.hidden);
+    world.locked = true;
+    const k1 = stage(sv, VAT_POS[0] + 62, VAT_POS[1] + 40, 'servant_bow_6f', -1), k2 = stage(sb, VAT_POS[0] + 132, VAT_POS[1] + 30, 'steward_wag_6f', -1);
+    try {
+      await narrate('厨房门口，松伯背着手站在水缸边，对着阿福竖起一根手指。');
+      await say('松伯', '阿福啊，缸又见底喽。少爷要是夜里想喝口热汤，拿什么烧？');
+      await say('小厮阿福', '松伯我错了……今早光顾着帮小桃搬花盆，把挑水的事给忘了。嘿嘿。');
+      await say('松伯', '你这孩子，心是好的，就是丢三落四。去吧，先把缸挑满了再说。');
+      const i = await choose('少爷', ['我帮阿福一起挑', '（笑着在一旁看）']);
+      if (i === 0) { f.vat_help = 1;
+        await say('小厮阿福', '少、少爷？！这怎么使得——');
+        await say('松伯', '……少爷愿意，就让少爷搭把手吧。小心别闪着腰。');
+        toast('去厨房边的水井打水，把水缸挑满（' + vat() + ' / ' + VAT_MAX + '）', 2600);
+      } else await say('松伯', '少爷别光笑，回头这小子又要偷懒了。');
+    } finally { unstage(sv, k1); unstage(sb, k2); world.locked = false; }
+  }
+  async function cheer() {
+    needWater(); const sv = actorOf(x => x.npc && x.npc.r139 === 'servant'); world.locked = true;
+    const k1 = stage(sv, VAT_POS[0] + 70, VAT_POS[1] + 44, 'servant_cheer_6f', -1);
+    try { if (sv) sv._a142.loop = true;
+      await say('小厮阿福', '满了满了！少爷您挑得比我还快！');
+      await say('小厮阿福', '以后我天天一早就挑，再也不让缸见底了——不然松伯又要竖手指头了。');
+      await say('星旋', '（堂堂少宗主，帮小厮挑水。……倒也不坏。）');
+    } finally { unstage(sv, k1); world.locked = false; }
+  }
+  // ---------- 井边打水小游戏 ----------
+  let WG = null; const WTAPS = [];
+  try {
+    cv.addEventListener('pointerdown', e => { if (!WG) return; const q = toLogical(e); WTAPS.push(q); WG.hold = true; e.stopImmediatePropagation(); e.preventDefault(); }, true);
+    window.addEventListener('pointerup', () => { if (WG) WG.hold = false; }, true);
+    window.addEventListener('keydown', e => { if (WG && (e.key === ' ' || e.key === 'Enter')) { WG.hold = true; e.preventDefault(); } }, true);
+    window.addEventListener('keyup', e => { if (WG && (e.key === ' ' || e.key === 'Enter')) WG.hold = false; }, true);
+  } catch (e) {}
+  const W_QUIT = { x: 22, y: 18, w: 150, h: 52 }, HOOK_X = 502, TOP_Y = 150, LOW_Y = 318;
+  const LV = ['bucket_empty', 'bucket_half', 'bucket_full'];
+  function drawWell() {
+    if (!WG) return; const t = now(), G = WG; ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (wbOk) ctx.drawImage(WB, 0, 0, W, H); else { ctx.fillStyle = '#3a3530'; ctx.fillRect(0, 0, W, H); }
+    // 井底波光（限制在井口里）
+    ctx.save(); ctx.beginPath(); ctx.ellipse(488, 312, 238, 104, 0, 0, 7); ctx.clip();
+    ctx.globalAlpha = .26 + (G.splT && t - G.splT < .6 ? .3 * (1 - (t - G.splT) / .6) : 0); wspr('well_ripple_8f', Math.floor(t * 8) % 8, 482, 385, .9); ctx.restore();
+    // 桶：越往下越小，进井口后被前面的井栏挡住
+    const d = G.depth, hy = TOP_Y + (LOW_Y - TOP_Y) * d, sc = .78 - .4 * d;
+    ctx.save();
+    if (d > .02) { ctx.beginPath(); ctx.rect(0, 0, W, 300); ctx.ellipse(488, 300, 246, 110, 0, 0, Math.PI); ctx.clip(); }
+    const tilt = G.phase === 'crank' ? G.s : 0, bk = Math.abs(tilt) > .26 ? (tilt < 0 ? 'bucket_tilt_l' : 'bucket_tilt_r') : LV[G.lv];
+    ctx.translate(HOOK_X, hy); ctx.rotate(tilt * .35); wspr(bk, 0, 0, 0, sc);
+    if (G.spT && t - G.spT < .5) { const k = Math.floor((t - G.spT) * 12); if (k < 6) wspr('water_spill_6f', k, (G.spDir < 0 ? -60 : 60) * sc, 120 * sc, sc * 1.1); }
+    ctx.restore();
+    // 辘轳：按住时转
+    G.wf = (G.wf || 0) + (G.phase === 'crank' && G.hold ? 1 : G.phase === 'lower' ? -.6 : 0) * 8 * Math.min(.05, G.dt || .016);
+    wspr('windlass_8f', ((Math.floor(G.wf) % 8) + 8) % 8, 1100, 340, 1);
+    // 稳桶玉槽
+    const TM = WA.tilt_meter, tx0 = 640 - TM.ax + TM.track.start[0], tx1 = 640 - TM.ax + TM.track.end[0];
+    if (G.phase === 'crank') { wspr('tilt_meter', 0, 640, 647, 1); wspr('tilt_marker', 0, tx0 + (tx1 - tx0) * (.5 + G.s * .5), 647, 1);
+      ctx.font = `600 18px ${FONT}`; textOutline('稳', 640, 612, '#e8f4ec', '#203028', 4); }
+    // 文字
+    ctx.font = `46px ${BRUSH}`; textOutline('井 边 打 水', 640, 56, '#fff3d6', '#2a1406', 6);
+    const hint = G.phase === 'lower' ? '桶放下去了……' : G.phase === 'fill' ? '咕咚——打满了！' : G.phase === 'crank' ? '按住摇辘轳往上拉，玉珠跑偏了就松手让桶稳住' : G.phase === 'done' ? (G.lv === 2 ? '满满一桶！' : G.lv === 1 ? '洒了一半……也还行' : '桶里只剩个底了') : '';
+    if (hint) { ctx.font = `600 24px ${FONT}`; textOutline(hint, 640, 108, '#fbefd5', '#2a1406', 4); }
+    // 进度
+    if (G.phase === 'crank') { ctx.fillStyle = 'rgba(20,14,8,.45)'; roundRect(1180, 150, 18, 300, 9); ctx.fill(); ctx.fillStyle = '#bfe6ff'; roundRect(1180, 150 + 300 * G.depth, 18, 300 * (1 - G.depth), 9); ctx.fill(); }
+    ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'right'; textOutline('水缸 ' + vat() + ' / ' + VAT_MAX, 1250, 36, '#e8f6ff', '#10202c', 4); ctx.textAlign = 'center';
+    // 不打了
+    ctx.fillStyle = 'rgba(244,248,244,.86)'; roundRect(W_QUIT.x, W_QUIT.y, W_QUIT.w, W_QUIT.h, 26); ctx.fill(); ctx.strokeStyle = 'rgba(110,150,130,.8)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#3c5a4a'; ctx.fillText('不打了', W_QUIT.x + W_QUIT.w / 2, W_QUIT.y + W_QUIT.h / 2 + 1);
+    ctx.restore();
+  }
+  if (S.overlay) S.overlay.push({ draw() { try { drawWell(); } catch (e) {} } });
+  async function wellGame() {
+    needWater(); let got = 0;
+    world.locked = true; const hud0 = S.hud; S.hud = false;
+    try {
+      for (;;) {
+        WG = { phase: 'lower', depth: 0, lv: 0, s: 0, v: 0, hold: false }; WTAPS.length = 0; let last = now(), quit = false;
+        const step = () => { const t = now(); WG.dt = Math.min(.05, t - last); last = t; return WG.dt; };
+        const take = () => { const q = WTAPS.shift(); if (q && inR(q, W_QUIT)) { quit = true; } return q; };
+        while (WG.depth < 1) { await nextFrame(); const dt = step(); take(); if (quit) break; WG.depth = Math.min(1, WG.depth + dt / 1.1); }
+        if (quit) break;
+        WG.phase = 'fill'; WG.splT = now(); try { playSnd('sfx_splash', .5); } catch (e) {}
+        for (let k = 0; k < 40; k++) { await nextFrame(); step(); take(); if (quit) break; } if (quit) break;
+        WG.lv = 2; WG.phase = 'crank'; let dir = Math.random() < .5 ? -1 : 1, pause = 0;
+        while (WG.depth > 0) { await nextFrame(); const dt = step(); take(); if (quit) break;
+          if (pause > 0) { pause -= dt; WG.s *= Math.exp(-6 * dt); continue; }
+          if (WG.hold) { if (Math.random() < dt * .6) dir = -dir; WG.v += dir * (.55 + Math.random() * .3) * dt; WG.v = Math.max(-.7, Math.min(.7, WG.v)); WG.s += WG.v * dt; WG.depth = Math.max(0, WG.depth - dt / 3.4); }
+          else { WG.v *= Math.exp(-5 * dt); WG.s *= Math.exp(-2.6 * dt); }
+          if (Math.abs(WG.s) > .42) { WG.spT = now(); WG.spDir = Math.sign(WG.s); WG.lv = Math.max(0, WG.lv - 1); WG.s = 0; WG.v = 0; pause = .55; try { playSnd('sfx_splash', .4); } catch (e) {} }
+        }
+        if (quit) break;
+        WG.phase = 'done'; const add = WG.lv === 2 ? 2 : WG.lv; got += add;
+        for (let k = 0; k < 50; k++) { await nextFrame(); step(); take(); }
+        WG = null; S.hud = hud0;
+        if (add > 0) { setVat(vat() + add); VAT_POUR_T = now(); }
+        await narrate(add === 2 ? '满满一桶井水，挑到厨房门口「哗」地倒进缸里。' : add === 1 ? '洒了半桶，剩下的也倒进缸里了。' : '桶里的水一路洒光了……');
+        toast('水缸：' + vat() + ' / ' + VAT_MAX, 1800);
+        if (vat() >= VAT_MAX) { await narrate('水缸满了。'); break; }
+        const i = await choose('水井', ['再打一桶', '歇会儿']); if (i !== 0) break;
+        world.locked = true; S.hud = false;
+      }
+    } finally { WG = null; S.hud = hud0; world.locked = false; }
+    return got;
+  }
+  window.R142_WELL = wellGame; window.R142_WG = () => WG; window.R142_VAT = { get: vat, set: setVat };
+  if (well) { const t0 = well.talk; well.talk = async () => { const f = F();
+    if (!f.qz_well) return t0();
+    const i = await choose('水井', ['打水', '看看井水', '走开']);
+    if (i === 0) return wellGame(); if (i === 1) return t0(); }; }
 
   window.R139 = { R, NPC, setBed, get tea() { return TEA_T; } };
 })();
