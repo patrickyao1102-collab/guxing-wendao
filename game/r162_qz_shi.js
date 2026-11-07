@@ -542,11 +542,11 @@
     const mid = s === '子', fl = i => .9 + Math.sin(t * 5.3 + i * 1.7) * .05 + Math.sin(t * 11 + i) * .03;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     const glow = (x, y, r, a, i) => { const g = ctx.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, `rgba(255,206,130,${a * fl(i)})`); g.addColorStop(.35, `rgba(255,170,90,${a * .45 * fl(i)})`); g.addColorStop(1, 'rgba(255,150,70,0)'); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); };
-    GLOW.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y, mid ? 110 : 150, mid ? .4 : .62, i); glow(x, y + 70, mid ? 120 : 170, mid ? .12 : .2, i); });
-    HANG.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y - 14, mid ? 70 : 96, mid ? .4 : .6, i + 40); });
+    GLOW.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y, mid ? 80 : 92, mid ? .32 : .42, i); glow(x, y + 60, mid ? 90 : 110, mid ? .06 : .1, i); });   // 作者 11-08：灯是点缀，不能满屏烛光看不清地图
+    HANG.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y - 14, mid ? 46 : 54, mid ? .3 : .4, i + 40); });
     ctx.restore();
     HANG.forEach(([x, y, z], i) => { if (mid && !z) return; prop('lantern_lit', 0, x, y + Math.sin(t * 1.3 + i) * 1.2, .32); });
-    if (!mid) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { if (i % 2 === 0) A('eaves_halo_6f', x, y, .55, .7); }); ctx.restore(); }
+    if (!mid) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { if (i % 3 === 0) A('eaves_halo_6f', x, y, .42, .4); }); ctx.restore(); }
   }
 
   let WEST_NM = 'rgb(168,178,196)', WEST_NA = 'rgba(34,54,124,.26)';
@@ -560,7 +560,7 @@
       if (!ON()) return; const m = world.mapName, s = shi(), t = now();
       if (m === COURT) {
         const L = LIGHTS[s]; if (L) for (const k of L) { const im = img('l_' + k); if (!im) continue; const d = IDX[k]; ctx.drawImage(im, /^west/.test(k) ? -OX : 0, 0, d.w, d.h); }
-        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(140,148,190)' : 'rgb(196,200,228)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
+        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(140,148,190)' : 'rgb(226,226,240)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
         const A = (id, x, y, sc, al) => { const d = IDX[id]; if (d) prop(id, Math.floor(t * d.fps), x, y, sc, al); };
         if (s === '卯') { A('dawn_fog_8f', ...Y(190, 1400), 1.1, .85); A('dawn_fog_8f', 1130, 1080, 1.3, .7); A('dawn_fog_8f', ...Y(800, 760), 1.4, .5); }
         if (s === '酉') A('dusk_hearth_smoke', ...Y(465, 769), 1, .9);
