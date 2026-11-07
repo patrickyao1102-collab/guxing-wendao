@@ -105,7 +105,7 @@
       if (t && !t.key) { const L = menuLayout(); if (L.save && inR(t, L.save)) { consumeTap(); try { playSnd('ui_click'); } catch (e) {} slotMenu(); return; } }
       return orig.apply(this, arguments);
     })(menuUpdate);
-    drawMenu = (orig => function () { orig(); try { const L = menuLayout(); if (L.save) sealText('存档', L.save.x, L.save.y, L.save.w, L.save.h, false); } catch (e) {} })(drawMenu);
+    drawMenu = (orig => function () { orig(); try { const L = menuLayout(); if (L.save) { ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; sealText('存档', L.save.x, L.save.y, L.save.w, L.save.h, false); ctx.restore(); } } catch (e) {} })(drawMenu);   // 补画前重置画笔（前面留下的半透明会让按钮看着像不能点）
   }
 
   // ---------------- 标题画面：有存档就先问「继续 / 重新开始」 ----------------

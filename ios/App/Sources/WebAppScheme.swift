@@ -24,11 +24,39 @@ final class WebAppScheme: NSObject, WKURLSchemeHandler {
     static func scrambled(_ path: String) -> Bool { path != "boot.html" && path != "version.json" }
 
     // 就地按绝对偏移还原：buf[i] ^= KEY[(startOffset+i) % 59]
+    // 作者 11-07 手机开局慢：原来逐字节取模，Xcode 直接安装的调试版里每 MB 要几十毫秒，开局两百多 MB 素材光还原就要好几秒。
+    // 现在把 KEY 铺成 59×8 字节的循环表，每次 8 字节一起异或（59×8 是 8 的倍数，表里每个 8 字节块天然对齐循环）。
+    static let TABLE: [[UInt64]] = {
+        let n = KEY.count
+        var rep = [UInt8](); for _ in 0..<10 { rep += KEY }
+        return (0..<n).map { ph in
+            (0..<n).map { w in
+                var v: UInt64 = 0
+                for k in 0..<8 { v |= UInt64(rep[ph + w * 8 + k]) << (8 * UInt64(k)) }   // 小端
+                return v
+            }
+        }
+    }()
     static func descramble(_ data: inout Data, startOffset: Int) {
         let n = KEY.count
         data.withUnsafeMutableBytes { raw in
-            guard let p = raw.bindMemory(to: UInt8.self).baseAddress else { return }
-            for i in 0..<raw.count { p[i] ^= KEY[(startOffset + i) % n] }
+            guard let base = raw.baseAddress else { return }
+            let total = raw.count
+            let ph = startOffset % n
+            let row = TABLE[ph]   // 从这个相位起，每 8 字节一个异或值；59 个 UInt64 = 472 字节后回到同一相位
+            row.withUnsafeBufferPointer { kw in
+                let k = kw.baseAddress!
+                var i = 0, w = 0
+                while i + 8 <= total {
+                    let v = base.loadUnaligned(fromByteOffset: i, as: UInt64.self) ^ k[w]
+                    base.storeBytes(of: v, toByteOffset: i, as: UInt64.self)
+                    i += 8; w += 1; if w == n { w = 0 }
+                }
+                KEY.withUnsafeBufferPointer { kb in
+                    let p = base.assumingMemoryBound(to: UInt8.self)
+                    while i < total { p[i] ^= kb[(ph + i) % n]; i += 1 }
+                }
+            }
         }
     }
 

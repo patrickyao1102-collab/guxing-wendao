@@ -57,14 +57,17 @@
     try { if (typeof AC !== 'undefined' && AC && AUD.musicGain) { const src = AC.createMediaElementSource(a); o.g = AC.createGain(); o.g.gain.value = 0; src.connect(o.g); o.g.connect(AUD.musicGain); } } catch (e) { o.g = null; }
     return o;
   }
-  // 第一次点屏幕时把几首曲子“解锁”（iOS 只允许在点击里第一次播放）
-  window.addEventListener('pointerdown', () => { if (!AUD.mode) return; for (const n of NEW) { if (primed[n]) continue; primed[n] = 1; const o = el(n); if (AUD.bgm && AUD.bgm.a === o.a) continue; const v = o.a.volume; o.a.muted = true; o.a.play().then(() => { if (!(AUD.bgm && AUD.bgm.a === o.a)) o.a.pause(); o.a.muted = false; o.a.volume = v; }).catch(() => { o.a.muted = false; }); } }, { capture: true });
+  // 作者 11-07：手机开局没有背景音乐、而且很卡 —— 以前第一次点屏幕会把曲库里全部 170 多首曲子同时建好、静音播放一下来“解锁”，
+  // 等于一口气下载几百 MB 的 mp3，手机网络和解码全被占满，真正该放的那首反而出不来。
+  // 现在不再批量解锁：只放当前该放的那一首；如果浏览器因为“不是点击触发”拦下了播放，下一次点屏幕时在点击里补放（手机上走路本来就要点屏幕）。
+  // App 版（iOS / 安卓）本身就允许自动播放，不受影响。
+  window.addEventListener('pointerdown', () => { try { if (!AUD.mode || AUD.muted) return; const b = AUD.bgm && AUD.bgm.a; if (b && b.paused && !b.__stopped) b.play().then(() => { const o = EL[AUD.bgmName]; if (o) o.blocked = 0; }, () => {}); } catch (e) {} }, { capture: true });
   function playNew(k, force) {
     AUD.want = k; if (!AUD.mode) return;
     if (AUD.bgmName === k && !force && AUD.bgm) return;
     stopBgm(.8); AUD.bgmName = k; if (AUD.muted) return;
     const o = el(k), a = o.a; a.volume = o.g ? 1 : 0; try { a.currentTime = o.loop ? o.loop[0] : 0; } catch (e) {}
-    a.play().catch(() => {});
+    o.blocked = 0; a.play().then(() => { o.blocked = 0; }, () => { o.blocked = 1; });   // 被浏览器拦下（不是点击触发）：载入画面不再等它，下次点屏幕补放
     if (o.g) { const t = AC.currentTime; o.g.gain.cancelScheduledValues(t); o.g.gain.setValueAtTime(0, t); o.g.gain.linearRampToValueAtTime(VOL(k), t + 1.2); }
     else { const t0 = performance.now(), id = setInterval(() => { const k2 = Math.min(1, (performance.now() - t0) / 1200); a.volume = .45 * VOL(k) * k2; if (k2 >= 1) clearInterval(id); }, 50); }
     AUD.bgm = { a };
@@ -122,7 +125,7 @@
   // 测试面板用：试听 / 指定标题曲、广场曲、野外曲
   window.BGM29 = { list: J29, T, DEF, PICK, SDEF, src,
     // 作者 11-06：「每次加载进度条的时候音乐也必须加载出来」——载入画面问这里：本地图的曲子缓冲够了没有
-    ready() { try { if (!AUD.mode || AUD.muted) return true; if (typeof battle !== 'undefined' && battle) return true; const k = T[mapKind()]; if (!NEW.has(k)) return true; const o = EL[k]; if (!o) { sync(); return false; } return !!o.err || o.a.readyState >= 3; } catch (e) { return true; } },
+    ready() { try { if (!AUD.mode || AUD.muted) return true; if (typeof battle !== 'undefined' && battle) return true; const k = T[mapKind()]; if (!NEW.has(k)) return true; const o = EL[k]; if (!o) { sync(); return false; } return !!o.err || !!o.blocked || o.a.readyState >= 3; } catch (e) { return true; } },
     pick(slot, k) { PICK[slot] = k; save(); if (slot in DEF) { T[slot] = k; NEW.add(k); if (slot === 'title' && (typeof S === 'undefined' || !S.started)) playBgm(k, true); else sync(); } else loadOne(slot); },
     unpick(slot) { delete PICK[slot]; save(); if (slot in DEF) { T[slot] = DEF[slot]; sync(); } else loadOne(slot); },
     reset() { for (const k in PICK) delete PICK[k]; save(); Object.assign(T, DEF); sync(); loadJingles(); },
@@ -142,7 +145,7 @@
     if (!ORIG[name] && AUD.buf[name]) ORIG[name] = AUD.buf[name];
     fetch(u).then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { AUD.buf[name] = buf; (AUD.real || (AUD.real = {}))[name] = 1; if (typeof SFX_VOL !== 'undefined') SFX_VOL[name] = (L && L.vol != null ? L.vol : (JB[name] && LIBT[name + '29'] ? LIBT[name + '29'].vol : .9)) * (ROLE[name] != null ? ROLE[name] : 1); }).catch(() => {});
   }
-  function loadJingles() { const names = new Set([...Object.keys(JB), ...Object.keys(SDEF), ...Object.keys(PICK).filter(k => !(k in DEF))]); for (const n of names) loadOne(n); }
+  function loadJingles() { const names = [...new Set([...Object.keys(JB), ...Object.keys(SDEF), ...Object.keys(PICK).filter(k => !(k in DEF))])]; let i = 0; const next = () => { if (i >= names.length) return; loadOne(names[i++]); setTimeout(next, 120); }; setTimeout(next, 1500); }   // 一首一首慢慢解码，不和开局的配乐、地图抢网速
   let tries = 0; const jt = setInterval(() => { if (typeof AC !== 'undefined' && AC && AUD.mode === 'webaudio') { clearInterval(jt); loadJingles(); } else if (++tries > 600) clearInterval(jt); }, 500);
 })();
 // 调试：连点屏幕右上角三下（2 秒内），左下角显示配乐状态
