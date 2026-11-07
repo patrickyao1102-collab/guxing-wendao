@@ -13,6 +13,12 @@ SRC = 'game'
 OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'release')
 SCRAMBLE = '--no-scramble' not in sys.argv
 DROP_DIRS = {'_tmp_walk', 'jyh3'}
+# 不进安装包的子目录 / 单个文件（字体预览原件、旧配乐、旧素材……见 tools/release_drop.txt）
+DROP_SUB = {'fonts/_pv'}
+DROP_FILES = set()
+_df = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'release_drop.txt')
+if os.path.exists(_df):
+    DROP_FILES = {l.strip() for l in open(_df, encoding='utf8') if l.strip() and not l.startswith('#')}
 
 # 加扰 KEY：和 Client.java 里的 SCRAMBLE_KEY 必须逐字节一致（59 字节，质数长度）
 KEY = bytes([
@@ -62,6 +68,18 @@ def main():
             shutil.copytree(p, os.path.join(OUT, name))
         else:
             shutil.copy2(p, os.path.join(OUT, name))
+    # 剔除用不到的子目录 / 文件
+    dn = 0; db = 0
+    for sub in DROP_SUB:
+        q = os.path.join(OUT, sub)
+        if os.path.isdir(q):
+            for r, _, fs in os.walk(q):
+                for f in fs: dn += 1; db += os.path.getsize(os.path.join(r, f))
+            shutil.rmtree(q)
+    for rel in DROP_FILES:
+        q = os.path.join(OUT, rel)
+        if os.path.isfile(q): dn += 1; db += os.path.getsize(q); os.remove(q)
+    print('  剔除用不到的素材 %d 个，%.0f MB' % (dn, db / 1048576))
     # 去测试面板
     idx = open(os.path.join(SRC, 'index.html'), encoding='utf8').read()
     idx = strip_test_panel(idx)
