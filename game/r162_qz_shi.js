@@ -404,7 +404,7 @@
     if (who === 'steward' && !f.steward_met) { const r = origTalk('steward', q.map === COURT ? 'day' : 'room', a); if (r) return r; }
     if (who === 'steward') {
       const ml = MOODL.steward[mood('steward')], l = ml && Math.random() < .4 ? [WHO.steward + '·' + ml[0], ml[1]] : line('steward', out ? 'out' : s); if (l) await say(l[0], l[1]);
-      const g = canGift('steward'), led = f.qz_sew || f.qz_copy || f.qz_news || f.qz_fund_hint || f.qz_fund, opts = ['传送到去过的地方', ...(g ? ['送点吃的'] : []), ...(led ? ['院里的账（' + fund() + ' 灵石）'] : []), '没事了'];
+      const g = canGift('steward'), opts = ['传送到去过的地方', ...(g ? ['送点吃的'] : []), '没事了'];
       const i = await choose('松伯', opts);
       if (i === 0) { const r = origTalk('steward', q.map === COURT ? 'day' : 'room', a) || origTalk('steward', 'day', a); if (r) return r; }
       const pickd = opts[i] || ''; if (pickd === '送点吃的') await gift('steward'); else if (/^院里的账/.test(pickd)) await ledger();
@@ -1057,13 +1057,15 @@
   // 作者 11-08：「青禾开放装备功能？随着亲密度增加，她能帮你制作的装备等级就越高，但肯定不是有求于她……小桃可以制造技能书，高级技能书别的地方买不到，
   //   只有 boss 会掉落或者野外宝箱能捡到；小桃随着亲密度提高可以有高级的，最开始是初级的。也要花灵石，但这个钱肯定不能说给小桃的，因为她是佣人——想想合理化。」
   // 合理化：
-  //  · 钱不经她们的手：少爷把灵石交给松伯「入账」（院里的公账）。青禾的布料绣线、小桃的灵墨宣纸，都是松伯赶集时从公账里买的。少爷从不付钱给谁。
+  //  · 花的是料钱：布料绣线、灵墨宣纸要去集上买，少爷出这份料钱（作者 11-08：直接买，不搞账本）——不是付工钱给谁。
   //  · 不是去求她们做：青禾本就管着少爷的衣裳，是她看见少爷带回来的兽皮、看见少爷的甲旧了，主动说要缝；小桃常去藏经阁帮守阁师兄晒书，师兄夸她字好，
   //    准她把阁里的剑诀誊抄给少爷——她想替少爷做点什么。情谊越深，她们越肯熬夜做费工夫的东西（高阶的衣甲、卷四卷五那样厚的剑诀）。
   //  · 做东西要时间：交给她们以后，睡一觉（歇到更早的时辰 = 新的一天）才好；第二天清晨，东西就放在少爷门口 / 桌上。
   //  · 高阶剑诀（卷四、卷五）：典籍阁不再卖 —— 只有首领掉落、野外宝箱里捡到，或者小桃情谊够深时在藏经阁誊抄。
   const fund = () => F().qz_fund || 0;
-  const spend = n => { const f = F(); if ((f.qz_fund || 0) < n) return false; f.qz_fund -= n; return true; };
+  setTimeout(() => { try { const f = F(); if (f.qz_fund) { S.hero.gold += f.qz_fund; f.qz_fund = 0; } } catch (e) {} }, 0);   // 以前交给松伯入账的，退回身上
+  // 作者 11-08：不搞账本——做东西要的料钱，少爷当场付（买布料绣线、灵墨宣纸、山下的食材）
+  const spend = n => { const h = S.hero; if ((h.gold || 0) < n) return false; h.gold -= n; return true; };
   const have = id => (S.hero.bag && S.hero.bag[id]) || 0;
   const matsOk = m => Object.entries(m).every(([id, n]) => have(id) >= n);
   const matsTxt = m => Object.entries(m).map(([id, n]) => (ITEM_DB[id] ? ITEM_DB[id].name : id) + '×' + n + '（有 ' + have(id) + '）').join('、');
@@ -1089,10 +1091,10 @@
     if (auto && !ok.length) return;
     if (!ok.length) { await say('侍女青禾·笑', '少爷下回再带些兽皮、狼牙回来，青禾给少爷缝件结实的。'); return; }
     await say('侍女青禾·认真', pick(['少爷带回来的那几张兽皮，青禾看过了，皮子不错。……青禾想给少爷缝件新的。', '少爷身上那件，袖口又磨了。青禾用少爷带回来的料子，再缝一件吧。', '少爷出门在外，衣甲要结实。青禾这里有几个新样子，少爷挑一个？']));
-    const opts = ok.map(g => g.name + '　' + matsTxt(g.mats) + '　· 布料绣线 ' + g.fund + ' 灵石（院里的账）· ' + g.days + ' 日');
+    const opts = ok.map(g => g.name + '　' + matsTxt(g.mats) + '　· 布料绣线钱 ' + g.fund + ' 灵石 · ' + g.days + ' 日');
     const i = await choose('青禾想缝的', [...opts, '先不用了']); if (i >= ok.length) { await say('侍女青禾·笑', '那青禾先把料子收着，少爷想要了再说。'); return; }
     const g = ok[i];
-    if (!spend(g.fund)) { await say('侍女青禾·担心', '……绣线和衬布得等松伯下回赶集买。松伯说，院里的账上眼下紧了些。'); await narrate('（得了灵石，记得交些给松伯入账——院里的开销都从那儿出。）'); f.qz_fund_hint = 1; return; }
+    if (!spend(g.fund)) { await narrate('（布料绣线钱要 ' + g.fund + ' 灵石，身上的不够。）'); await say('侍女青禾·笑', '不急，料子青禾先替少爷收着。'); return; }
     takeMats(g.mats); J.maid1 = { id: g.id, ready: qday() + g.days }; await say('侍女青禾·笑', '那青禾这几晚就缝。好了放在少爷门口。'); bond('maid1', 1, true);
   }
   // —— 小桃：去藏经阁帮着晒书，誊抄剑诀给少爷 ——
@@ -1101,10 +1103,10 @@
     const can = COPY.filter(c => c.lv <= lvN('maid2'));
     if (!can.length) return;
     await say('侍女小桃·得意', pick(['守阁师兄说小桃的字好看，准小桃把阁里的剑诀抄给少爷！少爷要哪一卷？', '藏经阁又要晒书啦！少爷要小桃抄哪一卷，小桃就抄哪一卷！']));
-    const opts = can.map(c => { const k = copyCost(c); return ITEM_DB[c.id].name + '　灵墨宣纸 ' + k.fund + ' 灵石（院里的账）· ' + k.days + ' 日' + (c.lv >= 3 ? '　典籍阁不卖' : ''); });
+    const opts = can.map(c => { const k = copyCost(c); return ITEM_DB[c.id].name + '　灵墨宣纸钱 ' + k.fund + ' 灵石 · ' + k.days + ' 日' + (c.lv >= 3 ? '　典籍阁不卖' : ''); });
     const i = await choose('请小桃誊抄', [...opts, '先不用了']); if (i >= can.length) return;
     const c = can[i], k = copyCost(c);
-    if (!spend(k.fund)) { await say('侍女小桃·委屈', '……灵墨好贵的，松伯说院里的账上不够了。'); await narrate('（得了灵石，记得交些给松伯入账——院里的开销都从那儿出。）'); f.qz_fund_hint = 1; return; }
+    if (!spend(k.fund)) { await narrate('（灵墨宣纸钱要 ' + k.fund + ' 灵石，身上的不够。）'); await say('侍女小桃·笑', '那等少爷攒够了，小桃再去抄！'); return; }
     J.maid2 = { id: c.id, ready: qday() + k.days };
     await say(c.lv >= 3 ? '侍女小桃·认真' : '侍女小桃·大笑', c.lv >= 3 ? '这一卷好厚……没关系！小桃熬几个晚上就抄好了。' : '包在小桃身上！'); bond('maid2', 1, true);
   }
@@ -1128,8 +1130,8 @@
   async function errand() {
     const f = F(), J = JOBS(); if (J.servant) { await say('小厮阿福·笑', '少爷托的食材阿福记着呢！等松伯下回赶集，阿福跟着去背回来。'); return; }
     await say('小厮阿福·得意', '少爷要什么食材？下回松伯赶集，阿福跟着去——山下集上的东西比宗门集市便宜两成！');
-    const i = await choose('托阿福捎（每样 3 份，院里的账）', [...ING_N.map((n, k) => n + '　' + Math.round(ING_P[k] * .8 * 3) + ' 灵石'), '不用了']); if (i >= ING_N.length) return;
-    const cost = Math.round(ING_P[i] * .8 * 3); if (!spend(cost)) { await say('小厮阿福·委屈', '松伯说院里的账上不够了……少爷得先交些灵石给松伯。'); f.qz_fund_hint = 1; return; }
+    const i = await choose('托阿福捎（每样 3 份，少爷出钱）', [...ING_N.map((n, k) => n + '　' + Math.round(ING_P[k] * .8 * 3) + ' 灵石'), '不用了']); if (i >= ING_N.length) return;
+    const cost = Math.round(ING_P[i] * .8 * 3); if (!spend(cost)) { await say('小厮阿福·委屈', '少爷……这点钱不够买' + ING_N[i] + '呀。'); return; }
     J.servant = { id: 'ing_' + i, n: 3 }; await say('小厮阿福·大笑', '好嘞！' + ING_N[i] + '三份，阿福记下了！'); bond('servant', 1, true);
   }
   // —— 松伯：院里的账 ——
@@ -1198,7 +1200,7 @@
     if (k === 'maid1') return f.qz_sew ? '手艺：缝衣甲 · 能做 ' + SEW.filter(g => g.lv <= L).length + ' / ' + SEW.length + ' 样' + (J.maid1 ? '　· 在缝：' + ITEM_DB[J.maid1.id].name : '') : '手艺：？？？（熟络以后，入夜去她屋里）';
     if (k === 'maid2') return f.qz_copy ? '手艺：誊抄剑诀 · 最高 ' + (COPY.filter(c => c.lv <= L).slice(-1)[0] ? ITEM_DB[COPY.filter(c => c.lv <= L).slice(-1)[0].id].name : '—') + (J.maid2 ? '　· 在抄：' + ITEM_DB[J.maid2.id].name : '') : '手艺：？？？（熟络以后，正午她会从外面回来）';
     if (k === 'servant') return f.qz_news ? '手艺：打听消息、赶集捎食材' + (L >= 3 ? '（能说清方位了）' : '') + (J.servant ? '　· 托他捎：' + ITEM_DB[J.servant.id].name : '') : '手艺：？？？（熟络以后，清晨他从山下回来）';
-    if (k === 'steward') return '管着院里的账：' + fund() + ' 灵石　· 传送玉符';
+    if (k === 'steward') return '传送玉符 · 少爷去过的地方，他都记着路';
     return ''; };
 
   // ---------- 《青竹小记》（少爷居室桌上）----------
