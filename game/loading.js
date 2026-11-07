@@ -57,7 +57,11 @@
   const metOk = k => { if (!k) return true; try { const F0 = S.flags || {}; return !!((F0.met || {})[k] || (S.party || []).includes(k)); } catch (e) { return false; } };
   try { if (typeof joinParty === 'function') joinParty = (o => function (k) { try { (S.flags.met = S.flags.met || {})[k] = 1; } catch (e) {} return o.apply(this, arguments); })(joinParty); } catch (e) {}
   const USEf = () => SEL.map((s, i) => metOk(s[2]) ? i : -1).filter(i => i >= 0), pickU = () => { const U = USEf(); return U[Math.floor(Math.random() * U.length)]; };
-  lbLoad(0); let lbNext = pickU(); lbLoad(lbNext); lbLoad(pickU()); lbLoad(pickU());   // 开局就先下三张，第一次进图就有插画
+  // 作者 11-08：「换地图会黑很久才出现插画，黑屏绝对不允许」→ 一开游戏就把全部 22 张载入插画下下来（每张约 200KB，共约 4.6MB），并登记进 PRELOAD：插画没下完不放行进第一张图
+  let lbNext = pickU();
+  { const all = SEL.map((s, i) => i); all.sort((a, b) => (a === lbNext ? -1 : b === lbNext ? 1 : 0));
+    const ps = all.map(i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); });
+    setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', Promise.all(ps)); } catch (e) {} }, 0); }
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)];
     lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
@@ -98,7 +102,8 @@
     ctx.save(); ctx.globalAlpha = a;
     if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
     const QA = LB.qz && LB.qz.ok ? LB.qz : null;   // 作者 11-08：青竹一带用 R144 十二件小事插画，轮流放
-    const B = QA ? QA.im : LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
+    let B = QA ? QA.im : LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
+    if (!B && typeof IMG !== 'undefined' && IMG.title_art && IMG.title_art.width) B = IMG.title_art;   // 万一插画还没到：先铺标题封面，绝不露黑屏
     if (B) {   // R157 插画版
       if (QA) QA.use();
       const now = performance.now(), title0 = (world.map && world.map.def && world.map.def.title) || '', title = title0.replace(/^.*·\s*/, '') || title0, i = LB.idx;
