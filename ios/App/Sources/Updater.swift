@@ -122,7 +122,7 @@ final class Updater {
         return digest.map { String(format: "%02x", $0) }.joined().prefix(20).description
     }
     private func fileSize(_ url: URL) -> Int64 {
-        (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0 ?? 0
+        (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
     }
     private func mb(_ b: Int64) -> String { String(format: "%.1fMB", Double(b) / 1048576.0) }
     private func encode(_ p: String) -> String {

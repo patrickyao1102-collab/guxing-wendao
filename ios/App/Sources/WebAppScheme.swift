@@ -68,7 +68,7 @@ final class WebAppScheme: NSObject, WKURLSchemeHandler {
                 self.fail(task, id: id, path: path); return
             }
             defer { try? fh.close() }
-            let total: Int = (try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? 0 ?? 0
+            let total: Int = (try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? 0
             let mime = WebAppScheme.mime(path)
             let doScramble = WebAppScheme.scrambled(path)
 
