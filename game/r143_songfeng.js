@@ -37,6 +37,11 @@
   const xsIn = gate && gate.to === 'tj_xiashan' ? gate.at : null;                          // 松风林道的北口落点（r132 算好的）
   // 新摆的炉、剑幡、花池放在可走的石板上：底座挡路
   const m17Block = (str, m) => { const a = str.split(''), cs = m.cs;
+    // 东庭草地放开：踏着云纹步石走到神树下、箜篌旁（圆井石台、箜篌底座、右上竹石照旧挡路）
+    for (let r = Math.floor(150 / cs); r <= Math.floor(850 / cs); r++) for (let c = Math.floor(1940 / cs); c <= Math.floor(3020 / cs); c++) {
+      const x = (c + .5) * cs, y = (r + .5) * cs;
+      const dais = ((x - 2445) / 395) ** 2 + ((y - 445) / 150) ** 2 < 1, harp = Math.abs(x - 2995) < 75 && y > 330 && y < 412, ne = x > 2860 && y < 260;
+      a[r * m.cols + c] = dais || harp || ne ? '1' : '0'; }
     for (const [x0, y0, x1, y1] of [[563 - 95, 1568, 563 + 95, 1628], [864 - 34, 1396, 864 + 34, 1430], [2423 - 34, 1396, 2423 + 34, 1430], [1362 - 104, 1888, 1362 + 104, 1944], [2075 - 104, 1888, 2075 + 104, 1944]])
       for (let r = Math.floor(y0 / cs); r <= Math.floor(y1 / cs); r++) for (let c = Math.floor(x0 / cs); c <= Math.floor(x1 / cs); c++) if (r >= 0 && c >= 0 && r < m.rows && c < m.cols) a[r * m.cols + c] = '1';
     return a.join(''); };
@@ -127,7 +132,8 @@
   if (typeof drawBaked === 'function') drawBaked = (o => function (ob, now) {
     if (ob.m17sh) { const w = ob.m17sh, h = Math.max(4, w * .12); ctx.save(); ctx.fillStyle = 'rgba(39,44,29,.2)'; ctx.beginPath(); ctx.ellipse(ob.ax + 2, ob.ay, w * .54, h * .62, 0, 0, 7); ctx.fill(); ctx.restore(); }
     if (ob.m17glow) { const r0 = o.apply(this, arguments); const g = M17I.glow; if (g) { const [gx, gy, gw, gh] = M17.glow, t = (now || performance.now() / 1000) / 3.6, u = t % 2 < 1 ? t % 1 : 2 - t % 2, e = u * u * (3 - 2 * u);
-      ctx.save(); ctx.globalAlpha *= .09 + .87 * e; ctx.drawImage(g, gx, gy, gw, gh); ctx.restore(); } return r0; }
+      const play = performance.now() < (window.KONGHOU_UNTIL || 0), k = play ? .78 + .22 * Math.sin(performance.now() / 90) : .09 + .87 * e;   // 拨箜篌时辉光亮起、随弦颤动
+      ctx.save(); ctx.globalAlpha *= k; ctx.drawImage(g, gx, gy, gw, gh); ctx.restore(); } return r0; }
     if (ob.sfr && RIP.im) {   // 松溪流纹：20 帧整张替换（10fps）
       const R = D.ripple, f = Math.floor(((now || performance.now() / 1000) + ob.sfr.ph) * R.fps) % R.n; ctx.save(); if (ob.flip) { ctx.translate(ob.x + ob.w / 2, 0); ctx.scale(-1, 1); ctx.translate(-(ob.x + ob.w / 2), 0); }
       ctx.drawImage(RIP.im, (f % R.cols) * R.fw, Math.floor(f / R.cols) * R.fh, R.fw, R.fh, ob.x, ob.y, ob.w, ob.h); ctx.restore(); return;

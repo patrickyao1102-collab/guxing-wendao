@@ -59,7 +59,6 @@ bgm29/xingyeguxing.mp3
 bgm29/xingyeyin.mp3
 bgm29/xyq_nuwa2.mp3
 bgm29/xyq_nwg01.mp3
-bgm29/xyq_nwg02.mp3
 bgm29/xyq_nwg03.mp3
 bgm29/xyq_nwg04.mp3
 bgm29/xyq_nwg05.mp3

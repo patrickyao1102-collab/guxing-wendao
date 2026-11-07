@@ -80,8 +80,9 @@
     const m = (typeof world !== 'undefined' && world.mapName) || '', def = world && world.map && world.map.def;
     if (m === 'tj_front') return 'plaza';   // 演武广场（问剑坪）：作者 11-07 夜：天剑大殿 04 太闷，换回原来的「云空遥·纯乐」
     if (m === 'tj_houshan') return 'houshan';
-    // 作者 11-08：叶擎苍在演武广场送别后「剑鸣」响起（热血男儿初出茅庐），一路走出山门、云阶松径、天剑山门都接着放不重来，到松风林道才换回地图配乐
-    if (S.flags && S.flags.ch2_jm && /^tj_(front|yunjie|shanmen)$/.test(m)) return 'xiashan';
+    // 作者 11-08：叶擎苍在演武广场送别后「剑鸣」响起（热血男儿初出茅庐），走出山门接着放不重来；云阶松径、天剑山门本来就用剑鸣；到松风林道才换回地图配乐
+    if (/^tj_(yunjie|shanmen)$/.test(m)) return 'xiashan';   // 作者 11-08：云阶松径、天剑山门平时也是「剑鸣」
+    if (S.flags && S.flags.ch2_jm && m === 'tj_front') return 'xiashan';
     if (m === 'tj_room') return 'room';   // 作者：卧室原来的枫林太难听
     if (/^xt_city/.test(m)) return 'xtcity';   // 玄天城：清光升·纯乐
     if (/^qingzhu_/.test(m)) return 'qingzhu';   // 青竹小院：清光升·纯乐   // 后山：夜径星铃（古琴、箫、风铃，幽静带点紧张）

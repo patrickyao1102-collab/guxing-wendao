@@ -96,3 +96,11 @@
   // 自动寻路
   { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) { R.RULES.unshift([/往东继续下山/, () => ({ map: 'lin_forest' })]); R.RULES.unshift([/大松树下歇歇脚/, () => ({ map: 'tj_xiashan', x: 993, y: 2044 })]); } }
 })();
+
+// 测试面板「叶擎苍送别·下山」：直接从演武广场南端送别开始（剑鸣 → 云阶松径 → 天剑山门 → 松风林道）
+(() => { const q = new URLSearchParams(location.search).get('part'); if (q !== 'ch2send') return;
+  setTimeout(async () => { const F = S.flags = S.flags || {}; Object.assign(F, { res_ch1: 1, ch1_free: 1, ch1_hunt_done: 1, ch2_night: 1, ch2_roam: 1, ch2_hall: 1, ch2_liuyun: 1, ch2_pill: 1, ch2_market: 1, ch2_seal_open: 1, hs_explored: 1 });
+    const h = S.hero; h.skills = ['pojun', 'tanlang']; h.sword = true; h.realm = '凝丹二重'; if (h.lv < 12) h.lv = 12; h.maxhp = h.hp = Math.max(h.maxhp, 420); h.maxmp = h.mp = Math.max(h.maxmp, 140); h.atk = Math.max(h.atk, 52);
+    if (typeof joinParty === 'function') joinParty('yunting');
+    S.hero.learnQ = []; S.started = true; S.fade = 1; S.hud = true;
+    try { await window.CH2_DEPART_GO(); } catch (e) { console.warn('ch2send', e); } }, 120); })();
