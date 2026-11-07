@@ -4,7 +4,7 @@
 (function () {
   if (typeof levelUpShow !== 'function' || typeof gainExp !== 'function') return;
   const K = ['frame_top', 'frame_body_tile', 'frame_bottom', 'row_divider', 'sword_fan', 'title_blank', 'button_normal', 'button_pressed', 'portrait_hero', 'portrait_linxue', 'portrait_luochen', 'portrait_shenle', 'portrait_yunting'], A = {};
-  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; }; im.src = 'lvp/' + k + '.webp'; });
+  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; }; im.src = (/^(frame_top|frame_body_tile|frame_bottom|row_divider)$/.test(k) ? 'lvpd/' : 'lvp/') + k + '.webp'; });   // 作者 11-08：系统弹窗定黑金（框体纸面改墨黑，Codex R160 黑金拆件交付后换正式版）
   const ready = () => K.every(k => A[k]);
   const SZ = { frame_top: [644, 160], frame_body_tile: [644, 37], frame_bottom: [644, 143], row_divider: [468, 4], sword_fan: [560, 190], title_blank: [420, 80], button_normal: [248, 62], button_pressed: [248, 62],
     portrait_hero: [155, 190], portrait_linxue: [201, 190], portrait_luochen: [185, 190], portrait_shenle: [184, 184], portrait_yunting: [162, 192] };
@@ -43,13 +43,13 @@
     c.drawImage(A[pk], 640 - pw / 2, 264 - ph + bob, pw, ph);
     img('title_blank', 430, 6);
     txt(P.title.slice(0, 2), 580, 44, `46px ${BRUSH}`, '#f5dba9'); txt(P.title.slice(2), 699, 44, `46px ${BRUSH}`, '#f5dba9');
-    txt(P.name, 640, 293.5, `600 36px ${FONT}`, '#422b17');
-    txt('Lv.' + P.lv0, 600, 336.5, `bold 40px ${NUM}`, '#422b17', 'right'); arrow(640, 336.5, 36, 14, '#422b17', 1.5); txt('Lv.' + P.lv1, 678, 336.5, `bold 40px ${NUM}`, '#115a1c', 'left');
+    txt(P.name, 640, 293.5, `600 36px ${FONT}`, '#efe4cc');
+    txt('Lv.' + P.lv0, 600, 336.5, `bold 40px ${NUM}`, '#efe4cc', 'right'); arrow(640, 336.5, 36, 14, '#efe4cc', 1.5); txt('Lv.' + P.lv1, 678, 336.5, `bold 40px ${NUM}`, '#8fdda0', 'left');
     P.rows.forEach(([lab, a, b], i) => {
       const y = 384.5 + 37 * i, d = b - a, q = Math.min(1, Math.max(0, (t - .25 - i * .08) / .25)); c.save(); c.globalAlpha = e * q;
-      const col = d > 0 ? '#115a1c' : d < 0 ? '#9a2a22' : '#7a6650';
-      txt(lab, 416, y, `600 28px ${FONT}`, '#422b17', 'left'); txt(a, 588, y, `bold 28px ${NUM}`, '#422b17', 'right');
-      arrow(641, y, 26, 10, '#422b17', 1.2); txt(b, 752, y, `bold 28px ${NUM}`, col, 'right');
+      const col = d > 0 ? '#8fdda0' : d < 0 ? '#ff8e7c' : '#a89878';
+      txt(lab, 416, y, `600 28px ${FONT}`, '#efe4cc', 'left'); txt(a, 588, y, `bold 28px ${NUM}`, '#efe4cc', 'right');
+      arrow(641, y, 26, 10, '#efe4cc', 1.2); txt(b, 752, y, `bold 28px ${NUM}`, col, 'right');
       txt(d > 0 ? '+' + d : d < 0 ? String(d) : '—', 870, y, `bold 28px ${NUM}`, col, 'right'); c.restore();
     });
     txt('确 定', 640, btnY + 31 + (P.pressed ? 1 : 0), `600 36px ${FONT}`, '#422b17');
@@ -66,7 +66,7 @@
   });
 
   levelUpShow = (orig => async function (lv0) {
-    const h = S.hero; if (!ready()) { try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['lvp/']); } catch (e) {} for (let i = 0; i < 30 && !ready(); i++) await new Promise(r => setTimeout(r, 100)); }   // 作者 11-07：窗口素材没载完就退回代码框 → 先插队载素材，最多等 3 秒
+    const h = S.hero; if (!ready()) { try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['lvp/', 'lvpd/']); } catch (e) {} for (let i = 0; i < 30 && !ready(); i++) await new Promise(r => setTimeout(r, 100)); }   // 作者 11-07：窗口素材没载完就退回代码框 → 先插队载素材，最多等 3 秒
     if (!ready() || !h) return orig.apply(this, arguments);
     const b = before && before.lv === lv0 ? before.s : null; before = null;
     const now = snap();

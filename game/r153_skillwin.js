@@ -8,12 +8,12 @@
 //   · 技能栏「参悟」升重数 → 技能升级窗（第 N 重 → 第 N+1 重，威力 旧→新）
 (function () {
   const K = ['frame_top', 'frame_body_tile', 'frame_bottom', 'row_divider', 'sword_fan', 'title_blank', 'button_normal', 'button_pressed'], A = {};
-  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; }; im.src = 'lvp/' + k + '.webp'; });
+  K.forEach(k => { const im = new Image(); im.onload = () => { A[k] = im; }; im.src = (/^(frame_top|frame_body_tile|frame_bottom|row_divider)$/.test(k) ? 'lvpd/' : 'lvp/') + k + '.webp'; });   // 作者 11-08：系统弹窗定黑金（框体纸面改墨黑，Codex R160 黑金拆件交付后换正式版）
   const ready = () => K.every(k => A[k]);
   const SZ = { frame_top: [644, 160], frame_body_tile: [644, 37], frame_bottom: [644, 143], row_divider: [468, 4], sword_fan: [560, 190], title_blank: [420, 80], button_normal: [248, 62], button_pressed: [248, 62] };
   const NUM = '"Times New Roman","Noto Serif SC",serif';
   const CNN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-  const BROWN = '#422b17', GREEN = '#115a1c', MUTED = '#6d5638';
+  const BROWN = '#efe4cc', GREEN = '#8fdda0', MUTED = '#bda680', BTN = '#422b17';   // 黑金：墨黑底上用浅色字；按钮仍是金色，字保持深色
   let P = null; window.SKWIN_OPEN = () => !!P;
 
   const txt = (c, v, x, y, font, color, align = 'center') => { c.font = font; c.fillStyle = color; c.textAlign = align; c.textBaseline = 'alphabetic'; const m = c.measureText(String(v)); c.fillText(String(v), x, y + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2); };
@@ -61,9 +61,9 @@
     if (P.kind === 'learn') {
       const D = wrap(c, P.desc || '', `25px ${FONT}`, 430).slice(0, 3), y0 = D.length >= 3 ? 356 : 375;
       D.forEach((l, i) => txt(c, l, 640, y0 + i * 37, `25px ${FONT}`, BROWN));
-      c.fillStyle = 'rgba(176,138,72,.75)'; c.fillRect(410, 451, 460, 1.5);
+      c.fillStyle = 'rgba(214,176,104,.55)'; c.fillRect(410, 451, 460, 1.5);
       if (P.meta) txt(c, P.meta, 640, 488, `23px ${FONT}`, MUTED);
-      if (P.note) txt(c, P.note, 640, 528, `20px ${FONT}`, '#8a6f48');
+      if (P.note) txt(c, P.note, 640, 528, `20px ${FONT}`, '#b9a27e');
     } else {
       // 第 N 重 → 第 N+1 重
       const a = '第' + CNN[P.t0r] + '重', b = '第' + CNN[P.t1r] + '重';
@@ -73,10 +73,10 @@
       R.forEach(([lab, o, nv], i) => { const y = 414 + 48 * i;
         txt(c, lab, 404, y, `26px ${FONT}`, BROWN, 'left'); txt(c, o, 652, y, `bold 26px ${NUM}`, BROWN, 'right');
         arrow(c, 716, y, 24, 10, BROWN, 1.4); txt(c, nv, 870, y, `bold 26px ${NUM}`, GREEN, 'right');
-        c.fillStyle = 'rgba(176,138,72,.7)'; c.fillRect(396, y + 23, 488, 1.2); });
+        c.fillStyle = 'rgba(214,176,104,.45)'; c.fillRect(396, y + 23, 488, 1.2); });
       if (!R.length && P.desc) wrap(c, P.desc, `24px ${FONT}`, 440).slice(0, 3).forEach((l, i) => txt(c, l, 640, 414 + i * 36, `24px ${FONT}`, GREEN));
     }
-    txt(c, P.btn, 640, btnY + 31 + (P.pressed ? 1 : 0), `600 36px ${FONT}`, BROWN);
+    txt(c, P.btn, 640, btnY + 31 + (P.pressed ? 1 : 0), `600 36px ${FONT}`, BTN);
     c.restore();
   }
   const safeDraw = () => { if (P) try { draw(ctx); } catch (e) { console.warn('skillwin', e); const r = P.res; P = null; r(); } };
@@ -86,7 +86,7 @@
   consumeTap = (o => function () { if (P) { const t = o(); P.pressed = !!input.down; if (t && performance.now() - P.t0 > 500) { const r = P.res; P = null; r(); } return null; } return o(); })(consumeTap);
   (function tick() { if (P) { P.pressed = !!input.down; if (input.tapped) consumeTap(); } requestAnimationFrame(tick); })();
 
-  const waitReady = async () => { if (ready()) return true; try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['lvp/']); } catch (e) {} for (let i = 0; i < 30 && !ready(); i++) await new Promise(r => setTimeout(r, 100)); return ready(); };
+  const waitReady = async () => { if (ready()) return true; try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['lvp/', 'lvpd/']); } catch (e) {} for (let i = 0; i < 30 && !ready(); i++) await new Promise(r => setTimeout(r, 100)); return ready(); };
   const open = o => waitReady().then(ok => !ok ? false : new Promise(res => {
     const done = () => res(true);
     const go = () => { P = Object.assign({ t0: performance.now(), res: done, pressed: false }, o); };
