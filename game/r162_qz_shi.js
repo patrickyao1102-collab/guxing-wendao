@@ -549,10 +549,14 @@
     if (!mid) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { if (i % 2 === 0) A('eaves_halo_6f', x, y, .55, .7); }); ctx.restore(); }
   }
 
+  let WEST_NM = 'rgb(168,178,196)', WEST_NA = 'rgba(34,54,124,.26)';
   // ---------- 光影：时辰叠层 + 小动画 ----------
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now0) {
     o.apply(this, arguments);
     try {
+      // 作者 11-08（bug）：夜里西院比主院亮一截，中间一条竖缝 —— 主院有 Codex 夜景光层，西院（R136 扩建）只压了一层暗色。西院补上同样的夜色
+      if (world.mapName === COURT && night() && T.x0 < 0) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = WEST_NM; ctx.fillRect(T.x0, 0, -T.x0, T.mh);
+        ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = WEST_NA; ctx.fillRect(T.x0, 0, -T.x0, T.mh); ctx.restore(); }
       if (!ON()) return; const m = world.mapName, s = shi(), t = now();
       if (m === COURT) {
         const L = LIGHTS[s]; if (L) for (const k of L) { const im = img('l_' + k); if (!im) continue; const d = IDX[k]; ctx.drawImage(im, /^west/.test(k) ? -OX : 0, 0, d.w, d.h); }
@@ -673,5 +677,5 @@
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
-  window.R162 = { PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
+  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
 })();
