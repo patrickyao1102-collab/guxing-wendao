@@ -14114,7 +14114,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
   const lockPt = () => { const B = typeof CXB2 !== 'undefined' && CXB2.tj_houshan; const t = B && (B.inter || []).find(t => t.kind === 'lock_array'); return t && t.p; };
   // 任务文字 → 目标地图（+ 地图内的目标点，世界像素）
   const RULES = [
-    [/三日之约|三日后修为检测/, () => ({ map: 'tj_front' })],
+    [/三日之约|三日后修为检测/, () => ({ map: /必须完成/.test(S.quest || '') && !F().ch1_hunt_done ? 'tj_houshan' : 'tj_front' })],   // 作者 11-07：兽火还没打够时先带去后山（以前带去演武广场，到了无事可做，又被带回竹林，来回传送）
     [/避难营/, () => ({ map: 'qy_shelter' })],
     [/追往青阳外岭/, () => ({ map: 'qy_rescue' })],   // 第七章：追天鹏
     [/镇外迎战/, () => ({ map: 'qy_defense' })],   // 第七章：镇外迎战赤焰魔狮
