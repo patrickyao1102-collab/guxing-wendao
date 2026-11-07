@@ -6,3 +6,10 @@ android/app/src/main/assets/*
 !android/app/src/main/assets/boot.html
 game/fonts/_pv/
 game/_tmp_walk/
+
+# 构建产物（本地/CI 生成，不入库）
+release/
+ios/App/web/
+ios/Guxing.xcodeproj/
+ios/build/
+ios/DerivedData/
