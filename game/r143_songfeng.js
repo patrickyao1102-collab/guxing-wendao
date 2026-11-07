@@ -134,6 +134,13 @@
     if (ob.m17glow) { const r0 = o.apply(this, arguments); const g = M17I.glow; if (g) { const [gx, gy, gw, gh] = M17.glow, t = (now || performance.now() / 1000) / 3.6, u = t % 2 < 1 ? t % 1 : 2 - t % 2, e = u * u * (3 - 2 * u);
       const play = performance.now() < (window.KONGHOU_UNTIL || 0), k = play ? .78 + .22 * Math.sin(performance.now() / 90) : .09 + .87 * e;   // 拨箜篌时辉光亮起、随弦颤动
       ctx.save(); ctx.globalAlpha *= k; ctx.drawImage(g, gx, gy, gw, gh); ctx.restore(); } return r0; }
+    if (ob.id === 'm17_月白凤首箜篌@217') {   // R162：箜篌拨弦 24 帧（12fps）叠在原件上；平时一张微光待机帧
+      const r0 = o.apply(this, arguments), K = window.__KH || (window.__KH = (() => { const a = {}; for (const k of ['idle', 'pluck']) { const im = new Image(); im.onload = () => { a[k] = im; }; im.src = 'r143/konghou_' + k + '.webp'; } return a; })());
+      const play = performance.now() < (window.KONGHOU_UNTIL || 0);
+      ctx.save(); if (ob.flip) { ctx.translate(ob.x + ob.w / 2, 0); ctx.scale(-1, 1); ctx.translate(-(ob.x + ob.w / 2), 0); }
+      if (play && K.pluck) { const f = Math.floor((performance.now() - (window.KONGHOU_T0 || 0)) / 1000 * 12) % 24, fw = K.pluck.width / 24; ctx.drawImage(K.pluck, f * fw, 0, fw, K.pluck.height, ob.x, ob.y, ob.w, ob.h); }
+      else if (K.idle) ctx.drawImage(K.idle, ob.x, ob.y, ob.w, ob.h);
+      ctx.restore(); return r0; }
     if (ob.sfr && RIP.im) {   // 松溪流纹：20 帧整张替换（10fps）
       const R = D.ripple, f = Math.floor(((now || performance.now() / 1000) + ob.sfr.ph) * R.fps) % R.n; ctx.save(); if (ob.flip) { ctx.translate(ob.x + ob.w / 2, 0); ctx.scale(-1, 1); ctx.translate(-(ob.x + ob.w / 2), 0); }
       ctx.drawImage(RIP.im, (f % R.cols) * R.fw, Math.floor(f / R.cols) * R.fh, R.fw, R.fh, ob.x, ob.y, ob.w, ob.h); ctx.restore(); return;

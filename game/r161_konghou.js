@@ -14,7 +14,7 @@
       await say('', '东庭的云纹石台上，横着一架月白凤首箜篌，琴弦在风里微微发亮。');
       const c = await choose('要拨弦弹一曲吗？', ['拨弦弹一曲', '不了，看看就好']);
       if (c !== 0) return;
-      window.KONGHOU_UNTIL = performance.now() + DUR; endT = window.KONGHOU_UNTIL;
+      window.KONGHOU_T0 = performance.now(); window.KONGHOU_UNTIL = performance.now() + DUR; endT = window.KONGHOU_UNTIL;
       try { if (window.BGM29) BGM29.audition(TRACK); } catch (e) {}
       try { S.flash = .25; S.flashColor = '#dff3ff'; } catch (e) {}
       await say('', LINES[n++ % LINES.length]);
