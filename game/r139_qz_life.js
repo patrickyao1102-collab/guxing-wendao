@@ -446,6 +446,8 @@
     if (stars >= 2) {
       const n = stars === 3 ? 2 : 1; addItem(r.id, n); try { giveFx(); } catch (e) {}
       try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×' + n, desc: ITEM_DB[r.id].desc }], stars === 3 ? '火候十足 · 三星' : '出锅'); else toast('做好了：' + r.name + ' ×' + n, 1800); } catch (e) { toast('做好了：' + r.name + ' ×' + n, 1800); }
+      F().qz_tao_ate = (F().qz_tao_ate || 0) + 1;   // 作者 11-08：小桃尝了几回（吃多了子夜睡不着 → r162 敲门隐藏剧情）
+      if (F().qz_cook1) await narrate(['香味刚飘出去，小桃就溜进来了：「少爷，小桃就尝一口！」……尝了三口。', '小桃扒着门框探头：「好香……」少爷夹了一筷子给她，她眯着眼睛嚼了半天。', '小桃端着碗凑过来：「青禾姐说不许多吃——那小桃就再吃一点点。」'][Math.floor(Math.random() * 3)]);
       if (!F().qz_cook1) { F().qz_cook1 = 1;
         await narrate('香味飘出厨房，没一会儿，门口探进来三个脑袋。');
         await say('侍女小桃·惊喜', '少爷亲自下厨？！……能、能尝一口吗？');

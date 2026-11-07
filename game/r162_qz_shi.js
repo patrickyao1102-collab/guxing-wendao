@@ -134,7 +134,7 @@
     steward: { map: COURT, at: [736, 1350], steps: [{ go: [736, 720], w: 'steward_lantern' }, { go: [1300, 640], w: 'steward_lantern' }, { wait: 2 }, { go: Y(800, 1320), w: 'steward_lantern' }, { wait: 2 }, { go: [736, 1350], w: 'steward_lantern' }, { wait: 3 }, { loop: 0 }] },
   };
   const DAY = { basin: 0, noodles: 0, lit: {} };
-  const planOf = (k, s) => { if (s === '戌' && F().qz_out === k) return OUT[k]; if (s === '子' && k === 'steward' && F().qz_letter) return PLAN['戌'].steward; return (PLAN[s] || {})[k]; };
+  const planOf = (k, s) => { if (s === '子' && AWAKE() === k && NIGHT_PLAN[F().qz_awake]) return NIGHT_PLAN[F().qz_awake]; if (s === '戌' && F().qz_out === k) return OUT[k]; if (s === '子' && k === 'steward' && F().qz_letter) return PLAN['戌'].steward; return (PLAN[s] || {})[k]; };
 
   // ---------- 对白：每人每个时辰一套 ----------
   const WHO = { maid1: '侍女青禾', maid2: '侍女小桃', servant: '小厮阿福', steward: '松伯' };
@@ -179,7 +179,8 @@
 
   // ---------- 十二件小事 ----------
   const seen = n => !!(F().qz_ev || {})[n];
-  const markSeen = n => { const f = F(); f.qz_ev = f.qz_ev || {}; if (f.qz_ev[n]) return; f.qz_ev[n] = 1; const c = Object.keys(f.qz_ev).length;
+  const EV_WHO = { 1: 'maid2', 2: 'maid1', 3: 'steward', 4: 'maid2', 5: 'servant', 6: 'servant', 7: 'maid1', 8: 'maid2', 9: 'servant', 10: 'steward' };
+  const markSeen = n => { const f = F(); f.qz_ev = f.qz_ev || {}; if (f.qz_ev[n]) return; f.qz_ev[n] = 1; const c = Object.keys(f.qz_ev).length; if (EV_WHO[n] && window.QZ_BOND) setTimeout(() => QZ_BOND(EV_WHO[n], 2), 2400);
     try { playSnd('ui_confirm', .5); } catch (e) {} toast(c >= 12 ? '青竹小院 · 十二件小事，都看过了' : '青竹小院 · 小事 ' + c + ' / 12', 2200); };
   // 作者 11-08：剧情里不放插画（只用立绘对话）—— R144 这十二张插画的用处是青竹一带的载入图（见文件末尾 QZ_LOAD_ART）
   async function story(n, fn) {
@@ -362,7 +363,7 @@
 
   // ---------- 子夜：床上的人 + 床边轻声 ----------
   const BEDS = { maid1: ['maid1_sleep_night_4f', null, 538, [262, 452]], maid2: ['maid2_sleep_night_4f', 'maid2_kick_night_4f', 538, [262, 452]], servant: ['servant_sleep_night_4f', 'servant_dream_night_4f', 399.5, [282, 446]], steward: ['steward_sleep_night_4f', null, 407, [366, 436]] };
-  const asleep = k => ON() && shi() === '子' && !(k === 'steward' && F().qz_letter);
+  const asleep = k => ON() && shi() === '子' && !(k === 'steward' && F().qz_letter) && AWAKE() !== k;
   for (const k in BEDS) { const m = RM[k], d = TMAPS[m]; if (!d) continue; d.npcs = d.npcs || []; const [c, r] = P(...BEDS[k][3]);
     d.npcs.push({ key: 'none', name: WHO[k] + '（睡着了）', c, r, h: 90, hidden: true, wander: false, q162bed: k, cond: () => asleep(k), talk: () => bedTalk(k) }); }
   async function bedTalk(k) {
@@ -376,6 +377,7 @@
   async function talkTo(who, a, n) {
     const s = shi(), f = F(), q = n.q162, out = s === '戌' && f.qz_out === who && q.map === (OUT[who] || {}).map;
     const day = s === '卯' || s === '午' || s === '酉';
+    if (s === '子' && AWAKE() === who) { await say(WHO[who] + '·笑', who === 'maid2' ? '少爷快回去睡吧，小桃也要睡啦……明天见！' : '夜深了，少爷早些歇着。青禾把灯熄了就睡。'); return; }
     // 1) 这个时辰的小事
     if (who === 'maid2' && s === '卯' && !seen(1)) return EV[1]();
     if (who === 'steward' && s === '午' && !seen(3)) return EV[3]();
@@ -560,7 +562,7 @@
       if (!ON()) return; const m = world.mapName, s = shi(), t = now();
       if (m === COURT) {
         const L = LIGHTS[s]; if (L) for (const k of L) { const im = img('l_' + k); if (!im) continue; const d = IDX[k]; ctx.drawImage(im, /^west/.test(k) ? -OX : 0, 0, d.w, d.h); }
-        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(140,148,190)' : 'rgb(226,226,240)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
+        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(162,168,202)' : 'rgb(226,226,240)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
         const A = (id, x, y, sc, al) => { const d = IDX[id]; if (d) prop(id, Math.floor(t * d.fps), x, y, sc, al); };
         if (s === '卯') { A('dawn_fog_8f', ...Y(190, 1400), 1.1, .85); A('dawn_fog_8f', 1130, 1080, 1.3, .7); A('dawn_fog_8f', ...Y(800, 760), 1.4, .5); }
         if (s === '酉') A('dusk_hearth_smoke', ...Y(465, 769), 1, .9);
@@ -581,6 +583,85 @@
     } catch (e) {}
   })(tileAmbientHigh);
 
+  // ---------- 情谊：小事、夜里的隐藏剧情都会加（以后好感高了有隐藏任务和奖励）----------
+  const BOND_NAME = { maid1: '青禾', maid2: '小桃', servant: '阿福', steward: '松伯' };
+  const bond = (k, n) => { const f = F(); f.qz_bond = f.qz_bond || {}; f.qz_bond[k] = (f.qz_bond[k] || 0) + n; toast('♥ ' + BOND_NAME[k] + ' · 情谊 +' + n, 1800); };
+  window.QZ_BOND = bond;
+  // 战斗打赢的场数（青禾夜里补衣裳要用）
+  if (typeof startBattle === 'function') startBattle = (o => function () { const r = o.apply(this, arguments); try { if (r && r.then) r.then(w => { if (w) F().qz_wins = (F().qz_wins || 0) + 1; }); } catch (e) {} return r; })(startBattle);
+
+  // ---------- 子时敲门：多半没动静；满足条件时姑娘还没睡，开门进屋有一段隐藏剧情 ----------
+  // 作者 11-08：「入睡以后不是完全进不了——轻轻敲门，里面没动静，就是睡了。然后会有隐藏剧情：比如叶孤星做饭小桃吃了三次以上，当晚去敲小桃的门，
+  //   就会发现小桃没睡，可以进去，因为小桃吃撑了……青禾那边也有不一样的，例如帮少爷缝补衣服。把青竹小院经营成主线打怪修仙之外的第二玩法。」
+  const AWAKE = () => { const a = F().qz_awake; return a ? a.split(':')[0] : ''; };
+  const NIGHT_PLAN = {
+    'maid2:full': { map: RM.maid2, at: [470, 600], steps: [{ wait: 1e9, face: -1 }] },
+    'maid2:fly': { map: RM.maid2, at: [470, 420], steps: [{ act: 'maid2_catch_6f', t: 1e9, face: -1 }] },
+    'maid1:mend': { map: RM.maid1, at: [374, 386], steps: [{ act: 'maid1_stitch_6f', t: 1e9, face: -1 }] },
+    'maid1:letter': { map: RM.maid1, at: [374, 386], steps: [{ act: 'maid1_stitch_6f', t: 1e9, face: -1 }] },
+  };
+  // 每段隐藏剧情：什么时候会醒着（ok），进屋以后演什么（run）
+  const HIDDEN = {
+    maid2: [
+      { id: 'full', ok: f => (f.qz_tao_ate || 0) - (f.qz_tao_full || 0) >= 3, run: async () => { const f = F(); f.qz_tao_full = f.qz_tao_ate || 0;
+        await say('侍女小桃·委屈', '少爷……您也没睡呀。小桃……小桃吃撑了，躺下去肚子咕噜咕噜的，睡不着。');
+        await say('侍女小桃·羞', '都怪少爷做的菜太香了！小桃本来只想尝一口，结果一口又一口……');
+        const i = await choose('', ['陪她在院里走两圈消消食', '去厨房给她冲一碗山楂水', '笑她两句']);
+        if (i === 0) { await narrate('两个人绕着西院的石板路慢慢走。月光把影子拉得老长，小桃一边走一边数星星，数到第三十几颗，打了个大大的哈欠。'); await say('侍女小桃·笑', '好多了！少爷，明天还做吗？……小桃就尝一小口，真的。'); }
+        else if (i === 1) { await narrate('灶膛里还有余火。叶孤星冲了一碗酸甜的山楂水端回来，小桃捧着碗，小口小口地喝完了。'); await say('侍女小桃·感动', '少爷给小桃冲的……比糖还甜。'); }
+        else { await say('叶孤星', '下回给你单独盛一小碗，省得你偷吃锅里的。'); await say('侍女小桃·嗔', '少爷！……小桃哪有偷吃，小桃是光明正大地吃！'); }
+        bond('maid2', 3); } },
+      { id: 'fly', ok: () => seen(8), run: async () => {
+        await narrate('小桃趴在窗台上，手里捧着一只纱布小袋，袋子里一闪一闪的——是几只萤火虫。');
+        await say('侍女小桃·惊喜', '少爷！嘘——您看，小桃白天偷偷捉的，想放在床头当灯……');
+        await say('侍女小桃·担心', '可是它们一直往外撞，小桃看着就睡不着了。它们是不是想回家呀？');
+        const i = await choose('', ['陪她一起把萤火虫放走', '「留一只，其余放了」']);
+        await narrate(i === 0 ? '纱袋一打开，萤火虫一只接一只飞出窗外，在竹梢上散成一片小小的星河。' : '小桃留下最亮的那一只，其余的都放了。那一只绕着她转了两圈，也飞走了。');
+        await say('侍女小桃·笑', '……这样好。小桃明天还能去井边看它们。');
+        bond('maid2', 3); } },
+    ],
+    maid1: [
+      { id: 'mend', ok: f => (f.qz_wins || 0) - (f.qz_qh_mend || 0) >= 6, run: async () => { const f = F(); f.qz_qh_mend = f.qz_wins || 0;
+        await narrate('门缝里漏出一线灯光。青禾还坐在灯下，膝上搭着一件练功服——是少爷的。');
+        await say('侍女青禾·惊喜', '少爷？……您怎么还没歇着。');
+        await say('侍女青禾·嗔', '这件衣裳，袖口和后背都磨破了。少爷最近天天出去打打杀杀，衣裳比人还受罪。');
+        await say('侍女青禾·笑', '青禾在里头多缝了一层细麻衬，再挨两下，也不至于一下就划破。');
+        const n = f.qz_mend_def || 0; if (n < 3) { f.qz_mend_def = n + 1; try { S.hero.def += 1; } catch (e) {} toast('青禾补过的练功服 · 防御 +1（' + (n + 1) + ' / 3）', 2200); }
+        await say('叶孤星', '……辛苦你了。');
+        await say('侍女青禾·羞', '少爷平平安安回来，就不辛苦。'); bond('maid1', 3); } },
+      { id: 'letter', ok: () => seen(7), run: async () => {
+        await narrate('青禾伏在桌前，面前摊着一张信纸，写了几行又划掉了。');
+        await say('侍女青禾·惊喜', '少爷……让您见笑了。青禾想给娘捎封信，可字写得不好，翻来覆去就那几句。');
+        await say('侍女青禾·羞', '少爷能替青禾添一句吗？娘看见少爷的字，一定高兴。');
+        const i = await choose('替她添一句', ['「青禾在山上很好，大家都疼她」', '「等开春，我陪青禾下山看您」', '「您绣的花，青禾教会了院里的小桃」']);
+        await narrate('叶孤星提笔，在信尾端端正正写了一行。青禾捧着信纸，看了好一会儿，眼圈有点红。');
+        await say('侍女青禾·感动', ['……娘要是知道少爷这么说，夜里都要笑醒的。', '……少爷说话算话，青禾记着了。', '……这句娘看了，准要笑。小桃学了三年，还是绣歪。'][i]);
+        bond('maid1', 3); } },
+    ],
+  };
+  const KNOCK = { maid1: ['叶孤星在青禾门前轻轻敲了两下。……里面没有动静。', '门缝里黑着。青禾睡得早，大概已经睡熟了。', '叩、叩。……只听见屋里均匀的呼吸声。'],
+    maid2: ['叶孤星轻轻敲了敲小桃的门。……没有动静，只隐约听见翻身的声音。', '门里头传来一声含糊的梦话：「……花……别踩……」——睡着了。', '叩、叩。……小桃睡得正香，连门外的猫叫都没吵醒她。'] };
+  let knocking = false, knockT = 0;
+  async function knock(k, d) {
+    if (knocking || world.locked || (typeof dialog !== 'undefined' && dialog) || performance.now() - knockT < 2500) return;
+    knocking = true; const p = world.player; if (p) p.moving = false; world.path = null;
+    try {
+      const f = F(); f.qz_hid = f.qz_hid || {};
+      const h = (HIDDEN[k] || []).find(x => x.ok(f) && (x.id === 'full' || x.id === 'mend' || !f.qz_hid[k + ':' + x.id]));
+      if (!h) { await narrate(pick(KNOCK[k])); return; }
+      await narrate('叶孤星轻轻敲了敲门。……里面窸窸窣窣一阵，门「吱呀」一声开了一条缝。');
+      f.qz_awake = k + ':' + h.id; f.qz_hid[k + ':' + h.id] = 1; NIGHT_RUN = h;
+      for (const n of DEFS) n._q = null;
+      goMap(d.to, d.at[0], d.at[1], 'up');
+    } finally { knocking = false; knockT = performance.now(); }
+  }
+  let NIGHT_RUN = null;
+  if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) { o.apply(this, arguments);
+    try { if (!NIGHT_RUN || !world.map || !RM[AWAKE()] || world.mapName !== RM[AWAKE()] || world.locked || (typeof dialog !== 'undefined' && dialog) || (window.MAP_READY && !MAP_READY())) return;
+      const h = NIGHT_RUN; NIGHT_RUN = null; world.locked = true; if (world.player) world.player.moving = false;
+      Promise.resolve(h.run()).catch(e => console.warn('r162 night', e)).finally(() => { world.locked = false; });
+    } catch (e) {} })(tileUpdate);
+
   // ---------- 进图 / 出青竹 ----------
   tileSetMap = (orig => function (name) {
     const prev = world.mapName;
@@ -591,11 +672,12 @@
       // 作者 11-08：子时都睡下了，两个姑娘的屋子不能进（只能去松伯、阿福屋里）
       if (name === COURT && world.map && world.map.T) for (const d of world.map.T.doors || []) {
         const who = d.to === RM.maid1 ? '青禾' : d.to === RM.maid2 ? '小桃' : ''; if (!who) continue;
-        const shut = () => ON() && shi() === '子';
-        d.cond = () => !shut(); d.msg = '夜深了，' + who + '已经睡下了——姑娘家的屋子，少爷就别进去了。';
+        const shut = () => ON() && shi() === '子', k = d.to === RM.maid1 ? 'maid1' : 'maid2';
+        d.cond = () => { if (!shut()) return true; knock(k, d); return false; };   // 子时：敲门（多半没动静；碰上隐藏剧情就开门）
         try { Object.defineProperty(d, 'noGlow', { configurable: true, get: shut }); } catch (e) {}
       }
       FROM_ROOM = name === COURT && prev === 'tj_room'; NIGHT_T = 0;
+      if (F().qz_awake && name !== RM[AWAKE()]) F().qz_awake = '';   // 出了屋：她也歇下了
     } catch (e) { console.warn('r162 enter', e); }
     return r;
   })(tileSetMap);
@@ -644,7 +726,7 @@
       if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
       f.qz_shi = s; setTod(s === '戌' || s === '子' ? 'night' : '');
       healAll(false);
-      DAY.basin = 0; DAY.noodles = 0; DAY.lit = {};
+      DAY.basin = 0; DAY.noodles = 0; DAY.lit = {}; f.qz_awake = '';
       if (s === '戌') { const all = ['maid1', 'maid2', 'servant', 'steward'], fresh = all.filter(k => OUT[k].ev && !seen(OUT[k].ev)); f.qz_out = pick(fresh.length && Math.random() < .8 ? fresh : all); }
       if (s === '子') f.qz_letter = !seen(10) ? (Math.random() < .7 ? 1 : 0) : (Math.random() < .3 ? 1 : 0);
       if (s === '酉' && seen(5)) for (const k in LANT) DAY.lit[k] = 0;
