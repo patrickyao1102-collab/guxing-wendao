@@ -9992,9 +9992,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     if (!t || !(HAS[key(m)] || []).includes(t) || RES.has(m + '_' + t)) return;
     const im = ld(key(m) + '_' + t); if (!im) return;
     ctx.save();
-    if (t === 'night') { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = (world.map.def && world.map.def.indoor) ? 'rgb(185,180,205)' : 'rgb(150,162,214)'; ctx.fillRect(cam.x - 20, cam.y - 20, W + 40, H + 40); ctx.globalCompositeOperation = 'source-over'; }
+    if (t === 'night') { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = (world.map.def && world.map.def.indoor) ? 'rgb(185,180,205)' : 'rgb(150,162,214)'; ctx.fillRect(0, 0, T.mw, T.mh); ctx.globalCompositeOperation = 'source-over'; }   // 作者 11-07：整张图压暗（原来只压镜头框，地图缩小显示时会露出没压暗的亮块）
     ctx.drawImage(im, 0, 0, T.mw, T.mh);
-    if (dusk) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(255,206,160)'; ctx.fillRect(cam.x - 20, cam.y - 20, W + 40, H + 40); ctx.globalCompositeOperation = 'soft-light'; ctx.fillStyle = 'rgba(255,140,60,.35)'; ctx.fillRect(cam.x - 20, cam.y - 20, W + 40, H + 40); }
+    if (dusk) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(255,206,160)'; ctx.fillRect(0, 0, T.mw, T.mh); ctx.globalCompositeOperation = 'soft-light'; ctx.fillStyle = 'rgba(255,140,60,.35)'; ctx.fillRect(0, 0, T.mw, T.mh); }
     ctx.restore();
   })(tileAmbientHigh);
   // 进图时预载
@@ -16625,4 +16625,5 @@ window.MarketEffects = (() => {
 <script src="r149_mobile_text.js"></script>
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
+<script src="r153_skillwin.js"></script>
 </body></html>

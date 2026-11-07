@@ -346,12 +346,16 @@
     if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
       if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
-        try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
+        if (window.SKWIN) { const xd = cu.I; SKWIN.learn({ k: o.n.id, name: xd.name, desc: xd.desc || '', meta: xd.cost ? String(xd.cost).replace(/^灵力 /, '消耗灵力：') : '' }); } else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
       if (cu && cu.q) { input.tapped = null;
       if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return; }
       const h = S.hero; { const legacy = cu.q.t === 2 && !itemCount(cu.q.item) ? bookId(o.n.id) : cu.q.item; h.bag[legacy] -= cu.q.n; if (h.bag[legacy] <= 0) delete h.bag[legacy]; }
       LV()[key(G.who, o.n.id)] = cu.q.t; anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
-      try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; } }
+      if (window.SKWIN) { const T = tiersOf(o.n.id), a = T[cu.q.t - 2] || '', c = T[cu.q.t - 1] || '', pa = (a.match(/\d+%/g) || []), pc = (c.match(/\d+%/g) || []), rows = [];
+        pc.forEach((v, i) => { if (pa[i] && pa[i] !== v && rows.length < 2) rows.push([rows.length ? '附加' : '威力', pa[i], v]); });
+        const extra = c.split('，').slice(1).find(x => !a.includes(x)); if (extra && rows.length < 3) rows.push(['新增', '—', extra.length > 8 ? extra.slice(0, 8) + '…' : extra]);
+        SKWIN.upgrade({ k: o.n.id, name: cu.I.name || o.n.short, t0: cu.q.t - 1, t1: cu.q.t, rows, desc: rows.length ? '' : c }); }
+      else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; } }
     return orig();
   })(menuUpdate);
 

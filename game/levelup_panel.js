@@ -66,7 +66,8 @@
   });
 
   levelUpShow = (orig => async function (lv0) {
-    const h = S.hero; if (!ready() || !h) return orig.apply(this, arguments);
+    const h = S.hero; if (!ready()) { try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['lvp/']); } catch (e) {} for (let i = 0; i < 30 && !ready(); i++) await new Promise(r => setTimeout(r, 100)); }   // 作者 11-07：窗口素材没载完就退回代码框 → 先插队载素材，最多等 3 秒
+    if (!ready() || !h) return orig.apply(this, arguments);
     const b = before && before.lv === lv0 ? before.s : null; before = null;
     const now = snap();
     const rows = STATS.map(([k, l]) => { const old = b ? b[k] : now[k] - ((typeof GROW === 'object' && GROW[k]) || 0) * (h.lv - lv0); return [l, Math.round(old), now[k]]; });
