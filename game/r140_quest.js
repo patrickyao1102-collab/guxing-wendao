@@ -36,6 +36,7 @@
   function goSide(id) { if (!NAV) return; navId = id; window.QNAV_GOAL = () => sideGoal(id); try { NAV.start(); } catch (e) { console.warn('R140 nav', e); } }
   function goMain() { if (!NAV || !S.quest) return; navId = null; window.QNAV_GOAL = null; NAV.start(); }
 
+  window.R140Q = { goSide, goMain, stOf, SQ, isReady, avail, RT, GO, navId: () => navId };   // R165 新任务栏借用
   // ---------------- 数据：主线 / 进行中支线 / 附近可接 ----------------
   function rows() {
     const st = stOf(), here = world.mapName, out = [];
@@ -62,6 +63,7 @@
     ctx.font = `18px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2d6'; ctx.fillText(k, x + 14, y + 15); ctx.textAlign = 'left'; }
   function draw() {
     R.head = R.main = R.near = null; R.side = [];
+    if (window.R165Q && R165Q.ready()) return;   // 作者 11-08：换成 R165 玄金剑令任务栏
     if (S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const D = rows(), fold = !!F().qt_fold, hasMain = !!S.quest;
     if (!hasMain && !D.side.length && !D.near) return;
@@ -104,7 +106,7 @@
   updateMap = (o => function (dt) {
     if (NAV && !NAV.on && window.QNAV_GOAL) { window.QNAV_GOAL = null; navId = null; }
     const t = input.tapped;
-    if (t && !t.key && S.hud !== false && world.map && !S.menu && !dialog && !choice && !world.locked) {
+    if (t && !t.key && !(window.R165Q && R165Q.ready()) && S.hud !== false && world.map && !S.menu && !dialog && !choice && !world.locked) {
       let done = true;
       if (hit(t, R.head)) { F().qt_fold = !F().qt_fold; try { playSnd('ui_click'); } catch (e) {} }
       else if (hit(t, R.main)) goMain();
