@@ -1218,6 +1218,8 @@
     ctx.drawImage(M, x, y + bh - 2, w, h - bh * 2 + 4); ctx.drawImage(B, x, y + h - bh, w, bh); }
   const POR = { maid1: 'p_r142_maid1_smile', maid2: 'p_r142_maid2_smile', servant: 'p_r142_servant_smile', steward: 'p_r142_steward_smile', cat: 'p_r139_cat' };
   const ROWS = ['maid1', 'maid2', 'servant', 'steward', 'cat'];
+  // 作者 11-08：小记头像「脸都没有塞进去」——单独给小记一套取景，整颗头（连发髻）都放进圆里，下巴下面留一点衣领
+  const BFACE = { maid1: { fx: .48, fy: .195, span: .41 }, maid2: { fx: .49, fy: .19, span: .41 }, servant: { fx: .48, fy: .19, span: .41 }, steward: { fx: .455, fy: .185, span: .39 } };
   const BX = 150, BY = 30, BW = 980, BH = 660, RX = BX + 74, RW = BW - 148, RY0 = BY + 168, RH = 74;
   let BOOK = null; const BTAPS = [];
   try { cv.addEventListener('pointerdown', e => { if (!BOOK) return; BTAPS.push(toLogical(e)); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
@@ -1235,7 +1237,7 @@
       const cx = RX + 46, cy = y + RH / 2, r = 30; let im = IMG[POR[k]];
       if (k === 'cat' && !im) { const ci = uik('r139/cat.webp'); if (okIm(ci)) { const c = document.createElement('canvas'); c.width = c.height = 256; c.getContext('2d').drawImage(ci, 768, 0, 256, 256, 0, 0, 256, 256); im = IMG.p_r139_cat = c; } }
       ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fillStyle = '#e7e1d2'; ctx.fill(); ctx.clip();
-      if (im) { const mf = (typeof MEDAL_FACE === 'object' && MEDAL_FACE[POR[k]]) || (k === 'cat' ? { fx: .5, fy: .36, span: .5 } : { fx: .5, fy: .2, span: .3 }), iw = im.width, ih = im.height, sp = mf.span * iw, sx = mf.fx * iw - sp / 2, sy = mf.fy * ih - sp / 2;
+      if (im) { const mf = BFACE[k] || (typeof MEDAL_FACE === 'object' && MEDAL_FACE[POR[k]]) || (k === 'cat' ? { fx: .5, fy: .36, span: .5 } : { fx: .5, fy: .2, span: .3 }), iw = im.width, ih = im.height, sp = mf.span * iw, sx = mf.fx * iw - sp / 2, sy = mf.fy * ih - sp / 2;
         ctx.drawImage(im, sx, sy, sp, sp, cx - r, cy - r, r * 2, r * 2); } ctx.restore();
       ctx.strokeStyle = 'rgba(120,150,130,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
       ctx.textAlign = 'left'; ctx.fillStyle = '#26302a'; ctx.font = `27px ${BKF_T}`; ctx.fillText(BOND_NAME[k], RX + 92, y + 25);
@@ -1419,6 +1421,7 @@
         try { Object.defineProperty(d, 'noGlow', { configurable: true, get: shut }); } catch (e) {}
       }
       try { seedChests(name); } catch (e) {}
+      if (name === 'tj_room') try { for (const n of R5_ALL) r5(n); } catch (e) {}   // 床边歇息面板的图先下好
       FROM_ROOM = name === COURT && prev === 'tj_room'; DOOR_OUT = FROM_ROOM; NIGHT_T = 0; EV_T = 0;
       if (F().qz_awake && name !== RM[AWAKE()]) F().qz_awake = '';   // 出了屋：她也歇下了
     } catch (e) { console.warn('r162 enter', e); }
@@ -1429,27 +1432,57 @@
   const lockedByStory = () => { const f = F(); return (f.res_tod && !f.qz_shi) || f.res_ch1 || ((f.zm || 0) >= 1 && (f.zm || 0) <= 5) || (f.ch2_night && !f.ch2_roam && !f.ch2_hall) || world.scripted; };
   let REST = null; const RTAPS = [];
   try { cv.addEventListener('pointerdown', e => { if (!REST) return; RTAPS.push(toLogical(e)); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
-  const PX = 200, PY = 168, OPT = i => ({ x: PX + 55 + 17 + i * 151, y: PY + 104, w: 136, h: 144 });
-  const uiDraw = (id, x, y, w, h) => { const d = IDX[id], im = img('ui'); if (!d || !im) return false; ctx.drawImage(im, d.x, d.y, d.w, d.h, x, y, w || d.w, h || d.h); return true; };
-  const restLayer = { draw() { if (!REST) return; const k = Math.min(1, (performance.now() - REST.t0) / 220);
-    ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = 'rgba(8,12,10,.5)'; ctx.fillRect(0, 0, W, H);
-    if (!uiDraw('rest_panel', PX, PY)) { ctx.fillStyle = '#eef0ea'; roundRect(PX, PY, 880, 360, 18); ctx.fill(); }
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `40px ${BKF_T}`; ctx.fillStyle = '#3d5a48'; ctx.fillText('歇到什么时辰', 640, PY + 66);
-    const cur = shi() || (night() ? '戌' : '');
-    for (let i = 0; i < 5; i++) { const s = SHI[i], r = OPT(i), sel = REST.hover === i;
-      uiDraw(sel ? 'rest_option_selected' : 'rest_option_normal', r.x, r.y);
-      uiDraw(ICON[s], r.x + 22, r.y + 4, 92, 92);
-      ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = '#2f4a3c'; ctx.fillText(NAME[s], r.x + 68, r.y + 108);
-      ctx.font = `17px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = '#6b8576'; ctx.fillText(LAB[s] + (cur === s ? ' · 此刻' : ''), r.x + 68, r.y + 131); }
-    ctx.font = `16px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = 'rgba(70,90,78,.75)'; ctx.fillText('躺下歇一歇，气血灵力都会回满　·　点空白处不歇了', 640, PY + 300);
+  // 作者 11-08：歇息面板换成 Codex R165「一窗五景」——左边大圆窗是要歇到的时辰，右边四扇小窗是其余四个；点哪扇就歇到哪个时辰（点一下就定）
+  const R5 = n => (window.R162_ASSETS && R162_ASSETS['r165rest/' + n]) || ('r165rest/' + n + '?v=1');
+  const R5I = {}; const r5 = n => { let im = R5I[n]; if (!im) { im = R5I[n] = new Image(); im.src = R5(n + '.webp'); } return im.complete && im.naturalWidth ? im : null; };
+  const R5_ALL = ['window_frame', 'cancel_idle', 'cancel_pressed', 'scene_dawn', 'scene_noon', 'scene_dusk', 'scene_evening', 'scene_midnight', 'focus_dawn', 'focus_noon', 'focus_dusk', 'focus_midnight'];
+  const R5_SLOTS = [
+    { id: 'focus', rect: [185, 153, 410, 410], hit: [240, 205, 300, 300], label: [388, 494], ap: 'M389 155 C501 154 591.5 246 591.5 359 C591.5 461 510 547.8 412.3 557.4 L413.8 553.8 L406 555.7 Q402 556.6 399 559 L397.7 553 Q395 547.6 391 543 Q385.5 548.4 382.9 557.3 L381.8 560 L373.8 555.5 L369.3 555.2 L370.8 558.8 C270.4 550.7 187.4 463.6 187.4 359 C187.4 246.5 278.1 155.2 389 155 Z' },
+    { id: 'upperLeft', rect: [614, 167, 228, 176], hit: [631, 177, 196, 154], label: [732, 306], ap: 'M643 169 L809 169 Q811 176 818 178 L825 178 Q826 186 837 189 L839 192 L839 319 Q838 323 830 325 Q825 326 824 332 L818 333 Q813 334 811 340 L644 340 Q642 334 636 332 L629 332 Q628 325 621 324 L616 322 L616 193 Q618 189 625 187 Q628 185 629 179 L635 178 Q641 177 643 169 Z' },
+    { id: 'upperRight', rect: [862, 167, 235, 176], hit: [882, 177, 196, 154], label: [981, 306], ap: 'M894 169 L1037 169 Q1040 177 1048 179 L1061 179 Q1063 187 1071 189 L1078 190 Q1081 202 1093 206 L1093 319 Q1091 323 1081 325 Q1078 326 1077 332 L1072 333 Q1068 334 1066 340 L896 340 Q893 334 887 332 L879 332 Q877 325 870 324 L864 321 L864 194 Q865 190 873 187 Q876 185 877 179 L884 177 Q890 176 894 169 Z' },
+    { id: 'lowerLeft', rect: [614, 363, 228, 181], hit: [631, 372, 196, 154], label: [732, 506], ap: 'M643 365 L810 365 Q813 372 818 373 L826 374 Q826 381 833 383 L839 386 L839 518 Q837 522 832 523 Q826 524 825 531 L818 533 Q814 534 811 541 L644 541 Q642 534 636 533 L629 533 Q628 525 622 523 L617 521 L617 386 Q620 383 625 382 Q628 379 629 374 L636 373 Q641 371 643 365 Z' },
+    { id: 'lowerRight', rect: [862, 363, 235, 181], hit: [882, 372, 196, 154], label: [981, 506], ap: 'M894 365 L1065 365 Q1067 373 1074 374 L1081 375 Q1082 381 1088 384 L1094 386 L1094 501 Q1091 503 1091 509 L1091 518 Q1088 522 1081 523 Q1078 525 1076 532 L1071 533 Q1066 536 1065 541 L896 541 Q893 535 886 533 L878 533 Q877 525 870 523 L864 521 L864 386 Q866 382 873 381 Q877 379 877 374 L885 373 Q891 370 894 365 Z' }];
+  const R5_P = { '卯': { id: 'dawn', d: '清晨', orig: 'upperLeft', crop: [.11, .13, .78, .74] }, '午': { id: 'noon', d: '正午', orig: 'upperRight', crop: [.11, .13, .78, .74] }, '酉': { id: 'dusk', d: '黄昏', orig: 'lowerLeft', crop: [.11, .13, .78, .74] },
+    '戌': { id: 'evening', d: '入夜', orig: 'focus', crop: [.12, .2, .76, .6], focus: 'scene_evening' }, '子': { id: 'midnight', d: '子夜', orig: 'lowerRight', crop: [.11, .13, .78, .74] } };
+  let R5_PATH = null; const r5path = () => R5_PATH || (R5_PATH = R5_SLOTS.map(sl => { try { return new Path2D(sl.ap); } catch (e) { return null; } }));
+  const R5_CANCEL = { rect: [558, 636, 164, 54], hit: [548, 625, 184, 76] };
+  const rr = a => ({ x: a[0], y: a[1], w: a[2], h: a[3] });
+  const r5order = foc => [foc, ...SHI.filter(k => k !== foc)];
+  function r5mist(x, y, rx, ry, al) { ctx.save(); ctx.translate(x, y); ctx.scale(rx, ry); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, `rgba(15,22,24,${al})`); g.addColorStop(.46, `rgba(15,22,24,${al * .84})`); g.addColorStop(1, 'rgba(15,22,24,0)'); ctx.fillStyle = g; ctx.fillRect(-1, -1, 2, 2); ctx.restore(); }
+  function r5text(t, x, y, size, font, color, align) { ctx.save(); ctx.font = `${size}px ${font}`; ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = color; ctx.shadowColor = 'rgba(4,8,10,.95)'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1; ctx.fillText(t, x, y); ctx.restore(); }
+  function r5scene(k, si, al) { const sl = R5_SLOTS[si], P = R5_P[k], main = si === 0, im = r5(main ? (P.focus || 'focus_' + P.id) : 'scene_' + P.id), [x, y, w, h] = sl.rect, path = r5path()[si];
+    ctx.save(); ctx.globalAlpha *= al; if (path) ctx.clip(path); else { ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); }
+    if (!im) { ctx.fillStyle = '#1d2a33'; ctx.fillRect(x, y, w, h); }
+    else if (main || sl.id === P.orig) ctx.drawImage(im, x, y, w, h);
+    else { const [u0, v0, sw0, sh0] = P.crop, u = u0 * im.width, v = v0 * im.height, sw = sw0 * im.width, sh = sh0 * im.height, sc = Math.max(w / sw, h / sh), dw = w / sc, dh = h / sc; ctx.drawImage(im, u + (sw - dw) * .5, v + (sh - dh) * .5, dw, dh, x, y, w, h); }
+    ctx.restore(); }
+  const restLayer = { draw() { if (!REST) return; const nw = performance.now(), k = Math.min(1, (nw - REST.t0) / 220), R = REST;
+    ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = 'rgba(7,16,24,.79)'; ctx.fillRect(0, 0, W, H);
+    const ord = r5order(R.foc), prev = R.prev ? r5order(R.prev) : null, tr = R.tsw ? Math.min(1, (nw - R.tsw) / 260) : 1;
+    for (let i = 0; i < 5; i++) { if (prev && tr < 1) r5scene(prev[i], i, 1); r5scene(ord[i], i, prev ? tr : 1); }
+    const fr = r5('window_frame'); if (fr) { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.78)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6; ctx.drawImage(fr, 140, 82, 1000, 530); ctx.restore(); }
+    r5mist(640, 46, 246, 68, .77); r5text('歇到什么时辰', 640, 40, 45, BKF_T, '#fff0cd'); r5text('歇息后，气血与灵力回满', 640, 74, 17, BKF, '#e2d7ba');
+    const cur = R.cur;
+    for (let i = 0; i < 5; i++) { const sl = R5_SLOTS[i], key = ord[i], [x, y] = sl.label, big = i === 0;
+      r5mist(x, y, 101, 29, .95); r5text(NAME[key], x - 5, y, big ? 31 : 26, BKF_T, '#fff0cd', 'right');
+      ctx.save(); ctx.translate(x + 3, y); ctx.rotate(Math.PI / 4); ctx.fillStyle = '#ecc984'; ctx.fillRect(-1.5, -1.5, 3, 3); ctx.restore();
+      r5text(R5_P[key].d, x + 11, y + 1, big ? 23 : 19, BKF, '#e2d7ba', 'left');
+      if (key === cur) { const [rx, ry] = sl.rect, tx = big ? rx + 205 : rx + 38, ty = big ? ry + 34 : ry + 28; ctx.save(); ctx.fillStyle = 'rgba(20,28,30,.72)'; roundRect(tx - 30, ty - 14, 60, 28, 14); ctx.fill(); ctx.strokeStyle = 'rgba(236,201,132,.85)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore(); r5text('此刻', tx, ty + 1, 16, BKF, '#f3dfae'); } }
+    const cb = r5(R.cancelDown ? 'cancel_pressed' : 'cancel_idle'); if (cb) ctx.drawImage(cb, 558, 636, 164, 54); else { ctx.fillStyle = 'rgba(20,40,40,.9)'; roundRect(558, 636, 164, 54, 10); ctx.fill(); }
+    r5text('不歇了', 640, 664, 25, BKF_T, '#fff0cd');
     ctx.restore(); } };
   S.overlay.push(restLayer);
   async function restPanel() {
-    img('ui'); REST = { t0: performance.now(), hover: -1 }; RTAPS.length = 0; const hud0 = S.hud; S.hud = false; world.locked = true;
+    for (const n of R5_ALL) r5(n);
+    const cur = shi() || (night() ? '戌' : '午'), nxt = SHI[(SHI.indexOf(cur) + 1) % 5];
+    REST = { t0: performance.now(), foc: nxt, cur }; RTAPS.length = 0; const hud0 = S.hud; S.hud = false; world.locked = true;
     try { for (;;) { await nextFrame(); const tp = RTAPS.shift(); if (!tp) continue;
-      for (let i = 0; i < 5; i++) if (inR(tp, OPT(i))) { REST.hover = i; try { playSnd('ui_confirm', .6); } catch (e) {} await new Promise(r => setTimeout(r, 160)); return i; }
-      if (!inR(tp, { x: PX, y: PY, w: 880, h: 360 }) || tp.y > PY + 280) return -1; } }
+      if (inR(tp, rr(R5_CANCEL.hit))) { REST.cancelDown = true; try { playSnd('ui_cancel', .5); } catch (e) {} await new Promise(r => setTimeout(r, 140)); return -1; }
+      const ord = r5order(REST.foc); let hit = -1; for (let i = 0; i < 5; i++) if (inR(tp, rr(R5_SLOTS[i].hit))) { hit = i; break; }
+      if (hit >= 0) { const key = ord[hit]; try { playSnd('ui_confirm', .6); } catch (e) {}   // 先把点中的时辰记下来，再换窗位（免得换位后点到另一项）
+        if (hit) { REST.prev = REST.foc; REST.foc = key; REST.tsw = performance.now(); await new Promise(r => setTimeout(r, 420)); } else await new Promise(r => setTimeout(r, 200));
+        return SHI.indexOf(key); }
+      if (!inR(tp, { x: 140, y: 20, w: 1000, h: 600 })) return -1; } }
     finally { REST = null; S.hud = hud0; world.locked = false; }
   }
   // 窗纸流光过场（8 帧，播完换时辰）
