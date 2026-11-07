@@ -584,13 +584,33 @@
   }
 
   let WEST_NM = 'rgb(168,178,196)', WEST_NA = 'rgba(34,54,124,.26)';
+  // 作者 11-08：「新扩建的两个地图，有时候黑幕还是会中间分隔开、颜色不统一，好好修复」
+  //   原因：原图（主院 / 云海大亭）的夜景、晨光是 Codex 画好的一整张光照层，只盖在原图 0~宽 的范围；往西扩出来的部分（x<0）
+  //   云海后庭夜里完全没压暗，青竹西院只靠一层估出来的暗色，晨光也都没有。
+  //   修法：把那张光照层「最左边一条」（左 40px 求平均）横着拉满整个扩建区——扩建区拿到的光照和原图左边缘逐行一致；
+  //   云海大亭那张光照层前面还压了一层整图暗色，也一起补到扩建区。
+  const EXTL = {}; const extIm = (k, src, crop) => { let o = EXTL[k]; if (!o) { o = EXTL[k] = { c: null }; const im = new Image(); im.onload = () => {
+      const [sx, sy, sw, sh] = crop || [0, 0, im.width, im.height], c = document.createElement('canvas'); c.width = 1; c.height = sh; const g = c.getContext('2d');
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; const n = Math.max(2, Math.round(sw * 40 / 2304)); g.drawImage(im, sx, sy, n, sh, 0, 0, 1, sh); o.c = c; };
+    im.src = src; } return o.c; };
+  const LSH = { qingzhu_court_night: [0, 0, 1152, 896], qingzhu_court_dawn: [1154, 0, 1152, 896] };
+  function extTint(T) {
+    if (!(T.x0 < 0) || !/^qingzhu_(court|upper_pavilion)$/.test(world.mapName || '')) return;
+    const m = world.mapName; let t = window.TOD ? TOD() : (F().res_tod || ''); const dusk = t === 'dusk'; if (dusk) t = 'dawn'; if (t !== 'night' && t !== 'dawn') return;
+    const X = T.x0, Wd = -T.x0; ctx.save();
+    let col = null;
+    if (m === COURT) { if (dusk) { ctx.restore(); return; } col = extIm(m + '_' + t, 'light_sheet.webp', LSH[m + '_' + t]); }   // 主院：residence 那层（暗色已经整片压到西院了，只差光照层本身）
+    else { if (t === 'night') { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(150,162,214)'; ctx.fillRect(X, 0, Wd, T.mh); ctx.globalCompositeOperation = 'source-over'; }   // 云海大亭：cx2 那层前面的整图压暗
+      col = extIm(m + '_' + t, 'cx2/l_' + m + '_' + t + '.webp'); }
+    if (col) ctx.drawImage(col, 0, 0, 1, col.height, X, 0, Wd, T.mh);
+    if (dusk && m !== COURT) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgb(255,206,160)'; ctx.fillRect(X, 0, Wd, T.mh); ctx.globalCompositeOperation = 'soft-light'; ctx.fillStyle = 'rgba(255,140,60,.35)'; ctx.fillRect(X, 0, Wd, T.mh); }
+    ctx.restore();
+  }
   // ---------- 光影：时辰叠层 + 小动画 ----------
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now0) {
     o.apply(this, arguments);
     try {
-      // 作者 11-08（bug）：夜里西院比主院亮一截，中间一条竖缝 —— 主院有 Codex 夜景光层，西院（R136 扩建）只压了一层暗色。西院补上同样的夜色
-      if (world.mapName === COURT && night() && T.x0 < 0) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = WEST_NM; ctx.fillRect(T.x0, 0, -T.x0, T.mh);
-        ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = WEST_NA; ctx.fillRect(T.x0, 0, -T.x0, T.mh); ctx.restore(); }
+      extTint(T);   // 往西扩建的那块（青竹西院、云海后庭）夜色 / 晨光和原图左边缘一模一样，不再有竖缝
       if (!ON()) return; const m = world.mapName, s = shi(), t = now();
       if (m === COURT) {
         const L = LIGHTS[s]; if (L) for (const k of L) { const im = img('l_' + k); if (!im) continue; const d = IDX[k]; ctx.drawImage(im, /^west/.test(k) ? -OX : 0, 0, d.w, d.h); }

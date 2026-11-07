@@ -957,7 +957,7 @@ function frameInner(now) {
   if (S.flash > 0) { ctx.save(); ctx.globalAlpha = Math.min(1, S.flash); ctx.fillStyle = S.flashColor; ctx.fillRect(0, 0, W, H); ctx.restore(); S.flash = Math.max(0, S.flash - dt * 2.2); }
   drawDialog(); drawPanel(); drawChoice(); drawToast(dt);
   if (S.hud && !battle && !dialog && !choice && !sysPanel) drawMapHud();
-  if (S.fade > 0) { ctx.fillStyle = `rgba(0,0,0,${S.fade})`; ctx.fillRect(0, 0, W, H); }
+  if (S.fade > 0) { ctx.fillStyle = `rgba(0,0,0,${S.fade})`; ctx.fillRect(0, 0, W, H); if (window.LOADING_ON_TOP) LOADING_ON_TOP(); }   // 作者 11-08：载入插画盖着时，黑幕上面再画插画——换图永远不露黑屏
 }
 function drawMapHud() {
   const h = S.hero; ctx.save(); panel(16, 14, 300, 66); ctx.font = `28px ${BRUSH}`; ctx.fillStyle = '#ffe08a'; ctx.textBaseline = 'middle'; ctx.fillText('叶孤星', 34, 47);

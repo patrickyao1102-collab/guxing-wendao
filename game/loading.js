@@ -70,8 +70,24 @@
       const tw = P.tw; if (tw) { const f = Math.floor(now / 125) % 8; ctx.drawImage(tw, f * 96, 0, 96, 64, 198 + w - 24, 665 - 16, 48, 32); } else if (P.head) ctx.drawImage(P.head, 198 + w - 24, 649, 48, 32);
     }
     return true; }
+  // 作者 11-08：「换图会黑一下再出现图片，这个绝对不准出现！」—— 过图不再先黑屏：旧地图上直接淡入这次要用的载入插画，换完图插画接着盖着，地图好了再淡出
+  const COVER = { on: false, to: null, from: null, t0: 0, ms: 220, idx: -1, qz: null };
+  const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
+  function coverStart(to, ms) {
+    let qz = null; try { qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(to, world.mapName) : null; } catch (e) {} if (qz && !qz.ok) qz = null;
+    const idx = anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
+    Object.assign(COVER, { on: true, to, from: world.mapName, t0: performance.now(), ms: ms || 220, idx, qz }); return true; }
+  function coverPaint() { if (!COVER.on || world.mapName !== COVER.from) return false;   // 只在换图之前（还停在旧图）画；一换图就交给下面的载入画面
+    const B = COVER.qz ? COVER.qz.im : COVER.idx >= 0 && LB.im[COVER.idx] ? LB.im[COVER.idx].im : null; if (!B) return false;
+    const a = Math.min(1, (performance.now() - COVER.t0) / COVER.ms); ctx.save(); ctx.globalAlpha = a; ctx.drawImage(B, 0, 0, W, H);
+    const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150); ctx.restore(); return true; }
   const layer = { draw(force) {
-    if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0; lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
+    if (coverPaint()) return;
+    if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0;
+      if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; LB.tip = TIPS[Math.floor(Math.random() * TIPS.length)]; lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
+      else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
+      if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
+      COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
     if (LB.qz && LB.qz.min && LB.qz.ok && performance.now() - t0 < LB.qz.min && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-08：从外面走进青竹，专属载入图至少露个脸
     // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
@@ -113,6 +129,20 @@
   } };
   S.overlay.push(layer);
   window.LOADING_LAYER = layer;
+  // 黑幕（S.fade）画在所有图层最上面：载入插画还盖着的时候，黑幕上面再把插画画一遍——换图时看到的永远是插画，不是黑屏
+  let lastForce; layer.draw = (o => function (force) { lastForce = force; return o.call(this, force); })(layer.draw);
+  window.LOADING_ON_TOP = () => { try { if (coverPaint()) return; if (shown > 0) { const s0 = shown, p0 = prog; layer.draw(lastForce); shown = s0; prog = p0; } } catch (e) {} };
+  // 过图（goMap）：原来是 fadeOut 变黑 → 换图 → fadeIn；改成 旧图上直接淡入插画 → 换图 → 插画一直盖着到新图准备好 → 淡出到新图
+  let GO = 0, PEND = null, USED = 0;
+  const late = () => { try {
+    if (typeof goMap !== 'function' || goMap.__noBlack) return;
+    const g = goMap; goMap = async function (name) { if (!GO) { PEND = name; USED = 0; } GO++;
+      try { return await g.apply(this, arguments); } finally { GO--; if (!GO) { USED = 0; PEND = null; setTimeout(() => { if (COVER.on && world.mapName === COVER.from) COVER.on = false; }, 80); } } };
+    goMap.__noBlack = 1;
+    const fo = fadeOut; fadeOut = async function (ms) { if (GO && !USED && !(S.fade > .01) && PEND && PEND !== world.mapName && coverStart(PEND, Math.min(ms || 220, 260))) { USED = 1; await new Promise(r => setTimeout(r, COVER.ms)); return; } return fo.apply(this, arguments); };
+    const fi = fadeIn; fadeIn = async function (ms) { if (GO && USED === 1) { USED = 2; S.fade = 0; return; } /* 只跳过过图自己的那一次 fadeIn；进图剧情里自己要的黑幕照旧 */ return fi.apply(this, arguments); };
+  } catch (e) { console.warn('loading goMap', e); } };
+  if (document.readyState === 'complete') setTimeout(late, 0); else window.addEventListener('load', () => setTimeout(late, 0));
   // 作者 11-08：「没有加载完毕不允许出现任何游戏东西，只能是我们的插画」——载入中：对话 / 选项 / 面板一律不推进、不响应点击（r158 也不会把它们画到黑幕上）
   const loadingNow = () => { try { return S.scene === drawMap && world.map && readiness() < 1 && forced !== world.mapName; } catch (e) { return false; } };
   window.MAP_BLOCKING = loadingNow;
