@@ -588,6 +588,13 @@
     const r = orig.apply(this, arguments);
     try {
       if (ON() && QZ(name)) { preload(); if (world.actors) world.actors.push(...propsFor(name, shi())); }
+      // 作者 11-08：子时都睡下了，两个姑娘的屋子不能进（只能去松伯、阿福屋里）
+      if (name === COURT && world.map && world.map.T) for (const d of world.map.T.doors || []) {
+        const who = d.to === RM.maid1 ? '青禾' : d.to === RM.maid2 ? '小桃' : ''; if (!who) continue;
+        const shut = () => ON() && shi() === '子';
+        d.cond = () => !shut(); d.msg = '夜深了，' + who + '已经睡下了——姑娘家的屋子，少爷就别进去了。';
+        try { Object.defineProperty(d, 'noGlow', { configurable: true, get: shut }); } catch (e) {}
+      }
       FROM_ROOM = name === COURT && prev === 'tj_room'; NIGHT_T = 0;
     } catch (e) { console.warn('r162 enter', e); }
     return r;
