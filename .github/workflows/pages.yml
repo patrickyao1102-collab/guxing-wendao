@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p _site/play
           cp tools/play/index.html tools/play/sw.js _site/play/
+          sed -i "s/__REF__/${GITHUB_SHA}/" _site/play/sw.js   # 剔掉的素材从同一次提交的仓库原文件取
           cp game/index.html _site/play/game.html
       - uses: actions/configure-pages@v5
         with:
