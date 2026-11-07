@@ -97,8 +97,8 @@
       if (!lbBar(prog, now)) { ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(198, 661, 884, 8); ctx.fillStyle = '#e8c27a'; ctx.fillRect(198, 661, 884 * prog, 8); }
       ctx.textAlign = 'right'; ctx.font = `600 16px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.85)'; ctx.fillText(Math.round(prog * 100) + '%', 1114, 700);
       const waited = (now - t0) / 1000;
-      if (r < 1 && waited > 12) { ctx.textAlign = 'center'; ctx.font = `600 15px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.8)'; ctx.fillText(waited > 40 ? '网络较慢，素材仍在下载。点击屏幕可先进入（可能缺图）' : '网络较慢，正在重试下载……', W / 2, 590); }
-      if (r < 1 && typeof input !== 'undefined' && input.tapped) { if (waited > 40) forced = world.mapName; input.tapped = null; }
+      if (force == null && r < 1 && waited > 12) { ctx.textAlign = 'center'; ctx.font = `600 15px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.8)'; ctx.fillText(waited > 40 ? '网络较慢，素材仍在下载。点击屏幕可先进入（可能缺图）' : '网络较慢，正在重试下载……', W / 2, 590); }
+      if (force == null && r < 1 && typeof input !== "undefined" && input.tapped) { if (waited > 40) forced = world.mapName; input.tapped = null; }
       ctx.restore(); return;
     }
     // 作者 11-08：老版载入画面（深蓝底 + 地图名 + 细进度条）全部取消。插画还没下好的那一小会儿只铺黑底 + R157 进度条，插画一到马上换上
@@ -114,7 +114,7 @@
   window.MAP_BLOCKING = loadingNow;
   for (const fn of ['updateDialog', 'updateChoice', 'updatePanel']) {
     if (typeof window[fn] !== 'function' && typeof eval(fn) !== 'function') continue;
-    const o = eval(fn); const w = function () { if (loadingNow()) { if (typeof input !== 'undefined') input.tapped = null; return; } return o.apply(this, arguments); };
+    const o = eval(fn); const w = function () { if (loadingNow() || (window.FXW_BLOCKING && FXW_BLOCKING())) { if (typeof input !== 'undefined') input.tapped = null; return; } return o.apply(this, arguments); };
     if (fn === 'updateDialog') updateDialog = w; else if (fn === 'updateChoice') updateChoice = w; else updatePanel = w;
   }
   // 载入画面期间：收起地图 HUD、不让角色乱走

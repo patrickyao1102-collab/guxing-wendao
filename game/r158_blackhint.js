@@ -8,7 +8,7 @@
     orig(now);
     try {
       // 地图还在载入：黑幕上面只画载入插画，别的游戏东西一概不露
-      if (window.MAP_BLOCKING && MAP_BLOCKING() && window.LOADING_LAYER) { ctx.save(); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); ctx.globalAlpha = 1; try { LOADING_LAYER.draw(); } catch (e) {} ctx.restore(); t0 = 0; return; }
+      if (window.LOADING_LAYER && ((window.MAP_BLOCKING && MAP_BLOCKING()) || (window.FXW_BLOCKING && FXW_BLOCKING()))) { ctx.save(); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); ctx.globalAlpha = 1; try { const fx = window.FXW_BLOCKING && FXW_BLOCKING() && !(window.MAP_BLOCKING && MAP_BLOCKING()); LOADING_LAYER.draw(fx ? (window.FXW && FXW.total ? Math.min(.95, (FXW.cur + .5) / FXW.total) : .5) : undefined); } catch (e) {} ctx.restore(); t0 = 0; return; }
       const black = (S.fade || 0) > .45;
       const waiting = !!(dialog || choice || sysPanel);
       if (!black || !waiting || battle) { t0 = 0; return; }

@@ -12679,6 +12679,8 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   window.VSPRITE_ADD = (key, id, meta, h, isNew, own) => { VS[key] = { id, meta, h, own }; if (window.RIG_MAP) delete RIG_MAP[key]; if (isNew) setTimeout(() => img(id, key), 6000); };
   const ATK_FPS = 20;
   const VK = u => (u && u._vk) || (u && u.key);
+  // 作者 11-08：战斗开打前要等所有敌人的序列帧图集下完（fx_prewarm 的载入画面会等它）
+  window.VS_BATTLE_READY = b => { try { return ((b && b.enemies) || []).every(u => { const V = VS[VK(u)]; if (!V) return true; const im = img(V.id); return !!(im && im.complete && im.naturalWidth); }); } catch (e) { return true; } };
   window.VS_VARIANTS = { e_grunt: ['e_grunt', 'e_grunt_b', 'e_grunt_c', 'e_grunt_d'] };
   function frame(u, now) {
     const V = VS[VK(u)], m = V.meta;

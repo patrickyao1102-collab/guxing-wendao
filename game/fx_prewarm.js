@@ -42,7 +42,21 @@
   // 进战斗：先预热这场要用的特效
   startBattle = (orig => function (cfg) {
     const pr = orig.apply(this, arguments); const b = battle;
-    try { const ks = F.needed(battleParty(b)); if (ks.length && b) { b.__warm = true; F.warm(ks).then(() => { b.__warm = false; }); } } catch (e) { console.error(e); }
+    // 作者 11-08：「技能也是，必须完全加载完毕、顺滑无比才可以进入战斗」——特效预热 + 这场战斗画面要用的图（敌人动态图集、背景、技能图标……）全部下完才开打
+    try { if (b) { const ks = F.needed(battleParty(b)); b.__warm = true; F.active = true; F.label = '战斗素材'; F.total = Math.max(1, ks.length); F.cur = 0;
+      // 战斗画面每帧画到的图里，还没下完的都记下来；连续几次检查全都下完了才算好（最多等 25 秒）
+      const imgsIdle = async () => { const C2 = CanvasRenderingContext2D.prototype, DI = C2.drawImage, want = new Set();
+        const own = Object.prototype.hasOwnProperty.call(ctx, 'drawImage'), DO = own ? ctx.drawImage : null;
+        const spy = base => function (im) { try { if (im && im instanceof HTMLImageElement && !(im.complete && im.naturalWidth)) want.add(im); } catch (e) {} return base.apply(this, arguments); };
+        C2.drawImage = spy(DI); if (own) ctx.drawImage = spy(DO);
+        const t0 = performance.now(); let calm = 0;
+        try { while (performance.now() - t0 < 25000) { await new Promise(r => setTimeout(r, 150));
+            for (const im of want) if (im.complete) want.delete(im);
+            let vsOk = !window.VS_BATTLE_READY || VS_BATTLE_READY(b);
+            // 骨骼动画妖兽：分件图都下完（rig/ 在图片队列最后，先插队）
+            try { for (const u of b.enemies || []) { const M = window.RIG_MAP && RIG_MAP[u.key], R = M && RIG.RIGS[M.rig]; if (R && !R.ready) { vsOk = false; if (window.IMG_GUARD && IMG_GUARD.bumpMatch) IMG_GUARD.bumpMatch(['rig/']); } } } catch (e) {}
+            calm = want.size || !vsOk ? 0 : calm + 1; if (calm >= 6) break; } } finally { C2.drawImage = DI; if (own) ctx.drawImage = DO; } };
+      Promise.all([ks.length ? F.warm(ks) : Promise.resolve(), imgsIdle()]).then(() => { F.active = false; b.__warm = false; }, () => { F.active = false; b.__warm = false; }); } } catch (e) { console.error(e); if (b) { b.__warm = false; F.active = false; } }
     return pr;
   })(startBattle);
 
@@ -53,21 +67,11 @@
     const ks = F.needed(partyNow()); if (ks.length) F.warm(ks);
   } catch (e) {} }, 500);
 
-  // 载入画面
-  let shown = 0;
-  S.overlay.push({ draw() {
-    const on = F.active; shown = on ? 1 : Math.max(0, shown - .1); if (!shown) return;
-    if (on && typeof input !== 'undefined') input.tapped = null;
-    ctx.save(); ctx.globalAlpha = shown; ctx.fillStyle = 'rgba(6,8,14,.92)'; ctx.fillRect(0, 0, W, H);
-    const g = ctx.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * .6); g.addColorStop(0, 'rgba(90,80,150,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `40px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`; ctx.fillStyle = '#ffe2a0'; ctx.fillText('凝 聚 剑 意', W / 2, H / 2 - 50);
-    const bw = 420, bh = 8, bx = W / 2 - bw / 2, by = H / 2 + 10, k = F.total ? (F.cur + .5) / F.total : 1;
-    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(bx, by, bw, bh);
-    const lg = ctx.createLinearGradient(bx, 0, bx + bw, 0); lg.addColorStop(0, '#8a7ad8'); lg.addColorStop(1, '#ffe8a8'); ctx.fillStyle = lg; ctx.fillRect(bx, by, bw * Math.min(1, k), bh);
-    ctx.font = `600 18px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(232,220,192,.85)';
-    ctx.fillText('预载技能特效 · ' + (F.label || '') + '（' + Math.min(F.total, F.cur + 1) + ' / ' + F.total + '）', W / 2, by + 36);
-    ctx.font = `14px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(232,220,192,.55)'; ctx.fillText('每个特效只需预载一次，之后施展不再卡顿', W / 2, by + 64);
-    ctx.restore();
-  } });
+  // 载入画面：作者 11-08「不准再出现以前的老页面」→ 和换图一样用 R157 插画载入画面；画在整帧最上面（对话框、战斗界面都盖住）
+  window.FXW_BLOCKING = () => F.active || !!(typeof battle !== 'undefined' && battle && battle.__warm);
+  if (typeof frameInner === 'function') frameInner = (o => function (now) { const r = o.apply(this, arguments);
+    try { if (FXW_BLOCKING() && window.LOADING_LAYER) { if (typeof input !== 'undefined') input.tapped = null;
+      ctx.save(); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); ctx.globalAlpha = 1;
+      const k = F.total ? Math.min(.95, (F.cur + .5) / F.total) : .5; LOADING_LAYER.draw(k); ctx.restore(); } } catch (e) {}
+    return r; })(frameInner);
 })();
