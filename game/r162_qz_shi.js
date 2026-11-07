@@ -1433,7 +1433,7 @@
   let REST = null; const RTAPS = [];
   try { cv.addEventListener('pointerdown', e => { if (!REST) return; RTAPS.push(toLogical(e)); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
   // 作者 11-08：歇息面板换成 Codex R165「一窗五景」——左边大圆窗是要歇到的时辰，右边四扇小窗是其余四个；点哪扇就歇到哪个时辰（点一下就定）
-  const R5 = n => (window.R162_ASSETS && R162_ASSETS['r165rest/' + n]) || ('r165rest/' + n + '?v=1');
+  const R5 = n => (window.R162_ASSETS && R162_ASSETS['r165rest/' + n]) || ('r165rest/' + n);
   const R5I = {}; const r5 = n => { let im = R5I[n]; if (!im) { im = R5I[n] = new Image(); im.src = R5(n + '.webp'); } return im.complete && im.naturalWidth ? im : null; };
   const R5_ALL = ['window_frame', 'cancel_idle', 'cancel_pressed', 'scene_dawn', 'scene_noon', 'scene_dusk', 'scene_evening', 'scene_midnight', 'focus_dawn', 'focus_noon', 'focus_dusk', 'focus_midnight'];
   const R5_SLOTS = [
