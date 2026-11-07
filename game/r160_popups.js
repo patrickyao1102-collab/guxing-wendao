@@ -1,5 +1,5 @@
 // ================= R160 · 黑金系统弹窗（作者 11-08 定 R134「C 黑金」，Codex R160 拆件 + 绘制代码）=================
-// 领悟技能 / 技能升级 / 等级提升 / 境界提升 / 战斗胜利 五种弹窗都换成 Codex 的黑金框（r160/，画法见 r160_canvas.js = Codex popup-canvas.mjs）。
+// 领悟技能 / 技能升级 / 战斗胜利 换成 Codex 的黑金框（等级提升、境界提升按作者要求保持原来的金色海棠窗）（r160/，画法见 r160_canvas.js = Codex popup-canvas.mjs）。
 // 这里只负责：读布局、把游戏数据填进去、把技能图标 / 道具图标画进图标座、点「确定 / 下一页」。
 // 拆件还没载完时退回原来的窗口（r153 / levelup_panel），不会卡住剧情。
 (function () {
@@ -92,17 +92,7 @@
   const fmt = rows => rows.map(([l, a, b]) => l + ' +' + (b - a)).filter(s => !/\+0$/.test(s));
   function allyGain(k, lv0, lv1) { try { const d = PARTY_DB[k]; const at = lv => { const o = {}; for (const s in d.base) o[s] = Math.round(d.base[s] + (d.grow[s] || 0) * (Math.max(10, lv) - 10)); return o; }; const a = at(lv0), b = at(lv1);
     return [['气血', a.maxhp, b.maxhp], ['灵力', a.maxmp, b.maxmp], ['攻击', a.atk, b.atk], ['防御', a.def, b.def], ['身法', a.spd, b.spd]]; } catch (e) { return []; } }
-  window.levelPanel = function (o = {}) {
-    const who = o.who || 'hero', rows = (o.rows || []).filter(r => r && r.length >= 3);
-    if (/境界/.test(o.title || '')) {
-      const before = o.realm0 || (typeof realmOf === 'function' ? realmOf(o.lv0) : ''), after = o.realm1 || (S.hero && S.hero.realm) || (typeof realmOf === 'function' ? realmOf(o.lv1) : '');
-      return open('realm', { roleId: who, name: o.name || NAME[who] || '', before, after, changes: rows.map(([label, a, b]) => ({ label, before: String(a), after: String(b), delta: (b - a >= 0 ? '+' : '') + (b - a) })), confirm: '确定' }).then(r => r || (LP0 ? LP0(o) : false));
-    }
-    const g = fmt(rows), members = [{ roleId: who, name: o.name || NAME[who] || '', before: 'Lv.' + o.lv0, after: 'Lv.' + o.lv1, gains1: g.slice(0, 3).join('　'), gains2: g.slice(3).join('　') }];
-    if (who === 'hero') for (const k of (S.party || []).slice(0, 2)) { if (!NAME[k]) continue; const ag = fmt(allyGain(k, o.lv0, o.lv1)); if (!ag.length) continue;
-      members.push({ roleId: k, name: NAME[k], before: 'Lv.' + o.lv0, after: 'Lv.' + o.lv1, gains1: ag.slice(0, 3).join('　'), gains2: ag.slice(3).join('　') }); }
-    return open('level', { members, confirm: '确定' }).then(r => r || (LP0 ? LP0(o) : false));
-  };
+  // 作者 11-08：「升级不变」—— 等级提升 / 境界提升 仍用原来的金色海棠窗（levelup_panel.js），黑金只用在技能类弹窗和战斗结算
 
   // ---------- 战斗胜利 ----------
   startBattle = (orig => function () { const r = orig.apply(this, arguments); try { if (battle) battle._lv0 = S.hero.lv; } catch (e) {} return r; })(startBattle);
@@ -128,7 +118,5 @@
   window.R160_TEST = async () => {
     await SKWIN.learn({ k: 'xingluo', name: '破军剑阵·星罗', desc: '星罗剑芒铺天盖地，多段攻击全体', meta: '消耗灵力 44 / 类型 主动' });
     await SKWIN.upgrade({ k: 'tanlang', name: '贪狼剑意·追魂', t0: 2, t1: 3, rows: [['伤害', '130%', '150%'], ['破甲', '2回合', '3回合']] });
-    await levelPanel({ who: 'hero', lv0: 12, lv1: 13, rows: [['气血', 1860, 1980], ['灵力', 96, 108], ['攻击', 268, 284], ['防御', 142, 151], ['身法', 82, 86]] });
-    await levelPanel({ who: 'hero', title: '境界提升', lv0: 9, lv1: 11, realm0: '练气九重', realm1: '凝丹二重', rows: [['气血', 336, 420], ['灵力', 109, 140], ['攻击', 43, 52]] });
   };
 })();
