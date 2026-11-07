@@ -529,6 +529,26 @@
   }
   function butterfly(a) { const t = now(); prop('butterfly', Math.floor(t * 6), a._px + Math.sin(t * .9) * 40, a._py - 40 + Math.sin(t * 1.7) * 14, .55); }
 
+  // ---------- 入夜：院里点满小灯；子夜：只剩稀疏几盏 ----------
+  // 作者 11-08：入夜天黑了，灯要亮一点 —— 青竹小院装饰得亮亮的，很多漂亮的小灯；到了子时才是稀疏的灯火。
+  // GLOW：院里原有的石灯、灯杆、檐灯的光心；HANG：屋檐下新挂的小灯笼（R144 檐灯）。z 标记子夜还亮着的那几盏。
+  const GLOW = [[202, 190], [508, 190], [204, 499], [508, 499], [1466, 589, 1], [851, 595, 1], [202, 822], [534, 824], [617, 1080], [1500, 1127],
+    [816, 420], [1360, 417, 1], [1490, 427], [1890, 950], Y(160, 407), Y(1430, 407), Y(608, 1084, 1), Y(1210, 917), Y(1560, 1057), Y(244, 1005), Y(426, 1005, 1)];
+  const HANG = [];
+  { const row = (x0, x1, y, n, z) => { for (let i = 0; i < n; i++) HANG.push([x0 + (x1 - x0) * (n === 1 ? .5 : i / (n - 1)), y, z && z.includes(i) ? 1 : 0]); };
+    row(800, 1380, 306, 6, [2]); row(1530, 1870, 368, 4); row(1550, 1890, 905, 4); row(170, 470, 1118, 3);
+    row(...[230, 570].map(x => x - OX), 332, 4, [1]); row(...[810, 1150].map(x => x - OX), 332, 4); row(...[690, 1030].map(x => x - OX), 1012, 4); }
+  function nightLights(s, t, A) {
+    const mid = s === '子', fl = i => .9 + Math.sin(t * 5.3 + i * 1.7) * .05 + Math.sin(t * 11 + i) * .03;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const glow = (x, y, r, a, i) => { const g = ctx.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, `rgba(255,206,130,${a * fl(i)})`); g.addColorStop(.35, `rgba(255,170,90,${a * .45 * fl(i)})`); g.addColorStop(1, 'rgba(255,150,70,0)'); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); };
+    GLOW.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y, mid ? 110 : 150, mid ? .4 : .62, i); glow(x, y + 70, mid ? 120 : 170, mid ? .12 : .2, i); });
+    HANG.forEach(([x, y, z], i) => { if (mid && !z) return; glow(x, y - 14, mid ? 70 : 96, mid ? .4 : .6, i + 40); });
+    ctx.restore();
+    HANG.forEach(([x, y, z], i) => { if (mid && !z) return; prop('lantern_lit', 0, x, y + Math.sin(t * 1.3 + i) * 1.2, .32); });
+    if (!mid) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; GLOW.forEach(([x, y], i) => { if (i % 2 === 0) A('eaves_halo_6f', x, y, .55, .7); }); ctx.restore(); }
+  }
+
   // ---------- 光影：时辰叠层 + 小动画 ----------
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now0) {
     o.apply(this, arguments);
@@ -536,11 +556,12 @@
       if (!ON()) return; const m = world.mapName, s = shi(), t = now();
       if (m === COURT) {
         const L = LIGHTS[s]; if (L) for (const k of L) { const im = img('l_' + k); if (!im) continue; const d = IDX[k]; ctx.drawImage(im, /^west/.test(k) ? -OX : 0, 0, d.w, d.h); }
-        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(150,158,196)' : 'rgb(200,204,230)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
+        if (s === '戌' || s === '子') { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = s === '子' ? 'rgb(140,148,190)' : 'rgb(196,200,228)'; ctx.fillRect(T.x0 || 0, 0, T.mw - (T.x0 || 0), T.mh); ctx.restore(); }
         const A = (id, x, y, sc, al) => { const d = IDX[id]; if (d) prop(id, Math.floor(t * d.fps), x, y, sc, al); };
         if (s === '卯') { A('dawn_fog_8f', ...Y(190, 1400), 1.1, .85); A('dawn_fog_8f', 1130, 1080, 1.3, .7); A('dawn_fog_8f', ...Y(800, 760), 1.4, .5); }
         if (s === '酉') A('dusk_hearth_smoke', ...Y(465, 769), 1, .9);
         if (s === '戌') { A('fireflies_8f', ...Y(200, 1330), 1, 1); A('fireflies_8f', ...Y(1400, 900), 1, .9); A('fireflies_8f', 1130, 1040, 1.1, .9); }
+        if (s === '戌' || s === '子') nightLights(s, t, A);
         if (s === '戌' || (s === '酉' && Object.keys(DAY.lit).length)) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
           for (const k in LANT) { if (s === '酉' && !DAY.lit[k]) continue; const al = s === '酉' ? Math.min(1, (t - DAY.lit[k]) / .8) : 1; A('eaves_halo_6f', LANT[k][0], LANT[k][1], .62, .85 * al); } ctx.restore(); }
         if (s === '子') { A('moon_bamboo_8f', 120, 300, 1, .9); A('moon_bamboo_8f', 1960, 320, 1, .9); A('moon_bamboo_8f', ...Y(220, 120), 1, .85); A('moon_bamboo_8f', ...Y(1420, 160), 1, .85); }
