@@ -17,10 +17,16 @@
   // 游戏字体（r86 装的霞鹜文楷 / 东方大楷）：装进 document.fonts 才算好（最多等 20 秒）
   try { const has = n => { try { for (const f of document.fonts) if (f.family.replace(/"/g, '') === n && f.status === 'loaded') return true; } catch (e) {} return false; };
     PRELOAD('字体', new Promise(res => { const t0 = performance.now(); const iv = setInterval(() => { if ((has('GuxingKai') && has('GuxingDF')) || performance.now() - t0 > 20000) { clearInterval(iv); res(); } }, 150); })); } catch (e) {}
+  // R163 书法题名：换图时先把这张图的两版题名下好（最多等 8 秒，没有就用电脑字）
+  const TIM = {}, TIT = {};
+  const titleLoad = m => { if (!m || TIM[m]) return; TIM[m] = {}; TIT[m] = performance.now();
+    for (const v of ['light', 'dark']) { const im = new Image(); im.onload = () => { TIM[m][v] = im; }; im.onerror = () => { TIM[m][v] = null; }; im.src = 'r163/' + m + '_' + v + '.webp'; } };
+  const TITLE_IM = (m, v) => { titleLoad(m); return TIM[m] && TIM[m][v] || null; };
+  const titleReady = () => { const m = world.mapName; titleLoad(m); const t = TIM[m]; return !t || ('light' in t && 'dark' in t) || performance.now() - TIT[m] > 8000; };
   const extraReady = () => { try { const e = window.MAP_EXTRA_READY ? MAP_EXTRA_READY(world.mapName) : 1; return e == null ? 1 : e; } catch (e) { return 1; } };
   function readiness() { const r = Math.min(imgReady(), extraReady() < 1 ? .9 * extraReady() + .05 : 1); if (r < 1) { imgOkMap = null; return r; }
     if (forced === world.mapName || S.scene !== drawMap) return r;
-    if (pend > 0) return .96;
+    if (pend > 0 || !titleReady()) return .96;
     if (imgOkMap !== world.mapName) { imgOkMap = world.mapName; imgOkT = performance.now(); }
     return performance.now() - imgOkT < 30000 && !musicOk() ? .97 : r; }
   function imgReady() {
@@ -79,8 +85,14 @@
       ctx.drawImage(B, 0, 0, W, H);
       const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150);
       const four = !QA && i === 3, col = QA ? '#FFF2D5' : LCOL[i], dark = col !== '#FFF2D5';
+      const TI = TITLE_IM(world.mapName, dark ? 'dark' : 'light');
+      if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
+        const sc = Math.min(1.3, (four ? 185 : 520) / TI.width), dw = TI.width * sc, dh = TI.height * sc;
+        ctx.drawImage(TI, four ? 30 : 44, four ? 26 : 44, dw, dh);
+      } else {
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${four ? 42 : 50}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
       ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = dark ? 'rgba(255,248,232,.55)' : 'rgba(10,8,6,.6)'; ctx.strokeText(title, four ? 42 : 72, four ? 43 : 70); ctx.fillStyle = col; ctx.fillText(title, four ? 42 : 72, four ? 43 : 70);
+      }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(LB.tip, 640, 618); ctx.fillStyle = '#f3e4c2'; ctx.fillText(LB.tip, 640, 618);
       if (!lbBar(prog, now)) { ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(198, 661, 884, 8); ctx.fillStyle = '#e8c27a'; ctx.fillRect(198, 661, 884 * prog, 8); }
       ctx.textAlign = 'right'; ctx.font = `600 16px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.85)'; ctx.fillText(Math.round(prog * 100) + '%', 1114, 700);
