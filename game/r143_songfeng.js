@@ -68,7 +68,7 @@
       for (const [key, ax, ay, flip, w0] of M17.props) { const r = M17.rects[key]; if (!r) continue; objs.push({ id: 'm17_' + key, img: 'm17_' + key, x: ax - r[2] / 2, y: ay - r[3], w: r[2], h: r[3], flip: !!flip, flat: false, sy: ay, ax, ay, m17sh: w0 }); }
     }
     const cs = m.cs, W = m.w, H = m.h, AX = W / 2, cx = Math.floor((AX - 160) / cs), cw = Math.ceil(320 / cs);
-    const def = { title: IDS[id], name: id, baked: { ground: 'sf143_g_' + id, w: W, h: H, cs, cols: m.cols, rows: m.rows, blocked: id === 'tj_shanmen' ? m17Block(rleOf(m), m) : rleOf(m), objs },
+    const def = { title: IDS[id], name: id, baked: { ground: 'sf143_g_' + id, w: W, h: H, cs, cols: m.cols, rows: m.rows, blocked: id === 'tj_shanmen' ? (window.SHANMEN_WALK ? rleOf(SHANMEN_WALK) : m17Block(rleOf(m), m)) : rleOf(m), objs },
       chests: [], leaves: true, npcs: [], start: at(AX, 240), sf143: id, exits: [] };
     if (id === 'tj_yunjie') {
       def.exits.push({ x: cx, y: 0, w: cw, h: 10, to: 'tj_front', at: frontBack, face: 'up', label: '上山 · 演武广场' });
