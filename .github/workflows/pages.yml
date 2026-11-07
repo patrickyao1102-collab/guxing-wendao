@@ -27,13 +27,17 @@ jobs:
         run: pip install numpy
       - name: 组装站点 —— 根目录放加扰正式版（APK 自动更新源；素材字节加扰，防随手扒包）
         # 注意：GitHub Pages 单站点上限 1GB。明文版 + 加扰版同站会到 ~1.6GB 直接超限部署失败，
-        # 所以这里只发加扰正式版（约 0.9GB）。浏览器试玩走 claude.ai 的 artifact（自包含、与 Pages 无关），
-        # 不再依赖 github.io 根目录；APK 更新器 Updater.BASE 也指向本站根目录。
+        # 所以这里只发加扰正式版。浏览器试玩走 /play/（见下一步），APK 更新器 Updater.BASE 指向本站根目录。
         run: |
           python3 tools/build_release.py release                      # 去测试面板 + 删废图 + 素材加扰
           python3 tools/make_manifest.py release "${GITHUB_SHA::7}"   # 更新清单（version.json 保持明文）
           mkdir -p _site
           cp -r release/. _site/
+      - name: 浏览器测试版 /play/（带测试面板；Service Worker 把根目录的加扰素材还原后给页面用，不另占一份素材空间）
+        run: |
+          mkdir -p _site/play
+          cp tools/play/index.html tools/play/sw.js _site/play/
+          cp game/index.html _site/play/game.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true
