@@ -8,7 +8,7 @@
   const packs = {}, ok = {};
   const load = k => packs[k] || (packs[k] = P.loadPopup('r160/' + k + '.json').then(p => { p.layout.text.fonts = Object.assign({}, p.layout.text.fonts || {}, FONTS); ok[k] = p; return p; }).catch(e => { console.warn('R160 载入失败', k, e); delete packs[k]; return null; }));
   const KINDS = ['learn', 'up', 'level', 'realm', 'victory'];
-  setTimeout(() => KINDS.forEach(load), 3000);
+  KINDS.forEach(k => { const pr = load(k); try { window.PRELOAD && PRELOAD('R160 ' + k, pr); } catch (e) {} });   // 作者 11-08：拆件载完之前停在载入画面，不让剧情先跑
   const CN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
   const NAME = { hero: '叶孤星', yunting: '云霆', linxue: '林雪', shenle: '神乐', luochen: '洛尘' };
 

@@ -9,7 +9,7 @@
     return load.p = Promise.all([fetch('r155/layout.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { L = j; }),
       ...NAMES.map(n => new Promise((res, rej) => { const im = new Image(); im.onload = () => { IM[n] = im; res(); }; im.onerror = rej; im.src = 'r155/' + n + '.webp'; }))])
       .then(() => { ready = true; }).catch(e => { console.warn('R155 载入失败', e); load.p = null; }); };
-  setTimeout(load, 2500);
+  { const pr = load(); try { window.PRELOAD && PRELOAD('R155 结算框', pr); } catch (e) {} }
   const F = { heading: 'GuxingDF', body: 'GuxingKai', number: '"Times New Roman"' };
   const NAME = { hero: '叶孤星', yunting: '云霆', linxue: '林雪', shenle: '神乐', luochen: '洛尘' };
 

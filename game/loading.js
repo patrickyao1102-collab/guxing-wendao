@@ -5,14 +5,24 @@
   // 当前地图还差多少图没载好（0~1）
   // 作者 11-06：进度条走满之前，本地图的配乐也要缓冲好（最多等 8 秒，网络太慢就先进图，曲子随后接上）
   const aw = { m: null, t: 0 };
-  function musicOk() { if (!window.BGM29 || !BGM29.ready) return true; if (aw.m !== world.mapName) { aw.m = world.mapName; aw.t = performance.now(); } if (performance.now() - aw.t > 8000) return true; return BGM29.ready(); }
+  function musicOk() { if (!window.BGM29 || !BGM29.ready) return true; if (aw.m !== world.mapName) { aw.m = world.mapName; aw.t = performance.now(); } if (performance.now() - aw.t > 30000) return true; return BGM29.ready(); }
   // 作者 11-07：手机上图早就到齐了，还要再干等配乐好几秒 → 图到齐后最多再等 3 秒配乐，曲子随后接上
   let imgOkMap = null, imgOkT = 0;
-  // 作者 11-08：各系统自己要的素材（青竹五时辰的人物动作、光影……）也算进载入：没下好之前一直是载入插画
+  // 作者 11-08：「我不怕时间长，一定要把所有东西准备好、保证玩的时候不卡，才可以加载完毕」
+  // → 弹窗拆件（领悟 / 升级 / 战斗结算）、字体等登记进 PRELOAD，没下完就一直停在载入插画上；配乐也等缓冲好（最多 30 秒防死等）
+  let pend = 0; const pendList = new Set();
+  window.PRELOAD = (name, p) => { if (!p || !p.then) return p; pend++; pendList.add(name); const done = () => { pend--; pendList.delete(name); };
+    Promise.race([p, new Promise(r => setTimeout(r, 60000))]).then(done, done); return p; };
+  window.PRELOAD_PENDING = () => [...pendList];
+  // 游戏字体（r86 装的霞鹜文楷 / 东方大楷）：装进 document.fonts 才算好（最多等 20 秒）
+  try { const has = n => { try { for (const f of document.fonts) if (f.family.replace(/"/g, '') === n && f.status === 'loaded') return true; } catch (e) {} return false; };
+    PRELOAD('字体', new Promise(res => { const t0 = performance.now(); const iv = setInterval(() => { if ((has('GuxingKai') && has('GuxingDF')) || performance.now() - t0 > 20000) { clearInterval(iv); res(); } }, 150); })); } catch (e) {}
   const extraReady = () => { try { const e = window.MAP_EXTRA_READY ? MAP_EXTRA_READY(world.mapName) : 1; return e == null ? 1 : e; } catch (e) { return 1; } };
   function readiness() { const r = Math.min(imgReady(), extraReady() < 1 ? .9 * extraReady() + .05 : 1); if (r < 1) { imgOkMap = null; return r; }
+    if (forced === world.mapName || S.scene !== drawMap) return r;
+    if (pend > 0) return .96;
     if (imgOkMap !== world.mapName) { imgOkMap = world.mapName; imgOkT = performance.now(); }
-    return forced !== world.mapName && S.scene === drawMap && performance.now() - imgOkT < 3000 && !musicOk() ? .97 : r; }
+    return performance.now() - imgOkT < 30000 && !musicOk() ? .97 : r; }
   function imgReady() {
     const m = world.map; if (!m || S.scene !== drawMap) return 1;
     if (forced === world.mapName) return 1;   // 玩家在“网络很慢”提示里点了继续
