@@ -1,6 +1,6 @@
 import cv2, numpy as np, glob, sys
 from PIL import Image
-SRC='/mnt/user-data/uploads/孤星问道/Codex交付/R164_战斗胜利结算框选型/卷中群像/金白版/'
+SRC='/mnt/user-data/uploads/孤星问道/Codex交付/R164_战斗胜利结算框选型/卷中群像/清晰立绘版/金白版/'
 def proc(n, out):
     im=np.array(Image.open(glob.glob(SRC+n+'_*.png')[0]).convert('RGB'))
     H,W=im.shape[:2]

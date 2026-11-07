@@ -4,7 +4,7 @@
 // 右半的标题、角色行、经验条、掉落格、灵石、确定按钮都由代码按效果图位置画。没载完时退回 R155 金色海棠框。
 (function () {
   if (typeof S === 'undefined' || typeof showPanel !== 'function') return;
-  const SETS = { '01': ['linxue', 'yunting'], '02': ['shenle', 'luochen'], '03': ['yunting'], '04': ['linxue'] };
+  const SETS = { '01': ['linxue', 'yunting'], '02': ['shenle', 'luochen'], '03': ['yunting'], '04': ['linxue'], '05': ['shenle'], '06': ['luochen'] };   // 作者 11-08：换 Codex 清晰立绘版（金白），加神乐、洛尘两套双人
   const IM = {}, PORT = {}; let ready = false;
   const img = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
   const load = () => Promise.all([
