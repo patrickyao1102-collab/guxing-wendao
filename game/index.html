@@ -6505,7 +6505,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     start: at(1322, 1786),
     exits: [{ x: Math.floor(exL.region.x / HB.cs), y: Math.floor(exL.region.y / HB.cs), w: Math.ceil(exL.region.w / HB.cs), h: Math.ceil(exL.region.h / HB.cs), to: 'tj_front', label: '下山 · 演武广场', at: null, face: 'right',
       cond: () => !!S.flags.ch2_roam, msg: '夜深了。先去藏经阁——从中间的空地穿过去。' }].concat(window.HS12_ON ? HB.exits.filter(e => e.to === 'qingzhu_stairs').map(e => ({ x: Math.floor(e.region.x / HB.cs), y: Math.floor(e.region.y / HB.cs), w: Math.max(1, Math.ceil(e.region.w / HB.cs)), h: Math.ceil(e.region.h / HB.cs), to: 'qingzhu_stairs', label: '西 · 竹影山阶', at: null, face: 'down',
-      cond: () => !!(S.flags.ch2_roam || S.flags.ch1_free), msg: '夜深了。先去藏经阁——走南边石阶下山。' })) : []),
+      cond: () => !!(S.flags.ch2_roam || S.flags.ch1_free || S.flags.ch2_seal_open), msg: '夜深了。先去藏经阁——走南边石阶下山。' })) : []),
     npcs: [
       spot('观星坐石', 751, 560, ['今夜十八岁。群星依然明亮，山下灯火却很遥远。']),
       spot('星旋', 870, 617, async () => { if (!S.flags.hs_meet || S.flags.ch2_roam) return; await say('星旋', '另一半总算等到你了。藏经阁里，还有一卷残本……还愣着干嘛，走啊！'); }),
