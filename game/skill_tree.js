@@ -309,24 +309,26 @@
     const { DP, who } = G, I = info(who, o.n), cu = canUp(G, o);
     ctx.save(); roundRect(DP.x, DP.y, DP.w, DP.h, 12); ctx.fillStyle = 'rgba(22,13,8,.96)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(232,194,122,.45)'; ctx.stroke();
     let x = DP.x + 20, y = DP.y + 54;
+    // 作者 11-07：手机上字放大了，行距跟着拉开；背景故事那几行手机上不显示，留位置给数值
+    const LF = window.GX_TEXT_BOOST && GX_TEXT_BOOST() > 1 ? Math.min(1.3, GX_TEXT_BOOST() * 1.05) : 1, PHONE = LF > 1;
     icon(o.n.icon, x + 34, y, 34, { locked: !I.learned });
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `${I.name.length > 6 ? 24 : 28}px ${BRUSH}`; textOutline(I.name, x + 82, y - 14, '#f6dfa6', '#120a04', 4);
     ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#9cc3ff'; ctx.fillText(I.cost, x + 84, y + 18);
     if (I.max > 1) { ctx.fillStyle = '#ffd76a'; ctx.textAlign = 'right'; ctx.fillText(I.learned ? '第' + CN[I.tier] + '重' : '', DP.x + DP.w - 18, y + 18); ctx.textAlign = 'left'; }
-    y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = '#e9dcc0'; for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24; }
-    if (I.lore) { ctx.font = `13px ${FONT}`; ctx.fillStyle = '#a8957a'; for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19; } }
-    y += 6; ctx.strokeStyle = 'rgba(232,194,122,.3)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22;
-    const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || '#c9b48c'; ctx.fillText(lab, x, y); y += 22; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22; } y += 8; };
+    y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = '#e9dcc0'; for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24 * LF; }
+    if (I.lore && !PHONE) { ctx.font = `13px ${FONT}`; ctx.fillStyle = '#a8957a'; for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19 * LF; } }
+    y += 6; ctx.strokeStyle = 'rgba(232,194,122,.3)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22 * LF;
+    const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || '#c9b48c'; ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
     if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', '#ff9a7a'); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], '#f5ead2');
-      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24; } }
+      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', '#e9dcc0'); }
     else {
       const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], '#f5ead2');
       if (cu && cu.q) { row('下一重 · 第' + CN[cu.q.t] + '重', T[cu.q.t - 1], '#9fe28a', '#9fe28a');
-        const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24;
-        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24; }
-        else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22; }
-        else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22; } }
+        const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24 * LF;
+        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24 * LF; }
+        else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22 * LF; }
+        else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22 * LF; } }
       else row('已臻化境', '此招已修至第五重。', '#ffd76a', '#ffd76a');
     }
     // 参悟按钮
