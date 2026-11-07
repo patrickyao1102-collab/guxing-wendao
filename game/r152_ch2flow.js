@@ -89,14 +89,14 @@
   } }
 
   // ---- 山门送别：第二天大殿组队之后，走到天剑山门送别庭就开始送别 ----
-  window.CH2_GATE_OK = () => !!(TMAPS.tj_shanmen && window.CH2_DEPART_GO);
+  window.CH2_GATE_OK = () => false;   // 作者 11-08：送别改回演武广场南端（山门前），天剑山门不再触发送别
   tileSetMap = (orig => function (name) {
     const r = orig.apply(this, arguments);
-    try { const f = F(); if (name === 'tj_shanmen' && f.ch2_hall && f.ch2_liuyun && !f.ch2_depart && window.CH2_DEPART_GO) setTimeout(() => {
+    try { const f = F(); if (false && name === 'tj_shanmen' && f.ch2_hall && f.ch2_liuyun && !f.ch2_depart && window.CH2_DEPART_GO) setTimeout(() => {
       if (world.mapName !== 'tj_shanmen') return;
       addTrigger(1728, 1760, 150, async () => { const ok = await CH2_DEPART_GO(); if (ok === false) { const t = world.triggers.find(t => t.x === 1728 && t.y === 1760); if (t) t.done = false; if (world.player) world.player.y -= 140; } });
     }, 300); } catch (e) {}
     return r;
   })(tileSetMap);
-  { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/南边山门出发|山门出发/, () => ({ map: 'tj_shanmen' })]); }
+  { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/南边山门出发|山门出发/, () => ({ map: 'tj_front' })]); R.RULES.unshift([/前往松风林道/, () => ({ map: 'tj_xiashan' })]); }
 })();

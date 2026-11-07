@@ -3993,12 +3993,13 @@ async function ch2Start() {
 async function ch2Forest() {
   S.flags.ch2_forest = 1; { const st = TMAPS.lin_forest.start || [24, 28]; tileSetMap('lin_forest', st[0], st[1], 'up'); } S.hud = true; S.quest = '穿过山外树林'; world.locked = true; S.scene = drawMap;
   await fadeIn(600);
+  if (!S.flags.sf_pine) {   // 作者 11-08：松风林道树下歇脚已经聊过这段（r159），这里不再重复
   await say('叶孤星', '说起来，这还是我第一次下山。十八年来，我都没踏出过天剑宗一步。');
   await say('云霆·伤', '……我是从山下上来的。七岁那年土匪进村，爹娘把我从刀底下推了出去。');
   await say('叶孤星·笑', '……那这趟你跟紧点。天煞孤星，专克土匪。');
   await say('云霆·苦笑', '……你话真多。');
   await say('叶孤星·坏笑', '这叫活泼。');
-  await say('云霆·苦笑', '这叫吵。');
+  await say('云霆·苦笑', '这叫吵。'); }
   await narrate('（点地面行走，点人说话。地图边缘的箭头通往其他地方。林子里的妖兽会追过来，小心！）');
   if (window.R104_LY) { await R104_LY.intro(); world.locked = false; return; }   // R104：呼救指引 + 林逸获救实景剧情（r104_linyi.js）
   world.locked = false;
@@ -6399,23 +6400,25 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   };
   window.CH2_SEND_OFF = async function () {
     await fadeOut(500);
-    // 作者 11-07：送别放到天剑山门的送别庭（Codex 预留站位：宗主 1728,1600 / 叶孤星 1650,1800 / 云霆 1810,1800）
-    const SM = !!TMAPS.tj_shanmen, P64 = (x, y) => [x / 64 - .5, y / 64 - .8];
-    if (SM) { const [c, r] = P64(1650, 1800); tileSetMap('tj_shanmen', c, r, 'up'); }
-    else { const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); }
+    // 作者 11-08：送别放在天剑宗演武广场（南边山门前）。叶擎苍说完话，「剑鸣」高潮段突然响起；
+    // 之后一路走出山门、云阶松径、天剑山门，配乐不换图重来、接着往下放，到松风林道才换回那张图的曲子（见 bgm_music.js 的 ch2_jm）
+    const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right');
     world.locked = true; S.scene = drawMap;
     await fadeIn(600);   // 云霆已在队里，跟在身后
-    const [fx, fy] = SM ? [1728, 1600] : near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; if (SM) f2.face = 'down'; await tween(500, t => f2.alpha = t);
-    await narrate('天剑山门，送别庭前。叶擎苍早已等在那里。');
+    const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
+    await narrate('演武广场南端，山门之前。叶擎苍早已负手等在那里。');
     await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
     await say('叶擎苍', '记住——遇事先保命，破空遁符别舍不得用。');
     await say('叶孤星', '爹，您放心。孩儿一定把黑风寨的事办妥。');
     await say('叶擎苍', '好了，你们去吧。');
     joinParty('yunting');
-    if (SM && world.player) { world.player.face = 'down'; await moveActor(world.player, 1728, 2300, 200); }   // 转身走下出山石阶
-    await fadeOut(600);
-    await ch2Forest();
+    // 话音落下，剑鸣起
+    S.flags.ch2_jm = 1; try { if (window.BGM29) playBgm(BGM29.T.xiashan, true); } catch (e) {}
+    S.quest = '下山：出南边山门，经云阶松径、天剑山门，前往松风林道';
+    S.hud = true; world.locked = false;
+    toast('往南出山门下山', 2400);
   };
+  // 第一次走到松风林道之后的事（歇脚、进山外树林、剑鸣结束）见 r159_xiashan_story.js
 
   const q = new URLSearchParams(location.search).get('part');
   if (q === 'yw5') setTimeout(() => { S.fade = 1; S.hero.skills = ['pojun', 'tanlang']; S.hero.realm = '练气九重'; S.hero.maxhp = S.hero.hp = 310; S.hero.maxmp = S.hero.mp = 105; S.hero.atk = 35; S.hero.sword = true; part5(); }, 60);
@@ -16638,5 +16641,5 @@ window.MarketEffects = (() => {
 <script src="r149_mobile_text.js"></script>
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
-<script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script>
+<script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script>
 </body></html>
