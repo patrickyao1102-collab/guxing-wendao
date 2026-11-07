@@ -9,7 +9,7 @@
   const img = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
   const load = () => Promise.all([
     ...Object.keys(SETS).map(k => img('r164/scroll_' + k + '.webp').then(im => { IM[k] = im; })),
-    ...['hero', 'linxue', 'yunting', 'luochen', 'shenle'].map(k => img('r164/head_' + k + '.webp').then(im => { PORT[k] = im; })),   // 头像从 Codex 效果图里取（写实脸，和群像一致）
+    ...['hero', 'linxue', 'yunting', 'luochen', 'shenle'].map(k => img('r155/portrait_' + k + '.webp').then(im => { PORT[k] = im; })),   // 作者 11-08：头像统一用五人 Q 版（R134 原件）
     img('r155/spirit_stone.webp').then(im => { IM.stone = im; })]).then(() => { ready = true; }).catch(e => console.warn('R164 载入失败', e));
   { const pr = load(); try { window.PRELOAD && PRELOAD('R164 战斗结算', pr); } catch (e) {} }
   const CROP = { hero: [84, 36, 304, 256], linxue: [66, 33, 286, 253], yunting: [5, 47, 231, 273], luochen: [69, 32, 289, 252], shenle: [94, 28, 314, 248] };
@@ -26,7 +26,7 @@
   function portrait(k, cx, cy, r) {
     const im = PORT[k] || PORT.hero, c = CROP[k] || CROP.hero;
     ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip(); ctx.fillStyle = '#e9e2d2'; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-    if (im) ctx.drawImage(im, 6, 6, im.width - 12, im.height - 12, cx - r, cy - r, r * 2, r * 2); ctx.restore();
+    if (im) ctx.drawImage(im, c[0], c[1], c[2] - c[0], c[3] - c[1], cx - r, cy - r, r * 2, r * 2); ctx.restore();
     ctx.strokeStyle = '#b8995e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r + 1, 0, 7); ctx.stroke(); }
 
   function draw() {
