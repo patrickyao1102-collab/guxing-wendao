@@ -1078,7 +1078,10 @@
     { id: 'a_qz_zhuying', lv: 5, slot: 'armor', name: '青禾手绣 · 竹影法衣', def: 22, maxhp: 180, maxmp: 40, mats: { m_hide: 8, m_horn: 2, m_tooth: 2 }, fund: 1500, days: 3, desc: '一针一线绣了三个夜晚。衣摆的竹影，风一吹就像在动。' },
   ];
   for (const g of SEW) { const o = Object.assign({}, g); delete o.lv; delete o.mats; delete o.fund; delete o.days; o.desc = g.desc + '（青禾缝的）'; ITEM_DB[g.id] = ITEM_DB[g.id] || o; }
-  const COPY = [{ id: 'juan2', lv: 1, fund: 150, days: 1 }, { id: 'juan3', lv: 2, fund: 420, days: 2 }, { id: 'juan4', lv: 3, fund: 1100, days: 2 }, { id: 'juan5', lv: 4, fund: 2200, days: 3 }];
+  // 作者 11-08：抄技能书也要材料、也要钱。合理化：剑诀要用「灵墨」抄，字里才存得住剑意——灵墨得把妖兽的牙、角磨成粉调进墨里（少爷打来的），
+  //   宣纸、松烟、朱砂这些去集市买（少爷出纸墨钱）。卷越高，要的妖兽料越硬：卷二狼牙，卷三银纹狼牙，卷四卷五要黑犀角。
+  const COPY = [{ id: 'juan2', lv: 1, fund: 150, days: 1, mats: { m_fang: 2 } }, { id: 'juan3', lv: 2, fund: 420, days: 2, mats: { m_tooth: 2, m_fang: 2 } },
+    { id: 'juan4', lv: 3, fund: 1100, days: 2, mats: { m_horn: 1, m_tooth: 3 } }, { id: 'juan5', lv: 4, fund: 2200, days: 3, mats: { m_horn: 2, m_tooth: 4 } }];
   const copyCost = c => { const fam = lvOf(bondV('maid2')) >= 5; return { fund: Math.round(c.fund * (fam ? .75 : 1)), days: Math.max(1, c.days - (fam ? 1 : 0)) }; };
   const JOBS = () => { const f = F(); return f.qz_jobs = f.qz_jobs || {}; };
   const lvN = k => lvOf(bondV(k));
@@ -1103,11 +1106,12 @@
     const can = COPY.filter(c => c.lv <= lvN('maid2'));
     if (!can.length) return;
     await say('侍女小桃·得意', pick(['守阁师兄说小桃的字好看，准小桃把阁里的剑诀抄给少爷！少爷要哪一卷？', '藏经阁又要晒书啦！少爷要小桃抄哪一卷，小桃就抄哪一卷！']));
-    const opts = can.map(c => { const k = copyCost(c); return ITEM_DB[c.id].name + '　灵墨宣纸钱 ' + k.fund + ' 灵石 · ' + k.days + ' 日' + (c.lv >= 3 ? '　典籍阁不卖' : ''); });
+    const opts = can.map(c => { const k = copyCost(c); return ITEM_DB[c.id].name + '　调墨：' + matsTxt(c.mats) + '　· 纸墨钱 ' + k.fund + ' 灵石 · ' + k.days + ' 日' + (c.lv >= 3 ? '　典籍阁不卖' : ''); });
     const i = await choose('请小桃誊抄', [...opts, '先不用了']); if (i >= can.length) return;
     const c = can[i], k = copyCost(c);
+    if (!matsOk(c.mats)) { await say('侍女小桃·担心', '……调灵墨的料不够呀。' + matsTxt(c.mats) + '——守阁师兄说，牙啊角啊磨成粉调进墨里，字里才存得住剑意。'); await say('侍女小桃·笑', '少爷下回打妖兽，记得把牙和角带回来！'); return; }
     if (!spend(k.fund)) { await narrate('（灵墨宣纸钱要 ' + k.fund + ' 灵石，身上的不够。）'); await say('侍女小桃·笑', '那等少爷攒够了，小桃再去抄！'); return; }
-    J.maid2 = { id: c.id, ready: qday() + k.days };
+    takeMats(c.mats); J.maid2 = { id: c.id, ready: qday() + k.days };
     await say(c.lv >= 3 ? '侍女小桃·认真' : '侍女小桃·大笑', c.lv >= 3 ? '这一卷好厚……没关系！小桃熬几个晚上就抄好了。' : '包在小桃身上！'); bond('maid2', 1, true);
   }
   // —— 阿福：下山挑东西时打听来的消息（哪张图还有没开的箱子）；托他跟着松伯赶集捎食材 ——
@@ -1180,7 +1184,9 @@
       await say('侍女青禾', '往后少爷带回来什么料子，都给青禾看看——兽皮、狼牙、犀角，青禾都有用处。'); F().qz_sew = 1; toast('青禾 · 能给少爷缝衣甲了（跟她说话时会提起）', 2600); } },
     { id: 'maid2:books', who: 'maid2', shi: '午', type: 'near', once: 1, p: .7, need: () => bondV('maid2') >= 8, b: 2, title: '脸上的墨点', hint: '正午 · 熟络以后，她从藏经阁回来', run: async () => {
       await narrate('小桃从院门外蹦进来，鼻尖上还沾着一点墨。'); await say('侍女小桃·得意', '少爷！小桃今天去藏经阁帮守阁师兄晒书啦！师兄说小桃的字圆圆的，好看！');
-      await say('侍女小桃·大笑', '师兄还说——小桃要是愿意，可以把阁里的剑诀抄一份给少爷！小桃能给少爷抄书了！'); F().qz_copy = 1; toast('小桃 · 能替少爷誊抄剑诀了（跟她说话时会提起）', 2600); } },
+      await say('侍女小桃·大笑', '师兄还说——小桃要是愿意，可以把阁里的剑诀抄一份给少爷！小桃能给少爷抄书了！');
+      await say('侍女小桃·认真', '不过……剑诀不能拿普通的墨抄。要把妖兽的牙、角磨成粉调进墨里，叫「灵墨」，抄出来的字才存得住剑意。宣纸、松烟、朱砂，还得去集上买。');
+      await say('侍女小桃·得意', '少爷打妖兽带回来的牙啊角啊，给小桃留着！小桃来磨！'); F().qz_copy = 1; toast('小桃 · 能替少爷誊抄剑诀了（跟她说话时会提起）', 2600); } },
     { id: 'servant:news', who: 'servant', shi: '卯', type: 'near', once: 1, p: .7, need: () => bondV('servant') >= 8, b: 2, title: '山下听来的消息', hint: '清晨 · 熟络以后，他下山挑东西时听来点什么', run: async () => {
       await say('小厮阿福·得意', '少爷少爷！阿福下山挑东西，听猎户大叔说，山里有些箱子埋了好多年都没人开过！'); await say('小厮阿福', '往后阿福多打听打听，有消息就告诉少爷！……阿福还能跟着松伯赶集，给少爷捎食材。');
       F().qz_news = 1; toast('阿福 · 能打听消息、捎食材了（跟他说话时会提起）', 2600); } },
