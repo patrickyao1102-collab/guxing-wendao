@@ -23,7 +23,7 @@ import java.util.List;
  * 远端地址 BASE 指向 GitHub Pages；以后换成自己的域名只改这一处。
  */
 public class Updater extends Thread {
-    public static final String BASE = "https://patrickyao1102-collab.github.io/guxing-wendao/";
+    public static final String BASE = "https://patrickyao1102-collab.github.io/guxing-wendao/app/";   // 正式版加扰包放在 /app/ 子目录（Client.java 读取时还原）
     private static final int CONNECT_TIMEOUT = 6000, READ_TIMEOUT = 20000;
 
     public interface Listener { void onStatus(String text, int done, int total, long bytes); void onFinished(boolean updated, String note); }

@@ -3,7 +3,7 @@ name: 打包安卓 APK
 on:
   push:
     branches: [main]
-    paths: ["android/**", ".github/workflows/apk.yml"]
+    paths: ["android/**", "game/**", "tools/**", ".github/workflows/apk.yml"]
   workflow_dispatch:
     inputs:
       bundle_game:
@@ -41,11 +41,14 @@ jobs:
             echo -n "$PASS" > ~/.guxing-ks/pass
             keytool -genkeypair -keystore ~/.guxing-ks/guxing.jks -storepass "$PASS" -keypass "$PASS" -alias guxing -keyalg RSA -keysize 2048 -validity 36500 -dname "CN=Guxing Wendao, O=Guxing, C=AU"
           fi
-      - name: 游戏文件打进 APK 的 assets
+      - name: 装 numpy（加扰用）
+        run: pip install numpy
+      - name: 构建加扰正式版并打进 APK 的 assets（去测试面板 / 删废图 / 素材加扰）
         run: |
-          python3 tools/make_manifest.py game "${GITHUB_SHA::7}"
+          python3 tools/build_release.py release
+          python3 tools/make_manifest.py release "${GITHUB_SHA::7}"
           mkdir -p android/app/src/main/assets
-          cp -r game/. android/app/src/main/assets/
+          cp -r release/. android/app/src/main/assets/
       - name: 编译
         working-directory: android
         env:

@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+# 正式版构建：把开发版 game/ 变成给朋友玩的 release/
+#   1) 去掉左下角「测试」面板（地图传送 / 剧情跳转 / 配乐库 / 声音测试等全没了，挂在面板里的开发开关也随之失效，默认行为不变）
+#   2) 剔除零引用的废图目录（_tmp_walk、jyh3——已被 jyh4 取代）
+#   3) 素材字节加扰（XOR）：解包 APK / 打开 Pages 目录只会看到一堆乱码文件，安卓壳 Client.java 读取时按同样的 KEY 还原。
+#      这是「抬高随手扒素材的门槛」，不是绝对加密——铁了心逆向 APK 的人仍能找到 KEY，诚实如此。
+#   boot.html（安卓壳自带、游戏前加载）和 version.json（更新器按明文 JSON 读）不在 game/ 里，保持明文。
+#
+# 用法：python3 tools/build_release.py [release目录=release] [--no-scramble]
+import os, sys, shutil
+
+SRC = 'game'
+OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'release')
+SCRAMBLE = '--no-scramble' not in sys.argv
+DROP_DIRS = {'_tmp_walk', 'jyh3'}
+
+# 加扰 KEY：和 Client.java 里的 SCRAMBLE_KEY 必须逐字节一致（59 字节，质数长度）
+KEY = bytes([
+    0x9A, 0x3C, 0x51, 0xE7, 0x22, 0xB8, 0x6D, 0x14, 0xF0, 0x7B, 0x29, 0xC5,
+    0x88, 0x3E, 0xA1, 0x5F, 0xD2, 0x0C, 0x97, 0x46, 0xBB, 0x71, 0x1D, 0xE4,
+    0x58, 0x33, 0xA6, 0xCF, 0x62, 0x09, 0x8D, 0x4B, 0xF7, 0x25, 0xB0, 0x6E,
+    0x12, 0xA9, 0x5C, 0xD5, 0x37, 0xE0, 0x7A, 0x1E, 0x93, 0x48, 0xBD, 0x66,
+    0x0A, 0x8F, 0x41, 0xF2, 0x28, 0xB4, 0x6B, 0x17, 0xCC, 0x54, 0xD9,
+])
+
+def strip_test_panel(html):
+    mark = '// ================= 测试面板：左下角「测试」按钮'
+    i = html.find(mark)
+    if i < 0:
+        print('  [!] 没找到测试面板标记，跳过去除（可能已是正式版）'); return html
+    j = html.find('\n})();', i)
+    if j < 0:
+        raise SystemExit('找不到测试面板 IIFE 结尾 })()；请检查 index.html')
+    block = html[i:j]
+    assert 'dbgPanel' in block, '匹配到的块不含 dbgPanel，边界可能错了，中止以免误删'
+    return html[:i] + '/* 测试面板：正式版已移除 */' + html[j + len('\n})();'):]
+
+def xor_bytes(data):
+    try:
+        import numpy as np
+        a = np.frombuffer(data, dtype=np.uint8)
+        k = np.frombuffer((KEY * (len(a) // len(KEY) + 1))[:len(a)], dtype=np.uint8)
+        return (a ^ k).tobytes()
+    except Exception:
+        b = bytearray(data); lk = len(KEY)
+        for i in range(len(b)):
+            b[i] ^= KEY[i % lk]
+        return bytes(b)
+
+def main():
+    if not os.path.isdir(SRC):
+        raise SystemExit('在仓库根目录运行：找不到 game/')
+    shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
+    # 拷贝（跳过废图目录）
+    for name in sorted(os.listdir(SRC)):
+        p = os.path.join(SRC, name)
+        if name in DROP_DIRS:
+            print('  剔除废图目录', name); continue
+        if os.path.isdir(p):
+            shutil.copytree(p, os.path.join(OUT, name))
+        else:
+            shutil.copy2(p, os.path.join(OUT, name))
+    # 去测试面板
+    idx = open(os.path.join(SRC, 'index.html'), encoding='utf8').read()
+    idx = strip_test_panel(idx)
+    open(os.path.join(OUT, 'index.html'), 'w', encoding='utf8').write(idx)
+    print('  已去除测试面板，index.html', len(idx.encode('utf8')), '字节')
+    # 加扰
+    n = 0; tot = 0
+    if SCRAMBLE:
+        for r, _, fs in os.walk(OUT):
+            for f in fs:
+                fp = os.path.join(r, f)
+                data = open(fp, 'rb').read()
+                open(fp, 'wb').write(xor_bytes(data))
+                n += 1; tot += len(data)
+        print('  已加扰', n, '个文件，%.0f MB' % (tot / 1048576))
+    else:
+        print('  （--no-scramble：未加扰）')
+    print('正式版构建完成 →', OUT)
+
+if __name__ == '__main__':
+    main()
