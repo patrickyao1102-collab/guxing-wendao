@@ -59,7 +59,7 @@
   // 一层楼道上来的落点：传送阵正上方
   if (TMAPS.tj_library) for (const e of TMAPS.tj_library.exits || []) if (e.to === 'tj_forbidden') { e.at = atF(864, 1050); e.face = 'up'; }
   // 二楼广角：人物稍微收一点，跟家具比例对上
-  try { if (typeof CHAR_SCALE !== 'undefined') CHAR_SCALE.tj_forbidden = .86; } catch (e) {}
+  try { if (typeof CHAR_SCALE !== 'undefined') CHAR_SCALE.tj_forbidden = 1;   // 作者 11-08 体检：.86 时人只到书架三分之一、比椅子小，改回 1 } catch (e) {}
 
   // ---- 剑典剧情：转轮经藏取书点 / 石台落点换成新坐标 ----
   const ROT = OBJ('forbidden_rotunda'), PED = OBJ('forbidden_nine_star');

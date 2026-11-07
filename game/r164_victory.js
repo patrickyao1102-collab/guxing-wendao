@@ -88,7 +88,7 @@
 
   startBattle = (orig => function () { const r = orig.apply(this, arguments); try { if (battle) battle._lv64 = S.hero.lv; } catch (e) {} return r; })(startBattle);
   const idOf = name => { try { for (const [id, it] of Object.entries(ITEM_DB)) if (it && it.name === name) return id; } catch (e) {} return null; };
-  function pick(allies) { let best = '01', sc = -1;
+  function pick(allies) { let best = '03', sc = -Infinity;   // 单人出战时用叶孤星·云霆（没有叶孤星独像）
     for (const [k, set] of Object.entries(SETS)) { const hit = set.filter(a => allies.includes(a)).length, miss = set.length - hit, extra = allies.length - hit, s = hit * 10 - miss * 3 - extra; if (s > sc) { sc = s; best = k; } }
     return best; }
   showPanel = (orig => function (title, lines) {
