@@ -39,6 +39,8 @@ const WALK4 = { w_yegx: 'yegx_walk4', w_yunting: 'yunting_walk4', w_linxue: 'lin
 // 逻辑分辨率 1280x720，横屏。素材缺失时自动用占位图形。
 'use strict';
 const W = 1280, H = 720;
+// 作者 11-07：坐骑系统暂时关闭（不是取消）：行囊「坐骑」页、大地图起飞按钮都不显示；改成 false 即恢复
+window.MOUNT_OFF = true;
 // 触屏设备（手机 / 平板）：界面提示用「点击 / 摇杆」说法，不提键盘（作者 11-07 手机版梳理）
 const GX_TOUCH = (() => { try { return matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0; } catch (e) { return false; } })();
 // 地图镜头缩放（作者 11-02：集市等地图建筑相对人物太大，看不全一座房子 → 人物大小不变，整张地图按比例缩小，参照青阳镇）
@@ -5857,7 +5859,13 @@ window.NO_CG = true;
     const order = pts.map((_, i) => i).sort(() => Math.random() - .5);
     if (window.__sealHud === undefined) { window.__sealHud = S.hud; S.hud = false; }   // 破阵时收起地图 HUD（小地图 / 任务栏 / 行囊），免得压在阵图上
     let resolve; const promise = new Promise(res => { resolve = res; });
-    seal = { cfg, pts, order, step: 0, t0: performance.now(), show: 1, res: v => { world.locked = false; resolve(v); }, err: 0, promise, taps: [] }; world.locked = true; playSnd('sfx_charge', .6);
+    // 作者 11-07：闪得太快记不住 → 每个阵眼亮 0.9 秒（第一次破阵 1.1 秒），亮过的留着淡光、标上顺序号；
+    // 第一次破阵、或连错两次以后，下一个该点的阵眼会轻轻闪动提示
+    const first = !(S.flags && S.flags.seal_tut), per = first ? 1.1 : .9;
+    seal = { cfg, pts, order, step: 0, t0: performance.now(), show: 1, res: v => { world.locked = false; resolve(v); }, err: 0, errs: 0, promise, taps: [], per, demoT: .6 + n * per, hint: first };
+    if (S.flags) S.flags.seal_tut = 1;
+    try { if (window.IMG_GUARD) IMG_GUARD.bumpMatch(['r99/']); } catch (e) {}   // 阵图素材如果还在开局排队里，马上下
+    world.locked = true; playSnd('sfx_charge', .6);
     return promise;
   };
   window.SEAL_NOW = () => seal;
@@ -5869,16 +5877,16 @@ window.NO_CG = true;
     for (const r of [120, 200, 280]) { ctx.beginPath(); ctx.ellipse(0, 0, r * 1.35, r * .85, 0, 0, 7); ctx.stroke(); }
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
     // 示意：开头 2.4 秒按顺序闪一遍
-    const demo = t < 2.4 ? Math.floor(t / (2.4 / s.order.length)) : -1;
+    const DT = s.demoT || 2.4, demo = t < DT ? Math.floor((t - .6) / (s.per || .4)) : -1;
     ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath();
     for (let k = 0; k < s.step; k++) { const p = s.pts[s.order[k]]; k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); } ctx.stroke();
-    s.pts.forEach((p, i) => { const k = s.order.indexOf(i), lit = k < s.step || k === demo; const r = 26;
+    s.pts.forEach((p, i) => { const k = s.order.indexOf(i), lit = k < s.step || k === demo || (t < DT && k >= 0 && k < demo); const r = 26;
       if (lit) { const g = ctx.createRadialGradient(p[0], p[1], 2, p[0], p[1], r + 26); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p[0], p[1], r + 26, 0, 7); ctx.fill(); }
       ctx.fillStyle = lit ? '#fff' : 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.arc(p[0], p[1], lit ? 12 : 9, 0, 7); ctx.fill();
       ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.stroke(); });
     for (const q of s.taps) { const a = (now - q.t) / 450; if (a >= 1) continue; ctx.globalAlpha = 1 - a; ctx.strokeStyle = q.bad ? '#ff8a7a' : '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(q.x, q.y, 18 + a * 40, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
     ctx.textAlign = 'center'; ctx.font = `40px ${BRUSH}`; textOutline(s.cfg.title || '锁灵阵', W / 2, 60, '#fff0c4', '#1a0800', 5);
-    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e9dcc0'; ctx.fillText(t < 2.4 ? '记住星位亮起的顺序……（点屏幕可跳过）' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + s.order.length + '）', W / 2, H - 132);
+    ctx.font = `600 20px ${FONT}`; ctx.fillStyle = '#e9dcc0'; ctx.fillText(t < DT ? '记住星位亮起的顺序……（点屏幕可跳过）' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + s.order.length + '）', W / 2, H - 132);
     const _sb = SBof();
     for (const [r, txt] of [[_sb.again, '重新演示'], [_sb.leave, '暂时离开']]) { roundRect(r.x, r.y, r.w, r.h, 10); ctx.fillStyle = 'rgba(20,30,52,.85)'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(159,216,255,.7)'; ctx.stroke();
       ctx.font = `26px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#e8f4ff'; ctx.fillText(txt, r.x + r.w / 2, r.y + r.h / 2 + 2); }
@@ -5893,13 +5901,13 @@ window.NO_CG = true;
     { const t = input.tapped, SB = SBof();
       if (inR(t, SB.again)) { consumeTap(); s.step = 0; s.err = 0; s.t0 = performance.now(); playSnd('ui_click'); return; }
       if (inR(t, SB.leave)) { consumeTap(); const r = s.res; seal = null; world.locked = false; if (window.__sealHud !== undefined) { S.hud = window.__sealHud; window.__sealHud = undefined; } playSnd('ui_click'); r(false); return; } }
-    if (s && input.tapped && (performance.now() - s.t0) / 1000 <= 2.4) { consumeTap(); s.t0 = performance.now() - 2401; return; }   // 演示中点一下：直接开始（原来演示时的点击被悄悄吞掉，玩家以为卡住了）
-    if (s && input.tapped && (performance.now() - s.t0) / 1000 > 2.4) {
+    if (s && input.tapped && (performance.now() - s.t0) / 1000 <= (s.demoT || 2.4)) { consumeTap(); s.t0 = performance.now() - (s.demoT || 2.4) * 1000 - 1; return; }   // 演示中点一下：直接开始（原来演示时的点击被悄悄吞掉，玩家以为卡住了）
+    if (s && input.tapped && (performance.now() - s.t0) / 1000 > (s.demoT || 2.4)) {
       const t = consumeTap(); let i = -1, bd = 64; s.pts.forEach((p, k) => { const d = Math.hypot(t.x - p[0], t.y - p[1]); if (d < bd) { bd = d; i = k; } });   // 取最近的阵眼，手指点偏一点也算
       s.taps.push({ x: t.x, y: t.y, t: performance.now(), bad: i >= 0 && s.order[s.step] !== i }); if (s.taps.length > 8) s.taps.shift();
       if (i >= 0) {
         if (s.order[s.step] === i) { s.step++; s.err = 0; playSnd('sfx_star', .5); if (s.step >= s.order.length) { const c = s.cfg; seal = null; if (c.cost) { S.hero.bag.yunxingshi -= c.cost; if (!S.hero.bag.yunxingshi) delete S.hero.bag.yunxingshi; } S.flash = 1; S.flashColor = '#ffffff'; playSnd('sfx_ult', .7); world.locked = false; s.res(true); } }
-        else { s.step = 0; s.err = 1; s.t0 = performance.now(); S.shake = 8; playSnd('sfx_hurt'); }
+        else { s.step = 0; s.err = 1; s.errs = (s.errs || 0) + 1; if (s.errs >= 2) s.hint = true; s.t0 = performance.now(); S.shake = 8; playSnd('sfx_hurt'); }
       }
     } else if (s) consumeTap();
   };
@@ -6033,7 +6041,8 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       const n = S.hero.bag.yunxingshi || 0;
       if (!S.flags.sf_seen) { S.flags.sf_seen = 1; await narrate('九枚星钉围成一圈，晶蓝光柱直冲林梢。光柱中央，一件白衣静静悬着——衣上流光如云。'); await say('叶孤星·惊', '这就是……流云仙衣？'); await say('星旋', '九曜锁灵阵！你爹这手笔可不小。阵眼对应九曜星位，用你的九曜之力，按阵纹的顺序一颗颗点亮。'); }
       if (n < 3) { await say('星旋', '还差' + (3 - n) + '枚破阵灵晶。林子里亮晶晶的那几颗，找找看——常驻的大水晶是阵的根基，别去动。'); return; }
-      const ok = await breakSeal({ title: '九曜锁灵阵 · 流云仙衣', color: '#9fd8ff', n: 6, cost: 3 });
+      if (!S.flags.seal_tut) { await say('星旋', '破阵很简单：阵眼会一个一个亮起来，记住先后顺序，再照着顺序点一遍。'); await say('星旋', '记不住也没关系，点「重新演示」再看一遍；第一次我在旁边给你指着。'); }
+      const ok = await breakSeal({ title: '九曜锁灵阵 · 流云仙衣', color: '#9fd8ff', n: 5, cost: 3 });
       if (!ok) return;
       world.locked = true;
       // 九曜逐点共鸣 1800ms → 断链 1600ms → 退光 2800ms → 留衣星芒
@@ -6058,6 +6067,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       await say('叶孤星·思', '……');
       await narrate('叶孤星想起父亲书房里那盏亮到深夜的灯，眼底一阵发酸，没有说话。');
       S.flags.ch2_liuyun = 1;
+      if (S.flags.ch2_night && !S.flags.ch2_roam && window.CH2_ROBE_NIGHT) { world.locked = false; return CH2_ROBE_NIGHT(); }   // 作者 11-07：当晚取的衣 → 回屋服丹歇息，集市留到明天和云霆一起
       // 作者 11-03：离开天剑宗前先去集市一趟，买点装备、剑诀卷册、丹药再出门
       await say('星旋', '仙衣到手！不过小子，下山可不是逛后山——丹药、护具、剑诀卷册，一样都不能少。');
       await say('星旋', '先去问剑坪东口的天剑集市备齐了，再从南边山门出发。');
@@ -6290,6 +6300,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await fadeIn(600);
     await narrate('天剑大殿。长老宣读任务——一等任务：凝丹境弟子林雪，前往苍月城，协助城主府击杀邪修余孽；');
     await narrate('一等任务：云霆、叶孤星，组队前往青阳镇外黑风谷，剿灭黑风寨。黑风寨首领，已有凝丹境实力。');
+    if (S.flags.r134_gift && S.flags.ch2_liuyun && window.CH2_HALL_TEAM) return CH2_HALL_TEAM({ inHall });   // 作者 11-07：仙衣昨夜已取 → 大殿里和云霆组队，一起去集市
     if (S.flags.r134_gift) {   // 作者 11-07：宝物昨夜已经给了，这里只叮嘱一句
       await say('叶擎苍', '孤星，昨夜给你的东西都收好了吧？流云仙衣还在后山九曜锁灵阵里，你那小院后面的山阶，就通后山。');
       await say('叶孤星', '孩儿记下了。');
@@ -6319,6 +6330,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   // —— 山门出发：突破凝丹 → 送别 → 树林 ——
   async function ch2Depart() {
     S.flags.ch2_depart = 1; S.flags.ch2_roam = 0; S.hud = false; const h = S.hero;
+    if (S.flags.ch2_pill && window.CH2_SEND_OFF) return CH2_SEND_OFF();   // 作者 11-07：凝元丹自己服过、云霆已在队里 → 直接山门送别下山
     await fadeOut(500);
     if (window.RES_ROOM_NIGHT) await RES_ROOM_NIGHT(); else { S.scene = () => { ctx.fillStyle = '#03030f'; ctx.fillRect(0, 0, W, H); }; world.map = null; await fadeIn(300); }
     await narrate('当夜，叶孤星服下凝元丹，运转九曜剑典第二重——凝丹境的功法口诀。');
@@ -6353,6 +6365,44 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await fadeOut(600);
     await ch2Forest();
   }
+  // —— 作者 11-07 新顺序：大殿听完任务就和云霆组队，一起去集市；下山时叶擎苍在山门送别 ——
+  window.CH2_HALL_TEAM = async function ({ inHall }) {
+    await say('叶擎苍', '孤星，昨夜后山那一趟……（看了一眼他身上的白衣）合身。');
+    await say('叶孤星', '孩儿已经取到了。');
+    const [yx, yy] = inHall ? [world.player.x + 90, world.player.y + 10] : [world.player.x + 90, world.player.y];
+    const yt = addActor('b_yunting', yx, yy, '云霆', '#b8c4ff'); yt.h = 118; yt.dir = -1; yt.alpha = 0; await tween(400, t => yt.alpha = t);
+    await say('叶孤星·苦笑', '云霆？……嗯？你也突破凝丹了？我还想在你面前得意一下呢。');
+    await say('云霆', '宗主昨夜叫我去了一趟。一颗凝元丹。');
+    await narrate('叶孤星笑意微微一僵。以爹的性子，从没见他对哪个弟子这么上心——他这是在替自己铺路。');
+    await say('叶擎苍', '孤星性格冒失，你比他稳重些，此行还需你多加费心。');
+    await say('云霆·笑', '宗主放心。我盯着，他死不了。');
+    await say('叶孤星', '喂！');
+    joinParty('yunting');
+    playSnd('jingle_levelup'); await showPanel('云霆 加入队伍', ['!天剑宗弟子 · 凝丹一重', '天剑一式·点星（单体）　天剑二式·群星（全体）', '怒气满后可施展必杀：九天神雷', '凝丹五重时领悟：天剑三式·杀星']);
+    S.hero.gold = (S.hero.gold || 0) + 300; playSnd('ui_confirm'); await showPanel('盘缠', ['!灵石 ×300', '执事堂按一等任务拨下的历练盘缠']);
+    await say('叶擎苍', '下山之前，先去集市把丹药备齐。出发时，我在山门等你们。');
+    await say('云霆', '典籍阁那本《九天神雷》……正好一起去看看。');
+    yt.hidden = true;
+    S.quest = '和云霆一起去天剑集市采买（问剑坪东口），再从南边山门出发';
+    await fadeOut(500);
+    if (inHall) R34.hallLeave(); else { const [c, r] = at(1792, 900); tileSetMap('tj_front', c, r, 'down'); S.scene = drawMap; }
+    S.hud = true; world.locked = false;
+    await fadeIn(400); toast('问剑坪东口就是天剑集市', 2600);
+  };
+  window.CH2_SEND_OFF = async function () {
+    await fadeOut(500);
+    const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); world.locked = true; S.scene = drawMap;
+    await fadeIn(600);   // 云霆已在队里，跟在身后，不再另摆一个
+    const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
+    await narrate('山门前，叶擎苍早已等在那里。');
+    await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
+    await say('叶擎苍', '记住——遇事先保命，破空遁符别舍不得用。');
+    await say('叶孤星', '爹，您放心。孩儿一定把黑风寨的事办妥。');
+    await say('叶擎苍', '好了，你们去吧。');
+    joinParty('yunting');
+    await fadeOut(600);
+    await ch2Forest();
+  };
 
   const q = new URLSearchParams(location.search).get('part');
   if (q === 'yw5') setTimeout(() => { S.fade = 1; S.hero.skills = ['pojun', 'tanlang']; S.hero.realm = '练气九重'; S.hero.maxhp = S.hero.hp = 310; S.hero.maxmp = S.hero.mp = 105; S.hero.atk = 35; S.hero.sword = true; part5(); }, 60);
@@ -6594,8 +6644,9 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   const oldPart1 = part1;
   part1 = async function () {
     Object.assign(S.flags, { hs_impact: 0, hs_meet: 0, hs_left: 0 });
-    const [c, r] = P(z(751), z(552)); tileSetMap('tj_houshan', c, r, 'up'); world.locked = true; S.hud = false; S.scene = drawMap;
-    const p = world.player; p.hidden = false; p.x = z(751); p.y = z(552); p.face = 'up';   // 总策划：不坐石台，直接站在崖边
+    // 作者 11-07：流星落点（陨坑）在 z(778), z(557)。以前人物就站在落点上、背对镜头，陨坑出现后像是背对着坑 → 站到坑的右边观星，流星落下后转身面朝陨坑
+    const [c, r] = P(z(778) + 120, z(552)); tileSetMap('tj_houshan', c, r, 'up'); world.locked = true; S.hud = false; S.scene = drawMap;
+    const p = world.player; p.hidden = false; p.x = z(778) + 120; p.y = z(552); p.face = 'up';   // 总策划：不坐石台，直接站在崖边
     world.camFocus = [z(760), z(360)]; world.cam = { x: z(120), y: 0 };
     await fadeIn(900);
     await caption('九州大陆 · 天剑宗后山', 1600);
@@ -6609,8 +6660,9 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await say('叶孤星', '天降祥瑞……天煞孤星……呵。');
     await say('叶孤星·惊', '咦？那是什么光——');
     await meteorWorld(z(778), z(557));
+    p.face = 'left';   // 转身看向刚砸出来的陨坑
     await say('叶孤星·苦笑', '又是流星？老天爷嫌嘲讽得还不够，在我生日这天又送一颗？');
-    await moveActor(p, z(778), z(625), 200); p.face = 'up';
+    await moveActor(p, z(778) + 80, z(562), 160); p.face = 'left';
     await say('叶孤星·惊', '一块玉佩？……跟我这块一模一样，连碎裂的痕迹都对得上！');
     await jadeWorld(z(778), z(520));
     S.flags.hs_meet = 1;
@@ -7440,11 +7492,17 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     // 作者 11-07（修改1 第 16 条）：宝物就在这一晚交给叶孤星（原来在第二天大殿里给）
     await say('叶擎苍', '孤星，下山历练凶险。为父有几样东西，本想明日在大殿交给你——既然前辈也在，今晚就给你吧。');
     if (window.R134_GIFT) await R134_GIFT();
-    await say('叶擎苍', '虽然你突破到了练气九重，下山历练还是要小心谨慎。早点休息吧。');
+    await say('叶擎苍', '去吧。取了仙衣，早点回来歇息——三日后就要下山了。');
     await moveActor(f, fx, fy, 120); await tween(400, t => f.alpha = 1 - t); f.hidden = true;
     await say('叶孤星', '你能不能不要摆出一副神棍的模样？你知道丢人二字怎么写吗？');
     await say('星旋', '你懂什么，这叫高手风范！');
     await tween(400, t => xx.alpha = 1 - t); xx.hidden = true;
+    // 作者 11-07：当晚就去后山取流云仙衣、自己服下凝元丹（以前要等到第二天大殿之后）——由 r152_ch2flow.js 接手，都做完回屋歇息才天亮
+    if (window.CH2_NIGHT_FREE) return CH2_NIGHT_FREE();
+    return window.CH2_DAWN();
+  };
+  window.CH2_DAWN = async function () {
+    S.hud = false; world.locked = true;
     await fadeOut(700);
     // 三日后清晨
     RES_TOD('dawn'); { const [c2, r2] = atOf(TR)(200, 415); tileSetMap('tj_room', c2, r2, 'down'); } S.scene = drawMap;
@@ -16566,4 +16624,5 @@ window.MarketEffects = (() => {
 <script src="r148_quality.js"></script>
 <script src="r149_mobile_text.js"></script>
 <script src="r150_bootflow.js"></script>
+<script src="r152_ch2flow.js"></script>
 </body></html>

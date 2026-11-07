@@ -107,7 +107,7 @@
   const DENY = new Set(['tj_houshan', 'seal_field', 'mijing', 'tj_forbidden', 'tj_scripture']);
   const allowed = m => { const d = TMAPS[m]; return !!(d && !d.indoor && !DENY.has(m) && !/mijing|cave|dungeon|_room|_hall|_inn|_shop/.test(m)); };
   const images = {}, loadStates = {};
-  const has = () => !!F().mount_duo && !!images[activeId];
+  const has = () => !window.MOUNT_OFF && !!F().mount_duo && !!images[activeId];   // 作者 11-07：坐骑系统暂不开放（MOUNT_OFF），代码和存档里的坐骑都保留
   for (const [id, spec] of Object.entries(CATALOG)) {
     if (!spec.available) { loadStates[id] = 'pending'; continue; }
     loadStates[id] = 'loading';

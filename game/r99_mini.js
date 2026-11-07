@@ -23,13 +23,18 @@
     ctx.save();
     if (typeof has === 'function' && has('sq_sealbg')) ctx.drawImage(IMG.sq_sealbg, 0, 0, W, H); else { ctx.fillStyle = '#040612'; ctx.fillRect(0, 0, W, H); }
     ctx.fillStyle = 'rgba(4,6,18,.22)'; ctx.fillRect(0, 0, W, H);
-    const demo = t < 2.4 ? Math.floor(t / (2.4 / n)) : -1, errA = s.err ? 1 - ez(t / .6) : 0;
+    const DT = s.demoT || 2.4, demo = t < DT ? Math.floor((t - .6) / (s.per || 2.4 / n)) : -1, errA = s.err ? 1 - ez(t / .6) : 0;
     for (let k = 1; k < s.step; k++) chain(s.pts[s.order[k - 1]], s.pts[s.order[k]], .95);
     s.pts.forEach((p, i) => {
       const k = s.order.indexOf(i), lit = k < s.step, br = 1 + .03 * Math.sin(now / 400 + i);
       spr('sl', 'sl_eye0', p[0], p[1], .5 * br, 1);
       if (lit) spr('sl', 'sl_eye2', p[0], p[1], .5 * br, 1);
+      if (t < DT && k >= 0 && k < demo) spr('sl', 'sl_eye2', p[0], p[1], .5 * br, .45);   // 演示里已亮过的留淡光
       if (k === demo) spr('sl', 'sl_eye1', p[0], p[1], .56, 1);
+      // 顺序号：演示时亮过的、已点对的标上 1、2、3……
+      if (k >= 0 && ((t < DT && k <= demo) || k < s.step)) { ctx.save(); ctx.font = `700 22px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(String(k + 1), p[0] + 34, p[1] - 34, '#fff6d8', '#14203a', 4); ctx.restore(); }
+      // 提示：第一次破阵 / 连错两次后，下一个该点的阵眼轻轻闪
+      if (t >= DT && s.hint && k === s.step) { const a = .35 + .35 * Math.sin(now / 160); spr('sl', 'sl_eye1', p[0], p[1], .6, a); }
       if (errA > 0) spr('sl', 'sl_eye3', p[0], p[1], .5, errA);
     });
     for (const q of s.taps || []) { const a = (now - q.t) / 450; if (a >= 1) continue; ctx.globalAlpha = 1 - a; ctx.strokeStyle = q.bad ? '#ff8a7a' : '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(q.x, q.y, 22 + a * 40, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
@@ -38,7 +43,7 @@
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `34px ${BRUSH}`; textOutline(s.cfg.title || '锁灵阵', W / 2, 60, '#fff0c4', '#1a0800', 4);
     spr('sl', 'sl_tipbar', W / 2, H - 132, .5, .95);
     ctx.font = `600 19px ${FONT}`; ctx.fillStyle = '#eef4ff';
-    ctx.fillText(t < 2.4 ? '记住星位亮起的顺序……（点屏幕可跳过）' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + n + '）', W / 2, H - 131);
+    ctx.fillText(t < DT ? '记住星位亮起的顺序……（点屏幕可跳过）' : s.err ? '顺序错了！阵纹反噬，重新来过' : '按刚才的顺序点亮阵眼（' + s.step + ' / ' + n + '）', W / 2, H - 131);
     const SB = { again: { x: W / 2 - 230, y: H - 78, w: 200, h: 52 }, leave: { x: W / 2 + 30, y: H - 78, w: 200, h: 52 } };
     const down = typeof input !== 'undefined' && input.down;
     for (const [r, txt] of [[SB.again, '重新演示'], [SB.leave, '暂时离开']]) {

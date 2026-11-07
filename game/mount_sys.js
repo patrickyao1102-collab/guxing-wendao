@@ -47,7 +47,7 @@
   const F2 = F;
 
   // ---------- 行囊「坐骑」页 ----------
-  MTABS.push('坐骑');
+  if (!window.MOUNT_OFF) MTABS.push('坐骑');   // 作者 11-07：坐骑系统暂不开放，行囊里不显示「坐骑」页
   menuLayout = (orig => function () { const L = orig(); if (MTABS.length > 8) L.tabs = MTABS.map((t, i) => ({ x: MB.x + 26, y: MB.y + 108 + i * 60, w: 132, h: 52 })); return L; })(menuLayout);
   sealText = (orig => function (t, x, y, w, h, active) { if (t !== '坐骑' || w < 110) return orig.apply(this, arguments);
     orig.call(this, '', x, y, w, h, active); const im = img(BY.xianhe); ctx.save();

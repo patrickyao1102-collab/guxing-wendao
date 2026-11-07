@@ -14,7 +14,7 @@
   Object.assign(ITEM_DB, {
     c_tayun: { name: '踏云靴', slot: 'acc', spd: 3, def: 4, lvReq: 6, desc: '叶孤星衣柜深处翻出来的旧靴子，靴底绣着流云纹。速度 +3，防御 +4' },
     m_xcsha: { name: '星辰砂', price: 0, desc: '星辰商店兑换的炼器材料。星痕剑升阶用' },
-    n_ningyuan: { name: '凝元丹', desc: '叶擎苍所赠。服下可直接冲破练气关，踏入凝丹二重（出发前夜服用）' },
+    n_ningyuan: { name: '凝元丹', desc: '叶擎苍所赠。服下可直接冲破练气关，踏入凝丹二重（在行囊里选中它，点「使用」）' },
     bk_yt_jiutian: { name: '《九天神雷》秘传', price: 240, book: true, cat: '秘传', desc: '云霆的秘传。引九天雷霆劈落全体，30% 麻痹。买下后云霆当场参悟' },
   });
   if (ITEM_DB.k_pokong) ITEM_DB.k_pokong.desc = '叶擎苍所赠的珍稀空间符箓。带在身上，战斗中「逃跑」成功率 +25%';
@@ -268,11 +268,14 @@
     await narrate('叶擎苍从袖中取出几个精致的木盒，轻轻放在桌上。');
     await say('叶擎苍', '这是破空遁符。危机之时可撕裂空间，瞬间遁出千里之外，就连法相境修士也难以阻拦。');
     addItem('k_pokong'); if (window.itemGet) await itemGet([{ icon: 'item:k_pokong', name: '破空遁符', count: '×1', desc: ITEM_DB.k_pokong.desc }], '父亲所赠');
-    await say('叶擎苍', '这是凝元丹。出发前夜服下，以你如今的根基，能直接冲到凝丹二重。');
+    await say('叶擎苍', '这是凝元丹。找个清净的时候自己服下，以你如今的根基，能直接冲到凝丹二重。');
     addItem('n_ningyuan'); if (window.itemGet) await itemGet([{ icon: 'item:n_ningyuan', name: '凝元丹', count: '×1', desc: ITEM_DB.n_ningyuan.desc }], '父亲所赠');
     await say('叶擎苍', '还有一件——流云仙衣。你出生那年，我就把它封进了后山的九曜锁灵阵里，用阵中灵脉替你温养了十八年。');
     await say('叶孤星·惊', '九曜……锁灵阵？');
-    await say('叶擎苍', '那阵只认九曜之力。别人破不开，你能。明日在大殿听完任务，就去后山把它取出来。');
+    await say('叶擎苍', '那阵只认九曜之力。别人破不开，你能。趁今夜，就去后山把它取出来。');
+    await say('叶擎苍', '还有这袋灵石，下山前去集市添些丹药，别亏着自己。');
+    S.hero.gold = (S.hero.gold || 0) + 500; try { playSnd('ui_confirm'); } catch (e) {}
+    await showPanel('父亲所赠', ['!灵石 ×500', '下山前去集市添些丹药、秘籍']);
     await say('星旋', '（九曜锁灵阵？你爹……果然什么都知道。）');
   };
 
@@ -373,7 +376,8 @@
       later(() => whenFree(async () => { world.locked = true; try {
         await say('星旋', '我给你列个单子，照着买准没错：');
         await say('星旋', '一、丹药铺：回春丹三颗、回灵丹两颗——打黑风寨，丹药就是命。');
-        await say('星旋', '二、典籍阁：给云霆那小子带一本《九天神雷》。他的秘传，学会了就是满怒气的一记群体雷劈。');
+        await say('星旋', '二、典籍阁：《九天神雷》——云霆那小子盯了三年的秘传，买下来他当场就能参悟，满怒气就是一记群体雷劈。');
+        if ((S.party || []).includes('yunting')) await say('云霆', '……钱不够我自己补上。先看看再说。');
         await say('星旋', '三、有余钱再去典籍阁买《剑诀·卷二》，学过的招式拿它参悟到第二重。');
         await say('星旋', '要买的店，我在头顶给你点了金光，跟着走就行。点任务栏也能自动走过去。');
         S.quest = shopQuest(); } finally { world.locked = false; } }), 2600); } } catch (e) {}
