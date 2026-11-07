@@ -23,7 +23,14 @@
   const MOBS_A = { n: 4, types: ['wolf', 'tree', 'wolf'], bg: 'bg_night', lv: 0, lvR: [3, 4], zone, early: 'A' };
   const MOBS_B = { n: 6, types: ['wolf', 'monkey', 'tree', 'wolf'], bg: 'bg_mountain', lv: 0, lvR: [8, 10], zone, early: 'B' };
   const own = Object.getOwnPropertyDescriptor(HS, 'mobs'), base = own && own.value;
-  Object.defineProperty(HS, 'mobs', { configurable: true, get() { return phaseB() ? MOBS_B : phaseA() ? MOBS_A : base; }, set(v) { /* 其他模块改后山刷怪时忽略 */ } });
+  // 作者 11-07：「后山为什么没有鬼火了」—— 以前只有借力战后（A）和三日自由期（B）两段有兽火，夹在中间（借力战后练剑、三日之约前）和第二章以后后山一团都没有。
+  // 现在只要看过后山崖顶开场（hs_explored），其余时候也一直有兽火，等级随主角（主角等级 -1 ~ +2）
+  const MOBS_C = { n: 5, types: ['wolf', 'monkey', 'tree', 'wolf'], bg: 'bg_mountain', lv: 0, zone, early: 'C' };
+  Object.defineProperty(HS, 'mobs', { configurable: true, get() { return phaseB() ? MOBS_B : phaseA() ? MOBS_A : F().hs_explored ? MOBS_C : base; }, set(v) { /* 其他模块改后山刷怪时忽略 */ } });
+  // 一进后山先刷出一半，不要空荡荡地等它一只只冒出来
+  tileSetMap = (orig => function (name) { const r = orig.apply(this, arguments);
+    if (name === 'tj_houshan') setTimeout(() => { try { const M = HS.mobs, T = world.map && world.map.T; if (world.mapName !== 'tj_houshan' || !M || !T) return; for (let i = 0; i < 12 && world.mobs.length < Math.ceil(M.n / 2); i++) spawnTileMob(T, HS); } catch (e) {} }, 400);
+    return r; })(tileSetMap);
 
   // A 阶段：全是弱小的绿火（不追人，1~2 只），叶孤星此时还没有剑意
   spawnTileMob = (orig => function (T, def) {
