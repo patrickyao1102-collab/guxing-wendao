@@ -95,7 +95,7 @@
   if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) {
     o.apply(this, arguments);
     try {
-      if (world.mapName !== COURT || night() || !world.actors) return;
+      if (world.mapName !== COURT || night() || !world.actors || (window.QZ_SHI_ON && QZ_SHI_ON())) return;   // 作者 11-08：床边选了时辰 → 五时辰作息接手（r162）
       const T = world.map.T, p = world.player, busy = (typeof choice !== 'undefined' && choice);
       for (const a of world.actors) { const n = a.npc; if (!n || !n.r139) continue;
         if (!a._s) { a._s = { i: STARTS[n.r139] || 0 }; enter(a, T); }
@@ -448,11 +448,11 @@
       try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×' + n, desc: ITEM_DB[r.id].desc }], stars === 3 ? '火候十足 · 三星' : '出锅'); else toast('做好了：' + r.name + ' ×' + n, 1800); } catch (e) { toast('做好了：' + r.name + ' ×' + n, 1800); }
       if (!F().qz_cook1) { F().qz_cook1 = 1;
         await narrate('香味飘出厨房，没一会儿，门口探进来三个脑袋。');
-        await say('侍女小桃', '少爷亲自下厨？！……能、能尝一口吗？');
+        await say('侍女小桃·惊喜', '少爷亲自下厨？！……能、能尝一口吗？');
         await narrate('小桃尝了一口，眼睛一下子亮了。');
-        await say('侍女小桃', '比我做的还好吃！青禾姐你快尝尝！');
-        await say('侍女青禾', '……是好吃。少爷以后别抢小桃的活了，她要哭的。');
-        await say('小厮阿福', '我也要我也要——');
+        await say('侍女小桃·大笑', '比我做的还好吃！青禾姐你快尝尝！');
+        await say('侍女青禾·嗔', '……是好吃。少爷以后别抢小桃的活了，她要哭的。');
+        await say('小厮阿福·大笑', '我也要我也要——');
         await say('星旋', '（修仙的手，拿来颠勺，倒也稳。）'); }
     } else {
       await narrate('锅底冒出一股黑烟……这锅' + r.name + '，糊了。');
@@ -653,7 +653,7 @@
       if (typeof MEDAL_FACE === 'object') MEDAL_FACE.p_r139_cat = { fx: .5, fy: .36, span: .5 }; for (const n of catNames()) if (SPEAKERS[n]) SPEAKERS[n].p = 'p_r139_cat'; } catch (e) {} };
   let catReq = false; const needCat = () => { if (!catReq) { catReq = true; CATI.src = 'r139/cat.webp'; } };
   const CROW = { down: 0, up: 1, left: 2, lick: 3, sleep: 4, eat: 5, stretch: 6, rub: 7 }, CFPS = { down: 8, up: 8, left: 8, lick: 6, sleep: 3, eat: 7, stretch: 6, rub: 6 }, CN = { sleep: 4 };
-  const catName = () => F().cat_name || '小猫';
+  const catName = () => F().cat_name || '小猫'; window.R139_CATNAME = catName;
   const catNames = () => ['小猫', '团子', '阿橘', '馒头', '雪团'];
   try { for (const n of catNames()) SPEAKERS[n] = SPEAKERS[n] || { color: '#f4c890' }; } catch (e) {}
   const CPOI = [[560, 1300], [820, 1300], [1000, 1380], [700, 1150], [450, 1250], [900, 1000], [640, 820], [1150, 900], [380, 900], [760, 1420]].map(p => Y(p[0], p[1]));
@@ -682,6 +682,7 @@
     try {
       if (world.mapName !== COURT || !world.actors) return;
       const T = world.map.T, p = world.player, a = world.actors.find(x => x.npc && x.npc.r139cat); if (!a) return; needCat();
+      if (window.QZ_SHI_ON && QZ_SHI_ON()) { a.label = catName(); a.npc.name = catName(); return; }   // 五时辰：小猫由 r162 接手
       a.label = catName(); a.npc.name = catName();
       if (!a._cat) { a._cat = { st: 'lick', t0: now(), dur: 2 }; if (night()) { a.x = WARM[0]; a.y = WARM[1]; catDo(a, T, 'sleep'); } }
       const c = a._cat; if (a.talking || (typeof dialog !== 'undefined' && dialog && dialog.who === catName())) return;
@@ -710,9 +711,9 @@
     if (a && a._cat && a._cat.st === 'sleep' && !night()) { await narrate(catName() + '蜷成一团睡得正香，肚皮一起一伏。少爷没舍得吵它。'); return; }
     if (!f.cat_met) { f.cat_met = 1;
       await narrate('一只橘白小猫从花圃边钻出来，绕着少爷的脚边转了一圈，仰头「喵」了一声。');
-      await say('侍女小桃', '呀，它又溜进来了！少爷，这是前些日子从墙头跳进西院的小野猫，我们几个……偷偷喂着它。');
-      await say('小厮阿福', '它可乖了，从来不偷厨房的鱼！……就偷过一回。');
-      await say('侍女小桃', '少爷，能把它留下吗？它好像很喜欢您。');
+      await say('侍女小桃·惊喜', '呀，它又溜进来了！少爷，这是前些日子从墙头跳进西院的小野猫，我们几个……偷偷喂着它。');
+      await say('小厮阿福·得意', '它可乖了，从来不偷厨房的鱼！……就偷过一回。');
+      await say('侍女小桃·羞', '少爷，能把它留下吗？它好像很喜欢您。');
       const i = await choose('给小猫起个名字', ['团子', '阿橘', '馒头', '雪团']);
       f.cat_name = ['团子', '阿橘', '馒头', '雪团'][i] || '团子'; try { if (IMG.p_r139_cat) SPEAKERS[f.cat_name].p = 'p_r139_cat'; } catch (e) {}
       await say('侍女小桃', '「' + f.cat_name + '」！好听！' + f.cat_name + '，以后你就是青竹小院的猫啦。');
@@ -747,6 +748,7 @@
   const VAT_MAX = 10, VAT_POS = Y(196, 1222), WATER_NEED = { soup: 2, steam: 1, wok: 1 };
   const vat = () => { const f = F(); if (f.vat == null) f.vat = 6; return f.vat; };
   const setVat = v => { F().vat = Math.max(0, Math.min(VAT_MAX, v)); };
+  window.R139_VAT = { get: () => vat(), add: n => { if (vat() < 6) { setVat(vat() + n); VAT_POUR_T = now(); } } };
   let VAT_POUR_T = -9;
   const vatDef = { key: 'none', name: '水缸', c: VAT_POS[0] / 64 - .5, r: VAT_POS[1] / 64 - .8, h: 96, wander: false, r142vat: 1 };
   court.npcs.push(vatDef);
@@ -802,13 +804,13 @@
     const k1 = stage(sv, VAT_POS[0] + 62, VAT_POS[1] + 40, 'servant_bow_6f', -1), k2 = stage(sb, VAT_POS[0] + 132, VAT_POS[1] + 30, 'steward_wag_6f', -1);
     try {
       await narrate('厨房门口，松伯背着手站在水缸边，对着阿福竖起一根手指。');
-      await say('松伯', '阿福啊，缸又见底喽。少爷要是夜里想喝口热汤，拿什么烧？');
-      await say('小厮阿福', '松伯我错了……今早光顾着帮小桃搬花盆，把挑水的事给忘了。嘿嘿。');
-      await say('松伯', '你这孩子，心是好的，就是丢三落四。去吧，先把缸挑满了再说。');
+      await say('松伯·念叨', '阿福啊，缸又见底喽。少爷要是夜里想喝口热汤，拿什么烧？');
+      await say('小厮阿福·委屈', '松伯我错了……今早光顾着帮小桃搬花盆，把挑水的事给忘了。嘿嘿。');
+      await say('松伯·叹气', '你这孩子，心是好的，就是丢三落四。去吧，先把缸挑满了再说。');
       const i = await choose('少爷', ['我帮阿福一起挑', '（笑着在一旁看）']);
       if (i === 0) { f.vat_help = 1;
-        await say('小厮阿福', '少、少爷？！这怎么使得——');
-        await say('松伯', '……少爷愿意，就让少爷搭把手吧。小心别闪着腰。');
+        await say('小厮阿福·惊喜', '少、少爷？！这怎么使得——');
+        await say('松伯·点头', '……少爷愿意，就让少爷搭把手吧。小心别闪着腰。');
         toast('去厨房边的水井打水，把水缸挑满（' + vat() + ' / ' + VAT_MAX + '）', 2600);
       } else await say('松伯', '少爷别光笑，回头这小子又要偷懒了。');
     } finally { unstage(sv, k1); unstage(sb, k2); world.locked = false; }
@@ -817,8 +819,8 @@
     needWater(); const sv = actorOf(x => x.npc && x.npc.r139 === 'servant'); world.locked = true;
     const k1 = stage(sv, VAT_POS[0] + 70, VAT_POS[1] + 44, 'servant_cheer_6f', -1);
     try { if (sv) sv._a142.loop = true;
-      await say('小厮阿福', '满了满了！少爷您挑得比我还快！');
-      await say('小厮阿福', '以后我天天一早就挑，再也不让缸见底了——不然松伯又要竖手指头了。');
+      await say('小厮阿福·大笑', '满了满了！少爷您挑得比我还快！');
+      await say('小厮阿福·得意', '以后我天天一早就挑，再也不让缸见底了——不然松伯又要竖手指头了。');
       await say('星旋', '（堂堂少宗主，帮小厮挑水。……倒也不坏。）');
     } finally { unstage(sv, k1); world.locked = false; }
   }
@@ -904,6 +906,29 @@
     if (!f.qz_well) return t0();
     const i = await choose('水井', ['打水', '看看井水', '走开']);
     if (i === 0) return wellGame(); if (i === 1) return t0(); }; }
+
+  // ================= 十一、青禾 / 小桃 / 阿福 / 松伯 的表情立绘（Codex R142b）=================
+  // 作者 11-07：四个人多些表情；阿福改成帅气 + 秀气（新形象「晴笑」定稿）。对话里写「侍女小桃·惊喜」这样就会换表情。
+  // 每人：笑 大笑 羞 感动 惊喜 担心 委屈 认真 得意 困 嗔；松伯另有 念叨 点头 叹气。原来 R135 的四张旧立绘不再用（阿福旧形象作废）。
+  const PIDX = {"maid1_smile":0,"maid1_laugh":1,"maid1_shy":2,"maid1_moved":3,"maid1_surprised":4,"maid1_worried":5,"maid1_pout":6,"maid1_focused":7,"maid1_proud":8,"maid1_sleepy":9,"maid1_fondly_cross":10,"maid2_smile":11,"maid2_laugh":12,"maid2_shy":13,"maid2_moved":14,"maid2_surprised":15,"maid2_worried":16,"maid2_pout":17,"maid2_focused":18,"maid2_proud":19,"maid2_sleepy":20,"maid2_fondly_cross":21,"servant_smile":22,"servant_laugh":23,"servant_shy":24,"servant_moved":25,"servant_surprised":26,"servant_worried":27,"servant_pout":28,"servant_focused":29,"servant_proud":30,"servant_sleepy":31,"servant_fondly_cross":32,"steward_smile":33,"steward_laugh":34,"steward_shy":35,"steward_moved":36,"steward_surprised":37,"steward_worried":38,"steward_pout":39,"steward_focused":40,"steward_proud":41,"steward_sleepy":42,"steward_fondly_cross":43,"steward_admonish":44,"steward_nod":45,"steward_sigh":46}, PW = 478, PH = 496;
+  const PEX = { smile: '笑', laugh: '大笑', shy: '羞', moved: '感动', surprised: '惊喜', worried: '担心', pout: '委屈', focused: '认真', proud: '得意', sleepy: '困', fondly_cross: '嗔', admonish: '念叨', nod: '点头', sigh: '叹气' };
+  const PWHO = { maid1: ['侍女青禾', '青禾'], maid2: ['侍女小桃', '小桃'], servant: ['小厮阿福', '阿福'], steward: ['松伯', '管家'] };
+  const PCOL = { maid1: '#cfe8c4', maid2: '#f6c9d2', servant: '#c6d4ec', steward: '#e8d7b0' };
+  // 立绘图还没下好时，「侍女小桃·惊喜」这类名字先登记上（对话框里显示「侍女小桃」，不露出「·惊喜」），图到了再挂上表情
+  try { for (const ch in PWHO) for (const n of PWHO[ch]) for (const e in PEX) { const k = n + '·' + PEX[e]; if (PIDX[ch + '_' + e] != null && !SPEAKERS[k]) SPEAKERS[k] = { name: n === '管家' ? '松伯' : n, color: PCOL[ch] }; } } catch (e) {}
+  const PI = new Image();
+  PI.onload = () => { try {
+    for (const k in PIDX) { const i = PIDX[k], c = document.createElement('canvas'); c.width = PW; c.height = PH;
+      c.getContext('2d').drawImage(PI, (i % 8) * PW, Math.floor(i / 8) * PH, PW, PH, 0, 0, PW, PH); IMG['p_r142_' + k] = c;
+      if (typeof MEDAL_FACE === 'object') MEDAL_FACE['p_r142_' + k] = { fx: .5, fy: k.startsWith('servant') ? .15 : k.startsWith('steward') ? .17 : .16, span: k.startsWith('steward') ? .26 : .24 }; }
+    for (const ch in PWHO) for (const n of PWHO[ch]) {
+      // 基础名字固定用新立绘（R135 的旧立绘晚载好也不会再把它换回去）
+      const sp = SPEAKERS[n] = SPEAKERS[n] || { color: PCOL[ch] }; const key = 'p_r142_' + ch + '_smile';
+      try { Object.defineProperty(sp, 'p', { configurable: true, enumerable: true, get: () => key, set: () => {} }); } catch (e) { sp.p = key; }
+      for (const e in PEX) if (PIDX[ch + '_' + e] != null) SPEAKERS[n + '·' + PEX[e]] = { p: 'p_r142_' + ch + '_' + e, name: n === '管家' ? '松伯' : n, color: sp.color || PCOL[ch] };
+    }
+  } catch (e) { console.warn('r142 portraits', e); } };
+  setTimeout(() => { PI.src = 'r142/por.webp'; }, 2500);
 
   window.R139 = { R, NPC, setBed, get tea() { return TEA_T; } };
 })();

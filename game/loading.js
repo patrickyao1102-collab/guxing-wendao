@@ -47,8 +47,9 @@
     }
     return true; }
   const layer = { draw(force) {
-    if (world.mapName !== mapAt) { mapAt = world.mapName; t0 = performance.now(); prog = 0; lbPick(); }
+    if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0; lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
     let r = force != null ? Math.min(.97, force) : readiness();
+    if (LB.qz && LB.qz.min && LB.qz.ok && performance.now() - t0 < LB.qz.min && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-08：从外面走进青竹，专属载入图至少露个脸
     // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
     if (window.__GPH && performance.now() - window.__GPH < 250 && forced !== world.mapName) r = Math.min(r, .6);
     if (r >= 1) { shown = Math.max(0, shown - .08); if (!shown) return; } else shown = 1;
@@ -56,12 +57,14 @@
     const a = shown;
     ctx.save(); ctx.globalAlpha = a;
     if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
-    const B = LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
+    const QA = LB.qz && LB.qz.ok ? LB.qz : null;   // 作者 11-08：青竹一带用 R144 十二件小事插画，轮流放
+    const B = QA ? QA.im : LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
     if (B) {   // R157 插画版
+      if (QA) QA.use();
       const now = performance.now(), title0 = (world.map && world.map.def && world.map.def.title) || '', title = title0.replace(/^.*·\s*/, '') || title0, i = LB.idx;
       ctx.drawImage(B, 0, 0, W, H);
       const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150);
-      const four = i === 3, col = LCOL[i], dark = col !== '#FFF2D5';
+      const four = !QA && i === 3, col = QA ? '#FFF2D5' : LCOL[i], dark = col !== '#FFF2D5';
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${four ? 42 : 50}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
       ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = dark ? 'rgba(255,248,232,.55)' : 'rgba(10,8,6,.6)'; ctx.strokeText(title, four ? 42 : 72, four ? 43 : 70); ctx.fillStyle = col; ctx.fillText(title, four ? 42 : 72, four ? 43 : 70);
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(LB.tip, 640, 618); ctx.fillStyle = '#f3e4c2'; ctx.fillText(LB.tip, 640, 618);
