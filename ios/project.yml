@@ -2,7 +2,7 @@ name: Guxing
 options:
   bundleIdPrefix: com.guxing
   deploymentTarget:
-    iOS: "14.0"
+    iOS: "16.0"
   createIntermediateGroups: true
 
 settings:
