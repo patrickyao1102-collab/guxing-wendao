@@ -55,7 +55,8 @@ let SCALE = 1;
 function resize() {
   const vw = window.innerWidth, vh = window.innerHeight;
   SCALE = Math.min(vw / W, vh / H);
-  const dpr = Math.min(window.devicePixelRatio || 1, /Mobi|Android|iPhone|iPad/.test(navigator.userAgent) ? 1.5 : 2);   // 电脑上按 2 倍画（字更清楚），手机仍 1.5 倍   // 手机上 2 倍像素太吃性能，1.5 倍画质几乎看不出差别
+  // 作者 11-07：手机上画质不如电脑 → 手机也按 2 倍画（以前手机封顶 1.5）；放大招吃力时 r148_quality.js 临时降到 1.5 / 1.25，流畅后升回
+  const dpr = Math.min(window.devicePixelRatio || 1, window.DPR_CAP || 2);
   cv.style.width = (W * SCALE) + 'px';
   cv.style.height = (H * SCALE) + 'px';
   cv.width = Math.round(W * SCALE * dpr);
@@ -16543,4 +16544,6 @@ window.MarketEffects = (() => {
 <script src="r144_books.js"></script>
 <script src="r145_save.js"></script>
 <script src="r146_tp.js"></script>
+<script src="r147_cxfx_tiles.js"></script>
+<script src="r148_quality.js"></script>
 </body></html>
