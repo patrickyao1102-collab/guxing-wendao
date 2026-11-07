@@ -336,28 +336,41 @@
       lacquer(b.x, b.y, b.w, b.h, { r: 12, top: ok ? '#b8402a' : 'rgba(60,46,34,.9)', bot: ok ? '#6e1a10' : 'rgba(34,26,20,.9)' });
       if (ok) { ctx.save(); roundRect(b.x, b.y, b.w, b.h, 12); ctx.clip(); const sx = b.x + ((t * 160) % (b.w + 200)) - 100, g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.5, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(255,240,200,0)'); ctx.fillStyle = g; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); }
       ctx.textAlign = 'center'; ctx.font = `30px ${BRUSH}`; textOutline('参 悟', b.x + b.w / 2, b.y + b.h / 2 + 1, ok ? '#fff2cc' : '#8a7a5c', '#1a0800', 4); }
+    else if (I.learned && window.R154) { const b = G.btn; ctx.textAlign = 'center'; ctx.font = `600 15px ${FONT}`; ctx.fillStyle = 'rgba(232,210,160,.7)'; ctx.fillText('再点一下招式图标 · 查看详情', b.x + b.w / 2, b.y + b.h / 2); }
     ctx.restore();
   }
+
+  function doUp(G, o, cu) {
+      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return false; }
+      const h = S.hero; { const legacy = cu.q.t === 2 && !itemCount(cu.q.item) ? bookId(o.n.id) : cu.q.item; h.bag[legacy] -= cu.q.n; if (h.bag[legacy] <= 0) delete h.bag[legacy]; }
+      LV()[key(G.who, o.n.id)] = cu.q.t; anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
+      let p = null;
+      if (window.SKWIN) { const T = tiersOf(o.n.id), a = T[cu.q.t - 2] || '', c = T[cu.q.t - 1] || '', pa = (a.match(/\d+%/g) || []), pc = (c.match(/\d+%/g) || []), rows = [];
+        pc.forEach((v, i) => { if (pa[i] && pa[i] !== v && rows.length < 2) rows.push([rows.length ? '附加' : '威力', pa[i], v]); });
+        const extra = c.split('，').slice(1).find(x => !a.includes(x)); if (extra && rows.length < 3) rows.push(['新增', '—', extra.length > 8 ? extra.slice(0, 8) + '…' : extra]);
+        p = SKWIN.upgrade({ k: o.n.id, name: cu.I.name || o.n.short, t0: cu.q.t - 1, t1: cu.q.t, rows, desc: rows.length ? '' : c }); }
+      else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return p || true;
+  }
+  // 给技能详情页（r154）用
+  const nodeOf = (who, id) => { const T = TREE[who]; if (!T) return null; if (T.ult && T.ult.id === id) return T.ult; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return n; return null; };
+  const colOf = (who, id) => { const T = TREE[who]; if (!T) return ''; if (T.ult && T.ult.id === id) return '秘传'; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return c[0]; return ''; };
+  window.SKT = { info, need, tiersOf, TGT, CN, CAPTXT, realmCap, bookId, nodeOf, colOf,
+    canUp: (who, id) => { const n = nodeOf(who, id); return n ? canUp({ who }, { n }) : null; },
+    upgrade: (who, id) => { const n = nodeOf(who, id); if (!n) return false; const G = { who }, o = { n }, cu = canUp(G, o); return cu && cu.q ? doUp(G, o, cu) : false; } };
 
   // ---------- 点选 ----------
   menuUpdate = (orig => function () {
     const m = S.menu; if (!m || MTABS[m.tab] !== '技能' || !input.tapped) return orig();
     const tp = input.tapped, L = menuLayout(), G = geo(L.body);
     for (const R of G.roots) if (Math.hypot(tp.x - R.x, tp.y - R.y) < R.r + 14 || (Math.abs(tp.x - R.x) < 60 && tp.y > R.y + R.r && tp.y < R.y + R.r + 32)) { input.tapped = null; ACTIVE[G.who] = R.gongfa; selKey = 'root:' + G.who + ':' + R.gongfa; playSnd('ui_click'); return; }
-    for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; selKey = key(G.who, o.n.id); playSnd('ui_click'); return; }
+    for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; const again = selKey === key(G.who, o.n.id); selKey = key(G.who, o.n.id); playSnd('ui_click'); if (again && window.R154 && info(G.who, o.n).learned) R154.open(G.who, o.n.id); return; }
     if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
       if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
         if (window.SKWIN) { const xd = cu.I; SKWIN.learn({ k: o.n.id, name: xd.name, desc: xd.desc || '', meta: xd.cost ? String(xd.cost).replace(/^灵力 /, '消耗灵力：') : '' }); } else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
       if (cu && cu.q) { input.tapped = null;
-      if (!cu.ok) { playSnd('ui_click'); toast(cu.q.t > cu.q.cap ? (cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足') : '没有' + cu.q.label + '（典籍阁有售）'); return; }
-      const h = S.hero; { const legacy = cu.q.t === 2 && !itemCount(cu.q.item) ? bookId(o.n.id) : cu.q.item; h.bag[legacy] -= cu.q.n; if (h.bag[legacy] <= 0) delete h.bag[legacy]; }
-      LV()[key(G.who, o.n.id)] = cu.q.t; anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
-      if (window.SKWIN) { const T = tiersOf(o.n.id), a = T[cu.q.t - 2] || '', c = T[cu.q.t - 1] || '', pa = (a.match(/\d+%/g) || []), pc = (c.match(/\d+%/g) || []), rows = [];
-        pc.forEach((v, i) => { if (pa[i] && pa[i] !== v && rows.length < 2) rows.push([rows.length ? '附加' : '威力', pa[i], v]); });
-        const extra = c.split('，').slice(1).find(x => !a.includes(x)); if (extra && rows.length < 3) rows.push(['新增', '—', extra.length > 8 ? extra.slice(0, 8) + '…' : extra]);
-        SKWIN.upgrade({ k: o.n.id, name: cu.I.name || o.n.short, t0: cu.q.t - 1, t1: cu.q.t, rows, desc: rows.length ? '' : c }); }
-      else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + o.n.short + ' 第' + CN[cu.q.t] + '重'); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; } }
+        if (window.R154 && R154.open(G.who, o.n.id)) { playSnd('ui_click'); return; }   // 作者 11-07：先进技能详情页，在详情页里点「参悟升重」
+        doUp(G, o, cu); return; } }
     return orig();
   })(menuUpdate);
 

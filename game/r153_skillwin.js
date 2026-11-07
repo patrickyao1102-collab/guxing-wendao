@@ -79,7 +79,10 @@
     txt(c, P.btn, 640, btnY + 31 + (P.pressed ? 1 : 0), `600 36px ${FONT}`, BROWN);
     c.restore();
   }
-  S.overlay.push({ draw() { if (P) try { draw(ctx); } catch (e) { console.warn('skillwin', e); const r = P.res; P = null; r(); } } });
+  const safeDraw = () => { if (P) try { draw(ctx); } catch (e) { console.warn('skillwin', e); const r = P.res; P = null; r(); } };
+  let menuDrawn = 0;   // 行囊是在叠层之后才画的：开着行囊时改为画完行囊再画这个窗口，不然被行囊盖住
+  S.overlay.push({ draw() { if (!(S.menu && performance.now() - menuDrawn < 200)) safeDraw(); } });
+  if (typeof drawMenu === 'function') drawMenu = (o => function () { const r = o.apply(this, arguments); menuDrawn = performance.now(); safeDraw(); return r; })(drawMenu);
   consumeTap = (o => function () { if (P) { const t = o(); P.pressed = !!input.down; if (t && performance.now() - P.t0 > 500) { const r = P.res; P = null; r(); } return null; } return o(); })(consumeTap);
   (function tick() { if (P) { P.pressed = !!input.down; if (input.tapped) consumeTap(); } requestAnimationFrame(tick); })();
 
