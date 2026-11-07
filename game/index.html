@@ -16108,7 +16108,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
     const p = arrayPose(), z = clock();
     if (skill === 'dianxing') {
       const f = finger(), feed = E(t, .08, .30) * (1 - E(t, .74, .83));
-      c.save(); c.translate(p.x, p.y); c.rotate(p.rotation); M.array(c, z * 2.2, { x: 0, y: 0, rx: p.rx, ry: p.ry, a: p.a * .66 }); c.restore();
+      c.save(); c.translate(p.x, p.y); c.rotate(p.rotation); M.array(c, (z + SPINX) * 2.2, { x: 0, y: 0, rx: p.rx, ry: p.ry, a: p.a * .66 }); c.restore();
       flowingLink(f, p, z * 1.7, feed * .28, 2, 2);
       M.orb(c, z, f.x, f.y, 4.8, feed * .48, 4);
       M.glow(c, p.x, p.y, 17, 25, E(t, .64, .74) * (1 - E(t, .77, .84)) * .5, '214,237,255');
@@ -16156,20 +16156,23 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   const TITLE = {}; function title() { if (skill === 'dianxing') return; const a = E(t, .35, .65) * (1 - E(t, 1.25, 1.5)); if (a <= .003) return; let cv = TITLE.xl; if (!cv) { cv = TITLE.xl = mk(340, 190); const g = cv.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = '#bc873c'; g.shadowBlur = 5; g.strokeStyle = '#171820'; g.lineWidth = 3; g.font = '600 21px ' + FONT; g.strokeText('叶孤星', 170, 42); g.fillStyle = '#e5c78f'; g.fillText('叶孤星', 170, 42); g.font = '900 56px ' + FONT; g.strokeText('星落', 170, 96); g.fillStyle = '#fff0cd'; g.fillText('星落', 170, 96); } main.save(); main.globalAlpha = a; main.drawImage(cv, 90, 62); main.restore(); }   // 让开右上角队伍血条
 
   // 一次施法：返回 Promise；hits(e) 在每颗星 / 剑芒命中那一帧回调
-  function play(k, caster, targets, onHit, endAt) {
-    skill = k; P = caster; TG = targets.slice(); PLAN = null; t = 0;
+  // 作者 11-08：点星喊话比剑招长 → 剑阵（六芒星）凝成后在指尖多转几圈（hold 秒）再刺出，命中对上「星」字；特效不整段延后
+  let SPINX = 0; const HOLD_AT = .6;
+  function play(k, caster, targets, onHit, endAt, hold = 0) {
+    const WT = ft => { SPINX = Math.max(0, Math.min(hold, ft - HOLD_AT)) * 2.6; return ft < HOLD_AT ? ft : ft < HOLD_AT + hold ? HOLD_AT : ft - hold; };
+    endAt += hold; skill = k; P = caster; TG = targets.slice(); PLAN = null; t = 0;
     if (k === 'xingluo') { const ax = TG.reduce((s, u) => s + u.x, 0) / TG.length; SKY = { x: Math.round((P.x + ax) / 2 + 14), y: 205 }; }   // Codex 演示 y=158；正式战斗顶上有队伍血条，星盘整体下移让开
     const evs = events().map(e => ({ e, done: false })), b = battle;
     return new Promise(res => {
       let resolved = false;
-      const under = addFx({ life: k === 'dianxing' ? 1.9 : 6, layer: 0, draw(f) { if (skill !== k || P !== caster) return; t = f.t; groundLight(); } });
-      addFx({ life: k === 'dianxing' ? 1.9 : 6, layer: 1,
-        update(f) { t = f.t; skill = k; P = caster; if (k === 'xingluo' && b === battle) b.dim = night();
+      const under = addFx({ life: k === 'dianxing' ? 1.9 + hold : 6, layer: 0, draw(f) { if (skill !== k || P !== caster) return; t = WT(f.t); groundLight(); } });
+      addFx({ life: k === 'dianxing' ? 1.9 + hold : 6, layer: 1,
+        update(f) { t = WT(f.t); skill = k; P = caster; if (k === 'xingluo' && b === battle) b.dim = night();
           for (const o of evs) if (!o.done && t >= o.e.hit) { o.done = true; const m = o.e.main;
             if (k === 'dianxing') { S.shake = Math.max(S.shake || 0, 5); screenFlash('#fffaeb', .18); } else { S.shake = Math.max(S.shake || 0, m ? 13 : 4); screenFlash('#fffaeb', m ? .52 : .13); }
             try { onHit(o.e, tgUnit(o.e.target)); } catch (er) { console.warn(er); } }
           if (!resolved && t >= endAt) { resolved = true; res(); } },
-        draw(f) { t = f.t; skill = k; P = caster; main = ctx; c = ctx; pointLightUnderlay(); beginFx(); ritual(); if (k === 'xingluo') meteorEffects(); else pointEffects(); finishFx(); c = main; title(); },
+        draw(f) { t = WT(f.t); skill = k; P = caster; main = ctx; c = ctx; pointLightUnderlay(); beginFx(); ritual(); if (k === 'xingluo') meteorEffects(); else pointEffects(); finishFx(); c = main; title(); },
         onEnd() { if (k === 'xingluo' && b === battle) b.dim = 0; if (!resolved) { resolved = true; res(); } } });
     });
   }
@@ -16178,9 +16181,10 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   const oldDX = skDianxing;
   skDianxing = async function (Pc, tg) {
     if (!tg || Pc.ally || !ready) return oldDX.apply(this, arguments);
+    const H = window.DX_VOICE_HOLD ? DX_VOICE_HOLD(Pc) : 0;
     playSnd('sfx_sword_ring');
-    setTimeout(() => playSnd('sfx_beam', .8), 760);
-    await play('dianxing', Pc, [tg], () => { playSnd('sfx_hit'); const { d, crit } = dmgCalc(Pc, tg, 1.75, .25); applyDamage(tg, d, crit, { pierce: true }); }, 1.55);
+    setTimeout(() => playSnd('sfx_beam', .8), 760 + H * 1000);
+    await play('dianxing', Pc, [tg], () => { playSnd('sfx_hit'); const { d, crit } = dmgCalc(Pc, tg, 1.75, .25); applyDamage(tg, d, crit, { pierce: true }); }, 1.55, H);
   };
   const oldXL = skXingluo;
   skXingluo = async function (Pc) {

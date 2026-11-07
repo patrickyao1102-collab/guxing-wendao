@@ -318,7 +318,9 @@
       window.DX_P = P; window.DX_T = t; P.pose = 'cast'; if (battle) battle._cineHide = true;
       try { dimTo(.48, 300); } catch (e) {}
       const hit = () => { if (!t.alive) return; const { d, crit } = dmgCalc(P, t, 1.75, .15); applyDamage(t, d, crit, { pierce: true }); S.shake = 10; try { playSnd('sfx_hit'); } catch (e) {} };
-      await rtRun(2.2, { front: z => DX_RT.rtDraw(z) }, [[.1, () => { try { playSnd('sfx_charge', .45); } catch (e) {} }], [.84, () => { try { playSnd('sfx_beam', .7); } catch (e) {} }], [1.06, hit], [1.75, () => { try { dimTo(0, 600); } catch (e) {} }]]);
+      // 作者 11-08：叶孤星喊「天剑一式，点——星！」时，六芒星在指尖多转一会儿（H 秒），刺出命中正好落在「星」字上；特效本身不再整段延后
+      const H = window.DX_VOICE_HOLD ? DX_VOICE_HOLD(P) : 0;
+      await rtRun(2.2 + H, { front: z => DX_RT.rtDraw(z, H) }, [[.1, () => { try { playSnd('sfx_charge', .45); } catch (e) {} }], [.84 + H, () => { try { playSnd('sfx_beam', .7); } catch (e) {} }], [1.06 + H, hit], [1.75 + H, () => { try { dimTo(0, 600); } catch (e) {} }]]);
       P.pose = null; if (battle) battle._cineHide = false; window.DX_P = window.DX_T = null; return;
     }
     return orig.apply(this, arguments);

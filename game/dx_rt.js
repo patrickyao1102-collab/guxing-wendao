@@ -331,7 +331,7 @@ function dxCharge(){return E(t,.05,.65)*(1-E(t,.84,1.08));}
 function dxBurst(){return E(t,1.06,1.095)*(1-E(t,1.32,1.72));}
 function dxEffects(){
  const f=finger(),p=dxAim(),charge=dxCharge();
- if(charge>0){tex('dx_burst0',f.x,f.y,150,150,charge*.95);glow(c,f.x,f.y,36,36,charge*.30,'222,247,255');
+ if(charge>0){tex('dx_burst0',f.x,f.y,150,150,charge*.95,SPIN*TAU*1.6);glow(c,f.x,f.y,36,36,charge*.30,'222,247,255');
   for(let j=0;j<9;j++){const q=C((t-.06-j*.025)/.70),an=j*2.399+.3,dist=(1-q)*(50+R(j)*70);if(q>0&&q<1)tex('dx_burst5',f.x+Math.cos(an)*dist,f.y+Math.sin(an)*dist*.5,16,16,Math.sin(q*Math.PI)*.52);}
  }
  const launch=.84,hit=1.06;
@@ -349,7 +349,9 @@ function dxEffects(){
  if(t>1.58&&t<2.85){const fade=1-E(t,2.0,2.85);tex('dx_burst5',p.x,p.y,40,40,fade*.62);}
 }
 function inspectDianxing(){return{caster:dxCaster().key,casterName:dxCaster().name,casterSprite:dxCaster().key+'_atk',time:t,phase:phaseName(),duration:3,fps:30,scope:'three design keyframes, not final animation',target:dxTarget().key,impactAt:1.06,damageDisplaySample:32680,damageEvents:hitIndex,camera:camera(),heroArmAngle:armAngle(),nightOpacity:night(),finger:finger(),aim:dxAim(),layout:layoutAudit,units:battle.units.map(u=>({name:u.name,key:u.key,side:u.side,x:u.x,y:u.y,h:u.h,hp:u.hp,maxhp:u.maxhp,reaction:reaction(u)}))};}
-function rtDraw(z){wall=raw=t=z;c=main;beginFx();dxEffects();finishFx();c=main;}
+// 作者 11-08：喊话「天剑一式，点——星！」比剑招长 → 不再整段延后特效，而是六芒星凝成后在指尖多转几圈（hold 秒），转完再刺出，命中对上「星」字
+let SPIN=0;const HOLD_AT=.65;
+function rtDraw(z,hold=0){SPIN=z;const zz=z<HOLD_AT?z:z<HOLD_AT+hold?HOLD_AT:z-hold;wall=raw=t=zz;c=main;beginFx();dxEffects();finishFx();c=main;}
 function armAngle(){return 0;}
 function finger(){const u=dxCaster(),f=units.get(u);if(!f)return{x:u.x-26,y:u.y-(u.h||240)*.66};const _p=0,p=u.key==='b_yunting'?[5,389]:[7,287];return{x:u.x+(p[0]-f.footX)*f.scale,y:u.y+(p[1]-f.footY)*f.scale};}
 function nightBase(){if(wall<6.6)return nightV8();return(.65-.15*(E(wall,8.2,8.8)-E(wall,9.1,9.4)))*(1-E(wall,10.5666666667,11.3666666667));}
