@@ -211,7 +211,7 @@
     // 林逸上前道谢
     p.face = 'up'; yt.face = 'up';
     await moveActor(ly, p.x + 34, p.y - 74, 230); ly.dir = -1;
-    await tween(260, t => ly.sq = 1 - .14 * Math.sin(t * Math.PI));   // 作揖
+    ly.bowing = 1; await sl(900); ly.bowing = 0;   // 作揖（R105 作揖单帧）
     await say('林逸', '多谢两位出手相救！若非两位仗义相助，我今天恐怕就要丧命于妖兽口中了。');
     await say('云霆', '你是什么人？为何独自闯入这片妖兽横行的树林？');
     await say('林逸', '我叫林逸，是青阳镇林家家主之子。数月前黑风寨威胁我林家，要我们每月上交大量灵石……父亲让我去飞云宗求援，谁知刚出镇子就被黑风寨的人一路追杀。');
