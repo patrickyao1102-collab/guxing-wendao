@@ -388,11 +388,12 @@ function drawPanel() {
   if (!sysPanel) return;
   const p = sysPanel; const k = ease(Math.min(1, p.t * 4));
   // 作者 11-03：长说明会超出框 → 按框宽自动换行，框高跟着行数走
-  if (!p.wrapped) { ctx.save(); ctx.font = `600 26px ${FONT}`; const out = [], maxW = 720 - 100;
+  if (!p.wrapped) { ctx.save(); ctx.font = `600 26px ${FONT}`; const out = [], maxW = (window.R169_PANEL_WRAPW && R169_PANEL_WRAPW(p)) || (720 - 100);
     for (const l0 of p.lines) { const hl = String(l0).startsWith('!'), t = hl ? String(l0).slice(1) : String(l0); let cur = '';
       for (const ch of t) { if (ctx.measureText(cur + ch).width > maxW && cur) { out.push((hl ? '!' : '') + cur); cur = ch; } else cur += ch; }
       out.push((hl ? '!' : '') + cur); }
     ctx.restore(); p.lines = out; p.wrapped = true; }
+  if (window.R169_DRAWPANEL && R169_DRAWPANEL(p, k)) return;   // R169 墨玉传音 / 宣纸卷轴
   const w = 720, h = 90 + p.lines.length * 46, x = W / 2 - w / 2, y = H / 2 - h / 2;
   ctx.save(); ctx.fillStyle = `rgba(0,0,0,${.5 * k})`; ctx.fillRect(0, 0, W, H);
   ctx.translate(W / 2, H / 2); ctx.scale(lerp(.8, 1, k), lerp(.8, 1, k)); ctx.translate(-W / 2, -H / 2); ctx.globalAlpha = k;
@@ -409,8 +410,9 @@ function drawToast(dt) {
   if (!S.toast) return; S.toast.t += dt * 1000; const t = S.toast;
   if (t.t > t.ms) { S.toast = null; return; }
   const a = t.t < 200 ? t.t / 200 : t.t > t.ms - 300 ? (t.ms - t.t) / 300 : 1;
-  ctx.save(); ctx.globalAlpha = a; ctx.font = `600 28px ${FONT}`; const w = ctx.measureText(t.text).width + 80;
-  const off = (typeof world !== 'undefined' && world.banner && world.banner.t < 2.6 && S.scene === drawMap) ? (window.BANNER_Y || 92) + 82 - 80 : 0;   // 地名牌还在时，提示往下让一让，不叠在一起
+  const off = (typeof world !== 'undefined' && world.banner && world.banner.t < 2.6 && S.scene === drawMap) ? (window.BANNER_Y || 92) + 82 - 80 : 0;
+  if (window.R169_DRAWTOAST && R169_DRAWTOAST(t, a, off)) return;   // R169 墨绸带
+  ctx.save(); ctx.globalAlpha = a; ctx.font = `600 28px ${FONT}`; const w = ctx.measureText(t.text).width + 80;   // 地名牌还在时，提示往下让一让，不叠在一起
   roundRect(W / 2 - w / 2, 80 + off, w, 56, 28); ctx.fillStyle = 'rgba(10,8,4,.85)'; ctx.fill(); ctx.strokeStyle = '#d8a752'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#ffe7b0'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t.text, W / 2, 108 + off); ctx.restore();
 }
@@ -809,9 +811,10 @@ function drawUnit(u) {
   if (u.buffs.shield) { for (let i = 0; i < 4; i++) { const a = now * 3 + i * Math.PI / 2; drawSword(x + Math.cos(a) * 90, y - 60 + Math.sin(a) * 30, -Math.PI / 2, 44, '#8fd8ff', .7); } }
   // 头顶血条
   const bw = 110, bx = u.x + u.ox - bw / 2, by = y - u.h - 26;
+  if (!(window.R169_HPBAR && R169_HPBAR(u, bx + bw / 2, by))) {   // R169 玉槽金帽
   ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(bx - 2, by - 2, bw + 4, 12);
   ctx.fillStyle = u.side === 'hero' ? '#4fe07a' : '#ff4a3a'; ctx.fillRect(bx, by, bw * u.hp / u.maxhp, 8);
-  if (u.shield > 0) { ctx.fillStyle = '#ffd34a'; ctx.fillRect(bx, by + 10, bw * u.shield / u.shieldMax, 4); }
+  if (u.shield > 0) { ctx.fillStyle = '#ffd34a'; ctx.fillRect(bx, by + 10, bw * u.shield / u.shieldMax, 4); } }
   if (u.side === 'enemy' && u.name) { ctx.save(); ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; textOutline(u.name, u.x + u.ox, by - 9, /^精英/.test(u.name) ? '#e6c2ff' : /^金灵/.test(u.name) ? '#ffe17a' : '#fff0d0', '#1a0800', 4); ctx.restore(); }   // 头顶名字
 }
 function drawBattle() {
@@ -827,8 +830,9 @@ function drawBattle() {
   drawFx(1);
   zOut();
   // 顶部：当前行动者（大招演出时收起）
-  if (!b._cineHide) { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 0, W, 54); ctx.font = `600 26px ${FONT}`; ctx.fillStyle = '#ffe7b0'; ctx.textBaseline = 'middle';
-  ctx.fillText(b.active ? (b.active.name + (b.state === 'menu' ? ' · 请选择行动' : ' 行动中')) : (b.cfg.title || '战斗'), 24, 27); ctx.restore(); }
+  if (!b._cineHide) { const tt = b.active ? (b.active.name + (b.state === 'menu' ? ' · 请选择行动' : ' 行动中')) : (b.cfg.title || '战斗');
+  if (!(window.R169_DRAWTURN && R169_DRAWTURN(tt))) { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 0, W, 54); ctx.font = `600 26px ${FONT}`; ctx.fillStyle = '#ffe7b0'; ctx.textBaseline = 'middle';
+  ctx.fillText(tt, 24, 27); ctx.restore(); } }
   drawBattleHud();
   if (b.state === 'menu' && !dialog && !sysPanel) drawBattleMenu();
   zIn(); drawFx(2); zOut();
@@ -2618,7 +2622,7 @@ function tileDraw() {
   if (m.def.tint) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = m.def.tint; ctx.fillRect(0, 0, W, H); ctx.restore(); }
   const g = ctx.createRadialGradient(W / 2, H / 2, H * .5, W / 2, H / 2, H * 1.05); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,8,.42)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   // 地名牌（进图时）
-  const bn = world.banner; if (bn && bn.t < 2.6) { const a = Math.min(1, bn.t / .3) * Math.min(1, (2.6 - bn.t) / .5); ctx.save(); ctx.globalAlpha = a; ctx.font = `46px ${BRUSH}`; ctx.textAlign = 'center'; const w = ctx.measureText(bn.text).width + 120, QR = window.QUEST_RECT, by = QR && QR.y > 50 && S.hud !== false ? QR.y + QR.h + 14 : 92; window.BANNER_Y = by; panel(W / 2 - w / 2, by, w, 74); textOutline(bn.text, W / 2, by + 52, '#ffe08a', '#2a1000', 5); ctx.restore(); }
+  const bn = world.banner; if (bn && bn.t < 2.6) { const a = Math.min(1, bn.t / .3) * Math.min(1, (2.6 - bn.t) / .5); ctx.save(); ctx.globalAlpha = a; ctx.font = `46px ${BRUSH}`; ctx.textAlign = 'center'; const w = ctx.measureText(bn.text).width + 120, QR = window.QUEST_RECT, by = QR && QR.y > 50 && S.hud !== false ? QR.y + QR.h + 14 : 92; window.BANNER_Y = by; ctx.restore(); if (!(window.R169_DRAWBANNER && R169_DRAWBANNER(bn, a, by))) { ctx.save(); ctx.globalAlpha = a; ctx.font = `46px ${BRUSH}`; ctx.textAlign = 'center'; panel(W / 2 - w / 2, by, w, 74); textOutline(bn.text, W / 2, by + 52, '#ffe08a', '#2a1000', 5); ctx.restore(); } }
 }
 function drawObj(o) {
   const d = o.d, x = (o.c + .5) * TS + (o.ox || 0), y = (o.r + 1) * TS + (o.dy || 0), w = d.w * TS * (o.s || 1);
@@ -3338,6 +3342,7 @@ titleScreen = (orig => async function () {
   }
   function drawPage(now) {
     const P = PAGES[page]; if (!P) return; const k = Math.min(1, (now - pageT0) * 5), e = 1 - Math.pow(1 - k, 3);
+    if (window.R169_TITLEPAGE && R169_TITLEPAGE(P, e, now)) return;   // R169 宣纸卷轴
     ctx.save(); ctx.fillStyle = `rgba(0,0,0,${.55 * e})`; ctx.fillRect(0, 0, W, H);
     const w = 820, h = 150 + P.lines.length * 46, x = W / 2 - w / 2, y = H / 2 - h / 2;
     ctx.globalAlpha = e; ctx.translate(W / 2, H / 2); ctx.scale(.92 + .08 * e, .92 + .08 * e); ctx.translate(-W / 2, -H / 2);
@@ -16727,5 +16732,5 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script>
 </body></html>

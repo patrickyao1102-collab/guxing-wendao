@@ -14,7 +14,8 @@
     const w = 760, h = 64, gap = 22, y0 = H / 2 - (n * (h + gap)) / 2 + 44; return choice.options.map((o, i) => ({ x: W / 2 - w / 2, y: y0 + i * (h + gap), w, h })); };
   const prev = drawChoice;
   drawChoice = function () {
-    if (!choice) return; if (!IM.option_normal) return prev();
+    if (!choice) return; if (window.R169_DRAWCHOICE && R169_DRAWCHOICE()) return;   // R169 如意玉牌
+    if (!IM.option_normal) return prev();
     const rs = choiceRects(), t = choice.t, now = performance.now() / 1000, k = Math.min(1, t * 5);
     ctx.save(); ctx.fillStyle = `rgba(4,8,18,${.62 * k})`; ctx.fillRect(0, 0, W, H);
     // 标题：毛笔字 + 两侧银线与菱形星点
