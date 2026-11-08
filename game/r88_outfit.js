@@ -28,7 +28,7 @@
   let want = {};          // 当前服装要求的 IMG
   async function apply(id, quiet) {
     const o = OUTFITS.find(x => x.id === id); if (!o) return; cur = id; try { localStorage.setItem('yegx_outfit', id); } catch (e) {}
-    if (window.S && S.hero) S.hero.outfit = id;
+    if (!quiet && typeof S !== 'undefined' && S.hero) S.hero.outfit = id;   // R168：只有玩家自己在衣柜里换才记进这一局
     want = {};
     if (o.img) { for (const k in o.img) { const im = await load(k, o.img[k]); if (im) want[k] = im; } }
     if (o.portrait) { const im = await load('p', o.portrait); if (im) want.__portrait = im; }
@@ -43,7 +43,17 @@
   }
   setInterval(enforce, 800);   // 原版图异步加载完会覆盖，这里拉回来
   apply(cur, true); for (const o of OUTFITS) if (o.portrait) load('p', o.portrait);
-  window.YEGX_OUTFIT = { list: OUTFITS, get: () => cur, set: id => apply(id) };
+  window.YEGX_OUTFIT = { list: OUTFITS, get: () => cur, set: id => apply(id), setQuiet: id => apply(id, true) };
+  // R168 · 作者 11-08 重要 bug：新开一局叶孤星却穿着「孤星白衣」——服装只记在本机 localStorage，跟着设备走、不跟存档走。
+  // 现在服装跟着这一局的进度（S.hero.outfit，存档里有）；孤星白衣在取得流云仙衣前一律换回默认白袍正蓝。
+  setInterval(() => { try {
+    if (typeof S === 'undefined' || !S.hero || !S.started) return;
+    let want = S.hero.outfit || 'baipao';
+    if (want === 'guxing' && window.R134_OUTFIT_OK && !R134_OUTFIT_OK()) want = 'baipao';
+    if (!OUTFITS.some(o => o.id === want)) want = 'baipao';
+    S.hero.outfit = want;
+    if (want !== cur) apply(want, true);
+  } catch (e) {} }, 600);
 
   // ---- 行囊加「换装」页（仿坐骑页）----
   if (typeof MTABS === 'undefined') return;
