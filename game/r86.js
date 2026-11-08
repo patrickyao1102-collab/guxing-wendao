@@ -8,6 +8,9 @@
   const IM = {}; let n = 0; const N = Object.keys(B).length;
   for (const k in B) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = LOC ? 'r86/' + k + '.webp' : '/_blob/' + B[k]; }
   const READY = () => n >= N; window.R86_READY = READY; window.R79D_READY = READY;
+  // R168 · 作者 11-08：「初始战斗还出现了以前的技能选择界面」——战斗菜单图被排在「最后下」，第一场战斗时还没下完就退回了旧菜单。
+  // 现在 r86 / r87 改成开局马上下（img_guard），另外每场战斗开始时再按名字催一次，万一还在队里就插队。
+  if (typeof startBattle === 'function') startBattle = (o => function () { try { if (!READY() && window.IMG_GUARD) IMG_GUARD.bumpMatch(['r86/', 'r87/', 'r79d/']); } catch (e) {} return o.apply(this, arguments); })(startBattle);
   // 菜单字体：霞鹜文楷 Medium（OFL 开源，按游戏里用到的字裁剪，约 0.7MB）——所有设备显示一致，不再依赖系统有没有楷体
   // 作者 10-31 最终：照 Codex 设计图的字——标题粗宋（思源宋体 Heavy），正文宋体（思源宋体 Medium），OFL，按游戏用字裁剪
   // 作者 10-31 定稿（方案 8）：标题阿里妈妈东方大楷（免费商用），正文霞鹜文楷 Bold（OFL）；都按游戏用字裁剪
