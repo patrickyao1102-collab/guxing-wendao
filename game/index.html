@@ -3300,32 +3300,110 @@ const CX2ATLAS = {"pages":8,"map":{"governor_sun_window_r34_f51960":[0,0,0,1920,
   }
 })();
 
-// ---- 标题画面：选择章节 ----
+// ---- 标题画面（R168 · 作者 11-08：给别人玩的试玩版——不出现章节；菜单：初入仙途 / 前尘再续 / 原著小说 / 编辑策划）----
 titleScreen = (orig => async function () {
   playBgm('bgm_title');
-  const btns = [{ k: 1, t: '第一章 · 天煞孤星', x: W * .3, y: 470 }, { k: 2, t: '第二章 · 下山历练', x: W * .3, y: 555 }];
+  const MF = '"GuxingDF",' + BRUSH, BF = '"GuxingWKB",' + FONT;
+  const X = W * .27, Y0 = 400, DY = 74;
+  const items = [{ k: 'new', t: '初入仙途' }, { k: 'load', t: '前尘再续' }, { k: 'novel', t: '原著小说' }, { k: 'credit', t: '编辑策划' }];
+  items.forEach((b, i) => { b.y = Y0 + i * DY; });
+  const hasSave = () => { try { return !!(window.GX_HAS_SAVE && window.GX_HAS_SAVE()); } catch (e) { return false; } };
+  const hit = (p, b) => p && Math.abs(p.x - X) < 150 && Math.abs(p.y - b.y) < DY / 2 - 2;
+  let page = null, pageT0 = 0, flashK = null, flashT0 = 0;
+  const PAGES = {
+    novel: { title: '原著小说 ·《孤星问道》', lines: [
+      '天剑宗少宗主叶孤星，生来便被断为「天煞孤星」，',
+      '修炼多年仍困在练气，受尽同门冷眼。',
+      '十八岁生辰之夜，一颗流星坠入后山，',
+      '半块残缺的黑玉里，沉睡万古的星魂——星旋，就此醒来。',
+      '残本九曜剑典重现人间，孤星自此问道九天。',
+      '',
+      '!游戏剧情改编自原著小说，更完整的故事，在书里等你。',
+      '阅读地址：（待作者补充）'] },
+    credit: { title: '编辑策划', lines: [
+      '原著 · 出品　　（作者署名）',
+      '策划 · 程序　　Claude',
+      '美术 · 绘制　　Codex',
+      '配音 · 音效　　小云雀 · 即梦',
+      '',
+      '!特别鸣谢　每一位前来试玩的道友'] },
+  };
+  function star(x, y, r, a) {
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 2.4); g.addColorStop(0, 'rgba(255,246,214,.85)'); g.addColorStop(1, 'rgba(255,220,140,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 2.4, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fffbea'; ctx.beginPath();
+    for (let i = 0; i < 8; i++) { const rr = i % 2 ? r * .2 : r, an = i * Math.PI / 4 - Math.PI / 2; ctx.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  function drawPage(now) {
+    const P = PAGES[page]; if (!P) return; const k = Math.min(1, (now - pageT0) * 5), e = 1 - Math.pow(1 - k, 3);
+    ctx.save(); ctx.fillStyle = `rgba(0,0,0,${.55 * e})`; ctx.fillRect(0, 0, W, H);
+    const w = 820, h = 150 + P.lines.length * 46, x = W / 2 - w / 2, y = H / 2 - h / 2;
+    ctx.globalAlpha = e; ctx.translate(W / 2, H / 2); ctx.scale(.92 + .08 * e, .92 + .08 * e); ctx.translate(-W / 2, -H / 2);
+    roundRect(x, y, w, h, 14); const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(22,18,12,.96)'); g.addColorStop(1, 'rgba(8,6,4,.96)'); ctx.fillStyle = g; ctx.fill();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = '#c9a24e'; ctx.stroke(); roundRect(x + 8, y + 8, w - 16, h - 16, 10); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(201,162,78,.45)'; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.font = `40px ${MF}`; textOutline(P.title, W / 2, y + 70, '#f3d68a', 'rgba(0,0,0,.8)', 4);
+    star(W / 2 - ctx.measureText(P.title).width / 2 - 30, y + 56, 9, .6 + .4 * Math.sin(now * 3));
+    ctx.font = `600 24px ${BF}`;
+    P.lines.forEach((l, i) => { const hl = l.startsWith('!'); ctx.fillStyle = hl ? '#f3d68a' : '#eadfc8'; ctx.fillText(hl ? l.slice(1) : l, W / 2, y + 128 + i * 46); });
+    ctx.globalAlpha = e * (.5 + .3 * Math.sin(now * 3)); ctx.font = `18px ${BF}`; ctx.fillStyle = '#d8ccb0'; ctx.fillText('点击任意处返回', W / 2, y + h - 22);
+    ctx.restore();
+  }
   const draw0 = () => {
     const now = performance.now() / 1000;
     if (has('title_art')) { const z = 1.04 + Math.sin(now * .15) * .02; ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(z, z); drawImageFit(IMG.title_art, -W / 2, -H / 2, W, H); ctx.restore(); }
-    const g = ctx.createLinearGradient(0, 0, W * .6, 0); g.addColorStop(0, 'rgba(5,8,25,.55)'); g.addColorStop(1, 'rgba(5,8,25,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', W * .3, 250, '#ffe08a', '#2a0f00', 10);
-    ctx.font = `600 30px ${FONT}`; ctx.fillStyle = '#e8dcc0'; ctx.fillText('卷一 · 九曜剑典', W * .3, 320);
-    for (const b of btns) {
-      const w = 340, h = 64; panel(b.x - w / 2, b.y - h / 2, w, h);
-      ctx.font = `34px ${BRUSH}`; ctx.fillStyle = '#ffe08a'; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.x, b.y + 2); ctx.textBaseline = 'alphabetic';
-    }
-    ctx.globalAlpha = .55 + Math.sin(now * 3) * .3; ctx.font = `600 20px ${FONT}`; textOutline('点击选择章节', W * .3, 640, '#fff', 'rgba(0,0,0,.75)', 4);
-    ctx.globalAlpha = 1; ctx.font = `14px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, W * .3, 690, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);   // 载完就不再挂着「素材 36/36」
+    const g = ctx.createLinearGradient(0, 0, W * .6, 0); g.addColorStop(0, 'rgba(5,8,25,.5)'); g.addColorStop(1, 'rgba(5,8,25,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', X, 250, '#ffe08a', '#2a0f00', 10);
+    const sv = hasSave();
+    items.forEach((b, i) => {
+      const on = b.k !== 'load' || sv, hov = on && !page && (flashK === b.k || hit({ x: input.x, y: input.y }, b));
+      ctx.font = `46px ${MF}`; ctx.textBaseline = 'middle';
+      const tw = ctx.measureText(b.t).width;
+      if (hov) { const gl = ctx.createLinearGradient(X - tw, 0, X + tw, 0); gl.addColorStop(0, 'rgba(255,220,140,0)'); gl.addColorStop(.5, 'rgba(255,220,140,.6)'); gl.addColorStop(1, 'rgba(255,220,140,0)'); ctx.fillStyle = gl; ctx.fillRect(X - tw, b.y + 30, tw * 2, 1.5); }
+      textOutline(b.t, X, b.y, on ? (hov ? '#fff3cf' : '#f3dca0') : 'rgba(225,214,190,.42)', on ? 'rgba(30,14,0,.78)' : 'rgba(0,0,0,.35)', 5);
+      const tw2 = tw / 2 + 30;
+      if (hov) { star(X - tw2, b.y, 11, .75 + .25 * Math.sin(now * 5)); star(X + tw2, b.y, 7, .55 + .25 * Math.sin(now * 5 + 1.5)); }
+      else if (on) star(X - tw2, b.y, 4, .25 + .2 * Math.sin(now * 2 + i));
+      if (!on) { ctx.font = `15px ${BF}`; ctx.fillStyle = 'rgba(225,214,190,.5)'; ctx.fillText('尚无前尘可忆', X, b.y + 30); }
+      ctx.textBaseline = 'alphabetic';
+    });
+    ctx.textAlign = 'left'; ctx.font = `15px ${BF}`; textOutline('试玩版', 22, H - 20, 'rgba(255,255,255,.72)', 'rgba(0,0,0,.6)', 3);
+    ctx.textAlign = 'center'; ctx.font = `14px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, X, 700, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
     ctx.restore();
+    if (page) drawPage(now);
   };
   S.scene = draw0;
   await nextFrame(); consumeTap();
-  for (let i = 0; i < 90 && !window.GX_CONTINUE; i++) await nextFrame();   // 等 R145 存档模块就绪（分文件加载时它可能晚一两帧）
-  if (window.GX_CONTINUE) { try { if (await window.GX_CONTINUE()) return new Promise(() => {}); } catch (e) {} S.scene = draw0; }   // 有存档：先问「继续 / 重新开始」；选重新开始后恢复章节画面（R145）
-  let pick = 0;
-  while (!pick) { const t = consumeTap(); if (t) { for (const b of btns) if (Math.abs(t.x - b.x) < 170 && Math.abs(t.y - b.y) < 32) pick = b.k; } await nextFrame(); }
+  while (true) {
+    const t = consumeTap();
+    if (t) {
+      if (page) { if (performance.now() / 1000 - pageT0 > .3) { page = null; try { playSnd('ui_click'); } catch (e) {} } }
+      else {
+        const b = items.find(b => hit(t, b));
+        if (b) {
+          if (b.k === 'load' && !hasSave()) { toast('尚无前尘可忆——先「初入仙途」吧', 1800); }
+          else {
+            try { playSnd('ui_click'); } catch (e) {}
+            flashK = b.k; for (let i = 0; i < 9; i++) await nextFrame(); flashK = null;
+            if (b.k === 'novel' || b.k === 'credit') { page = b.k; pageT0 = performance.now() / 1000; }
+            else if (b.k === 'load') {
+              for (let i = 0; i < 90 && !window.GX_PICKLOAD; i++) await nextFrame();
+              let ok = false; try { ok = window.GX_PICKLOAD ? await window.GX_PICKLOAD() : false; } catch (e) {}
+              if (ok) return new Promise(() => {});
+              S.scene = draw0;
+            } else {
+              let go = true;
+              if (hasSave()) { const c = await choose('前尘尚在——自动存档会被新的进度覆盖（手动存档不受影响）。确定重新踏上仙途？', ['踏上仙途', '再想想']); go = c === 0; S.scene = draw0; }
+              if (go) break;
+            }
+          }
+        }
+      }
+    }
+    await nextFrame();
+  }
   playSnd('ui_confirm'); await fadeOut(600);
-  if (pick === 2) { await ch2Start(); return new Promise(() => {}); }   // 第二章：不再回到第一章流程
 })(titleScreen);
 
 'use strict';

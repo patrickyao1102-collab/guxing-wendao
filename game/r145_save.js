@@ -130,6 +130,16 @@
     loadGame(s); return true;
   };
 
+  // R168 标题「前尘再续」：列出有内容的存档（地点 · 修为 · 时间）挑一个读；返回 true = 已读档
+  window.GX_PICKLOAD = async function () {
+    const ne = SLOTS.filter(readSlot); if (!ne.length) return false;
+    const j = await choose('前尘再续 · 选择存档', ne.map(META).concat(['返回']));
+    if (j == null || j >= ne.length) return false;
+    try { playSnd('ui_confirm'); } catch (e) {}
+    try { await fadeOut(400); } catch (e) {}
+    loadGame(ne[j]); return true;
+  };
+
   // 自由走动时每 20 秒滚动自动存档（最近进度），外加原有的升级 / 领悟后 saveGame()
   setInterval(() => { try { if (safeNow()) window.saveGame(); } catch (e) {} }, 20000);
 })();
