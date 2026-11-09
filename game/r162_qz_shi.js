@@ -363,7 +363,7 @@
 
   // ---------- 子夜：床上的人 + 床边轻声 ----------
   const BEDS = { maid1: ['maid1_sleep_night_4f', null, 538, [262, 452]], maid2: ['maid2_sleep_night_4f', 'maid2_kick_night_4f', 538, [262, 452]], servant: ['servant_sleep_night_4f', 'servant_dream_night_4f', 399.5, [282, 446]], steward: ['steward_sleep_night_4f', null, 407, [366, 436]] };
-  const asleep = k => ON() && shi() === '子' && !(k === 'steward' && F().qz_letter) && AWAKE() !== k;
+  const asleep = k => ON() && shi() === '子' && !(k === 'steward' && F().qz_letter) && AWAKE() !== k && !(window.R175G2_DUTY && R175G2_DUTY() === k);   // R175：今晚值夜的人睡在菜园园屋里，自己屋里床空着
   for (const k in BEDS) { const m = RM[k], d = TMAPS[m]; if (!d) continue; d.npcs = d.npcs || []; const [c, r] = P(...BEDS[k][3]);
     d.npcs.push({ key: 'none', name: WHO[k] + '（睡着了）', c, r, h: 90, hidden: true, wander: false, q162bed: k, cond: () => asleep(k), talk: () => bedTalk(k) }); }
   async function bedTalk(k) {
@@ -1593,5 +1593,5 @@
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
-  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel };
+  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
 })();
