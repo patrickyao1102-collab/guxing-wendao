@@ -14366,6 +14366,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
   }
   function step() {
     if (!NAV.on || !world.map || !world.player) return;
+    if (!S.quest && !window.QNAV_GOAL) { NAV.on = false; NAV.arrive = null; return; }   // 11-10 跑 bug：剧情过场里清掉了任务、换图后寻路接着跑，会冒一句「这个任务没有固定地点」——没任务就安静停下
     if (!world.map.tile) {   // 老式整图（秘境等）：直接朝发光的剧情点 / 触发点 / 有感叹号的人走
       const p = world.player, d = o => Math.hypot(o.x - p.x, o.y - p.y);
       const c = [...(world.spots || []).filter(t => typeof t.mark === 'function' ? t.mark() : t.mark), ...(world.triggers || []).filter(t => !t.done && t.marker !== false), ...(world.actors || []).filter(a => a.npc && !a.hidden && (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark))].sort((a, b) => d(a) - d(b))[0];
