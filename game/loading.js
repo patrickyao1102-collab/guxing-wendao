@@ -158,7 +158,7 @@
       if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
         const sc = Math.min(1.3, (four ? 185 : 520) / TI.width), dw = TI.width * sc, dh = TI.height * sc;
         ctx.drawImage(TI, four ? 30 : 44, four ? 26 : 44, dw, dh);
-      } else {
+      } else if (performance.now() - (TIT[world.mapName] || 0) > 8000) {   // 作者 11-09：书法题名没到之前不先露电脑字，8 秒还没有才用电脑字
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${four ? 42 : 50}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
       ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = dark ? 'rgba(255,248,232,.55)' : 'rgba(10,8,6,.6)'; ctx.strokeText(title, four ? 42 : 72, four ? 43 : 70); ctx.fillStyle = col; ctx.fillText(title, four ? 42 : 72, four ? 43 : 70);
       }
