@@ -13,7 +13,7 @@
   const HEAVY = /(^|\/)(sun_assets|skx_assets|ryx_assets|hax_assets|ha_assets|gmx_assets|sx_assets|cxfx|lc_cine)\//;
   // 开局马上要的
   // （标题画面那几十张图在 index.html 里用 IMG_GUARD.crit 包起来，连同它们所在的打包图页一起马上下）
-  const CRIT = /^(\.\/)?((ui|ui_icons|fonts|walk8|walk8c|revisions\/companions|revisions\/cloth06|igf2|lvp|lvpd|r157|r155|r160|r154|r153|r164|r163|r165|r86|r87|r169|r175)\/|assets2\/title_|r162\/story_)/;   // r162/story_：青竹小院专属载入插画
+  const CRIT = /^(\.\/)?((ui|ui_icons|fonts|walk8|walk8c|revisions\/companions|revisions\/cloth06|igf2|lvp|lvpd|r157|r155|r160|r154|r153|r164|r163|r165|r86|r87|r169|r175|r176)\/|assets2\/title_|r162\/story_)/;   // r162/story_：青竹小院专属载入插画
   // 战斗特效 / 后期内容：最后下
   const LATE = /^(\.\/)?(r83|el|fx\d*|r78lib|r79|rig|mount|r107|xlw|xl1|r100x|nayue|eqp10|r88)\//;
   const G = window.IMG_GUARD = { pending: 0, heavyQ: [], heavyActive: 0, lowQ: [], lateQ: [], lowActive: 0, bumped: 0, boot: true, crit: false,

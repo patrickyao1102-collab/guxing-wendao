@@ -16,7 +16,7 @@
 </style>
 <canvas id="c"></canvas>
 <div id="rotate"><b>孤星问道</b><div>请把手机横过来玩</div></div>
-<script src="img_guard.js"></script>
+<script src="img_guard.js"></script><script src="r176_title.js"></script>
 <script>
 // ================= 文件打包：小图都在 packs/pk_N.webp 里，这里拦截 img.src 自动切出来（省发布文件数）=================
 (function () {
@@ -3312,7 +3312,8 @@ titleScreen = (orig => async function () {
   const items = [{ k: 'new', t: '初入仙途' }, { k: 'load', t: '前尘再续' }, { k: 'novel', t: '原著小说' }, { k: 'credit', t: '编辑策划' }];
   items.forEach((b, i) => { b.y = Y0 + i * DY; });
   const hasSave = () => { try { return !!(window.GX_HAS_SAVE && window.GX_HAS_SAVE()); } catch (e) { return false; } };
-  const hit = (p, b) => p && Math.abs(p.x - X) < 150 && Math.abs(p.y - b.y) < DY / 2 - 2;
+  const R176 = () => window.R176_TITLE && R176_TITLE.ready();   // R176 问天镜湖主界面（素材到齐才用）
+  const hit = (p, b) => R176() ? (p && R176_TITLE.hit(p) === items.indexOf(b)) : (p && Math.abs(p.x - X) < 150 && Math.abs(p.y - b.y) < DY / 2 - 2);
   let page = null, pageT0 = 0, flashK = null, flashT0 = 0;
   const PAGES = {
     novel: { title: '原著小说 ·《孤星问道》', lines: [
@@ -3357,6 +3358,12 @@ titleScreen = (orig => async function () {
   }
   const draw0 = () => {
     const now = performance.now() / 1000;
+    if (R176()) {
+      R176_TITLE.draw(now, flashK ? items.findIndex(b => b.k === flashK) : -1, hasSave());
+      ctx.save(); ctx.textAlign = 'left'; ctx.font = `15px ${BF}`; textOutline('试玩版', 22, H - 20, 'rgba(255,255,255,.72)', 'rgba(0,0,0,.6)', 3);
+      ctx.textAlign = 'center'; ctx.font = `14px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, 288, 700, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
+      ctx.restore(); if (page) drawPage(now); return;
+    }
     if (has('title_art')) { const z = 1.04 + Math.sin(now * .15) * .02; ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(z, z); drawImageFit(IMG.title_art, -W / 2, -H / 2, W, H); ctx.restore(); }
     const g = ctx.createLinearGradient(0, 0, W * .6, 0); g.addColorStop(0, 'rgba(5,8,25,.5)'); g.addColorStop(1, 'rgba(5,8,25,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', X, 250, '#ffe08a', '#2a0f00', 10);
