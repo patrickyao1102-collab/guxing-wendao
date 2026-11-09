@@ -43,9 +43,9 @@
     P('counter_frame', 48, 39, 1184, 642); P('keeper_bay', 68, 126, 296, 369); P('shelf', 361, 140, 508, 425); P('order_paper', 874, 141, 336, 420);
     // 店主
     const kim = cfg.keeper && keeper(cfg.keeper);
-    if (kim && kim.complete && kim.naturalWidth) { const [x, y, w, h] = [72, 133, 288, 361], k = Math.min(w / kim.naturalWidth, h / kim.naturalHeight) * 1.02, dw = kim.naturalWidth * k, dh = kim.naturalHeight * k;
-      ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.drawImage(kim, x + w / 2 - dw / 2, y + h - dh + Math.sin(t * 1.4) * 1.5, dw, dh); ctx.restore(); }
-    P('keeper_greeting', 94, 491, 243, 60); T(ST.hi, 217, 522, fit(ST.hi, '#px ' + BODY, 20, 220, 13), '#493728');
+    if (kim && kim.complete && kim.naturalWidth) { const [x, y, w, h] = ST.label ? [69, 127, 294, 367] : [72, 133, 288, 361], k = ST.label ? Math.min(w / kim.naturalWidth, h / kim.naturalHeight) : Math.min(w / kim.naturalWidth, h / kim.naturalHeight) * 1.02, dw = kim.naturalWidth * k, dh = kim.naturalHeight * k;
+      ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.drawImage(kim, x + w / 2 - dw / 2, y + h - dh + (ST.label ? 0 : Math.sin(t * 1.4) * 1.5), dw, dh); ctx.restore(); }
+    P('keeper_greeting', 94, 491, 243, 60); if (ST.label) T(ST.label, 217, 522, fit(ST.label, '#px ' + HEAD, 24, 200, 16), '#493728'); else T(ST.hi, 217, 522, fit(ST.hi, '#px ' + BODY, 20, 220, 13), '#493728');
     P('shop_sign', 449, 50, 380, 81); T(ST.who.split('').join(' '), 637, 89, fit(ST.who, '#px ' + HEAD, 46, 300, 26), '#e9cd90');
     P(cfg.pennant, 867, 39, 73, 152);
     // 货格
@@ -96,8 +96,9 @@
   openShop = async function (ids, who) {
     ids = (ids || []).filter(id => ITEM_DB[id]); if (!ids.length) return;
     if (!ok()) return prev.apply(this, arguments);
-    const cfg = cfgOf(who || ''); if (cfg.keeper) keeper(cfg.keeper);
-    ST = { ids, who: who || '商铺', cfg, mode: 'buy', page: 0, sel: ids[0], qty: 1, fx: [], gs: S.hero.gold, t0: performance.now() / 1000, hi: cfg.hi[Math.floor(Math.random() * cfg.hi.length)] };
+    const dec = window.R178_SHOP_DECOR ? R178_SHOP_DECOR(who || '') : null;   // R178：每家店的镇店之物 + 店名招牌
+    const cfg = dec ? Object.assign({}, cfgOf(who || ''), { keeper: dec.keeper }) : cfgOf(who || ''); if (cfg.keeper) keeper(cfg.keeper);
+    ST = { ids, who: (dec && dec.sign) || who || '商铺', label: dec && dec.label, cfg, mode: 'buy', page: 0, sel: ids[0], qty: 1, fx: [], gs: S.hero.gold, t0: performance.now() / 1000, hi: cfg.hi[Math.floor(Math.random() * cfg.hi.length)] };
     const hud0 = S.hud; S.hud = false; S.overlay.push(layer); input.tapped = null;
     try {
       for (;;) {
