@@ -104,7 +104,7 @@
     menuLayout = (orig => function () { const L = orig(); if (L.skin) L.save = { x: L.skin.x - 96, y: L.skin.y, w: 84, h: L.skin.h }; return L; })(menuLayout);
     menuUpdate = (orig => function () {
       const t = input.tapped;
-      if (t && !t.key) { const L = menuLayout(); if (L.save && inR(t, L.save)) { consumeTap(); try { playSnd('ui_click'); } catch (e) {} slotMenu(); return; } }
+      if (t && !t.key) { const L = menuLayout(); if (L.save && inR(t, L.save)) { consumeTap(); try { playSnd('ui_click'); } catch (e) {} const f = window.GX_SLOTMENU; Promise.resolve(f && f !== slotMenu ? f() : undefined).then(v => { if (v === undefined) slotMenu(); }); return; }   /* R187 整页存档界面接管，图没到时退回旧弹窗 */ }
       return orig.apply(this, arguments);
     })(menuUpdate);
     drawMenu = (orig => function () { orig(); try { const L = menuLayout(); if (L.save) { ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; sealText('存档', L.save.x, L.save.y, L.save.w, L.save.h, false); ctx.restore(); } } catch (e) {} })(drawMenu);   // 补画前重置画笔（前面留下的半透明会让按钮看着像不能点）
