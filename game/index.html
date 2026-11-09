@@ -3406,7 +3406,7 @@ titleScreen = (orig => async function () {
               S.scene = draw0;
             } else {
               let go = true;
-              if (hasSave()) { const c = await choose('前尘尚在——自动存档会被新的进度覆盖（手动存档不受影响）。确定重新踏上仙途？', ['踏上仙途', '再想想']); go = c === 0; S.scene = draw0; }
+              if (hasSave()) { for (let w = 0; w < 240 && !(window.R169_CHOICE_READY && R169_CHOICE_READY()); w++) await nextFrame(); const c = await choose('前尘尚在——自动存档会被新的进度覆盖（手动存档不受影响）。确定重新踏上仙途？', ['踏上仙途', '再想想']); go = c === 0; S.scene = draw0; }
               if (go) break;
             }
           }

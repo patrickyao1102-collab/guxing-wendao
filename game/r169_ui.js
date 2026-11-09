@@ -8,9 +8,11 @@
   const HEAD = '"GuxingDF",' + BRUSH, BODY = '"GuxingWKB",' + FONT;
   fetch('r169/parts.json').then(r => r.json()).then(j => {
     Object.assign(P, j); let n = 0; const keys = Object.keys(j);
+    keys.sort((a, b) => (/^option_/.test(b) ? 1 : 0) - (/^option_/.test(a) ? 1 : 0));   // 选项框部件先下
     keys.forEach(k => { const im = new Image(); im.onload = () => { IM[k] = im; if (++n >= keys.length) ready = true; }; im.onerror = () => { if (++n >= keys.length) ready = true; }; im.src = 'r169/' + k + '.webp'; });
   }).catch(() => {});
-  const ok = (...ks) => ready && ks.every(k => IM[k] && P[k]);
+  const ok = (...ks) => ks.every(k => IM[k] && P[k]);   // 作者 11-09：按部件各自到齐就用（以前要等全部部件，标题页的确认框会先露出旧的金框）
+  window.R169_CHOICE_READY = () => ok('option_normal', 'option_focus', 'option_title_ink');
   // 按 manifest 的切法画：fixed / three-x / three-y / nine（源图是 @2x，切线是 1x 坐标）
   function part(k, x, y, w, h) {
     const im = IM[k], p = P[k]; if (!im || !p) return false;
