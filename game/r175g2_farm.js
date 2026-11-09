@@ -73,12 +73,12 @@
     if (t.k === 'tree') return [{ k: 'pick', p: 'pick', off: treeReady(t.id) ? null : '刚摘过，歇一觉再长' }];
     if (t.k === 'coop') return [{ k: 'collect', p: 'collect', off: ready('coop') ? null : '刚捡过，歇一觉再来' }];
     if (t.k === 'duck') return [{ k: 'collect', p: 'collect', off: ready('duck') ? null : '刚捡过，歇一觉再来' }];
-    if (t.k === 'well') return [{ k: 'well', p: 'water_row', off: D().pail ? '桶里已经有水了' : null }];
+    if (t.k === 'well') return [{ k: 'well', p: 'draw_water', off: D().pail ? '桶里已经有水了' : null }];
     if (t.k === 'seeds') return [{ k: 'seeds', p: 'sow' }];
     if (t.k === 'basket') return [{ k: 'book', p: 'collect' }];
     return [];
   }
-  const LAB = { sow: '播种', water: '浇水', water_row: '打水', harvest: '采收', pick: '采摘', collect: '收产物' };
+  const LAB = { sow: '播种', water: '浇水', water_row: '打水', draw_water: '打水', harvest: '采收', pick: '采摘', collect: '收产物' };
 
   // ---------- 干活 ----------
   const give = async (list, title) => { const items = list.filter(([, n]) => n > 0); for (const [id, n] of items) addItem(id, n);
@@ -122,6 +122,15 @@
     return PQ.opts.map((o, i) => ({ o, x: Math.max(8, Math.min(W - pw - 8, x0 + i * (pw + gap))), y: Math.max(64, Math.min(H - ph - 40, sy - ph - 10)), w: pw, h: ph })); };
   const inR = (q, r) => q && r && q.x >= r.x && q.x <= r.x + r.w && q.y >= r.y && q.y <= r.y + r.h;
   const UI = (k, x, y, w, h) => !!(window.R175G_UI && R175G_UI(k, x, y, w, h));
+  // 作者 11-10 跑 bug：石井的竹牌借的是「浇这一畦」那块图，字不对 → 用「浇水」竹牌的底子盖掉字，重写「打水」
+  const DW = {}; { const src = (window.R162_ASSETS && R162_ASSETS['r175g/bui_0.webp']) || 'r175g/bui_0.webp', im = new Image();
+    im.onload = () => { for (const [st, r] of [['normal', [0, 830]], ['disabled', null]]) { const c = document.createElement('canvas'); c.width = 234; c.height = 84; const x = c.getContext('2d');
+      x.drawImage(im, 0, 830, 234, 84, 0, 0, 234, 84);
+      const g = x.createLinearGradient(0, 22, 0, 66); g.addColorStop(0, '#efe2c0'); g.addColorStop(1, '#e6d4ac'); x.fillStyle = g; x.fillRect(74, 24, 140, 40);
+      x.font = `700 34px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#3a2612'; x.fillText('打水', 146, 45);
+      if (st === 'disabled') { x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(200,196,188,.55)'; x.fillRect(0, 0, 234, 84); }
+      DW[st] = c; } }; im.src = src; }
+  const UI2 = (k, x, y, w, h) => { const m = /^plaque_draw_water_(\w+)$/.exec(k); if (m) { const c = DW[m[1] === 'disabled' ? 'disabled' : 'normal']; if (!c) return false; ctx.drawImage(c, x, y, w, h); return true; } return UI(k, x, y, w, h); };
 
   // ---------- 园簿 ----------
   const BK = { on: false, tab: 0, t0: 0 };
@@ -168,7 +177,7 @@
       ctx.fillStyle = '#6a4a22'; ctx.font = `500 16px ${FONT}`; ctx.fillText(it.st, cx + 78, cy + 54); if (it.sub) { ctx.fillStyle = '#8f7346'; ctx.font = `500 13px ${FONT}`; ctx.fillText(it.sub, cx + 78, cy + 74); }
       const o = it.opts[0]; if (!o || o.k === 'book') return;
       const r = { x: cx + cw - 146, y: cy + (rh - 50) / 2, w: 136, h: 50 }, stt = o.off ? 'disabled' : 'normal';
-      if (!UI('plaque_' + o.p + '_' + stt, r.x, r.y, r.w, r.h)) { ctx.fillStyle = o.off ? '#d8d0bd' : '#e9cf8e'; roundRect(r.x, r.y, r.w, r.h, 10); ctx.fill(); ctx.fillStyle = '#3e2810'; ctx.font = `700 19px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(LAB[o.p] || '', r.x + r.w / 2, r.y + 32); }
+      if (!UI2('plaque_' + o.p + '_' + stt, r.x, r.y, r.w, r.h)) { ctx.fillStyle = o.off ? '#d8d0bd' : '#e9cf8e'; roundRect(r.x, r.y, r.w, r.h, 10); ctx.fill(); ctx.fillStyle = '#3e2810'; ctx.font = `700 19px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(LAB[o.p] || '', r.x + r.w / 2, r.y + 32); }
       BKR.push({ r, it, o }); });
     ctx.restore();
   }
@@ -211,7 +220,7 @@
       for (const [px, py, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) { ctx.beginPath(); ctx.moveTo(px + dx * L, py); ctx.lineTo(px, py); ctx.lineTo(px, py + dy * L); ctx.stroke(); } ctx.restore(); }
     ctx.save(); ctx.globalAlpha = u;
     for (const r of plaqueRects()) { const st = r.o.off ? 'disabled' : 'normal', y = r.y + (1 - u) * 10;
-      if (!UI('plaque_' + r.o.p + '_' + st, r.x, y, r.w, r.h)) { ctx.fillStyle = r.o.off ? '#d8d0bd' : '#f3e6c2'; roundRect(r.x, y, r.w, r.h, 10); ctx.fill(); ctx.font = `700 22px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = '#3e2810'; ctx.fillText(LAB[r.o.p] || '', r.x + r.w / 2, y + 40); }
+      if (!UI2('plaque_' + r.o.p + '_' + st, r.x, y, r.w, r.h)) { ctx.fillStyle = r.o.off ? '#d8d0bd' : '#f3e6c2'; roundRect(r.x, y, r.w, r.h, 10); ctx.fill(); ctx.font = `700 22px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = '#3e2810'; ctx.fillText(LAB[r.o.p] || '', r.x + r.w / 2, y + 40); }
       if (r.o.off) { ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; textOutline(r.o.off, r.x + r.w / 2, y + r.h + 16, '#fff3d6', '#2a1406', 3); } }
     ctx.font = `700 16px ${FONT}`; ctx.textAlign = 'center'; { const [sx, sy] = toScr(t.r[0] + t.r[2] / 2, t.top); textOutline(t.name, sx, Math.max(56, Math.min(H - 110, sy - 84)), '#fff3d6', '#3a2208', 4); }
     ctx.restore();
