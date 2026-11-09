@@ -85,10 +85,15 @@
   try { if (typeof joinParty === 'function') joinParty = (o => function (k) { try { (S.flags.met = S.flags.met || {})[k] = 1; } catch (e) {} return o.apply(this, arguments); })(joinParty); } catch (e) {}
   const USEf = () => SEL.map((s, i) => metOk(s[2]) ? i : -1).filter(i => i >= 0), pickU = () => { const U = USEf(); return U[Math.floor(Math.random() * U.length)]; };
   // 作者 11-08：「换地图会黑很久才出现插画，黑屏绝对不允许」→ 一开游戏就把全部 22 张载入插画下下来（每张约 200KB，共约 4.6MB），并登记进 PRELOAD：插画没下完不放行进第一张图
-  let lbNext = pickU();
-  { const all = SEL.map((s, i) => i); all.sort((a, b) => (a === lbNext ? -1 : b === lbNext ? 1 : 0));
-    const ps = all.map(i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); });
-    setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', Promise.all(ps.slice(0, 16))); } catch (e) {} }, 0); }
+  let lbNext = -1;
+  // 作者 11-09：先下最优的 16 张（叶孤星 / 星旋相关、开局就能抽到），这 16 张下完就放行进图；其余在后台接着下，下好的才会被抽到
+  const FIRST = ['01', '03', '05', 'YG01', 'YG02', 'NA01', 'NA20', 'NA33', 'NA35', 'NA53', 'NA55', 'NA64', 'NA65', 'NA70', 'NB01', 'NB02'];
+  { const idx = id => SEL.findIndex(s => s[0] === id);
+    const first = FIRST.map(idx).filter(i => i >= 0), rest = SEL.map((s, i) => i).filter(i => !first.includes(i));
+    const wait = i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); };
+    const p1 = Promise.all(first.map(wait));
+    p1.then(() => { let k = 0; const next = () => { if (k >= rest.length) return; const i = rest[k++]; wait(i).then(next); }; for (let j = 0; j < 4; j++) next(); });   // 后台 4 路并行慢慢下
+    setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', p1); } catch (e) {} }, 0); }
   window.LOADING_TIP = () => LB.tip;
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
