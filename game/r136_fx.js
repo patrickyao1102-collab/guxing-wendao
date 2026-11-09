@@ -51,8 +51,16 @@
     // 台面上的淡金光晕 + 细光柱
     let g=ctx.createRadialGradient(x,desk,0,x,desk,120); g.addColorStop(0,`rgba(255,226,150,${.45+pk*.2})`); g.addColorStop(1,'rgba(255,226,150,0)');
     ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(x,desk,120,40,0,0,TAU); ctx.fill();
-    g=ctx.createLinearGradient(0,desk,0,cy-80); g.addColorStop(0,'rgba(255,222,140,.32)'); g.addColorStop(1,'rgba(255,222,140,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x-40,desk); ctx.lineTo(x+40,desk); ctx.lineTo(x+18,cy-80); ctx.lineTo(x-18,cy-80); ctx.closePath(); ctx.fill();
+    // 作者 11-10：原来的梯形光柱太丑 → 改成四周全羽化的竖向柔光 + 几粒往上飘的光尘，没有硬边
+    { const mid=(desk+cy)/2, hh=(desk-cy)*.62+20, ww=30; ctx.save(); ctx.globalCompositeOperation='lighter';
+      ctx.translate(x,mid); ctx.scale(1,hh/ww);
+      const cg=ctx.createRadialGradient(0,0,0,0,0,ww); cg.addColorStop(0,`rgba(255,228,160,${.20+pk*.12})`); cg.addColorStop(.55,`rgba(255,214,130,${.08+pk*.06})`); cg.addColorStop(1,'rgba(255,210,120,0)');
+      ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(0,0,ww,0,TAU); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(let i=0;i<7;i++){ const u=((t*.22+rnd(i+500))%1), px=x+(rnd(i+520)-.5)*34+Math.sin(t*1.3+i)*3, py=desk-u*(desk-cy+10), a=Math.sin(u*Math.PI)*.75, r=1+rnd(i+540)*1.3;
+        const mg=ctx.createRadialGradient(px,py,0,px,py,r*2.2); mg.addColorStop(0,`rgba(255,246,215,${a})`); mg.addColorStop(.45,`rgba(255,226,160,${a*.5})`); mg.addColorStop(1,"rgba(255,220,150,0)");
+        ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(px,py,r*2.2,0,TAU); ctx.fill(); }
+      ctx.restore(); }
     // 星球：深青描边 + 金色赤道环 + 星点
     g=ctx.createRadialGradient(x-12,cy-14,4,x,cy,R*1.05); g.addColorStop(0,'rgba(210,232,255,.55)'); g.addColorStop(.8,'rgba(90,140,210,.30)'); g.addColorStop(1,'rgba(60,100,180,.0)');
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,cy,R*1.05,0,TAU); ctx.fill();
