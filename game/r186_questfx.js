@@ -52,7 +52,7 @@
   function bright() {
     try {
       const m = world.mapName; if (!m) return false;
-      if ((S.flags && (S.flags.res_tod === 'night' || S.flags.lib_ch1 && /^tj_(forbidden|library|scripture)$/.test(m))) || m === 'tj_houshan') return false;
+      if ((S.flags && (S.flags.res_tod === 'night' || S.flags.lib_ch1 && /^tj_(forbidden|library|scripture)$/.test(m)))) return false;
       if (m in LUM) return LUM[m];
       const T = TMAPS[m], key = T && T.baked && T.baked.ground, im = key && IMG[key]; if (!im || !im.width) return false;
       const c = document.createElement('canvas'); c.width = c.height = 24; const g = c.getContext('2d'); g.drawImage(im, 0, 0, 24, 24);
