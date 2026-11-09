@@ -26,21 +26,22 @@
   //   暗的地图用金色（叠加发光）；偏亮的地图叠加看不出来 → 换成衣柜那种蓝（正常叠色 + 外发光描边）
   const TONE = { gold: { c1: '255,236,170', c2: '255,205,110', ring: '255,216,120', sh: 'rgba(255,200,90,.9)', st: '255,250,228', add: true },
                  blue: { c1: '150,200,255', c2: '70,140,250', ring: '70,140,255', sh: 'rgba(60,130,255,.95)', st: '215,238,255', add: false } };
-  function beacon(ctx, P, t, k, tone) {
-    const C = TONE[tone] || TONE.gold, { x, base, top } = P, h = base - top + 140, mid = base - h / 2, pulse = .78 + .22 * Math.sin(t * 3.2), m = C.add ? 1 : 1.15;
+  function beacon(ctx, P, t, k, tone, noGround) {
+    const C = TONE[tone] || TONE.gold, { x, base, top } = P, h = base - top + 140, mid = base - h / 2, pulse = .78 + .22 * Math.sin(t * 3.2), m = C.add ? 1 : 1.6;
     ctx.save(); ctx.globalCompositeOperation = C.add ? 'lighter' : 'source-over';
     for (const [w, a] of [[130, .38], [56, .55], [18, .7]]) {
       ctx.save(); ctx.translate(x, mid); ctx.scale(1, h / 2 / w);
       const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w); g.addColorStop(0, `rgba(${C.c1},${a * pulse * k * m})`); g.addColorStop(.6, `rgba(${C.c2},${a * .35 * pulse * k * m})`); g.addColorStop(1, `rgba(${C.c2},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, w, 0, TAU); ctx.fill(); ctx.restore();
     }
-    for (let i = 0; i < 3; i++) {
+    if (!noGround) for (let i = 0; i < 3; i++) {
       const u = ((t * .55 + i / 3) % 1), rx = 50 + u * 160, a = (1 - u) * .85 * k;
       ctx.lineWidth = 3 * (1 - u) + 1.5; ctx.strokeStyle = `rgba(${C.ring},${a})`; ctx.shadowColor = C.sh; ctx.shadowBlur = 12;
       ctx.beginPath(); ctx.ellipse(x, base, rx, rx * .32, 0, 0, TAU); ctx.stroke();
     }
     ctx.shadowBlur = 0;
-    glow(ctx, x, base, 170, .55 * pulse * k * m, C.c1, C.c2);
+    if (!noGround) glow(ctx, x, base, 170, .55 * pulse * k * m, C.c1, C.c2);
+    else { ctx.shadowColor = C.sh; ctx.shadowBlur = 24; glow(ctx, x, base - 30, 80, .75 * pulse * k, C.c1, C.c2); ctx.shadowBlur = 0; }   // 宝箱这种没有地面光环的：物件本身一团光
     for (let i = 0; i < 22; i++) {
       const u = (t * (.18 + rnd(i) * .2) + rnd(i + 30)) % 1, px = x + (rnd(i + 60) - .5) * 120 + Math.sin(t * 1.5 + i) * 8, py = base - u * h, a = Math.sin(u * Math.PI) * k;
       glow(ctx, px, py, 7, a * .7, C.st, C.c2); if (i % 3 === 0) star4(ctx, px, py, 5 + rnd(i + 90) * 4, a, C.st);
@@ -60,7 +61,7 @@
       return (LUM[m] = s / (d.length / 4) / 255 > .5);
     } catch (e) { return false; }
   }
-  window.QUEST_FX = { beacon: (ctx, x, base, top, t, k, tone) => beacon(ctx, { x, base, top }, t, k == null ? 1 : k, tone || (bright() ? 'blue' : 'gold')), bright };
+  window.QUEST_FX = { beacon: (ctx, x, base, top, t, k, tone, noGround) => beacon(ctx, { x, base, top }, t, k == null ? 1 : k, tone || (bright() ? 'blue' : 'gold'), noGround), bright };
   function flight(ctx, s, t) {
     const pose = ScriptureStory.pose(s); if (!pose) return;
     const [x, y] = pose.point;
