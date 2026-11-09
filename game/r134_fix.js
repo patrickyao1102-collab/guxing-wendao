@@ -236,11 +236,29 @@
       ctx.fillStyle = 'rgba(16,10,6,.8)'; roundRect(x - w / 2, y - 16, w, 32, 16); ctx.fill(); ctx.strokeStyle = rgba(.9); ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#e8f4ff'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y); }
     ctx.restore();
   }
+  // 宝箱版的衣柜光效：宝箱是 R65_CHEST 画的，不是底图那张 → 用它自己再画几遍带蓝色外发光，再盖回本体
+  function chestGlow(o, now, label, col = [120, 190, 255]) {
+    const rgba = al => `rgba(${col[0]},${col[1]},${col[2]},${al})`, pulse = .6 + .4 * Math.sin(now * 2.6), st = R65_CHEST.styleOf ? R65_CHEST.styleOf(world.mapName) : undefined;
+    ctx.save();
+    for (const bl of [56, 32, 16]) { ctx.shadowColor = rgba(1); ctx.shadowBlur = bl * (.7 + .5 * pulse); R65_CHEST.draw(o.ax, o.ay, false, st, now); }
+    ctx.shadowBlur = 0; R65_CHEST.draw(o.ax, o.ay, false, st, now);
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .07 + .06 * pulse; R65_CHEST.draw(o.ax, o.ay, false, st, now); ctx.globalAlpha = 1;
+    const cx = o.ax, cy = o.ay - o.h * .5, g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 70);
+    g.addColorStop(0, rgba(.35 * pulse)); g.addColorStop(.45, rgba(.15 * pulse)); g.addColorStop(1, rgba(0)); ctx.fillStyle = g; ctx.fillRect(cx - 70, cy - 70, 140, 140);
+    for (let i = 0; i < 14; i++) { const k = (now * .35 + i / 14) % 1, x = o.ax - 40 + 80 * ((i * 37 % 14) / 14) + Math.sin(now * 2 + i) * 6, y = o.ay - 6 - k * 110, r = 2 + (i % 3);
+      ctx.fillStyle = rgba((1 - k) * Math.sin(k * Math.PI) * .95); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+    ctx.globalCompositeOperation = 'source-over';
+    if (label) { const x = o.ax, y = o.ay - o.h - 40 + Math.sin(now * 3) * 4; ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'center'; const w = ctx.measureText(label).width + 28;
+      ctx.fillStyle = 'rgba(16,10,6,.8)'; roundRect(x - w / 2, y - 16, w, 32, 16); ctx.fill(); ctx.strokeStyle = rgba(.9); ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#e8f4ff'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y); }
+    ctx.restore();
+  }
   window.R134_BEACON = { list: [] };   // 其他段落往这里放：{ map, name, label, when() }
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) {
     orig.apply(this, arguments);
     try { if (world.locked && !(world.player && world.player.moving)) {}
-      if (swordNeed()) { const a = findActor('溪边岩隙宝箱'); if (a) beacon(a, now, '寒星剑在这里'); }
+      if (swordNeed()) {   // 作者 11-10：寒星剑宝箱就用衣柜那种光效（物件自己发蓝光 + 上飘光点 + 小标签）
+        const T = TMAPS[world.mapName], ch = T && T.baked && (T.baked.objs || []).find(o => o.id === 'treasure_chest_closed' && Math.abs(o.ax - 296) < 60 && Math.abs(o.ay - 811) < 60);
+        if (ch && window.R65_CHEST && R65_CHEST.draw) chestGlow(ch, now, '寒星剑在这里'); else { const a = findActor('溪边岩隙宝箱'); if (a) beacon(a, now, '寒星剑在这里'); } }
       for (const B of window.R134_BEACON.list) { if (B.map !== world.mapName || !B.when()) continue; const lb = typeof B.label === 'function' ? B.label() : B.label; if (B.glowObj) { objGlow(B.glowObj, now, lb, B.col); continue; } if (B.npc) continue;   // 作者 11-10：剧情 / 找人有红色感叹号就够了，光效只给需要互动的特殊物品
         const a = findActor(typeof B.name === 'function' ? B.name() : B.name); if (a) beacon(a, now, lb, B.col); }
     } catch (e) {}
