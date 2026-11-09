@@ -15,6 +15,8 @@
   const prev = drawChoice;
   drawChoice = function () {
     if (!choice) return; if (window.R169_DRAWCHOICE && R169_DRAWCHOICE()) return;   // R169 如意玉牌
+    // 作者 11-09：旧的厚金云纹框 / 星盘框是废稿——玉牌部件还没到时只压暗画面等它（最多 8 秒，真下不来才退回旧框）
+    if (window.R169_CHOICE_READY && !R169_CHOICE_READY() && choice.t < 8) { ctx.save(); ctx.fillStyle = 'rgba(10,8,6,.45)'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
     if (!IM.option_normal) return prev();
     const rs = choiceRects(), t = choice.t, now = performance.now() / 1000, k = Math.min(1, t * 5);
     ctx.save(); ctx.fillStyle = `rgba(4,8,18,${.62 * k})`; ctx.fillRect(0, 0, W, H);

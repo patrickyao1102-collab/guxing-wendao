@@ -3364,6 +3364,11 @@ titleScreen = (orig => async function () {
       ctx.textAlign = 'center'; ctx.font = `14px ${FONT}`; if (assetsLoaded < assetsTotal) textOutline('载入中 ' + assetsLoaded + ' / ' + assetsTotal, 288, 700, 'rgba(255,255,255,.8)', 'rgba(0,0,0,.7)', 3);
       ctx.restore(); if (page) drawPage(now); return;
     }
+    // 作者 11-09：主界面素材还没到时，不再露出以前的代码版标题——只铺深色底和「载入中」，最多 10 秒，真下不来才退回旧画法
+    if (window.R176_TITLE && now - (window.__R176_T0 || (window.__R176_T0 = now)) < 10) {
+      ctx.fillStyle = '#0b1418'; ctx.fillRect(0, 0, W, H);
+      ctx.save(); ctx.textAlign = 'center'; ctx.font = `16px ${FONT}`; textOutline('载入中……', W / 2, H / 2, 'rgba(230,236,238,.75)', 'rgba(0,0,0,.6)', 3); ctx.restore(); return;
+    }
     if (has('title_art')) { const z = 1.04 + Math.sin(now * .15) * .02; ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(z, z); drawImageFit(IMG.title_art, -W / 2, -H / 2, W, H); ctx.restore(); }
     const g = ctx.createLinearGradient(0, 0, W * .6, 0); g.addColorStop(0, 'rgba(5,8,25,.5)'); g.addColorStop(1, 'rgba(5,8,25,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', X, 250, '#ffe08a', '#2a0f00', 10);
