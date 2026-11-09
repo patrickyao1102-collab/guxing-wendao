@@ -597,6 +597,7 @@
   function extTint(T) {
     if (!(T.x0 < 0) || !/^qingzhu_(court|upper_pavilion)$/.test(world.mapName || '')) return;
     const m = world.mapName; let t = window.TOD ? TOD() : (F().res_tod || ''); const dusk = t === 'dusk'; if (dusk) t = 'dawn'; if (t !== 'night' && t !== 'dawn') return;
+    if (m !== COURT && window.R175H_EXT) { ctx.save(); let done = false; try { done = R175H_EXT(T, t, dusk); } catch (e) {} ctx.restore(); if (done) return; }   // R175：云海后庭用 Codex 自己的四时辰光层
     const X = T.x0, Wd = -T.x0; ctx.save();
     let col = null;
     if (m === COURT) { if (dusk) { ctx.restore(); return; } col = extIm(m + '_' + t, 'light_sheet.webp', LSH[m + '_' + t]); }   // 主院：residence 那层（暗色已经整片压到西院了，只差光照层本身）

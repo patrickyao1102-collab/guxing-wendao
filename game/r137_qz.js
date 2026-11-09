@@ -12,7 +12,7 @@
   let loaded = false;
   const loadAll = () => { if (loaded) return; loaded = true;
     for (const o of D.pav.objs.concat(D.by.objs)) if (/^r137_/.test(o.img)) ld(o.img, o.img.slice(5));
-    ld('r137_by_ground', 'by_ground'); };
+    if (!window.R175H_ON) ld('r137_by_ground', 'by_ground'); };   // R175 后庭新地面（r175h_houting.js）在的时候不再载旧地面
   setTimeout(loadAll, 12000);
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const BB = D.by, YC = BB.cols;                                  // 扩建区 192 列 × 192 行（8px）
