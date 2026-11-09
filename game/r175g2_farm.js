@@ -129,7 +129,8 @@
       const g = x.createLinearGradient(0, 22, 0, 66); g.addColorStop(0, '#efe2c0'); g.addColorStop(1, '#e6d4ac'); x.fillStyle = g; x.fillRect(74, 24, 140, 40);
       x.font = `700 34px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#3a2612'; x.fillText('打水', 146, 45);
       if (st === 'disabled') { x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(200,196,188,.55)'; x.fillRect(0, 0, 234, 84); }
-      DW[st] = c; } }; im.src = src; }
+      DW[st] = c; }
+      { const [, x0, y0, w0, h0] = [0, 388, 258, 160, 160], c = document.createElement('canvas'); c.width = w0; c.height = h0; c.getContext('2d').drawImage(im, x0, y0, w0, h0, 0, 0, w0, h0); IMG.r175g2_book_icon = c; } };   /* 园簿的「获得物品」图标：用右下角园簿按钮那张卷册图 */ im.src = src; }
   const UI2 = (k, x, y, w, h) => { const m = /^plaque_draw_water_(\w+)$/.exec(k); if (m) { const c = DW[m[1] === 'disabled' ? 'disabled' : 'normal']; if (!c) return false; ctx.drawImage(c, x, y, w, h); return true; } return UI(k, x, y, w, h); };
 
   // ---------- 园簿 ----------
@@ -301,7 +302,7 @@
       world.camFocus = null; await new Promise(r => setTimeout(r, 600));
       await say('侍女小桃·得意', '少爷记不住也没关系——小桃都写在这本《园簿》上了。哪块地熟了、鸡舍有没有蛋，翻一翻就知道。');
       const d = D(); d.intro = 1; d.book = 1; d.bookNew = 1;
-      try { if (window.itemGet) await itemGet([{ icon: 'gold', name: '园簿', count: '×1', desc: '小桃手抄的菜园簿子。在菜园里点右下角的「园簿」，田地、禽院、果树一处就能管。' }], '获得'); } catch (e) {}
+      try { if (window.itemGet) await itemGet([{ icon: IMG.r175g2_book_icon ? 'r175g2_book_icon' : 'gold', name: '园簿', count: '×1', desc: '小桃手抄的菜园簿子。在菜园里点右下角的「园簿」，田地、禽院、果树一处就能管。' }], '获得'); } catch (e) {}
       await say('侍女小桃·笑', '平日里园子里都有人：早上阿福喂鸡，晌午小桃来浇菜，傍晚松伯看水车。入了夜，青禾姐、阿福和小桃轮着在园屋值夜。少爷有事就喊我们！');
       if (a) { await moveActor(a, GATE[0] - 20, GATE[1] + 10, 150); a.hidden = true; }
     } finally { world.camFocus = null; world.locked = false; introBusy = false; }
