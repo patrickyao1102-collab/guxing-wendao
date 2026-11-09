@@ -61,7 +61,25 @@
       return (LUM[m] = s / (d.length / 4) / 255 > .5);
     } catch (e) { return false; }
   }
-  window.QUEST_FX = { beacon: (ctx, x, base, top, t, k, tone, noGround) => beacon(ctx, { x, base, top }, t, k == null ? 1 : k, tone || (bright() ? 'blue' : 'gold'), noGround), bright };
+  // 作者 11-10：「就不能是蓝色金色白色的发光大的光点吗」→ 物件周围一圈会飘、会闪的大光点（金 / 蓝 / 白轮流）
+  const ORB_C = [['255,214,110', '255,240,190'], ['90,160,255', '200,228,255'], ['255,255,255', '235,244,255']];
+  function orbs(ctx, x, y, t, k) {
+    k = k == null ? 1 : k;
+    ctx.save();
+    for (let i = 0; i < 9; i++) {
+      const [c, cc] = ORB_C[i % 3], an = t * (.55 + rnd(i) * .3) + i * TAU / 9, rr = 46 + rnd(i + 5) * 26;
+      const px = x + Math.cos(an) * rr, py = y - 34 + Math.sin(an) * rr * .45 - ((t * .35 + rnd(i + 9)) % 1) * 46;
+      const tw = .65 + .35 * Math.sin(t * 4 + i * 1.7), R = (7 + rnd(i + 2) * 6) * tw;
+      // 外光晕用普通叠色 + 彩色阴影，亮地图也看得见；芯子再用发光叠加提亮
+      ctx.globalCompositeOperation = 'source-over'; ctx.shadowColor = `rgba(${c},1)`; ctx.shadowBlur = 22;
+      glow(ctx, px, py, R * 3.2, .55 * tw * k, cc, c);
+      ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'lighter';
+      glow(ctx, px, py, R * 1.4, .95 * k, '255,255,255', cc);
+      if (i % 3 === 2) star4(ctx, px, py, R * 2.2, .9 * tw * k, '255,255,255');
+    }
+    ctx.restore();
+  }
+  window.QUEST_FX = { beacon: (ctx, x, base, top, t, k, tone, noGround) => beacon(ctx, { x, base, top }, t, k == null ? 1 : k, tone || (bright() ? 'blue' : 'gold'), noGround), bright, orbs };
   function flight(ctx, s, t) {
     const pose = ScriptureStory.pose(s); if (!pose) return;
     const [x, y] = pose.point;

@@ -205,7 +205,7 @@
     const x = a.x, y = a.y, rgba = al => `rgba(${col[0]},${col[1]},${col[2]},${al})`;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     // 作者 11-10：原来的梯形光柱 + 两圈细环换成全游戏统一的任务光效（r186 QUEST_FX：暗图金、亮图蓝）
-    if (window.QUEST_FX) { ctx.restore(); ctx.save(); QUEST_FX.beacon(ctx, x, y, y - 300, now, 1, null, true); /* 作者 11-10：宝箱底下那几圈光环不要 */ ctx.restore(); ctx.save(); }
+    if (window.QUEST_FX) { ctx.restore(); ctx.save(); QUEST_FX.orbs(ctx, x, y, now, 1); /* 作者 11-10：不要光柱和地上光环，改成金蓝白的大光点 */ ctx.restore(); ctx.save(); }
     else { const bh = 420, pulse = .55 + .45 * Math.sin(now * 3);
     const g = ctx.createLinearGradient(0, y - bh, 0, y); g.addColorStop(0, rgba(0)); g.addColorStop(.7, rgba(.22 * pulse + .1)); g.addColorStop(1, rgba(.5));
     ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 26, y); ctx.lineTo(x - 12, y - bh); ctx.lineTo(x + 12, y - bh); ctx.lineTo(x + 26, y); ctx.fill(); }
