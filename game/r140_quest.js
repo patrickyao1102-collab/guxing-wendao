@@ -13,7 +13,7 @@
   const avail = q => !q.cond || q.cond();
   const isReady = s => s.s === 2 || (s.s === 1 && s.p >= s.n);
   const RT = q => (window.SQ_REWARD_TEXT ? SQ_REWARD_TEXT(q) : '');
-  const GO = { tj_fish: { map: 'qingzhu_court', msg: '到小院池边钓鱼——红鲤白天就能钓到' } };
+  const GO = { tj_fish: { map: 'qingzhu_upper_pavilion', msg: '到云海后庭的潭边钓鱼——点东岸竹钓台，正午、黄昏鲤鱼多' } };   // 11-10：院内小池不钓鱼了
 
   // ---------------- 支线寻路目标 ----------------
   function sideGoal(id) {

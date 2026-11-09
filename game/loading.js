@@ -1,7 +1,7 @@
 // ================= 换图载入画面：地面 / 物件没载好之前不再露出绿底，显示载入进度条；并提前预载相邻地图 =================
 (function () {
   if (typeof S === 'undefined' || !S.overlay) return;
-  let shown = 0, prog = 0, mapAt = null, t0 = 0, forced = null;
+  let shown = 0, prog = 0, mapAt = null, t0 = 0, forced = null, readyAt = null;
   // 当前地图还差多少图没载好（0~1）
   // 作者 11-06：进度条走满之前，本地图的配乐也要缓冲好（最多等 8 秒，网络太慢就先进图，曲子随后接上）
   const aw = { m: null, t: 0 };
@@ -42,7 +42,7 @@
   }
   window.MAP_READY = () => readiness() >= 1;
   // 同一张图里换场面（比如青竹小院床边换时辰）也要过一次载入插画：下一帧当成刚进图
-  window.LOADING_KICK = () => { mapAt = null; shown = 1; };
+  window.LOADING_KICK = () => { mapAt = null; readyAt = null; shown = 1; };
   window.MAP_LOADING = () => { try { return readiness() < 1; } catch (e) { return false; } };
   // 作者 11-08：载入画面换成 Codex R157 十款插画（每次换图随机抽一张，整个载入过程用同一张）+ 黑金进度条
   const LB = { im: [], idx: -1, parts: {}, tip: '' };
@@ -130,7 +130,7 @@
     const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150); ctx.restore(); return true; }
   const layer = { draw(force) {
     if (coverPaint()) return;
-    if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0;
+    if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; readyAt = null; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
       else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
       { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; } S.flags.first_art = 1; } }
@@ -140,6 +140,10 @@
     if (LB.qz && LB.qz.min && LB.qz.ok && performance.now() - t0 < LB.qz.min && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-08：从外面走进青竹，专属载入图至少露个脸
     // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
     if (window.__GPH && performance.now() - window.__GPH < 250 && forced !== world.mapName) r = Math.min(r, .6);
+    // 11-10 作者：后庭钓鱼收竿后「跳到云海大亭、什么都没有」——同一次进图已经准备好过，中途某样东西（懒加载的图、占位地面、配乐）掉回 < 1 时，
+    //   不再把整张载入插画重新盖上来（会盖住正在玩的画面、看着像跳了图又空着）；记下来是哪一项掉的，换图 / LOADING_KICK 照旧会盖。
+    if (r >= 1) readyAt = mapAt;
+    else if (readyAt === mapAt && force == null && S.scene === drawMap) { try { window.__LOAD_DROP = { map: mapAt, r, img: imgReady(), extra: extraReady(), pend, t: performance.now() }; } catch (e) {} r = 1; }
     if (r >= 1) { shown = Math.max(0, shown - .08); if (!shown) return; } else shown = 1;
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
@@ -194,7 +198,7 @@
   // 作者 11-08 体检：原来等 window load（手机上要等所有图下完，可能几十秒），这期间过图照旧黑屏 → 改成脚本都跑完（DOMContentLoaded）就装上
   if (document.readyState !== 'loading') setTimeout(late, 0); else document.addEventListener('DOMContentLoaded', () => setTimeout(late, 0));
   // 作者 11-08：「没有加载完毕不允许出现任何游戏东西，只能是我们的插画」——载入中：对话 / 选项 / 面板一律不推进、不响应点击（r158 也不会把它们画到黑幕上）
-  const loadingNow = () => { try { return S.scene === drawMap && world.map && readiness() < 1 && forced !== world.mapName; } catch (e) { return false; } };
+  const loadingNow = () => { try { return S.scene === drawMap && world.map && readyAt !== world.mapName && readiness() < 1 && forced !== world.mapName; } catch (e) { return false; } };   // 11-10：这次进图已经准备好过，就不再拦点击
   window.MAP_BLOCKING = loadingNow;
   for (const fn of ['updateDialog', 'updateChoice', 'updatePanel']) {
     if (typeof window[fn] !== 'function' && typeof eval(fn) !== 'function') continue;
