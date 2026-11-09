@@ -17,48 +17,56 @@
     g.addColorStop(0, `rgba(${c1},${a})`); g.addColorStop(.35, `rgba(${c2},${a * .45})`); g.addColorStop(1, `rgba(${c2},0)`);
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
   }
-  function star4(ctx, x, y, r, a) {
-    ctx.fillStyle = `rgba(255,250,228,${a})`; ctx.beginPath();
+  function star4(ctx, x, y, r, a, c) {
+    ctx.fillStyle = `rgba(${c || '255,250,228'},${a})`; ctx.beginPath();
     for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 - Math.PI / 2, rr = i % 2 ? r * .22 : r; ctx.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); }
     ctx.closePath(); ctx.fill();
   }
-  // 「就是这里」：立柱金光 + 地面扩散光环 + 上飘金星
-  function beacon(ctx, P, t, k) {
-    const { x, base, top } = P, h = base - top + 140, mid = base - h / 2, pulse = .78 + .22 * Math.sin(t * 3.2);
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    // 竖光：外层宽而淡，内层窄而亮，全部羽化
+  // 「就是这里」：立柱光 + 地面扩散光环 + 上飘星点。作者 11-10 定为全游戏任务 / 指引的统一光效：
+  //   暗的地图用金色（叠加发光）；偏亮的地图叠加看不出来 → 换成衣柜那种蓝（正常叠色 + 外发光描边）
+  const TONE = { gold: { c1: '255,236,170', c2: '255,205,110', ring: '255,216,120', sh: 'rgba(255,200,90,.9)', st: '255,250,228', add: true },
+                 blue: { c1: '150,200,255', c2: '70,140,250', ring: '70,140,255', sh: 'rgba(60,130,255,.95)', st: '215,238,255', add: false } };
+  function beacon(ctx, P, t, k, tone) {
+    const C = TONE[tone] || TONE.gold, { x, base, top } = P, h = base - top + 140, mid = base - h / 2, pulse = .78 + .22 * Math.sin(t * 3.2), m = C.add ? 1 : 1.15;
+    ctx.save(); ctx.globalCompositeOperation = C.add ? 'lighter' : 'source-over';
     for (const [w, a] of [[130, .38], [56, .55], [18, .7]]) {
       ctx.save(); ctx.translate(x, mid); ctx.scale(1, h / 2 / w);
-      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w); g.addColorStop(0, `rgba(255,236,170,${a * pulse * k})`); g.addColorStop(.6, `rgba(255,205,110,${a * .35 * pulse * k})`); g.addColorStop(1, 'rgba(255,200,100,0)');
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w); g.addColorStop(0, `rgba(${C.c1},${a * pulse * k * m})`); g.addColorStop(.6, `rgba(${C.c2},${a * .35 * pulse * k * m})`); g.addColorStop(1, `rgba(${C.c2},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, w, 0, TAU); ctx.fill(); ctx.restore();
     }
-    // 地面三圈往外扩的光环
     for (let i = 0; i < 3; i++) {
       const u = ((t * .55 + i / 3) % 1), rx = 50 + u * 160, a = (1 - u) * .85 * k;
-      ctx.lineWidth = 3 * (1 - u) + 1; ctx.strokeStyle = `rgba(255,216,120,${a})`; ctx.shadowColor = 'rgba(255,200,90,.9)'; ctx.shadowBlur = 12;
+      ctx.lineWidth = 3 * (1 - u) + 1.5; ctx.strokeStyle = `rgba(${C.ring},${a})`; ctx.shadowColor = C.sh; ctx.shadowBlur = 12;
       ctx.beginPath(); ctx.ellipse(x, base, rx, rx * .32, 0, 0, TAU); ctx.stroke();
     }
     ctx.shadowBlur = 0;
-    glow(ctx, x, base, 170, .55 * pulse * k, '255,232,160', '255,200,100');
-    // 往上飘的金星
+    glow(ctx, x, base, 170, .55 * pulse * k * m, C.c1, C.c2);
     for (let i = 0; i < 22; i++) {
       const u = (t * (.18 + rnd(i) * .2) + rnd(i + 30)) % 1, px = x + (rnd(i + 60) - .5) * 120 + Math.sin(t * 1.5 + i) * 8, py = base - u * h, a = Math.sin(u * Math.PI) * k;
-      glow(ctx, px, py, 7, a * .7, '255,246,210', '255,214,130'); if (i % 3 === 0) star4(ctx, px, py, 5 + rnd(i + 90) * 4, a);
+      glow(ctx, px, py, 7, a * .7, C.st, C.c2); if (i % 3 === 0) star4(ctx, px, py, 5 + rnd(i + 90) * 4, a, C.st);
     }
     ctx.restore();
   }
+  // 这张地图算不算「偏亮」：取地面底图缩成 24×24 的平均亮度；夜里一律算暗
+  const LUM = {};
+  function bright() {
+    try {
+      const m = world.mapName; if (!m) return false;
+      if ((S.flags && (S.flags.res_tod === 'night' || S.flags.lib_ch1 && /^tj_(forbidden|library|scripture)$/.test(m))) || m === 'tj_houshan') return false;
+      if (m in LUM) return LUM[m];
+      const T = TMAPS[m], key = T && T.baked && T.baked.ground, im = key && IMG[key]; if (!im || !im.width) return false;
+      const c = document.createElement('canvas'); c.width = c.height = 24; const g = c.getContext('2d'); g.drawImage(im, 0, 0, 24, 24);
+      const d = g.getImageData(0, 0, 24, 24).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+      return (LUM[m] = s / (d.length / 4) / 255 > .5);
+    } catch (e) { return false; }
+  }
+  window.QUEST_FX = { beacon: (ctx, x, base, top, t, k, tone) => beacon(ctx, { x, base, top }, t, k == null ? 1 : k, tone || (bright() ? 'blue' : 'gold')), bright };
   function flight(ctx, s, t) {
     const pose = ScriptureStory.pose(s); if (!pose) return;
     const [x, y] = pose.point;
     trail.push([x, y]); if (trail.length > 26) trail.shift();
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    // 光尾
-    for (let i = 1; i < trail.length; i++) {
-      const u = i / trail.length, [x0, y0] = trail[i - 1], [x1, y1] = trail[i];
-      ctx.strokeStyle = `rgba(255,222,140,${u * .7})`; ctx.lineWidth = 4 + u * 24; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-      if (i % 3 === 0) star4(ctx, x1 + (rnd(i + t | 0) - .5) * 30, y1 + (rnd(i + 7) - .5) * 30, 4 + u * 5, u * .9);
-    }
+    // 作者 11-10：光尾那一条「好丑 不要」→ 去掉，只留书本身的一团光和绕着转的星点
     // 书周围一大团光
     const p = .85 + .15 * Math.sin(t * 9);
     glow(ctx, x, y, 190, .6 * p, '255,240,190', '255,200,100');

@@ -204,10 +204,11 @@
   function beacon(a, now, label, col = [255, 214, 120]) {
     const x = a.x, y = a.y, rgba = al => `rgba(${col[0]},${col[1]},${col[2]},${al})`;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    const bh = 420, pulse = .55 + .45 * Math.sin(now * 3);
+    // 作者 11-10：原来的梯形光柱 + 两圈细环换成全游戏统一的任务光效（r186 QUEST_FX：暗图金、亮图蓝）
+    if (window.QUEST_FX) { ctx.restore(); ctx.save(); QUEST_FX.beacon(ctx, x, y, y - 300, now, 1); ctx.restore(); ctx.save(); }
+    else { const bh = 420, pulse = .55 + .45 * Math.sin(now * 3);
     const g = ctx.createLinearGradient(0, y - bh, 0, y); g.addColorStop(0, rgba(0)); g.addColorStop(.7, rgba(.22 * pulse + .1)); g.addColorStop(1, rgba(.5));
-    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 26, y); ctx.lineTo(x - 12, y - bh); ctx.lineTo(x + 12, y - bh); ctx.lineTo(x + 26, y); ctx.fill();
-    for (let i = 0; i < 2; i++) { const ph = ((now * .8 + i * .5) % 1); ctx.strokeStyle = rgba((1 - ph) * .8); ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, 30 + ph * 70, (30 + ph * 70) * .38, 0, 0, 7); ctx.stroke(); }
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 26, y); ctx.lineTo(x - 12, y - bh); ctx.lineTo(x + 12, y - bh); ctx.lineTo(x + 26, y); ctx.fill(); }
     ctx.globalCompositeOperation = 'source-over';
     const ay = y - 150 + Math.sin(now * 5) * 10; ctx.fillStyle = rgba(1); ctx.strokeStyle = 'rgba(60,30,0,.9)'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(x, ay + 26); ctx.lineTo(x - 22, ay); ctx.lineTo(x - 9, ay); ctx.lineTo(x - 9, ay - 22); ctx.lineTo(x + 9, ay - 22); ctx.lineTo(x + 9, ay); ctx.lineTo(x + 22, ay); ctx.closePath(); ctx.fill(); ctx.stroke();
