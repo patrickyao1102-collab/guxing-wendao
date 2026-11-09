@@ -241,7 +241,8 @@
     orig.apply(this, arguments);
     try { if (world.locked && !(world.player && world.player.moving)) {}
       if (swordNeed()) { const a = findActor('溪边岩隙宝箱'); if (a) beacon(a, now, '寒星剑在这里'); }
-      for (const B of window.R134_BEACON.list) { if (B.map !== world.mapName || !B.when()) continue; const lb = typeof B.label === 'function' ? B.label() : B.label; if (B.glowObj) { objGlow(B.glowObj, now, lb, B.col); continue; } const a = findActor(typeof B.name === 'function' ? B.name() : B.name); if (a) beacon(a, now, lb, B.col); }
+      for (const B of window.R134_BEACON.list) { if (B.map !== world.mapName || !B.when()) continue; const lb = typeof B.label === 'function' ? B.label() : B.label; if (B.glowObj) { objGlow(B.glowObj, now, lb, B.col); continue; } if (B.npc) continue;   // 作者 11-10：剧情 / 找人有红色感叹号就够了，光效只给需要互动的特殊物品
+        const a = findActor(typeof B.name === 'function' ? B.name() : B.name); if (a) beacon(a, now, lb, B.col); }
     } catch (e) {}
   })(tileAmbientHigh);
 
@@ -382,7 +383,7 @@
         await say('星旋', '要买的店，我在头顶给你点了金光，跟着走就行。点任务栏也能自动走过去。');
         S.quest = shopQuest(); } finally { world.locked = false; } }), 2600); } } catch (e) {}
     return r; })(tileSetMap);
-  window.R134_BEACON.list.push({ map: 'tj_market', name: () => (nextItem() || {}).shop, label: () => { const it = nextItem(); return it ? '买 ' + it.label : ''; }, when: () => shopping() && !!nextItem() });
+  window.R134_BEACON.list.push({ npc: true, map: 'tj_market', name: () => (nextItem() || {}).shop, label: () => { const it = nextItem(); return it ? '买 ' + it.label : ''; }, when: () => shopping() && !!nextItem() });
   { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/集市采买·/, () => { const it = nextItem(); return it ? { map: 'tj_market', pick: it.shop } : { map: 'tj_front' }; }]); }
   // 出发前：云霆还没学会九天神雷 → 他自己掏钱去买（剧情保证学会）
   window.R134_BEFORE_DEPART = async function () {
