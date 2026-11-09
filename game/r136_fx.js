@@ -52,9 +52,9 @@
     let g=ctx.createRadialGradient(x,desk,0,x,desk,120); g.addColorStop(0,`rgba(255,226,150,${.45+pk*.2})`); g.addColorStop(1,'rgba(255,226,150,0)');
     ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(x,desk,120,40,0,0,TAU); ctx.fill();
     // 作者 11-10：原来的梯形光柱太丑 → 改成四周全羽化的竖向柔光 + 几粒往上飘的光尘，没有硬边
-    { const mid=(desk+cy)/2, hh=(desk-cy)*.62+20, ww=30; ctx.save(); ctx.globalCompositeOperation='lighter';
+    { const mid=(desk+cy)/2, hh=(desk-cy)*.75+40, ww=40; ctx.save(); ctx.globalCompositeOperation='lighter';
       ctx.translate(x,mid); ctx.scale(1,hh/ww);
-      const cg=ctx.createRadialGradient(0,0,0,0,0,ww); cg.addColorStop(0,`rgba(255,228,160,${.20+pk*.12})`); cg.addColorStop(.55,`rgba(255,214,130,${.08+pk*.06})`); cg.addColorStop(1,'rgba(255,210,120,0)');
+      const cg=ctx.createRadialGradient(0,0,0,0,0,ww); cg.addColorStop(0,`rgba(255,232,165,${.42+pk*.2})`); cg.addColorStop(.55,`rgba(255,214,130,${.16+pk*.1})`); cg.addColorStop(1,'rgba(255,210,120,0)');
       ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(0,0,ww,0,TAU); ctx.fill(); ctx.restore();
       ctx.save(); ctx.globalCompositeOperation='lighter';
       for(let i=0;i<7;i++){ const u=((t*.22+rnd(i+500))%1), px=x+(rnd(i+520)-.5)*34+Math.sin(t*1.3+i)*3, py=desk-u*(desk-cy+10), a=Math.sin(u*Math.PI)*.75, r=1+rnd(i+540)*1.3;
