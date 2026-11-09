@@ -51,8 +51,28 @@
   const LCOL = SEL.map(s => s[1] ? '#25292A' : '#FFF2D5');
   // 作者 11-09：小提示每 7 秒自动换一条（加载久了也不会一直是同一句），点一下马上换下一条；玩法和剧情穿插着放
   const TIPS = ["【玩法】点地面行走，点人说话；地图边缘的光阵通往别处", "【玩法】野外的鬼火、兽火碰到就开打：绿弱、蓝同级、紫精英、红越级", "【玩法】行囊里的技能页，点一下已选中的招式就能看详情、参悟升重", "【玩法】卷册在天剑集市 · 典籍阁有售，参悟升重要用", "【玩法】打不过就先去别处历练，等级上去了再回来", "【玩法】按 M 或点左上角小地图，可以看整张地图", "【玩法】宝箱多藏在不起眼的角落", "【玩法】星旋偶尔会多嘴两句，听听也许有用", "【玩法】战斗里怒气攒满 100，就能施展必杀", "【玩法】青竹小院里的东西，点一点会有作者留下的彩蛋", "【玩法】菜单右上角的「存档」能手动存三个档；在地图上走动时也会自动存档", "【玩法】青竹小院的小池可以垂钓——点池水就行", "【玩法】商铺里能买也能卖，用不上的东西换成灵石", "【剧情】叶孤星生来便被断为「天煞孤星」，修炼多年仍困在练气，受尽同门冷眼", "【剧情】十八岁生辰之夜，一颗流星坠入后山——半块黑玉里，沉睡万古的星魂星旋就此醒来", "【剧情】残本《九曜剑典》重现人间，孤星自此问道九天", "【剧情】游戏改编自原著小说《孤星问道》，标题画面的「原著小说」里有更多故事"];
-  let tipOrder = [], tipT = 0;
-  const nextTip = () => { if (!tipOrder.length) { tipOrder = TIPS.map((t, i) => i).sort(() => Math.random() - .5); if (TIPS[tipOrder[0]] === LB.tip) tipOrder.push(tipOrder.shift()); } LB.tip = TIPS[tipOrder.shift()]; tipT = performance.now(); return LB.tip; };
+  let tipT = 0; const recent = [];
+  // R177：玩法 + 已解锁的剧情随机抽；当前地图有原著摘句时，约三成概率抽一句原著。最近 10 条不重复
+  const nextTip = () => {
+    const G = window.GX_TIPS; let t = null;
+    try {
+      if (G) {
+        const F = S.flags || {}, seen = F.seen_maps || {}, m = world.mapName;
+        const nv = (G.novel || {})[m] || [];
+        const nvOk = nv.filter(x => !recent.includes(x));
+        if (nvOk.length && Math.random() < .3) t = '【原著】' + nvOk[Math.floor(Math.random() * nvOk.length)];
+        else {
+          const pool = G.gameplay.map(x => '【玩法】' + x).concat(G.story.filter(s => !s[1] || seen[s[1]] || s[1] === m).map(s => '【剧情】' + s[0]));
+          const ok = pool.filter(x => !recent.includes(x)); const P = ok.length ? ok : pool;
+          t = P[Math.floor(Math.random() * P.length)];
+        }
+      }
+    } catch (e) {}
+    if (!t) t = TIPS[Math.floor(Math.random() * TIPS.length)];
+    recent.push(t); if (recent.length > 10) recent.shift();
+    LB.tip = t; tipT = performance.now(); return t; };
+  // 记下到过的地图（剧情提示按这个解锁）
+  setInterval(() => { try { if (world && world.mapName && S.flags) { const sm = S.flags.seen_maps = S.flags.seen_maps || {}; sm[world.mapName] = 1; } } catch (e) {} }, 1000);
   const lbLoad = i => { if (LB.im[i]) return; const im = new Image(); LB.im[i] = { im, ok: false }; im.onload = () => { LB.im[i].ok = true; }; im.src = 'r157/sel/' + SEL[i][0] + '.webp'; };
   for (const k of ['track', 'fill_left', 'fill_mid', 'fill_right', 'head']) { const im = new Image(); im.onload = () => { LB.parts[k] = im; }; im.src = 'r157/progress/' + k + '.webp'; }
   { const im = new Image(); im.onload = () => { LB.parts.tw = im; }; im.src = 'r157/anim/head_twinkle_8f.webp'; }
@@ -65,6 +85,7 @@
   { const all = SEL.map((s, i) => i); all.sort((a, b) => (a === lbNext ? -1 : b === lbNext ? 1 : 0));
     const ps = all.map(i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); });
     setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', Promise.all(ps)); } catch (e) {} }, 0); }
+  window.LOADING_TIP = () => LB.tip;
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
     lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
