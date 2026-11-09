@@ -22,7 +22,7 @@
   tileSetMap = (o => function (name) { if (name === GID) need(); return o.apply(this, arguments); })(tileSetMap);
   const MI = k => IMG['r175m_' + k];
   const ui = (k, x, y, w, h, f) => { const id = f == null ? k : k + '#' + f, r = MB.ui[id], im = IM.bui_0; if (!r || !im) return false; ctx.drawImage(im, r[1], r[2], r[3], r[4], x, y, w == null ? r[3] : w, h == null ? r[4] : h); return true; };
-  window.R175G_UI = (k, x, y, w, h) => ui(k, x, y, w, h);
+  window.R175G_UI = (k, x, y, w, h) => { need(); return ui(k, x, y, w, h); };   /* 新菜园的园簿、竹牌也用这套田园风 UI，用到时再加载 */
   const A = k => MB.a[k];
 
   // ---------- 模块目录 ----------
