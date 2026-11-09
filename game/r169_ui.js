@@ -102,11 +102,14 @@
   window.R169_PANEL_WRAPW = p => (!p || p.eqp || !ready) ? 0 : JADE(p) ? 650 : 660;
 
   // ---------------- 飘字提示：墨绸带 ----------------
+  // 作者 11-09：提示要和星旋提示一样放在屏幕下方；半透明绸带压在白地砖上晃眼、看不清 → 改成下方的实底深色小框（和对话框同一种深棕底 + 金边）
   window.R169_DRAWTOAST = function (t, a, off) {
-    if (!ok('toast_silk')) return false;
-    ctx.save(); ctx.globalAlpha = a; const f = '24px ' + BODY; ctx.font = f;
-    const w = Math.max(300, Math.min(1000, ctx.measureText(t.text).width + 150)), h = 72, x = W / 2 - w / 2, y = 72 + off + (off ? 22 : 0);
-    part('toast_silk', x, y, w, h); midText(t.text, W / 2, y + h / 2 + 3, f, '#faf2e2');
+    ctx.save(); ctx.globalAlpha = a; const f = '600 24px ' + BODY; ctx.font = f;
+    const busy = (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice);
+    const w = Math.max(320, Math.min(980, ctx.measureText(t.text).width + 110)), h = 62, x = W / 2 - w / 2, y = busy ? 96 : H - 150;
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4; roundRect(x, y, w, h, 12); ctx.fillStyle = 'rgba(26,16,9,.96)'; ctx.fill(); ctx.restore();
+    panel(x, y, w, h);
+    midText(t.text, W / 2, y + h / 2, f, '#fbefd5');
     ctx.restore(); return true;
   };
 
