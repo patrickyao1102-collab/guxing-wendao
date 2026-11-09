@@ -964,6 +964,7 @@
         await say('叶孤星', '好。过几天就是那天——到时候，给你做点好吃的。'); q.d = qday() + 3; return 'feast'; } },
       feast: { desc: '阿福的生辰（过几天的入夜）：带一道菜去他屋里', type: 'talk', who: 'servant', shi: ['戌'], at: RM.servant, need: q => qday() >= q.d, run: async () => {
         const have = dishesHave(); if (!have.length) { await say('小厮阿福·笑', '少爷来啦！……（阿福偷偷瞄了一眼少爷空着的手）'); await narrate('……该带点吃的来的。去厨房做一道吧。'); return 'feast'; }
+        { const LOW = { cook_xigua: 1, cook_xiaoyugan: 1 }; have.sort((x, y) => (LOW[x] || 0) - (LOW[y] || 0) || ((TASTE.servant[y] || 2) - (TASTE.servant[x] || 2))); }   // 生辰端热菜，西瓜、小鱼干往后放
         take(have[0]); await narrate('叶孤星端着一碗' + DISH[have[0]] + '推开门。身后，青禾端着长寿面，小桃捧着一盘桂花糕，松伯提着一壶酒。');
         await say('小厮阿福·惊喜', '……你们、你们怎么都来了？！'); await say('侍女小桃·大笑', '阿福生辰快乐！'); await say('松伯·笑', '这孩子，长这么大了。');
         await say('小厮阿福·感动', '……阿福有生辰了。阿福有家了。'); stat({ atk: 3 }, '攻击 +3（阿福把长命锁的红绳编进了少爷的剑穗）'); bond('servant', 10); bond('maid1', 2, true); bond('maid2', 2, true); return 'done'; } },

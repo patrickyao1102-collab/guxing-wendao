@@ -15,7 +15,7 @@
   for (const n in FISHN) EX[n] = 'fish_' + FISHN[n];
   const TREEF = { 桃: 1, 李子: 1, 梨: 1, 柿子: 1, 灵果: 1, 葡萄: 1 }, ANIM = { 鸭蛋: 1, 鹅蛋: 1, 羊奶: 1, 牛奶: 1 };
   // 缺料时告诉玩家去哪儿弄（集市灶膳摊只卖原来那 12 样）
-  window.R139_WHERE = n => FISHN[n] ? '后庭潭里钓' : TREEF[n] ? '菜园果树上摘' : ANIM[n] ? '菜园畜舍里收' : FARM[n] ? '菜园里种' : null;
+  window.R139_WHERE = n => FISHN[n] ? '后庭潭里钓' : n === '葡萄' ? '菜园葡萄架上摘' : TREEF[n] ? '菜园果树上摘' : ANIM[n] ? '菜园畜舍里收' : FARM[n] ? '菜园里种' : null;
   // 案板、菜谱卡上的食材：用它们的行囊图标（itemIcon 以中心和半径画，菜园格 r×2.3、鱼格 r×2.4）
   window.R139_ING_ART = (n, x, y, s) => { const id = EX[n]; if (id && typeof itemIcon === 'function') itemIcon(id, x + s / 2, y + s / 2, s / 2.35); };
 

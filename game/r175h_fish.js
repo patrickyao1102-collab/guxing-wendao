@@ -13,7 +13,8 @@
   const F = () => (S.flags = S.flags || {});
   // 每歇一次（换一个时辰）刷新 8 竿：用「第几天 + 时辰」当钥匙，钥匙一变就清零
   const restKey = () => (F().qz_day || 1) + '_' + (F().qz_shi || '');
-  const left = () => { const f = F(), k = restKey(); if (f.r175_rk !== k) { f.r175_rk = k; f.r175_used = 0; } return CASTS - (f.r175_used || 0); };
+  // 出了青竹 qz_shi 会被清空：那不算换时辰，竿数不重置（同一天、时辰为空就沿用旧钥匙）
+  const left = () => { const f = F(); let k = restKey(); if (!f.qz_shi && f.r175_rk && f.r175_rk.split('_')[0] === String(f.qz_day || 1)) k = f.r175_rk; if (f.r175_rk !== k) { f.r175_rk = k; f.r175_used = 0; } return CASTS - (f.r175_used || 0); };
   if (typeof partyHealAll === 'function') partyHealAll = (o => function () { F().r175_used = 0; return o.apply(this, arguments); })(partyHealAll);
   const IM = {}; let req = false;
   const FK = ['angler', 'float', 'shadow', 'cat', 'cards', 'ing', 'ui'], FAIL = {};
@@ -75,8 +76,11 @@
   const G = { on: false, phase: '', act: 'wait', a0: 0, fx: 0, fy: 0, tx: 0, ty: 0, cast0: 0, fl: 'idle', fl0: 0, ten: .5, prog: 0, fish: null, sh: null, msg: '', msgT: 0, hold: false, card: null, cat: null, caught: [] };
   const TAPS = [];
   const busy = () => (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || (window.IG_OPEN && IG_OPEN());   // 对话框 / 选项 / 获得物品弹窗开着时，点击照常交给它们
-  try { cv.addEventListener('pointerdown', e => { if (!G.on || busy()) return; const q = toLogical(e); TAPS.push(q); G.hold = true; e.stopImmediatePropagation(); e.preventDefault(); }, true);
-    for (const ev of ['pointerup', 'pointercancel', 'blur']) window.addEventListener(ev, () => { G.hold = false; }, true); } catch (e) {}
+  // 按住收线：按手指 id 记，第二根手指松开不算松手
+  const DOWN = new Set();
+  try { cv.addEventListener('pointerdown', e => { if (!G.on || busy()) return; const q = toLogical(e); TAPS.push(q); DOWN.add(e.pointerId); G.hold = true; e.stopImmediatePropagation(); e.preventDefault(); }, true);
+    for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, e => { DOWN.delete(e.pointerId); G.hold = DOWN.size > 0; }, true);
+    window.addEventListener('blur', () => { DOWN.clear(); G.hold = false; }, true); } catch (e) {}
   const take = () => TAPS.shift() || null;
   const flash = (m, s = 1.3) => { G.msg = m; G.msgT = now() + s; };
   const setAct = (a) => { G.act = a; G.a0 = now(); };
@@ -227,7 +231,7 @@
     const title = fish.junk ? '……钓到了' : fish.r === '传说' || fish.r === '稀世' ? '稀世鱼获' : '今日鱼获';
     G.card = { t0: now(), art: cardCanvas(fish.id), name: fish.name, title, btns, line: fish.junk ? (fish.id === 'sandal' ? '左脚的，右脚的还在潭底' : '它看起来比你还惊讶') : sizeTxt(size) + ' · ' + fish.r };
     G.phase = 'card'; TAPS.length = 0;
-    let pick = null; while (!pick) { await frame(); const tp = take(); if (!tp) continue; for (const b of cardRects(G.card).bs) if (inR(tp, b)) { pick = b.k; break; } }
+    let pick = null; while (!pick) { await frame(); const tp = take(); if (!tp) continue; if (now() - G.card.t0 < .35) continue; for (const b of cardRects(G.card).bs) if (inR(tp, b)) { pick = b.k; break; } }   // 卡片淡入时手还在连点，先不算
     G.card = null;
     f.r175_book = f.r175_book || {}; f.r175_book[fish.id] = Math.max(f.r175_book[fish.id] || 0, Math.round(size));
     if (fish.junk) return;
@@ -260,7 +264,7 @@
     try {
       await waitAct(); setAct('wait');
       while (left() > 0) {
-        G.phase = 'aim'; G.fv = false; let tgt = null;
+        G.phase = 'aim'; G.fv = false; let tgt = null; TAPS.length = 0;   // 上一竿收尾时多点的几下不能直接变成下一竿
         while (!tgt) { await frame(); const tp = take(); if (!tp) continue; if (inR(tp, BTN_QUIT)) break;
           const z = VZ(), c = world.cam, wx = tp.x / z + c.x, wy = tp.y / z + c.y, zi = zoneAt(wx + OX, wy);
           if (zi < 0) { flash('要落在潭里', 1); continue; } tgt = [wx + OX, wy, zi]; }

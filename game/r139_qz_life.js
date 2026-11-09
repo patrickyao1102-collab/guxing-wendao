@@ -430,11 +430,11 @@
       for (const c of PICK()) if (inR(tp, c)) { const l = window.R139_LACK ? R139_LACK(c.r) : [];
         if (itemCount(c.r.id) >= 5) flash('行囊里的' + c.r.name + '还有好几份呢', false);
         else if (l.length) { const m = l.filter(n => n !== '水'), wh = [...new Set(m.map(n => (window.R139_WHERE && R139_WHERE(n)) || '集市灶膳摊有卖'))].slice(0, 2).join('、');
-          flash(!m.length ? '水缸里的水不够了——去井边打水' : '还缺' + m.join('、') + '——' + wh, false); }
+          flash(!m.length ? '水缸里的水不够了——去井边打水' : '还缺' + m.join('、') + '——' + wh + (l.includes('水') ? '；水缸也没水了' : ''), false); }
         else r = c.r; break; } }
     // 不用开火的（切西瓜）：洗净、切好、装盘，不过火候
     if (r.pot === 'cold') { try { if (window.R139_USEING) R139_USEING(r); } catch (e) {}
-      close(); world.locked = true; addItem(r.id, 2); try { giveFx(); } catch (e) {}
+      close(); world.locked = true; addItem(r.id, 2); F().qz_tao_ate = (F().qz_tao_ate || 0) + 1; try { giveFx(); } catch (e) {}
       await narrate(r.cold || ('把' + r.ing.join('、') + '洗净切好，码进盘里。'));
       try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×2', desc: ITEM_DB[r.id].desc }], '装盘'); else toast('做好了：' + r.name + ' ×2', 1800); } catch (e) { toast('做好了：' + r.name + ' ×2', 1800); }
       world.locked = false; return; }
@@ -743,7 +743,7 @@
       return; }
     const dried = typeof itemCount === 'function' ? itemCount('cook_xiaoyugan') : 0;   // R175：钓鱼潭的白条炸成的小鱼干
     const i0 = await choose(catName(), dried ? ['摸摸它', '给它添点吃的', '喂它一条小鱼干（' + dried + '）', '走开'] : ['摸摸它', '给它添点吃的', '走开']);
-    if (dried && i0 === 2) { const key = (f.qz_day || 1) + '_' + (f.qz_shi || '');
+    if (dried && i0 === 2) { const key = f.qz_shi ? (f.qz_day || 1) + '_' + f.qz_shi : 'rt' + Math.floor(Date.now() / 360000);   /* 没在歇息时辰里就按真实时间六分钟一条 */
       if (f.cat_fishK === key) { await narrate(catName() + '刚吃过一条，舔着胡子，肚皮圆鼓鼓的。……眼睛还盯着少爷的袖口。'); return; }
       f.cat_fishK = key; const b = S.hero.bag; b.cook_xiaoyugan--; if (b.cook_xiaoyugan <= 0) delete b.cook_xiaoyugan;
       if (a && a._cat) catDo(a, world.map.T, 'walk', { to: BOWL, thenEat: true, fast: true });
@@ -774,7 +774,7 @@
   const WI = new Image(), WB = new Image(); let waOk = false, wbOk = false; WI.onload = () => { waOk = true; }; WB.onload = () => { wbOk = true; };
   let waReq = false; const needWater = () => { if (!waReq) { waReq = true; WI.src = 'r142/water.webp'; WB.src = 'r142/well_bg.webp'; } };
   const wspr = (k, fi, x, y, sc = 1) => { const a = WA[k]; if (!a || !waOk) return; fi = fi || 0; ctx.drawImage(WI, a.x + fi * a.w, a.y, a.w, a.h, x - a.ax * sc, y - a.ay * sc, a.w * sc, a.h * sc); };
-  const VAT_MAX = 10, VAT_POS = Y(196, 1222), WATER_NEED = { soup: 2, steam: 1, wok: 1 };
+  const VAT_MAX = 10, VAT_POS = Y(196, 1222), WATER_NEED = { soup: 2, steam: 1, wok: 1, cold: 1 };
   const vat = () => { const f = F(); if (f.vat == null) f.vat = 6; return f.vat; };
   const setVat = v => { F().vat = Math.max(0, Math.min(VAT_MAX, v)); };
   window.R139_VAT = { get: () => vat(), add: n => { if (vat() < 6) { setVat(vat() + n); VAT_POUR_T = now(); } } };

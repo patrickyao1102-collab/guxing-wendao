@@ -39,7 +39,7 @@
       if (m.k === 'bed') { const wet = m.wet || autoWet(m); if (wet) for (const cp of m.crops || []) if (cp && cp.st < 3) cp.st++; m.wet = autoWet(m) ? 1 : 0; }
       else if (c && c.tree) m.ts = m.ts === 'leaf' ? 'flower' : m.ts === 'flower' ? 'fruit' : m.ts === 'picked' ? 'leaf' : (m.ts || 'leaf');
       if (PROD[m.k]) m.rd = 1; } }
-  setInterval(() => { try { const g = F().r175g; if (!g || !g.mods) return; const k = KEY(); if (g.tk == null) { g.tk = k; return; } if (g.tk !== k) { g.tk = k; tick(); if (world.mapName === GID && world.map) G0.rebuildObjs(world.map.T); } } catch (e) {} }, 1000);
+  setInterval(() => { try { const g = F().r175g; if (!g || !g.mods || !F().qz_shi) return; /* 出了青竹 qz_shi 会被清空，那不算歇了一次 */ const k = KEY(); if (g.tk == null) { g.tk = k; return; } if (g.tk !== k) { g.tk = k; tick(); if (world.mapName === GID && world.map) G0.rebuildObjs(world.map.T); } } catch (e) {} }, 1000);
   // 刚开局那座鸡舍今天就能捡蛋；新摆的要歇一次才有
   const ready = m => m.rd === 1 || (m.rd === undefined && m.u === 'starter_coop');
 
@@ -93,6 +93,9 @@
   async function act(m, o) {
     if (o.k === 'sow') { U.enter(); U.B.tab = 1; U.B.sel = null; U.flash('选一样种子，再点这块田', 2.4); return; }
     if (!(await walkNear(m))) return;
+    // 走过去的这几秒里可能又点了一次、或者被收回了：到了再看一眼还能不能收（不然会重复进账）
+    if (!GS().mods.includes(m)) return;
+    if ((o.k === 'collect' && !ready(m)) || (o.k === 'pick' && (U.catOf(m).tree ? m.ts !== 'fruit' : !ready(m)))) return;
     if (o.k === 'water') { m.wet = 1; splash(m); try { playSnd('sfx_water', .5); } catch (e) { try { playSnd('ui_confirm', .4); } catch (er) {} } pop('浇好了，歇一觉就长一截'); return; }
     if (o.k === 'harvest') { const got = {}; m.crops = (m.crops || []).map(cp => { if (cp && cp.st >= 3) { const id = CROP[cp.k]; if (id) { addItem(id, 1); got[id] = (got[id] || 0) + 1; } return null; } return cp; });
       try { playSnd('ui_confirm', .6); } catch (e) {} pop(Object.keys(got).map(id => nameOf(id) + ' +' + got[id]).join('　') + '　收进行囊'); return; }

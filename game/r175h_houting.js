@@ -32,8 +32,14 @@
   const DROP = /^r137by_(dining_|chair_|lantern_|bamboo_n1$|bamboo_n2$)/;
   const LAMPS = META.lamp.feet.map(([fx, fy], i) => ({ uid: 'r175h_lamp_' + i, id: 'r175h_lamp', img: 'r175h_lamp', x: fx - META.lamp.w / 2 - OX, y: fy - META.lamp.h, w: META.lamp.w, h: META.lamp.h, sy: fy, flat: false, flip: false, bk: true }));
   const fixObjs = T => { if (!T || !T.objs || T.__r175h) return; T.__r175h = 1; T.objs = T.objs.filter(o => !(o.uid && DROP.test(o.uid))); for (const o of LAMPS) T.objs.push(Object.assign({}, o)); };
-  buildTileMap = (o => function (def) { const T = o.apply(this, arguments); try { if (def === TMAPS[PAV] && T && T.x0 === -OX) fixObjs(T); } catch (e) { console.warn('r175h', e); } return T; })(buildTileMap);
-  tileSetMap = (o => function (name) { if (name === PAV) loadAll(); const r = o.apply(this, arguments); try { const T = world.map && world.map.T; if (name === PAV && T && T.x0 === -OX) fixObjs(T); } catch (e) {} return r; })(tileSetMap);
+  // 西扩和大亭主图接缝：主图最左三列原来是图边墙，后庭整块走不进去（11-10 查出来的）。两边都是空地的行，把这三列打通
+  //   r66 按物件透明度重算大亭碰撞时（图片到齐后几秒）会把这三列重新写成墙，所以在大亭时每 0.7 秒再看一眼
+  const openSeam = T => { const B = T.block, YC = OX / (T.cs || 8); if (!B || !B[0]) return; let ch = 0;
+    for (let r = 0; r < B.length; r++) { const row = B[r]; if (row[YC - 1] || row[YC - 2] || row[YC + 3] || row[YC + 4]) continue; if (row[YC] || row[YC + 1] || row[YC + 2]) { row[YC] = row[YC + 1] = row[YC + 2] = 0; ch++; } }
+    if (ch) T._stand = null; };
+  setInterval(() => { try { const T = world.map && world.map.T; if (world.mapName === PAV && T && T.x0 === -OX) openSeam(T); } catch (e) {} }, 700);
+  buildTileMap = (o => function (def) { const T = o.apply(this, arguments); try { if (def === TMAPS[PAV] && T && T.x0 === -OX) { fixObjs(T); openSeam(T); } } catch (e) { console.warn('r175h', e); } return T; })(buildTileMap);
+  tileSetMap = (o => function (name) { if (name === PAV) loadAll(); const r = o.apply(this, arguments); try { const T = world.map && world.map.T; if (name === PAV && T && T.x0 === -OX) { fixObjs(T); openSeam(T); } } catch (e) {} return r; })(tileSetMap);
 
   // ---------- 可调查点：饭桌那个撤掉；观星挪到崖边空地（原来那处现在是溪水）；钓台 ----------
   const M = TMAPS[PAV]; M.npcs = M.npcs || [];
@@ -76,6 +82,7 @@
     const shi = window.QZ_SHI ? QZ_SHI() : '';
     const k = dusk ? 'l_dusk' : t === 'dawn' ? 'l_dawn' : t === 'night' ? (shi === '子' ? 'l_midnight' : 'l_evening') : null;
     const im = k && IM[k]; if (!im) return false;
+    if (!dusk && (t === 'night' || t === 'dawn')) { try { if (!mainCol(t)) return false; } catch (e) { return false; } }   // 主图那一列光还没解好，先走老路，免得接缝露出来
     // 接缝：Codex 这四层是后庭自己的光（灯、瀑布、潭面），和主图的夜色 / 晨光 / 暮色不是一个调子，x = 0 那条线会看出竖缝。
     // 做法：后庭大部分照 Codex 原样；最东边 BAND 宽的一条，Codex 层渐渐淡掉，同时把主图那一套（整图压色 + cx2 光层最左一列）渐渐加满，到 x = 0 正好和主图一模一样。
     const sw0 = im.width * (OX - BAND) / OX;

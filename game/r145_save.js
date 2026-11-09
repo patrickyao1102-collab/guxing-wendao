@@ -59,12 +59,14 @@
     return head + ' · ' + (d.title || '') + ' · ' + (h.realm || ('Lv' + (h.lv || '?'))) + ' · ' + when;
   };
 
+  // 开机时各模块挂进 S.overlay 的都是常驻层（自己判断画不画），标成 _keep；之后临时推进来的弹层读档时照旧清掉
+  { const tag = () => { try { for (const o of S.overlay) if (o) o._keep = 1; } catch (e) {} }; if (document.readyState === 'complete') setTimeout(tag, 0); else window.addEventListener('load', () => setTimeout(tag, 0)); }
   function applyLoad(d) {
     try { if (typeof battle !== 'undefined' && battle) { try { endBattle(true); } catch (e) {} battle = null; } } catch (e) {}
     try { dialog = null; } catch (e) {} try { choice = null; } catch (e) {} try { sysPanel = null; } catch (e) {}
     S.hero = d.hero; S.flags = d.flags || {}; S.party = d.party || []; S.sk4 = d.sk4 || {}; S.skillLv = d.skillLv || {};
     S.quest = d.quest || ''; if (d.uiTheme) S.uiTheme = d.uiTheme; S.started = true; S.menu = null;
-    S.fade = 0; S.flash = 0; S.hud = true; S.overlay.length = 0;
+    S.fade = 0; S.flash = 0; S.hud = true; for (let i = S.overlay.length - 1; i >= 0; i--) if (!(S.overlay[i] && S.overlay[i]._keep)) S.overlay.splice(i, 1);   // 11-10：模块开机时挂上的常驻层（钓鱼、菜园布置、竹牌、厨房……）读档后要留着，只清临时弹层
     world.hold = false; world.locked = false; world.path = null; world.walkTarget = null; world.pending = null;
     try { (S.party || []).forEach(k => { if (typeof allyState === 'function') allyState(k); }); } catch (e) {}
     const name = d.map && TMAPS[d.map] ? d.map : 'qingzhu_court';

@@ -86,7 +86,9 @@
       if (O[c + ',' + r]) return '这里已经摆了东西'; }
     if (cat.z && p0.z !== cat.z) return '只能摆在' + cat.z;
     if (cat.w) { let ok = false; for (let r = r0; r < r0 + h && !ok; r++) for (let c = c0; c < c0 + w; c++) if (wet(c, r)) { ok = true; break; } if (!ok && !flumeNear(c0, r0, w, h, O)) return '要挨着水（溪、潭，或者接一段竹笕）'; }
-    if (!cat.flat) { const pl = world.player, pc = Math.floor(pl.x / 64), pr = Math.floor(pl.y / 64); if (pc >= c0 && pc < c0 + w && pr >= r0 && pr < r0 + h) return '叶孤星站在这儿'; }
+    // 叶孤星的站位按引擎 canStand 的四个探点（左右 ±16、上 -4 下 +6）算，有一个落进占地就不让摆，免得把人关在里面
+    if (!cat.flat) { const pl = world.player, X0 = c0 * 64, Y0 = r0 * 64, X1 = (c0 + w) * 64, Y1 = (r0 + h) * 64;
+      for (const [dx, dy] of [[-16, -4], [16, -4], [-16, 6], [16, 6], [0, 0]]) { const x = pl.x + dx, y = pl.y + dy; if (x >= X0 && x < X1 && y >= Y0 && y < Y1) return '叶孤星站在这儿'; } }
     return null; }
 
   // ---------- 库存（收回的模块）----------
@@ -108,7 +110,8 @@
     G0.applyBlock(world.map.T); G0.rebuildObjs(world.map.T); try { playSnd('ui_cancel', .6); } catch (e) {} }
   // 搭建中取消：全退；搭好的收回：进库存（作物一起收掉，熟了的进竹篮）
   function cancelBuild(m) { const c = catOf(m); if (m.paid) S.hero.gold += m.paid; else if (m.inv) INV()[c.soil ? c.k : m.k] = (INV()[c.soil ? c.k : m.k] || 0) + 1; remove(m); toast('取消了，' + (m.paid ? '退回 ' + m.paid + ' 灵石' : '放回库存'), 1400); }
-  function retrieve(m) { const c = catOf(m), key = c.soil ? (m.soil || c.k) : m.k;
+  const BASE = { trellis_v: 'trellis_h', flume_vertical: 'flume_horizontal', flume_east_south: 'flume_north_east', flume_south_west: 'flume_north_east', flume_west_north: 'flume_north_east' };   // 转过向的收回来，记在能摆的那张卡上
+  function retrieve(m) { const c = catOf(m), key = c.soil ? (m.soil || c.k) : (BASE[m.k] || m.k);
     if (m.crops) { let n = 0; for (const cp of m.crops) if (cp && cp.st >= 3) { n++; if (window.R175G_HARVEST1) R175G_HARVEST1(cp.k); } if (n) toast('田里熟了的 ' + n + ' 棵一起收进竹篮', 1600); }
     INV()[key] = (INV()[key] || 0) + 1; remove(m); }
 
@@ -172,7 +175,7 @@
     B.hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; const p = world.player; p.moving = false; world.camFocus = [p.x, p.y + 100 / VZ()];   // 底下家具库占了 200px：镜头往下挪，叶孤星和眼前的地露在上半屏
     try { playSnd('ui_open', .5); } catch (e) {}
     if (!F().r175g_tip) { F().r175g_tip = 1; flash('点一张卡，再按住地面拖到想放的地方松手；拖空地可以挪镜头', 3.6); } }
-  function exit() { if (!B.on) return; B.on = false; B.sel = null; B.gh = null; B.pick = null; S.hud = B.hud0; world.locked = false; world.camFocus = null; try { playSnd('ui_close', .5); } catch (e) {} }
+  function exit() { if (!B.on) return; B.on = false; B.sel = null; B.gh = null; B.pick = null; B.moving = null; S.hud = B.hud0; world.locked = false; world.camFocus = null; try { playSnd('ui_close', .5); } catch (e) {} }
   window.R175G_BUILD = enter; window.R175G_BUILD_EXIT = exit;
   const busy = () => (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || (window.IG_OPEN && IG_OPEN());
   const modAt = (wx, wy) => { const c = Math.floor(wx / 64), r = Math.floor(wy / 64); let best = null;
@@ -219,7 +222,7 @@
     else if (PT.mode === 'pan' && PT.moved <= 8) { const w = toWorld(q), m = modAt(w.x, w.y); B.pick = m && m !== B.pick ? m : null; if (m) try { playSnd('ui_click', .4); } catch (er) {} }
     else if (PT.mode === 'ui') { const h = PT.hit; try { playSnd('ui_click', .5); } catch (er) {}
       if (h.k === 'done') exit();
-      else if (h.k === 'tab') { B.tab = h.i; B.scr = 0; B.sel = null; B.gh = null; }
+      else if (h.k === 'tab') { B.tab = h.i; B.scr = 0; B.sel = null; B.gh = null; B.moving = null; }
       else if (h.k === 'tag') tagAct(h.t); }
     else if (PT.mode === 'drawer' && PT.moved <= 8 && PT.hit.k === 'card') { const c = PT.hit.c; try { playSnd('ui_click', .5); } catch (er) {} B.pick = null; B.moving = null;
       if (B.sel === c) { B.sel = null; B.gh = null; } else { B.sel = c; B.gh = null; flash(c.nm + '：按住地面拖到想放的地方，松手就搭', 2.2); } }
@@ -308,7 +311,7 @@
     if (!ui('tab', r.x + 6, r.y, 93, 80)) return; ctx.font = `600 19px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = '#4a2c10'; ctx.fillText('布置', r.x + 52, r.y + 49); } catch (e) {} } });
   cv.addEventListener('pointerdown', e => { try { if (B.on || world.mapName !== GID || !S.hud || world.locked || busy()) return; const q = toLogical(e); if (inR(q, HB())) { e.stopImmediatePropagation(); e.preventDefault(); enter(); } } catch (er) {} }, true);
   // 园屋：布置 / 看库存
-  window.R175G_HOUSE = async () => { const c = await choose('园屋里收着锄头、竹篮和种子盒。', ['布置菜园', '看看库存', '算了']); if (c === 0) enter(); else if (c === 1) await say('', invText()); };
+  window.R175G_HOUSE = async () => { const c = await choose('园屋里收着锄头、竹篮和种子盒。', ['布置菜园', '看看库存', '算了']); if (c === 0) setTimeout(enter, 0); /* 等对话层放开 world.locked 再进布置 */ else if (c === 1) await say('', invText()); };
   window.R175G_CAT = C;
   window.R175G_U = { wet, occ, flumeNear, catOf, fpOf, imgOf, isBuilding, modAt, enter, MI, A, ui, B, flash, toScr, toWorld };
 })();

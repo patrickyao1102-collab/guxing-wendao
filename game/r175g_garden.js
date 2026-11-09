@@ -47,7 +47,7 @@
   let wgReq = false; const wgLoad = () => { if (wgReq) return; wgReq = true; ld('westgate', im => slice(im, M.westgate, 0, 'r175g_')); };
   setTimeout(wgLoad, 4000);
   tileSetMap = (o => function (name) { if (name === GID) loadAll(); if (name === COURT) wgLoad(); return o.apply(this, arguments); })(tileSetMap);
-  setTimeout(() => { try { if (QZ_NEAR()) loadAll(); } catch (e) {} }, 15000);
+  setTimeout(() => { try { if (world.mapName === GID) loadAll(); } catch (e) {} }, 15000);   // 西院月门现在通新菜园，老图的大底图不再提前解码
   const QZ_NEAR = () => /^qingzhu_/.test(world.mapName || '');
 
   // ---------- 地图 ----------
