@@ -305,6 +305,7 @@
     { id: 'cook_zao', name: '红枣山药汤', pot: 'soup', ing: ['红枣', '山药', '莲子'], hp: 300, mp: 110, desc: '补气养血，松伯最爱喝。' },
     { id: 'cook_dan', name: '香菇蒸蛋', pot: 'steam', ing: ['鸡蛋', '香菇'], hp: 200, mp: 90, desc: '蛋羹蒸得嫩滑，香菇提鲜，青禾的拿手菜。' },
   ];
+  window.R139_RECIPES = RECIPES;   // R175：菜园、钓鱼潭的新菜往这里加（r175k_kitchen.js），选菜界面分页
   const ING = { 竹笋: '#c8b46a', 莲子: '#efe6c8', 红枣: '#b8322e', 桂花: '#f2b33c', 糯米: '#f4f1e6', 青菜: '#5fa84a', 豆腐: '#f1ead2', 香菇: '#8a5a36', 鸡蛋: '#f3d9a4', 灵米: '#d9e8f0', 山药: '#e8dcc4', 蜂蜜: '#e0a228' };
   for (const r of RECIPES) ITEM_DB[r.id] = Object.assign(ITEM_DB[r.id] || {}, { name: r.name, use: 'heal', hp: r.hp, mp: r.mp, price: 40, desc: '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') });
   // —— Codex R139 厨房素材（灶台近景 / 三口锅 / 冒泡·翻炒·蒸汽·溅水·成菜金光 / 火候条 / 12 种食材 / 8 道菜）打成三张图 ——
@@ -326,8 +327,8 @@
     if (c) { ctx.drawImage(c, x - r * 1.2, y - r * 1.2, r * 2.4, r * 2.4); return; }
     return o.apply(this, arguments); })(itemIcon);
   const UI_ = (k, x, y, w, h) => { const u = CM.U[k], im = CA.cook_ui; if (!im) return false; ctx.drawImage(im, u[0], u[1], u[2], u[3], x, y, w == null ? u[2] : w, h == null ? u[3] : h); return true; };
-  const ingCell = (n, x, y, s) => { const i = INGK.indexOf(n), u = CM.U.ingredients_atlas, im = CA.cook_ui; if (!im || i < 0) return; ctx.drawImage(im, u[0] + (i % 6) * 160, u[1] + Math.floor(i / 6) * 160, 160, 160, x, y, s, s); };
-  const dishCell = (id, x, y, s) => { const i = ICK[id], u = CM.U.dishes_atlas, im = CA.cook_ui; if (!im || i == null) return; ctx.drawImage(im, u[0] + (i % 4) * 192, u[1] + Math.floor(i / 4) * 192, 192, 192, x, y, s, s); };
+  const ingCell = (n, x, y, s) => { const i = INGK.indexOf(n), u = CM.U.ingredients_atlas, im = CA.cook_ui; if (i < 0) { if (window.R139_ING_ART) R139_ING_ART(n, x, y, s); return; } if (!im) return; ctx.drawImage(im, u[0] + (i % 6) * 160, u[1] + Math.floor(i / 6) * 160, 160, 160, x, y, s, s); };
+  const dishCell = (id, x, y, s) => { const i = ICK[id], u = CM.U.dishes_atlas, im = CA.cook_ui; if (i == null) { if (window.R139_DISH_ART) R139_DISH_ART(id, x, y, s); return; } if (!im) return; ctx.drawImage(im, u[0] + (i % 4) * 192, u[1] + Math.floor(i / 4) * 192, 192, 192, x, y, s, s); };
   const fxf = (k, fi, x, y, sc = 1) => { const f = CM.FX[k], im = CA.cook_fx; if (!im) return; ctx.drawImage(im, fi * f.fw, f.y, f.fw, f.fh, x - f.ax * sc, y - f.ay * sc, f.fw * sc, f.fh * sc); };
   const fxi = (k, t) => { const f = CM.FX[k]; return Math.floor(t * f.fps) % f.n; };
   const POTK = { soup: 'pot_soup', steam: 'pot_steamer', wok: 'pot_wok' }, POTN = { soup: '砂锅 · 慢炖', steam: '竹笼 · 清蒸', wok: '铁锅 · 快炒' };
@@ -335,7 +336,13 @@
   const potAt = r => { const pk = POTK[r.pot], P = CM.P[pk], px = MOUNT[0] - P.ax, py = MOUNT[1] - P.ay; return { pk, px, py, mx: px + P.mx, my: py + P.my }; };
   let G = null;
   const BOARD = () => G.board.map((n, i) => ({ n, x: [100, 262, 424][i % 3], y: [360, 466][Math.floor(i / 3)], r: 52 }));
-  const PICK = () => RECIPES.map((r, i) => { const row = i < 4 ? 0 : 1, k = row ? i - 4 : i, cx = row ? 460 + k * 180 : 370 + k * 180, cy = row ? 500 : 280; return { r, cx, cy, x: cx - 76, y: cy - 106, w: 152, h: 212 }; });
+  // 选菜：一页 8 道（上下两排，每排 4 道、不满就居中），左右翻页。菜谱带 pg 的按页归类（家常 / 菜园 / 果子 / 鱼鲜），页名取这一页第一道的 pgn
+  const PER = 8, PGS = () => { const m = new Map(); RECIPES.forEach((r, i) => { const k = r.pg != null ? r.pg : Math.floor(i / PER); if (!m.has(k)) m.set(k, []); const a = m.get(k); if (a.length < PER) a.push(r); });
+    return [...m.keys()].sort((a, b) => a - b).map(k => m.get(k)); };
+  const PAGES = () => Math.max(1, PGS().length);
+  const PICK = () => { const P = PGS(), pg = Math.min((G && G.pg) || 0, P.length - 1), L = P[pg] || [], n0 = Math.min(4, L.length), n1 = L.length - n0;
+    return L.map((r, i) => { const row = i < 4 ? 0 : 1, k = row ? i - 4 : i, n = row ? n1 : n0, cx = 640 - (n - 1) * 90 + k * 180, cy = row ? 500 : 280; return { r, cx, cy, x: cx - 76, y: cy - 106, w: 152, h: 212 }; }); };
+  const BTN_PREV = { x: 190, y: 338, w: 72, h: 104 }, BTN_NEXT = { x: 1018, y: 338, w: 72, h: 104 };
   const BTN_QUIT = { x: 20, y: 18, w: 170, h: 54 }, BTN_SERVE = { x: 690, y: 566, w: 260, h: 80 };
   const HB = { x: 500, y: 648 }, TR = { x: HB.x + 24, y: HB.y + 12, w: 592, h: 40 };
   const INK = '#4a2a12';
@@ -381,9 +388,13 @@
       for (const c of PICK()) { const l = window.R139_LACK ? R139_LACK(c.r) : [], full = itemCount(c.r.id) >= 5, ok = !l.length && !full;
         UI_('recipe_card', c.x, c.y, c.w, c.h); ctx.globalAlpha = ok ? 1 : .55; dishCell(c.r.id, c.cx - 56, c.cy - 100, 112); ctx.globalAlpha = 1;
         ctx.font = `26px ${BRUSH}`; ctx.fillStyle = INK; ctx.fillText(c.r.name, c.cx, c.cy + 30);
-        ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#8a6a48'; ctx.fillText(c.r.ing.join(' · '), c.cx, c.cy + 56);
+        ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#8a6a48'; ctx.fillText(c.r.ing.join(' · '), c.cx, c.cy + 56, c.w - 18);   // 名字长的料（银鳞鱼、甜豌豆）压进卡片里
         ctx.font = `600 15px ${FONT}`; ctx.fillStyle = full ? '#8a6a48' : l.length ? '#b0402a' : '#4f7a2e';
-        ctx.fillText(full ? '行囊里还有' : l.length ? '缺' + l.join('、') : '✓ 料齐', c.cx, c.cy + 80); } }
+        ctx.fillText(full ? '行囊里还有' : l.length ? '缺' + l.join('、') : '✓ 料齐', c.cx, c.cy + 80, c.w - 18); }
+      if (PAGES() > 1) { for (const [b, ch] of [[BTN_PREV, '‹'], [BTN_NEXT, '›']]) { ctx.fillStyle = 'rgba(246,232,196,.92)'; ctx.strokeStyle = '#7b5a2e'; ctx.lineWidth = 3; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(b.x, b.y, b.w, b.h, 18); else ctx.rect(b.x, b.y, b.w, b.h); ctx.fill(); ctx.stroke();
+          ctx.font = `64px ${BRUSH}`; ctx.fillStyle = '#5a3a18'; ctx.fillText(ch, b.x + b.w / 2, b.y + b.h / 2 + 2); }
+        const pi = (G.pg || 0) % PAGES(), pn = ((PGS()[pi] || [])[0] || {}).pgn;
+        ctx.font = `600 20px ${FONT}`; textOutline('第 ' + (pi + 1) + ' / ' + PAGES() + ' 页' + (pn ? ' · ' + pn : ''), 640, 650, '#fbefd5', '#2a1406', 4); } }
     // 案板上的食材
     if (G.phase === 'add') for (const b of BOARD()) { ingCell(b.n, b.x - 56, b.y - 60 + Math.sin(t * 2 + b.x) * 1.5, 112);
       ctx.font = `600 19px ${FONT}`; textOutline(b.n, b.x, b.y + 44, '#fff3d6', '#2a1406', 4); }
@@ -415,10 +426,18 @@
     const close = () => { G = null; S.hud = hud0; world.locked = false; };
     let r = null;
     while (!r) { await nextFrame(); const tp = takeTap(); if (!tp) continue; if (inR(tp, BTN_QUIT)) { close(); return; }
+      if (PAGES() > 1 && (inR(tp, BTN_PREV) || inR(tp, BTN_NEXT))) { G.pg = ((G.pg || 0) + (inR(tp, BTN_NEXT) ? 1 : PAGES() - 1)) % PAGES(); try { playSnd('ui_click', .5); } catch (e) {} continue; }
       for (const c of PICK()) if (inR(tp, c)) { const l = window.R139_LACK ? R139_LACK(c.r) : [];
         if (itemCount(c.r.id) >= 5) flash('行囊里的' + c.r.name + '还有好几份呢', false);
-        else if (l.length) flash(l.length === 1 && l[0] === '水' ? '水缸里的水不够了——去井边打水' : '还缺' + l.filter(n => n !== '水').join('、') + '——集市灶膳摊有卖', false);
+        else if (l.length) { const m = l.filter(n => n !== '水'), wh = [...new Set(m.map(n => (window.R139_WHERE && R139_WHERE(n)) || '集市灶膳摊有卖'))].slice(0, 2).join('、');
+          flash(!m.length ? '水缸里的水不够了——去井边打水' : '还缺' + m.join('、') + '——' + wh, false); }
         else r = c.r; break; } }
+    // 不用开火的（切西瓜）：洗净、切好、装盘，不过火候
+    if (r.pot === 'cold') { try { if (window.R139_USEING) R139_USEING(r); } catch (e) {}
+      close(); world.locked = true; addItem(r.id, 2); try { giveFx(); } catch (e) {}
+      await narrate(r.cold || ('把' + r.ing.join('、') + '洗净切好，码进盘里。'));
+      try { if (window.itemGet) await itemGet([{ icon: 'item:' + r.id, name: r.name, count: '×2', desc: ITEM_DB[r.id].desc }], '装盘'); else toast('做好了：' + r.name + ' ×2', 1800); } catch (e) { toast('做好了：' + r.name + ' ×2', 1800); }
+      world.locked = false; return; }
     const deco = INGK.filter(n => !r.ing.includes(n)).sort(() => Math.random() - .5).slice(0, 6 - r.ing.length);
     Object.assign(G, { r, board: r.ing.concat(deco).sort(() => Math.random() - .5), phase: 'add', msg: null });
     let quit = false;
@@ -476,7 +495,7 @@
   // 食补：吃一道菜（行囊里「使用」）当场回气血 / 灵力，并记下「食补」——接下来 3 场战斗，开局全队怒气 +N（不同菜 N 不同，后吃的顶掉先吃的）。
   const INGS = ['竹笋', '莲子', '红枣', '桂花', '糯米', '青菜', '豆腐', '香菇', '鸡蛋', '灵米', '山药', '蜂蜜'];
   const ING_PRICE = { 竹笋: 12, 莲子: 15, 红枣: 10, 桂花: 18, 糯米: 10, 青菜: 6, 豆腐: 8, 香菇: 14, 鸡蛋: 8, 灵米: 30, 山药: 16, 蜂蜜: 20 };
-  const ING_ID = n => 'ing_' + INGS.indexOf(n);
+  const ING_ID = n => INGS.includes(n) ? 'ing_' + INGS.indexOf(n) : ((window.R139_EXTRA_ING || {})[n] || 'ing_none');   // R175：菜园、钓鱼潭的食材（r175k_kitchen.js 登记名字 → 物品）
   INGS.forEach((n, i) => { ITEM_DB[ING_ID(n)] = Object.assign(ITEM_DB[ING_ID(n)] || {}, { name: n, price: ING_PRICE[n], sell: Math.round(ING_PRICE[n] / 2), cat: '食材', desc: '做菜用的食材。天剑宗集市灶膳摊有卖，拿到青竹西院厨房的灶台上做菜。' }); });
   const RAGE = { cook_lianzi: 20, cook_sun: 30, cook_guihua: 20, cook_doufu: 10, cook_zhou: 40, cook_zao: 30, cook_dan: 20 };
   for (const r of RECIPES) { const d = ITEM_DB[r.id]; d.rage = RAGE[r.id]; d.desc = '叶孤星亲手做的' + r.name + '。' + r.desc + '恢复 ' + r.hp + ' 气血' + (r.mp ? '、' + r.mp + ' 灵力' : '') + '；食补：之后 3 场战斗开局全队怒气 +' + d.rage; }
@@ -722,7 +741,15 @@
       await say(f.cat_name, '喵～');
       await say('星旋', '（……这院子里，连猫都比你招人疼。）');
       return; }
-    const i = await choose(catName(), ['摸摸它', '给它添点吃的', '走开']);
+    const dried = typeof itemCount === 'function' ? itemCount('cook_xiaoyugan') : 0;   // R175：钓鱼潭的白条炸成的小鱼干
+    const i0 = await choose(catName(), dried ? ['摸摸它', '给它添点吃的', '喂它一条小鱼干（' + dried + '）', '走开'] : ['摸摸它', '给它添点吃的', '走开']);
+    if (dried && i0 === 2) { const key = (f.qz_day || 1) + '_' + (f.qz_shi || '');
+      if (f.cat_fishK === key) { await narrate(catName() + '刚吃过一条，舔着胡子，肚皮圆鼓鼓的。……眼睛还盯着少爷的袖口。'); return; }
+      f.cat_fishK = key; const b = S.hero.bag; b.cook_xiaoyugan--; if (b.cook_xiaoyugan <= 0) delete b.cook_xiaoyugan;
+      if (a && a._cat) catDo(a, world.map.T, 'walk', { to: BOWL, thenEat: true, fast: true });
+      await narrate(pick([catName() + '闻着味儿就扑过来了，叼住小鱼干跑到竹丛边，嚼得咔咔响，胡子一翘一翘的。', '小鱼干还没递过去，' + catName() + '已经站起来扒少爷的衣摆了。', catName() + '一口叼走小鱼干，跑开两步又回头，冲少爷「喵」了一声。']));
+      if (window.QZ_BOND) QZ_BOND('cat', 3); return; }
+    const i = dried && i0 === 3 ? 2 : i0;
     if (i === 0) { if (a && a._cat) { a._face = world.player && world.player.x > a.x ? 1 : -1; catDo(a, world.map.T, 'rub'); a._cat.rubT = now(); }
       await narrate(pick([catName() + '眯起眼，在少爷手心里蹭来蹭去，喉咙里呼噜呼噜的。', catName() + '翻过身，把软乎乎的肚皮露出来。', catName() + '用脑袋顶了顶少爷的手，又顶了顶，意思是：再摸一会儿。']));
       return; }

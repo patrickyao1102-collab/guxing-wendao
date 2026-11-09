@@ -137,6 +137,7 @@
     if (!im) return;
     const mv = B.moving === m; if (mv) { ctx.save(); ctx.globalAlpha = .3; }
     if (m.flip) { ctx.save(); ctx.translate(fx, 0); ctx.scale(-1, 1); ctx.drawImage(im, -foot[0], y, dw, dh); ctx.restore(); } else ctx.drawImage(im, x, y, dw, dh);
+    if (window.R175G_AFTERMOD) try { R175G_AFTERMOD(m, x, y, dw, dh); } catch (e) {}   // 鱼塘里的鱼、蜂箱上的蜂（r175g_farm.js）
     if (m.crops) m.crops.forEach((cp, i) => { if (!cp) return; const ci = MI(cp.k + '_' + ['seed', 'young', 'grown', 'ripe'][cp.st || 0]) || IMG['r175g_' + cp.k + '_ripe']; if (ci) ctx.drawImage(ci, m.c * 64 + (i % 2) * 64, m.r * 64 + Math.floor(i / 2) * 64, 64, 64); });
     // 附件动效：竹笕出水口滴水、田边小灶炊烟、炼丹炉炉火
     const an = m.k === 'flume_spout' ? 'flume_spout' : m.k === 'stove' ? 'stove_smoke' : m.k === 'furnace' ? 'furnace_fire' : null;

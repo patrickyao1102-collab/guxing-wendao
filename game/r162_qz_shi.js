@@ -701,14 +701,22 @@
     servant: { 5: ['大笑', '灵米粥！管饱！阿福能喝三碗！'], 3: ['大笑', '少爷做的就是好吃！阿福啥都爱吃！'] },
     steward: { 5: ['感动', '红枣山药汤……少爷还记得老头子爱喝这个。'], 3: ['点头', '好，好，少爷的手艺越来越好了。'], 2: ['笑', '少爷有心了。'], 1: ['笑', '桂花糕啊……老头子牙不好，留给小桃吧。少爷的心意，松伯收下了。'] },
   };
+  const GIFT_ONE = { maid1: {}, maid2: {}, servant: {}, steward: {} };   // 某道菜专门的一句（R175 新菜：r175k_kitchen.js 往这三张表里加）
+  window.R162_GIFT = { DISH, TASTE, SAY: GIFT_ONE };
   const dishesHave = () => Object.keys(DISH).filter(id => (typeof itemCount === 'function' ? itemCount(id) : 0) > 0);
   const canGift = k => k !== 'cat' && dishesHave().length && !((F().qz_gift || {})[k]);
   async function gift(k) {
     const have = dishesHave(); if (!have.length) return;
-    const i = await choose('送什么？', [...have.map(id => DISH[id] + '（' + itemCount(id) + '）'), '算了']); if (i >= have.length) return;
-    const id = have[i]; try { const b = S.hero.bag; b[id]--; if (b[id] <= 0) delete b[id]; } catch (e) {}
+    // 菜多了一页放 8 道，「下一页」翻
+    const PG = 8, np = Math.ceil(have.length / PG); let pg = 0, id = null;
+    for (;;) { const L = have.slice(pg * PG, pg * PG + PG), more = np > 1;
+      const i = await choose('送什么？' + (more ? '（' + (pg + 1) + ' / ' + np + '）' : ''), [...L.map(d => DISH[d] + '（' + itemCount(d) + '）'), ...(more ? ['下一页'] : []), '算了']);
+      if (i < L.length) { id = L[i]; break; }
+      if (more && i === L.length) { pg = (pg + 1) % np; continue; }
+      return; }
+    try { const b = S.hero.bag; b[id]--; if (b[id] <= 0) delete b[id]; } catch (e) {}
     const f = F(); f.qz_gift = f.qz_gift || {}; f.qz_gift[k] = 1;
-    const v = TASTE[k][id] || 2, G = GIFT_SAY[k], ln = (k === 'maid1' && id === 'cook_dan' && G.own) || G[v] || G[3] || G[2];
+    const v = TASTE[k][id] || 2, G = GIFT_SAY[k], ln = GIFT_ONE[k][id] || (k === 'maid1' && id === 'cook_dan' && G.own) || G[v] || G[3] || G[2];
     await say(WHO[k] + '·' + ln[0], ln[1]); bond(k, v);
   }
 
