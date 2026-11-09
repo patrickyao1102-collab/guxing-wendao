@@ -54,9 +54,16 @@
   let tipT = 0; const recent = [];
   // 作者 11-09：加载时点一下，插画也一起换一张（青竹专属插画那套照旧由它自己轮换）
   // 作者 11-09：第一次加载固定用「一剑止雨」（NA74），之后才随机
-  const FIRST_ART = 'NA74';
-  const firstArt = () => { try { if ((S.flags || {}).first_art) return -1; const i = SEL.findIndex(x => x[0] === FIRST_ART); return i >= 0 && LB.im[i] && LB.im[i].ok ? i : -1; } catch (e) { return -1; } };
-  const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
+  // 作者 11-09：第一次加载在「一剑止雨」（NA74）和「生辰又见流星」（NB01）里二选一，之后才随机
+  const FIRST_ART = Math.random() < .5 ? 'NA74' : 'NB01';
+  const ixOf = id => SEL.findIndex(x => x[0] === id), okI = i => i >= 0 && LB.im[i] && LB.im[i].ok;
+  // 作者 11-09：「星落襁褓」（叶擎苍看着襁褓里的叶孤星，NB13）只在生辰夜送残本之后那次载入出现一次，平时极少抽到
+  const RARE = 'NB13';
+  const firstArt = () => { try { const F = S.flags || {};
+    if (F.nb13_pending) { const i = ixOf(RARE); if (okI(i)) return i; }
+    if (F.first_art) return -1; const i = ixOf(FIRST_ART); return okI(i) ? i : -1; } catch (e) { return -1; } };
+  const rareOut = i => !(SEL[i] && SEL[i][0] === RARE) || Math.random() < .04;
+  const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
   // R177：玩法 + 已解锁的剧情随机抽；当前地图有原著摘句时，约三成概率抽一句原著。最近 10 条不重复
   const nextTip = () => {
     const G = window.GX_TIPS; let t = null;
@@ -90,7 +97,7 @@
   // 作者 11-08：「换地图会黑很久才出现插画，黑屏绝对不允许」→ 一开游戏就把全部 22 张载入插画下下来（每张约 200KB，共约 4.6MB），并登记进 PRELOAD：插画没下完不放行进第一张图
   let lbNext = -1;
   // 作者 11-09：先下最优的 16 张（叶孤星 / 星旋相关、开局就能抽到），这 16 张下完就放行进图；其余在后台接着下，下好的才会被抽到
-  const FIRST = ['NA74', '01', '03', '05', 'YG01', 'YG02', 'NA01', 'NA20', 'NA33', 'NA35', 'NA53', 'NA55', 'NA64', 'NA65', 'NA70', 'NB01'];
+  const FIRST = ['NA74', 'NB01', 'NB13', '01', '03', '05', 'YG01', 'YG02', 'NA01', 'NA20', 'NA33', 'NA35', 'NA53', 'NA55', 'NA64', 'NA65', 'NA70'];
   { const idx = id => SEL.findIndex(s => s[0] === id);
     const first = FIRST.map(idx).filter(i => i >= 0), rest = SEL.map((s, i) => i).filter(i => !first.includes(i));
     const wait = i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); };
@@ -99,7 +106,7 @@
     setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', p1); } catch (e) {} }, 0); }
   window.LOADING_TIP = () => LB.tip;
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
-  const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
+  const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i)); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
     lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
   function lbBar(p, now) { const P = LB.parts; if (!P.track) return false;
     ctx.drawImage(P.track, 160, 648, 960, 34);
@@ -112,7 +119,7 @@
     return true; }
   // 作者 11-08：「换图会黑一下再出现图片，这个绝对不准出现！」—— 过图不再先黑屏：旧地图上直接淡入这次要用的载入插画，换完图插画接着盖着，地图好了再淡出
   const COVER = { on: false, to: null, from: null, t0: 0, ms: 220, idx: -1, qz: null };
-  const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
+  const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i)); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
   function coverStart(to, ms) {
     let qz = null; try { qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(to, world.mapName) : null; } catch (e) {} if (qz && !qz.ok) qz = null;
     const fa = firstArt(); if (fa >= 0) qz = null; const idx = fa >= 0 ? fa : anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
@@ -126,7 +133,7 @@
     if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
       else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
-      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) S.flags.first_art = 1; }
+      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; } S.flags.first_art = 1; } }
       if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
       COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
@@ -137,7 +144,7 @@
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
     ctx.save(); ctx.globalAlpha = a;
-    if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
+    if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
     const QA = LB.qz && LB.qz.ok ? LB.qz : null;   // 作者 11-08：青竹一带用 R144 十二件小事插画，轮流放
     let B = QA ? QA.im : LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
     if (!B && typeof IMG !== 'undefined' && IMG.title_art && IMG.title_art.width) B = IMG.title_art;   // 万一插画还没到：先铺标题封面，绝不露黑屏

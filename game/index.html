@@ -7337,7 +7337,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await say('星旋·忧', '……你爹看起来，也挺不好过的嘛。');
     await say('叶孤星·伤', '（他什么都没多问。……十八年来，他其实一直在等我开口。）');
     await fadeOut(600);
-    S.flags.lib_ch1 = 0; S.flags.lib_sleep = 0; S.flags.lib_taken = 1; LX.story = null; world.locked = false;
+    S.flags.lib_ch1 = 0; S.flags.lib_sleep = 0; S.flags.lib_taken = 1; if (!S.flags.nb13_shown) S.flags.nb13_pending = 1;   // 作者 11-09：生辰夜叶擎苍送残本，接下来那次载入放「星落襁褓」 LX.story = null; world.locked = false;
     await (window.RES_PART4 || part4)();
   }
   window.LIB_PART3 = async function () {
