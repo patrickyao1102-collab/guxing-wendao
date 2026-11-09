@@ -91,6 +91,10 @@
       ctx.save(); if (f.right) { ctx.translate(ob.x + cw / 2, 0); ctx.scale(-1, 1); ctx.translate(-(ob.x + cw / 2), 0); }
       ctx.drawImage(im, f.fr * cw, f.sp.y + f.row * ch, cw, ch, ob.x, ob.y, cw, ch); ctx.restore(); return; }
     return o.apply(this, arguments); })(drawBaked);
+  // ---------- 人物大小：地图缩到 .8 时引擎会把人物反向放大回原尺寸，人物相对素材就大了 1.25 倍（比鸡舍小门、台阶、鸡都大一圈）。
+  //   作者 11-10：人物和地图不适配 → 这张图人物跟着地图一起缩（CHAR_SCALE），人物相对素材回到原尺寸
+  const HS = .8;
+  if (typeof CHAR_SCALE === 'object' && !CHAR_SCALE[ID]) CHAR_SCALE[ID] = HS;
   // ---------- 时辰：酉时暖、戌时夜色、子时更暗（底图没有光层，先用整体调色，夜里要看得清）----------
   const TINT = { '卯': [214, 222, 255, .22], '酉': [255, 188, 128, .34], '戌': [72, 88, 150, .56], '子': [46, 56, 112, .66] };
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, n0) {
@@ -98,5 +102,5 @@
     try { if (world.mapName !== ID) return; const s = window.QZ_SHI ? QZ_SHI() : (typeof TOD === 'function' && TOD() === 'night' ? '戌' : ''); const c = TINT[s]; if (!c) return;
       ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = c[3]; ctx.fillStyle = 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; ctx.fillRect(0, 0, MW, MH); ctx.restore(); } catch (e) {}
   })(tileAmbientHigh);
-  window.R175G2 = { ID, M, IM, loadAll };
+  window.R175G2 = { ID, M, IM, loadAll, HS };
 })();
