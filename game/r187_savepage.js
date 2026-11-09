@@ -114,13 +114,14 @@
 
   // 接管：菜单里的「存档」按钮（R145 调 GX_SLOTMENU）、标题「前尘再续」（GX_PICKLOAD）
   window.GX_SLOTMENU = async function () {
-    if (!ready()) return;   // 图还没到就别开（R145 自己会退回旧弹窗）
+    if (!(await waitReady(4000))) return;   // 图还没到就别开（R145 自己会退回旧弹窗）
     if (S.menu) { try { closeMenu(); } catch (e) { S.menu = null; world.locked = false; } }
     return open('save', true);
   };
   const oldPick = window.GX_PICKLOAD;
-  window.GX_PICKLOAD = async function () {
-    if (!ready()) return oldPick ? oldPick() : false;
+  const waitReady = async ms => { const t0 = performance.now(); while (!ready() && performance.now() - t0 < ms) await new Promise(r => setTimeout(r, 50)); return ready(); };
+  window.GX_PICKLOAD = async function () {   // 作者 11-10：「主界面的读档」也要是新页面——图没到就等一会儿（最多 6 秒），不再退回旧弹窗
+    if (!(await waitReady(6000))) return oldPick ? oldPick() : false;
     if (![1, 2, 3, 'auto'].some(read)) return false;
     return open('load', false);
   };
