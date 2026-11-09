@@ -42,10 +42,12 @@
 
   // ---- 当前全屏界面：开着时地图 / 行囊不吃点击、不画地图 HUD（摇杆、任务栏不压在界面上）----
   let CUR = null;
-  window.R135G_OPEN = () => !!CUR; window.R135G_CUR = () => CUR;   // 测试用
+  // 作者 11-10「行囊不见了」：界面层要是被别处（读档清场等）直接从 S.overlay 拿掉、没走 close()，CUR 会一直挂着 → 地图 HUD 永远不画。每次用之前自检一下
+  const live = () => { if (CUR && S.overlay.indexOf(CUR) < 0) CUR = null; return CUR; };
+  window.R135G_OPEN = () => !!live(); window.R135G_CUR = () => CUR;   // 测试用
   const hideTap = (orig, self, args) => { const t = input.tapped; input.tapped = null; try { return orig.apply(self, args); } finally { if (!input.tapped) input.tapped = t; } };
-  if (typeof updateMap === 'function') updateMap = (orig => function () { if (CUR) return hideTap(orig, this, arguments); return orig.apply(this, arguments); })(updateMap);
-  if (typeof drawMapHud === 'function') drawMapHud = (orig => function () { if (CUR) return; return orig.apply(this, arguments); })(drawMapHud);
+  if (typeof updateMap === 'function') updateMap = (orig => function () { if (live()) return hideTap(orig, this, arguments); return orig.apply(this, arguments); })(updateMap);
+  if (typeof drawMapHud === 'function') drawMapHud = (orig => function () { if (live()) return; return orig.apply(this, arguments); })(drawMapHud);
   // 作者 11-07：有的场景画完会残留一点缩放（居室里整屏轻微呼吸），全屏界面要钉死在 1280×720 上，先把变换复位到画布基准
   const resetXf = () => { const c = typeof cv !== 'undefined' ? cv : ctx.canvas; ctx.setTransform(c.width / W, 0, 0, c.height / H, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; };
   function open(o) {

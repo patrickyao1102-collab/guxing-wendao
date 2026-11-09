@@ -179,7 +179,7 @@
   S.overlay.push(layer);
   window.LOADING_LAYER = layer;
   // 黑幕（S.fade）画在所有图层最上面：载入插画还盖着的时候，黑幕上面再把插画画一遍——换图时看到的永远是插画，不是黑屏
-  let lastForce; layer.draw = (o => function (force) { lastForce = force; return o.call(this, force); })(layer.draw);
+  let lastForce, drawnAt = 0; layer.draw = (o => function (force) { lastForce = force; drawnAt = performance.now(); return o.call(this, force); })(layer.draw);
   window.LOADING_ON_TOP = () => { try { if (coverPaint()) return; if (shown > 0) { const s0 = shown, p0 = prog; layer.draw(lastForce); shown = s0; prog = p0; } } catch (e) {} };
   // 过图（goMap）：原来是 fadeOut 变黑 → 换图 → fadeIn；改成 旧图上直接淡入插画 → 换图 → 插画一直盖着到新图准备好 → 淡出到新图
   let GO = 0, PEND = null, USED = 0;
@@ -202,7 +202,7 @@
     if (fn === 'updateDialog') updateDialog = w; else if (fn === 'updateChoice') updateChoice = w; else updatePanel = w;
   }
   // 载入画面期间：收起地图 HUD、不让角色乱走
-  drawMapHud = (orig => function () { if (shown >= .99) return; return orig.apply(this, arguments); })(drawMapHud);
+  drawMapHud = (orig => function () { if (shown >= .99 && performance.now() - drawnAt < 600) return; return orig.apply(this, arguments); })(drawMapHud);   /* 11-10：载入层要是没在画了（被清掉），别让 shown 卡住把 HUD 永远藏起来 */
   updateMap = (orig => function (dt) { if (readiness() < 1) { if (world.player) world.player.moving = false; return; } return orig(dt); })(updateMap);
   // 预载相邻地图（出口 / 门通向的图），下一次换图就不用等
   function preloadNear(name) {
