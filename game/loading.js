@@ -58,11 +58,13 @@
     try {
       if (G) {
         const F = S.flags || {}, seen = F.seen_maps || {}, m = world.mapName;
-        const nv = (G.novel || {})[m] || [];
+        const lcOk = x => !/洛尘/.test(x) || metOk('luochen');   // 提到洛尘的，先认识他才出现
+        const nv = ((G.novel || {})[m] || []).map(x => '【原著】' + x).concat(((G.hook || {})[m] || []).filter(lcOk).map(x => '【伏笔】' + x));
         const nvOk = nv.filter(x => !recent.includes(x));
-        if (nvOk.length && Math.random() < .3) t = '【原著】' + nvOk[Math.floor(Math.random() * nvOk.length)];
+        if (nvOk.length && Math.random() < .35) t = nvOk[Math.floor(Math.random() * nvOk.length)];
         else {
-          const pool = G.gameplay.map(x => '【玩法】' + x).concat(G.story.filter(s => !s[1] || seen[s[1]] || s[1] === m).map(s => '【剧情】' + s[0]));
+          const un = s => (!s[1] || seen[s[1]] || s[1] === m) && lcOk(s[0]);
+          const pool = G.gameplay.map(x => '【玩法】' + x).concat(G.story.filter(un).map(s => '【剧情】' + s[0]), (G.story_hook || []).filter(un).map(s => '【伏笔】' + s[0]));
           const ok = pool.filter(x => !recent.includes(x)); const P = ok.length ? ok : pool;
           t = P[Math.floor(Math.random() * P.length)];
         }
