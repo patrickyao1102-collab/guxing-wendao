@@ -53,6 +53,9 @@
   const TIPS = ["【玩法】点地面行走，点人说话；地图边缘的光阵通往别处", "【玩法】野外的鬼火、兽火碰到就开打：绿弱、蓝同级、紫精英、红越级", "【玩法】行囊里的技能页，点一下已选中的招式就能看详情、参悟升重", "【玩法】卷册在天剑集市 · 典籍阁有售，参悟升重要用", "【玩法】打不过就先去别处历练，等级上去了再回来", "【玩法】按 M 或点左上角小地图，可以看整张地图", "【玩法】宝箱多藏在不起眼的角落", "【玩法】星旋偶尔会多嘴两句，听听也许有用", "【玩法】战斗里怒气攒满 100，就能施展必杀", "【玩法】青竹小院里的东西，点一点会有作者留下的彩蛋", "【玩法】菜单右上角的「存档」能手动存三个档；在地图上走动时也会自动存档", "【玩法】青竹小院的小池可以垂钓——点池水就行", "【玩法】商铺里能买也能卖，用不上的东西换成灵石", "【剧情】叶孤星生来便被断为「天煞孤星」，修炼多年仍困在练气，受尽同门冷眼", "【剧情】十八岁生辰之夜，一颗流星坠入后山——半块黑玉里，沉睡万古的星魂星旋就此醒来", "【剧情】残本《九曜剑典》重现人间，孤星自此问道九天", "【剧情】游戏改编自原著小说《孤星问道》，标题画面的「原著小说」里有更多故事"];
   let tipT = 0; const recent = [];
   // 作者 11-09：加载时点一下，插画也一起换一张（青竹专属插画那套照旧由它自己轮换）
+  // 作者 11-09：第一次加载固定用「一剑止雨」（NA74），之后才随机
+  const FIRST_ART = 'NA74';
+  const firstArt = () => { try { if ((S.flags || {}).first_art) return -1; const i = SEL.findIndex(x => x[0] === FIRST_ART); return i >= 0 && LB.im[i] && LB.im[i].ok ? i : -1; } catch (e) { return -1; } };
   const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
   // R177：玩法 + 已解锁的剧情随机抽；当前地图有原著摘句时，约三成概率抽一句原著。最近 10 条不重复
   const nextTip = () => {
@@ -87,7 +90,7 @@
   // 作者 11-08：「换地图会黑很久才出现插画，黑屏绝对不允许」→ 一开游戏就把全部 22 张载入插画下下来（每张约 200KB，共约 4.6MB），并登记进 PRELOAD：插画没下完不放行进第一张图
   let lbNext = -1;
   // 作者 11-09：先下最优的 16 张（叶孤星 / 星旋相关、开局就能抽到），这 16 张下完就放行进图；其余在后台接着下，下好的才会被抽到
-  const FIRST = ['01', '03', '05', 'YG01', 'YG02', 'NA01', 'NA20', 'NA33', 'NA35', 'NA53', 'NA55', 'NA64', 'NA65', 'NA70', 'NB01', 'NB02'];
+  const FIRST = ['NA74', '01', '03', '05', 'YG01', 'YG02', 'NA01', 'NA20', 'NA33', 'NA35', 'NA53', 'NA55', 'NA64', 'NA65', 'NA70', 'NB01'];
   { const idx = id => SEL.findIndex(s => s[0] === id);
     const first = FIRST.map(idx).filter(i => i >= 0), rest = SEL.map((s, i) => i).filter(i => !first.includes(i));
     const wait = i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); };
@@ -112,7 +115,7 @@
   const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
   function coverStart(to, ms) {
     let qz = null; try { qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(to, world.mapName) : null; } catch (e) {} if (qz && !qz.ok) qz = null;
-    const idx = anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
+    const fa = firstArt(); if (fa >= 0) qz = null; const idx = fa >= 0 ? fa : anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
     Object.assign(COVER, { on: true, to, from: world.mapName, t0: performance.now(), ms: ms || 220, idx, qz }); return true; }
   function coverPaint() { if (!COVER.on || world.mapName !== COVER.from) return false;   // 只在换图之前（还停在旧图）画；一换图就交给下面的载入画面
     const B = COVER.qz ? COVER.qz.im : COVER.idx >= 0 && LB.im[COVER.idx] ? LB.im[COVER.idx].im : null; if (!B) return false;
@@ -123,6 +126,7 @@
     if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
       else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
+      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) S.flags.first_art = 1; }
       if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
       COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
