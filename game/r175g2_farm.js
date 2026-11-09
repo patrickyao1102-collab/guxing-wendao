@@ -177,7 +177,8 @@
   cv.addEventListener('pointerdown', e => { try {
     if (!here()) { PQ.t = null; if (BK.on) closeBook(); return; }
     const q = toLogical(e);
-    if (BK.on) { e.stopImmediatePropagation(); e.preventDefault(); if (busy()) return;
+    if (BK.on) { if (busy()) return;   /* 园簿上弹出的选种子、获得物品要能点到（之前这里把点击吞了，卡死） */
+      e.stopImmediatePropagation(); e.preventDefault();
       for (const b of BKR) if (inR(q, b.r)) { snd('ui_click', .5);
         if (b.close) { closeBook(); return; } if (b.tab != null) { BK.tab = b.tab; return; }
         if (b.o.off) { toast(b.o.off, 1400); return; }
@@ -194,7 +195,7 @@
     e.stopImmediatePropagation(); e.preventDefault(); PQ.t = t; PQ.t0 = now(); PQ.opts = o; snd('ui_click', .4);
   } catch (er) {} }, true);
 
-  addEventListener('keydown', e => { if (BK.on && (e.key === 'Escape' || e.key === 'Backspace')) { e.stopImmediatePropagation(); if (!busy()) closeBook(); } }, true);
+  addEventListener('keydown', e => { if (BK.on && !busy() && (e.key === 'Escape' || e.key === 'Backspace')) { e.stopImmediatePropagation(); closeBook(); } }, true);
   S.overlay.push({ draw() { try {
     if (!here()) { if (BK.on) closeBook(); return; }
     if (BK.on) { drawBook(); return; }
