@@ -52,6 +52,8 @@
   // 作者 11-09：小提示每 7 秒自动换一条（加载久了也不会一直是同一句），点一下马上换下一条；玩法和剧情穿插着放
   const TIPS = ["【玩法】点地面行走，点人说话；地图边缘的光阵通往别处", "【玩法】野外的鬼火、兽火碰到就开打：绿弱、蓝同级、紫精英、红越级", "【玩法】行囊里的技能页，点一下已选中的招式就能看详情、参悟升重", "【玩法】卷册在天剑集市 · 典籍阁有售，参悟升重要用", "【玩法】打不过就先去别处历练，等级上去了再回来", "【玩法】按 M 或点左上角小地图，可以看整张地图", "【玩法】宝箱多藏在不起眼的角落", "【玩法】星旋偶尔会多嘴两句，听听也许有用", "【玩法】战斗里怒气攒满 100，就能施展必杀", "【玩法】青竹小院里的东西，点一点会有作者留下的彩蛋", "【玩法】菜单右上角的「存档」能手动存三个档；在地图上走动时也会自动存档", "【玩法】青竹小院的小池可以垂钓——点池水就行", "【玩法】商铺里能买也能卖，用不上的东西换成灵石", "【剧情】叶孤星生来便被断为「天煞孤星」，修炼多年仍困在练气，受尽同门冷眼", "【剧情】十八岁生辰之夜，一颗流星坠入后山——半块黑玉里，沉睡万古的星魂星旋就此醒来", "【剧情】残本《九曜剑典》重现人间，孤星自此问道九天", "【剧情】游戏改编自原著小说《孤星问道》，标题画面的「原著小说」里有更多故事"];
   let tipT = 0; const recent = [];
+  // 作者 11-09：加载时点一下，插画也一起换一张（青竹专属插画那套照旧由它自己轮换）
+  const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
   // R177：玩法 + 已解锁的剧情随机抽；当前地图有原著摘句时，约三成概率抽一句原著。最近 10 条不重复
   const nextTip = () => {
     const G = window.GX_TIPS; let t = null;
@@ -144,12 +146,12 @@
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${four ? 42 : 50}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
       ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = dark ? 'rgba(255,248,232,.55)' : 'rgba(10,8,6,.6)'; ctx.strokeText(title, four ? 42 : 72, four ? 43 : 70); ctx.fillStyle = col; ctx.fillText(title, four ? 42 : 72, four ? 43 : 70);
       }
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; if (now - tipT > 7000) nextTip(); ctx.strokeText(LB.tip, 640, 618); ctx.fillStyle = '#f3e4c2'; ctx.fillText(LB.tip, 640, 618); ctx.font = `14px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.55)'; ctx.textAlign = 'left'; ctx.fillText('点击屏幕换一条提示', 166, 700); ctx.textAlign = 'center';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; if (now - tipT > 7000) nextTip(); ctx.strokeText(LB.tip, 640, 618); ctx.fillStyle = '#f3e4c2'; ctx.fillText(LB.tip, 640, 618); ctx.font = `14px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.55)'; ctx.textAlign = 'left'; ctx.fillText('点击屏幕换图换提示', 166, 700); ctx.textAlign = 'center';
       if (!lbBar(prog, now)) { ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(198, 661, 884, 8); ctx.fillStyle = '#e8c27a'; ctx.fillRect(198, 661, 884 * prog, 8); }
       ctx.textAlign = 'right'; ctx.font = `600 16px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.85)'; ctx.fillText(Math.round(prog * 100) + '%', 1114, 700);
       const waited = (now - t0) / 1000;
       if (force == null && r < 1 && waited > 12) { ctx.textAlign = 'center'; ctx.font = `600 15px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.8)'; ctx.fillText(waited > 40 ? '网络较慢，素材仍在下载。点击屏幕可先进入（可能缺图）' : '网络较慢，正在重试下载……', W / 2, 590); }
-      if (r < 1 && typeof input !== "undefined" && input.tapped) { if (force == null && waited > 40) forced = world.mapName; else nextTip(); input.tapped = null; }
+      if (r < 1 && typeof input !== "undefined" && input.tapped) { if (force == null && waited > 40) forced = world.mapName; else { nextTip(); nextArt(); } input.tapped = null; }
       ctx.restore(); return;
     }
     // 作者 11-08：老版载入画面（深蓝底 + 地图名 + 细进度条）全部取消。插画还没下好的那一小会儿只铺黑底 + R157 进度条，插画一到马上换上
