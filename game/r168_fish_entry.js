@@ -2,7 +2,11 @@
 // 原来小池只是一个看不见的 80 像素热点，还要点准池子下沿那一小块，没人找得到。
 // 现在：① 池面上方挂一个「小池 · 垂钓」的名字牌和一个上下浮动的鱼漂；② 点整片池水都能进垂钓（走到池边再开始）；
 // ③ 进青竹小院的头两次，提示一句「院中小池可以垂钓」。
+// 作者 11-10：院内小池不钓鱼了——垂钓搬到云海后庭的潭边（r175h）。小池只剩「看看」，名字牌、鱼漂、提示都撤掉。
 (function () {
+  setTimeout(() => { try { const n = ((TMAPS.qingzhu_court || {}).npcs || []).find(x => x.name === '小池'); if (n) n.talk = async () => { await narrate('池水映着日影，几尾红鲤懒洋洋地游着。'); await narrate('（想钓鱼的话，后庭潭边的竹钓台上能钓。）'); }; } catch (e) {} }, 0);
+})();
+if (0) (function () {
   if (typeof pickInteract !== 'function' || typeof drawMap !== 'function' || typeof TMAPS === 'undefined' || !TMAPS.qingzhu_court) return;
   const MAP = 'qingzhu_court';
   const P = { x: 1150, y: 1112, rx: 215, ry: 105 };   // 池面（世界坐标）
