@@ -72,25 +72,29 @@
     if (!R165Q.ready() || S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const M = mainModel(), sides = sideModel();
     if (!M && !sides.length) return;
-    const st = UI.open ? L.states.expanded : L.states.collapsed, [px, py, pw, ph] = st.panelRect;
+    const st = UI.open ? L.states.expanded : L.states.collapsed, [px, py, pw] = st.panelRect;
+    // 作者 11-10：主线不用展开就要看全 → 收起状态下摘要按宽度折行，底板往下长（九宫格拉伸），只有支线要点「展开」
+    let ph = st.panelRect[3], sumLines = null;
+    if (!UI.open && M && M.summary) { ctx.font = font('summary'); sumLines = wrap(M.summary, 245); ph += (sumLines.length - 1) * 21; }
     UI.panel = [px, py, pw, ph];
     ctx.save(); blurBehind(px, py, pw, ph); ctx.translate(px, py);
     const pressed = a => UI.press && UI.press.a === a;
     for (const n of st.nodes) {
       if (n.when === 'hasProgress') continue;   // 主线暂无「第几步 / 共几步」数据
       if ((n.asset === 'destination_pin' || n.value === '目的地') && !(M && M.destination)) continue;
-      if (n.type === 'image') { const a = L.assets[n.asset]; if (a && a.resizing === 'nineSlice') nine(n.asset, ...n.rect); else img(n.asset, ...n.rect); }
+      if (n.type === 'image') { const a = L.assets[n.asset], rc = n.rect.slice(); if (n.asset === 'panel_collapsed') rc[3] += ph - st.panelRect[3]; if (a && a.resizing === 'nineSlice') nine(n.asset, ...rc); else img(n.asset, ...rc); }
       else if (n.type === 'button') { img(pressed(n.action) ? n.pressed : n.normal, ...n.rect); UI.hits.push({ a: n.action, r: [px + n.hitRect[0], py + n.hitRect[1], n.hitRect[2], n.hitRect[3]] }); }
       else if (n.type === 'text') {
         let v = n.value; if (n.bind === 'mapName') v = (world.map && world.map.def && world.map.def.title) || ''; else if (n.bind && n.bind.startsWith('main.')) v = M ? M[n.bind.slice(5)] : (n.bind === 'main.title' ? '暂无主线' : '');
         if (n.bind === 'main.destination' && !v) continue;
+        if (sumLines && n.bind === 'main.summary') { sumLines.forEach((l, i) => text(l, n.at[0], n.at[1] + i * 21, n.style, n.align || 'left')); continue; }
         if (v == null || v === '') continue;
         if (n.wrap) { ctx.font = font(n.style); wrap(v, n.maxWidth, n.maxLines || 2).forEach((l, i) => text(l, n.at[0], n.at[1] + i * (n.lineHeight || 20), n.style, n.align)); }
         else text(v, n.at[0], n.at[1], n.style, n.align || 'left', n.maxWidth); }
       else if (n.type === 'list') drawList(sides, px, py);
     }
     // 目的地图标 / 文字只在有目的地时画（上面 nodes 里 pin 是 image，没有目的地时盖掉不太好看 → 简单处理：没有目的地时不画「目的地」三个字）
-    if (M) UI.hits.push({ a: 'main', r: UI.open ? [px + st.mainHit[0], py + st.mainHit[1], st.mainHit[2], st.mainHit[3]] : [px + st.bodyHit[0], py + st.bodyHit[1], st.bodyHit[2], st.bodyHit[3]] });
+    if (M) UI.hits.push({ a: 'main', r: UI.open ? [px + st.mainHit[0], py + st.mainHit[1], st.mainHit[2], st.mainHit[3]] : [px + st.bodyHit[0], py + st.bodyHit[1], st.bodyHit[2], st.bodyHit[3] + ph - st.panelRect[3]] });
     ctx.restore();
   }
   function drawList(sides, px, py) {
