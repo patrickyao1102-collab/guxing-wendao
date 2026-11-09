@@ -247,15 +247,21 @@
     if (ready('coop')) out.push('鸡舍里有蛋'); if (ready('duck')) out.push('鸭棚里有蛋');
     const tr = TG.filter(t => t.k === 'tree' && treeReady(t.id)).length; if (tr) out.push('果林里有 ' + tr + ' 棵树挂着果子');
     return out.length ? out.join('；') + '。' : '园里的活都干完了，歇一觉再来看看吧。'; };
+  const DUTY_W = ['maid1', 'maid2', 'servant'];
+  const DUTY = () => DUTY_W[((F().qz_day || 1) - 1) % 3];   // 今晚谁值夜
+  window.R175G2_DUTY = () => DUTY();
   const ROT = {
     '卯': { who: 'servant', name: '小厮阿福', x: 520, y: 1930, job: 'carry', route: [380, 720], face: 1, lines: ['少爷早！鸡比阿福起得还早，天没亮就在院里刨食了。', '阿福先给鸡添水，一会儿去捡蛋——少爷要不要一起？', '那只大公鸡凶得很，上回追着阿福啄了半个院子。'] },
     '午': { who: 'maid2', name: '侍女小桃', x: 2256, y: 770, job: 'water', face: -1, lines: ['日头正好，小桃来给菜浇浇水。', '少爷您看那金瓜，比小桃的脑袋还大了！', '园簿上都记着呢，哪块地熟了，翻一翻就知道。'] },
     '酉': { who: 'steward', name: '松伯', x: 1660, y: 236, face: -1, lines: ['老头子来看看水车。这车转了三十年，比少爷年纪还大。', '水往田里走得匀，庄稼就长得齐。', '天快黑了，少爷早些回院里，夜里河边凉。'] },
-    '戌': { who: 'maid1', name: '侍女青禾', x: 1900, y: 1790, job: 'sweep', route: [1820, 2140], face: 1, lines: ['晒架上的菜干得收了，夜里一返潮就白晒了。', '园屋的门我闩好了，鸡舍也看过了。', '少爷夜里还过来呀？灯笼给您留着。'] },
+    // 戌时是当晚值夜的人（青禾、小桃、阿福三人按天轮，松伯不值）：在园屋院里收拾，子时睡进园屋
+    '戌maid1': { who: 'maid1', name: '侍女青禾', x: 1900, y: 1790, job: 'sweep', route: [1820, 2140], face: 1, duty: 1, lines: ['今晚轮到青禾值夜。晒架上的菜干得收了，夜里一返潮就白晒了。', '园屋的门我闩好了，鸡舍也看过了。', '少爷夜里还过来呀？灯笼给您留着。'] },
+    '戌maid2': { who: 'maid2', name: '侍女小桃', x: 1880, y: 1800, job: 'water', face: 1, duty: 1, lines: ['今晚小桃值夜！……少爷别笑，小桃不怕黑。', '井边那盏灯小桃点上了，夜里起来打水看得见。', '要是听见鸭子叫，小桃就去瞧瞧，准是黄鼠狼又来了。'] },
+    '戌servant': { who: 'servant', name: '小厮阿福', x: 1960, y: 1800, job: 'carry', route: [1860, 2120], face: 1, duty: 1, lines: ['今晚阿福值夜！柴劈好了，水缸也挑满了。', '园屋那张床硬是硬了点，阿福睡哪儿都香。', '少爷放心回去歇着，园子交给阿福。'] },
   };
   for (const s in ROT) { const R = ROT[s], [c, r] = P(R.x, R.y);
     const n = { key: 'none', name: R.name, c, r, h: 108, wander: false, random: true, r135e: R.who, job: R.job, route: R.route, face: R.face, g2rot: s,
-      cond: () => SHI() === s && !!D().intro,
+      cond: () => (R.duty ? SHI() === '戌' && DUTY() === R.who : SHI() === s) && !!D().intro,
       talk: async () => { const i = await choose(R.name.replace(/^(侍女|小厮)/, ''), ['说说话', '园里有什么活？', '走开']); if (i === 0) await say(R.name, R.lines[Math.floor(Math.random() * R.lines.length)]); else if (i === 1) await say(R.name, statusLine()); } };
     if (R.who === 'steward') delete n.job; N.push(n); }
 
@@ -287,7 +293,7 @@
       await say('侍女小桃·得意', '少爷记不住也没关系——小桃都写在这本《园簿》上了。哪块地熟了、鸡舍有没有蛋，翻一翻就知道。');
       const d = D(); d.intro = 1; d.book = 1; d.bookNew = 1;
       try { if (window.itemGet) await itemGet([{ icon: 'gold', name: '园簿', count: '×1', desc: '小桃手抄的菜园簿子。在菜园里点右下角的「园簿」，田地、禽院、果树一处就能管。' }], '获得'); } catch (e) {}
-      await say('侍女小桃·笑', '平日里园子里都有人：早上阿福喂鸡，晌午小桃来浇菜，傍晚松伯看水车，入夜青禾姐来收菜干。少爷有事就喊我们！');
+      await say('侍女小桃·笑', '平日里园子里都有人：早上阿福喂鸡，晌午小桃来浇菜，傍晚松伯看水车。入了夜，青禾姐、阿福和小桃轮着在园屋值夜。少爷有事就喊我们！');
       if (a) { await moveActor(a, GATE[0] - 20, GATE[1] + 10, 150); a.hidden = true; }
     } finally { world.camFocus = null; world.locked = false; introBusy = false; }
   }
