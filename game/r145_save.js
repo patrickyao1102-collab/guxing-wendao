@@ -27,11 +27,26 @@
     return {
       v: 1, t: Date.now(),
       map: world.mapName, x: p ? Math.round(p.x) : 0, y: p ? Math.round(p.y) : 0, face: p ? p.face : 'down',
-      hero: clone(S.hero), flags: clone(S.flags || {}), party: clone(S.party || []),
+      hero: heroSnap(), flags: clone(S.flags || {}), party: clone(S.party || []),
       sk4: clone(S.sk4 || {}), skillLv: clone(S.skillLv || {}),
       quest: S.quest || '', uiTheme: S.uiTheme || 'paper',
       title: (TMAPS[world.mapName] && TMAPS[world.mapName].title) || world.mapName || '',
     };
+  }
+  // 作者 11-10 跑 bug：S.hero 的 lv / realm 是 rpgInit 装上的「取值器」，JSON 存不下来 → 读档后等级丢了（存档里显示「Lv?」、头像旁边写 undefined）。
+  // 存：把等级另记一份；读：重新装上取值器。老存档没有等级的，按气血估一个（去掉装备加的气血）。
+  function heroSnap() { const h = clone(S.hero); if (h) { try { h.lv = S.hero.lv; h.realm = S.hero.realm; } catch (e) {} } return h; }
+  function fixHero(h) {
+    try {
+      let lv = +h.lv || 0;
+      if (!lv && typeof lvOfRealm === 'function' && h.realm) lv = lvOfRealm(h.realm);
+      if (!lv) { let eq = 0; try { for (const k in (h.equip || {})) { const it = h.equip[k] && ITEM_DB[h.equip[k]]; if (it && it.maxhp) eq += it.maxhp; } } catch (e) {} lv = Math.max(6, Math.round(6 + ((h.maxhp || 280) - eq - 280) / ((typeof GROW !== 'undefined' && GROW.maxhp) || 24))); }
+      delete h.lv; delete h.realm;
+      Object.defineProperty(h, 'lv', { get: () => lv, set: v => { const old = lv; lv = v; if (v > old && typeof onLevelUp === 'function') onLevelUp(old, v); }, configurable: true });
+      Object.defineProperty(h, 'realm', { get: () => realmOf(lv), set: r => { const v = lvOfRealm(r); if (v > lv) h.lv = v; }, configurable: true });
+      h._rpg = true;
+    } catch (e) {}
+    return h;
   }
   function readSlot(s) { const raw = ls.get(KEYS[s]); if (!raw) return null; try { const d = JSON.parse(raw); return d && d.hero ? d : null; } catch (e) { return null; } }
   const anySave = () => SLOTS.some(s => readSlot(s));
@@ -64,7 +79,7 @@
   function applyLoad(d) {
     try { if (typeof battle !== 'undefined' && battle) { try { endBattle(true); } catch (e) {} battle = null; } } catch (e) {}
     try { dialog = null; } catch (e) {} try { choice = null; } catch (e) {} try { sysPanel = null; } catch (e) {}
-    S.hero = d.hero; S.flags = d.flags || {}; S.party = d.party || []; S.sk4 = d.sk4 || {}; S.skillLv = d.skillLv || {};
+    S.hero = fixHero(d.hero); S.flags = d.flags || {}; S.party = d.party || []; S.sk4 = d.sk4 || {}; S.skillLv = d.skillLv || {};
     S.quest = d.quest || ''; if (d.uiTheme) S.uiTheme = d.uiTheme; S.started = true; S.menu = null;
     S.fade = 0; S.flash = 0; S.hud = true; for (let i = S.overlay.length - 1; i >= 0; i--) if (!(S.overlay[i] && S.overlay[i]._keep)) S.overlay.splice(i, 1);   // 11-10：模块开机时挂上的常驻层（钓鱼、菜园布置、竹牌、厨房……）读档后要留着，只清临时弹层
     world.hold = false; world.locked = false; world.path = null; world.walkTarget = null; world.pending = null;
