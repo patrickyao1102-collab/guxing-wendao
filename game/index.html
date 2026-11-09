@@ -6440,12 +6440,12 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     await fadeOut(500);
     // 山门送别：在演武广场南边山门前
     const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right'); world.locked = true; S.scene = drawMap;
-    const [yx, yy] = near(1900, 2300); const yt2 = addActor('b_yunting', yx, yy, '云霆', '#b8c4ff'); yt2.h = 118; yt2.dir = -1;
+    const [yx, yy] = near(1500, 2300); const yt2 = addActor('b_yunting', yx, yy, '云霆', '#b8c4ff'); yt2.h = 118; yt2.dir = 1;   // 作者 11-09：云霆在左、叶擎苍在右，叶孤星朝右看着父亲
     await fadeIn(600);
     await say('叶孤星·苦笑', '云霆，早啊。……嗯？你也突破凝丹了？我还想在你面前得意一下呢。');
     await say('云霆', '宗主昨夜叫我去了一趟。一颗凝元丹。');
     await narrate('叶孤星笑意微微一僵。以爹的性子，从没见他对哪个弟子这么上心——他这是在替自己铺路。');
-    const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
+    const [fx, fy] = near(1850, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.dir = -1; try { world.player.face = 'right'; world.player.moving = false; } catch (e) {} f2.alpha = 0; await tween(500, t => f2.alpha = t);
     await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
     await say('叶擎苍', '孤星性格冒失，你比他稳重些，此行还需你多加费心。');
     await say('云霆·笑', '宗主放心。我盯着，他死不了。');
@@ -6495,7 +6495,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     const [gc, gr] = at(1700, 2300); tileSetMap('tj_front', gc, gr, 'right');
     world.locked = true; S.scene = drawMap;
     await fadeIn(600);   // 云霆已在队里，跟在身后
-    const [fx, fy] = near(1500, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.alpha = 0; await tween(500, t => f2.alpha = t);
+    const [fx, fy] = near(1850, 2280); const f2 = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f2.dir = -1; try { world.player.face = 'right'; world.player.moving = false; } catch (e) {} f2.alpha = 0; await tween(500, t => f2.alpha = t);
     await narrate('演武广场南端，山门之前。叶擎苍早已负手等在那里。');
     await say('叶擎苍', '孤星。下山之后，处处小心，不可逞强，更不能轻视对手。');
     await say('叶擎苍', '记住——遇事先保命，破空遁符别舍不得用。');
