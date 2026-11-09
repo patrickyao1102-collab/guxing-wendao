@@ -88,7 +88,7 @@
   let lbNext = pickU();
   { const all = SEL.map((s, i) => i); all.sort((a, b) => (a === lbNext ? -1 : b === lbNext ? 1 : 0));
     const ps = all.map(i => { lbLoad(i); const o = LB.im[i]; return new Promise(r => { if (o.ok) return r(); o.im.addEventListener('load', r); o.im.addEventListener('error', r); }); });
-    setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', Promise.all(ps)); } catch (e) {} }, 0); }
+    setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', Promise.all(ps.slice(0, 16))); } catch (e) {} }, 0); }
   window.LOADING_TIP = () => LB.tip;
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
   const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok ? i : -1).filter(i => i >= 0 && i !== LB.idx); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
