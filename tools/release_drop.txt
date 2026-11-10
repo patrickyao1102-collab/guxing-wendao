@@ -389,3 +389,30 @@ vo1/S6_2.mp4
 vo1/S6_3.mp4
 walk8/yegx_w5_baipao.webp
 walk_test/yegx_left8.webp
+# 2026-11-11 纯净版（作者：「没有一张废稿废图，作废的都移除了，绝对不会加载出来」）：已被新版替代、但旧代码还会顺手预载 / 当备用图的旧素材
+# 魔族真身 R191 版（已换 R193 邪化带翼版：r193/）
+r189/b_mozu2_idle.webp
+r189/b_mozu2_atk.webp
+r189/b_mozu2_hit.webp
+r189/mozu2_tf.webp
+r189/p_mozu2_default.webp
+r189/p_mozu2_angry.webp
+r189/p_mozu2_grin.webp
+# 周虎旧模型（即梦逐帧 + 旧静态图；已换 R191 返工 B：r189/b_zhouhu_*）
+rig/v_zhouhu.json
+rig/v_zhouhu.webp
+assets3/e_zhouhu.webp
+# 秘境幻境插画（剧情已改到地图上演，作者：所有插画剧情都删除；也不再从这里裁月冥头像）
+assets3/cg_vision1.webp
+assets3/cg_vision2.webp
+assets3/cg_vision3.webp
+assets3/cg_vision4.webp
+assets3/mj_butian.webp
+assets3/mj_teaching.webp
+# R107 旧版邪修 / 魔物战斗图（已换 R175 小怪重做：r175/ 同名）
+r107/e_xbat.webp
+r107/e_xguard1.webp
+r107/e_xguard2.webp
+r107/e_xguard3.webp
+r107/e_xspider.webp
+r107/e_xwraith.webp

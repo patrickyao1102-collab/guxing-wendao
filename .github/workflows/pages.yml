@@ -39,6 +39,11 @@ jobs:
           cp tools/play/index.html tools/play/sw.js _site/play/
           sed -i "s/__REF__/${GITHUB_SHA}/" _site/play/sw.js   # 剔掉的素材从同一次提交的仓库原文件取
           cp game/index.html _site/play/game.html
+      - name: 纯净版 /pure/（作者 11-11：没有一张废稿废图；去掉测试面板；正式版剔掉的文件直接 404，不从仓库补）
+        run: |
+          mkdir -p _site/pure
+          cp tools/pure/index.html tools/pure/sw.js _site/pure/
+          python3 -c "import sys; sys.argv=['x','/tmp/x']; sys.path.insert(0,'tools'); import build_release as b; open('_site/pure/game.html','w',encoding='utf8').write(b.strip_test_panel(open('game/index.html',encoding='utf8').read()))"
       - uses: actions/configure-pages@v5
         with:
           enablement: true

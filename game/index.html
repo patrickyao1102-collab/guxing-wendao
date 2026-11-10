@@ -4985,15 +4985,11 @@ drawUnit = (orig => function (u) {
 // 地图：玄天城 / 秘境 / 灵泉 目前用整幅插画场景；幽影林沿用山林格子图加夜色。Codex 第三批地图到了直接替换。
 (function () {
   const add = (k, src) => { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = src; };
-  for (const k of ['e_tiger', 'e_ywolf', 'e_spider', 'e_treant', 'e_xiexiu', 'e_xxboss', 'bg_youying', 'bg_mijing', 'bg_lingquan', 'bg_xuantian', 'bg_shandao', 'cg_vision1', 'cg_vision2', 'cg_vision3', 'cg_vision4']) add(k, 'assets3/' + k + '.webp');
-  // 白衣男子的头像：直接取幻境二里那个"懒散少年"（就是他本人）
-  const v = new Image(); v.onload = () => { const c = document.createElement('canvas'); c.width = 560; c.height = 700; const g = c.getContext('2d');
-    const sx = v.width * .36, sy = v.height * .5, sw = v.width * .26; g.drawImage(v, sx, sy, sw, sw * 1.25, 0, 0, 560, 700);
-    const m = g.createLinearGradient(0, 0, 0, 700); m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.85, 'rgba(0,0,0,1)'); m.addColorStop(1, 'rgba(0,0,0,0)');
-    g.globalCompositeOperation = 'destination-in'; g.fillStyle = m; g.fillRect(0, 0, 560, 700); IMG.p_bai = c; }; v.src = 'assets3/cg_vision2.webp';
+  for (const k of ['e_tiger', 'e_ywolf', 'e_spider', 'e_treant', 'e_xiexiu', 'e_xxboss', 'bg_youying', 'bg_mijing', 'bg_lingquan', 'bg_xuantian', 'bg_shandao']) add(k, 'assets3/' + k + '.webp');
+  // 11-11：白衣男子（月冥）头像改用 R197 神性立绘（r195_yueming.js 载入 p_ym_*），不再从幻境插画里裁「懒散少年」
 })();
 Object.assign(SPEAKERS, {
-  '白衣男子': { p: 'p_bai', color: '#e9f2ff' }, '据点长老': { p: '', color: '#cfe0ff' }, '玄兵阁掌柜': { p: '', color: '#ffd9a0' },
+  '白衣男子': { p: 'p_ym_default', color: '#e9f2ff' }, '据点长老': { p: '', color: '#cfe0ff' }, '玄兵阁掌柜': { p: '', color: '#ffd9a0' },
   '炼魂谷头目': { p: '', color: '#ff8a8a' }, '邪修': { p: '', color: '#d28aff' }, '说书先生': { p: '', color: '#f0e0b0' }, '灯谜老人': { p: '', color: '#ffe7a8' },
   '摊主': { p: '', color: '#f0d29a' }, '???': { p: '', color: '#ff6a6a', name: '？？？' },
 });
