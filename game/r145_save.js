@@ -75,7 +75,12 @@
   };
 
   // 开机时各模块挂进 S.overlay 的都是常驻层（自己判断画不画），标成 _keep；之后临时推进来的弹层读档时照旧清掉
-  { const tag = () => { try { for (const o of S.overlay) if (o) o._keep = 1; } catch (e) {} }; if (document.readyState === 'complete') setTimeout(tag, 0); else window.addEventListener('load', () => setTimeout(tag, 0)); }
+  // 11-10 跑 bug：原来只在 window load（要等所有图下完，手机上几十秒）才标——标题画面上很快点「前尘再续」读档，会把封阵、任务光效、弹窗这些常驻层全清掉
+  //   （之后某个临时层收尾时又按 indexOf=-1 删掉了别人，弹窗看不见、剧情锁死）。现在：还没开局之前挂上的都算常驻，脚本跑完就标、之后几秒再补标几次
+  { const tag = () => { try { if (S.started) return; for (const o of S.overlay) if (o) o._keep = 1; } catch (e) {} };
+    const go = () => { tag(); for (const ms of [500, 1500, 3000, 6000, 12000]) setTimeout(tag, ms); };
+    if (document.readyState !== 'loading') setTimeout(go, 0); else document.addEventListener('DOMContentLoaded', () => setTimeout(go, 0));
+    window.addEventListener('load', () => setTimeout(tag, 0)); }
   function applyLoad(d) {
     try { if (typeof battle !== 'undefined' && battle) { try { endBattle(true); } catch (e) {} battle = null; } } catch (e) {}
     try { dialog = null; } catch (e) {} try { choice = null; } catch (e) {} try { sysPanel = null; } catch (e) {}

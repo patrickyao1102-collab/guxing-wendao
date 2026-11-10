@@ -308,7 +308,7 @@
       ctx.globalCompositeOperation = 'source-over'; try { itemIcon('w_xinghen', cx, cy, 64); } catch (e) {}
       ctx.textAlign = 'center'; ctx.font = `44px ${typeof BRUSH !== 'undefined' ? BRUSH : FONT}`; ctx.fillStyle = '#e8f1ff'; ctx.fillText('炼 器', cx, cy - 190); ctx.restore(); };
     playSnd('sfx_charge', .8); await sleep(ms * .8); playSnd('sfx_sword_ring'); S.flash = .9; S.flashColor = '#e8f1ff'; await sleep(ms * .2);
-    S.overlay.splice(S.overlay.indexOf(o), 1);
+    (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
   }
   window.R134_FORGE = async function () {
     const h = S.hero, COST = 350;
@@ -350,7 +350,7 @@
         ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#e9e2cc'; (opt.lines || []).forEach((l, i) => ctx.fillText(l, W / 2, cy + 212 + i * 32));
         if (t > 1.2) { ctx.globalAlpha = .5 + .5 * Math.sin(t * 4); ctx.font = `600 18px ${FONT}`; ctx.fillStyle = '#bcd0f0'; ctx.fillText('点击继续', W / 2, H - 40); }
         ctx.restore();
-        if (t > 1.2 && input.tapped) { input.tapped = null; S.overlay.splice(S.overlay.indexOf(o), 1); res(); }
+        if (t > 1.2 && input.tapped) { input.tapped = null; (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1)); res(); }
       };
     });
   };

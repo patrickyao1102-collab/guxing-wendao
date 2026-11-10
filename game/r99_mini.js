@@ -114,7 +114,7 @@
       };
       const t0 = performance.now(); let lv = 0; const marks = [.5, .64, .78];
       while (performance.now() - t0 < ms) { o.t = performance.now() - t0; if (lv < 3 && o.t / ms > marks[lv]) { lv++; rings.push(o.t); onLevel && onLevel(lv); } await nextFrame(); }
-      S.overlay.splice(S.overlay.indexOf(o), 1);
+      (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
     };
   })();
   window.R99_MINI = { ok, MAP, get win() { return win; }, get last() { return lastSeal && { step: lastSeal.step, n: lastSeal.order.length }; } };

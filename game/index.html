@@ -441,7 +441,7 @@ async function bigTitle(main, sub = '', ms = 2600) {
     ctx.restore();
   };
   const t0 = performance.now(); while (performance.now() - t0 < ms) { o.t = performance.now() - t0; if (S.toast) S.toast = null; await nextFrame(); }
-  S.overlay.splice(S.overlay.indexOf(o), 1); if (S.hud === false) S.hud = hud0;
+  (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1)); if (S.hud === false) S.hud = hud0;
 }
 
 // ---------------- 地图场景 ----------------
@@ -647,7 +647,7 @@ async function portraitPop(u) { // 轮到谁，弹谁的大头像
     ctx.restore();
   };
   const t0 = performance.now(); while (performance.now() - t0 < 950) { o.t = performance.now() - t0; await nextFrame(); }
-  S.overlay.splice(S.overlay.indexOf(o), 1);
+  (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
 }
 async function dashTo(u, x, y, ms = 220) { const x0 = u.ox, y0 = u.oy; await tween(ms, t => { u.ox = lerp(x0, x - u.x, ease(t)); u.oy = lerp(y0, y - u.y, ease(t)); }); }
 async function dashBack(u, ms = 260) { const x0 = u.ox, y0 = u.oy; await tween(ms, t => { u.ox = lerp(x0, 0, ease(t)); u.oy = lerp(y0, 0, ease(t)); }); }
@@ -917,14 +917,14 @@ async function starSea(ms = 5200, onLevel) { // 识海星空：九曜 + 连升�
   };
   const t0 = performance.now(); let lv = 0; const marks = [.5, .64, .78];
   while (performance.now() - t0 < ms) { o.t = performance.now() - t0; if (lv < 3 && o.t / ms > marks[lv]) { lv++; onLevel && onLevel(lv); } await nextFrame(); }
-  S.overlay.splice(S.overlay.indexOf(o), 1);
+  (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
 }
 async function steleScene(color, label, height) { // 测灵碑光柱
   const st = world.stele; const o = { t: 0 }; S.overlay.push(o);
   o.draw = () => { const k = Math.min(1, o.t / 1600) * height; ctx.save(); ctx.globalCompositeOperation = 'lighter'; const top = st.y - st.h * k; const g = ctx.createLinearGradient(0, st.y, 0, top); g.addColorStop(0, color); g.addColorStop(1, 'rgba(255,255,255,.9)'); ctx.fillStyle = g; ctx.globalAlpha = .75; ctx.fillRect(st.x - 16, top, 32, st.y - top); ctx.globalAlpha = .25; ctx.fillRect(st.x - 40, top, 80, st.y - top); ctx.restore(); };
   sfx('magic'); const t0 = performance.now(); while (performance.now() - t0 < 1800) { o.t = performance.now() - t0; await nextFrame(); }
   floatText(st.x, st.y - st.h * height - 30, label, '#ffffff', 44, 2.2);
-  await sleep(1200); S.overlay.splice(S.overlay.indexOf(o), 1);
+  await sleep(1200); (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
 }
 
 // ---------------- 主循环 ----------------
@@ -1799,7 +1799,7 @@ async function skillBanner(text, color = '#ffe08a', sub = '') { // 书法大字�
     ctx.fillStyle = g; ctx.fillRect(0, 150, W, 110); ctx.font = `86px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const x = W / 2 + (1 - ease(Math.min(1, k * 3))) * 160; textOutline(text, x, 205, color, '#140800', 8);
     if (sub) { ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#e8dcc0'; ctx.fillText(sub, x, 250); } ctx.restore(); };
-  (async () => { const t0 = performance.now(); while (performance.now() - t0 < life * 1000) { o.t = (performance.now() - t0) / 1000; await nextFrame(); } S.overlay.splice(S.overlay.indexOf(o), 1); })();
+  (async () => { const t0 = performance.now(); while (performance.now() - t0 < life * 1000) { o.t = (performance.now() - t0) / 1000; await nextFrame(); } (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1)); })();
   await sleep(380);
 }
 function tintScreen(col, a, life) { return addFx({ life, layer: 0, draw(f) { const k = f.t / f.life; ctx.save(); ctx.globalAlpha = a * Math.min(1, k * 5) * Math.min(1, (1 - k) * 3); ctx.fillStyle = col; ctx.fillRect(0, 0, W, H); ctx.restore(); } }); }
@@ -6281,7 +6281,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     o.draw = () => { const k = Math.min(1, o.t / 1600) * height, X = sx(), Y = sy(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const z = Z(), top = Y - st.h * k * z; const gr = ctx.createLinearGradient(0, Y, 0, top); gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(255,255,255,.9)'); ctx.fillStyle = gr; ctx.globalAlpha = .55; ctx.fillRect(X - 14 * z, top, 28 * z, Y - top); ctx.globalAlpha = .2; ctx.fillRect(X - 40 * z, top, 80 * z, Y - top); ctx.restore(); };
     sfx('magic'); const t0 = performance.now(); while (performance.now() - t0 < 1800) { o.t = performance.now() - t0; await nextFrame(); }
     floatText(st.x, st.y - st.h * height - 30, label, '#ffffff', 44, 2.2);
-    await sleep(1200); S.overlay.splice(S.overlay.indexOf(o), 1);
+    await sleep(1200); (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
   };
 
   // ---------- 第一章 · 测灵碑与赵师弟（搬到演武广场） ----------
@@ -6677,7 +6677,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
       const sx = tx + 900, sy = ty - 900, x = wx(sx + (tx - sx) * e), y = wy(sy + (ty - sy) * e);
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(200,230,255,.6)'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 240 * (1 - e * .3), y - 240 * (1 - e * .3)); ctx.stroke();
       const g = ctx.createRadialGradient(x, y, 0, x, y, 44); g.addColorStop(0, '#fff'); g.addColorStop(1, 'rgba(150,200,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 44, 0, 7); ctx.fill(); ctx.restore();
-      if (k >= 1) { S.overlay.splice(S.overlay.indexOf(o), 1); res(); } }; S.overlay.push(o); });
+      if (k >= 1) { (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1)); res(); } }; S.overlay.push(o); });
     S.flash = 1; S.flashColor = '#fff'; S.shake = 22; sfx('boom');
     S.flags.hs_impact = 1; await sleep(900);
   }
@@ -6698,10 +6698,10 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
       ctx.save(); ctx.globalAlpha = 1 - u; ctx.drawImage(JV, 0, 0, W, H); ctx.restore();
       if (F) { const w = hh * F.width / F.height; ctx.save(); ctx.globalAlpha = 1 - cl((o.t - .85) / .15); ctx.drawImage(F, tx - w / 2, ty - hh / 2, w, hh); ctx.restore(); } };
     S.overlay.push(o); sfx('magic'); let chimed = false;
-    try { JV.currentTime = 0; await JV.play(); } catch (e) { S.overlay.splice(S.overlay.indexOf(o), 1); return jadeWorldOld(x, y); }
+    try { JV.currentTime = 0; await JV.play(); } catch (e) { (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1)); return jadeWorldOld(x, y); }
     await new Promise(res => { const tick = () => { if (!chimed && JV.currentTime > (JV.duration || 6) * .62) { chimed = true; sfx('chime'); S.shake = 6; } if (JV.ended || JV.currentTime >= (JV.duration || 6) - .05) return res(); requestAnimationFrame(tick); }; tick(); });
     o.ph = 1; await tween(700, t => { o.t = t; });
-    S.overlay.splice(S.overlay.indexOf(o), 1);
+    (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
   }
   async function jadeWorldOld(x, y) {
     const D = 3600, sm = v => v * v * (3 - 2 * v), cl = v => Math.max(0, Math.min(1, v));
@@ -6748,7 +6748,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     };
     S.overlay.push(o); sfx('magic'); let chimed = false;
     await tween(D, t => { o.t = t; if (!chimed && t * D > 2400) { chimed = true; sfx('chime'); S.shake = 8; } });
-    S.overlay.splice(S.overlay.indexOf(o), 1);
+    (S.overlay.indexOf(o) >= 0 && S.overlay.splice(S.overlay.indexOf(o), 1));
   }
 
   window.HS_JADE = jadeWorld;
@@ -12174,7 +12174,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
           const ov = { t0: performance.now(), draw() { if (!im) return; const k = Math.min(1, (performance.now() - this.t0) / 300), h = 420, w = h * im.width / im.height, x = W - w - 40, y = 40;
             ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = 'rgba(20,14,10,.85)'; ctx.fillRect(x - 8, y - 8, w + 16, h + 16); ctx.strokeStyle = '#d9b46a'; ctx.lineWidth = 2; ctx.strokeRect(x - 8, y - 8, w + 16, h + 16); ctx.drawImage(im, x, y, w, h); ctx.restore(); } };
           S.overlay.push(ov); try { await say(d[0], d[1]);
-          if (!(S.flags || {}).xt_cured) await narrate('他中毒已有数日，经脉里那股毒素阴冷诡异，绝不是寻常蛇虫之毒。'); else await narrate('冰魄玄果的药力还在化开，他的脸色已经好了许多。'); } finally { S.overlay.splice(S.overlay.indexOf(ov), 1); } } });
+          if (!(S.flags || {}).xt_cured) await narrate('他中毒已有数日，经脉里那股毒素阴冷诡异，绝不是寻常蛇虫之毒。'); else await narrate('冰魄玄果的药力还在化开，他的脸色已经好了许多。'); } finally { (S.overlay.indexOf(ov) >= 0 && S.overlay.splice(S.overlay.indexOf(ov), 1)); } } });
     } }
   // 4) 藏经阁门口两个守阁弟子（母图里的人像）：加个能说话的点
   { const M = TMAPS.tj_scripture, B = CXB2.tj_scripture;
