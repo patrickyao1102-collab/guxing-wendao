@@ -4,7 +4,7 @@
 // 右半的标题、角色行、经验条、掉落格、灵石、确定按钮都由代码按效果图位置画。没载完时退回 R155 金色海棠框。
 (function () {
   if (typeof S === 'undefined' || typeof showPanel !== 'function') return;
-  const SETS = { '01': ['linxue', 'yunting'], '02': ['shenle', 'luochen'], '03': ['yunting'], '04': ['linxue'], '05': ['shenle'], '06': ['luochen'] };   // 作者 11-08：换 Codex 清晰立绘版（金白），加神乐、洛尘两套双人
+  const SETS = { '01': ['linxue', 'yunting'], '02': ['shenle', 'luochen'], '03': ['yunting'], '04': ['linxue'], '05': ['shenle'], '06': ['luochen'], '07': [], '08': [] };   // 作者 11-10：「有叶孤星一个人的战斗立绘，codex 有的」→ 单人出战用 Codex 金白版 07 回身斩 / 08 收剑睥睨（轮流）   // 作者 11-08：换 Codex 清晰立绘版（金白），加神乐、洛尘两套双人
   const IM = {}, PORT = {}; let ready = false;
   const img = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
   const load = () => Promise.all([
@@ -88,7 +88,9 @@
 
   startBattle = (orig => function () { const r = orig.apply(this, arguments); try { if (battle) battle._lv64 = S.hero.lv; } catch (e) {} return r; })(startBattle);
   const idOf = name => { try { for (const [id, it] of Object.entries(ITEM_DB)) if (it && it.name === name) return id; } catch (e) {} return null; };
-  function pick(allies) { let best = '03', sc = -Infinity;   // 单人出战时用叶孤星·云霆（没有叶孤星独像）
+  let soloN = 0;
+  function pick(allies) { if (!allies.length) return (soloN++ % 2) ? '08' : '07';   // 单人出战：叶孤星独像（两张轮流）
+    let best = '03', sc = -Infinity;
     for (const [k, set] of Object.entries(SETS)) { const hit = set.filter(a => allies.includes(a)).length, miss = set.length - hit, extra = allies.length - hit, s = hit * 10 - miss * 3 - extra; if (s > sc) { sc = s; best = k; } }
     return best; }
   showPanel = (orig => function (title, lines) {
