@@ -138,10 +138,17 @@
       G.caught.slice(-3).forEach((id, i) => { const q = sl[i]; if (!q) return; const c = ICON['fish_' + id] || (IM.cards && (ICON['c_' + id] = ICON['c_' + id] || cardCanvas(id))); if (!c) return;
         const bw = q[2] * sc, bh = q[3] * sc, f = Math.min(bw / c.width, bh / c.height) * 1.08, w = c.width * f, h = c.height * f; ctx.drawImage(c, x + q[0] * sc + (bw - w) / 2, y + q[1] * sc + (bh - h) / 2, w, h); }); }
     // 收竿
-    if (G.phase !== 'card') { ui('button_paper', BTN_QUIT.x, BTN_QUIT.y); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('收　竿', BTN_QUIT.x + 75, BTN_QUIT.y + 32, '#fff3d6', '#3a1a06', 4); }
+    if (G.phase !== 'card') { ui('button_paper', BTN_QUIT.x, BTN_QUIT.y); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('不钓了', BTN_QUIT.x + 75, BTN_QUIT.y + 32, '#fff3d6', '#3a1a06', 4); }
     // 提示
     if (G.phase === 'aim') { ctx.font = `34px ${BRUSH}`; ctx.textAlign = 'center'; textOutline('点潭面，选个落点', W / 2, H - 120, '#ffe9b0', '#2a1406', 6);
       ctx.font = `600 18px ${FONT}`; textOutline('瀑下急水 · 潭心深水 · 荷边浅水，出的鱼不一样', W / 2, H - 88, '#f6ecd0', '#2a1406', 4); }
+    // 作者 11-10：「也没什么提示」——每一步屏幕下方都写着现在该干什么
+    { const hint = (a, b, col) => { ctx.font = `34px ${BRUSH}`; ctx.textAlign = 'center'; textOutline(a, W / 2, H - 120, col || '#ffe9b0', '#2a1406', 6); if (b) { ctx.font = `600 18px ${FONT}`; textOutline(b, W / 2, H - 88, '#f6ecd0', '#2a1406', 4); } };
+      if (!(G.msg && now() < G.msgT)) {
+        if (G.phase === 'wait' && G.fl === 'nod') hint('鱼在试探——别点！', '浮漂只是轻轻点头。现在点，鱼就惊走了', '#ffb37a');
+        else if (G.phase === 'wait') hint('等鱼咬钩……', '浮漂轻轻点头是试探，别点；猛地沉下去、冒出「！」才是咬钩');
+        else if (G.phase === 'bite') hint('咬钩了！快点一下！', '点屏幕任何地方都行，慢了鱼就跑了', '#ff9a7a');
+        else if (G.phase === 'reel') { ctx.font = `600 17px ${FONT}`; ctx.textAlign = 'center'; textOutline('进度涨满就起鱼 · 拉太紧（指针到最右）会断线 · 放太松（到最左）会脱钩', W / 2, H - 150, '#f6ecd0', '#2a1406', 4); } } }
     if (G.fv && window.TOD && TOD() === 'night') { const [sx, sy] = toScr(G.fx, G.fy - 9), r = 9 + Math.sin(t * 5) * 1.5, g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 2.2);   // 夜里用夜光漂：漂尖一点暖光
       g.addColorStop(0, 'rgba(255,246,200,.85)'); g.addColorStop(.35, 'rgba(255,220,140,.35)'); g.addColorStop(1, 'rgba(255,220,140,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, r * 2.2, 0, 7); ctx.fill(); }
     if (G.phase === 'bite') { const [sx, sy] = toScr(G.fx, G.fy), b = Math.abs(Math.sin(t * 14)) * 8; ui('bite', sx - 38, sy - 104 - b); }
@@ -205,7 +212,7 @@
         if (st !== 'flee') { flash(st === 'nod' ? '只是试探……鱼被惊走了' : '点早了，鱼被惊走了……', 1.3); try { playSnd('ui_cancel'); } catch (e) {} st = 'flee'; tN = t + 2.4; setFl('idle'); G.ring = now(); } } }
     // 咬钩
     G.phase = 'bite'; setFl('dive'); try { playSnd('sfx_hit', .5); } catch (e) {} TAPS.length = 0;
-    let win = fish.win, hit = false, last2 = now();
+    let win = fish.win * ((F().r175_easy || 0) > 0 ? 2.4 : 1), hit = false, last2 = now();   // 头两条鱼给足反应时间
     while (win > 0) { await frame(); const t = now(); win -= t - last2; last2 = t; const tp = take(); if (tp) { if (inR(tp, BTN_QUIT)) return 'quit'; hit = true; break; } }
     if (!hit) { G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('慢了一步……鱼溜了', 1.4); await waitAct(); setAct('wait'); return null; }
     setAct('hook'); G.phase = 'reel'; G.ten = .35; G.prog = 0; G.zc = .37 + Math.random() * .1; setFl('nod');
@@ -221,6 +228,7 @@
       if (G.ten >= .99) { G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('线断了！', 1.4); try { playSnd('sfx_hurt'); } catch (e) {} await waitAct(); setAct('wait'); return null; }
       slack = G.ten <= .02 ? slack + dt : 0; if (slack > .9) { G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('线太松，脱钩了', 1.4); await waitAct(); setAct('wait'); return null; }
       if (G.prog >= fish.nd) break; }
+    if (F().r175_easy > 0) F().r175_easy--;
     G.phase = 'land'; G.sh = null; G.fv = false; setAct('land'); try { playSnd('ui_confirm'); } catch (e) {} await waitAct();
     return fish;
   }
@@ -255,6 +263,12 @@
     if (left() <= 0) { await narrate('今天潭里的鱼都学精了——歇一觉再来。'); return; }
     need(); if (!IM.angler || !IM.float || !IM.ui) { toast('钓具还在拿……稍等一下再点', 1400); return; }
     if (!f.r175_rod) { f.r175_rod = 1; await narrate('钓台柱子上斜靠着一根旧竹竿，竿梢磨得发亮——是松伯的。'); await say('叶孤星', '（借来用用，回头跟松伯说一声。）'); }
+    if (!f.r175_tut) { f.r175_tut = 1; f.r175_easy = 2;
+      await narrate('（怎么钓：先点潭面选一个落点，叶孤星会把竿甩过去。）');
+      await narrate('（然后等。鱼游过来会先碰一碰饵，浮漂轻轻点头——这是试探，千万别点。）');
+      await narrate('（等浮漂猛地沉下去、冒出一块「！」竹牌，马上点一下屏幕，就挂上了。）');
+      await narrate('（挂上以后是溜鱼：按住屏幕收线，松开放线，让鱼标留在亮框里，进度涨满鱼就上来了。拉太紧会断线，放太松会脱钩。）');
+      await narrate('（每个时辰能钓八竿。不想钓了，点右下角「不钓了」。屏幕下方每一步都有提示，头两条鱼会咬得久一点。）'); }
     world.locked = true; const hud0 = S.hud;
     const p = world.player, [dx, dy] = DOCK();
     try { if (typeof moveActor === 'function') await moveActor(p, dx, dy, 200); } catch (e) {}
