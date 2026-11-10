@@ -120,7 +120,21 @@
     const g = ctx.createRadialGradient(x, y - u.h * .55, 10, x, y - u.h * .55, u.h * .75); g.addColorStop(0, 'rgba(200,120,255,.6)'); g.addColorStop(1, 'rgba(120,40,200,0)');
     ctx.fillStyle = g; ctx.fillRect(x - u.h, y - u.h * 1.4, u.h * 2, u.h * 1.6); ctx.restore();
   }
+  // ---------- R196 云霆重伤（作者 11-11：「云霆死了应该有一个重伤的战斗建模」）----------
+  // 中爪 → 被击飞 → 撑剑单膝跪住（9 帧 0.8 秒），之后一直跪在场上喘气；画布 640×500、底边中点对齐原站位，整幅高 = 原战斗图高
+  load('yt_inj', 'r193/yt_injured.webp');
+  const INJ = { n: 9, dur: [80, 70, 90, 70, 70, 80, 100, 120, 120], fw: 384, fh: 300 };
+  function drawInjured(u) {
+    const im = IM.yt_inj; if (!im) return false;
+    let ms = (performance.now() / 1000 - u._injT) * 1000, f = 0; while (f < INJ.n - 1 && ms >= INJ.dur[f]) { ms -= INJ.dur[f]; f++; }
+    const H = u.h, Wd = H * 640 / 500, x = u.x + u.ox, y = u.y + u.oy, last = f === INJ.n - 1, br = last ? Math.sin(performance.now() / 1000 * 2.2) : 0;
+    ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(x, y, u.h * .3, u.h * .06, 0, 0, 7); ctx.fill();
+    if (u.hurt > .5) ctx.filter = 'brightness(2.2)';
+    const hh = H * (1 + br * .008);   // 跪着肩膀一起一伏
+    ctx.drawImage(im, f * INJ.fw, 0, INJ.fw, INJ.fh, x - Wd / 2, y - hh, Wd, hh); ctx.restore(); return true;
+  }
   drawUnit = (o => function (u) {
+    if (u && u._injT != null && u.side === 'hero' && drawInjured(u)) return;
     if (u && u._tf != null && u.alive) { const t = performance.now() / 1000 - u._tf; stepParticles(u, u.x + u.ox, u.y + u.oy); drawP(true); if (drawTF(u, t)) { drawP(false); return; } }
     if (u && u._pre != null && u.alive) {   // 变身前奏：斗篷版在低笑里发抖，紫光一丝丝漏出来、魔气往上冒
       const k = Math.min(1, (performance.now() / 1000 - u._pre) / 2.3), x = u.x + u.ox, y = u.y + u.oy;
@@ -203,7 +217,7 @@
     try { playSnd('sfx_hit_heavy', .9); } catch (er) {} S.shake = big ? 24 : 16; S.flash = big ? .6 : .35; S.flashColor = '#ff2040'; };
   // 剧情一爪：直取云霆（伤害由剧情接管）
   async function killStrike(e, t) {
-    await windup(e, '魔翼 · 噬魂爪', '#ff6a8a'); if (t) strikeFx(t, true); await sleep(800); e.pose = null; await dimTo(0, 250);
+    await windup(e, '魔翼 · 噬魂爪', '#ff6a8a'); if (t) { strikeFx(t, true); if (t.ally === 'yunting') t._injT = performance.now() / 1000; } await sleep(800); e.pose = null; await dimTo(0, 250);
   }
   async function trueSkill(e, b, kind) {
     const alive = (b.heroes || [b.P]).filter(u => u.alive); if (!alive.length) return false;
