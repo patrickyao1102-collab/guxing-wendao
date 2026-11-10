@@ -241,7 +241,10 @@
     for (const t of alive) { strikeFx(t, false); let { d, crit } = dmgCalc(e, t, 1.2, .05); if (t.buffs && t.buffs.def) { d = Math.round(d * .4); delete t.buffs.def; } else if (t.buffs && t.buffs.shield) d = Math.round(d * .5); applyDamage(t, d, crit); }
     S.shake = 22; await sleep(900); e.pose = null; await dimTo(0, 250); return true;
   }
-  window.R189M = { transform, truePortraits, IM, killStrike, trueSkill };
+  // 作者 11-11：变身前的台词配音（第一轮 A1 那种好听的音色）：P2b 半血那句（加快 1.3 倍、收紧停顿）、P3a「魔渊护体！」
+  const VO = { p2: new Audio('r189/mozu_p2.mp4'), p3: new Audio('r189/mozu_p3.mp4') }; for (const k in VO) VO[k].preload = 'auto';
+  const vo = k => { try { if (typeof AUD !== 'undefined' && AUD.muted) return; for (const o in VO) if (o !== k) VO[o].pause(); const a = VO[k]; a.currentTime = 0; a.play().catch(() => {}); } catch (e) {} };
+  window.R189M = { transform, truePortraits, IM, killStrike, trueSkill, vo };
   if (typeof ch2After === 'function') ch2After = (o => async function () { truePortraits(false); return o.apply(this, arguments); })(ch2After);
   // 打输了 / 跳过战斗也换回来
   startBattle = (o => function (cfg) { const pr = o.apply(this, arguments); try { if (!(cfg && (cfg.enemies || []).some(x => x && x.key === 'e_mozu'))) truePortraits(false); } catch (e) {} return pr; })(startBattle);
