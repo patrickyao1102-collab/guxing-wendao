@@ -24,7 +24,26 @@
   const TF = { cols: 6, n: 30, fps: 15, fw: 336, fh: 384, ax: 168, ay: 372, src: 2 /* 图集像素 → 原画像素 */, idleH: 707 };
   load('tf', 'r189/mozu2_tf.webp');
   for (const n of ['default', 'angry', 'grin']) load('p_' + n, 'r189/p_mozu2_' + n + '.webp', im => { IMG['p_mozu2_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mozu2_' + n] = { fx: .5, fy: .22, span: .4 }; });
+  // ---------- R193 Codex 邪化真身（作者 11-11：「要更邪恶一点，不要只是帅」「背后最好还要有翅膀」）----------
+  // 骨翼；待机是 16 帧扇翼循环（8fps）；变身 48 帧 15fps 3.2 秒五页图集；三姿共用同一原画倍率 k（原画脚底到角尖约 690px）
+  // 游戏里的图：静态三姿缩到 0.75、扇翼和变身图集缩到 0.5（下面的 sc 换回原画像素）
+  const M3 = { idleH: 690,
+    pose: { idle: { f: 'b_mz3_idle', sc: .75, ax: 440, ay: 720 }, atk: { f: 'b_mz3_atk', sc: .75, ax: 664, ay: 592 }, hit: { f: 'b_mz3_hit', sc: .75, ax: 376, ay: 688 } },
+    wing: { f: 'mz3_wing', sc: .5, fw: 880, fh: 720, cols: 4, n: 16, fps: 8, ax: 440, ay: 720 },
+    tf: { fps: 15, n: 48, pages: [[0, 14, 432, 752, 5, 216, 742], [15, 22, 832, 752, 2, 416, 742], [23, 29, 1568, 736, 2, 784, 726], [30, 35, 1584, 736, 2, 792, 726], [36, 47, 992, 736, 3, 496, 726]] } };
+  for (const k of ['b_mz3_idle', 'b_mz3_atk', 'b_mz3_hit', 'mz3_wing', 'mz3_tf1', 'mz3_tf2', 'mz3_tf3', 'mz3_tf4', 'mz3_tf5']) load(k, 'r193/' + k + '.webp');
+  for (const n of ['default', 'angry', 'grin']) load('p3_' + n, 'r193/p_mz3_' + n + '.webp', im => { IMG['p_mz3_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mz3_' + n] = { fx: .5, fy: .2, span: .4 }; });
+  const has3 = () => ['b_mz3_idle', 'b_mz3_atk', 'b_mz3_hit', 'mz3_wing'].every(k => IM[k]);
+  const hasTF3 = () => [1, 2, 3, 4, 5].every(i => IM['mz3_tf' + i]);
+  function drawTF3(u, t) {
+    const T = M3.tf, F = Math.min(T.n - 1, Math.floor(t * T.fps)), pi = T.pages.findIndex(p => F >= p[0] && F <= p[1]), P = T.pages[pi], im = IM['mz3_tf' + (pi + 1)];
+    const i = F - P[0], fw = P[2], fh = P[3], cols = P[4], k = u.h / M3.idleH * (1 + (BIG - 1) * Math.min(1, t / 3));
+    const x = u.x + u.ox, y = u.y + u.oy;
+    ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(x, y, u.h * .3 * (1 + (BIG - 1)), u.h * .065, 0, 0, 7); ctx.fill();
+    ctx.drawImage(im, (i % cols) * fw * .5, Math.floor(i / cols) * fh * .5, fw * .5, fh * .5, x - P[5] * k, y - P[6] * k, fw * k, fh * k); ctx.restore(); return true;
+  }
   function drawTF(u, t) {
+    if (hasTF3()) return drawTF3(u, t);
     const im = IM.tf; if (!im) return false;
     const f = Math.min(TF.n - 1, Math.floor(t * TF.fps)), s = u.h / TF.idleH * TF.src * (1 + (BIG - 1) * Math.min(1, t / 1.9));   // 和真身待机图同一缩放；撕斗篷时人一路长高到真身大小
     const w = TF.fw * s, h = TF.fh * s, x = u.x + u.ox - TF.ax * s, y = u.y + u.oy - TF.ay * s;
@@ -111,6 +130,19 @@
       const g = ctx.createRadialGradient(x, y - u.h * .5, 6, x, y - u.h * .5, u.h * (.35 + k * .4)); g.addColorStop(0, 'rgba(190,100,255,.7)'); g.addColorStop(1, 'rgba(110,30,190,0)');
       ctx.fillStyle = g; ctx.fillRect(x - u.h, y - u.h * 1.3, u.h * 2, u.h * 1.5); ctx.restore(); drawP(false); return;
     }
+    if (u && u.side === 'enemy' && u.key === 'e_mozu2' && u.alive && has3()) {
+      const ps = pose(u), P = M3.pose[ps], now = performance.now() / 1000, kk = u.h / M3.idleH;
+      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy;
+      const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧
+      const st = IM[P.f], w = st.width / P.sc * kk, h = st.height / P.sc * kk;
+      // 魔气剪影按当前姿势的静态图，再按 Codex 的脚底锚点放（画幅左右不对称时也对得上）
+      auraBack(u, st, x + (st.width / P.sc / 2 - P.ax) * kk, y + (st.height / P.sc - P.ay) * kk, w, h);
+      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)';
+      if (ps === 'idle') { const W8 = M3.wing, f = Math.floor(now * W8.fps) % W8.n, im = IM[W8.f];
+        ctx.drawImage(im, (f % W8.cols) * W8.fw * W8.sc, Math.floor(f / W8.cols) * W8.fh * W8.sc, W8.fw * W8.sc, W8.fh * W8.sc, x - W8.ax * kk, y - W8.ay * kk, W8.fw * kk, W8.fh * kk); }
+      else ctx.drawImage(st, x - P.ax * kk, y - P.ay * kk, w, h);
+      ctx.restore(); auraFront(u, x, y, w, h); return;
+    }
     const set = u && u.side === 'enemy' && SETS[u.key], ps = set && pose(u), k = set && u.key + '__' + ps;
     if (!k || !IMG[k]) return o(u);
     // R191：三张姿态都是 400×720 整幅、脚底在底边中点；出手 / 受击按 Codex 给的「相对待机倍率」画（招式伸展大、人缩在画幅里）
@@ -128,24 +160,33 @@
 
   // 对话立绘：变身之后「魔族高手」说话用真身立绘（default / 怒 / 坏笑），这一战打完、黑风寨收尾演完就换回斗篷版
   const SPK = { '魔族高手': 'p_mozu2_default', '魔族高手·怒': 'p_mozu2_angry', '魔族高手·坏笑': 'p_mozu2_grin' }, OLDP = {};
-  const truePortraits = on => { try { for (const n in SPK) { const sp = SPEAKERS[n]; if (!sp) continue; if (on) { if (!(n in OLDP)) OLDP[n] = sp.p; if (IMG[SPK[n]]) sp.p = SPK[n]; } else if (n in OLDP) { sp.p = OLDP[n]; delete OLDP[n]; } } } catch (e) {} };
+  const truePortraits = on => { try { for (const n in SPK) { const sp = SPEAKERS[n]; if (!sp) continue; if (on) { if (!(n in OLDP)) OLDP[n] = sp.p; const p3 = SPK[n].replace('mozu2', 'mz3'); if (IMG[p3]) sp.p = p3; else if (IMG[SPK[n]]) sp.p = SPK[n]; } else if (n in OLDP) { sp.p = OLDP[n]; delete OLDP[n]; } } } catch (e) {} };
   // 作者 11-11：「A1 笑声保留，可以接进去」—— 小云雀生成的魔头笑（前 2.5 秒压着嗓子低笑，2.75–5.3 秒放声狂笑，之后喘息收尾）
-  const LAUGH = new Audio('r189/mozu2_laugh.mp4'); LAUGH.preload = 'auto';
+  const LAUGH = new Audio('r189/mozu2_laugh.mp4'), LINE = new Audio('r189/mozu2_line.mp4'); LAUGH.preload = LINE.preload = 'auto';
   const laugh = () => { try { if (typeof AUD !== 'undefined' && AUD.muted) return; LAUGH.currentTime = 0; LAUGH.volume = 1; LAUGH.play().catch(() => {}); } catch (e) {} };
   async function transform(e) {
     truePortraits(true);
     // 一、压下来：斗篷版低笑，全场一点点暗下去，紫光从斗篷缝里漏出来
     e.pose = null; e._pre = performance.now() / 1000; laugh(); S.shake = 4;
-    await sleep(2300);
+    const v3 = hasTF3() && has3();
+    await sleep(v3 ? 1500 : 2300);
     // 二、撕开：撕斗篷正好卡在放声狂笑那一下
     e._pre = null; e._tf = performance.now() / 1000; S.shake = 14; try { playSnd('sfx_ult', .75); } catch (er) {}
     fx('fx3_orb_violet', { life: 1.2, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.8 * Math.min(1, k * 2.5), alpha: 1.1, fadeOut: .5 });
+    if (v3) {   // R193 三段：0–1 秒低笑压下 / 1–2 秒骨翼撑破斗篷张到最大（正对狂笑）/ 2–3.2 秒收翼抬头、红瞳一亮
+      await sleep(1000); S.shake = 16; try { playSnd('sfx_hit_heavy', .8); } catch (er) {}
+      await sleep(450); S.shake = 24; S.flash = .55; S.flashColor = '#b07aff';
+      await sleep(1350); S.flash = .25; S.flashColor = '#ff3050';   // 红瞳那一下
+      await sleep(400);
+    } else {
     await sleep(620); S.shake = 20; S.flash = .5; S.flashColor = '#b07aff'; try { playSnd('sfx_hit_heavy', .8); } catch (er) {}   // 第 9–18 帧：斗篷撕裂四散
-    await sleep(1400);
+    await sleep(1400); }
     // 三、真身落地：狂笑还在殿里回荡，笑声收了再开口
     e._tf = null; e.key = 'e_mozu2'; e.h = Math.round(e.h * BIG); e.name = '魔族真身'; S.shake = 10; floatText(e.x, e.y - e.h - 70, '魔族真身', '#ff8ad0', 58);
-    await sleep(1300);
-    await say('魔族高手·坏笑', '……很久没有人，逼本座现出这副模样了。');
+    await sleep(v3 ? 1500 : 1900);
+    // 作者 11-11：台词用癫狂版 F6（自己的笑声剪掉，只留台词），咬着牙一字一字吼出来
+    try { if (!(typeof AUD !== 'undefined' && AUD.muted)) { LINE.currentTime = 0; LINE.play().catch(() => {}); } } catch (er) {}
+    await say('魔族高手·坏笑', '既然看见了本座的真身——你们，一个都别想活着离开。');
   }
   window.R189M = { transform, truePortraits, IM };
   if (typeof ch2After === 'function') ch2After = (o => async function () { truePortraits(false); return o.apply(this, arguments); })(ch2After);
