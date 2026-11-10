@@ -9714,7 +9714,7 @@ skillTanlang = (orig => async function (P, t) { const b = battle; if (!CXS.on ||
 // ================= 寻路修复：Codex 新图碰撞格只有 8~16px，旧 A*（6000 步上限）点远处会找不到路 → 点了“没反应” =================
 // 换成二叉堆 A*（类型数组，无步数上限），并且目标点在障碍上时就近找可站立的格子。
 // 可站立表：按人物脚下的实际占位（左右各 16px）算，避免路径贴墙走不过去
-function standMap(T) { if (T._stand) return T._stand; const cs = T.cs || TS, A = new Uint8Array(T.cols * T.rows);
+function standMap(T) { if (T._stand && performance.now() - (T._standT || 0) < 1500) return T._stand; T._standT = performance.now();   /* 11-10 跑 bug：阻挡表进图后还会被改（r66 按贴图补、R175 青竹碰撞清理），老缓存让自动寻路走进已经挡住的窄缝里，站在原地不动 → 缓存只用 1.5 秒 */ const cs = T.cs || TS, A = new Uint8Array(T.cols * T.rows);
   for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) if (!T.block[r][c] && canStand(T, (c + (T.c0 || 0) + .5) * cs, (r + .62) * cs)) A[r * T.cols + c] = 1;
   return (T._stand = A); }
 (function () {
@@ -14344,15 +14344,16 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
   // 网格广度优先（大图也不会超时），返回格子序列
   function gridPath(T, sx, sy, tx, ty, near = 0) {
     const cs = T.cs || CS, cols = T.cols, rows = T.rows, SA = standMap(T), ok = (c, r) => c >= 0 && r >= 0 && c < cols && r < rows && SA[r * cols + c] === 1;
-    let sc = Math.floor(sx / cs), sr = Math.floor(sy / cs), tc = Math.floor(tx / cs), tr = Math.floor(ty / cs);
+    const C0 = T.c0 || 0;   // 11-10 跑 bug：青竹小院往西扩建后格子号从负数开始（T.c0），这里没减，查的是往西 1664 像素那一格能不能站——自动寻路在小院里会领着人往墙里走、原地不动
+    let sc = Math.floor(sx / cs) - C0, sr = Math.floor(sy / cs), tc = Math.floor(tx / cs) - C0, tr = Math.floor(ty / cs);
     const N = cols * rows, from = new Int32Array(N).fill(-1), q = new Int32Array(N); let h = 0, t = 0;
     if (!ok(sc, sr)) { outer: for (let d = 1; d < 4; d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++) if (ok(sc + dx, sr + dy)) { sc += dx; sr += dy; break outer; } }
     const s = sr * cols + sc; from[s] = s; q[t++] = s; let best = -1, bd = 1e9;
     while (h < t) { const k = q[h++], c = k % cols, r = (k - c) / cols, d = Math.hypot(c - tc, r - tr);
       if (d < bd) { bd = d; best = k; } if (d <= near) { best = k; break; }
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nc = c + dx, nr = r + dy; if (!ok(nc, nr)) continue; const nk = nr * cols + nc; if (from[nk] >= 0) continue; from[nk] = k; q[t++] = nk; } }
-    if (best < 0) return null; const path = []; let k = best; while (k !== s) { path.unshift([k % cols, Math.floor(k / cols)]); k = from[k]; }
-    return { path, end: [(best % cols + .5) * cs, (Math.floor(best / cols) + .62) * cs], dist: bd };
+    if (best < 0) return null; const path = []; let k = best; while (k !== s) { path.unshift([k % cols + C0, Math.floor(k / cols)]); k = from[k]; }
+    return { path, end: [(best % cols + C0 + .5) * cs, (Math.floor(best / cols) + .62) * cs], dist: bd };
   }
   const exitPoint = (T, e) => { if (e.rect) return [e.rect[0], e.rect[1]]; if (e.rw != null) return [e.x, e.y]; if (e.w != null) { const cs = T.baked ? T.cs : TS; return [(e.x + e.w / 2) * cs, (e.y + e.h / 2) * cs]; } if (e.c != null) return [(e.c + .5) * TS, (e.r + .6) * TS]; return null; };
   const NAV = { on: false, goal: null, arrive: null };
