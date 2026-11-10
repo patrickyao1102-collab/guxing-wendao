@@ -876,11 +876,13 @@
     { id: 'servant:dream', who: 'servant', shi: '子', title: '梦话连篇', hint: '子夜 · 他的梦话不止一句' },
   ];
   const SECRETS = [...EVS, ...KNOCK_SECRETS];
+  const GUIDE_ID = 'maid1:basin';
   const EVBY = {}; for (const e of EVS) EVBY[e.id] = e;
   function schedule(force) {
     const f = F(), s = shi(); if (!s) return; if (!force && f.qz_today && f.qz_today.d === qday() && f.qz_today.s === s) return;
     const cand = EVS.filter(e => e.shi === s && (!e.once || !hidSeen(e.id)) && (!e.need || e.need(f))).sort(() => Math.random() - .5);
     const list = []; for (const e of cand) { if (list.length >= 3) break; if (Math.random() < (e.once ? .6 : e.p || .35)) list.push(e.id); }
+    if (f.qz_guide === 1 && s === '卯' && !hidSeen(GUIDE_ID)) { list.length = 0; list.push(GUIDE_ID); }   // 小记引导：带着做的那一件，卯时一定排上
     f.qz_today = { d: qday(), s, list, done: [] };
   }
   const pending = (type, who) => { const T = F().qz_today; if (!T || T.s !== shi()) return null; for (const id of T.list) { if (T.done.includes(id)) continue; const e = EVBY[id]; if (e && e.type === type && (!who || e.who === who)) return e; } return null; };
@@ -891,6 +893,10 @@
     f.qz_hid = f.qz_hid || {}; const first = !f.qz_hid[e.id]; f.qz_hid[e.id] = 1; bond(e.who, e.b || 2);
     if (first && e.who === 'steward') { const c = secretsOf('steward').filter(x => hidSeen(x.id)).length; if (LVR.steward[c]) LVQ.push(['steward', c]); }
     if (first) setTimeout(() => toast('《青竹小记》· 新的秘密：' + e.title, 2200), 1900);
+    if (e.id === GUIDE_ID && f.qz_guide === 1) { f.qz_guide = 2; world.locked = true; try {
+      await narrate('（这就是《青竹小记》里的一件「秘密」——书上那条「？？？ 清晨 · 端水的人脚下一滑」，现在有名字了。）');
+      await narrate('（书里每一条「？？？」都写着时辰和一句线索。到了那个时辰，走到那个人身边、跟他说句话，或者走进线索里说的那间屋，就有机会撞见。）');
+      await narrate('（不是天天都有：这回没撞见，歇一轮再来。写着「熟络以后」「亲近以后」的，要先多说话、送他爱吃的，把情谊养上去。）'); } finally { world.locked = false; } }
   }
   let EV_T = 0;
   if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) { o.apply(this, arguments);
@@ -1324,8 +1330,32 @@
       if (!BOOK.who && !BOOK.page && inR(tp, { x: 640 - 300, y: BY + BH - 74, w: 180, h: 46 })) { BOOK.page = 'quest'; try { playSnd('ui_confirm', .5); } catch (e) {} continue; }
       if (BOOK.page) continue;
       if (!BOOK.who) ROWS.forEach((k, i) => { if (inR(tp, { x: RX, y: RY0 + i * (RH + 6), w: RW, h: RH })) { BOOK.who = k; try { playSnd('ui_confirm', .5); } catch (e) {} } });
-    } } finally { BOOK = null; S.hud = hud0; world.locked = false; }
+    } } finally { BOOK = null; S.hud = hud0; world.locked = false; setTimeout(() => { try { guideStart().catch(() => {}); } catch (e) {} }, 60); }
   }
+  // ---------- 小记引导（作者 11-10：「起码带着玩家做一条，让玩家明白怎么做」）----------
+  // 头一回合上《青竹小记》（一件秘密都还没找到）：带玩家做第一条——歇到卯时 → 回院里 → 走到青禾身边 → 撞见「打翻的铜盆」→ 讲明白规矩。
+  async function guideStart() { const f = F(); if (f.qz_guide || !ON()) return; if (Object.keys(f.qz_hid || {}).length) { f.qz_guide = 2; return; }
+    f.qz_guide = 1; world.locked = true; try {
+      await say('叶孤星', '……一页一页全是「？？？」。');
+      await say('叶孤星', '先照第一条试试——「清晨 · 端水的人脚下一滑」。清晨端水的，是青禾。');
+      await narrate('（小记引导：歇到「卯时」，回到院里，走到青禾身边看看。屏幕上方会一步一步提示。）');
+    } finally { world.locked = false; } schedule(true); }
+  const guideStep = () => { const f = F(); if (f.qz_guide !== 1) return null; if (hidSeen(GUIDE_ID)) { f.qz_guide = 2; return null; }
+    if (shi() !== '卯') return { n: '①', t: '到少爷居室的床边歇息，歇到「卯时」（清晨）' };
+    if (world.mapName !== COURT) return { n: '②', t: '回到青竹小院' };
+    const a = (world.actors || []).find(x => x.npc && x.npc.q162 && x.npc.q162.who === 'maid1' && x.x > -9e4 && !x.hidden);
+    if (!a) return { n: '③', t: '青禾这会儿不在院里——歇到下一个卯时再来' };
+    const T = f.qz_today; if (!T || T.s !== '卯' || !T.list.includes(GUIDE_ID)) schedule(true);
+    return { n: '③', t: '走到青禾身边', a }; };
+  S.overlay.push({ draw() { try {
+    if (BOOK || !world.map || !QZ(world.mapName) || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || !S.hud || (window.MAP_READY && !MAP_READY())) return;
+    const g = guideStep(); if (!g) return; const t = performance.now() / 1000;
+    ctx.save(); ctx.font = `600 19px ${BKF}`; const txt = '小记引导 ' + g.n + '　' + g.t, w = ctx.measureText(txt).width + 56, x = 640 - w / 2, y = 92;
+    ctx.fillStyle = 'rgba(30,40,34,.35)'; roundRect(x, y + 3, w, 40, 20); ctx.fill(); ctx.fillStyle = 'rgba(246,242,230,.96)'; roundRect(x, y, w, 40, 20); ctx.fill(); ctx.strokeStyle = 'rgba(90,120,104,.9)'; ctx.lineWidth = 2; roundRect(x, y, w, 40, 20); ctx.stroke();
+    ctx.fillStyle = '#2f4a3c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, 640, y + 21);
+    if (g.a) { const z = typeof VZ === 'function' ? VZ() : 1, c = world.cam || { x: 0, y: 0 }, sx = (g.a.x - c.x) * z, sy = (g.a.y - c.y) * z - 178 * z + Math.sin(t * 4) * 6;   // 青禾头顶的小箭头
+      ctx.fillStyle = '#f3d98a'; ctx.strokeStyle = '#5a3d18'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(sx - 13, sy - 16); ctx.lineTo(sx + 13, sy - 16); ctx.lineTo(sx, sy + 6); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    ctx.restore(); } catch (e) {} } });
   window.QZ_BOOK = openBook;
   function drawQuestPage() {
     const f = F(), d = qday(); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
@@ -1593,5 +1623,5 @@
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
-  window.R162 = { setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
+  window.R162 = { guideStart, guideStep, setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
 })();
