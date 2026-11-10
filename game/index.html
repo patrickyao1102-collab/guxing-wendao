@@ -16,7 +16,7 @@
 </style>
 <canvas id="c"></canvas>
 <div id="rotate"><b>孤星问道</b><div>请把手机横过来玩</div></div>
-<script src="img_guard.js"></script><script src="r176_title.js"></script>
+<script src="part_gate.js"></script><script src="img_guard.js"></script><script src="r176_title.js"></script>
 <script>
 // ================= 文件打包：小图都在 packs/pk_N.webp 里，这里拦截 img.src 自动切出来（省发布文件数）=================
 (function () {
@@ -3984,7 +3984,8 @@ function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', 
     e.turn = (e.turn || 0) + 1;
     if (e.hp < e.maxhp * .5 && !e.phase2) { e.phase2 = true; try { playBgm('bgm_boss', true); } catch (er) {}   /* 作者 11-10：半血突破（以后变身）这一刻切首领战曲 */ await say('魔族高手', '能把本座逼到这一步……你们两个小辈，确实有点本事。'); await say('魔族高手', '魔渊护体！');
       fx('fx3_orb_violet', { loop: true, life: 1.6, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.6 * Math.min(1, k * 3), alpha: 1.3, fadeOut: .4 }); playSnd('sfx_ult', .7);
-      e.shield = 500; e.shieldMax = 500; e.atk += 12; floatText(e.x, e.y - e.h - 40, '凝丹六重！', '#d6a8ff', 54); await sleep(1400); return true; }
+      e.shield = 500; e.shieldMax = 500; floatText(e.x, e.y - e.h - 40, '凝丹六重！', '#d6a8ff', 54); await sleep(1100);
+      if (window.R189M) { await R189M.transform(e); e.atk += 28; e.spd += 2; floatText(e.x, e.y - e.h - 20, '攻击大幅提升', '#ff7ab0', 40); await sleep(700); } else { e.atk += 12; await sleep(300); } return true; }   /* 作者 11-10：突破后撕斗篷变身魔族真身，攻击大幅提升 */
     if (e.hp < e.maxhp * .3 && e.phase2 && !e.phase3) { e.phase3 = true; // 原著第十九章：云霆求死，叶孤星硬接一掌，双曜暴怒
       const yt = b.heroes.find(u => u.ally === 'yunting'), P = b.heroes.find(u => !u.ally);
       await say('魔族高手·怒', '够了！本座没空陪你们玩——先送这个姓云的小子上路！');
@@ -5486,8 +5487,11 @@ ch2EndNew = async function () {
     if (q === 'ch3') return ch3Start();
     if (q === 'ch3city') { S.flags.ch3_city = 1; return ch3City(false); }
     if (q === 'ch3forest') { S.flags.qingxiao = 1; S.flags.ch3_report = 1; return goMap('yy_forest', 22, 26, 'up'); }
-    if (q === 'ch3mijing') return ch3Mijing();
-    if (q === 'ch3spring') { h.skills.push('tunshi'); return ch3Spring(); }
+    // 作者 11-10：秘境早就不用插画版了——跳转也走地图版（裂隙 → 循溪而行 / 月湖灵泉）
+    const NWGO = async (map, face) => { Object.assign(S.flags, { qingxiao: 1, ch3_report: 1, ch3_tiger: 1, ch3_mj: 1, ch3_in: 1 }); S.started = true; S.hud = true; S.fade = 1; const st = (TMAPS[map] && TMAPS[map].start) || [8, 10]; tileSetMap(map, st[0], st[1], face || 'right'); S.scene = drawMap;
+      for (let i = 0; i < 900 && !(window.MAP_READY && MAP_READY()); i++) await sleep(100); await fadeIn(500); };
+    if (q === 'ch3mijing') { if (TMAPS.m_nw_creek && window.R189CH3) { await NWGO('m_nw_creek'); S.quest = '女娲秘境：循溪而行（古樟井庭）'; return; } return ch3Mijing(); }
+    if (q === 'ch3spring') { h.skills.push('tunshi'); if (TMAPS.m_nw_spring && window.R189CH3) { Object.assign(S.flags, { ch3_v1: 1, ch3_v2: 1, ch3_v3: 1, ch3_v4: 1, ch3_bai: 1, yt_tunshi: 1 }); await NWGO('m_nw_spring'); S.quest = '女娲秘境：神殿东侧 · 月湖灵泉'; return; } return ch3Spring(); }
     if (q === 'ch3ambush') { h.skills.push('tunshi'); h.realm = '凝丹五重'; return ch3Ambush(); }
   }, 80); })();
 
@@ -16783,5 +16787,5 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r190_pond.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r189_sq.js"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r190_pond.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script>
 </body></html>
