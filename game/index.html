@@ -5499,6 +5499,8 @@ ch2EndNew = async function () {
     const NWGO = async (map, face) => { Object.assign(S.flags, { qingxiao: 1, ch3_report: 1, ch3_tiger: 1, ch3_mj: 1, ch3_in: 1 }); S.started = true; S.hud = true; S.fade = 1; const st = (TMAPS[map] && TMAPS[map].start) || [8, 10]; tileSetMap(map, st[0], st[1], face || 'right'); S.scene = drawMap;
       for (let i = 0; i < 900 && !(window.MAP_READY && MAP_READY()); i++) await sleep(100); await fadeIn(500); };
     if (q === 'ch3mijing') { if (TMAPS.m_nw_creek && window.R189CH3) { await NWGO('m_nw_creek'); S.quest = '女娲秘境：循溪而行（古樟井庭）'; return; } return ch3Mijing(); }
+    // 作者 11-11：直接进千丝织天殿看月冥（往殿里走触发剧情：光点凝成月冥 → 赠纳月 → 散成光点）
+    if (q === 'ch3temple' && TMAPS.m_nw_temple && window.R189CH3) { Object.assign(S.flags, { ch3_v1: 1, ch3_v2: 1, ch3_v3: 1 }); await NWGO('m_nw_temple', 'up'); S.quest = '女娲秘境：千丝织天殿'; return; }
     if (q === 'ch3spring') { h.skills.push('tunshi'); if (TMAPS.m_nw_spring && window.R189CH3) { Object.assign(S.flags, { ch3_v1: 1, ch3_v2: 1, ch3_v3: 1, ch3_v4: 1, ch3_bai: 1, yt_tunshi: 1 }); await NWGO('m_nw_spring'); S.quest = '女娲秘境：神殿东侧 · 月湖灵泉'; return; } return ch3Spring(); }
     if (q === 'ch3ambush') { h.skills.push('tunshi'); h.realm = '凝丹五重'; return ch3Ambush(); }
   }, 80); })();
@@ -14602,7 +14604,7 @@ ultJiutian = (orig => async function (P) {
   const STORY = [
     ['第一章', [['', '从头开始（标题画面）'], ['hs1', '后山崖顶·观星'], ['2', '借力一战'], ['lib1', '夜入藏经阁'], ['res4', '回到住所·修复剑典'], ['4', '贪狼破军·连升三级'], ['yw5', '演武广场·测灵碑'], ['6', '第一章结尾'], ['boss', '赵师兄之战']]],
     ['第二章', [['ch2n', '第二章开始'], ['resch2', '测灵碑后回住所'], ['ch2boss', '宗主居所'], ['ywseal', '天剑宗后山·锁灵阵'], ['ch2send', '叶擎苍送别·下山（剑鸣）'], ['hs2', '后山崖顶·自由探索'], ['forest', '山外树林'], ['town', '青阳镇'], ['camp', '黑风寨'], ['mozu', '魔族变身测试'], ['party', '三人战斗测试']]],
-    ['第三章', [['ch3', '第三章开始'], ['ch3city', '城中'], ['ch3forest', '幽影林'], ['ch3mijing', '秘境'], ['ch3spring', '灵泉'], ['ch3ambush', '伏击']]],
+    ['第三章', [['ch3', '第三章开始'], ['ch3city', '城中'], ['ch3forest', '幽影林'], ['ch3mijing', '秘境'], ['ch3temple', '千丝织天殿·月冥'], ['ch3spring', '灵泉'], ['ch3ambush', '伏击']]],
     ['第四章', [['ch4', '第四章开始'], ['ch4boss', '长老之战']]],
     ['第五章', [['ch5', '玄兵阁·请柬（拍卖会开始）'], ['ch5street', '黄昏街头·飞云宗'], ['ch5auc', '拍卖会·直接开拍'], ['ch5pay', '结账·黑卡贵宾']]],
     ['第六章', [['ch6', '城门告示·采冰魄玄果'], ['ch6fang', '城主府·救治方浩然'], ['ch6ly', '落云岭·兽乱调查'], ['ch6cave', '山洞·林沧'], ['ch6rhino', '谷口·岩甲龙犀'], ['ch6valley', '落云谷·四兽']]],
@@ -16796,6 +16798,6 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r190_pond.js?v=1"></script><script src="r191_gate.js?v=1"></script><script src="r192_miner.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r190_pond.js?v=1"></script><script src="r191_gate.js?v=1"></script><script src="r192_miner.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script>
 <script src="asset_ready.js"></script>
 </body></html>
