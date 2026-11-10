@@ -26,10 +26,77 @@
   for (const n of ['default', 'angry', 'grin']) load('p_' + n, 'r189/p_mozu2_' + n + '.webp', im => { IMG['p_mozu2_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mozu2_' + n] = { fx: .5, fy: .22, span: .4 }; });
   function drawTF(u, t) {
     const im = IM.tf; if (!im) return false;
-    const f = Math.min(TF.n - 1, Math.floor(t * TF.fps)), s = u.h / TF.idleH * TF.src;   // 和真身待机图同一缩放
+    const f = Math.min(TF.n - 1, Math.floor(t * TF.fps)), s = u.h / TF.idleH * TF.src * (1 + (BIG - 1) * Math.min(1, t / 1.9));   // 和真身待机图同一缩放；撕斗篷时人一路长高到真身大小
     const w = TF.fw * s, h = TF.fh * s, x = u.x + u.ox - TF.ax * s, y = u.y + u.oy - TF.ay * s;
     ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(u.x + u.ox, u.y + u.oy, u.h * .26, u.h * .06, 0, 0, 7); ctx.fill();
     ctx.drawImage(im, (f % TF.cols) * TF.fw, Math.floor(f / TF.cols) * TF.fh, TF.fw, TF.fh, x, y, w, h); ctx.restore(); return true;
+  }
+  // ---------- R193 真身压迫感（作者 11-11：「一点压迫感都没有，光效、魔族的压迫都没有，只剩下帅了」）----------
+  // 场上：整场压暗 + 四角紫黑暗角 + 心跳般的脉动；他脚下一圈紫红魔纹慢转、身后一团暗紫光
+  // 身上：剪影外一层翻滚的黑紫魔气（模糊轮廓、往上飘）+ 紫色辉光描边；周身不停往上冒紫火星和黑烟
+  const BIG = 1.22;   // 真身比斗篷版高一截，站在那就压人
+  const TINT = new Map();
+  function tinted(im, col) { let m = TINT.get(im); if (!m) TINT.set(im, m = {}); if (m[col]) return m[col];
+    const c = document.createElement('canvas'), sc = 360 / im.height; c.width = Math.round(im.width * sc); c.height = 360; const g = c.getContext('2d');
+    g.drawImage(im, 0, 0, c.width, c.height); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return m[col] = c; }
+  const P = []; let pT = 0;
+  const trueForm = () => { try { return battle && battle.units.find(u => u.side === 'enemy' && u.key === 'e_mozu2' && u.alive && u._tf == null); } catch (e) { return null; } };
+  const beat = t => { const p = t % 2.4; return Math.exp(-((p - .1) ** 2) / .004) + .6 * Math.exp(-((p - .42) ** 2) / .004); };   // 咚—咚 两下
+  function pressure() {
+    const u = trueForm(); if (!u) return; const t = performance.now() / 1000, bx = u.x + u.ox, by = u.y + u.oy, bt = beat(t);
+    ctx.save();
+    ctx.fillStyle = `rgba(14,0,22,${.34 + bt * .08})`; ctx.fillRect(0, 0, W, H);
+    let g = ctx.createRadialGradient(bx, by - u.h * .5, 20, bx, by - u.h * .5, u.h * 1.5);
+    g.addColorStop(0, `rgba(120,30,190,${.42 + bt * .15})`); g.addColorStop(.45, 'rgba(70,10,110,.2)'); g.addColorStop(1, 'rgba(40,0,60,0)');
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    g = ctx.createRadialGradient(W / 2, H / 2, H * .35, W / 2, H / 2, H * .95); g.addColorStop(0, 'rgba(10,0,16,0)'); g.addColorStop(1, `rgba(10,0,16,${.7 + bt * .1})`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // 脚下：黑色压痕 + 两圈魔纹（紫外圈顺转、暗红内圈逆转）
+    g = ctx.createRadialGradient(bx, by, 4, bx, by, u.h * .7); g.addColorStop(0, 'rgba(0,0,0,.75)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.save(); ctx.translate(bx, by); ctx.scale(1, .3); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, u.h * .7, 0, 7); ctx.fill(); ctx.restore();
+    const cir = IMG.fx3_circle_blue; if (cir) { const m = FXM.fx3_circle_blue, fr = Math.floor(t * 8) % m.n;
+      for (const [hue, sc, sp, a] of [[70, u.h * 1.15 / m.w, .25, .75 + bt * .25], [140, u.h * .72 / m.w, -.45, .55]]) {
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; ctx.filter = `hue-rotate(${hue}deg) saturate(1.6)`;
+        ctx.translate(bx, by); ctx.scale(1, .3); ctx.rotate(t * sp); ctx.scale(sc, sc); ctx.drawImage(cir, fr * m.w, 0, m.w, m.h, -m.w / 2, -m.h / 2, m.w, m.h); ctx.restore(); } }
+    ctx.restore();
+  }
+  drawFx = (o => function (layer) { if ((layer || 0) === 0) pressure(); return o.apply(this, arguments); })(drawFx);
+  function stepParticles(u, x, y, w) {
+    const now = performance.now() / 1000, dt = Math.min(.05, pT ? now - pT : .016); pT = now;
+    const bw = u.h * .34;
+    for (let n = dt * 40; n > 0; n--) if (Math.random() < n) {
+      const smoke = Math.random() < .5, hy = Math.random();
+      P.push({ smoke, x: x + (Math.random() - .5) * bw * (smoke ? 1.3 : 1.1), y: y - u.h * hy * (smoke ? .5 : .9), vx: (Math.random() - .5) * 20, vy: -(smoke ? 40 + Math.random() * 50 : 70 + Math.random() * 110),
+        life: smoke ? 1.4 + Math.random() : .9 + Math.random() * .9, t: 0, s: smoke ? 20 + Math.random() * 30 : 1.2 + Math.random() * 2.2, c: Math.random() < .25 ? '255,70,150' : '170,90,255', ph: Math.random() * 6 });
+    }
+    for (let i = P.length - 1; i >= 0; i--) { const p = P[i]; p.t += dt; if (p.t > p.life) { P.splice(i, 1); continue; } p.x += (p.vx + Math.sin(now * 3 + p.ph) * 18) * dt; p.y += p.vy * dt; }
+    if (P.length > 260) P.splice(0, P.length - 260);
+  }
+  function drawP(smoke) { ctx.save(); ctx.globalCompositeOperation = smoke ? 'source-over' : 'lighter';
+    for (const p of P) { if (p.smoke !== smoke) continue; const k = p.t / p.life, a = Math.sin(Math.PI * k);
+      if (smoke) { const r = p.s * (1 + k * 1.4), g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r); g.addColorStop(0, `rgba(18,0,28,${.7 * a})`); g.addColorStop(1, 'rgba(22,0,34,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7); ctx.fill(); }
+      else { const r = p.s * 2.4, g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r); g.addColorStop(0, `rgba(255,235,255,${a})`); g.addColorStop(.25, `rgba(${p.c},${.9 * a})`); g.addColorStop(1, `rgba(${p.c},0)`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7); ctx.fill(); } }
+    ctx.restore(); }
+  function auraBack(u, im, x, y, w, h) {
+    const t = performance.now() / 1000; stepParticles(u, x, y, w);
+    drawP(true);
+    const dk = tinted(im, '#12001c'), vi = tinted(im, '#a24cff');
+    ctx.save();
+    for (let i = 0; i < 3; i++) {   // 黑紫魔气：三层放大、往上飘、轻微摆动的模糊剪影
+      const s = 1.05 + i * .045 + Math.sin(t * 2.2 + i * 2) * .015, lift = ((t * .6 + i / 3) % 1);
+      ctx.globalAlpha = (.75 - i * .15) * (1 - lift * .5); ctx.filter = `blur(${10 + i * 6}px)`;
+      ctx.drawImage(dk, x - w * s / 2 + Math.sin(t * 1.7 + i) * 4, y - h * s - lift * 18, w * s, h * s); }
+    ctx.globalCompositeOperation = 'lighter'; const bt = beat(t);
+    ctx.globalAlpha = .55 + Math.sin(t * 3.1) * .12 + bt * .25; ctx.filter = 'blur(7px)';
+    const s = 1.025; ctx.drawImage(vi, x - w * s / 2, y - h * s + h * (s - 1) * .02, w * s, h * s);
+    ctx.restore();
+  }
+  function auraFront(u, x, y, w, h) {
+    drawP(false);
+    const t = performance.now() / 1000, bt = beat(t); if (bt < .05) return;   // 心跳那一下，身上的紫光往外涨一圈
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = bt * .35;
+    const g = ctx.createRadialGradient(x, y - u.h * .55, 10, x, y - u.h * .55, u.h * .75); g.addColorStop(0, 'rgba(200,120,255,.6)'); g.addColorStop(1, 'rgba(120,40,200,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - u.h, y - u.h * 1.4, u.h * 2, u.h * 1.6); ctx.restore();
   }
   drawUnit = (o => function (u) {
     if (u && u._tf != null && u.alive) { const t = performance.now() / 1000 - u._tf; if (drawTF(u, t)) return; }
@@ -40,7 +107,10 @@
       const im = IMG[k], now = performance.now() / 1000, sc = u.h / R.idleH * (R[ps] || 1), w = im.width * sc * (720 / im.height), h = 720 * sc;
       const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy;
       const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧（本体不画）
-      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)'; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore(); return;
+      const aura = u.key === 'e_mozu2';
+      if (aura) auraBack(u, im, x, y, w, h);
+      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)'; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore();
+      if (aura) auraFront(u, x, y, w, h); return;
     }
     const k0 = u.key; u.key = k; try { return o(u); } finally { u.key = k0; }
   })(drawUnit);
@@ -54,7 +124,7 @@
     fx('fx3_orb_violet', { life: 1.2, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.8 * Math.min(1, k * 2.5), alpha: 1.1, fadeOut: .5 });
     await sleep(620); S.shake = 20; S.flash = .5; S.flashColor = '#b07aff'; try { playSnd('sfx_hit_heavy', .8); } catch (er) {}   // 第 9–18 帧：斗篷撕裂四散
     await sleep(1400);
-    e._tf = null; e.key = 'e_mozu2'; e.name = '魔族真身'; floatText(e.x, e.y - e.h - 70, '魔族真身', '#ff8ad0', 58);
+    e._tf = null; e.key = 'e_mozu2'; e.h = Math.round(e.h * BIG); e.name = '魔族真身'; floatText(e.x, e.y - e.h - 70, '魔族真身', '#ff8ad0', 58);
     await say('魔族高手·坏笑', '……很久没有人，逼本座现出这副模样了。');
   }
   window.R189M = { transform, truePortraits, IM };
