@@ -513,7 +513,7 @@
   { const V = TMAPS[PFX + 'yy_verge'];
     if (V && typeof ch3Ambush === 'function') {
       const at = (x, y) => [x / 64 - .5, y / 64 - .8], F = () => (S.flags = S.flags || {});
-      const mtOn = () => !!(F().ch3_tiger && !F().ch3_forest_done);
+      const mtOn = () => !!(F().ch3_tiger && !F().ch3_forest_done && !(F().ch3_mj === 1 && !F().ch3_mjout));   // R189：新流程打完虎先进秘境，出来才有邪修
       drawBaked = (o => function (ob, now) { if (/^mt_[abc]$/.test(ob.id) && !mtOn()) return; return o(ob, now); })(drawBaked);
       ch3Ambush = async function () {
         if (window.SET_TOD) SET_TOD('night');
