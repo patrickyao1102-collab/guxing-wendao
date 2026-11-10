@@ -16,7 +16,7 @@
 
   // ---------- 图 ----------
   const IM = {}; let want = 0, got = 0;
-  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m7');
+  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m8');
   const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { IM[k] = i; got++; }; i.onerror = () => { got++; }; i.src = SRC(k); };
   const loadAll = () => { for (let i = 0; i < MM.pages; i++) ld('m_' + i); ld('lf'); ld('seam'); };
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID) return a; loadAll(); return Math.min(a, want ? got / want : 0); }; }
