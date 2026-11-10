@@ -342,7 +342,8 @@
       const k = n.r135e || ''; if (!k) continue;
       if (n._r135day && id === COURT) { ORIG[k + '_day'] = n; hideWhenOn(n, id); }
       else if (n._r135night) { ORIG[k + '_night'] = n; hideWhenOn(n, id); }
-      else if (k === 'steward') { ORIG['steward_' + (id === COURT ? 'day' : 'room')] = n; hideWhenOn(n, id); }
+      else if (k === 'steward') { ORIG['steward_' + (id === COURT ? 'day' : 'room')] = n; hideWhenOn(n, id);
+        { const c1 = n.cond, inCourt = id === COURT; n.cond = function () { if (night() === inCourt) return false; return !c1 || c1.apply(this, arguments); }; } }   // 没选时辰时：白天松伯只在院里，夜里只在管事房（原来两处同时都有一个松伯）
     }
   }, 0);
   const origTalk = (k, part, a) => { const n = ORIG[k + '_' + part]; return n && typeof n.talk === 'function' ? n.talk(a) : null; };
