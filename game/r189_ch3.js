@@ -213,8 +213,9 @@
     await narrate('他抬起一根手指，两缕极细的银光没入了叶孤星和云霆的眉心。');
     S.flash = 1; S.flashColor = '#e8e0ff'; try { playSnd('sfx_ult', .6); } catch (e) {} await sleep(600);
     await say('白衣男子', '纳月之力。吞天地之万法……用的时候，别吞错了东西。');
-    if (!S.hero.skills.includes('tunshi')) S.hero.skills.push('tunshi');
+    if (!S.hero.skills.includes('tunshi')) S.hero.skills.push('tunshi'); F().yt_tunshi = 1;
     try { playSnd('sfx_sword_ring'); } catch (e) {} await showPanel('领悟 · 纳月之力', ['!纳月 · 吞噬', SKILL_DB.tunshi.desc, '灵力消耗 24']);
+    await showPanel('云霆 · 领悟纳月之力', ['!纳月 · 吞噬（秘传）', '云霆也得了这缕银光：吞噬敌人灵力，伤害的一半化为自身气血', '灵力消耗 24']);
     await say('白衣男子', '殿东边有口泉，泡一泡，对你们有好处。去吧，我要睡了。');
     await narrate('话音刚落，白衣男子的身影就像雾一样淡了下去，连那张草席也不见了。');
     await say('叶孤星', '星旋，那人什么修为？');
@@ -290,5 +291,14 @@
   } } catch (e) {}
   // 林尽闻声古樟下的邪修：只在出了秘境以后出现（新流程打完虎时 ch3_mj = 1，要等 ch3_mjout）
   drawBaked = (o => function (ob, now) { if (ob && /^mt_[abc]$/.test(ob.id) && F().ch3_mj === 1 && !F().ch3_mjout) return; return o.apply(this, arguments); })(drawBaked);
+  // ---------- 4) 云霆也会纳月 · 吞噬（作者 11-10：「纳月灵力云霆和叶孤星都有」）----------
+  // 白衣男子的两缕银光一缕给叶孤星、一缕给云霆。老存档：叶孤星已经会吞噬的，云霆也补上
+  const ytHas = () => !!(F().yt_tunshi || (S.hero && S.hero.skills && S.hero.skills.includes('tunshi')));
+  if (window.MIZHUAN_LIST) MIZHUAN_LIST = (o => function () { const L = o.apply(this, arguments); try { const P = battle && battle.P;
+    if (P && P.ally === 'yunting' && ytHas() && !L.some(it => it.k === 'tunshi')) { const c = (SKILL_DB.tunshi && SKILL_DB.tunshi.cost) || 24;
+      L.push({ k: 'tunshi', name: '纳月 · 吞噬', cost: c, tag: '单体', desc: '吞噬敌人灵力，伤害的一半化为自身气血（对邪修伤害 +50%）', disabled: P.mp < c, why: '灵力不足' }); } } catch (e) {} return L; })(MIZHUAN_LIST);
+  doHeroAction = (o => async function (k) { const b = battle, P = b && b.P;
+    if (P && P.ally === 'yunting' && k === 'tunshi' && ytHas()) { b.state = 'act'; b.menu = null; P.mp -= (SKILL_DB.tunshi && SKILL_DB.tunshi.cost) || 24; P.pose = 'cast'; await skTunshi(P, pickTarget()); P.pose = null; await afterAct(); return; }
+    return o.apply(this, arguments); })(doHeroAction);
   window.R189CH3 = { IM, st, chase, enterRift, BEATS, vergeTick, nwTick, spring, baiyi };
 })();
