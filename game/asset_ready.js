@@ -13,7 +13,8 @@
     const go = () => { const list = window.VOICE29_ALL ? VOICE29_ALL() : null; if (!list) return setTimeout(go, 300);
       Promise.all(list.map(({ a, src }) => new Promise(r => { if (!a) return r(); if (a.readyState >= 3) return r();
         a.addEventListener('canplaythrough', r, { once: true }); a.addEventListener('error', r, { once: true });
-        try { fetch(src).then(x => x.arrayBuffer()).then(r, r); } catch (e) { r(); } }))).then(res); };
+        // 作者 11-11：GitHub Pages 报「Rate limit exceeded」—— 以前每条配音 audio 预载 + fetch 各下一遍（请求翻倍），改成 audio 6 秒还没动静才补一次 fetch
+        setTimeout(() => { if (a.readyState < 2) { try { fetch(src).then(x => x.arrayBuffer()).then(r, r); } catch (e) { r(); } } }, 6000); }))).then(res); };
     go(); });
   PRELOAD('喊招配音', Promise.race([voiceReady(), new Promise(r => setTimeout(r, 40000))]));
   // 3) 魔族真身（R189 / R193）：变身图集、骨翼待机、新立绘、笑声和台词
