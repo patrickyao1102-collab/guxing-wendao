@@ -169,7 +169,8 @@
     // 一、压下来：斗篷版低笑，全场一点点暗下去，紫光从斗篷缝里漏出来
     e.pose = null; e._pre = performance.now() / 1000; laugh(); S.shake = 4;
     const v3 = hasTF3() && has3();
-    await sleep(v3 ? 1500 : 2300);
+    // 作者 11-11：「笑声不用那么长，总时长缩到 10 秒」—— 笑声剪成 3.15 秒（低笑尾巴 + 狂笑），变身动画 3.2 秒正好盖住，台词紧接着吼出来
+    await sleep(v3 ? 0 : 2300);
     // 二、撕开：撕斗篷正好卡在放声狂笑那一下
     e._pre = null; e._tf = performance.now() / 1000; S.shake = 14; try { playSnd('sfx_ult', .75); } catch (er) {}
     fx('fx3_orb_violet', { life: 1.2, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.8 * Math.min(1, k * 2.5), alpha: 1.1, fadeOut: .5 });
@@ -177,13 +178,13 @@
       await sleep(1000); S.shake = 16; try { playSnd('sfx_hit_heavy', .8); } catch (er) {}
       await sleep(450); S.shake = 24; S.flash = .55; S.flashColor = '#b07aff';
       await sleep(1350); S.flash = .25; S.flashColor = '#ff3050';   // 红瞳那一下
-      await sleep(400);
+      await sleep(350);
     } else {
     await sleep(620); S.shake = 20; S.flash = .5; S.flashColor = '#b07aff'; try { playSnd('sfx_hit_heavy', .8); } catch (er) {}   // 第 9–18 帧：斗篷撕裂四散
     await sleep(1400); }
     // 三、真身落地：狂笑还在殿里回荡，笑声收了再开口
     e._tf = null; e.key = 'e_mozu2'; e.h = Math.round(e.h * BIG); e.name = '魔族真身'; S.shake = 10; floatText(e.x, e.y - e.h - 70, '魔族真身', '#ff8ad0', 58);
-    await sleep(v3 ? 1500 : 1900);
+    await sleep(v3 ? 50 : 1900);
     // 作者 11-11：台词用癫狂版 F6（自己的笑声剪掉，只留台词），咬着牙一字一字吼出来
     try { if (!(typeof AUD !== 'undefined' && AUD.muted)) { LINE.currentTime = 0; LINE.play().catch(() => {}); } } catch (er) {}
     await say('魔族高手·坏笑', '既然看见了本座的真身——你们，一个都别想活着离开。');
