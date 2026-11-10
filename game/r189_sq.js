@@ -10,9 +10,9 @@
   ITEM_DB.a_tongxin = { name: '同心衣', slot: 'armor', def: 14, maxhp: 140, lvReq: 11,
     desc: '守林老人的儿媳当年一针一线缝给丈夫的护身衣，青布里衬着一层素纱，袖口绣着一对并蒂的槐花和柳叶。（需要境界：凝丹二重）' };
   const TREES = [
-    { k: 'm', at: [942, 2298], flag: 'yyq_m', title: '幽影林 · 槐下男魂', name: '灰衣男魂', key: 'e_ghost3', pre: ['老槐的枝杈上横伏着那个灰蓝衣的人影，长袖垂到林道上。', '它慢慢转过头来。那张脸上，竟还看得出几分憨厚。'],
+    { k: 'm', at: [942, 2298], flag: 'yyq_m', title: '幽影林 · 槐下男魂', name: '灰衣男魂', key: 'e_yyq_m', pre: ['老槐的枝杈上横伏着那个灰蓝衣的人影，长袖垂到林道上。', '它慢慢转过头来。那张脸上，竟还看得出几分憨厚。'],
       after: [['灰衣男魂', '……爹……药……采到了……'], ['', '魂影散成一片灰白的光，顺着槐枝飘了上去。树上只剩一截空荡荡的衣袖。']] },
-    { k: 'f', at: [3540, 2070], flag: 'yyq_f', title: '幽影林 · 柳间女魂', name: '紫衣女魂', key: 'e_ghost2', pre: ['绛柳的树杈里倚着那个淡紫衣的女子，长发混在柳丝里，像是睡着了。', '柳丝无风自动——她睁开了眼。'],
+    { k: 'f', at: [3540, 2070], flag: 'yyq_f', title: '幽影林 · 柳间女魂', name: '紫衣女魂', key: 'e_yyq_f', pre: ['绛柳的树杈里倚着那个淡紫衣的女子，长发混在柳丝里，像是睡着了。', '柳丝无风自动——她睁开了眼。'],
       after: [['紫衣女魂', '……他在等我……我得去找他……'], ['', '紫色的魂影轻轻一晃，化作点点微光，朝老槐的方向飘去了。']] },
   ];
   const Q = { id: ID, name: '槐柳双魂', giver: ['m_yy_tiger', GIVER], where: '幽影林 · 追虎迷径 · 守林老人', cond: () => !!F().ch3_report,
@@ -52,7 +52,7 @@
   }
   // 两棵树下的支线战
   function ghostBoss(T) { const g = typeof ghostUnit === 'function' ? ghostUnit(T.k === 'm' ? 2 : 1) : { name: '阴魂', hp: 420, maxhp: 420, atk: 40, def: 6, spd: 15, h: 220, color: '#5a7a9a', xie: true, ghost: true };
-    const lv = Math.max(0, (S.hero.lv || 12) - 12); return Object.assign(g, { name: T.name, key: has(T.key) ? T.key : g.key, hp: 1400 + lv * 90, maxhp: 1400 + lv * 90, atk: 48 + lv * 3, def: 10, spd: 15, h: 250, boss: true, color: T.k === 'm' ? '#6a7f9a' : '#9a7ab8' }); }
+    const lv = Math.max(0, (S.hero.lv || 12) - 12); return Object.assign(g, { name: T.name, key: has(T.key) ? T.key : g.key, hp: 1400 + lv * 90, maxhp: 1400 + lv * 90, atk: 48 + lv * 3, def: 10, spd: 15, h: 270, boss: true, color: T.k === 'm' ? '#6a7f9a' : '#9a7ab8' }); }
   function addTrees() {
     if (world.mapName !== 'm_yy_tiger' || st().s !== 1 || !world.triggers) return;
     for (const T of TREES) { if (F()[T.flag] || T.busy || world.triggers.some(t => t._yyq === T.k && !t.done)) continue;

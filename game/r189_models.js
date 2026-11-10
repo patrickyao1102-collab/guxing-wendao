@@ -6,17 +6,17 @@
   const IM = {}, load = (k, src, cb) => { const im = new Image(); im.onload = () => { IM[k] = im; cb && cb(im); }; im.src = src; };
   // ---------- 三姿态敌人 ----------
   // 作者 11-10 看过：周虎、男女魂不合格，先只接魔族真身（周虎 / 男女魂的接法留着，Codex 重画后把这两组加回 SETS 就行）
-  const SETS = { e_mozu2: 'mozu2' };
+  const SETS = { e_mozu2: 'mozu2', e_yyq_m: 'yyqm', e_yyq_f: 'yyqf', e_zhouhu: 'zhouhu' };   // 11-11 作者：周虎新建模也接进来（R191 返工 B）   // 11-11：R191 返工的槐柳双魂（枯槐枝 / 柳丝发、腰下化雾）接回来
   for (const key in SETS) for (const p of ['idle', 'atk', 'hit']) load(key + '__' + p, 'r189/b_' + SETS[key] + '_' + p + '.webp', im => { IMG[key + '__' + p] = im; });
   // 周虎：原来的战斗图是光膀子虎皮围裙的山贼、和对话立绘对不上 → 换成照立绘画的（黑褐兽毛披肩、旧铁护肩、暗红腰封、发髻络腮胡、鬼头刀）
   //   原来那条即梦逐帧视频也是旧形象，一起停掉；地图上剧情里的小人（IMG.e_zhouhu）也用新待机图
-  for (const key of []) { let old = IMG[key]; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => IMG[key + '__idle'] || old, set: v => { old = v; } }); }
-  for (const key of ['e_mozu2']) Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => IMG[key + '__idle'], set: () => {} });
+  for (const key of ['e_zhouhu']) { let old = IMG[key]; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => IMG[key + '__idle'] || old, set: v => { old = v; } }); }
+  for (const key of ['e_mozu2', 'e_yyq_m', 'e_yyq_f']) Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => IMG[key + '__idle'], set: () => {} });
   const dropVS = () => { try { if (window.VSPRITES) delete VSPRITES.e_zhouhu; if (window.RIG_MAP) delete RIG_MAP.e_zhouhu; } catch (e) {} };
-  // dropVS(); setTimeout(dropVS, 3000);   // 周虎新模型接进来时再打开
+  dropVS(); setTimeout(dropVS, 3000); setTimeout(dropVS, 10000);
   if (window.BATTLE_SIZE) Object.assign(BATTLE_SIZE, { e_mozu2: BATTLE_SIZE.e_mozu || 300, e_yyq_m: 240, e_yyq_f: 228 });
   // 待机可见高（px，原画 720 高里人物占的高度）+ 出手 / 受击相对待机的绘制倍率（R191 战斗模型参数.json）
-  const REL = { e_mozu2: { idleH: 707, idle: 1, atk: 2.1352, hit: 1.44898 } };
+  const REL = { e_mozu2: { idleH: 707, idle: 1, atk: 2.1352, hit: 1.44898 }, e_yyq_m: { idleH: 523, idle: 1, atk: 1.48062, hit: 1.28295, float: 1 }, e_zhouhu: { idleH: 404, idle: 1, atk: 1.05949, hit: 0.86495 }, e_yyq_f: { idleH: 556, idle: 1, atk: 1.73904, hit: 1.32072, float: 1 } };
   { const c = document.createElement('canvas'); c.width = c.height = 1; IMG.__r189_none = c; }
   const pose = u => u.hurt > .15 ? 'hit' : (u.pose === 'atk' || u.pose === 'cast') ? 'atk' : 'idle';
 
@@ -146,7 +146,7 @@
     }
     if (u && u.side === 'enemy' && u.key === 'e_mozu2' && u.alive && has3()) {
       const ps = pose(u), P = M3.pose[ps], now = performance.now() / 1000, kk = u.h / M3.idleH;
-      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy;
+      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy - (R.float ? u.h * (.06 + .03 * Math.sin(now * 1.6 + (u.x || 0))) : 0);   // 魂体悬空、上下浮
       const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧
       const st = IM[P.f], w = st.width / P.sc * kk, h = st.height / P.sc * kk;
       // 魔气剪影按当前姿势的静态图，再按 Codex 的脚底锚点放（画幅左右不对称时也对得上）
@@ -166,7 +166,7 @@
       const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧（本体不画）
       const aura = u.key === 'e_mozu2';
       if (aura) auraBack(u, im, x, y, w, h);
-      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)'; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore();
+      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)'; if (R.float) ctx.globalAlpha *= .9 + .06 * Math.sin(now * 2.3); ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore();
       if (aura) auraFront(u, x, y, w, h); return;
     }
     const k0 = u.key; u.key = k; try { return o(u); } finally { u.key = k0; }

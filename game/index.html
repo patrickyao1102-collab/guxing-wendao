@@ -3975,7 +3975,7 @@ async function enemyAoE(e, name, fxName, mult = .8, color = '#c79bff') {
   }
   playSnd('sfx_boom', .8); S.shake = 16; await sleep(600); await dimTo(0, 250); return true;
 }
-function zhouhu() { return { name: '黑风寨主·周虎', key: 'e_zhouhu', hp: 1300, maxhp: 1300, atk: 44, def: 18, spd: 10, h: 300, color: '#5a3a2a', fxColor: '#ffd34a', boss: true, slot: [330, 610],
+function zhouhu() { return { name: '黑风寨主·周虎', key: 'e_zhouhu', hp: 1300, maxhp: 1300, atk: 44, def: 18, spd: 10, h: 320, color: '#5a3a2a', fxColor: '#ffd34a', boss: true, slot: [330, 610],
   ai: async (e, b) => { e.turn = (e.turn || 0) + 1; if (e.turn % 3 === 0) return enemyAoE(e, '九环断魂刀', 'fx3_slash_gold', .75, '#ffcf6a'); return false; } }; }
 function fanglie() { return { name: '方烈', key: 'e_fanglie', hp: 1000, maxhp: 1000, atk: 50, def: 12, spd: 16, h: 285, color: '#7a1a2a', fxColor: '#ff6a5a', boss: true, slot: [540, 470],
   ai: async (e, b) => { e.turn = (e.turn || 0) + 1; if (e.turn % 3 === 2) return enemyAoE(e, '血影双刀', 'fx3_claw_red', .7, '#ff7a8a'); return false; } }; }
@@ -4227,7 +4227,7 @@ setInterval(() => { try { if (world.mapName === 'hf_camp' && S.flags.ch2_gate &&
 async function hfBoss() {
   const p = world.player; world.locked = true; world.path = null; p.moving = false;
   await narrate('聚义厅前的空地上火把通明。厅门「轰」地被一脚踹开——一个满脸横肉的大汉提着鬼头刀走了出来，身后跟着一个阴沉的灰袍人。');
-  const zh = addActor('e_zhouhu', p.x + 220, p.y - 120, '周虎', '#ff9a7a'); zh.h = 150; zh.dir = -1; zh.alpha = 0;
+  const zh = addActor('e_zhouhu', p.x + 220, p.y - 120, '周虎', '#ff9a7a'); zh.h = 250;   /* R191 新模型整幅 720 高、人只占下面 404 */ zh.dir = -1; zh.alpha = 0;
   const fl = addActor('e_fanglie', p.x + 330, p.y - 70, '方烈', '#ff7a8a'); fl.h = 140; fl.dir = -1; fl.alpha = 0;
   await tween(500, t => { zh.alpha = t; fl.alpha = t; });
   await say('周虎·怒', '小畜生，居然敢杀我黑风寨的人！老子今天非要将你们碎尸万段不可！');
