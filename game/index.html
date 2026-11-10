@@ -5147,13 +5147,18 @@ async function ch3Start() {
   if (!h.skills.includes('xingluo')) h.skills.push('xingluo');
   S.flags.ch3 = 1; S.hud = false; world.map = null; joinParty('yunting');
   // 钩子：炼魂谷的血阵（反派插叙）
-  C3.scene('bg_shandao', .35, 'rgba(90,0,20,.35)'); stopBgm && stopBgm(1);
+  // 11-11：插画背景改成在「地下二层 · 炼魂密室」地图上演（血阵中央坐着个看不清脸的人）
+  let pro = null; stopBgm && stopBgm(1);
+  if (window.R197CH4 && TMAPS.m_xx_b2) { await R197CH4.go('xx_b2', 1280, 1500, 'up'); S.hud = false; const P0 = world.player; P0.alpha = 0; (world.followers || []).forEach(f => f.alpha = 0);
+    pro = addActor('e_elder', 1280, 990, '', '#ff7a7a'); pro.h = 200; pro.face = 'down'; pro.alpha = .85; world.camFocus = [1280, 1000]; }
+  else C3.scene('bg_shandao', .35, 'rgba(90,0,20,.35)');
   await fadeIn(900);
   await narrate('苍月城北，地底深处。');
   await narrate('暗红的血阵缓缓转动，数百道微弱的哀嚎从铁笼中传出，灵力像细线一样被抽向阵心。');
   await say('???', '……还差一点。只要再多几十个凝丹修士……引魂境，唾手可得。');
   await say('???', '外面那几个苍月城的小虫子，查得越来越近了。去，再抓一批回来。');
   await fadeOut(800);
+  if (pro) { world.actors = world.actors.filter(a => a !== pro); world.camFocus = null; world.player.alpha = 1; (world.followers || []).forEach(f => f.alpha = 1); world.map = null; S.scene = () => { ctx.fillStyle = '#04050b'; ctx.fillRect(0, 0, W, H); }; world.locked = false; }
   await bigTitle('第三章', '剑心冰封', 3000);
   await ch3Fair();
 }
