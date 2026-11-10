@@ -9918,6 +9918,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     // 整图地图：把房屋、树木、摆件也按位置画进缩略图（像一张真正的地图，不再是黑白方块）
     if (ok) { let miss = 0; const os = (T.objs || []).filter(o => o.bk && !o.r60 && o.img).sort((a, b) => (a.flat ? -1e9 : a.sy) - (b.flat ? -1e9 : b.sy));
       for (const o of os) { const oi = IMG[o.img]; if (!oi) { miss++; continue; } x.save(); if (o.flip) { x.translate((o.x - X0 + o.w / 2) * s, 0); x.scale(-1, 1); x.translate(-(o.x - X0 + o.w / 2) * s, 0); } x.drawImage(oi, (o.x - X0) * s, o.y * s, o.w * s, o.h * s); x.restore(); }
+      try { const ex = window.MM_EXTRA && MM_EXTRA[id]; if (ex) ex(x, s, X0); } catch (e) {}   // 地图自己画的物件（青竹菜园里玩家摆的田、树、禽舍）
       if (miss) ok = false;
       const vg = x.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * .35, c.width / 2, c.height / 2, Math.max(c.width, c.height) * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(10,8,6,.35)'); x.fillStyle = vg; x.fillRect(0, 0, c.width, c.height); }
     // 碰撞格叠一层：墙暗、路亮（只给没有整图的老地图用）

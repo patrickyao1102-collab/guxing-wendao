@@ -16,7 +16,8 @@
   const SRC = k => (window.R162_ASSETS && R162_ASSETS[D + k + '.webp']) || (D + k + '.webp?v=g11');   // 图集页换过顺序，带版本号免得读到缓存里的旧页
   let want = 0, got = 0;
   const ld = (k, cb) => { if (k in IM) return; IM[k] = null; want++; const i = new Image();
-    i.onload = () => { IM[k] = i; got++; try { cb && cb(i); } catch (e) {} };
+    i.onload = () => { const fin = b => { IM[k] = b; got++; try { cb && cb(b); } catch (e) {} };   // 作者 11-10：菜园走路、放东西都卡——几十张大图（解码后两百多 MB）每帧都在画，浏览器的解码缓存放不下、来回重新解码。转成位图常驻就不卡了
+      try { if (window.createImageBitmap && i.width * i.height > 250000) createImageBitmap(i).then(fin, () => fin(i)); else fin(i); } catch (e) { fin(i); } };
     i.onerror = () => { FAIL[k] = (FAIL[k] || 0) + 1; delete IM[k]; want--; if (FAIL[k] < 3) setTimeout(() => ld(k, cb), 1500 * FAIL[k]); else { want++; got++; } };
     i.src = SRC(k); };
   const PAGES_S = Math.max(...Object.values(M.static).map(v => v[0])) + 1;   // 静态件图集可能不止一页（篱笆加高以后排到第二页）

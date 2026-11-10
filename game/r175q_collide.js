@@ -36,6 +36,9 @@
         if (op) cover[i] = 1;
         if (wy >= y0 - cs * .5 && wy <= o.sy + cs) { if (op || rail) keep[i] = 1; }   // 栏杆整段挡住，栏杆缝里不能钻过去
         else if (house) roof[i] = 1; } }
+    // 西院用：任何物件（不管它自己带不带阻挡）盖住的格子
+    const cover2 = new Uint8Array(R * C);
+    for (const o of T.objs || []) { if (o.flat || !o.img) continue; const c0 = Math.max(0, Math.floor((o.x - x0) / cs) - 1), c1 = Math.min(C - 1, Math.floor((o.x + o.w - x0) / cs) + 1), r0 = Math.max(0, Math.floor(o.y / cs) + 2), r1 = Math.min(R - 1, Math.floor((o.y + o.h) / cs) + 1); for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) cover2[r * C + c] = 1; }
     // 出入口、门口光阵、落脚点周围不动
     const fixed = new Uint8Array(R * C); const pin = (wx, wy, rad) => { const c0 = Math.floor((wx - x0) / cs), r0 = Math.floor(wy / cs), k = Math.ceil(rad / cs); for (let dr = -k; dr <= k; dr++) for (let dc = -k; dc <= k; dc++) { const c = c0 + dc, r = r0 + dr; if (c >= 0 && r >= 0 && c < C && r < R) fixed[r * C + c] = 1; } };
     for (const d of T.doors || []) if (d.x != null && d.w) pin((d.x + d.w / 2) * cs, (d.y + d.h / 2) * cs, (Math.max(d.w, d.h) * cs) / 2 + 24);
@@ -45,7 +48,9 @@
     for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (terr[r * C + c]) for (let dr = -K; dr <= K; dr++) { const rr = r + dr; if (rr < 0 || rr >= R) continue; for (let dc = -K; dc <= K; dc++) { const cc = c + dc; if (cc >= 0 && cc < C) near[rr * C + cc] = 1; } }
     const open = new Uint8Array(R * C);
     for (let r = 1; r < R - 1; r++) for (let c = 1; c < C - 1; c++) { const i = r * C + c; if (keep[i] || fixed[i]) continue;
-      const k = i * 4; if (roof[i] || (!cover[i] && !near[i] && walkableGround(px[k], px[k + 1], px[k + 2]))) open[i] = 1; }   // ① 屋顶那一截 ② 看不见的墙
+      const k = i * 4; if (roof[i] || (!cover[i] && !near[i] && walkableGround(px[k], px[k + 1], px[k + 2]))) open[i] = 1;   // ① 屋顶那一截 ② 看不见的墙
+      // ③ 西院（x<0 那半边）是一块平地，没有崖、没有水：不在任何物件贴图里的阻挡一律放开（作者 11-10：阿福屋顶上面那条草地有一道空气墙——那里采到的地面色是灰的，②认不出来）
+      else if (!cover2[i]) { const wx = (c + .5) * cs + x0, wy = (r + .5) * cs; if (wx < -24 && wx > x0 + 72 && wy > 72 && wy < R * cs - 72) open[i] = 1; } }
     if (window.R175Q_DEBUG) window.R175Q_DBG = { T, keep, roof, cover, fixed, px, C, R, x0, cs, before: B.map(r => r.slice()) };
     T._q175 = { open, C }; return apply(T, T._q175);
   }

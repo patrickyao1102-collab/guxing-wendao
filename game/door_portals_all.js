@@ -37,9 +37,9 @@
     if (!d.edge) return d.rect ? [d.rect[0], d.rect[1]] : [(d.c + .5) * TS, (d.r + 1) * TS - 6];
     if (d._spot && d._spotT === T) return d._spot;
     let x = (d.x + (d.w || 1) / 2) * CS, y = (d.y + (d.h || 1) / 2) * CS;
-    const cx = T.mw / 2, cy = T.mh / 2, L = Math.hypot(cx - x, cy - y) || 1, ux = (cx - x) / L, uy = (cy - y) / L;
+    const X0 = T.x0 || 0, cx = (X0 + T.mw) / 2, cy = T.mh / 2, L = Math.hypot(cx - x, cy - y) || 1, ux = (cx - x) / L, uy = (cy - y) / L;   // 往西扩建过的地图（x0 < 0）：中心和边界都要从 x0 算，不然西边出口的法阵被夹到 x=40 去了（青竹西院月门没有法阵）
     for (let k = 0; k < 14; k++) { if (canStand(T, x, y)) break; x += ux * 12; y += uy * 12; }
-    x = Math.max(40, Math.min(T.mw - 40, x)); y = Math.max(40, Math.min(T.mh - 24, y));
+    x = Math.max(X0 + 40, Math.min(T.mw - 40, x)); y = Math.max(40, Math.min(T.mh - 24, y));
     d._spot = [x, y]; d._spotT = T; return d._spot;
   };
   const sizeOf0 = d => d.edge ? 1 : .8;     // 门口的阵小一点

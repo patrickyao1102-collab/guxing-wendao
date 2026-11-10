@@ -17,7 +17,7 @@
   // ---------- 图 ----------
   const IM = {}; let want = 0, got = 0;
   const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m15');
-  const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { IM[k] = i; got++; }; i.onerror = () => { got++; }; i.src = SRC(k); };
+  const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { const fin = b => { IM[k] = b; got++; }; try { if (window.createImageBitmap && i.width * i.height > 250000) createImageBitmap(i).then(fin, () => fin(i)); else fin(i); } catch (e) { fin(i); } }; i.onerror = () => { got++; }; i.src = SRC(k); };
   const loadAll = () => { for (let i = 0; i < MM.pages; i++) ld('m_' + i); ld('lf'); ld('seam'); };
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID) return a; loadAll(); return Math.min(a, want ? got / want : 0); }; }
   const spr = (g, k, x, y, sc) => { const r = MM.r[k], im = r && IM['m_' + r[0]]; if (!im) return false; const s = sc || 1; g.drawImage(im, r[1], r[2], r[3], r[4], x, y, r[3] * s, r[4] * s); return true; };
@@ -54,6 +54,15 @@
   const stage = it => it.age < 3 ? 'sapling' : it.age < TREE_AGE ? 'young' : it.cd > 1 ? 'mature' : it.cd > 0 ? 'flowering' : 'fruiting';
   const QK = ['normal', 'fertile', 'supreme'], wOf = it => (it.m || it) === 'grapes' ? 2 * U : U;
   const cardArt = m => MOD[m].t === 'field' ? 'field_normal' : MOD[m].t === 'tree' ? m + '_fruiting' : m;
+  const HK = .88; let GONE_N = 0;
+  // 大地图（M 键）/ 小地图：把园里自己摆的田、树、禽舍，还有葡萄长廊、酒缸、没清掉的野树杂物画上去
+  (window.MM_EXTRA = window.MM_EXTRA || {})[ID] = (x, s, X0) => { const d = D(), list = [];
+    for (const sc of MM.scen) if (!d.gone[sc.id]) list.push([sc.xy[1] + sc.h, 'sc_' + sc.a, sc.xy[0], sc.xy[1], 1]);
+    { const G = MM.gal, st = stage(d.gal), ck = st === 'sapling' || st === 'young' ? st : 'mature'; for (const [a, px, py, sy] of G.posts.concat(G.climbs[ck])) list.push([sy, 'gg_' + a, px, py, 1]); list.push([1121.5, 'gg_lattice', G.roof[0], G.roof[1], 1], [1121.6, 'gg_vine_' + st, G.roof[0], G.roof[1], 1]); }
+    list.push([MM.vat.f, ['vat_empty', 'vat_fermenting', 'vat_ready'][d.vat.st] || 'vat_empty', MM.vat.xy[0], MM.vat.xy[1], 1]);
+    for (const it of d.inst) { const m = MOD[it.m]; if (m.t === 'field') continue; const k = m.t === 'tree' ? it.m + '_' + stage(it) : it.m, q = MM.r[k]; if (!q) continue;
+      if (m.t === 'house') list.push([it.y + U, k, it.x + U / 2 - q[3] * HK / 2, it.y + U - q[4] * HK, HK]); else list.push([it.y + U, k, it.x, it.y, 1]); }
+    list.sort((a, b) => a[0] - b[0]); for (const [, k, px, py, kk] of list) { const r = MM.r[k], im = r && IM['m_' + r[0]]; if (im) x.drawImage(im, r[1], r[2], r[3], r[4], (px - X0) * s, py * s, r[3] * kk * s, r[4] * kk * s); } };
   const BORN = {}, SHK = {}, DUST = [];   // 搭建显形、摘果轻晃、回收扬尘（只是演出，不进存档）
   // 物品图标（Codex 生产包）
   const ICON = { wine: 'it_wine', hen_meat: 'it_hen_meat', duck_meat: 'it_duck_meat', goose_meat: 'it_goose_meat' };
@@ -103,9 +112,9 @@
     for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) B[r][c] = MM.base.charCodeAt(r * C + c) === 49 ? 1 : 0;
     for (const it of D().inst) for (const [x, y, w, h] of MM.mods[artOf(it)].solid) for (let r = Math.floor((it.y + y) / 32); r < Math.ceil((it.y + y + h) / 32); r++) for (let c = Math.floor((it.x + x) / 32); c < Math.ceil((it.x + x + w) / 32); c++) if (B[r] && c >= 0 && c < C) B[r][c] = 1;
     for (const [c, rr] of MM.vat.cells) if (B[rr]) B[rr][c] = 1;
-    for (const [c, rr] of MM.gal.cells) if (B[rr]) B[rr][c] = 1;
+    for (const [a, x, , sy] of MM.gal.posts) { const q = MM.r['gg_' + a], c = Math.floor((x + (q ? q[3] : 64) / 2) / 32), rr = Math.floor((sy - 8) / 32); if (B[rr]) B[rr][c] = 1; }   // 作者 11-10：「葡萄架无法穿过去」——原来每根柱子挡 2×2 格，柱间只剩 64px、人要对得很准才钻得过；现在只挡柱脚一格，柱间 96px
     for (const sc of MM.scen) if (!D().gone[sc.id]) for (const [c, rr] of sc.wc) if (B[rr] && c >= 0 && c < C) B[rr][c] = 1;
-    T._stand = null; T._g8 = 1; RSV = null; }
+    T._stand = null; T._g8 = 1; RSV = null; GONE_N = Object.keys(D().gone).length; T._g2sig = null; try { window.MM_CLEAR && MM_CLEAR(ID); } catch (e) {} }
   setInterval(() => { try { if (!here()) return; const T = world.map.T; if (!T._g8) applyBlock(); } catch (e) {} }, 300);
 
   // ---------- 目标（点得到的东西）----------
@@ -310,7 +319,8 @@
     ctx.fillStyle = '#7a5a2e'; ctx.fillText('围栏（西岸禽院）里养禽，围栏外种树。', P.x + 20, by + 122);
     if (BD.ghost && BD.ghost.bad) { ctx.fillStyle = '#a8482e'; ctx.fillText('这里不行：' + BD.ghost.bad, P.x + 20, by + 100); }
     // 虚影
-    if (BD.sel && BD.ghost) { const g = BD.ghost, [sx, sy] = toScr(g.x, g.y), s = z(); ctx.globalAlpha = .75; { const ga = MOD[BD.sel].t === 'tree' ? BD.sel + '_sapling' : cardArt(BD.sel), gq = MM.r[ga], gx = MOD[BD.sel].t === 'house' && gq ? (gq[3] - U) / 2 * s : 0, gy = MOD[BD.sel].t === 'house' && gq ? (gq[4] - U) * s : 0; spr(ctx, ga, sx - gx, sy - gy, s); } ctx.globalAlpha = 1;
+    if (BD.sel && BD.ghost) { const g = BD.ghost, [sx, sy] = toScr(g.x, g.y), s = z(); ctx.globalAlpha = .75; { const ga = MOD[BD.sel].t === 'tree' ? BD.sel + '_sapling' : cardArt(BD.sel), gq = MM.r[ga], hs = MOD[BD.sel].t === 'house' && gq, gx = hs ? (gq[3] * HK - U) / 2 * s : 0, gy = hs ? (gq[4] * HK - U) * s : 0; spr(ctx, ga, sx - gx, sy - gy, hs ? s * HK : s); } ctx.globalAlpha = 1;
+      if (!g.bad && MOD[BD.sel].t !== 'field' && (MOD[BD.sel].t === 'tree') === inYard(g.x, g.y, wOf(BD.sel))) { const gw2 = wOf(BD.sel) * s; ctx.save(); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline(MOD[BD.sel].t === 'tree' ? '围栏里种树 · 收成减半' : '围栏外养禽 · 收蛋减半', sx + gw2 / 2, sy - 14, '#ffd9c8', '#7a1a08', 5); ctx.restore(); }
       const gw = wOf(BD.sel) * s; ctx.strokeStyle = g.bad ? '#e0492c' : '#3fd0a0'; ctx.lineWidth = 3; ctx.strokeRect(sx, sy, gw, U * s); ctx.fillStyle = g.bad ? 'rgba(224,73,44,.25)' : 'rgba(63,208,160,.18)'; ctx.fillRect(sx, sy, gw, U * s); }
     if (BD.tool === 'del') for (const it of D().inst) { const [sx, sy] = toScr(it.x, it.y), s = z(); ctx.strokeStyle = 'rgba(224,73,44,.85)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.strokeRect(sx + 2, sy + 2, wOf(it) * s - 4, U * s - 4); ctx.setLineDash([]); }
     if (BD.tool === 'clear' && BD.hov) { const sc = BD.hov, [sx, sy] = toScr(sc.xy[0], sc.xy[1]), s = z(); ctx.strokeStyle = '#f3d98a'; ctx.lineWidth = 2; ctx.strokeRect(sx, sy, sc.w * s, sc.h * s); ctx.font = `700 14px ${FONT}`; ctx.textAlign = 'center'; textOutline(MM.scn[sc.a] || '', sx + sc.w * s / 2, sy - 6, '#fff3d6', '#3a2208', 3); }
@@ -326,7 +336,10 @@
   function buildMove(q) { if (BD.tool === 'clear' && !BD.drag) BD.hov = q.x <= M.size[0] * BZ ? scAt(toW(q)) : null;
     if (BD.drag) { BD.cy = clamp(BD.drag.cy - (q.y - BD.drag.y) / BZ, H / BZ / 2, M.size[1] - H / BZ / 2); return; }
     if (BD.sel && q.x <= M.size[0] * BZ) { BD.ghost = ghostAt(BD.sel, toW(q)); if (q.y < 50) BD.cy = clamp(BD.cy - 14, H / BZ / 2, M.size[1] - H / BZ / 2); if (q.y > H - 50) BD.cy = clamp(BD.cy + 14, H / BZ / 2, M.size[1] - H / BZ / 2); } }
-  function buildUp(q) { BD.drag = null; if (BD.sel && BD.press && BD.ghost) { BD.press = null; if (BD.ghost.bad) { toast('这里不行：' + BD.ghost.bad, 1400); snd('ui_cancel', .4); } else { place(BD.sel, BD.ghost); BD.ghost = null; } } }
+  function buildUp(q) { BD.drag = null; if (BD.sel && BD.press && BD.ghost) { BD.press = null; if (BD.ghost.bad) { toast('这里不行：' + BD.ghost.bad, 1400); snd('ui_cancel', .4); } else { const g = BD.ghost, m = BD.sel, t = MOD[m].t; BD.ghost = null;
+      // 作者 11-10：「收益减半的文字那么小，玩家怎么可能注意……应该是放置的时候提醒」→ 放下之前弹出来问一句
+      if (t !== 'field' && (t === 'tree') === inYard(g.x, g.y, wOf(m))) { world.locked = false; choose(t === 'tree' ? '果树种在围栏里，收成只有一半。围栏里是养禽的地方，树要种在围栏外。' : MOD[m].name + '放在围栏外，收的蛋只有一半。禽舍要放进西岸的竹围栏里。', ['换个地方放', '就放这儿（收益减半）']).then(i => { world.locked = true; if (i === 1) place(m, g); }, () => { world.locked = true; }); }
+      else place(m, g); } } }
 
   // ---------- 输入 ----------
   cv.addEventListener('pointerdown', e => { try {
@@ -364,7 +377,7 @@
       else if (m.t === 'tree') { if (it.age >= TREE_AGE && !it.cd) L.push(['bd_fruit_ready']); }
       else { const sp = it.m.replace('_house', ''), a = adults(it), y = it.birds.length - a; if (y) L.push(['bd_' + sp + '_young', y]); if (a) L.push(['bd_' + sp + '_adult', a]); if (it.eggs) L.push(['bd_egg_ready', it.eggs]); if (it.h > 0) L.push(['bd_egg_hatching']); }
       if (!L.length) continue; ctx.font = `700 ${BD.on ? 12 : 14}px ${FONT}`;
-      const ws = L.map(([, n]) => d + (n != null ? ctx.measureText('' + n).width + 3 : 0)), tw = ws.reduce((a, b) => a + b, 0) + (L.length - 1) * 5, ha = m.t === 'house' && MM.hanchor && MM.hanchor[it.m], [sx, sy] = ha ? toScr(it.x + ha[0], it.y + ha[1]) : toScr(it.x + wOf(it) / 2, it.y + (m.t === 'house' ? 2 : m.t === 'tree' ? 30 : 10));
+      const ws = L.map(([, n]) => d + (n != null ? ctx.measureText('' + n).width + 3 : 0)), tw = ws.reduce((a, b) => a + b, 0) + (L.length - 1) * 5, ha = m.t === 'house' && MM.hanchor && MM.hanchor[it.m], [sx, sy] = ha ? toScr(it.x + U / 2 + (ha[0] - U / 2) * HK, it.y + U + (ha[1] - U) * HK) : toScr(it.x + wOf(it) / 2, it.y + (m.t === 'house' ? 2 : m.t === 'tree' ? 30 : 10));
       if (sx < -60 || sx > W + 60 || sy < -40 || sy > H + 40 || (BD.on && sx > M.size[0] * BZ)) continue;
       const bob = BD.on ? 0 : Math.sin(now() * 2.4 + it.id) * 2; let x = sx - tw / 2; const y = sy - d - 2 + bob;
       ctx.fillStyle = 'rgba(40,26,8,.5)'; roundRect(x - 5, y - 3, tw + 10, d + 6, (d + 6) / 2); ctx.fill();
@@ -422,11 +435,15 @@
     g.drawImage(RV, x, y); if (qs) for (let ox = 0; ox < q[3]; ox += step) g.drawImage(IM['m_' + qs[0]], qs[1] + (f % 4) * U, qs[2] + (f >> 2) * U, U, U, x + ox, y, step, mh); }
   drawGroundVis = (o => function () {
     o.apply(this, arguments);
-    try { if (world.mapName !== ID) return; const T = world.map && world.map.T; if (!T || !T.objs) return; T.objs = T.objs.filter(q => !q.r175m && !q.r175sc && !q.r175vat && !q.r175gg);
+    try { if (world.mapName !== ID) return; const T = world.map && world.map.T; if (!T || !T.objs) return;
+      // 作者 11-10：菜园卡——原来每一帧都把一百多个物件删掉重建一遍；现在只在摆放 / 回收 / 清理 / 长势变了的时候重建
+      { const d0 = D(), sig = d0.inst.length + '|' + (d0.seq || 0) + '|' + GONE_N + '|' + stage(d0.gal); if (T._g2sig === sig && T._g2n === T.objs.length) return; T._g2sig = sig; }
+      T.objs = T.objs.filter(q => !q.r175m && !q.r175sc && !q.r175vat && !q.r175gg);
       { const G = MM.gal, st = stage(D().gal), ck = st === 'sapling' || st === 'young' ? st : 'mature'; for (const [a, x, y, sy] of G.posts.concat(G.climbs[ck])) { const q = MM.r['gg_' + a]; if (q) T.objs.push({ bk: true, id: 'r175gg' + a + x + '_' + y, x, y, w: q[3], h: q[4], sy, flat: false, r175gg: 'gg_' + a }); }
         T.objs.push({ bk: true, id: 'r175ggroof', x: G.roof[0], y: G.roof[1], w: 704, h: 254, sy: 1121.5, flat: false, r175gg: 'roof' }); } { const g = D().gone; for (const sc of MM.scen) if (!g[sc.id]) T.objs.push({ bk: true, id: 'r175sc' + sc.id, x: sc.xy[0], y: sc.xy[1], w: sc.w, h: sc.h, sy: sc.xy[1] + sc.h - 2, flat: false, r175sc: sc }); }
       for (const it of D().inst) if (MOD[it.m].t !== 'field') T.objs.push({ bk: true, id: 'r175m' + it.id, x: it.x, y: it.y, w: wOf(it), h: U, sy: it.y + U - 2, flat: false, r175m: it });
       T.objs.push({ bk: true, id: 'r175vat', x: MM.vat.xy[0], y: MM.vat.xy[1], w: MM.vat.size[0], h: MM.vat.size[1], sy: MM.vat.f, flat: false, r175vat: 1 });
+      T._g2n = T.objs.length;
     } catch (e) {}
   })(drawGroundVis);
   const tag = (x, y, txt, col) => { ctx.save(); ctx.font = `700 22px ${FONT}`; ctx.textAlign = 'center'; const w = ctx.measureText(txt).width + 22, bob = Math.sin(now() * 3) * 3; ctx.fillStyle = 'rgba(40,26,8,.35)'; roundRect(x - w / 2, y - 26 + bob + 2, w, 32, 16); ctx.fill();
@@ -435,13 +452,14 @@
     if (ob && ob.r175sc && world.mapName === ID) { spr(ctx, 'sc_' + ob.r175sc.a, ob.x, ob.y); return; }
     if (ob && ob.r175gg && world.mapName === ID) { if (ob.r175gg !== 'roof') { spr(ctx, ob.r175gg, ob.x, ob.y); return; }
       const G = MM.gal, gl = D().gal, p = world.player, under = p && p.x >= G.rect[0] && p.x <= G.rect[0] + G.rect[2] && p.y >= G.rect[1] - 10 && p.y <= G.rect[1] + G.rect[3] && !BD.on, tn = now(), dt = Math.min(.1, tn - (GA.t || tn)); GA.t = tn;
-      GA.a += ((under ? .36 : 1) - GA.a) * Math.min(1, dt / .18 * 2); let k = 'gg_vine_' + stage(gl); const t0 = SHK.gal; if (t0) { const f = Math.floor((tn - t0) * 12); if (f < 8) k = 'gg_pick_' + f; else delete SHK.gal; }
+      GA.a = 1;   /* 作者 11-10：走到架下葡萄架不许变透明 */ let k = 'gg_vine_' + stage(gl); const t0 = SHK.gal; if (t0) { const f = Math.floor((tn - t0) * 12); if (f < 8) k = 'gg_pick_' + f; else delete SHK.gal; }
       ctx.save(); ctx.globalAlpha *= GA.a; spr(ctx, 'gg_lattice', ob.x, ob.y); spr(ctx, k, ob.x, ob.y); ctx.restore(); return; }
     if (ob && ob.r175vat && world.mapName === ID) { spr(ctx, ['vat_empty', 'vat_fermenting', 'vat_ready'][D().vat.st] || 'vat_empty', ob.x, ob.y); return; }
     const it = ob && ob.r175m; if (!it || world.mapName !== ID) return o.apply(this, arguments);
     const m = MOD[it.m];
     let k = it.m; if (m.t === 'tree') { k = it.m + '_' + stage(it); const t0 = SHK[it.id]; if (t0) { const f = Math.floor((now() - t0) * 12); if (f < 8) k = MM.r[it.m + '_pick_' + f] ? it.m + '_pick_' + f : it.m + '_shake_' + f; else delete SHK[it.id]; } }
-    const q0 = MM.r[k]; drawMod(ctx, k, m.t === 'house' && q0 ? it.x - (q0[3] - U) / 2 : it.x, m.t === 'house' && q0 ? it.y - (q0[4] - U) : it.y, it.id); })(drawBaked);
+    const q0 = MM.r[k]; if (m.t === 'house' && q0) { ctx.save(); ctx.translate(it.x + U / 2, it.y + U); ctx.scale(HK, HK); ctx.translate(-(it.x + U / 2), -(it.y + U)); drawMod(ctx, k, it.x - (q0[3] - U) / 2, it.y - (q0[4] - U), it.id); ctx.restore(); }   // 作者 11-10：三种舍再缩小一点点
+    else drawMod(ctx, k, it.x, it.y, it.id); })(drawBaked);
   // 头顶标记（画在最上层）：田熟了、果子能摘、舍里有蛋 / 几只
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function () {
     o.apply(this, arguments);
