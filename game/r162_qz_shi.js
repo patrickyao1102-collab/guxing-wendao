@@ -886,7 +886,8 @@
   const EVBY = {}; for (const e of EVS) EVBY[e.id] = e;
   function schedule(force) {
     const f = F(), s = shi(); if (!s) return; if (!force && f.qz_today && f.qz_today.d === qday() && f.qz_today.s === s) return;
-    const cand = EVS.filter(e => e.shi === s && (!e.once || !hidSeen(e.id)) && (!e.need || e.need(f))).sort(() => Math.random() - .5);
+    const duty = (s === '戌' || s === '子') && window.R175G2_DUTY ? R175G2_DUTY() : '';   /* 今晚在菜园值夜的人不在院里：他的入夜 / 子夜小事今晚不排 */
+    const cand = EVS.filter(e => e.shi === s && e.who !== duty && (!e.once || !hidSeen(e.id)) && (!e.need || e.need(f))).sort(() => Math.random() - .5);
     const list = []; for (const e of cand) { if (list.length >= 3) break; if (Math.random() < (e.once ? .6 : e.p || .35)) list.push(e.id); }
     if (f.qz_guide === 1 && s === '卯' && !hidSeen(GUIDE_ID)) { list.length = 0; list.push(GUIDE_ID); }   // 小记引导：带着做的那一件，卯时一定排上
     f.qz_today = { d: qday(), s, list, done: [] };
@@ -1468,6 +1469,7 @@
     knocking = true; const p = world.player; if (p) p.moving = false; world.path = null;
     try {
       const f = F(); f.qz_hid = f.qz_hid || {};
+      if (window.R175G2_DUTY && R175G2_DUTY() === k) { await narrate('敲了两下，屋里没人应——今晚轮到' + BOND_NAME[k] + '在菜园的园屋值夜。'); return; }
       // 每夜只抽一次签：今晚她醒不醒、为什么醒（同一夜再敲，结果一样）
       const KP = { full: 1, mend: .8, fly: .6, letter: .6, emb: .35, dark: .3 };
       if (!f.qz_kroll || f.qz_kroll.d !== qday() + ':' + shi()) f.qz_kroll = { d: qday() + ':' + shi() };
