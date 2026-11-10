@@ -67,7 +67,9 @@
   const drawAnim = (n, x0, y0, t) => { const a = M.anim[n]; if (!a) return; const r = a.r[frameOf(a, t, a.fps || 12)], im = IM['an_' + r[0]]; if (!im) return;
     ctx.drawImage(im, r[1], r[2], a.bb[2], a.bb[3], x0 + a.bb[0], y0 + a.bb[1], a.bb[2], a.bb[3]); };
   function groundPass() { const t = now();
+    try { window.R175G2_SOIL && R175G2_SOIL(ctx); } catch (er) {}   // 土质、存水的颜色（种地模块画）
     for (const e of M.objs) { if (!e.flat) continue;
+      if (window.R175G2_FLAT && R175G2_FLAT(e) === false) continue;   // 关着闸的进水口不出水
       if (M.anim[e.a]) drawAnim(e.a, e.xy[0], e.xy[1], t);
       else { const im = IMG['r175g2_' + (e.a === 'e_garden_bed' && window.R175G2_WET && R175G2_WET() ? 'e_garden_bed_wet' : e.a)]; if (im) ctx.drawImage(im, e.xy[0], e.xy[1]); } } }   // 手浇菜畦浇过水换湿土
   // 鸡群：Codex 的轨迹（period 毫秒一圈，段 = [起, 时长, x0, y0, x1, y1, 动作]），小鸡跟在母鸡后面 delay 毫秒

@@ -28,10 +28,16 @@
     radish: { name: '萝卜', item: IT.radish, art: ['radish0', 'radish1'], n: 4 }, pumpkin: { name: '金瓜', item: IT.pumpkin, art: ['pumpkin0', 'pumpkin1'], n: 3 },
   };
   const PLOT = { plot1: 'rice', plot2: 'cabbage', plot3: 'radish', plot4: 'pumpkin' };
-  const SEEDS5 = ['cabbage', 'radish', 'pumpkin'];   // 园屋手浇菜畦能种的（有画的这三样）
+  const SEEDS = ['rice', 'cabbage', 'radish', 'pumpkin'];   // 作者 11-10：「不只是只种水稻之类的」——哪块田都能种这四样
+  // 土地（Codex「菜园土地选型」土质规则）：三种土，逐畦独立；每畦田头一道石闸，开闸放水、关闸存水
+  const QN = ['一般土壤', '优质土壤', '极品土壤'], QM = [1, 1.25, 1.5], QCOST = [0, 200, 600], WMAX = 3;
   const PL = {}; for (const p of M.plots) PL[p.id] = p;
-  const plotSt = id => { const d = D(); let s = d.plots[id]; if (!s) s = d.plots[id] = id === 'plot5' ? { st: 0, crop: null, wet: 0 } : { st: 4, crop: PLOT[id], wet: 0 }; return s; };
+  const SLU = id => !!PL[id] && PL[id].watering === 'sluice';
+  const plotSt = id => { const d = D(); let s = d.plots[id]; if (!s) s = d.plots[id] = id === 'plot5' ? { st: 0, crop: null, wet: 0 } : { st: 4, crop: PLOT[id], wet: 0 };
+    if (s.q == null) s.q = 0; if (SLU(id) && s.gate == null) { s.gate = 0; s.w = WMAX; }   // 老存档：闸关着、田里存满水
+    return s; };
   const cropOf = id => CROP[plotSt(id).crop || PLOT[id]];
+  const yieldOf = id => { const c = cropOf(id); return c ? Math.round(c.n * QM[plotSt(id).q || 0]) : 0; };
   const STN = ['空着', '刚下种', '冒芽了', '长起来了', '熟了'];
   window.R175G2_WET = () => { try { return !!plotSt('plot5').wet; } catch (e) { return false; } };
 
@@ -39,7 +45,10 @@
   const KEY = () => (F().qz_day || 1) + '_' + (F().qz_shi || '');
   function tick() {
     const d = D();
-    for (const id in PL) { const s = plotSt(id); if (s.st >= 1 && s.st < 4) { const wet = PL[id].watering === 'sluice' || s.wet; if (wet) s.st++; } s.wet = 0; }
+    for (const id in PL) { const s = plotSt(id), grow = s.st >= 1 && s.st < 4;
+      if (SLU(id)) { if (s.gate) s.w = WMAX;   // 闸开着：水一直流，苗泡着不长
+        else if (grow && s.w > 0) { s.st++; s.w--; } }   // 闸关着：存的水够，长一截、耗一份水
+      else { if (grow && s.wet) s.st++; s.wet = 0; } }
     for (const k in d.prod) d.prod[k] = 0; for (const k in d.tree) d.tree[k] = 0;
   }
   setInterval(() => { try { const f = F(); if (!f.g2 || !f.qz_shi) return; const d = D(), k = KEY(); if (d.tk == null) { d.tk = k; return; } if (d.tk !== k) { d.tk = k; tick(); } } catch (e) {} }, 1000);
@@ -58,6 +67,7 @@
   objOf('e_well').forEach(o => TG.push({ k: 'well', id: 'well', name: '石井', r: [o.x, o.y, o.w, o.h], stand: P5['石井'] || [2096, 1840], top: o.y }));
   objOf('e_seeds').forEach(o => TG.push({ k: 'seeds', id: 'seeds', name: '种子柜', r: [o.x, o.y, o.w, o.h], stand: P5['种子柜'] || [1936, 1680], top: o.y }));
   objOf('e_baskets').forEach(o => TG.push({ k: 'basket', id: 'basket', name: '竹篮', r: [o.x, o.y, o.w, o.h], stand: P5['竹篮'] || [1872, 1680], top: o.y }));
+  for (const t of TG) if (t.k === 'plot') Object.defineProperty(t, 'name', { get() { const st = plotSt(t.id), c = cropOf(t.id); return plotName(t.id) + ' · ' + QN[st.q || 0] + (st.st > 0 && c ? ' · ' + c.name : ''); } });
   const inRect = (x, y, r) => x >= r[0] && x <= r[0] + r[2] && y >= r[1] && y <= r[1] + r[3];
   const tgAt = (x, y) => { let best = null; for (const t of TG) if (inRect(x, y, t.r)) { const a = t.r[2] * t.r[3]; if (!best || a < best.a) best = { t, a }; } return best && best.t; };
 
@@ -66,9 +76,10 @@
   const treeReady = id => !D().tree[id];
   function optsOf(t) {
     if (t.k === 'plot') { const s = plotSt(t.id), c = cropOf(t.id);
+      if (SLU(t.id)) { const g = { k: 'gate', p: s.gate ? 'gate_close' : 'gate_open' };
+        return s.st >= 4 ? [{ k: 'harvest', p: 'harvest' }, g] : s.st === 0 ? [{ k: 'sow', p: 'sow' }, g] : [g]; }
       if (s.st >= 4) return [{ k: 'harvest', p: 'harvest' }];
       if (s.st === 0) return [{ k: 'sow', p: 'sow' }];
-      if (PL[t.id].watering === 'sluice') return [{ k: 'water', p: 'water', off: '有水渠自己浇着，歇一觉长一截' }];
       return [{ k: 'water', p: 'water', off: s.wet ? '今天浇透了，歇一觉长一截' : null }]; }
     if (t.k === 'tree') return [{ k: 'pick', p: 'pick', off: treeReady(t.id) ? null : '刚摘过，歇一觉再长' }];
     if (t.k === 'coop') return [{ k: 'collect', p: 'collect', off: ready('coop') ? null : '刚捡过，歇一觉再来' }];
@@ -78,13 +89,21 @@
     if (t.k === 'basket') return [{ k: 'book', p: 'collect' }];
     return [];
   }
-  const LAB = { sow: '播种', water: '浇水', water_row: '打水', draw_water: '打水', harvest: '采收', pick: '采摘', collect: '收产物' };
+  const LAB = { gate_open: '开闸', gate_close: '关闸', soil: '养土', sow: '播种', water: '浇水', water_row: '打水', draw_water: '打水', harvest: '采收', pick: '采摘', collect: '收产物' };
 
   // ---------- 干活 ----------
   const give = async (list, title) => { const items = list.filter(([, n]) => n > 0); for (const [id, n] of items) addItem(id, n);
     try { if (window.itemGet) await itemGet(items.map(([id, n]) => ({ icon: 'item:' + id, name: (ITEM_DB[id] && ITEM_DB[id].name) || id, count: '×' + n, desc: (ITEM_DB[id] && ITEM_DB[id].desc) || '' })), title); else toast(title, 1600); } catch (e) { toast(title, 1600); } };
-  async function pickSeed() {
-    const i = await choose('种子柜 · 手浇菜畦种什么', SEEDS5.map(k => CROP[k].name + '籽').concat(['先不种'])); if (i < 0 || i >= SEEDS5.length) return null; return SEEDS5[i]; }
+  async function pickSeed(nm) {
+    const i = await choose((nm || '手浇菜畦') + ' · 种什么', SEEDS.map(k => CROP[k].name + (k === 'rice' ? '秧' : '籽')).concat(['先不种'])); if (i < 0 || i >= SEEDS.length) return null; return SEEDS[i]; }
+  const plotName = id => id === 'plot5' ? '手浇菜畦' : ({ plot1: '西北畦', plot2: '东北畦', plot3: '西南畦', plot4: '东南畦' })[id];
+  async function soilUp(id) { const s = plotSt(id), q = s.q || 0;
+    if (q >= 2) { toast('这一畦已经是极品土壤了', 1600); return; }
+    const cost = QCOST[q + 1], i = await choose('养土 · ' + plotName(id) + '（现在：' + QN[q] + '）', ['花 ' + cost + ' 灵石，养成「' + QN[q + 1] + '」（收成 ×' + QM[q + 1] + '）', '先不养']);
+    if (i !== 0) return; if ((S.hero.gold || 0) < cost) { toast('灵石不够（要 ' + cost + '，身上 ' + (S.hero.gold || 0) + '）', 1800); snd('ui_cancel', .4); return; }
+    S.hero.gold -= cost; s.q = q + 1; snd('ui_confirm', .5);
+    await narrate(q === 0 ? '照松伯的方子，河泥、草木灰拌进土里翻了一遍——土色深了，攥一把松松软软。' : '又掺了碾碎的灵石粉。土黑里透紫，细看有一点一点的矿粒在闪。');
+    toast(plotName(id) + '养成了' + QN[s.q] + '，往后收成 ×' + QM[s.q], 2200); }
   async function doAct(t, o, remote) {
     const d = D();
     if (o.k === 'book') { openBook(); return; }
@@ -92,10 +111,14 @@
       const c = await pickSeed(); if (!c) return; s.crop = c; s.st = 1; snd('ui_confirm', .5); toast('园屋后头的菜畦种上了' + CROP[c].name + '——记得打水来浇', 2200); return; }
     if (o.k === 'well') { d.pail = 1; snd('sfx_water', .5); toast('打了一桶井水，去浇手浇菜畦吧', 1800); return; }
     if (t.k === 'plot') { const s = plotSt(t.id);
-      if (o.k === 'sow') { if (t.id === 'plot5') { const c = await pickSeed(); if (!c) return; s.crop = c; } else s.crop = PLOT[t.id]; s.st = 1; s.wet = 0; snd('ui_confirm', .5);
-        toast(t.name + '种上了' + cropOf(t.id).name + (PL[t.id].watering === 'sluice' ? '，渠水会自己浇' : '，记得打水来浇'), 2000); return; }
+      if (o.k === 'soil') { await soilUp(t.id); return; }
+      if (o.k === 'gate') { s.gate = s.gate ? 0 : 1; snd('sfx_water', .5);
+        if (s.gate) { s.w = WMAX; toast('提起石闸，渠水哗哗流进' + plotName(t.id) + '——水满了记得关闸，关了闸苗才长', 2600); }
+        else toast(s.w > 0 ? '落了闸，田里存着水' + (s.st >= 1 && s.st < 4 ? '，歇一觉长一截' : '') : '落了闸。田里是干的，要先开闸放水', 2200); return; }
+      if (o.k === 'sow') { const c = await pickSeed(plotName(t.id)); if (!c) return; s.crop = c; s.st = 1; s.wet = 0; snd('ui_confirm', .5);
+        toast(plotName(t.id) + '种上了' + CROP[c].name + (SLU(t.id) ? (s.gate ? '——闸还开着，关了闸才长' : s.w > 0 ? '，田里存着水，歇一觉长一截' : '——田是干的，先开闸放水') : '，记得打水来浇'), 2400); return; }
       if (o.k === 'water') { if (!remote && !d.pail) { toast('桶是空的——先去园屋院里的石井打水', 1800); return; } d.pail = 0; s.wet = 1; snd('sfx_water', .5); toast('浇透了，歇一觉就长一截', 1600); return; }
-      if (o.k === 'harvest') { if (s.st < 4) return; const c = cropOf(t.id); s.st = 0; s.wet = 0; snd('ui_confirm', .5); await give([[c.item, c.n]], t.name + ' · 收成'); return; } }
+      if (o.k === 'harvest') { if (s.st < 4) return; const c = cropOf(t.id), n = yieldOf(t.id); s.st = 0; s.wet = 0; snd('ui_confirm', .5); await give([[c.item, n]], plotName(t.id) + ' · 收成' + (s.q ? '（' + QN[s.q] + ' ×' + QM[s.q] + '）' : '')); return; } }
     if (t.k === 'tree') { if (!treeReady(t.id)) return; d.tree[t.id] = 1; snd('ui_confirm', .5); await give([[IT[t.fruit], t.fruit === 'grape' ? 3 : 2]], t.name + ' · 采摘'); return; }
     if (t.k === 'coop') { if (!ready('coop')) return; d.prod.coop = 1; await give([[ING('鸡蛋'), 3]], '鸡舍 · 捡蛋'); return; }
     if (t.k === 'duck') { if (!ready('duck')) return; d.prod.duck = 1; await give([[IT.duck_egg, 2], [IT.goose_egg, 1]], '鸭棚 · 捡蛋'); return; }
@@ -123,15 +146,15 @@
   const inR = (q, r) => q && r && q.x >= r.x && q.x <= r.x + r.w && q.y >= r.y && q.y <= r.y + r.h;
   const UI = (k, x, y, w, h) => !!(window.R175G_UI && R175G_UI(k, x, y, w, h));
   // 作者 11-10 跑 bug：石井的竹牌借的是「浇这一畦」那块图，字不对 → 用「浇水」竹牌的底子盖掉字，重写「打水」
-  const DW = {}; { const src = (window.R162_ASSETS && R162_ASSETS['r175g/bui_0.webp']) || 'r175g/bui_0.webp', im = new Image();
-    im.onload = () => { for (const [st, r] of [['normal', [0, 830]], ['disabled', null]]) { const c = document.createElement('canvas'); c.width = 234; c.height = 84; const x = c.getContext('2d');
-      x.drawImage(im, 0, 830, 234, 84, 0, 0, 234, 84);
+  const DW = {}; let dwT = 0; const loadDW = () => { dwT = performance.now(); const src = (window.R162_ASSETS && R162_ASSETS['r175g/bui_0.webp']) || 'r175g/bui_0.webp', im = new Image(); loadDW.im = im;   /* 留住引用，别在加载完之前被回收 */
+    im.onload = () => { try { for (const [key, txt, bx, by] of [['draw_water', '打水', 0, 830], ['gate_open', '开闸', 0, 830], ['gate_close', '关闸', 0, 830], ['soil', '养土', 1310, 728]]) for (const st of ['normal', 'disabled']) { const c = document.createElement('canvas'); c.width = 234; c.height = 84; const x = c.getContext('2d');
+      x.drawImage(im, bx, by, 234, 84, 0, 0, 234, 84);
       const g = x.createLinearGradient(0, 22, 0, 66); g.addColorStop(0, '#efe2c0'); g.addColorStop(1, '#e6d4ac'); x.fillStyle = g; x.fillRect(74, 24, 140, 40);
-      x.font = `700 34px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#3a2612'; x.fillText('打水', 146, 45);
+      x.font = `700 34px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#3a2612'; x.fillText(txt, 146, 45);
       if (st === 'disabled') { x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(200,196,188,.55)'; x.fillRect(0, 0, 234, 84); }
-      DW[st] = c; }
-      { const [, x0, y0, w0, h0] = [0, 388, 258, 160, 160], c = document.createElement('canvas'); c.width = w0; c.height = h0; c.getContext('2d').drawImage(im, x0, y0, w0, h0, 0, 0, w0, h0); IMG.r175g2_book_icon = c; } };   /* 园簿的「获得物品」图标：用右下角园簿按钮那张卷册图 */ im.src = src; }
-  const UI2 = (k, x, y, w, h) => { const m = /^plaque_draw_water_(\w+)$/.exec(k); if (m) { const c = DW[m[1] === 'disabled' ? 'disabled' : 'normal']; if (!c) return false; ctx.drawImage(c, x, y, w, h); return true; } return UI(k, x, y, w, h); };
+      DW[key + '_' + st] = c; }
+      { const [, x0, y0, w0, h0] = [0, 388, 258, 160, 160], c = document.createElement('canvas'); c.width = w0; c.height = h0; c.getContext('2d').drawImage(im, x0, y0, w0, h0, 0, 0, w0, h0); IMG.r175g2_book_icon = c; } } catch (er) { window.__DWERR = String(er && er.stack || er); } };   /* 园簿的「获得物品」图标：用右下角园簿按钮那张卷册图 */ im.src = src; }; loadDW();
+  const UI2 = (k, x, y, w, h) => { const m = /^plaque_(draw_water|gate_open|gate_close|soil)_(\w+)$/.exec(k); if (m) { const c = DW[m[1] + '_' + (m[2] === 'disabled' ? 'disabled' : 'normal')]; if (!c) { if (performance.now() - dwT > 4000) loadDW(); return false; } ctx.drawImage(c, x, y, w, h); return true; } return UI(k, x, y, w, h); };
 
   // ---------- 园簿 ----------
   const BK = { on: false, tab: 0, t0: 0 };
@@ -144,8 +167,12 @@
   function rows() {
     if (BK.tab === 0) return M.plots.map(p => { const s = plotSt(p.id), c = cropOf(p.id), t = TG.find(x => x.k === 'plot' && x.id === p.id);
       const st = s.st === 0 ? (p.id === 'plot5' ? '翻好了土，等着下种' : '收完了，空着') : (c ? c.name + ' · ' + STN[s.st] : STN[s.st]);
-      const wet = s.st >= 1 && s.st < 4 ? (p.watering === 'sluice' ? '渠水自己浇' : s.wet ? '今天浇透了' : '要打井水来浇') : '';
-      return { t, icon: c ? c.item : null, name: p.id === 'plot5' ? '园屋手浇菜畦' : (p.name || '') + '田', st, sub: wet, opts: optsOf(t) }; });
+      const grow = s.st >= 1 && s.st < 4;
+      const wet = SLU(p.id) ? (s.gate ? '闸开着 · 水在流' + (grow ? '，苗泡着不长，该关闸了' : '') : s.w > 0 ? '闸关着 · 存的水够长 ' + s.w + ' 截' : '闸关着 · 田干了' + (grow ? '，要开闸放水' : '')) : grow ? (s.wet ? '今天浇透了' : '要打井水来浇') : '没有水渠，打井水浇';
+      const o = optsOf(t), main = o.find(x => x.k !== 'gate') || null, ex = [];
+      if (SLU(p.id)) ex.push({ k: 'gate', p: s.gate ? 'gate_close' : 'gate_open' });
+      ex.push({ k: 'soil', p: 'soil', off: s.q >= 2 ? '已经是极品土壤了' : null });
+      return { t, icon: c && s.st > 0 ? c.item : null, name: plotName(p.id), q: s.q, st, sub: wet, opts: [main], ex }; });
     if (BK.tab === 1) return TG.filter(t => t.k === 'coop' || t.k === 'duck').map(t => ({ t, icon: t.k === 'coop' ? ING('鸡蛋') : IT.duck_egg, name: t.k === 'coop' ? '鸡院 · 鸡舍' : '河岸 · 鸭棚',
       st: (t.k === 'coop' ? ready('coop') : ready('duck')) ? (t.k === 'coop' ? '鸡舍里有新下的蛋' : '稻草里有鸭蛋、鹅蛋') : '刚捡过', sub: '每歇一次下一回蛋', opts: optsOf(t) }));
     const seen = {}; return TG.filter(t => t.k === 'tree').map((t, i) => { seen[t.name] = (seen[t.name] || 0) + 1; return { t, icon: IT[t.fruit], name: t.name + (TG.filter(x => x.name === t.name).length > 1 ? ' ' + '一二三'[seen[t.name] - 1] : ''),
@@ -170,14 +197,20 @@
     { const r = { x: P.x + P.w - 46, y: P.y - 14, w: 44, h: 44 }; ctx.fillStyle = '#6b4a22'; ctx.beginPath(); ctx.arc(r.x + 22, r.y + 22, 20, 0, 7); ctx.fill(); ctx.strokeStyle = '#f6ecd2'; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(r.x + 14, r.y + 14); ctx.lineTo(r.x + 30, r.y + 30); ctx.moveTo(r.x + 30, r.y + 14); ctx.lineTo(r.x + 14, r.y + 30); ctx.stroke(); BKR.push({ r, close: 1 }); }
     // 条目（两列）
-    const L = rows(), cols = 2, cw = (P.w - 72) / cols, rh = 86, y0 = P.y + 78;
+    const L = rows(), cols = 2, cw = (P.w - 72) / cols, rh = BK.tab === 0 ? 132 : 86, y0 = P.y + 78;
     L.forEach((it, i) => { const cx = P.x + 28 + (i % cols) * (cw + 16), cy = y0 + Math.floor(i / cols) * (rh + 10); if (cy + rh > P.y + P.h - 14) return;
       ctx.fillStyle = 'rgba(255,250,236,.75)'; roundRect(cx, cy, cw, rh, 10); ctx.fill(); ctx.strokeStyle = 'rgba(150,110,50,.45)'; ctx.lineWidth = 1.5; roundRect(cx, cy, cw, rh, 10); ctx.stroke();
       if (it.icon && typeof itemIcon === 'function') try { itemIcon(it.icon, cx + 40, cy + rh / 2, 24); } catch (e) {}
       ctx.textAlign = 'left'; ctx.fillStyle = '#4a2f12'; ctx.font = `700 19px ${FONT}`; ctx.fillText(it.name, cx + 78, cy + 30);
+      if (it.q != null) { const nx = cx + 78 + ctx.measureText(it.name).width + 10, col = ['#b8925a', '#8a4f2a', '#5a3560'][it.q]; ctx.font = `600 13px ${FONT}`; const tw = ctx.measureText(QN[it.q]).width + 16;   // 土质牌
+        ctx.fillStyle = col; roundRect(nx, cy + 13, tw, 22, 11); ctx.fill(); ctx.fillStyle = '#fff4da'; ctx.fillText(QN[it.q], nx + 8, cy + 29);
+        ctx.fillStyle = '#8f7346'; ctx.fillText('收成 ×' + QM[it.q], nx + tw + 8, cy + 29); }
       ctx.fillStyle = '#6a4a22'; ctx.font = `500 16px ${FONT}`; ctx.fillText(it.st, cx + 78, cy + 54); if (it.sub) { ctx.fillStyle = '#8f7346'; ctx.font = `500 13px ${FONT}`; ctx.fillText(it.sub, cx + 78, cy + 74); }
+      if (it.ex) it.ex.forEach((o, j) => { const r = { x: cx + 78 + j * 128, y: cy + rh - 48, w: 118, h: 42 }, stt = o.off ? 'disabled' : 'normal';
+        if (!UI2('plaque_' + o.p + '_' + stt, r.x, r.y, r.w, r.h)) { ctx.fillStyle = o.off ? '#d8d0bd' : '#e9cf8e'; roundRect(r.x, r.y, r.w, r.h, 10); ctx.fill(); ctx.fillStyle = '#3e2810'; ctx.font = `700 17px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(LAB[o.p] || '', r.x + r.w / 2, r.y + 28); ctx.textAlign = 'left'; }
+        BKR.push({ r, it, o }); });
       const o = it.opts[0]; if (!o || o.k === 'book') return;
-      const r = { x: cx + cw - 146, y: cy + (rh - 50) / 2, w: 136, h: 50 }, stt = o.off ? 'disabled' : 'normal';
+      const r = { x: cx + cw - 146, y: cy + (it.ex ? 12 : (rh - 50) / 2), w: 136, h: 50 }, stt = o.off ? 'disabled' : 'normal';
       if (!UI2('plaque_' + o.p + '_' + stt, r.x, r.y, r.w, r.h)) { ctx.fillStyle = o.off ? '#d8d0bd' : '#e9cf8e'; roundRect(r.x, r.y, r.w, r.h, 10); ctx.fill(); ctx.fillStyle = '#3e2810'; ctx.font = `700 19px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(LAB[o.p] || '', r.x + r.w / 2, r.y + 32); }
       BKR.push({ r, it, o }); });
     ctx.restore();
@@ -229,12 +262,27 @@
 
   // ---------- 作物按长势画（种子 / 冒芽 / 长起来 / 熟了）----------
   const SCALE = [0, 0, .42, .7, 1];
+  const SIGNP = { r175g2_sign_rice: 'plot1', r175g2_sign_bok: 'plot2', r175g2_sign_radish: 'plot3', r175g2_sign_pumpkin: 'plot4' }, SIGNA = { rice: 'rice', cabbage: 'bok', radish: 'radish', pumpkin: 'pumpkin' };
+  // 进水口：闸开着才出水；灵米田的水纹只在田里有水时画
+  window.R175G2_FLAT = e => { try { const m = /^inlet_(\d)$/.exec(e.a); if (m) return !!plotSt('plot' + m[1]).gate; if (e.a === 'paddy_ripple') { const s = plotSt('plot1'); return !!(s.gate || s.w > 0); } } catch (er) {} return true; };
+  // 土色：优质栗褐、极品深紫褐带矿粒；田里存着水土色再深一点
+  const inPoly = (x, y, P) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const ORE = {}; for (const p of M.plots) { const [x, y, w, h] = p.rect, L = []; let sd = p.id.charCodeAt(4) * 7919; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 400 && L.length < 46; i++) { const px = x + rnd() * w, py = y + rnd() * h; if (inPoly(px, py, p.poly) && inPoly(px - 8, py, p.poly) && inPoly(px + 8, py, p.poly) && inPoly(px, py - 8, p.poly) && inPoly(px, py + 8, p.poly)) L.push([px, py, rnd() * 6.28]); } ORE[p.id] = L; }
+  window.R175G2_SOIL = g => { const t = now();
+    for (const p of M.plots) { const s = plotSt(p.id), wet = SLU(p.id) && (s.gate || s.w > 0) && p.id !== 'plot1'; if (!s.q && !wet) continue;
+      g.save(); g.beginPath(); p.poly.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); g.clip(); const [x, y, w, h] = p.rect;
+      g.globalCompositeOperation = 'multiply'; if (wet) { g.fillStyle = 'rgb(222,212,204)'; g.fillRect(x, y, w, h); }
+      if (s.q === 1) { g.fillStyle = 'rgb(214,170,142)'; g.fillRect(x, y, w, h); } else if (s.q === 2) { g.fillStyle = 'rgb(158,124,156)'; g.fillRect(x, y, w, h); }
+      g.globalCompositeOperation = 'source-over';
+      if (s.q === 2) for (const [px, py, ph] of ORE[p.id]) { const a = .35 + .45 * (.5 + .5 * Math.sin(t * 1.6 + ph)); g.fillStyle = 'rgba(214,196,255,' + a.toFixed(2) + ')'; g.fillRect(px - 1, py - 1, 3, 3); g.fillStyle = 'rgba(255,255,255,' + (a * .8).toFixed(2) + ')'; g.fillRect(px, py, 1, 1); }
+      g.restore(); } };
   drawBaked = (o => function (ob) {
     const e = ob && (ob.r175g2e || ob.r175g2c);
-    if (e && e.plot && world.mapName === ID) { const s = plotSt(e.plot), k = SCALE[s.st] || 0; if (!k) return;
-      if (k === 1 && !ob.r175g2c) return o.apply(this, arguments);
-      const im = IMG[ob.img]; if (!im) return; const fx = e.fx, fy = ob.sy, lx = fx - ob.x, ly = fy - ob.y;
-      ctx.drawImage(im, fx - lx * k, fy - ly * k, ob.w * k, ob.h * k); return; }
+    if (e && e.plot && world.mapName === ID) { const s = plotSt(e.plot), k = SCALE[s.st] || 0, c = cropOf(e.plot); if (!k || !c) return;
+      const a = c.art[/1$/.test(ob.img) ? 1 : 0], im = IMG['r175g2_' + a], ft = (M.foots || {})[a]; if (!im || !ft) return;   // 这一畦现在种的是什么就画什么
+      ctx.drawImage(im, e.fx - ft[0] * k, ob.sy - ft[1] * k, im.width * k, im.height * k); return; }
+    if (ob && SIGNP[ob.img] && world.mapName === ID) { const s = plotSt(SIGNP[ob.img]), im = IMG['r175g2_sign_' + SIGNA[s.crop || PLOT[SIGNP[ob.img]]]]; if (im) { ctx.drawImage(im, ob.x, ob.y); return; } }   // 田头竹牌跟着换
     return o.apply(this, arguments); })(drawBaked);
   // 手浇菜畦的作物（原图上是空畦，按选的种子摆上去）
   const P5P = (PL.plot5 && PL.plot5.plants) || [];
@@ -253,6 +301,7 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const statusLine = () => { const out = [];
     const ripe = M.plots.filter(p => plotSt(p.id).st >= 4).map(p => cropOf(p.id).name); if (ripe.length) out.push([...new Set(ripe)].join('、') + '熟了，可以收了');
+    for (const p of M.plots) if (SLU(p.id)) { const s = plotSt(p.id), grow = s.st >= 1 && s.st < 4; if (grow && s.gate) out.push(plotName(p.id) + '的闸还开着，苗泡着不长，该关了'); else if (grow && !(s.w > 0)) out.push(plotName(p.id) + '干了，要开闸放水'); }
     const dry = plotSt('plot5'); if (dry.st >= 1 && dry.st < 4 && !dry.wet) out.push('园屋后头那块菜畦该浇水了'); if (dry.st === 0) out.push('园屋后头那块菜畦空着，种子柜里有籽');
     if (ready('coop')) out.push('鸡舍里有蛋'); if (ready('duck')) out.push('鸭棚里有蛋');
     const tr = TG.filter(t => t.k === 'tree' && treeReady(t.id)).length; if (tr) out.push('果林里有 ' + tr + ' 棵树挂着果子');
@@ -281,7 +330,7 @@
     cond: () => !D().intro, talk: () => intro() };
   N.push(guide);
   const TOUR = [
-    [[1780, 640], '这四块田挨着水渠。水车把河水一斗一斗舀上来，顺着渠流进田里——灵米、青菜、萝卜、金瓜，不用浇也长。'],
+    [[1780, 640], '这四畦田挨着水渠，每畦田头有一道石闸。提闸放水，水满了落闸存着，苗才长——种什么少爷自己挑，灵米、青菜、萝卜、金瓜，哪一畦都能种。'],
     [[1290, 230], '那架木水车是松伯年轻时候装的，傍晚他常过来看看水走得匀不匀。'],
     [[480, 1760], '河那边是鸡院。阿福每天一早去喂鸡、捡蛋，那只大公鸡可凶了，少爷当心。'],
     [[1380, 1860], '鸭子和鹅住在河边那间小棚里，蛋就下在棚底的稻草上。'],
@@ -301,6 +350,7 @@
       for (const [pt, line] of TOUR) { world.camFocus = pt; await new Promise(r => setTimeout(r, 900)); await say('侍女小桃', line); }
       world.camFocus = null; await new Promise(r => setTimeout(r, 600));
       await say('侍女小桃·得意', '少爷记不住也没关系——小桃都写在这本《园簿》上了。哪块地熟了、鸡舍有没有蛋，翻一翻就知道。');
+      await say('侍女小桃', '对了，土也分三等：一般的、优质的、极品的。土养得越好，一畦收得越多——养土也在园簿里。');
       const d = D(); d.intro = 1; d.book = 1; d.bookNew = 1;
       try { if (window.itemGet) await itemGet([{ icon: IMG.r175g2_book_icon ? 'r175g2_book_icon' : 'gold', name: '园簿', count: '×1', desc: '小桃手抄的菜园簿子。在菜园里点右下角的「园簿」，田地、禽院、果树一处就能管。' }], '获得'); } catch (e) {}
       await say('侍女小桃·笑', '平日里园子里都有人：早上阿福喂鸡，晌午小桃来浇菜，傍晚松伯看水车。入了夜，青禾姐、阿福和小桃轮着在园屋值夜。少爷有事就喊我们！');
@@ -310,7 +360,7 @@
   // 进门自动开始
   setInterval(() => { try { if (!here() || D().intro || introBusy || world.locked || busy()) return; if (window.MAP_READY && !MAP_READY()) return; const a = (world.actors || []).find(x => x.npc && x.npc.g2guide); if (a) intro(); } catch (e) {} }, 800);
   // 打开过一次园簿，按钮就不再闪
-  { const ob = openBook; openBook = function () { D().bookNew = 0; return ob.apply(this, arguments); }; }
+  { const ob = openBook; openBook = function () { const d = D(); d.bookNew = 0; if (!d.landTip) { d.landTip = 1; setTimeout(() => { try { toast('田地新规矩：每畦能开闸 / 关闸、能养土，四样种子哪一畦都能种', 3600); } catch (e) {} }, 400); } return ob.apply(this, arguments); }; }
 
-  window.R175G2F = { D, plotSt, tick, TG, optsOf, doAct, openBook, intro, ROT, PQ, tgAt, toW };
+  window.R175G2F = { DW, D, plotSt, tick, TG, optsOf, doAct, openBook, intro, ROT, PQ, tgAt, toW };
 })();
