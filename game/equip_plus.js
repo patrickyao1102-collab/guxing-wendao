@@ -67,6 +67,11 @@
     if (!(h && h.type === 'npc' && h.a && h.a.npc && SMITHS.has(h.a.npc.name))) return orig.apply(this, arguments);
     const n = h.a.npc; world.locked = true;
     try {
+      // 11-10 跑 bug：铁匠这层直接弹「看看兵器 / 强化装备」，绕过了 NPC 原本的对话——王铁匠头顶的蓝「!」支线（狼牙）永远接不了、也交不了。
+      //   有支线可接 / 可交时先走支线对话（和其它 NPC 一样支线优先），否则照旧问买还是强化
+      try { const SQ = window.SQ_DEFS || [], st = window.SQ_STATE ? SQ_STATE() : [];
+        const q = SQ.find(q => q.giver && q.giver[1] === n.name && (() => { const s = st.find(x => x.id === q.id); return s && s.s !== 3 && ((s.s === 0 && (!q.cond || q.cond())) || s.s === 2 || (s.s === 1 && s.p >= s.n)); })());
+        if (q && n._sq) { for (const f of n._sq) if (await f()) return; } } catch (e) { console.warn('smith sq', e); }
       const opts = n.shop ? ['看看兵器', '强化装备', '离开'] : ['强化装备', '离开'];
       const c = await choose(n.name, opts); const pick = opts[c];
       if (pick === '强化装备') { await say(n.name, n.name === '铸剑师' ? '剑要常磨。把家伙拿来，我给你淬一淬。' : '要强化？拿来我看看。'); await refineUI(n.name); }
