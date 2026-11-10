@@ -1354,6 +1354,19 @@ function equipItem(id) {
   h.bag[id]--; if (!h.bag[id]) delete h.bag[id];
   h.equip[it.slot] = id; applyItemStats(id, 1); playSnd('ui_confirm');
 }
+// 作者 11-10：「得到星痕剑的时候为什么没有得到星痕剑的提升」→ 兑换后直接装上（旧剑收进行囊），用宝物解锁大框写清楚加成，星旋再提一句九曜剑典
+async function XH_GAIN() {
+  const h = S.hero, it = ITEM_DB.w_xinghen || {};
+  addItem('w_xinghen');
+  // 先宝物解锁大框（剑的大图 + 加成说明），关了再装上——装上那一下弹 R119 换装面板，攻击「旧 → 新」一目了然
+  const lines = ['叶孤星专属 · 专为九曜剑典打造　攻击 ' + (it.atk || 28) + ' · 佩剑加成 +12', '九曜剑典剑招（破军 / 贪狼）威力 +30%', '贪狼剑意每战可用 2 次，用完不再虚脱'];
+  if (window.R134_UNLOCK) await R134_UNLOCK({ item: 'w_xinghen', kicker: '玉佩兑换 · 极品灵器', title: '星痕剑', lines });
+  else await showPanel('兑换成功', ['!星痕剑 · 极品灵器', ...lines]);
+  try { if (IMG.eqp_hero || true) equipItem('w_xinghen'); } catch (e) {}
+  for (let i = 0; i < 600 && typeof sysPanel !== 'undefined' && sysPanel; i++) await new Promise(r => setTimeout(r, 50));   // 等换装面板点掉
+  await say('星旋', '这把剑是照着九曜剑典铸的——破军、贪狼这些九曜剑招，握着它能再强三成。贪狼也不会再把你抽干了。');
+}
+window.XH_GAIN = XH_GAIN;
 function addItem(id, n = 1) { const h = S.hero; if (id === 'p_small') { h.potions = (h.potions || 0) + n; return; } h.bag[id] = (h.bag[id] || 0) + n; }
 function itemCount(id) { return id === 'p_small' ? (S.hero.potions || 0) : (S.hero.bag[id] || 0); }
 
@@ -3623,7 +3636,7 @@ async function part4() { // 贪狼破军：连升三级 + 教学战 + 兑换
   await showPanel('任务完成', ['突破练气七重 +20', '突破练气八重 +30', '突破练气九重 +50', '凝聚破军剑意 +50', '凝聚贪狼剑意 +80', '!当前星辰点：' + S.hero.points]);
   await say('叶孤星·大笑', '发财了！快打开兑换列表！');
   await choose('玉佩 · 兑换', ['星痕剑（150点）· 攻击大增，贪狼每战可用两次']);   // 作者 11-03：剧情这里只能换剑
-  { S.hero.points -= 150; addItem('w_xinghen'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次', '已放入背包——打开背包换上它']); await say('叶孤星', '不愧是专为九曜剑典打造的剑！'); }
+  { S.hero.points -= 150; await XH_GAIN(); await say('叶孤星', '不愧是专为九曜剑典打造的剑！'); }
   await caption('三日后', 1500);
   await fadeOut(500);
   await part5();
@@ -7553,7 +7566,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await showPanel('任务完成', ['突破练气七重 +20', '突破练气八重 +30', '突破练气九重 +50', '凝聚破军剑意 +50', '凝聚贪狼剑意 +80', '!当前星辰点：' + S.hero.points]);
     await say('叶孤星·大笑', '230 点！发财了！快快快，打开兑换列表！');
     await choose('玉佩 · 兑换', ['星痕剑（150点）· 专为九曜剑典打造，贪狼不再虚脱']);   // 作者 11-03：剧情这里只能换剑
-    { S.hero.points -= 150; addItem('w_xinghen'); playSnd('ui_confirm'); await showPanel('兑换成功', ['!星痕剑 · 极品灵器', '攻击 +12，贪狼剑意每战可用 2 次', '已放入背包——打开背包换上它']); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
+    { S.hero.points -= 150; playSnd('ui_confirm'); await XH_GAIN(); await say('叶孤星', '剑身上星光流动……就像是我身体的一部分。'); }
     RES_TOD('dawn'); await narrate('不知不觉，东边的天空泛起了鱼肚白。');
     await say('叶孤星', '折腾了一整夜……回屋睡会儿。');
     await fadeOut(600); S.flags.res_trained = 1; S.quest = '';
