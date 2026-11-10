@@ -25,7 +25,7 @@
   const ALLEY = { lx: 3050, ly: 2425 };
   async function linxueNight() {
     if (window.SET_TOD) SET_TOD('night');
-    await go('cy_gate', 2700, 2440, 'right'); world.actors = world.actors.filter(a => a !== P());
+    await go('cy_gate', 2700, 2440, 'right');
     const hide = P().alpha; P().alpha = 0; (world.followers || []).forEach(f => f.alpha = 0);
     cam(ALLEY.lx, ALLEY.ly - 60);
     const lx = addActor('w_linxue', 2780, ALLEY.ly, '林雪', '#bff0ff'); lx.face = 'right';
