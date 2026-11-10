@@ -3704,6 +3704,7 @@ async function part6() { // 钩子
   if (q) { S.hero.skills = q >= 4 ? ['pojun', 'tanlang'] : []; if (q >= 5) { S.hero.realm = '练气九重'; S.hero.maxhp = 310; S.hero.hp = 310; S.hero.maxmp = 105; S.hero.mp = 105; S.hero.atk = 35; S.hero.sword = true; }
     S.fade = 1; ({ 2: part2, 3: part3, 4: part4, 5: part5, 6: part6 })[q]?.(); if (q == 2) { setMap('houshan', 640, 600); } return; }
   await titleScreen();
+  S.started = true;   // 11-10 跑 bug：「初入仙途」从来没把这一局标成开始了——存档一直说「剧情里不能存档」、自动存档不写、画质自动调档不工作，只有读档进来的才正常
   await part1();
 })();
 
