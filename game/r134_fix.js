@@ -165,7 +165,7 @@
   // ---- 第 20 条：天剑宗夜幕突然就来了 ----
   // 出发前夜（服凝元丹）设成了夜晚却没改回来，第二天清晨山门送别、下山的林子都还是黑夜。到了演武广场山门就恢复白天。
   tileSetMap = (orig => function (name) { const f = F();
-    if (f.ch2_depart && !f.r134_dawn && name !== 'tj_room' && f.res_tod === 'night' && !(f.qz_shi && /^qingzhu_/.test(name))) { f.r134_dawn = 1; try { RES_TOD(''); } catch (e) { f.res_tod = ''; } }
+    if (f.ch2_depart && !f.r134_dawn && name !== 'tj_room' && f.res_tod === 'night' && !(f.qz_shi && (/^qingzhu_/.test(name) || (window.QZ_CLOCK && QZ_CLOCK.zone(name))))) { f.r134_dawn = 1; try { RES_TOD(''); } catch (e) { f.res_tod = ''; } }
     return orig.apply(this, arguments); })(tileSetMap);
 
   // ---- 第 7 条：进新地图之前先问一声「是否进入 ××」，带地图名和图标 ----

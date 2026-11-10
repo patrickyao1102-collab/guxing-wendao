@@ -13,6 +13,7 @@
   const F = () => (S.flags = S.flags || {});
   const now = () => performance.now() / 1000;
   const QZ = m => /^qingzhu_|^tj_room$/.test(m || '');
+  const TJZ = m => /^qingzhu_/.test(m || '') || /^tj_(shanmen|yunjie|front|market|hall|library|scripture|forbidden|houshan|room|plaza)$/.test(m || '');   // 天剑宗：天剑山门往里（下山的松风林道不算）
   const night = () => { try { return window.TOD ? TOD() === 'night' : false; } catch (e) { return false; } };
   const pick = l => l[Math.floor(Math.random() * l.length)];
   const URL = n => (window.R162_ASSETS && R162_ASSETS[n]) || ('r162/' + n);
@@ -39,8 +40,8 @@
   // 别的剧情自己改时辰 → 五时辰让位
   let inner = false;
   const setTod = v => { inner = true; try { SET_TOD(v); } finally { inner = false; } };
-  { const s0 = window.SET_TOD; if (s0) window.SET_TOD = function (v) { if (!inner && F().qz_shi) F().qz_shi = ''; return s0.apply(this, arguments); }; }
-  { const r0 = window.RES_TOD; if (r0) window.RES_TOD = function (v) { if (!inner && F().qz_shi) F().qz_shi = ''; return r0.apply(this, arguments); }; }
+  { const s0 = window.SET_TOD; if (s0) window.SET_TOD = function (v) { if (!inner && F().qz_shi) F().qz_shi = ''; if (!inner && F().clk) { if (!v) F().clk.shi = '午'; F().clk.t = 0; } return s0.apply(this, arguments); }; }   /* 剧情把时辰放回白天：时钟从午时重新数 */
+  { const r0 = window.RES_TOD; if (r0) window.RES_TOD = function (v) { if (!inner && F().qz_shi) F().qz_shi = ''; if (!inner && F().clk) { if (!v) F().clk.shi = v === '' ? '午' : F().clk.shi; F().clk.t = 0; } return r0.apply(this, arguments); }; }
 
   // ---------- 画图小工具 ----------
   const SC = .47, CATSC = .5;
@@ -1485,7 +1486,8 @@
   // ---------- 进图 / 出青竹 ----------
   tileSetMap = (orig => function (name) {
     const prev = world.mapName;
-    if (F().qz_shi && !QZ(name)) { F().qz_shi = ''; setTod(''); }   // 走出青竹：回到白天
+    if (F().qz_shi && !TJZ(name)) { F().qz_shi = ''; setTod(''); }   // 作者 11-10：时辰覆盖整个天剑宗（从天剑山门进来）；走出山门才回到白天
+    else if (!F().qz_shi && TJZ(name) && !TJZ(prev) && CLOCK_OK()) { const C = F().clk; if (C && C.shi) { F().qz_shi = C.shi; setTod(C.shi === '戌' || C.shi === '子' ? 'night' : ''); } }   // 从山门外回来：接着外出前的时辰
     const r = orig.apply(this, arguments);
     try {
       if (ON() && QZ(name)) { preload(); if (world.actors) world.actors.push(...propsFor(name, shi())); }
@@ -1575,13 +1577,14 @@
     return async () => { await new Promise(r => setTimeout(r, 1000)); const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); };
   }
   // 换时辰：和过图一样走一遍载入画面（青竹专属插画 + 进度条），这个时辰要用的人物动作、光影都下好了才露出画面
-  async function restTo(s) {
-    const f = F(), p = world.player; world.locked = true; S.hud = false;
+  async function restTo(s, auto) {   // auto：时辰自己走到这儿（不是在床上歇的）——不回血、不弹「回满了」，换场用窗纸流光不走载入页
+    const f = F(), p = world.player; world.locked = true; S.hud = false; let fadeEnd = null;
     try {
-      if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
+      if (auto) fadeEnd = await restFade(); else if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
       const old = SHI.indexOf(f.qz_shi || '午'); if (SHI.indexOf(s) <= old) newDay(); if (!f.qz_mood) { f.qz_mood = {}; for (const k of PEOPLE) f.qz_mood[k] = pick(MOODS); }
       f.qz_shi = s; setTod(s === '戌' || s === '子' ? 'night' : ''); LOST = null; schedule(true);
-      healAll(false);
+      if (!auto) healAll(false);
+      try { const C = F().clk; if (C) { C.shi = s; C.t = 0; } } catch (e) {}   // 床上歇过：时钟从这个时辰重新数
       DAY.basin = 0; DAY.noodles = 0; DAY.lit = {}; f.qz_awake = '';
       if (s === '戌') { const all = ['maid1', 'maid2', 'servant', 'steward'], fresh = all.filter(k => OUT[k].ev && !seen(OUT[k].ev)); f.qz_out = pick(fresh.length && Math.random() < .8 ? fresh : all); }
       if (s === '子') f.qz_letter = !seen(10) ? (Math.random() < .7 ? 1 : 0) : (Math.random() < .3 ? 1 : 0);
@@ -1590,8 +1593,8 @@
       tileSetMap(world.mapName, p.x / 64 - .5, p.y / 64 - .8, p.face || 'down');
       await new Promise(r => setTimeout(r, 400));
       for (let i = 0; i < 600 && window.MAP_READY && !MAP_READY(); i++) await new Promise(r => setTimeout(r, 100));
-    } finally { world.locked = false; S.hud = true; }
-    toast(NAME[s] + ' · ' + LAB[s] + '　（气血、灵力回满了）', 2200);
+    } finally { world.locked = false; S.hud = true; if (fadeEnd) fadeEnd(); }
+    toast(NAME[s] + ' · ' + LAB[s] + (auto ? '' : '　（气血、灵力回满了）'), 2200);
     const hint = { '卯': '院里的人都起来干活了。', '午': '晌午了，厨房里正热闹。', '酉': '日头偏西，该收衣裳、点灯笼了。', '戌': '大家都回屋了……好像有谁还没睡？', '子': '院里静悄悄的，都睡下了。' }[s];
     if (hint) setTimeout(() => toast(hint, 2400), 2300);
   }
@@ -1623,5 +1626,23 @@
   // 开局就先下一张，第一次进青竹就有图
   setTimeout(() => { try { const i = (F().qz_load_i || 0) % 12; img(sid(i)); img(sid(i + 1)); } catch (e) {} }, 2500);
 
+  // ---------- 作者 11-10：时间系统——天剑宗（天剑山门往里，含青竹一带）里时辰自己往前走 ----------
+  //   卯 → 午 → 酉 → 戌 → 子 → 第二天卯时；一个时辰 = 自由走动 6 分钟（对话、战斗、菜单、过场里不走）。床上歇息照旧是「快进」。
+  //   剧情占着时辰的时候（夜探、当夜、清晨这些段落）不走；第一章剧情没走完之前也不走。
+  //   走出山门就回白天、时钟停；回来接着走。菜园、钓鱼、下人作息都跟着 qz_shi / qz_day 变，所以庄稼也会自己长。
+  function CLOCK_OK() { const f = F(); return !!(f.ch2_roam || f.ch2_liuyun || f.ch2_depart || f.ch3) && !lockedByStory(); }
+  { let last = performance.now(), busy = false;
+    setInterval(() => { const t = performance.now(), dt = Math.min(2, (t - last) / 1000); last = t;
+      try {
+        if (busy || !S.started || !world.map || !TJZ(world.mapName) || S.scene !== drawMap) return;
+        if (world.locked || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || (typeof sysPanel !== 'undefined' && sysPanel) || S.menu || (typeof battle !== 'undefined' && battle)) return;
+        if (window.MAP_LOADING && MAP_LOADING()) return;
+        if (!CLOCK_OK()) return;
+        const f = F(); const C = f.clk || (f.clk = { shi: f.qz_shi || '午', t: 0 });
+        if (!f.qz_shi) { f.qz_shi = C.shi; setTod(C.shi === '戌' || C.shi === '子' ? 'night' : ''); busy = true; restTo(C.shi, true).finally(() => { busy = false; }); return; }   // 头一回 / 剧情刚放开：按时钟的时辰把院子摆好
+        C.shi = f.qz_shi; C.t += dt;
+        if (C.t >= (window.QZ_CLOCK_MIN || 6) * 60) { const nx = SHI[(SHI.indexOf(C.shi) + 1) % SHI.length]; busy = true; restTo(nx, true).finally(() => { busy = false; }); }
+      } catch (e) { busy = false; } }, 1000); }
+  window.QZ_CLOCK = { left: () => { const C = F().clk; return C ? Math.max(0, (window.QZ_CLOCK_MIN || 6) * 60 - C.t) : null; }, ok: () => CLOCK_OK(), zone: m => TJZ(m || world.mapName) };
   window.R162 = { guideStart, guideStep, setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
 })();
