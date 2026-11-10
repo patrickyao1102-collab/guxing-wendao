@@ -87,6 +87,12 @@
     ST.mode = null; ST.glow = 0; await wait(1.2); world.actors = world.actors.filter(x => x !== act); act = null; ST.motes.length = 0; }
   // 剧情跳转 / 测试面板直接进殿也能看：地图离开时把人收掉
   setInterval(() => { try { if (act && world.mapName !== 'm_nw_temple') { world.actors = world.actors.filter(x => x !== act); act = null; ST.mode = null; ST.glow = 0; ST.motes.length = 0; } } catch (e) {} }, 500);
+  // R197 对话立绘（作者 11-11：「他是仙界至强者，要有神性表情」）—— 七个表情，替掉原来从幻境插画里裁的「懒散少年」头像
+  const PX = { '': 'default', '浅笑': 'smile', '悲悯': 'pity', '神威': 'divine', '哈欠': 'yawn', '追忆': 'remember', '冷视': 'cold' }, PIM = {};
+  for (const n in PX) { const k = 'p_ym_' + PX[n], im = new Image(); im.onload = () => { IMG[k] = im; PIM[k] = 1;
+      if (typeof MEDAL_FACE === 'object') MEDAL_FACE[k] = { fx: .54, fy: .3, span: .42 };
+      if (typeof SPEAKERS === 'object') SPEAKERS['白衣男子' + (n ? '·' + n : '')] = n ? { p: k, name: '白衣男子', color: '#e9f2ff' } : Object.assign(SPEAKERS['白衣男子'] || {}, { p: k, color: '#e9f2ff' }); };
+    im.src = 'r197/' + k + '.webp'; }
   window.R195YM = { appear, rise, gift, vanish, IM, ST, get actor() { return act; }, SEAT };
-  try { if (typeof PRELOAD === 'function') PRELOAD('月冥', new Promise(r => { const t0 = performance.now(); const iv = setInterval(() => { if (ready() || performance.now() - t0 > 45000) { clearInterval(iv); r(); } }, 200); })); } catch (e) {}
+  try { if (typeof PRELOAD === 'function') PRELOAD('月冥', new Promise(r => { const t0 = performance.now(); const iv = setInterval(() => { if ((ready() && Object.keys(PIM).length >= 7) || performance.now() - t0 > 45000) { clearInterval(iv); r(); } }, 200); })); } catch (e) {}
 })();

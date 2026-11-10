@@ -255,7 +255,7 @@
         else if (v === 1) await say('', '血印在石上一明一暗。阵眼……似乎偏在巨石左侧。'); else await done(); } });
       def.npcs.push({ key: 'none', c: c2, r: r2, name: '', hidden: true, h: 150, talk: async () => {
         const v = st(); if (v === 0) await say('', '一块灰白的岩石，石脚生着青苔。');
-        else if (v === 1) { await say('', '找准阵眼，一击而下——血印寸寸崩散，巨石从中裂开，露出往下的石阶。'); put(2); } else await done(); } });
+        else if (v === 1) { if (window.R197CH4 && !(await R197CH4.eye())) return; await say('', '找准阵眼，一击而下——血印寸寸崩散，巨石从中裂开，露出往下的石阶。'); put(2); } else await done(); } });
       for (const e of def.exits) if (e.to === PFX + F.exit) { const c0 = e.cond; e.cond = () => st() >= 2 && c0(); delete e.msg; } }
     for (const [x, y, lines] of d.nt || []) def.npcs.push({ key: 'none', c: x / 64 - .5, r: y / 64 - .8, name: '', hidden: true, h: 150, talk: async () => { for (const l of lines) await say('', l); } });   // 可调查的地方（只有旁白）
     if (d.mobs) { const Z = d.z; def.mobs = Object.assign({}, d.mobs, { zone: (c, r) => { const x = (c + .5) * 16, y = (r + .8) * 16; return Z.some(([zx, zy, zr]) => Math.hypot(x - zx, y - zy) < zr); } }); }
@@ -550,7 +550,8 @@
           await say('叶孤星', '走。');
           F().ch3_forest_done = 1; world.camFocus = null;
           await fadeOut(800);
-          if (typeof C3 === 'object' && C3.scene) { C3.scene('bg_shandao', .55, 'rgba(20,30,70,.4)'); await fadeIn(800);
+          if (window.R197CH4) await R197CH4.linxueNight();   // 11-11：「同一时刻，苍月城」改到苍月城地图上演
+          else if (typeof C3 === 'object' && C3.scene) { C3.scene('bg_shandao', .55, 'rgba(20,30,70,.4)'); await fadeIn(800);
             await narrate('同一时刻，苍月城。'); await narrate('林雪走在空无一人的巷子里，脚步忽然一顿。');
             await say('林雪·坏笑', '……跟了我三条街了。出来吧。'); await narrate('巷子两头，同时走出了三个蒙着面的黑影。'); await fadeOut(900); }
           if (window.SET_TOD) SET_TOD(''); await ch3End(); }, true, true); world.triggers[world.triggers.length - 1]._verge = 1;

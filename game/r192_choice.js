@@ -39,12 +39,12 @@
     if (!choice) return false; const opts = choice.options, s = skinOf(), S1 = SK[s];
     if (!ready(s) || opts.some(isSave)) return prevDraw ? prevDraw.apply(this, arguments) : false;
     const rs = choiceRects(), t = choice.t, k = Math.min(1, t * 5);
-    ctx.save(); ctx.fillStyle = `rgba(8,6,4,${.22 * k})`; ctx.fillRect(0, 0, W, H);   // 只压暗一点：地图和人物还看得见
+    ctx.save(); ctx.fillStyle = `rgba(8,6,4,${(s === 1 ? .36 : .22) * k})`; ctx.fillRect(0, 0, W, H);   // 作者 11-11：「条颜色调淡了，和 Codex 弄的不一样」→ 夜墨金线照效果图压暗到 .36，墨底叠两层（Codex 效果图的墨色更深）
     if (choice.title) {
       ctx.globalAlpha = k; const ty = rs[0].y - 44;
       let px = 30; ctx.font = px + 'px ' + HEAD; while (px > 20 && ctx.measureText(choice.title).width > 760) { px--; ctx.font = px + 'px ' + HEAD; }
       const tw = Math.min(W - 120, Math.max(260, ctx.measureText(choice.title).width + 28 + 100));
-      three(IM['s' + s + '_title'], S1.tcut, 448, W / 2 - tw / 2, ty - 31, tw, 62);
+      three(IM['s' + s + '_title'], S1.tcut, 448, W / 2 - tw / 2, ty - 31, tw, 62); if (s === 1) three(IM['s' + s + '_title'], S1.tcut, 448, W / 2 - tw / 2, ty - 31, tw, 62);
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (S1.shadow) textOutline(choice.title, W / 2, ty + 1, S1.title, S1.shadow, 3); else { ctx.fillStyle = S1.title; ctx.fillText(choice.title, W / 2, ty + 1); }
     }
@@ -55,7 +55,7 @@
       const hov = hx > r.x && hx < r.x + r.w && hy > r.y && hy < r.y + r.h, down = downI === i && input.down;
       ctx.globalAlpha = e; const x = r.x, yy = r.y + (1 - e) * 14;
       const key = off ? 'disabled' : down ? 'pressed' : hov ? 'focus' : 'normal';
-      three(IM['s' + s + '_' + key], S1.cut, 720, x, yy, r.w, r.h);
+      three(IM['s' + s + '_' + key], S1.cut, 720, x, yy, r.w, r.h); if (s === 1) three(IM['s' + s + '_' + key], S1.cut, 720, x, yy, r.w, r.h);
       const c = S1.cut, inner = r.w - c[0] - (720 - c[1]) - 24, cx = x + c[0] + 12 + inner / 2;
       let px = 24; ctx.font = fontOpt(o, px); while (px > 15 && ctx.measureText(o).width > inner) { px--; ctx.font = fontOpt(o, px); }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const ty = yy + r.h / 2 + 1 + (down ? 1 : 0), col = off ? S1.off : S1.text;
