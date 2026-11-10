@@ -170,15 +170,15 @@
     zTick(); if (!G.on || !IM.ui) return; const t = now();
     ctx.save(); try { drawFX(t); } catch (e) {}
     // 今日鱼篓（左上）：Codex 面板上已经写着「今日鱼篓」，右边补一句还剩几竿；三个格子放最近钓到的
-    { const r = M.ui.today_creel, sc = .74, x = 18, y = 10; ui('today_creel', x, y, r[2] * sc, r[3] * sc);
-      ctx.font = `600 15px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = '#6a4a22'; ctx.fillText('还剩 ' + Math.max(0, left()) + ' 竿', x + 362 * sc, y + 128 * sc);
+    if (G.phase !== 'pond') { const r = M.ui.today_creel, sc = .74, x = 18, y = 10; ui('today_creel', x, y, r[2] * sc, r[3] * sc);
+      ctx.font = `600 15px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = '#6a4a22'; ctx.fillText('还剩 ' + Math.max(0, left()) + (G.phase === 'pond' || window.R190_POND ? ' 份饵' : ' 竿'), x + 362 * sc, y + 128 * sc);
       const sl = M.today_slots || [];
       G.caught.slice(-3).forEach((id, i) => { const q = sl[i]; if (!q) return; const c = ICON['fish_' + id] || (IM.cards && (ICON['c_' + id] = ICON['c_' + id] || cardCanvas(id))); if (!c) return;
         const bw = q[2] * sc, bh = q[3] * sc, f = Math.min(bw / c.width, bh / c.height) * 1.08, w = c.width * f, h = c.height * f; ctx.drawImage(c, x + q[0] * sc + (bw - w) / 2, y + q[1] * sc + (bh - h) / 2, w, h); }); }
     // 收竿
-    if (G.streak >= 2 && IM2.ui2) { ctx.drawImage(IM2.ui2, 0, 192, 192, 96, 18, 118, 192, 96); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('×' + G.streak, 18 + 98 + 28, 118 + 31 + 24, '#fff3c8', '#1c2a0c', 4); ctx.textAlign = 'left'; ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 208, '#f6ecd0', '#2a1406', 3); }
+    if (G.phase === 'pond') {} else if (G.streak >= 2 && IM2.ui2) { ctx.drawImage(IM2.ui2, 0, 192, 192, 96, 18, 118, 192, 96); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('×' + G.streak, 18 + 98 + 28, 118 + 31 + 24, '#fff3c8', '#1c2a0c', 4); ctx.textAlign = 'left'; ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 208, '#f6ecd0', '#2a1406', 3); }
     else if (G.streak >= 2) { ctx.font = `28px ${BRUSH}`; ctx.textAlign = 'left'; textOutline('连竿 ×' + G.streak, 30, 158, '#ffd27a', '#2a1406', 5); ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 180, '#f6ecd0', '#2a1406', 3); }
-    if (G.phase !== 'card') { ui('button_paper', BTN_QUIT.x, BTN_QUIT.y); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('不钓了', BTN_QUIT.x + 75, BTN_QUIT.y + 32, '#fff3d6', '#3a1a06', 4); }
+    if (G.phase !== 'card' && G.phase !== 'pond') { ui('button_paper', BTN_QUIT.x, BTN_QUIT.y); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('不钓了', BTN_QUIT.x + 75, BTN_QUIT.y + 32, '#fff3d6', '#3a1a06', 4); }
     // 提示
     if (G.phase === 'aim') { ctx.font = `34px ${BRUSH}`; ctx.textAlign = 'center'; textOutline('点潭面，选个落点', W / 2, H - 120, '#ffe9b0', '#2a1406', 6);
       ctx.font = `600 18px ${FONT}`; textOutline('瀑下急水 · 潭心深水 · 荷边浅水，出的鱼不一样', W / 2, H - 88, '#f6ecd0', '#2a1406', 4); }
@@ -333,6 +333,7 @@
     if (left() <= 0) { await narrate('今天潭里的鱼都学精了——歇一觉再来。'); return; }
     need(); if (!IM.angler || !IM.float || !IM.ui) { toast('钓具还在拿……稍等一下再点', 1400); return; }
     if (!f.r175_rod) { f.r175_rod = 1; await narrate('钓台柱子上斜靠着一根旧竹竿，竿梢磨得发亮——是松伯的。'); await say('叶孤星', '（借来用用，回头跟松伯说一声。）'); }
+    if (window.R190_POND && !window.R190_OFF) return R190_POND({ FISH, FD, F, left, cardCanvas, IM, IM2, showCard, G, SHI, catName, ui });   // 作者 11-10：钓鱼改成独立界面的「潭底垂钓」（r190_pond.js）；下面是原来在地图里演的那套，留着备用
     if (!f.r175_tut) { f.r175_tut = 1; f.r175_easy = 2;
       await narrate('（怎么钓：先点潭面选一个落点，叶孤星会把竿甩过去。）');
       await narrate('（然后等。鱼游过来会先碰一碰饵，浮漂轻轻点头——这是试探，千万别点。）');
