@@ -242,7 +242,7 @@
     S.shake = 22; await sleep(900); e.pose = null; await dimTo(0, 250); return true;
   }
   // 作者 11-11：变身前的台词配音（第一轮 A1 那种好听的音色）：P2b 半血那句（加快 1.3 倍、收紧停顿）、P3a「魔渊护体！」
-  const VO = { p2: new Audio('r189/mozu_p2.mp4'), p3: new Audio('r189/mozu_p3.mp4') }; for (const k in VO) VO[k].preload = 'auto';
+  const VO = { p2: new Audio('r189/mozu_p2.mp4'), p3: new Audio('r189/mozu_p3.mp4'), b0: new Audio('r189/mozu_b0.mp4'), c0: new Audio('r189/mozu_c0.mp4') }; for (const k in VO) VO[k].preload = 'auto';
   const vo = k => { try { if (typeof AUD !== 'undefined' && AUD.muted) return; for (const o in VO) if (o !== k) VO[o].pause(); const a = VO[k]; a.currentTime = 0; a.play().catch(() => {}); } catch (e) {} };
   window.R189M = { transform, truePortraits, IM, killStrike, trueSkill, vo };
   if (typeof ch2After === 'function') ch2After = (o => async function () { truePortraits(false); return o.apply(this, arguments); })(ch2After);

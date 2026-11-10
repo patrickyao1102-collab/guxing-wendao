@@ -4006,7 +4006,7 @@ function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', 
       await say('星旋', '双曜星力融合了！小子，趁现在——追魂！');
       return true; }
     if (e.trueForm && window.R189M && R189M.trueSkill) { const n = (e.tfTurn = (e.tfTurn || 0) + 1); if (n % 4 === 1) return R189M.trueSkill(e, b, 'claw'); if (n % 4 === 3) return R189M.trueSkill(e, b, 'aoe'); return false; }   /* 噬魂魔爪 → 普攻 → 黑煞天坠 → 普攻 循环 */
-    if (e.turn % 3 === 0) return enemyAoE(e, '黑煞掌印', 'fx3_burst_violet', .85);
+    if (e.turn % 3 === 0) { window.R189M && R189M.vo && R189M.vo('c0'); return enemyAoE(e, '黑煞掌印', 'fx3_burst_violet', .85); }
     return false;
   } }; }
 
@@ -4240,6 +4240,7 @@ async function hfBoss() {
   S.scene = drawMap; world.actors = world.actors.filter(a => a !== zh && a !== fl);
   await narrate('就在此时，黑风谷深处，一股强大的气息宛如觉醒的洪荒凶兽般骤然爆发——');
   const mz = addActor('e_mozu', p.x + 260, p.y - 60, '神秘高手', '#7a5aaa'); mz.h = 150; mz.dir = -1; mz.alpha = 0; await tween(600, t => mz.alpha = t);
+  window.R189M && R189M.vo && R189M.vo('b0');
   await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
   await say('星旋', '小心！这家伙的气息不对劲——是魔族！');
   await fadeOut(200);
@@ -4320,7 +4321,8 @@ async function ch2EndNew() {
   if (q === 'forest') setTimeout(async () => { setup(10); joinParty('yunting'); S.fade = 1; await ch2Forest(); }, 60);
   if (q === 'camp') setTimeout(async () => { setup(13); joinParty('yunting'); S.flags.ch2_plan = 1; S.hud = true; S.fade = 1; await goMap('hf_camp', ...(TMAPS.hf_camp.arrive ? TMAPS.hf_camp.arrive.hf_valley : [2, 18]), 'right'); }, 60);
   // 作者 11-11：「测试版弄一个版本我去看看」—— 直接进魔族这一战，血量压到 52%，打一下就突破、撕斗篷变身（输不了）
-  if (q === 'mozu') setTimeout(async () => { setup(13); joinParty('yunting'); S.hud = true; S.fade = 1; const e = mozuBoss(); e.hp = Math.round(e.maxhp * .52);
+  if (q === 'mozu') setTimeout(async () => { setup(13); joinParty('yunting'); S.hud = true; S.fade = 1; const e = mozuBoss(); e.hp = Math.round(e.maxhp * .56); e.turn = 2;   /* 测试：先听开战台词，敌方第一回合就放黑煞掌印 */
+    S.scene = drawMap; await fadeIn(200); window.R189M && R189M.vo && R189M.vo('b0'); await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。'); await fadeOut(200);
     const pr = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [e], exp: 1, gold: 1, boss: true, normalBgm: true, cannotLose: true }); await fadeIn(250); await pr; }, 60);
   if (q === 'ch2n') setTimeout(() => { S.fade = 1; Object.assign(S.flags, { hs_impact: 1, hs_meet: 1 }); ch2Start(); }, 60);
 })();
