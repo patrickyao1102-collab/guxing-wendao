@@ -10,7 +10,11 @@
   const F = () => (S.flags = S.flags || {});
   const hid = () => (F().sq_hide = F().sq_hide || {});
   let L = null, ready = false; const IM = {};
-  const load = () => fetch('r165/layout.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { L = j;
+  // 作者 11-10：收起状态「从竹林…」被截断、下面又重复一遍，看着心里不舒服 → 收起框加宽 44 像素（往左长），标题可用宽度变大，摘要折行宽度跟着加
+  const WIDEN = 0;   // 加宽会压到队友血条，改成标题按宽度缩字（见下）
+  const widen = j => { try { const c = j.states.collapsed; c.panelRect[0] -= WIDEN; c.panelRect[2] += WIDEN; c.bodyHit[2] += WIDEN;
+    for (const n of c.nodes) { if (n.asset === 'panel_collapsed') n.rect[2] += WIDEN; else if (n.type === 'button') { n.rect[0] += WIDEN; if (n.hitRect) n.hitRect[0] += WIDEN; } else if (n.bind === 'main.title') n.maxWidth += WIDEN; else if (n.bind === 'main.summary') n.maxWidth += WIDEN; } } catch (e) {} };
+  const load = () => fetch('r165/layout.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { widen(j); L = j;
     return Promise.all(Object.entries(j.assets).map(([k, a]) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { IM[k] = im; res(); }; im.onerror = rej; im.src = 'r165/' + a.file; }))); })
     .then(() => { ready = !!window.R140Q; }).catch(e => console.warn('R165 载入失败', e));
   { const pr = load(); try { window.PRELOAD && PRELOAD('R165 任务栏', pr); } catch (e) {} }
@@ -20,7 +24,8 @@
   const shortMap = id => { try { const t = (TMAPS[id] && TMAPS[id].title) || (MAPS[id] && MAPS[id].title) || ''; return t.replace(/^.*·\s*/, ''); } catch (e) { return ''; } };
   function mainModel() {
     const q = String(S.quest || ''); if (!q) return null;
-    const i = q.search(/[：:]/); const title = i > 0 && i <= 10 ? q.slice(0, i) : q.slice(0, 8) + (q.length > 8 ? '…' : ''), obj = i > 0 && i <= 10 ? q.slice(i + 1) : q;
+    // 作者 11-10：没有「xx：」前缀的任务，标题不再硬截前 8 个字加省略号（和下面的摘要重复、还被截断）→ 标题写「当前目标」，整句放摘要里折行显示
+    const i = q.search(/[：:]/); const pre = i > 0 && i <= 12 ? q.slice(0, i).trim() : ''; const title = pre || '当前目标', obj = pre ? q.slice(i + 1).trim() : q;
     let dest = '';
     try { const R = window.QUEST_ROUTE && QUEST_ROUTE.RULES; const r = R && R.find(([re]) => re.test(q)); const g = r && r[1](); if (g && g.map) dest = shortMap(g.map); } catch (e) {}
     return { title, summary: obj, objective: obj, destination: dest };
@@ -75,7 +80,7 @@
     const st = UI.open ? L.states.expanded : L.states.collapsed, [px, py, pw] = st.panelRect;
     // 作者 11-10：主线不用展开就要看全 → 收起状态下摘要按宽度折行，底板往下长（九宫格拉伸），只有支线要点「展开」
     let ph = st.panelRect[3], sumLines = null;
-    if (!UI.open && M && M.summary) { ctx.font = font('summary'); sumLines = wrap(M.summary, 245); ph += (sumLines.length - 1) * 21; }
+    if (!UI.open && M && M.summary) { ctx.font = font('summary'); sumLines = wrap(M.summary, 245 + WIDEN); ph += (sumLines.length - 1) * 21; }
     UI.panel = [px, py, pw, ph];
     ctx.save(); blurBehind(px, py, pw, ph); ctx.translate(px, py);
     const pressed = a => UI.press && UI.press.a === a;
@@ -87,6 +92,8 @@
       else if (n.type === 'text') {
         let v = n.value; if (n.bind === 'mapName') v = (world.map && world.map.def && world.map.def.title) || ''; else if (n.bind && n.bind.startsWith('main.')) v = M ? M[n.bind.slice(5)] : (n.bind === 'main.title' ? '暂无主线' : '');
         if (n.bind === 'main.destination' && !v) continue;
+        if (n.bind === 'main.title' && v) { ctx.font = font(n.style); const w = ctx.measureText(v).width, mx = n.maxWidth || 128;   // 标题太长：整体缩小字号放下，不再「…」截断
+          if (w > mx) { const k = Math.max(.6, mx / w); ctx.save(); ctx.translate(n.at[0], n.at[1]); ctx.scale(k, k); text(v, 0, 0, n.style, n.align || 'left', mx / k); ctx.restore(); continue; } }
         if (sumLines && n.bind === 'main.summary') { sumLines.forEach((l, i) => text(l, n.at[0], n.at[1] + i * 21, n.style, n.align || 'left')); continue; }
         if (v == null || v === '') continue;
         if (n.wrap) { ctx.font = font(n.style); wrap(v, n.maxWidth, n.maxLines || 2).forEach((l, i) => text(l, n.at[0], n.at[1] + i * (n.lineHeight || 20), n.style, n.align)); }
