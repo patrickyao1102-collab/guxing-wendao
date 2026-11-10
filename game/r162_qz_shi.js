@@ -358,7 +358,7 @@
     n.talk = a => ON() ? talkTo(who, a, n) : origTalk(who, who === 'steward' ? 'room' : 'night', a);   // 时辰系统没开：说原来夜里那几句
     d.npcs.push(n); DEFS.push(n); return n;
   }
-  function curPlan(n) { const q = n.q162, s = VS(q.map); if (!s) return null; if (s === '戌' && ON() && q.key === q.who && q.map === RM[q.who] && window.R175G2_DUTY && R175G2_DUTY() === q.who) return null;   /* 今晚轮到他在菜园值夜：戌时人在园屋院里，不在自己屋 */ const pl = q.key !== q.who ? (PLAN[s] || {})[q.key] : planOf(q.who, s); return pl && pl.map === q.map ? pl : null; }
+  function curPlan(n) { const q = n.q162, s = VS(q.map); if (!s) return null; if (ON() && (s === '卯' || s === '午' || s === '酉') && window.R175G2_AWAY && R175G2_AWAY() === q.who) return null;   /* 今天轮到他在菜园干活：白天小院里没有他 */ if (s === '戌' && ON() && q.key === q.who && q.map === RM[q.who] && window.R175G2_DUTY && R175G2_DUTY() === q.who) return null;   /* 今晚轮到他在菜园值夜：戌时人在园屋院里，不在自己屋 */ const pl = q.key !== q.who ? (PLAN[s] || {})[q.key] : planOf(q.who, s); return pl && pl.map === q.map ? pl : null; }
   const CAT_GLOW = { map: COURT, at: Y(300, 1462), steps: [{ act: 'cat_glow_6f', t: 1e9, face: -1 }] };
   const catPlan = () => (shi() === '戌' && F().qz_out === 'maid2' ? CAT_GLOW : (PLAN[shi()] || {}).cat);
   for (const who of ['maid1', 'maid2', 'servant', 'steward']) {
@@ -887,7 +887,7 @@
   const EVBY = {}; for (const e of EVS) EVBY[e.id] = e;
   function schedule(force) {
     const f = F(), s = shi(); if (!s) return; if (!force && f.qz_today && f.qz_today.d === qday() && f.qz_today.s === s) return;
-    const duty = (s === '戌' || s === '子') && window.R175G2_DUTY ? R175G2_DUTY() : '';   /* 今晚在菜园值夜的人不在院里：他的入夜 / 子夜小事今晚不排 */
+    const duty = window.R175G2_AWAY ? R175G2_AWAY() : '';   /* 今晚在菜园值夜的人不在院里：他的入夜 / 子夜小事今晚不排 */
     const cand = EVS.filter(e => e.shi === s && e.who !== duty && (!e.once || !hidSeen(e.id)) && (!e.need || e.need(f))).sort(() => Math.random() - .5);
     const list = []; for (const e of cand) { if (list.length >= 3) break; if (Math.random() < (e.once ? .6 : e.p || .35)) list.push(e.id); }
     if (f.qz_guide === 1 && s === '卯' && !hidSeen(GUIDE_ID)) { list.length = 0; list.push(GUIDE_ID); }   // 小记引导：带着做的那一件，卯时一定排上
@@ -1663,5 +1663,21 @@
         if (C.t >= (window.QZ_CLOCK_MIN || 6) * 60) { const nx = SHI[(SHI.indexOf(C.shi) + 1) % SHI.length]; busy = true; restTo(nx, true).finally(() => { busy = false; }); }
       } catch (e) { busy = false; } }, 1000); }
   window.QZ_CLOCK = { left: () => { const C = F().clk; return C ? Math.max(0, (window.QZ_CLOCK_MIN || 6) * 60 - C.t) : null; }, ok: () => CLOCK_OK(), zone: m => TJZ(m || world.mapName) };
+  // ---------- 时辰牌：主角状态条下面常驻显示「现在是什么时辰、离下一个时辰还有多久」 ----------
+  // 作者 11-10：「时辰显示在哪里……我不知道时辰做没做」—— 时钟一直在走（每 6 分钟换一个时辰），只是屏幕上从来没显示过
+  { const COL = { '卯': ['#ffd9a0', '#f29a5a'], '午': ['#fff3b0', '#f2c040'], '酉': ['#ffc089', '#e2603a'], '戌': ['#c9d4ff', '#5a6ad0'], '子': ['#dfe6ff', '#2c3a8a'] };
+    const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+    S.overlay.push({ draw() { try {
+      const s = shi(); if (!s || !S.hud || S.scene !== drawMap || !world.map || !TJZ(world.mapName) || S.menu || (typeof battle !== 'undefined' && battle) || (typeof sysPanel !== 'undefined' && sysPanel)) return;
+      const x = 176, y = 72, w = 214, h = 30, nightS = s === '戌' || s === '子', run = CLOCK_OK(), C = F().clk, tot = (window.QZ_CLOCK_MIN || 6) * 60, u = run && C ? Math.min(1, C.t / tot) : 0;
+      ctx.save(); rr(x, y, w, h, 15); ctx.fillStyle = 'rgba(14,16,26,.78)'; ctx.fill(); ctx.strokeStyle = 'rgba(214,178,104,.9)'; ctx.lineWidth = 1.5; ctx.stroke();
+      const cx = x + 17, cy = y + h / 2, [c1, c2] = COL[s]; const g = ctx.createRadialGradient(cx - 2, cy - 2, 1, cx, cy, 10); g.addColorStop(0, c1); g.addColorStop(1, c2); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 7); ctx.fill();
+      if (nightS) { ctx.fillStyle = 'rgba(14,16,26,.92)'; ctx.beginPath(); ctx.arc(cx + 4.5, cy - 2.5, 7.5, 0, 7); ctx.fill(); }   // 夜里画成月牙
+      ctx.strokeStyle = 'rgba(214,178,104,.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 7); ctx.stroke();
+      if (u > 0) { ctx.strokeStyle = '#f2d48a'; ctx.beginPath(); ctx.arc(cx, cy, 12, -Math.PI / 2, -Math.PI / 2 + u * Math.PI * 2); ctx.stroke(); }
+      ctx.textAlign = 'left'; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#f6e7c1'; ctx.fillText(NAME[s] + ' · ' + LAB[s], x + 36, y + 21);
+      const nx = NAME[SHI[(SHI.indexOf(s) + 1) % SHI.length]]; ctx.font = `13px ${FONT}`; ctx.fillStyle = 'rgba(232,220,190,.78)'; ctx.textAlign = 'right';
+      ctx.fillText(run && C ? Math.max(1, Math.ceil((tot - C.t) / 60)) + ' 分后' + nx : '剧情中 · 时辰暂停', x + w - 12, y + 20.5);
+      ctx.restore(); } catch (e) {} } }); }
   window.R162 = { get LOST() { return LOST; }, LOST_AT, guideStart, guideStep, setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
 })();

@@ -464,18 +464,23 @@
   const DUTY_W = ['maid1', 'maid2', 'servant'];
   const DUTY = () => DUTY_W[((F().qz_day || 1) - 1) % 3];
   window.R175G2_DUTY = () => DUTY();
+  // 这个时辰不在小院的人：白天 = 今天在菜园干活的（没雇人、小桃带过路以后），戌 / 子 = 值夜的
+  window.R175G2_AWAY = () => { try { const s = F().qz_shi; if (!s || !D().intro) return ''; if (s === '戌' || s === '子') return DUTY(); return hired() ? '' : DUTY(); } catch (e) { return ''; } };
   const ROT = {
-    '卯': { who: 'servant', name: '小厮阿福', x: 520, y: 1930, job: 'carry', route: [380, 720], face: 1, lines: ['少爷早！阿福先给鸡舍添水，一会儿去捡蛋——少爷要不要一起？', '少爷要宰鸡宰鸭就喊阿福，阿福手脚麻利。', '这院子空着的地方多，少爷想摆什么摆什么。'] },
-    '午': { who: 'maid2', name: '侍女小桃', x: 2256, y: 990, job: 'water', face: -1, lines: ['日头正好，小桃来看看田里的水。', '少爷记得，闸开着苗不长，水满了就得关。', '园簿上都记着呢，哪块地熟了，翻一翻就知道。'] },
-    '酉': { who: 'steward', name: '松伯', x: 1660, y: 236, face: -1, lines: ['老头子来看看水车。这车转了三十年，比少爷年纪还大。', '六条支渠各有一道闸，水往哪畦走，少爷说了算。', '天快黑了，少爷早些回院里，夜里河边凉。'] },
+    // 作者 11-10：「有时候看到松伯白天既在屋内也在屋外」→ 查出菜园白天按时辰排的人（卯阿福 / 午小桃 / 酉松伯）同一时刻在小院里也有一个。
+    //   改成和值夜一个轮法：今天轮到谁，谁白天就在菜园干活、夜里在园屋值夜，这一天小院里没有他（r162 认 R175G2_AWAY）。松伯不再来菜园。
+    'day_maid1': { who: 'maid1', name: '侍女青禾', x: 1900, y: 1790, job: 'sweep', route: [1820, 2140], face: 1, day: 1, lines: ['今天轮到青禾照看菜园。禽舍扫过了，晒架上的菜干也翻了一遍。', '少爷记得，闸开着苗不长，水满了就得关。', '园簿上都记着呢，哪块地熟了，翻一翻就知道。'] },
+    'day_maid2': { who: 'maid2', name: '侍女小桃', x: 2256, y: 990, job: 'water', face: -1, day: 1, lines: ['今天轮到小桃看园子！日头正好，小桃来看看田里的水。', '少爷想摆什么摆什么，小桃帮着浇水。', '鸭子今天可乖了，一只都没跑。'] },
+    'day_servant': { who: 'servant', name: '小厮阿福', x: 520, y: 1930, job: 'carry', route: [380, 720], face: 1, day: 1, lines: ['今天轮到阿福看园子！阿福先给鸡舍添水，一会儿去捡蛋——少爷要不要一起？', '少爷要宰鸡宰鸭就喊阿福，阿福手脚麻利。', '这院子空着的地方多，少爷想摆什么摆什么。'] },
     '戌maid1': { who: 'maid1', name: '侍女青禾', x: 1900, y: 1790, job: 'sweep', route: [1820, 2140], face: 1, duty: 1, lines: ['今晚轮到青禾值夜。晒架上的菜干得收了，夜里一返潮就白晒了。', '园屋的门我闩好了，禽舍也看过了。', '少爷夜里还过来呀？灯笼给您留着。'] },
     '戌maid2': { who: 'maid2', name: '侍女小桃', x: 1880, y: 1800, job: 'water', face: 1, duty: 1, lines: ['今晚小桃值夜！……少爷别笑，小桃不怕黑。', '井边那盏灯小桃点上了，夜里起来打水看得见。', '要是听见鸭子叫，小桃就去瞧瞧，准是黄鼠狼又来了。'] },
     '戌servant': { who: 'servant', name: '小厮阿福', x: 1960, y: 1800, job: 'carry', route: [1860, 2120], face: 1, duty: 1, lines: ['今晚阿福值夜！柴劈好了，水缸也挑满了。', '园屋那张床硬是硬了点，阿福睡哪儿都香。', '少爷放心回去歇着，园子交给阿福。'] },
   };
   for (const s in ROT) { const R = ROT[s], [c, r] = P(R.x, R.y);
     const n = { key: 'none', name: R.name, c, r, h: 108, wander: false, random: true, r135e: R.who, job: R.job, route: R.route, face: R.face, g2rot: s,
-      cond: () => (R.duty ? SHI() === '戌' && DUTY() === R.who : SHI() === s && !hired()) && !!D().intro,   // 雇了人的那天，白天三位不用来；值夜照旧
-      talk: async () => { const i = await choose(R.name.replace(/^(侍女|小厮)/, ''), ['说说话', '园里有什么活？', '走开']); if (i === 0) await say(R.name, R.lines[Math.floor(Math.random() * R.lines.length)]); else if (i === 1) await say(R.name, statusLine()); } };
+      cond: () => !!F().qz_shi && DUTY() === R.who && (R.duty ? SHI() === '戌' : ['卯', '午', '酉'].includes(SHI()) && !hired()) && !!D().intro,   // 雇了人的那天，白天三位不用来；值夜照旧
+      talk: async () => { try { const qid = window.R162 && R162.questTalk && R162.questTalk(R.who); if (qid) return R162.qRun(qid); } catch (e) {}   // 院里支线这一步要找他：人在菜园也能接上
+        const i = await choose(R.name.replace(/^(侍女|小厮)/, ''), ['说说话', '园里有什么活？', '走开']); if (i === 0) await say(R.name, R.lines[Math.floor(Math.random() * R.lines.length)]); else if (i === 1) await say(R.name, statusLine()); } };
     if (R.who === 'steward') delete n.job; N.push(n); }
   // 雇来的老秦：雇了的那天，卯 / 午 / 酉在田边
   { const [c, r] = P(1696, 612); const QL = ['东家放心，地里的活老秦门儿清。', '这土养得好，一畦顶别家两畦。', '闸我替东家看着，水满了就落。', '山下今年雨水匀，家家都盼着好收成。'];
