@@ -55,13 +55,14 @@
       if ((o.dir > 0 && o.x > X1 + 110) || (o.dir < 0 && o.x < X0 - 110)) o.dead = true;
       if (o.f.junk) { if (ST.ph === 'idle' && Math.hypot(h.x - o.x, h.y - o.y) < o.len * .4) snag(o); return; }
       // 注意到饵：钩停稳、有饵、没别的鱼在啄
-      if (ST.ph === 'idle' && ST.bait && !ST.eng && h.y > WY + 14 && h.mv < 30) { const d = Math.hypot(h.x - o.x, h.y - o.y), sight = 110 + o.len * .7 + (h.tw > t ? 60 : 0);
+      if (ST.ph === 'idle' && ST.bait && !ST.eng && !ST.tgt && h.y > WY + 14 && h.mv < 30) { const d = Math.hypot(h.x - o.x, h.y - o.y), sight = 110 + o.len * .7 + (h.tw > t ? 60 : 0);
         if (d < sight && Math.abs(h.y - o.hy) < 120 && Math.random() < dt * (.5 + (h.tw > t ? .9 : 0))) { o.st = 'curious'; o.t = t; ST.eng = o; } } }
-    else if (o.st === 'curious') { const [mx, my] = mouth(o), dx = h.x - mx, dy = h.y - my, l = Math.hypot(dx, dy); o.dir = dx > 0 ? 1 : -1;
-      if (h.mv > 150) return flee(o, '钩动得太猛，鱼被惊走了'); if (!ST.bait || ST.ph !== 'idle') return flee(o);
-      if (l > 8) { const v = 34 + o.f.sp * 26; o.x += dx / l * v * dt; o.y += dy / l * v * dt; } else { o.st = 'nibble'; o.t = t; o.n = Math.random() < .3 ? 0 : 1 + (Math.random() < o.f.p * .5 ? 1 : 0); o.nt = t + rnd(.5, 1.1); } }
+    else if (o.st === 'curious') {   // 朝钩游过去：按鱼身中心定朝向（原来按嘴的位置定，鱼一靠近钩就左右来回翻——「鬼畜」）
+      if (Math.abs(h.x - o.x) > o.len * .7) o.dir = h.x > o.x ? 1 : -1;
+      if (!ST.bait || ST.ph !== 'idle') return flee(o);
+      const tx = h.x - o.dir * o.len * .5, ty = h.y - (o.id === 'salamander' ? 10 * kOf(o) : 0), dx = tx - o.x, dy = ty - o.y, l = Math.hypot(dx, dy);
+      if (l > 6) { const v = Math.min(l / dt, 40 + o.f.sp * 28); o.x += dx / l * v * dt; o.y += dy / l * v * dt; } else { o.st = 'nibble'; o.t = t; o.n = Math.random() < .3 ? 0 : 1 + (Math.random() < o.f.p * .5 ? 1 : 0); o.nt = t + rnd(.5, 1.1); } }
     else if (o.st === 'nibble') { const [mx, my] = mouth(o); o.x += (h.x - mx) * dt * 6; o.y += (h.y - my) * dt * 6;
-      if (h.mv > 55) return flee(o, '钩一动，鱼就惊走了……');
       if (t >= o.nt) { if (o.n > 0) { o.n--; o.nt = t + rnd(.55, 1.0); h.jig = t + .3; bubble(h.x, h.y, 2); try { playSnd('ui_move', .3); } catch (e) {} }
         else { o.st = 'bite'; o.t = t; o.win = o.f.win * (ST.easy > 0 ? 2.6 : 1.5); ST.tap0 = P.taps; h.jig = t + .4; bubble(h.x, h.y, 6); try { playSnd('sfx_hit', .5); } catch (e) {} } } }
     else if (o.st === 'bite') { const [mx, my] = mouth(o); o.x += (h.x - mx) * dt * 8; o.y += (h.y - my) * dt * 8; h.y += dt * 30;
@@ -87,7 +88,7 @@
     else if (o.spent && !ST.snag) o.y -= 14 * dt;
     o.x = clamp(o.x, X0 - 20, X1 + 10); o.y = clamp(o.y, WY + 6, Y1);
     // 线的松紧：猛冲时还拉着就往上涨；松手或它歇着就回落
-    if (!o.spent) { ST.strain = clamp(ST.strain + (hold && rush ? .95 + f.p * .5 : hold && o.mode === 'warn' ? .25 : hold ? -.25 : -.9) * dt, 0, 1);
+    if (!o.spent) { ST.strain = clamp(ST.strain + (hold && rush ? (.62 + f.p * .38) * (ST.easy > 0 ? .5 : 1) : hold && o.mode === 'warn' ? .15 : hold ? -.3 : -1.1) * dt, 0, 1);
       o.sta -= (hold && !rush ? dt : !hold && rush ? dt * .55 : 0); if (!hold && o.mode === 'rest') o.sta = Math.min(o.sta0, o.sta + dt * .25);
       if (o.sta <= 0) { o.spent = true; o.mode = 'rest'; flash('它没劲了，快拉！', 1.2); try { playSnd('ui_confirm', .4); } catch (e) {} } }
     else ST.strain = Math.max(0, ST.strain - dt);
@@ -103,8 +104,8 @@
     if (l > 14) { q.x += dx / l * 330 * dt; q.y += dy / l * 330 * dt; return; }
     o.dead = true; bubble(o.x, o.y, 12); { const m = mouth(q); q.st = 'hooked'; q.x = m[0]; q.y = m[1]; } q.sw = t; ST.predT = t; q.sta = q.f.nd; q.sta0 = q.f.nd; q.mode = 'rush'; q.mt = t + 1.2; q.ra = rnd(2.4, 3.4); q.spent = false; ST.hk = q; ST.strain = Math.min(ST.strain, .3);  try { playSnd('sfx_hit', .7); } catch (e) {} }
   function lose(m) { setAn('miss'); const o = ST.hk; if (o) { o.st = 'flee'; o.t = now(); o.dir = o.x > 520 ? -1 : 1; } ST.hk = null; ST.ph = 'idle'; ST.strain = 0; ST.shake = 0; ST.API.G.streak = 0; flash(m, 1.5); useBait(); resetHook(); }
-  function resetHook() { ST.hook.x = TIP0[0] - 40; ST.hook.y = WY + 46; ST.bait = ST.API.left() > 0; ST.eng = null; }
-  const QUIT = { x: 22, y: H - 66, w: 150, h: 48 }, LIFT = [1135, 622], inQuit = () => P.x >= QUIT.x && P.x <= QUIT.x + QUIT.w && P.y >= QUIT.y && P.y <= QUIT.y + QUIT.h;
+  function resetHook() { ST.tgt = null; ST.hook.x = TIP0[0] - 40; ST.hook.y = WY + 46; ST.bait = ST.API.left() > 0; ST.eng = null; }
+  const QUIT = { x: 22, y: H - 66, w: 150, h: 48 }, LIFT = [1135, 622], onLift = () => Math.hypot(P.x - LIFT[0], P.y - LIFT[1]) < 84, inQuit = () => P.x >= QUIT.x && P.x <= QUIT.x + QUIT.w && P.y >= QUIT.y && P.y <= QUIT.y + QUIT.h;
 
   // ---------- 画 ----------
   const spr = (im, sx, sy, sw, sh, x, y, ax, ay, k, flip, rot, al) => { ctx.save(); if (al != null) ctx.globalAlpha = al; ctx.translate(x, y); if (rot) ctx.rotate(rot); if (flip) ctx.scale(-1, 1); ctx.drawImage(im, sx, sy, sw, sh, -ax * k, -ay * k, sw * k, sh * k); ctx.restore(); };
@@ -153,31 +154,40 @@
     if (ST.ph === 'fight' && ST.strain > .6 && !(hk && hk.spent)) uis(UI.warn, W / 2 - 115 * 1.3, 232, 1.3);
     else if (ST.predT && t - ST.predT < 1.6) uis(UI.pred, W / 2 - 115 * 1.3, 232, 1.3);
     else if (ST.msg && t < ST.msgT) { ctx.font = `42px ${BRUSH}`; ctx.textAlign = 'center'; textOutline(ST.msg, W / 2, 268, '#ffe39a', '#0a1420', 6); }
+    // 鱼头顶的大牌子：猛冲 = 松手；歇气 = 按住拉；没劲 = 快拉
+    if (ST.ph === 'fight' && hk && !ST.snag) { const im2 = A.IM2 && A.IM2.ui2, rushing = !hk.spent && (hk.mode === 'rush' || hk.mode === 'warn'), y0 = Math.max(WY + 30, hk.y - 70);
+      if (rushing && im2) { const k = .8 + Math.abs(Math.sin(t * 12)) * .08; ctx.drawImage(im2, 0, 0, 192, 96, hk.x - 96 * k, y0 - 48 * k, 192 * k, 96 * k); }
+      else { ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'center'; textOutline(hk.spent ? '快拉！' : rushing ? '松手！' : '按住拉', hk.x, y0 + 8, hk.spent ? '#c8f0a0' : rushing ? '#ff8a6a' : '#fff0b8', '#0a1c30', 6); } }
+    // 头几条鱼：圈出一条离钩近的鱼，告诉玩家往哪儿点
+    if (ST.ph === 'idle' && ST.bait && !e && !ST.tgt && (ST.easy > 0 || !(A.F().r175_wins > 0))) { let best = null, bd = 1e9; for (const o of ST.fish) { if (o.st !== 'swim' || o.f.junk || o.x < X0 + 60 || o.x > X1 - 80) continue; const d = Math.hypot(o.x - ST.hook.x, o.y - ST.hook.y); if (d < bd) { bd = d; best = o; } }
+      if (best) { const cx = best.x + best.dir * (best.len * .5 + 36), cy = best.y, r = 20 + Math.sin(t * 5) * 4; ctx.save(); ctx.strokeStyle = 'rgba(255,240,170,.95)'; ctx.lineWidth = 3; ctx.setLineDash([7, 6]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke(); ctx.restore(); ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline('点这儿', cx, cy - 30, '#fff3b0', '#0a1c30', 4); } }
+    // 四步条：现在在哪一步
+    { const step = ST.ph === 'fight' || ST.ph === 'land' ? 3 : bite ? 2 : e ? 1 : 0, L = ['① 点水里放钩', '② 等鱼来咬', '③ 冒「！」点提竿', '④ 按住收线'], w = 168, x0 = W / 2 - (w * 4 + 30) / 2 + 20; ctx.font = `600 17px ${FONT}`; ctx.textAlign = 'center';
+      for (let i = 0; i < 4; i++) { const x = x0 + i * (w + 10), on = i === step; ctx.fillStyle = on ? 'rgba(246,214,130,.96)' : 'rgba(12,22,34,.55)'; ctx.beginPath(); ctx.moveTo(x + 14, 14); ctx.arcTo(x + w, 14, x + w, 46, 14); ctx.arcTo(x + w, 46, x, 46, 14); ctx.arcTo(x, 46, x, 14, 14); ctx.arcTo(x, 14, x + w, 14, 14); ctx.fill(); ctx.fillStyle = on ? '#3a2408' : 'rgba(240,232,210,.8)'; ctx.fillText(L[i], x + w / 2, 36); } }
     // 提示
     ctx.textAlign = 'center'; const big = (a, col) => { ctx.font = `32px ${BRUSH}`; textOutline(a, W / 2 - 40, H - 58, col || '#ffe9b0', '#0a1c30', 6); }, sub = b => { ctx.font = `600 17px ${FONT}`; textOutline(b, W / 2 - 40, H - 26, '#f2ead2', '#0a1c30', 4); };
     if (ST.ph === 'idle' && !ST.bait) { big('没饵了'); }
     else if (ST.ph === 'idle' && bite) { big('咬住了！快点屏幕提竿！', '#ff9a7a'); }
-    else if (ST.ph === 'idle' && e) { big('有鱼过来了——别动钩', '#ffd9a0'); sub('它头顶冒「？」是在试探，啄两下才会真咬；钩一动它就跑'); }
-    else if (ST.ph === 'idle') { big('按住水里，把钩牵到鱼附近'); sub('松手钩就停住。钩停稳了鱼才敢过来；别碰到草鞋和枯枝'); }
+    else if (ST.ph === 'idle' && e) { big('有鱼过来了，等它咬', '#ffd9a0'); sub('头顶冒「？」是在试探，啄一两下才真咬。先别点，等冒出「！」'); }
+    else if (ST.ph === 'idle' && ST.tgt) { big('钩在游过去……'); }
+    else if (ST.ph === 'idle') { big('点水里一处，钩会游过去'); sub('把钩放在鱼的嘴前面，停下来等它；别碰到草鞋和枯枝'); }
     else if (ST.ph === 'fight' && ST.snag) { big('按住，把它拉上来'); }
     else if (ST.ph === 'fight' && hk && hk.spent) { big('它没劲了——按住一口气拉上来！', '#c8f0a0'); }
-    else if (ST.ph === 'fight' && hk && (hk.mode === 'rush' || hk.mode === 'warn')) { big('鱼在猛冲——松手让它跑！', '#ff8a6a'); sub('线变红就是快断了。它冲完会喘口气，那时候再拉'); }
-    else if (ST.ph === 'fight') { big('按住收线，把鱼拉向水面'); sub(hk && SMALL[hk.id] ? '钩上是小鱼：先不拉、让它留在深水，大鱼可能扑上来吞了它' : '鱼身发红是要猛冲了，那时候松手'); }
+    else if (ST.ph === 'fight' && hk && (hk.mode === 'rush' || hk.mode === 'warn')) { big('鱼在猛冲——松手！', '#ff8a6a'); sub('这时候还按着，线会变红、绷断。它冲完会歇口气，再按住拉'); }
+    else if (ST.ph === 'fight') { big('按住屏幕收线，把鱼拉上来'); sub(hk && SMALL[hk.id] ? '钩上是小鱼：先不拉、让它留在深水，大鱼可能扑上来吞了它' : '鱼身发红是要猛冲了，那时候松手'); }
   }
   const OV = { draw() { if (ON) try { drawAll(); } catch (e) {} } };
 
   // ---------- 一局 ----------
   window.R190_POND = async function (API) {
     const f = API.F(), G = API.G; ST.API = API;
-    if (!f.r190_tut) { f.r190_tut = 1; f.r190_easy = 2;
-      await narrate('（钓鱼换了个玩法：坐下以后能看见水下。按住水里，鱼钩会慢慢跟着手指走；松手钩就停住。）');
-      await narrate('（把钩牵到鱼附近、停稳。鱼注意到饵会游过来，头顶冒「？」，啄一两下——这时千万别动钩。）');
-      await narrate('（等它一口咬住、冒出「！」，马上再点一下屏幕提竿，就挂上了。慢了饵会被叼走。）');
-      await narrate('（挂上以后按住屏幕收线。鱼身发红是要猛冲，猛冲时还按着，线会变红、绷断——松手让它跑，等它喘气再拉。它翻肚冒星就是没劲了。）');
-      await narrate('（钩上是白条、青虾、鲫鱼这种小鱼时，可以先不拉：深水里的鳜鱼、星斑鱼、灵鲵会扑上来吞掉它，钓到的就换成大鱼。）');
-      await narrate('（浅水是小鱼，越深鱼越大；夜里出的鱼和白天不一样。草鞋、枯枝别碰。每个时辰八份饵，不钓了点右下角。）'); }
+    if (f.r190_tut !== 2) { f.r190_tut = 2; f.r190_easy = 3;
+      await narrate('（钓鱼就四步，屏幕上方有四步条，亮着的就是现在该做的。）');
+      await narrate('（① 点水里一处，钩自己游过去——放在鱼的嘴前面。② 等：鱼凑过来冒「？」是试探，先别点。）');
+      await narrate('（③ 鱼咬住冒「！」，马上点一下屏幕（或右下角「提竿」）。④ 按住屏幕收线；鱼头顶出「松手！」就松开，出「按住拉」再按住。）');
+      await narrate('（头三条鱼好钓一些，线不容易断。水越深鱼越大。不钓了点左下角。）'); }
     preload(); if (!ready()) { toast('钓具还在拿……稍等一下再点', 1500); return; }
-    const s = API.SHI(); ST.night = s === '戌' || s === '子'; ST.dusk = s === '酉'; ST.easy = f.r190_easy || 0;
+    const s = API.SHI(); ST.night = s === '戌' || s === '子'; ST.dusk = s === '酉'; ST.easy = f.r190_easy || 0; ST.tgt = null;
     ST.fish.length = 0; ST.bub.length = 0; ST.ph = 'idle'; ST.hk = null; ST.eng = null; ST.strain = 0; ST.shake = 0; ST.msg = ''; ST.tip = TIP0.slice(); P.down = false; ST.fxs.length = 0; ST.predT = 0; setAn('idle');
     for (let i = 0; i < 9; i++) spawn(false);
     const hud0 = S.hud; S.hud = false; world.locked = true; G.on = true; G.phase = 'pond'; G.caught = []; G.streak = 0; G.cat = null; G.card = null; G.fv = false; G.sh = null;
@@ -188,7 +198,9 @@
         if (P.taps !== tapSeen) { tapSeen = P.taps; if (inQuit() && ST.ph !== 'land') break; }
         if (ST.ph === 'idle') { if (API.left() <= 0 && !ST.bait) { await sleep(900); break; }
           // 牵钩：按住水里才动
-          const px = h.x, py = h.y; if (P.down && P.y > WY - 20 && !inQuit() && !(ST.eng && ST.eng.st === 'bite')) { const tx = clamp(P.x, X0, X1), ty = clamp(P.y, WY + 16, Y1 - 6), dx = tx - h.x, dy = ty - h.y, l = Math.hypot(dx, dy), v = Math.min(l / dt, 230); if (l > 1) { h.x += dx / l * v * dt; h.y += dy / l * v * dt; } }
+          // 作者 11-10：「点钩老是鬼畜」——原来要一直按着钩才走，点一下只挪一小步、一顿一顿的。改成：点水里哪儿，钩就自己平稳地游到哪儿（按着拖也行）；有鱼凑过来以后钩不再动
+          const px = h.x, py = h.y; if (ST.eng) ST.tgt = null; else if (P.down && P.y > WY - 20 && !inQuit() && !onLift()) ST.tgt = [clamp(P.x, X0, X1), clamp(P.y, WY + 16, Y1 - 6)];
+          if (ST.tgt) { const dx = ST.tgt[0] - h.x, dy = ST.tgt[1] - h.y, l = Math.hypot(dx, dy), v = Math.min(l / dt, l < 60 ? 60 + l * 2.6 : 220); if (l > 1.5) { h.x += dx / l * v * dt; h.y += dy / l * v * dt; } else ST.tgt = null; }
           const sp = Math.hypot(h.x - px, h.y - py) / dt; h.mv = (h.mv || 0) * .8 + sp * .2; if (sp > 20 && sp < 90) h.tw = t + 1.2;   // 轻轻抖一下更招鱼
         }
         for (const o of ST.fish) { if (o.st === 'lunge') stepLunge(o, dt, t); else if (o.st !== 'hooked') stepFish(o, dt, t); }
