@@ -69,6 +69,8 @@
   function jiuyinheSfx() { if (typeof playSnd !== 'function') return; const at = (ms, n, v) => setTimeout(() => { try { playSnd(n, v); } catch (e) {} }, ms);
     at(150, 'sfx_xz_flute', .7); [850, 1250, 1650].forEach(ms => at(ms, 'sfx_xz_reunion', .6)); at(2100, 'sfx_xz_soul', .7); }
   if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
+  // 作者 11-11：「技能喊话都没配音了（加载问题）……确保所有东西不出错再过图」→ 每招当前要喊的那条交给 asset_ready.js 预载，载入画面等它们下好
+  window.VOICE29_ALL = () => { const ids = []; for (const s in SLOT) { const id = chosen(s); if (id) ids.push(id); if (/^hero:tunshi$/.test(s)) ids.push(...SLOT[s]); } prewarm(ids); return ids.map(id => ({ id, a: cache[id], src: BGM29.src(id) })); };
   // 作者 11-07：叶孤星「天剑一式，点星！」喊话和剑招不同频——喊话 2.4 秒，「点星」在 1.7 秒、「星！」在 2.05 秒，剑招 0.9 秒就命中了。
   // 改成：先喊「天剑一式」，剑芒凝成；「点——星！」那一下剑芒刺出命中（剑招整体晚起步，命中对在「星」字上）
   const DX_HIT = { lib_n7_hero__dianxing: 2.05 };   // 各条喊话里「星」字的时间（秒）；没标的按时长 − 0.3 估

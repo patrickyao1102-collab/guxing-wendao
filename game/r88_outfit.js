@@ -6,7 +6,7 @@
     { id: 'baipao', name: '白袍正蓝', desc: '白袍配正蓝衣缘飘带（默认）',
       img: { b_yegx: src('b_yegx_baipao', 'aa08190ef1f8cecc1e006c85154ab9aa'), b_yegx_atk: src('b_yegx_baipao_atk', '0f4a3d35971dd952a41657262c302c65'), b_yegx_cast: src('b_yegx_baipao_cast', 'd9ebe54f3561a36ecb178040718ec6dc') },
       portrait: src('p_yegx_baipao', '306a503cff30fd19e874cb9b6375c6e4') },
-    { id: 'orig', name: '原版劲装', desc: '最初的白蓝劲装', img: null, portrait: null },
+    // 作者 11-11：「这个立绘应该很早就删掉了，为什么还在，而且经常被 Codex 误认为是现在的」→ 原版劲装整套删掉（老图文件已换成白袍正蓝）
     // R88 另外四套（Codex 交付：战斗三姿势 + 全身立绘 + 对话表情；地图行走用 R92 五套换装八向里对应那套）
     { id: 'heiyao', name: '白衣黑腰封', desc: '白衣配黑色腰封、蓝色衣缘',
       img: { b_yegx: src('b_yegx_heiyao', 'f61e1deb2fa68f2aeb06014fec5c5106'), b_yegx_atk: src('b_yegx_heiyao_atk', 'a4e277939dd68442131ba95c9f10cf5a'), b_yegx_cast: src('b_yegx_heiyao_cast', '43febb4657e3755376d7fbab1d51efa0') },
