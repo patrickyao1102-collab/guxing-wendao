@@ -12,6 +12,10 @@
     ...['hero', 'linxue', 'yunting', 'luochen', 'shenle'].map(k => img('r155/portrait_' + k + '.webp').then(im => { PORT[k] = im; })),   // 作者 11-08：头像统一用五人 Q 版（R134 原件）
     img('r155/spirit_stone.webp').then(im => { IM.stone = im; })]).then(() => { ready = true; }).catch(e => console.warn('R164 载入失败', e));
   { const pr = load(); try { window.PRELOAD && PRELOAD('R164 战斗结算', pr); } catch (e) {} }
+  // 作者 11-11：「战斗胜利画面没接后来的高清版人物图」—— 卷上的群像改用 Codex 清晰立绘版「无字群像」原图（2 倍分辨率）盖在底图同一位置
+  //   位置 / 大小是拿原图跟底图逐像素比对出来的（[x, y, w, h]，1280×720 坐标）；04 叶孤星·林雪是作者选的「冰盾护阵」
+  const HDP = {"01": [92, 168, 563, 458], "02": [92, 156, 563, 458], "03": [91, 158, 564, 458], "04": [92, 150, 563, 469], "05": [92, 161, 563, 458], "06": [92, 158, 563, 458], "07": [94, 236, 559, 379], "08": [191, 129, 365, 487]}, HD = {};
+  for (const k in HDP) img('r164/hd_' + k + '.webp').then(im => { HD[k] = im; }).catch(() => {});
   const CROP = { hero: [84, 36, 304, 256], linxue: [66, 33, 286, 253], yunting: [5, 47, 231, 273], luochen: [69, 32, 289, 252], shenle: [94, 28, 314, 248] };
   const NAME = { hero: '叶孤星', yunting: '云霆', linxue: '林雪', shenle: '神乐', luochen: '洛尘' };
   const INK = '#3b2a1e', MUTED = '#7a6650', GOLD = '#8a5a22', LINE = 'rgba(160,128,78,.45)';
@@ -36,6 +40,7 @@
     ctx.translate(640, 360); ctx.scale(.9 + .1 * e, .97 + .03 * e); ctx.translate(-640, -360);
     try {
       ctx.drawImage(IM[c.k], 0, 0, 1280, 720);
+      if (HD[c.k]) { const q = HDP[c.k]; ctx.save(); ctx.beginPath(); ctx.rect(92, 103, 1096, 524); ctx.clip(); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(HD[c.k], q[0], q[1], q[2], q[3]); ctx.restore(); }
       // 标题 + 小朱印
       const tt = '战斗胜利'; for (let i = 0; i < 4; i++) T(tt[i], 915 + (i - 1.5) * 58, 156, 50, '#7a4a1e', 'center', HF);
       ctx.fillStyle = '#b8402e'; rr(1058, 132, 22, 42, 3); ctx.fill(); ctx.strokeStyle = 'rgba(255,230,210,.7)'; ctx.lineWidth = 1; rr(1060.5, 134.5, 17, 37, 2); ctx.stroke();
