@@ -68,7 +68,7 @@
       ctx.filter = `blur(${L.backgrounds.blurSigma1x}px)`; ctx.drawImage(cv, (x - 6) * kx, (y - 6) * ky, (w + 12) * kx, (h + 12) * ky, x - 6, y - 6, w + 12, h + 12); ctx.restore(); } catch (e) {} }
 
   // ---------- 状态 ----------
-  const UI = { open: false, scroll: 0, press: null, hits: [], panel: null, clipR: null, contentH: 0 };
+  const UI = { open: false, scroll: 0, press: null, hits: [], panel: null, clipR: null, contentH: 0, mini: true, peekUntil: 0, touchAt: 0, lastQ: null };   // 作者 11-10：「主线任务也可以收起，平时就留一个标记」
   let drag = null;
   function rowH(r) { ctx.font = font('goal'); const gl = wrap(r.goal, 281).length; ctx.font = font('reward'); const rl = wrap(r.reward, 184).length; return { h: 68 + (gl - 1) * 19 + (rl - 1) * 18, gl, rl }; }
 
@@ -77,6 +77,11 @@
     if (!R165Q.ready() || S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const M = mainModel(), sides = sideModel();
     if (!M && !sides.length) return;
+    // 平时只留右上角一个小标记（不挡画面）；任务一变就自己弹出卡片 5 秒，点标记也能打开；卡片 10 秒没碰就收回标记
+    const now = performance.now(), q = String(S.quest || '');
+    if (UI.lastQ === null) UI.lastQ = q; else if (q !== UI.lastQ) { UI.lastQ = q; if (q) UI.peekUntil = now + 5200; }
+    if (!UI.open && !UI.mini && now - UI.touchAt > 10000) UI.mini = true;
+    if (!UI.open && UI.mini && now > UI.peekUntil) return drawMarker(M, sides, now);
     const st = UI.open ? L.states.expanded : L.states.collapsed, [px, py, pw] = st.panelRect;
     // 作者 11-10：主线不用展开就要看全 → 收起状态下摘要按宽度折行，底板往下长（九宫格拉伸），只有支线要点「展开」
     let ph = st.panelRect[3], sumLines = null;
@@ -101,8 +106,22 @@
       else if (n.type === 'list') drawList(sides, px, py);
     }
     // 目的地图标 / 文字只在有目的地时画（上面 nodes 里 pin 是 image，没有目的地时盖掉不太好看 → 简单处理：没有目的地时不画「目的地」三个字）
+    if (!UI.open) UI.hits.unshift({ a: 'mini', r: [px + 6, py + 4, 52, 46] });   // 卡片左上的剑徽：收回成标记
     if (M) UI.hits.push({ a: 'main', r: UI.open ? [px + st.mainHit[0], py + st.mainHit[1], st.mainHit[2], st.mainHit[3]] : [px + st.bodyHit[0], py + st.bodyHit[1], st.bodyHit[2], st.bodyHit[3] + ph - st.panelRect[3]] });
     ctx.restore();
+  }
+  function drawMarker(M, sides, now) {
+    const cx = 1232, cy = 46, r = 26, nav = !!(window.QUEST_NAV && QUEST_NAV.on);
+    const ready = (() => { try { const Q = window.R140Q, st = Q.stOf(); return Q.SQ.some(q => { const s = st[q.id]; return s && Q.isReady(s); }); } catch (e) { return false; } })();
+    ctx.save();
+    if (nav) { const a = .35 + .25 * Math.sin(now / 260); const g = ctx.createRadialGradient(cx, cy, r * .6, cx, cy, r * 1.7); g.addColorStop(0, `rgba(255,214,120,${a})`); g.addColorStop(1, 'rgba(255,214,120,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r * 1.7, 0, 7); ctx.fill(); }
+    ctx.fillStyle = 'rgba(14,16,22,.72)'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(226,190,112,.9)'; ctx.beginPath(); ctx.arc(cx, cy, r - 1, 0, 7); ctx.stroke();
+    img('sword_crest', cx - 20, cy - 19, 40, 37); img('badge_main', cx - 9, cy - 4, 20, 22);
+    if (ready) { ctx.fillStyle = '#5fb8ff'; ctx.strokeStyle = '#0b1420'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx + r * .72, cy - r * .72, 6, 0, 7); ctx.fill(); ctx.stroke(); }   // 有支线可交：蓝点
+    if (nav) { ctx.font = `600 12px ${L.typography.fonts.body.join(',')}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText('寻路中', cx, cy + r + 4); ctx.fillStyle = '#ffe2a0'; ctx.fillText('寻路中', cx, cy + r + 4); }
+    ctx.restore();
+    UI.panel = [cx - r - 6, cy - r - 6, r * 2 + 12, r * 2 + 12]; UI.hits.push({ a: 'peek', r: UI.panel });
   }
   function drawList(sides, px, py) {
     const SL = L.sideList, [cx, cy, cw, ch] = SL.clip; UI.clipR = [px + cx, py + cy, cw, ch];
@@ -159,9 +178,12 @@
       input.tapped = null;
       if (!(drag && drag.moved)) { const h = hitAt(t.x, t.y), Q = window.R140Q;
         if (h) { try { playSnd('ui_click'); } catch (e) {}
-          if (h.a === 'expand') { UI.open = true; UI.scroll = 0; } else if (h.a === 'collapse') UI.open = false;
+          UI.touchAt = performance.now();
+          if (h.a === 'peek') { UI.mini = false; UI.peekUntil = 0; }
+          else if (h.a === 'mini') { UI.mini = true; UI.peekUntil = 0; }
+          else if (h.a === 'expand') { UI.open = true; UI.scroll = 0; } else if (h.a === 'collapse') { UI.open = false; UI.mini = false; }
           else if (h.a === 'eye') { const m = hid(); m[h.id] = !m[h.id]; if (!m[h.id]) delete m[h.id]; }
-          else if (h.a === 'main') Q.goMain(); else if (h.a === 'side') Q.goSide(h.id); } }
+          else if (h.a === 'main') { Q.goMain();  UI.mini = true; UI.peekUntil = 0; }   /* 点了寻路就收回标记，别挡着走路 */ else if (h.a === 'side') Q.goSide(h.id); } }
     }
     return o.apply(this, arguments);
   })(updateMap);
