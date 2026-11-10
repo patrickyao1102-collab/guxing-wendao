@@ -1175,115 +1175,16 @@ window.BGM_LIB = {
 "desc": "小云雀配音 · “云雷踏影！”（11-07 五版里作者选定 05 少年意气）",
 "dur": 1.68
 },
-"lib_n8_yunting__tunshi_01": {
+"lib_n8_yunting__tunshi": {
 "no": "癸P06",
-"name": "云霆·纳月吞噬·候选01",
+"name": "云霆·纳月吞噬",
 "group": "癸 · 角色配音（出招喊话）",
 "kind": "voice",
 "slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_01.mp4",
+"file": "lib29/n8_yunting__tunshi.mp4",
 "vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “纳月——吞！”（11-10 十条候选之01，清亮意气；末尾「好」已切）",
-"dur": 0.82
-},
-"lib_n8_yunting__tunshi_02": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选02",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_02.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “纳月——吞！”（11-10 十条候选之02，低沉狠劲；末尾「好」已切）",
-"dur": 1.2
-},
-"lib_n8_yunting__tunshi_03": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选03",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_03.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “纳月——吞！”（11-10 十条候选之03，响亮干脆；末尾「好」已切）",
-"dur": 0.7
-},
-"lib_n8_yunting__tunshi_04": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选04",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_04.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “你的灵力，归我了！”（11-10 十条候选之04，傲气冷笑；末尾「好」已切）",
-"dur": 1.38
-},
-"lib_n8_yunting__tunshi_05": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选05",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_05.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “你的灵力，归我了！”（11-10 十条候选之05，意气响亮；末尾「好」已切）",
-"dur": 1.44
-},
-"lib_n8_yunting__tunshi_06": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选06",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_06.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “你的灵力，归我了！”（11-10 十条候选之06，压低狠劲；末尾「好」已切）",
-"dur": 1.33
-},
-"lib_n8_yunting__tunshi_07": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选07",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_07.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “纳月·吞噬！”（11-10 十条候选之07，清亮喊招；末尾「好」已切）",
-"dur": 0.76
-},
-"lib_n8_yunting__tunshi_08": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选08",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_08.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “纳月·吞噬！”（11-10 十条候选之08，一字一顿；末尾「好」已切）",
-"dur": 1.92
-},
-"lib_n8_yunting__tunshi_09": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选09",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_09.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “月华归我——纳月，吞！”（11-10 十条候选之09，先稳后爆；末尾「好」已切）",
-"dur": 2.03
-},
-"lib_n8_yunting__tunshi_10": {
-"no": "癸P06",
-"name": "云霆·纳月吞噬·候选10",
-"group": "癸 · 角色配音（出招喊话）",
-"kind": "voice",
-"slot": "yunting:tunshi",
-"file": "lib29/n8_yunting__tunshi_10.mp4",
-"vol": 1,
-"desc": "小云雀音频生成·按云霆 8 号音色参考 · “月华归我——纳月，吞！”（11-10 十条候选之10，尾字喊响；末尾「好」已切）",
-"dur": 1.93
+"desc": "小云雀音频生成·云霆音色 + 叶孤星纳月节奏参考 · “云起月落，你的灵力——借我一用！”（11-11 作者选定第五轮 03，邪异冷酷；末尾「好」已切，语音识别核过）",
+"dur": 3.6
 },
 "lib_n7_hero__tunshi_1": {
 "no": "癸P05",
