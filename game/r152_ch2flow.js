@@ -98,5 +98,5 @@
     }, 300); } catch (e) {}
     return r;
   })(tileSetMap);
-  { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/南边山门出发|山门出发/, () => ({ map: 'tj_front' })]); R.RULES.unshift([/前往松风林道/, () => ({ map: 'tj_xiashan' })]); }
+  { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/南边山门出发|山门出发/, () => (!F().ch2_market && /集市/.test(S.quest || '') ? { map: 'tj_market' } : { map: 'tj_front' })]);   /* 11-10 跑 bug：「和云霆一起去天剑集市采买…再从南边山门出发」被这条先接走 → 寻路去山门 → 星旋问「出发之前……」→ 选先去集市 → 寻路又回山门，死循环 */ R.RULES.unshift([/前往松风林道/, () => ({ map: 'tj_xiashan' })]); }
 })();
