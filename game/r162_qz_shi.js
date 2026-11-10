@@ -24,7 +24,7 @@
   const img = s => { let o = IM[s]; if (!o) { o = IM[s] = { im: new Image(), ok: false }; o.im.onload = () => { o.ok = true; }; o.im.src = URL(s + '.webp'); } return o.ok ? o.im : null; };
   const WALKIM = {}; const walkIm = k => { let o = WALKIM[k]; if (!o) { o = WALKIM[k] = { im: new Image(), ok: false }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r135e2/' + k + '_walk.webp'; } return o.ok ? o.im : null; };
   const SHEETS = ['act_maid1', 'act_maid2', 'act_servant', 'act_steward', 'act_cat', 'prop', 'bed', 'ui'];
-  const LIGHTS = { '卯': ['main_dawn', 'west_dawn'], '午': ['main_noon', 'west_noon'], '酉': ['main_dusk', 'west_dusk', 'main_long_shadows', 'west_long_shadows'] };
+  const LIGHTS = { '卯': ['main_dawn', 'west_dawn'], '午': ['main_noon', 'west_noon'], '酉': ['main_dusk', 'west_dusk', 'main_long_shadows', 'west_long_shadows'] };   // 作者 11-10：青竹小院的黄昏是喜欢的，保留
   const preload = () => { for (const s of SHEETS) img(s); const L = LIGHTS[shi()]; if (L) for (const k of L) img('l_' + k); img('fade');
     for (const k of ['maid1', 'maid2', 'servant', 'steward']) walkIm(k); };
 
@@ -1576,11 +1576,19 @@
     await new Promise(r => setTimeout(r, 700));
     return async () => { await new Promise(r => setTimeout(r, 1000)); const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); };
   }
+  // 时辰自己走到下一个：先把这一刻的画面拍下来，换好时辰后让旧画面在上面慢慢淡掉（1.6 秒）——不压暗、不加任何滤镜（作者 11-10：窗纸流光那层「蒙着色」看得眼晕）
+  function crossFade() {
+    let snap = null; try { snap = document.createElement('canvas'); snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0); } catch (e) { snap = null; }
+    const ov = { t0: 0, draw() { if (!snap) return; if (!this.t0) return this.full(); const k = 1 - (performance.now() - this.t0) / 1600; if (k <= 0) return; ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = k; ctx.drawImage(snap, 0, 0); ctx.restore(); },
+      full() { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(snap, 0, 0); ctx.restore(); } };
+    S.overlay.push(ov);
+    return () => { ov.t0 = performance.now(); setTimeout(() => { const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); }, 1700); };
+  }
   // 换时辰：和过图一样走一遍载入画面（青竹专属插画 + 进度条），这个时辰要用的人物动作、光影都下好了才露出画面
   async function restTo(s, auto) {   // auto：时辰自己走到这儿（不是在床上歇的）——不回血、不弹「回满了」，换场用窗纸流光不走载入页
     const f = F(), p = world.player; world.locked = true; S.hud = false; let fadeEnd = null;
     try {
-      if (auto) fadeEnd = await restFade(); else if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
+      if (auto) fadeEnd = crossFade(); else if (window.LOADING_KICK) { KICK = true; LOADING_KICK(); } else await restFade();
       const old = SHI.indexOf(f.qz_shi || '午'); if (SHI.indexOf(s) <= old) newDay(); if (!f.qz_mood) { f.qz_mood = {}; for (const k of PEOPLE) f.qz_mood[k] = pick(MOODS); }
       f.qz_shi = s; setTod(s === '戌' || s === '子' ? 'night' : ''); LOST = null; schedule(true);
       if (!auto) healAll(false);
