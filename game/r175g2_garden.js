@@ -13,7 +13,7 @@
   const [MW, MH] = M.size;
   // ---------- 素材 ----------
   const IM = {}, FAIL = {}, PAGES_A = Math.max(...Object.values(M.anim).flatMap(a => a.r.map(r => r[0]))) + 1;
-  const SRC = k => (window.R162_ASSETS && R162_ASSETS[D + k + '.webp']) || (D + k + '.webp?v=g10');   // 图集页换过顺序，带版本号免得读到缓存里的旧页
+  const SRC = k => (window.R162_ASSETS && R162_ASSETS[D + k + '.webp']) || (D + k + '.webp?v=g11');   // 图集页换过顺序，带版本号免得读到缓存里的旧页
   let want = 0, got = 0;
   const ld = (k, cb) => { if (k in IM) return; IM[k] = null; want++; const i = new Image();
     i.onload = () => { IM[k] = i; got++; try { cb && cb(i); } catch (e) {} };
