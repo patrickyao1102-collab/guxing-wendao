@@ -16,7 +16,7 @@
 
   // ---------- 图 ----------
   const IM = {}; let want = 0, got = 0;
-  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m8');
+  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m10');
   const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { IM[k] = i; got++; }; i.onerror = () => { got++; }; i.src = SRC(k); };
   const loadAll = () => { for (let i = 0; i < MM.pages; i++) ld('m_' + i); ld('lf'); ld('seam'); };
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID) return a; loadAll(); return Math.min(a, want ? got / want : 0); }; }
@@ -471,10 +471,12 @@
       talk: async () => { const i = await choose(R.name.replace(/^(侍女|小厮)/, ''), ['说说话', '园里有什么活？', '走开']); if (i === 0) await say(R.name, R.lines[Math.floor(Math.random() * R.lines.length)]); else if (i === 1) await say(R.name, statusLine()); } };
     if (R.who === 'steward') delete n.job; N.push(n); }
   // 雇来的老秦：雇了的那天，卯 / 午 / 酉在田边
-  { const [c, r] = P(1830, 660); const QL = ['东家放心，地里的活老秦门儿清。', '这土养得好，一畦顶别家两畦。', '闸我替东家看着，水满了就落。', '山下今年雨水匀，家家都盼着好收成。'];
-    N.push({ key: 'n_villager', name: '庄稼汉老秦', c, r, wander: false, random: false, g2hire: 1, cond: () => hired() && !!D().intro && ['卯', '午', '酉'].includes(SHI()),
+  { const [c, r] = P(1696, 612); const QL = ['东家放心，地里的活老秦门儿清。', '这土养得好，一畦顶别家两畦。', '闸我替东家看着，水满了就落。', '山下今年雨水匀，家家都盼着好收成。'];
+    N.push({ key: 'n_villager', name: '庄稼汉老秦', c, r, wander: false, random: false, g2hire: 1, cond: () => !!D().intro && ['卯', '午', '酉'].includes(SHI()),
       talk: async () => { const i = await choose('老秦', ['说说话', '园里有什么活？', '走开']); if (i === 0) await say('庄稼汉老秦', QL[Math.floor(Math.random() * QL.length)]); else if (i === 1) await say('庄稼汉老秦', statusLine()); } }); }
 
+  // 雇了人当场换班：老秦出来，白天那位回小院（不用等下次进图）
+  setInterval(() => { try { if (!here()) return; const h = hired(); for (const a of world.actors || []) { const n = a.npc; if (!n) continue; if (n.g2hire) a.hidden = !h; else if (n.g2rot && !ROT[n.g2rot].duty && h) a.hidden = true; } } catch (e) {} }, 500);
   // ---------- 第一次来：小桃带路 ----------
   const GATE = M.spawn;
   N.push({ key: 'none', name: '侍女小桃', c: P(GATE[0] - 150, GATE[1] + 40)[0], r: P(GATE[0] - 150, GATE[1] + 40)[1], h: 108, wander: false, random: false, r135e: 'maid2', face: 1, g2guide: 1, cond: () => !D().intro, talk: () => intro() });
