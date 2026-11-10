@@ -15,10 +15,13 @@
   const dropVS = () => { try { if (window.VSPRITES) delete VSPRITES.e_zhouhu; if (window.RIG_MAP) delete RIG_MAP.e_zhouhu; } catch (e) {} };
   // dropVS(); setTimeout(dropVS, 3000);   // 周虎新模型接进来时再打开
   if (window.BATTLE_SIZE) Object.assign(BATTLE_SIZE, { e_mozu2: BATTLE_SIZE.e_mozu || 300, e_yyq_m: 240, e_yyq_f: 228 });
+  // 待机可见高（px，原画 720 高里人物占的高度）+ 出手 / 受击相对待机的绘制倍率（R191 战斗模型参数.json）
+  const REL = { e_mozu2: { idleH: 707, idle: 1, atk: 2.1352, hit: 1.44898 } };
+  { const c = document.createElement('canvas'); c.width = c.height = 1; IMG.__r189_none = c; }
   const pose = u => u.hurt > .15 ? 'hit' : (u.pose === 'atk' || u.pose === 'cast') ? 'atk' : 'idle';
 
   // ---------- 魔族撕斗篷变身（30 帧 · 15fps · 2 秒；图集缩到一半：每格 336×384，6 列，脚底锚点 168,372）----------
-  const TF = { cols: 6, n: 30, fps: 15, fw: 336, fh: 384, ax: 168, ay: 372, src: 2 /* 图集像素 → 原画像素 */, idleH: 716 };
+  const TF = { cols: 6, n: 30, fps: 15, fw: 336, fh: 384, ax: 168, ay: 372, src: 2 /* 图集像素 → 原画像素 */, idleH: 707 };
   load('tf', 'r189/mozu2_tf.webp');
   for (const n of ['default', 'angry', 'grin']) load('p_' + n, 'r189/p_mozu2_' + n + '.webp', im => { IMG['p_mozu2_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mozu2_' + n] = { fx: .5, fy: .22, span: .4 }; });
   function drawTF(u, t) {
@@ -30,8 +33,15 @@
   }
   drawUnit = (o => function (u) {
     if (u && u._tf != null && u.alive) { const t = performance.now() / 1000 - u._tf; if (drawTF(u, t)) return; }
-    const set = u && u.side === 'enemy' && SETS[u.key], k = set && u.key + '__' + pose(u);
+    const set = u && u.side === 'enemy' && SETS[u.key], ps = set && pose(u), k = set && u.key + '__' + ps;
     if (!k || !IMG[k]) return o(u);
+    // R191：三张姿态都是 400×720 整幅、脚底在底边中点；出手 / 受击按 Codex 给的「相对待机倍率」画（招式伸展大、人缩在画幅里）
+    const R = REL[u.key]; if (R && u.alive) {
+      const im = IMG[k], now = performance.now() / 1000, sc = u.h / R.idleH * (R[ps] || 1), w = im.width * sc * (720 / im.height), h = 720 * sc;
+      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy;
+      const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧（本体不画）
+      ctx.save(); if (u.hurt > .5) ctx.filter = 'brightness(2.2)'; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore(); return;
+    }
     const k0 = u.key; u.key = k; try { return o(u); } finally { u.key = k0; }
   })(drawUnit);
 
