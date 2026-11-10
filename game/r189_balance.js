@@ -20,6 +20,9 @@
   setInterval(() => { try { const h = S.hero, f = F(); if (!h || !h.equip || f.r189_w) return; f.r189_w = 1;
     const w = h.equip.weapon; if (WEAP[w]) h.atk += WEAP[w][1] - WEAP[w][0]; } catch (e) {} }, 1500);
 
+  // 作者 11-10：装备全部通用（谁都能穿）；特殊装备穿在对应角色身上才有专属效果 → 说明里把「叶孤星专属」改成「叶孤星佩戴另有专属效果」
+  for (const id of ['w_xinghen', 'w_xinghen2']) { const it = ITEM_DB[id]; if (it && it.desc) it.desc = it.desc.replace(/^叶孤星专属 · /, '叶孤星佩戴另有专属效果 · ').replace('九曜剑典剑招威力', '（叶孤星）九曜剑典剑招威力'); }
+
   // ---------- 2) 云霆攻击成长 ----------
   if (typeof PARTY_DB !== 'undefined' && PARTY_DB.yunting) { PARTY_DB.yunting.base.atk = 48; PARTY_DB.yunting.grow.atk = 3.7; }
 

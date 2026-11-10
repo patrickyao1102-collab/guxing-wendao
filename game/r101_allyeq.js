@@ -1,7 +1,7 @@
 // 作者 11-03：队友也能换装备。背包是全队共用的——叶孤星开局后山那把剑、后来换星痕剑后闲下来的剑，都可以给云霆 / 林雪用。
 // 原来队友装备是「随剧情获得，暂不能更换」：青霄剑、云雷剑、紫云天罗甲只是剧情 flag 直接加属性，背包里看不到。
 // 现在：这三件变成真物品，剧情给的时候自动穿在对应队友身上；替下来的回到共用背包，可以在「装备」页随便换。
-// 叶孤星专属（星痕剑、流云仙衣）队友不能穿。
+// （作者 11-10 改：装备全部通用，见下面 HERO_ONLY）
 (function () {
   if (typeof allyStats !== 'function' || typeof drawEquip !== 'function' || typeof equipCards !== 'function') return;
   const F = () => S.flags || (S.flags = {});
@@ -10,7 +10,8 @@
     w_yunlei: { name: '云雷剑', slot: 'weapon', atk: 16, desc: '城主府宝库的下品玄器，剑意霸道' },
     a_ziyun: { name: '紫云天罗甲', slot: 'armor', def: 12, maxhp: 120, desc: '城主府宝库的下品玄器，紫云织就' },
   });
-  const HERO_ONLY = id => /^w_xinghen/.test(id) || id === 'a_liuyun' || !!(ITEM_DB[id] && ITEM_DB[id].heroOnly);
+  // 作者 11-10：本游戏所有装备都是通用的，谁都能穿；只是有些特殊装备穿在对应角色身上会多出专属效果（星痕剑之于叶孤星，云雷剑之于云霆……）
+  const HERO_ONLY = id => !!(ITEM_DB[id] && ITEM_DB[id].heroOnly === true && false);
   const OK = id => { const it = ITEM_DB[id]; return !!(it && it.slot) && !HERO_ONLY(id); };
   window.ALLY_EQ_OK = OK;
   const SLOTS = ['weapon', 'armor', 'acc'];
