@@ -35,6 +35,11 @@
   const ICON = { '卯': 'icon_dawn', '午': 'icon_noon', '酉': 'icon_dusk', '戌': 'icon_evening', '子': 'icon_midnight' };
   const shi = () => F().qz_shi || '';
   const ON = () => !!F().qz_shi;
+  // 作者 11-10：时辰系统还没开（剧情锁着 / 还没放开自由行动）的夜里，进他们屋里看到的也该是「灯下绣花、对镜梳头、打算盘、写信」，不是干站着。
+  //   只管摆样子（VS / VON），小事、秘密、情谊这些照旧要等时辰系统开了才有。
+  const ROOMS4 = /^qingzhu_(room_qinghe|room_xiaotao|room_afu|steward_room)$/;
+  const VS = m => F().qz_shi || (night() && ROOMS4.test(m || world.mapName || '') ? '戌' : '');
+  const VON = m => !!VS(m);
   window.QZ_SHI_ON = () => ON() && QZ(world.mapName);
   window.QZ_SHI = () => (ON() ? shi() : '');
   // 别的剧情自己改时辰 → 五时辰让位
@@ -330,14 +335,14 @@
 
   // ---------- 原来的人：选了时辰就让位 ----------
   const ORIG = {};   // 原来白天 / 夜里的那几位（对话里的小任务还要从他们那儿走）
-  const hideWhenOn = n => { const c0 = n.cond; n.cond = function () { if (ON()) return false; return !c0 || c0.apply(this, arguments); }; };
+  const hideWhenOn = (n, m) => { const c0 = n.cond; n.cond = function () { if (VON(m)) return false; return !c0 || c0.apply(this, arguments); }; };
   setTimeout(() => {
     for (const id of Object.keys(TMAPS)) if (QZ(id)) for (const n of (TMAPS[id].npcs || [])) {
       if (n.q162) continue;
       const k = n.r135e || ''; if (!k) continue;
-      if (n._r135day && id === COURT) { ORIG[k + '_day'] = n; hideWhenOn(n); }
-      else if (n._r135night) { ORIG[k + '_night'] = n; hideWhenOn(n); }
-      else if (k === 'steward') { ORIG['steward_' + (id === COURT ? 'day' : 'room')] = n; hideWhenOn(n); }
+      if (n._r135day && id === COURT) { ORIG[k + '_day'] = n; hideWhenOn(n, id); }
+      else if (n._r135night) { ORIG[k + '_night'] = n; hideWhenOn(n, id); }
+      else if (k === 'steward') { ORIG['steward_' + (id === COURT ? 'day' : 'room')] = n; hideWhenOn(n, id); }
     }
   }, 0);
   const origTalk = (k, part, a) => { const n = ORIG[k + '_' + part]; return n && typeof n.talk === 'function' ? n.talk(a) : null; };
@@ -349,10 +354,10 @@
     const d = TMAPS[map]; if (!d) return; d.npcs = d.npcs || [];
     const n = { key: 'none', name: WHO[who] || '小猫', c: 0, r: 0, h: who === 'cat' ? 44 : 108, wander: false, q162: { key, who, map }, cond: () => !!curPlan(n) };
     if (who === 'servant') n.r139 = 'servant';   // 水缸边松伯念叨阿福那段要找得到他
-    n.talk = a => talkTo(who, a, n);
+    n.talk = a => ON() ? talkTo(who, a, n) : origTalk(who, who === 'steward' ? 'room' : 'night', a);   // 时辰系统没开：说原来夜里那几句
     d.npcs.push(n); DEFS.push(n); return n;
   }
-  function curPlan(n) { if (!ON()) return null; const q = n.q162, s = shi(); const pl = q.key !== q.who ? (PLAN[s] || {})[q.key] : planOf(q.who, s); return pl && pl.map === q.map ? pl : null; }
+  function curPlan(n) { const q = n.q162, s = VS(q.map); if (!s) return null; if (s === '戌' && ON() && q.key === q.who && q.map === RM[q.who] && window.R175G2_DUTY && R175G2_DUTY() === q.who) return null;   /* 今晚轮到他在菜园值夜：戌时人在园屋院里，不在自己屋 */ const pl = q.key !== q.who ? (PLAN[s] || {})[q.key] : planOf(q.who, s); return pl && pl.map === q.map ? pl : null; }
   const CAT_GLOW = { map: COURT, at: Y(300, 1462), steps: [{ act: 'cat_glow_6f', t: 1e9, face: -1 }] };
   const catPlan = () => (shi() === '戌' && F().qz_out === 'maid2' ? CAT_GLOW : (PLAN[shi()] || {}).cat);
   for (const who of ['maid1', 'maid2', 'servant', 'steward']) {
@@ -445,7 +450,7 @@
   if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) {
     o.apply(this, arguments);
     try {
-      if (!ON() || !world.actors || !world.map || !world.map.T) return;
+      if (!VON() || !world.actors || !world.map || !world.map.T) return;
       const T = world.map.T, p = world.player, busy = (typeof choice !== 'undefined' && choice);
       for (const a of world.actors) { const n = a.npc; if (!n) continue;
         const isCat = n.r139cat && world.mapName === COURT;
@@ -480,7 +485,7 @@
       if (a && a._q162prop) { ctx.save(); undoAZ(a); a._q162prop(a); ctx.restore(); return; }
       if (a && a.npc && a.npc.q162book) return;   // 作者 11-08：不另画一本书——《青竹小记》就是书桌上原本摊开的那本，光效在 tileAmbientHigh 里画
       const n = a && a.npc;
-      if (n && ON() && a._q && !a._a142 && (n.q162 || n.r139cat)) { const y0 = a.y; a.y += a._q.oy || 0; let ok = false; try { ok = drawQ(a, n); } finally { a.y = y0; } if (ok) return; }
+      if (n && VON() && a._q && !a._a142 && (n.q162 || n.r139cat)) { const y0 = a.y; a.y += a._q.oy || 0; let ok = false; try { ok = drawQ(a, n); } finally { a.y = y0; } if (ok) return; }
     } catch (e) {}
     return o.apply(this, arguments);
   })(drawActorT);
