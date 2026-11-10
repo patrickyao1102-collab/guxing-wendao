@@ -20,6 +20,12 @@
   const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { const fin = b => { IM[k] = b; got++; }; try { if (window.createImageBitmap && i.width * i.height > 250000) createImageBitmap(i).then(fin, () => fin(i)); else fin(i); } catch (e) { fin(i); } }; i.onerror = () => { got++; }; i.src = SRC(k); };
   const loadAll = () => { for (let i = 0; i < MM.pages; i++) ld('m_' + i); ld('lf'); ld('seam'); };
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID) return a; loadAll(); return Math.min(a, want ? got / want : 0); }; }
+  // 作者 11-10：「可以让他在加载页面多停留，这样会不会好点」→ 图都到齐以后，载入画面再多留一会儿：先把园里每一张大图都画一遍（显卡把贴图备好）、
+  //   把阻挡和物件表建好，再放玩家进去——卡顿留在载入画面里，不留给走路和建造
+  { let WARM = 0; const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID || a < 1) return a;
+      if (!WARM) { WARM = performance.now(); try { ctx.save(); ctx.globalAlpha = .004; for (const set of [IM, G2.IM || {}]) for (const k in set) { const im = set[k]; if (im && im.width) { ctx.drawImage(im, 0, 0, im.width, im.height, 0, 0, 16, 16); ctx.drawImage(im, 0, 0, Math.min(im.width, 512), Math.min(im.height, 512), 0, 0, 512, 512); } } } catch (e) {} finally { ctx.restore(); }
+        try { if (world.mapName === ID && world.map && world.map.T) applyBlock(); } catch (e) {} }
+      return performance.now() - WARM > 900 ? 1 : .97; }; }
   const spr = (g, k, x, y, sc) => { const r = MM.r[k], im = r && IM['m_' + r[0]]; if (!im) return false; const s = sc || 1; g.drawImage(im, r[1], r[2], r[3], r[4], x, y, r[3] * s, r[4] * s); return true; };
 
   // ---------- 物品 ----------
