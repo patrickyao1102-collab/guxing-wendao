@@ -383,6 +383,21 @@
   const BEDK = { maid2: 0, servant: 0 };
 
   // ---------- 说话 ----------
+  // 作者 11-10：「阿福去了，那么和另外一个 npc 对话，就说阿福在菜园之类的」
+  const AWAY_SAY = {
+    maid1: { maid2: ['笑', '小桃今天轮到去菜园了，一早就拎着水瓢走的。少爷找她的话，往西边菜园去。', '小桃今晚在菜园的园屋值夜呢。她嘴上说不怕黑，灯倒是点了两盏。'],
+      servant: ['笑', '阿福今天在菜园干活，说要把鸡舍的水添满。少爷找他，去菜园就是。', '阿福今晚在园屋值夜。那张床硬，他倒是沾枕头就着。'] },
+    maid2: { maid1: ['笑', '青禾姐今天去菜园啦！院里的活小桃替她看着。少爷要找她，去西边菜园。', '青禾姐今晚在园屋值夜，小桃一个人睡……才、才不怕呢。'],
+      servant: ['得意', '阿福今天被派去菜园啦，院里总算清静了！少爷找他就去菜园。', '阿福今晚在菜园值夜。希望他别把鸭子吓着。'] },
+    servant: { maid1: ['笑', '青禾姐今天在菜园，晒架上的菜干都是她翻的。少爷找她去菜园就成。', '青禾姐今晚在园屋值夜，阿福把柴都替她劈好了。'],
+      maid2: ['大笑', '小桃今天在菜园浇水呢！她走之前还叮嘱阿福别偷吃。少爷找她去菜园。', '小桃今晚值夜。她说不怕黑……阿福才不信。'] },
+    steward: { maid1: ['笑', '青禾今日轮去菜园照看，少爷若寻她，往西边菜园去。', '青禾今晚在园屋值夜，院里的灯老头子替她看着。'],
+      maid2: ['笑', '小桃今日在菜园。那丫头浇起水来没个轻重，少爷得空去瞧瞧。', '小桃今晚在园屋值夜，老头子给她多留了一盏灯。'],
+      servant: ['笑', '阿福今日在菜园干活。少爷要寻他，去菜园便是。', '阿福今晚在园屋值夜，这小子睡得沉，但愿别让黄鼠狼钻了空子。'] },
+  };
+  function awayLine(who) { try { if (!ON() || !window.R175G2_AWAY) return null; const aw = R175G2_AWAY(), L = aw && aw !== who && AWAY_SAY[who] && AWAY_SAY[who][aw]; if (!L) return null;
+    const f = F(), key = qday() + ':' + shi() + ':' + aw; f.qz_awaysaid = f.qz_awaysaid && f.qz_awaysaid.k === key ? f.qz_awaysaid : { k: key }; if (f.qz_awaysaid[who]) return null; f.qz_awaysaid[who] = 1;
+    const nt = shi() === '戌' || shi() === '子'; return [WHO[who] + '·' + L[0], L[nt ? 2 : 1]]; } catch (e) { return null; } }
   async function talkTo(who, a, n) {
     const s = shi(), f = F(), q = n.q162, out = s === '戌' && f.qz_out === who && q.map === (OUT[who] || {}).map;
     const day = s === '卯' || s === '午' || s === '酉';
@@ -409,6 +424,7 @@
     if (mood(who) === '忧' && !((f.qz_comfort || {})[who]) && ON()) { const ml = MOODL[who]['忧']; await say(WHO[who] + '·' + ml[0], ml[1]); await comfort(who); if (who !== 'steward') return; }
     // 3) 松伯：传送玉符照旧（头一回见面那段也照旧）
     if (who === 'steward' && !f.steward_met) { const r = origTalk('steward', q.map === COURT ? 'day' : 'room', a); if (r) return r; }
+    { const al = awayLine(who); if (al) await say(al[0], al[1]); }   // 今天有人在菜园 / 值夜：每个时辰头一回闲聊先提一句
     if (who === 'steward') {
       const ml = MOODL.steward[mood('steward')], l = ml && Math.random() < .4 ? [WHO.steward + '·' + ml[0], ml[1]] : line('steward', out ? 'out' : s); if (l) await say(l[0], l[1]);
       const g = canGift('steward'), opts = ['传送到去过的地方', ...(g ? ['送点吃的'] : []), '没事了'];

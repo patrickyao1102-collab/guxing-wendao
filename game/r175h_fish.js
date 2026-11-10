@@ -19,7 +19,10 @@
   const IM = {}; let req = false;
   const FK = ['angler', 'float', 'shadow', 'cat', 'cards', 'ing', 'ui'], FAIL = {};
   const ld = k => { const i = new Image(); i.onload = () => { IM[k] = i; if (k === 'ing') mkIcons(); }; i.onerror = () => { FAIL[k] = (FAIL[k] || 0) + 1; if (FAIL[k] < 3) setTimeout(() => ld(k), 1500 * FAIL[k]); }; i.src = (window.R162_ASSETS && R162_ASSETS[D + k + '.webp']) || (D + k + '.webp'); };
-  const need = () => { if (req) return; req = true; FK.forEach(ld); };
+  const need = () => { if (req) return; req = true; FK.forEach(ld); for (const k of K2) { const i = new Image(); i.onload = () => { IM2[k] = i; }; i.src = 'r175f2/' + k + '.webp?v=1'; } };
+  // Codex R175F2：水花 / 拖线尾迹 / 九种鱼的鱼跃和挂线 / 白鹭 / 竹筒 / 院猫扑水 / 三块竹牌（没下完之前用程序画的顶着）
+  const IM2 = {}, K2 = ['splash', 'wake', 'leap', 'hang', 'egret', 'tube', 'tube_card', 'cat2', 'ui2'];
+  const LROW = { crucian: 0, minnow: 1, grass_carp: 2, carp: 3, perch: 4, koi: 5, silver_scale: 6, starfish: 7, salamander: 8 };
   window.R175_FISH_READY = () => { need(); return FK.filter(k => IM[k] || FAIL[k] >= 3).length / FK.length; };
   setTimeout(need, 9000);
   tileSetMap = (o => function (name) { if (name === PAV) need(); return o.apply(this, arguments); })(tileSetMap);
@@ -105,9 +108,9 @@
     if (G.fv) {   // 鱼线：竿尖 → 浮漂，溜鱼时绷直
       const [x0, y0] = tip(), x1 = G.fx, y1 = G.fy - 8, mx = (x0 + x1) / 2, sag = G.phase === 'reel' ? 4 + (1 - G.ten) * 30 : G.phase === 'cast' ? -24 : 40;
       ctx.strokeStyle = 'rgba(250,250,240,.8)'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(mx, Math.max(y0, y1) + sag, x1, y1); ctx.stroke(); }
-    if (G.cat && IM.cat) { const c = G.cat, cd = M.cat[c.act], n = Math.floor((now() - c.t0) * cd.fps), cf = c.loop === false ? Math.min(cd.n - 1, n) : n % cd.n, sz = M.cat_disp.size[0];
+    if (G.cat && IM.cat) { const c = G.cat, pz = c.act === 'pounce' && IM2.cat2, cd = pz ? { row: 3, n: 8, fps: 12 } : M.cat[c.act === 'pounce' ? 'watch' : c.act], n = Math.floor((now() - c.t0) * cd.fps), cf = c.loop === false ? Math.min(cd.n - 1, n) : n % cd.n, sz = M.cat_disp.size[0];
       ctx.save(); ctx.translate(c.x, c.y); ctx.scale(k, k); ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(0, -1, 20, 6, 0, 0, 7); ctx.fill();
-      ctx.drawImage(IM.cat, cf * 128, cd.row * 128, 128, 128, -sz * .5, -sz * (240 / 256), sz, sz); ctx.restore(); }
+      ctx.drawImage(pz ? IM2.cat2 : IM.cat, cf * 128, cd.row * 128, 128, 128, -sz * .5, -sz * (240 / 256), sz, sz); ctx.restore(); }
     ctx.restore();
   })(drawActorT);
   // ---------- 画：水下鱼影 + 浮漂（地面层之后，r175h_houting.js 调用）----------
@@ -135,16 +138,31 @@
   function zTick() { const t = now(), dt = Math.min(.05, t - (zLast || t)); zLast = t; const w = zWant(); if (Math.abs(w - zCur) < .002) { if (zCur !== w) { zCur = w; zSet(zCur); } return; } zCur += (w - zCur) * Math.min(1, dt * 2.6); zSet(zCur); }
   setInterval(() => { if (!G.on && zCur !== Z0) { zCur = Z0; zSet(Z0); } }, 500);
   const FX = [], RINGS = [];
-  function splash(x, y, n, pw) { for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 1.9, v = pw * (.45 + Math.random() * .75); FX.push({ x: x + (Math.random() - .5) * 10, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t0: now(), life: .45 + Math.random() * .4, r: 1.2 + Math.random() * 2.2, y0: y }); } RINGS.push({ x, y, t0: now(), life: .9, k: 1 + pw / 160 }); try { playSnd('sfx_water', .5); } catch (e) {} }
+  const SPR = [], SPN = [6, 8, 8, 8], SPF = [12, 14, 14, 12];
+  function splash(x, y, n, pw, row) { if (row != null && IM2.splash) { SPR.push({ row, x, y, t0: now(), k: .5 + pw / 400 }); n = Math.ceil(n / 3); }
+    for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 1.9, v = pw * (.45 + Math.random() * .75); FX.push({ x: x + (Math.random() - .5) * 10, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t0: now(), life: .45 + Math.random() * .4, r: 1.2 + Math.random() * 2.2, y0: y }); } RINGS.push({ x, y, t0: now(), life: .9, k: 1 + pw / 160 }); try { playSnd('sfx_water', .5); } catch (e) {} }
   const artOf = id => (ICON['c_' + id] = ICON['c_' + id] || cardCanvas(id));
   const fishLen = f => [34, 46, 62][f.sh || 0];
   function fishAt(id, wx, wy, len, rot, flip, al) { const c = artOf(id); if (!c) return; const [sx, sy] = toScr(wx, wy), z = VZ(), w = len * z, h = w * c.height / c.width;
     ctx.save(); ctx.globalAlpha = al == null ? 1 : al; ctx.translate(sx, sy); if (flip) ctx.scale(-1, 1); ctx.rotate(rot); ctx.drawImage(c, -w / 2, -h / 2, w, h); ctx.restore(); }
+  // 世界坐标画一格：锚点 (ax, ay) 落在 (wx, wy)，k = 世界里的缩放
+  function wspr(im, fx, fy, fw, fh, wx, wy, ax, ay, k, flip, rot, al) { const [sx, sy] = toScr(wx, wy), q = k * VZ(); ctx.save(); if (al != null) ctx.globalAlpha = al; ctx.translate(sx, sy); if (rot) ctx.rotate(rot); if (flip) ctx.scale(-1, 1); ctx.drawImage(im, fx, fy, fw, fh, -ax * q, -ay * q, fw * q, fh * q); ctx.restore(); }
+  const EGP = [470 - OX, 566];   // 白鹭歇脚的地方（潭西南岸的石头上）
+  function egPos(e, t) { const u = t - e.t0, s = .62, P = [e.fx + 48 * s, e.fy - 69 * s]; if (u < .5) { const v = u / .5, w = v * v * (3 - 2 * v); return [e.sx + (P[0] - e.sx) * w, e.sy + (P[1] - e.sy) * w - Math.sin(v * Math.PI) * 40]; } const v = Math.min(1, (u - .5) / .7); return [P[0] + 330 * v, P[1] - 250 * v * v - 30 * v]; }
   function drawFX(t) { const z = VZ(); ctx.save();
+    if (G.tube && IM2.tube) { const b = G.tube; b.x = b.x0 + Math.sin(t * .23 + b.ph) * 70; b.y = b.y0 + Math.cos(t * .19 + b.ph) * 16; wspr(IM2.tube, (Math.floor(t * 5) % 4) * 96, 0, 96, 96, b.x, b.y, 48, 61, .62); }
+    if (G.phase === 'reel' && IM2.wake && !(G.leap && G.leap.st === 'air') && G.run != null) wspr(IM2.wake, (Math.floor(t * 10) % 6) * 192, 0, 192, 96, G.fx, G.fy, 178, 48, .5, false, Math.atan2(Math.sin(G.run) * .5, Math.cos(G.run)), G.hold ? .55 : .9);
+    for (let i = SPR.length - 1; i >= 0; i--) { const q = SPR[i], f = Math.floor((t - q.t0) * SPF[q.row]); if (f >= SPN[q.row]) { SPR.splice(i, 1); continue; } wspr(IM2.splash, f * 192, q.row * 192, 192, 192, q.x, q.y, 96, 136, q.k); }
+    if (G.eg && IM2.egret) { const e = G.eg; if (e.st === 'idle') wspr(IM2.egret, (Math.floor(t * 4) % 4) * 256, 192, 256, 192, e.x, e.y, 128, 171, .5); else { const [x, y] = egPos(e, t); wspr(IM2.egret, Math.min(11, Math.floor((t - e.t0) * 10)) * 256, 0, 256, 192, x, y, 128, 91, .62); } }
     for (let i = RINGS.length - 1; i >= 0; i--) { const r = RINGS[i], u = (t - r.t0) / r.life; if (u >= 1) { RINGS.splice(i, 1); continue; } const [sx, sy] = toScr(r.x, r.y); ctx.strokeStyle = `rgba(255,255,255,${.6 * (1 - u)})`; ctx.lineWidth = 2 * z;
       ctx.beginPath(); ctx.ellipse(sx, sy, (8 + u * 34 * r.k) * z, (3 + u * 13 * r.k) * z, 0, 0, 7); ctx.stroke(); }
-    if (G.leap && G.leap.st === 'air' && G.fish) { const L = G.leap, u = Math.min(1, (t - L.t0) / L.dur), h = Math.sin(u * Math.PI) * L.h; fishAt(G.fish.id, L.x + L.dx * u, L.y - h - 6, fishLen(G.fish) * 1.25, (u - .5) * 1.5 * (L.dx > 0 ? -1 : 1) + (L.dx > 0 ? .0 : 0), L.dx > 0, 1); }
-    if (G.fly && G.fish) { const L = G.fly, u = Math.min(1, (t - L.t0) / L.dur), x = L.x0 + (L.x1 - L.x0) * u, y = L.y0 + (L.y1 - L.y0) * u - Math.sin(u * Math.PI) * 110; fishAt(G.fish.id, x, y, fishLen(G.fish) * (1.25 + u * .5), Math.sin(t * 22) * .35 + .5, true, 1); if (Math.random() < .5) FX.push({ x, y, vx: (Math.random() - .5) * 40, vy: 20, t0: t, life: .4, r: 1.4, y0: y + 200 }); }
+    if (G.leap && G.leap.st === 'air' && G.fish && IM2.leap && LROW[G.fish.id] != null) { const L = G.leap, u = Math.min(1, (t - L.t0) / L.dur); wspr(IM2.leap, Math.min(7, Math.floor(u * 8)) * 192, LROW[G.fish.id] * 160, 192, 160, L.x + L.dx * u, L.y, 96, 139, fishLen(G.fish) / 62, L.dx > 0); }
+    else if (G.leap && G.leap.st === 'air' && G.fish) { const L = G.leap, u = Math.min(1, (t - L.t0) / L.dur), h = Math.sin(u * Math.PI) * L.h; fishAt(G.fish.id, L.x + L.dx * u, L.y - h - 6, fishLen(G.fish) * 1.25, (u - .5) * 1.5 * (L.dx > 0 ? -1 : 1) + (L.dx > 0 ? .0 : 0), L.dx > 0, 1); }
+    if (G.fly && G.fish) { const L = G.fly, u = Math.min(1, (t - L.t0) / L.dur), x = L.x0 + (L.x1 - L.x0) * u, y = L.y0 + (L.y1 - L.y0) * u - Math.sin(u * Math.PI) * 110;
+      if (IM2.hang && LROW[G.fish.id] != null) { try { const [tx, ty] = tip(), [a0, b0] = toScr(tx, ty), [a1, b1] = toScr(x, y); ctx.strokeStyle = 'rgba(250,250,240,.85)'; ctx.lineWidth = 1.3 * z; ctx.beginPath(); ctx.moveTo(a0, b0); ctx.lineTo(a1, b1); ctx.stroke(); } catch (e) {}
+        wspr(IM2.hang, (Math.floor(t * 8) % 4) * 128, LROW[G.fish.id] * 128, 128, 128, x, y, 64, 7, fishLen(G.fish) / 62 * (1 + u * .3), false, Math.sin(t * 9) * .18); }
+      else fishAt(G.fish.id, x, y, fishLen(G.fish) * (1.25 + u * .5), Math.sin(t * 22) * .35 + .5, true, 1); if (Math.random() < .5) FX.push({ x, y, vx: (Math.random() - .5) * 40, vy: 20, t0: t, life: .4, r: 1.4, y0: y + 200 }); }
+    if (G.deftT && t - G.deftT < 1.1 && IM2.ui2 && G.fv) { const u = (t - G.deftT) / 1.1, [sx, sy] = toScr(G.fx, G.fy), k = (u < .15 ? .6 + u / .15 * .6 : 1.2 - Math.min(.2, (u - .15) * .5)) * 1.1; ctx.save(); ctx.globalAlpha = u > .8 ? (1 - u) / .2 : 1; ctx.drawImage(IM2.ui2, 0, 96, 192, 96, sx - 96 * k, sy - 120 - 48 * k, 192 * k, 96 * k); ctx.restore(); }
     for (let i = FX.length - 1; i >= 0; i--) { const q = FX[i], u = (t - q.t0) / q.life; if (u >= 1) { FX.splice(i, 1); continue; } const e = t - q.t0, x = q.x + q.vx * e, y = Math.min(q.y0, q.y + q.vy * e + 260 * e * e); const [sx, sy] = toScr(x, y);
       ctx.fillStyle = `rgba(245,252,255,${.9 * (1 - u)})`; ctx.beginPath(); ctx.arc(sx, sy, q.r * z, 0, 7); ctx.fill(); }
     ctx.restore(); }
@@ -158,7 +176,8 @@
       G.caught.slice(-3).forEach((id, i) => { const q = sl[i]; if (!q) return; const c = ICON['fish_' + id] || (IM.cards && (ICON['c_' + id] = ICON['c_' + id] || cardCanvas(id))); if (!c) return;
         const bw = q[2] * sc, bh = q[3] * sc, f = Math.min(bw / c.width, bh / c.height) * 1.08, w = c.width * f, h = c.height * f; ctx.drawImage(c, x + q[0] * sc + (bw - w) / 2, y + q[1] * sc + (bh - h) / 2, w, h); }); }
     // 收竿
-    if (G.streak >= 2) { ctx.font = `28px ${BRUSH}`; ctx.textAlign = 'left'; textOutline('连竿 ×' + G.streak, 30, 158, '#ffd27a', '#2a1406', 5); ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 180, '#f6ecd0', '#2a1406', 3); }
+    if (G.streak >= 2 && IM2.ui2) { ctx.drawImage(IM2.ui2, 0, 192, 192, 96, 18, 118, 192, 96); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('×' + G.streak, 18 + 98 + 28, 118 + 31 + 24, '#fff3c8', '#1c2a0c', 4); ctx.textAlign = 'left'; ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 208, '#f6ecd0', '#2a1406', 3); }
+    else if (G.streak >= 2) { ctx.font = `28px ${BRUSH}`; ctx.textAlign = 'left'; textOutline('连竿 ×' + G.streak, 30, 158, '#ffd27a', '#2a1406', 5); ctx.font = `600 15px ${FONT}`; textOutline('连着钓上来，好鱼更爱咬钩', 30, 180, '#f6ecd0', '#2a1406', 3); }
     if (G.phase !== 'card') { ui('button_paper', BTN_QUIT.x, BTN_QUIT.y); ctx.font = `600 22px ${FONT}`; ctx.textAlign = 'center'; textOutline('不钓了', BTN_QUIT.x + 75, BTN_QUIT.y + 32, '#fff3d6', '#3a1a06', 4); }
     // 提示
     if (G.phase === 'aim') { ctx.font = `34px ${BRUSH}`; ctx.textAlign = 'center'; textOutline('点潭面，选个落点', W / 2, H - 120, '#ffe9b0', '#2a1406', 6);
@@ -169,6 +188,7 @@
         if (G.phase === 'wait' && G.fl === 'nod') hint('鱼在试探——别点！', '浮漂只是轻轻点头。现在点，鱼就惊走了', '#ffb37a');
         else if (G.phase === 'wait') hint('等鱼咬钩……', '浮漂轻轻点头是试探，别点；猛地沉下去、冒出「！」才是咬钩');
         else if (G.phase === 'bite') hint('咬钩了！快点一下！', '点屏幕任何地方都行，慢了鱼就跑了', '#ff9a7a');
+        else if (G.phase === 'reel' && G.leap && IM2.ui2) { const k = 1.7 + Math.abs(Math.sin(t * 12)) * .12; ctx.drawImage(IM2.ui2, 0, 0, 192, 96, W / 2 - 96 * k, 120 - 48 * k, 192 * k, 96 * k); ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; textOutline(G.leap.st === 'pre' ? '鱼要跃出水面了——现在拉着线会绷断' : '松着手，等它落回水里', W / 2, 196, '#f6ecd0', '#2a1406', 4); }
         else if (G.phase === 'reel' && G.leap) { ctx.font = `44px ${BRUSH}`; ctx.textAlign = 'center'; textOutline(G.leap.st === 'pre' ? '鱼要跃出水面——松手！' : '松着手，等它落水！', W / 2, 150, '#ffb08a', '#2a1406', 6); ctx.font = `600 18px ${FONT}`; textOutline('鱼跃的时候还拉着线，线一下就绷断', W / 2, 184, '#f6ecd0', '#2a1406', 4); }
         else if (G.phase === 'reel') { ctx.font = `600 17px ${FONT}`; ctx.textAlign = 'center'; textOutline('进度涨满就起鱼 · 拉太紧（指针到最右）会断线 · 放太松（到最左）会脱钩', W / 2, H - 150, '#f6ecd0', '#2a1406', 4); } } }
     if (G.fv && window.TOD && TOD() === 'night') { const [sx, sy] = toScr(G.fx, G.fy - 9), r = 9 + Math.sin(t * 5) * 1.5, g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 2.2);   // 夜里用夜光漂：漂尖一点暖光
@@ -193,7 +213,7 @@
   function cardRects(c) { const r = M.ui.catch_card, w = r[2] * CS, h = r[3] * CS, x = 96, y = Math.round((H - h) / 2), n = c.btns.length;
     const bw = 140 * CS, bh = (n >= 3 ? 36 : 40) * CS, gap = (n >= 3 ? 5 : 8) * CS, y0 = y + (n >= 3 ? 292 : n === 2 ? 326 : 346) * CS, cx = x + (PAPER[0] + PAPER[2] / 2) * CS;
     return { x, y, w, h, cx, n, bs: c.btns.map((k, i) => ({ k, x: cx - bw / 2, y: y0 + i * (bh + gap), w: bw, h: bh })) }; }
-  const BTXT = { keep: '收进鱼篓', release: '放　生', take: '算　了' };
+  const BTXT = { keep: '收进鱼篓', release: '放　生', take: '算　了', open: '打开看看' };
   function drawCard(c, t) {
     const R = cardRects(c), u = Math.min(1, (t - c.t0) / .25), S3 = R.n >= 3; ctx.save(); ctx.globalAlpha = u; ctx.translate(0, (1 - u) * 20);
     ctx.fillStyle = 'rgba(8,10,14,.35)'; ctx.fillRect(-20, -40, W + 40, H + 80);
@@ -214,7 +234,7 @@
   async function oneCast(lx, ly, zi) {
     const fish = roll(zi), wx = lx - OX;
     G.fish = fish; G.tx = wx; G.ty = ly; G.phase = 'cast'; setAct('cast'); try { playSnd('sfx_swing'); } catch (e) {}
-    G.fv = false; await sleep(500); G.cast0 = now(); G.fv = true; setFl('idle'); await sleep(450); G.fx = wx; G.fy = ly; setFl('land'); G.ring = now(); splash(wx, ly, 6, 70);
+    G.fv = false; await sleep(500); G.cast0 = now(); G.fv = true; setFl('idle'); await sleep(450); G.fx = wx; G.fy = ly; setFl('land'); G.ring = now(); splash(wx, ly, 6, 70, 0);
     await waitAct(); setAct('wait'); G.phase = 'wait'; setFl('idle'); TAPS.length = 0;
     // 鱼影从旁边游过来 → 在浮漂底下转悠，先试探着点一两下头（这时点就把它惊走）→ 真咬钩
     // come 游过来 / near 在漂下转悠 / nod 试探点头 / flee 被惊走（过一会儿再来一条）
@@ -234,20 +254,25 @@
         if (st !== 'flee') { flash(st === 'nod' ? '只是试探……鱼被惊走了' : '点早了，鱼被惊走了……', 1.3); try { playSnd('ui_cancel'); } catch (e) {} st = 'flee'; tN = t + 2.4; setFl('idle'); G.ring = now(); } } }
     // 咬钩
     G.phase = 'bite'; setFl('dive'); try { playSnd('sfx_hit', .5); } catch (e) {} TAPS.length = 0;
-    splash(G.fx, G.fy, 10, 110); const win0 = fish.win * ((F().r175_easy || 0) > 0 ? 2.4 : 1); let win = win0, hit = false, last2 = now();   // 头两条鱼给足反应时间
+    splash(G.fx, G.fy, 10, 110, 1); const win0 = fish.win * ((F().r175_easy || 0) > 0 ? 2.4 : 1); let win = win0, hit = false, last2 = now();   // 头两条鱼给足反应时间
     while (win > 0) { await frame(); const t = now(); win -= t - last2; last2 = t; const tp = take(); if (tp) { if (inR(tp, BTN_QUIT)) return 'quit'; hit = true; break; } }
     if (!hit) { G.streak = 0; G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('慢了一步……鱼溜了', 1.4); await waitAct(); setAct('wait'); return null; }
     const deft = win > win0 * .6;   // 竹牌一冒出来就点中：妙手，起手就有三成进度
-    setAct('hook'); G.phase = 'reel'; G.ten = .35; G.prog = deft ? fish.nd * .3 : 0; if (deft) { flash('妙手！', 1); try { playSnd('ui_confirm', .6); } catch (e) {} } G.zc = .37 + Math.random() * .1; setFl('nod');
+    setAct('hook'); G.phase = 'reel'; G.ten = .35; G.prog = deft ? fish.nd * .3 : 0; if (deft) { G.deftT = now(); if (!IM2.ui2) flash('妙手！', 1); try { playSnd('ui_confirm', .6); } catch (e) {} } G.zc = .37 + Math.random() * .1; setFl('nod');
     await sleep(300); setAct('fight');
-    let slack = 0, surge = 0, sdir = 1, last3 = now(), run = Math.random() * 6.28, wake = 0, leapT = now() + 1.6 + Math.random() * 1.6; const hx = G.fx, hy = G.fy, canLeap = !fish.junk && fish.id !== 'turtle' && fish.id !== 'shrimp'; G.leap = null;
+    let slack = 0, surge = 0, sdir = 1, last3 = now(), run = Math.random() * 6.28, wake = 0, rT = 0, egWarn = false, leapT = now() + 1.6 + Math.random() * 1.6; const egOk = !fish.junk && (fish.sh || 0) <= 1 && fish.id !== 'salamander', egLim = 6 + fish.nd * 1.7; const hx = G.fx, hy = G.fy, canLeap = !fish.junk && fish.id !== 'turtle' && fish.id !== 'shrimp'; G.leap = null;
     while (true) { await frame(); const t = now(), dt = Math.min(.05, t - last3); last3 = t; take();
       surge -= dt; if (surge <= 0) { surge = .4 + Math.random() * 1.2 / fish.sp; sdir = Math.random() < .55 ? 1 : -1; run += (Math.random() - .5) * 3; }
       // 鱼跃：先抖两下（预兆），再跃出水面；这段时间按着线会猛地绷紧，松着手反而涨进度
       if (canLeap && !G.leap && t >= leapT && G.prog < fish.nd - .5) { G.leap = { st: 'pre', t0: t, dur: .5 }; try { playSnd('sfx_hit', .35); } catch (e) {} }
-      if (G.leap) { const L = G.leap; if (L.st === 'pre' && t - L.t0 >= L.dur) { const dx = (Math.random() < .5 ? -1 : 1) * (26 + Math.random() * 22); G.leap = { st: 'air', t0: t, dur: .62, x: G.fx, y: G.fy, dx, h: 46 + (fish.sh || 0) * 14 }; splash(G.fx, G.fy, 16, 150); }
-        else if (L.st === 'air' && t - L.t0 >= L.dur) { G.fx = Math.max(hx - 64, Math.min(hx + 64, L.x + L.dx)); splash(G.fx, G.fy, 14, 120); G.leap = null; leapT = t + 2.2 + Math.random() * 2.4 / fish.sp; } }
-      const leaping = !!G.leap;
+      if (G.leap) { const L = G.leap; if (L.st === 'pre' && t - L.t0 >= L.dur) { const dx = (Math.random() < .5 ? -1 : 1) * (26 + Math.random() * 22); G.leap = { st: 'air', t0: t, dur: .67, x: G.fx, y: G.fy, dx, h: 46 + (fish.sh || 0) * 14 }; splash(G.fx, G.fy, 16, 150, 2); }
+        else if (L.st === 'air' && t - L.t0 >= L.dur) { G.fx = Math.max(hx - 64, Math.min(hx + 64, L.x + L.dx)); splash(G.fx, G.fy, 14, 120, 3); G.leap = null; leapT = t + 2.2 + Math.random() * 2.4 / fish.sp; } }
+      const leaping = !!G.leap; G.run = run; rT += dt;
+      // 白鹭：歇在岸上的那只盯着小鱼，溜得太久它就俯冲下来叼走
+      if (G.eg && G.eg.st === 'idle' && egOk) { if (!egWarn && rT > egLim * .55) { egWarn = true; flash('白鹭盯上你的鱼了，快收！', 1.5); }
+        if (rT > egLim && !leaping) { const e = G.eg; G.eg = { st: 'swoop', t0: t, sx: e.x, sy: e.y - 50, fx: G.fx, fy: G.fy }; try { playSnd('sfx_swing', .6); } catch (e2) {}
+          while (now() - G.eg.t0 < .5) await frame(); splash(G.fx, G.fy, 12, 120, 1); G.streak = 0; G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('白鹭把鱼叼走了！', 1.6);
+          while (now() - G.eg.t0 < 1.2) await frame(); G.eg = null; await waitAct(); setAct('wait'); return null; } }
       const pull = fish.p * (.35 + .65 * Math.abs(Math.sin(t * fish.sp * 2.3))) * sdir;
       G.ten = Math.max(0, Math.min(1, G.ten + (leaping ? (G.hold ? 1.5 : -.08) : (G.hold ? .55 : -.5) + pull * .5) * dt));
       G.zc = Math.max(.3, Math.min(.54, G.zc + Math.sin(t * fish.sp * .9) * dt * .07));
@@ -260,7 +285,7 @@
       slack = G.ten <= .02 ? slack + dt : 0; if (slack > .9) { G.leap = null; G.streak = 0; G.phase = 'miss'; setAct('miss'); G.sh = null; G.fv = false; flash('线太松，脱钩了', 1.4); await waitAct(); setAct('wait'); return null; }
       if (G.prog >= fish.nd) break; }
     if (F().r175_easy > 0) F().r175_easy--;
-    G.leap = null; G.phase = 'land'; G.sh = null; splash(G.fx, G.fy, 22, 170); { const p = world.player; G.fly = { t0: now(), dur: .55, x0: G.fx, y0: G.fy, x1: p.x - 6, y1: p.y - 46 }; }
+    G.leap = null; G.phase = 'land'; G.sh = null; splash(G.fx, G.fy, 22, 170, 2); { const p = world.player; G.fly = { t0: now(), dur: .55, x0: G.fx, y0: G.fy, x1: p.x - 6, y1: p.y - 46 }; }
     G.fv = false; setAct('land'); try { playSnd('ui_confirm'); } catch (e) {} await waitAct(); while (G.fly && now() - G.fly.t0 < G.fly.dur) await frame(); G.fly = null; if (!fish.junk) G.streak = (G.streak || 0) + 1;
     return fish;
   }
@@ -289,6 +314,19 @@
   }
 
   // ---------- 一次垂钓 ----------
+  // 漂来的竹筒：瞄它甩一竿就钩上来，里面是一张纸条和一点东西（每个时辰最多一只）
+  const NOTES = ['竹筒里卷着一张泛黄的纸条：「后山的桃子熟了，谁捡到谁去摘。」落款的年号，比少爷的岁数还大。', '纸条上只有歪歪扭扭一行字：「师兄，我把你的剑穗掉潭里了，对不住。」', '油纸里裹着几块灵石，纸上写着：「给下一个钓到它的有缘人。」', '纸条上画着一只歪脖子的鹤，旁边写着：「今日练剑又被师父罚了，记之。」'];
+  async function tubeCast() { const b = G.tube, f = F(); if (!b) return; G.tx = b.x; G.ty = b.y; G.phase = 'cast'; setAct('cast'); try { playSnd('sfx_swing'); } catch (e) {}
+    G.fv = false; await sleep(500); G.cast0 = now(); G.fv = true; setFl('idle'); await sleep(450); G.fx = b.x; G.fy = b.y; splash(b.x, b.y, 6, 70, 0); await waitAct();
+    setAct('hook'); await sleep(350); G.tube = null; G.fv = false; setAct('land'); try { playSnd('ui_confirm'); } catch (e) {} await waitAct(); setAct('wait'); f.r175_tube_k = restKey();
+    G.card = { t0: now(), art: IM2.tube_card || null, name: '漂来的竹筒', title: '……钓到了', btns: ['open'], line: '封口缠着麻绳，里面像是塞着什么' }; G.phase = 'card'; TAPS.length = 0;
+    let pick = null; while (!pick) { await frame(); const tp = take(); if (!tp || now() - G.card.t0 < .35) continue; for (const q of cardRects(G.card).bs) if (inR(tp, q)) pick = q.k; } G.card = null;
+    await narrate(NOTES[Math.floor(Math.random() * NOTES.length)]); const g = 30 + Math.floor(Math.random() * 51); try { S.hero.gold = (S.hero.gold || 0) + g; } catch (e) {}
+    f.r175_tubes = (f.r175_tubes || 0) + 1; toast('竹筒底下还压着 ' + g + ' 灵石', 2000); }
+  // 院猫扑水：没钓上来的时候，蹲在旁边的猫有时自己下爪子
+  async function catPounce() { const c = G.cat; if (!c || !IM2.cat2) return; c.act = 'pounce'; c.t0 = now(); c.loop = false; await sleep(340); splash(c.x - 46, c.y - 4, 8, 90, 0); await sleep(340);
+    if (Math.random() < .35) { c.act = 'eat'; c.t0 = now(); c.loop = true; if (window.QZ_BOND) QZ_BOND('cat', 1, true); toast(catName() + '自己捞上来一条小白条，叼到一边吃去了　♥ 情谊 +1', 2200); await sleep(1500); }
+    else toast(catName() + '扑了个空，甩了少爷一身水', 1800); c.act = 'watch'; c.t0 = now(); c.loop = true; }
   async function session() {
     if (G.on) return;
     const f = F();
@@ -301,12 +339,16 @@
       await narrate('（等浮漂猛地沉下去、冒出一块「！」竹牌，马上点一下屏幕，就挂上了。）');
       await narrate('（挂上以后是溜鱼：按住屏幕收线，松开放线，让鱼标留在亮框里，进度涨满鱼就上来了。拉太紧会断线，放太松会脱钩。）');
       await narrate('（溜鱼的时候鱼会跃出水面：浮漂一抖，屏幕上喊「松手」，就马上松开，等它落回水里再接着收。竹牌一冒出来就点中，算「妙手」，起手就有三成进度。）');
+      await narrate('（潭边有时歇着一只白鹭：小鱼溜得太久，它会俯冲下来叼走。潭里偶尔漂来一只竹筒，点它甩一竿就能钩上来。）');
       await narrate('（每个时辰能钓八竿。不想钓了，点右下角「不钓了」。屏幕下方每一步都有提示，头两条鱼会咬得久一点。）'); }
     world.locked = true; const hud0 = S.hud;
     const p = world.player, [dx, dy] = DOCK();
     try { if (typeof moveActor === 'function') await moveActor(p, dx, dy, 200); } catch (e) {}
     p.x = dx; p.y = dy; p.face = 'left'; S.hud = false;
-    G.on = true; G.caught = []; G.phase = 'sit'; setAct('sit'); G.streak = 0; G.leap = null; G.fly = null; world.camFocus = () => (G.phase === 'reel' || G.phase === 'bite' || G.phase === 'land') && G.fv ? [G.fx * .62 + world.player.x * .38, G.fy * .62 + world.player.y * .38 - 10] : G.phase === 'wait' || G.phase === 'cast' ? [G.tx * .5 + world.player.x * .5 - 40, 462] : [800 - OX, 470]; TAPS.length = 0;
+    G.on = true; G.caught = []; G.phase = 'sit'; setAct('sit'); G.streak = 0; G.leap = null; G.fly = null; G.deftT = 0; G.run = null;
+    G.eg = !f.r175_easy && Math.random() < .4 ? { st: 'idle', x: EGP[0], y: EGP[1] } : null;   // 头两条鱼（教学）不来捣乱
+    G.tube = f.r175_tube_k !== restKey() && Math.random() < .3 ? { x0: 760 - OX, y0: 480, x: 760 - OX, y: 480, ph: Math.random() * 6 } : null;
+    world.camFocus = () => (G.phase === 'reel' || G.phase === 'bite' || G.phase === 'land') && G.fv ? [G.fx * .62 + world.player.x * .38, G.fy * .62 + world.player.y * .38 - 10] : G.phase === 'wait' || G.phase === 'cast' ? [G.tx * .5 + world.player.x * .5 - 40, 462] : [800 - OX, 470]; TAPS.length = 0;
     G.cat = Math.random() < ((f.qz_bond || {}).cat || f.cat_feeds ? .7 : .4) ? { x: 1180 - OX, y: 520, act: 'watch', t0: now() } : null;   // 院猫闻着鱼腥味跑来蹲着
     try {
       await waitAct(); setAct('wait');
@@ -314,16 +356,19 @@
         G.phase = 'aim'; G.fv = false; let tgt = null; TAPS.length = 0;   // 上一竿收尾时多点的几下不能直接变成下一竿
         while (!tgt) { await frame(); const tp = take(); if (!tp) continue; if (inR(tp, BTN_QUIT)) break;
           const z = VZ(), c = world.cam, wx = tp.x / z + c.x, wy = tp.y / z + c.y, zi = zoneAt(wx + OX, wy);
+          if (G.tube && Math.hypot(wx - G.tube.x, wy - G.tube.y) < 44) { tgt = 'tube'; break; }
           if (zi < 0) { flash('要落在潭里', 1); continue; } tgt = [wx + OX, wy, zi]; }
         if (!tgt) break;
         f.r175_used = (f.r175_used || 0) + 1;
+        if (tgt === 'tube') { await tubeCast(); G.phase = 'aim'; setAct('wait'); continue; }
         const got = await oneCast(...tgt);
         if (got === 'quit') break;
         if (got) await showCard(got);
+        else if (G.cat && G.phase !== 'card' && Math.random() < .45) await catPounce();
         G.phase = 'aim'; setAct('wait');
       }
       if (left() <= 0) { G.phase = 'sit'; await narrate('今天的竿数用完了。潭里的鱼也该歇歇了。'); }
-    } finally { G.on = false; G.fv = false; G.phase = ''; G.card = null; G.sh = null; G.cat = null; G.leap = null; G.fly = null; FX.length = 0; RINGS.length = 0; zCur = Z0; zSet(Z0); world.cam = null; world.camFocus = null; world.locked = false; S.hud = hud0; TAPS.length = 0; }
+    } finally { G.on = false; G.fv = false; G.phase = ''; G.card = null; G.sh = null; G.cat = null; G.leap = null; G.fly = null; G.eg = null; G.tube = null; SPR.length = 0; FX.length = 0; RINGS.length = 0; zCur = Z0; zSet(Z0); world.cam = null; world.camFocus = null; world.locked = false; S.hud = hud0; TAPS.length = 0; }
   }
   // ---------- 入口要看得见（R168 的教训：「钓鱼入口我一直没找到」）----------
   // ① 钓台上方挂「潭边 · 垂钓」名字牌，潭里漂一只浮漂；② 点整片潭水或钓台都能进垂钓；③ 头两回走进后庭提示一句。
