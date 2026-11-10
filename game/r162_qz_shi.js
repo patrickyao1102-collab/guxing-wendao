@@ -1032,12 +1032,13 @@
   function sparkle(x, y, t) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const a = .55 + Math.sin(t * 3) * .2; const g = ctx.createRadialGradient(x, y - 20, 2, x, y - 20, 46); g.addColorStop(0, `rgba(255,240,190,${a})`); g.addColorStop(1, 'rgba(255,220,140,0)'); ctx.fillStyle = g; ctx.fillRect(x - 50, y - 70, 100, 100); ctx.restore(); prop('firefly', null, x, y - 26, 1.2); }
   // 支线 / 特别的日子：每帧检查（任何地图都查——青阳镇折桃花在青竹外面）
   const SP = {};   // 特别的日子今天放过没有
+  let Q_T = 0;
   if (typeof tileUpdate === 'function') tileUpdate = (o => function (dt) { o.apply(this, arguments);
     try {
       if (!world.map || world.locked || Q_BUSY || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice) || (window.MAP_READY && !MAP_READY())) return;
       const f = F(), p = world.player; if (!p) return;
       for (const id in QUESTS) { const Qd = QUESTS[id]; if (!Q()[id] && Qd.startNeed && Qd.startNeed(f)) qStart(id, Qd.first, { d: qday() }); }
-      if (EV_T < 1.2) return;
+      Q_T += dt; if (Q_T < 1.2) return;   /* 自己计时：EV_T 只在青竹、选了时辰时才走，青阳镇折桃花那一步永远等不到 */
       for (const id in QUESTS) { const st = qStep(id); if (!st || !qOk(st, Q()[id])) continue;
         if (st.type === 'enter') { qRun(id); return; }
         if (st.type === 'spot') { const [x, y] = spotXY(id, st); if (Math.hypot(p.x - x, p.y - y) < 64) { qRun(id); return; } }
@@ -1413,6 +1414,8 @@
     'maid2:fly': { map: RM.maid2, at: [470, 420], steps: [{ act: 'maid2_catch_6f', t: 1e9, face: -1 }] },
     'maid1:mend': { map: RM.maid1, at: [374, 386], steps: [{ act: 'maid1_stitch_6f', t: 1e9, face: -1 }] },
     'maid1:letter': { map: RM.maid1, at: [374, 386], steps: [{ act: 'maid1_stitch_6f', t: 1e9, face: -1 }] },
+    'maid2:dark': { map: RM.maid2, at: [470, 600], steps: [{ wait: 1e9, face: -1 }] },   // 这两段原来没排位置：敲开门进屋，屋里一个人都没有
+    'maid1:emb': { map: RM.maid1, at: [374, 386], steps: [{ act: 'maid1_stitch_6f', t: 1e9, face: -1 }] },
   };
   // 每段隐藏剧情：什么时候会醒着（ok），进屋以后演什么（run）
   const HIDDEN = {
@@ -1510,7 +1513,7 @@
       }
       try { seedChests(name); } catch (e) {}
       if (name === 'tj_room') try { for (const n of R5_ALL) r5(n); } catch (e) {}   // 床边歇息面板的图先下好
-      FROM_ROOM = name === COURT && prev === 'tj_room'; DOOR_OUT = FROM_ROOM; NIGHT_T = 0; EV_T = 0;
+      FROM_ROOM = name === COURT && prev === 'tj_room'; DOOR_OUT = FROM_ROOM; NIGHT_T = 0; EV_T = 0; Q_T = 0;
       if (F().qz_awake && name !== RM[AWAKE()]) F().qz_awake = '';   // 出了屋：她也歇下了
     } catch (e) { console.warn('r162 enter', e); }
     return r;
@@ -1601,7 +1604,7 @@
       if (!auto) healAll(false);
       try { const C = F().clk; if (C) { C.shi = s; C.t = 0; } } catch (e) {}   // 床上歇过：时钟从这个时辰重新数
       DAY.basin = 0; DAY.noodles = 0; DAY.lit = {}; f.qz_awake = '';
-      if (s === '戌') { const all = ['maid1', 'maid2', 'servant', 'steward'], fresh = all.filter(k => OUT[k].ev && !seen(OUT[k].ev)); f.qz_out = pick(fresh.length && Math.random() < .8 ? fresh : all); }
+      if (s === '戌') { const all = ['maid1', 'maid2', 'servant', 'steward'].filter(k => !(window.R175G2_DUTY && R175G2_DUTY() === k)), fresh = all.filter(k => OUT[k].ev && !seen(OUT[k].ev)); f.qz_out = pick(fresh.length && Math.random() < .8 ? fresh : all); }
       if (s === '子') f.qz_letter = !seen(10) ? (Math.random() < .7 ? 1 : 0) : (Math.random() < .3 ? 1 : 0);
       if (s === '酉' && seen(5)) for (const k in LANT) DAY.lit[k] = 0;
       for (const n of DEFS) n._q = null;
@@ -1659,5 +1662,5 @@
         if (C.t >= (window.QZ_CLOCK_MIN || 6) * 60) { const nx = SHI[(SHI.indexOf(C.shi) + 1) % SHI.length]; busy = true; restTo(nx, true).finally(() => { busy = false; }); }
       } catch (e) { busy = false; } }, 1000); }
   window.QZ_CLOCK = { left: () => { const C = F().clk; return C ? Math.max(0, (window.QZ_CLOCK_MIN || 6) * 60 - C.t) : null; }, ok: () => CLOCK_OK(), zone: m => TJZ(m || world.mapName) };
-  window.R162 = { guideStart, guideStep, setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
+  window.R162 = { get LOST() { return LOST; }, LOST_AT, guideStart, guideStep, setWest(m, a) { WEST_NM = m; WEST_NA = a; }, EVS, schedule, bond, QUESTS, qStart, qRun, questTalk, PLAN, OUT, EV, LINES, DAY, restTo, shi, propsFor, IM, restPanel, IDX };
 })();
