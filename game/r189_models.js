@@ -7,7 +7,7 @@
   // ---------- 三姿态敌人 ----------
   // 作者 11-10 看过：周虎、男女魂不合格，先只接魔族真身（周虎 / 男女魂的接法留着，Codex 重画后把这两组加回 SETS 就行）
   const SETS = { e_mozu2: 'mozu2', e_yyq_m: 'yyqm', e_yyq_f: 'yyqf', e_zhouhu: 'zhouhu' };   // 11-11 作者：周虎新建模也接进来（R191 返工 B）   // 11-11：R191 返工的槐柳双魂（枯槐枝 / 柳丝发、腰下化雾）接回来
-  for (const key in SETS) for (const p of ['idle', 'atk', 'hit']) load(key + '__' + p, 'r189/b_' + SETS[key] + '_' + p + '.webp', im => { IMG[key + '__' + p] = im; });
+  for (const key in SETS) if (key !== 'e_mozu2') for (const p of ['idle', 'atk', 'hit']) load(key + '__' + p, 'r189/b_' + SETS[key] + '_' + p + '.webp', im => { IMG[key + '__' + p] = im; });
   // 周虎：原来的战斗图是光膀子虎皮围裙的山贼、和对话立绘对不上 → 换成照立绘画的（黑褐兽毛披肩、旧铁护肩、暗红腰封、发髻络腮胡、鬼头刀）
   //   原来那条即梦逐帧视频也是旧形象，一起停掉；地图上剧情里的小人（IMG.e_zhouhu）也用新待机图
   for (const key of ['e_zhouhu']) { let old = IMG[key]; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => IMG[key + '__idle'] || old, set: v => { old = v; } }); }
@@ -22,8 +22,8 @@
 
   // ---------- 魔族撕斗篷变身（30 帧 · 15fps · 2 秒；图集缩到一半：每格 336×384，6 列，脚底锚点 168,372）----------
   const TF = { cols: 6, n: 30, fps: 15, fw: 336, fh: 384, ax: 168, ay: 372, src: 2 /* 图集像素 → 原画像素 */, idleH: 707 };
-  load('tf', 'r189/mozu2_tf.webp');
-  for (const n of ['default', 'angry', 'grin']) load('p_' + n, 'r189/p_mozu2_' + n + '.webp', im => { IMG['p_mozu2_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mozu2_' + n] = { fx: .5, fy: .22, span: .4 }; });
+  // 11-11 纯净版：R191 撕斗篷变身图集 / 真身三姿 / 真身立绘都已换成 R193（r193/），旧图不再载
+  if (0) for (const n of ['default', 'angry', 'grin']) load('p_' + n, 'r189/p_mozu2_' + n + '.webp', im => { IMG['p_mozu2_' + n] = im; if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE['p_mozu2_' + n] = { fx: .5, fy: .22, span: .4 }; });
   // ---------- R193 Codex 邪化真身（作者 11-11：「要更邪恶一点，不要只是帅」「背后最好还要有翅膀」）----------
   // 骨翼；待机是 16 帧扇翼循环（8fps）；变身 48 帧 15fps 3.2 秒五页图集；三姿共用同一原画倍率 k（原画脚底到角尖约 690px）
   // 游戏里的图：静态三姿缩到 0.75、扇翼和变身图集缩到 0.5（下面的 sc 换回原画像素）

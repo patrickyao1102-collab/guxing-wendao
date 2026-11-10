@@ -140,7 +140,7 @@
   const loadGround = id => { const k = 'r107g_' + id; if (IMG[k] || loadGround[k]) return; loadGround[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = SRC('g_' + id); };
   // ---- R117：地下一层的守卫弟子、小怪（Codex 画的战斗立绘 + 地图站姿 / 4 帧原地循环）和私牢救人 ----
   const M117 = {"xguard1": {"name": "持刀看守", "battle": [455, 640], "stand": [105, 230]}, "xguard2": {"name": "持幡符修", "battle": [419, 640], "stand": [91, 230]}, "xguard3": {"name": "巡夜弟子", "battle": [522, 640], "stand": [93, 230]}, "xbat": {"name": "血纹蝙蝠", "battle": [1002, 560], "fw": 146, "fh": 96}, "xwraith": {"name": "锁链怨灵", "battle": [815, 560], "fw": 151, "fh": 108}, "xspider": {"name": "洞穴石蛛", "battle": [1110, 560], "fw": 148, "fh": 90}};
-  for (const k of ['e_xguard1', 'e_xguard2', 'e_xguard3', 'e_xbat', 'e_xwraith', 'e_xspider', 'n_xguard1', 'n_xguard2', 'n_xguard3', 'bg_cellar_b1', 'bg_cellar_b2']) { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = SRC(k); }
+  for (const k of [/* e_x* 战斗图已换 R175（r175_mobs.js 载），旧图不再载 */ 'n_xguard1', 'n_xguard2', 'n_xguard3', 'bg_cellar_b1', 'bg_cellar_b2']) { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = SRC(k); }
   // R117-F 洞穴战斗背景：原来的 bg_cellar 从没有过（退回山道图），地下的战斗、剧情一律换成 Codex 画的阴湿密道；炼魂谷长老那场用炼魂密室
   try { if (typeof K4 === 'object') { const o = K4.cellar; K4.cellar = () => IMG.bg_cellar_b1 ? 'bg_cellar_b1' : o(); } } catch (e) {}
   if (typeof startBattle === 'function') startBattle = (o => function (cfg) { if (cfg && /炼魂/.test(cfg.title || '') && IMG.bg_cellar_b2) cfg.bg = 'bg_cellar_b2'; return o.apply(this, arguments); })(startBattle);
