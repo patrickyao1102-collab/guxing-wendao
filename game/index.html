@@ -9758,10 +9758,12 @@ function standMap(T) { if (T._stand) return T._stand; const cs = T.cs || TS, A =
   window.UNSTICK = unstick;
   let last = null, still = 0;
   tileUpdate = (orig => function (dt) { try { if (!world.locked) unstick(); } catch (e) {}
+    // 11-10 跑 bug：目标格就是脚下这格时，路径会是空数组 []——走路代码当它没路、到达检测又当它有路：点人「走过去说话」那下不说话，自动寻路停在原地显示「寻路中」
+    if (world.path && !world.path.length && !world.locked && !dialog && !choice) { world.path = null; world.walkTarget = null; if (world.pending) { const h = world.pending; world.pending = null; try { doInteract(h); } catch (e) {} } }
     const p = world.player, had = world.path && world.path.length; const x0 = p && p.x, y0 = p && p.y;
     const r = orig(dt);
     // 沿路径走却原地不动（被碰撞卡住）超过 0.4 秒：跳过当前路点，还不行就放弃这条路
-    if (had && world.path && world.path.length && p && Math.hypot(p.x - x0, p.y - y0) < .5) { still += dt; if (still > .4) { still = 0; world.path.shift(); if (!world.path.length) world.path = null; } } else still = 0;
+    if (had && !world.locked && !dialog && !choice && world.path && world.path.length && p && Math.hypot(p.x - x0, p.y - y0) < .5) {   /* 11-10：剧情锁住时人本来就不动，别把路点一个个扔掉 */ still += dt; if (still > .4) { still = 0; world.path.shift(); if (!world.path.length) world.path = null; } } else still = 0;
     return r; })(tileUpdate);
 })();
 // ================= 路径拉直必须用和走路同样的“能不能站”判断 =================
@@ -14425,7 +14427,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
       if (NAV.on) stop();   // 手动点地面：取消自动寻路
     }
     const r = orig(dt);
-    if (NAV.on && NAV.arrive && world.player && !world.path) { const a = NAV.arrive; NAV.arrive = null; if (Math.hypot(world.player.x - a.x, world.player.y - a.y) < (a.r || 90)) { NAV.retry = 0; a.fn && a.fn(); } else if ((NAV.retry = (NAV.retry || 0) + 1) < 5) step(); else { NAV.retry = 0; stop('路被挡住了，换个方向走走'); } }
+    if (NAV.on && NAV.arrive && world.player && !world.path && !world.locked && !dialog && !choice) {   /* 11-10 跑 bug：寻路途中剧情把人锁住，不算「路被挡住」（以前连试 5 次就报「路被挡住了，换个方向走走」然后放弃） */ const a = NAV.arrive; NAV.arrive = null; if (Math.hypot(world.player.x - a.x, world.player.y - a.y) < (a.r || 90)) { NAV.retry = 0; a.fn && a.fn(); } else if ((NAV.retry = (NAV.retry || 0) + 1) < 5) step(); else { NAV.retry = 0; stop('路被挡住了，换个方向走走'); } }
     return r;
   })(updateMap);
   // 任务栏上画个“自动寻路”小提示
