@@ -16,7 +16,7 @@
 
   // ---------- 图 ----------
   const IM = {}; let want = 0, got = 0;
-  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m11');
+  const SRC = k => (window.R162_ASSETS && R162_ASSETS[DIR + k + '.webp']) || (DIR + k + '.webp?v=m12');
   const ld = k => { if (k in IM) return; IM[k] = null; want++; const i = new Image(); i.onload = () => { IM[k] = i; got++; }; i.onerror = () => { got++; }; i.src = SRC(k); };
   const loadAll = () => { for (let i = 0; i < MM.pages; i++) ld('m_' + i); ld('lf'); ld('seam'); };
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = n => { let a = 1; try { a = o ? o(n) : 1; } catch (e) {} if (a == null) a = 1; if (n !== ID) return a; loadAll(); return Math.min(a, want ? got / want : 0); }; }
@@ -78,6 +78,10 @@
     return d; }
   const hired = () => D().hire === (F().qz_day || 1);
   const mul = n => Math.max(1, Math.round(n * (hired() ? HIRE_MUL : 1)));
+  // 作者 11-10：围栏（西岸禽院）是养禽的地方——果树种在围栏里收成减半，禽舍不放在围栏里收蛋减半
+  const YARD = [48, 1310, 900, 2330];
+  const inYard = (x, y, w) => { const cx = x + (w || U) / 2, fy = y + U - 20; return cx > YARD[0] && cx < YARD[2] && fy > YARD[1] && fy < YARD[3]; };
+  const pen = it => { if (it.id === 'gal' || it.x == null) return 1; const t = MOD[it.m].t, y = inYard(it.x, it.y, wOf(it)); return t === 'tree' ? (y ? .5 : 1) : t === 'house' ? (y ? 1 : .5) : 1; };
   const adults = it => it.birds.filter(a => a >= BIRD_AGE).length;
   const slotFree = id => !D().inst.some(i => i.slot === id);
 
@@ -124,9 +128,9 @@
     if (!it) return t.k === 'seeds' ? ['树苗、禽舍在「建造」里买', '雏在禽舍上点「放雏」'] : ['小桃的账都记在园簿上'];
     if (t.k === 'field') { const c = CROP[it.crop], grow = it.st >= 1 && it.st < 4;
       return [QN[it.q] + ' · 收成 ×' + QM[it.q], it.st === 0 ? '空着，可以下种' : c.name + ' · ' + STN[it.st], it.gate ? '闸开着 · 水在流' + (grow ? '，苗泡着不长' : '') : it.w > 0 ? '闸关着 · 存的水够长 ' + it.w + ' 截' : '闸关着 · 田干了' + (grow ? '，要开闸放水' : '')]; }
-    if (t.k === 'tree') { const q = QN[it.q || 0] + ' · 收成 ×' + QM[it.q || 0]; return it.age < TREE_AGE ? [it.age < 3 ? '树苗' : '小树', '再歇 ' + (TREE_AGE - it.age) + ' 次长成', q] : [it.cd > 1 ? '刚摘过' : it.cd > 0 ? '开花了' : '挂满了果子', it.cd > 0 ? '再歇 ' + it.cd + ' 次又挂果' : '可以摘了', q]; }
+    if (t.k === 'tree') { const q = pen(it) < 1 ? '种在围栏里 · 收成减半（挪到围栏外）' : QN[it.q || 0] + ' · 收成 ×' + QM[it.q || 0]; return it.age < TREE_AGE ? [it.age < 3 ? '树苗' : '小树', '再歇 ' + (TREE_AGE - it.age) + ' 次长成', q] : [it.cd > 1 ? '刚摘过' : it.cd > 0 ? '开花了' : '挂满了果子', it.cd > 0 ? '再歇 ' + it.cd + ' 次又挂果' : '可以摘了', q]; }
     const m = MOD[it.m], a = adults(it), y = it.birds.length - a;
-    return [it.birds.length ? '成年' + m.bird + ' ' + a + ' 只' + (y ? ' · 雏 ' + y + ' 只' : '') : '空舍，还没养' + m.bird, it.eggs ? '有 ' + it.eggs + ' 个蛋可以收' : a ? '还没下蛋，歇一觉再来' : '雏长成了才下蛋', it.h > 0 ? '有一个蛋在孵，再歇 ' + it.h + ' 次出壳' : '最多养 ' + BIRD_MAX + ' 只'];
+    return [it.birds.length ? '成年' + m.bird + ' ' + a + ' 只' + (y ? ' · 雏 ' + y + ' 只' : '') : '空舍，还没养' + m.bird, it.eggs ? '有 ' + it.eggs + ' 个蛋可以收' : a ? '还没下蛋，歇一觉再来' : '雏长成了才下蛋', pen(it) < 1 ? '不在围栏里 · 收蛋减半（挪进禽院）' : it.h > 0 ? '有一个蛋在孵，再歇 ' + it.h + ' 次出壳' : '最多养 ' + BIRD_MAX + ' 只'];
   }
   function optsOf(t) { const it = t.it;
     if (t.k === 'field') { const g = { k: 'gate', p: it.gate ? 'gate_close' : 'gate_open' };
@@ -168,9 +172,9 @@
       if (o.k === 'sow') { const i = await choose(t.name + ' · 种什么', SEEDS.map(k => CROP[k].name + (k === 'rice' ? '秧' : '籽')).concat(['先不种'])); if (i < 0 || i >= SEEDS.length) return;
         it.crop = SEEDS[i]; it.st = 1; snd('ui_confirm', .5); toast(t.name + '种上了' + CROP[it.crop].name + (it.gate ? '——闸还开着，关了闸才长' : it.w > 0 ? '，田里存着水，歇一觉长一截' : '——田是干的，先开闸放水'), 2400); return; }
       if (o.k === 'harvest') { if (it.st < 4) return; const c = CROP[it.crop], n = mul(c.n * QM[it.q || 0]); it.st = 0; snd('ui_confirm', .5); await give([[c.item, n]], t.name + ' · 收成' + (it.q ? '（' + QN[it.q] + '）' : '') + hireTag()); return; } }
-    if (t.k === 'tree') { if (it.age < TREE_AGE || it.cd > 0) return; const m = MOD[it.m]; it.cd = FRUIT_CD; SHK[it.id] = now(); snd('ui_confirm', .5); await new Promise(r => setTimeout(r, 700)); await give([[IT[m.fruit], mul(m.n * QM[it.q || 0])]], t.name + ' · 采摘' + (it.q ? '（' + QN[it.q] + '）' : '') + hireTag()); return; }
+    if (t.k === 'tree') { if (it.age < TREE_AGE || it.cd > 0) return; const m = MOD[it.m]; it.cd = FRUIT_CD; SHK[it.id] = now(); snd('ui_confirm', .5); await new Promise(r => setTimeout(r, 700)); await give([[IT[m.fruit], mul(m.n * QM[it.q || 0] * pen(it))]], t.name + ' · 采摘' + (it.q ? '（' + QN[it.q] + '）' : '') + (pen(it) < 1 ? '（种在围栏里，减半）' : '') + hireTag()); return; }
     if (t.k === 'house') { const m = MOD[it.m];
-      if (o.k === 'collect') { if (!it.eggs) return; const n = mul(it.eggs); it.eggs = 0; await give([[m.egg, n]], t.name + ' · 收蛋' + hireTag()); return; }
+      if (o.k === 'collect') { if (!it.eggs) return; const n = mul(it.eggs * pen(it)); it.eggs = 0; await give([[m.egg, n]], t.name + ' · 收蛋' + (pen(it) < 1 ? '（不在围栏里，减半）' : '') + hireTag()); return; }
       if (o.k === 'chick') { const i = await choose(t.name + ' · 放一只' + m.bird + '苗', ['花 ' + m.chick + ' 灵石买一只', '先不放']); if (i !== 0 || !pay(m.chick)) return; it.birds.push(0); snd('ui_confirm', .5); toast('放进了一只' + m.bird + '苗，歇 ' + BIRD_AGE + ' 次长成', 2000); return; }
       if (o.k === 'hatch') { if (!it.eggs || it.h) return; it.eggs--; it.h = 3; snd('ui_confirm', .5); toast('留了一个蛋在窝里孵，歇 3 次出壳', 2000); return; }
       if (o.k === 'kill') { const i = await choose(t.name + ' · 宰一只成年' + m.bird + '？（交给阿福收拾，得一份' + ITEM_DB[m.meat].name + '）', ['宰一只', '算了']); if (i !== 0) return;
@@ -301,7 +305,10 @@
       ctx.fillStyle = on ? '#b5532f' : key === 'done' ? '#8a5a26' : '#d9c495'; roundRect(r.x, r.y, r.w, r.h, 12); ctx.fill(); ctx.fillStyle = on || key === 'done' ? '#fff4da' : '#5a3d18'; ctx.font = `700 21px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(txt, r.x + r.w / 2, r.y + 34); BDR.push({ r, key }); }
     ctx.textAlign = 'left'; ctx.font = `500 14px ${FONT}`; ctx.fillStyle = '#7a5a2e';
     const tip = BD.tool === 'del' ? '点地图上的田、树、禽舍：收回进库存，或者铲掉。' : BD.tool === 'clear' ? '点地图上的野树、竹丛、花草、石头、杂物，把它清理掉。' : BD.sel ? (BD.sel === 'field' ? '田只能建在水渠旁的六个田位——点一个空田位。' : '点一块空地放下。青绿 = 能放，朱红 = 不能放。') : '先在上面挑一样，再到地图上点位置。';
-    ctx.fillText(tip, P.x + 20, by + 78); if (BD.ghost && BD.ghost.bad) { ctx.fillStyle = '#a8482e'; ctx.fillText('这里不行：' + BD.ghost.bad, P.x + 20, by + 100); }
+    ctx.fillText(tip, P.x + 20, by + 78);
+    if (BD.sel && BD.ghost && !BD.ghost.bad && MOD[BD.sel].t !== 'field') { const y = inYard(BD.ghost.x, BD.ghost.y), tr = MOD[BD.sel].t === 'tree'; if (tr === y) { ctx.fillStyle = '#b5532f'; ctx.fillText(tr ? '果树种在围栏里，收成减半' : '禽舍不放在围栏里，收蛋减半', P.x + 20, by + 100); } }
+    ctx.fillStyle = '#7a5a2e'; ctx.fillText('围栏（西岸禽院）里养禽，围栏外种树。', P.x + 20, by + 122);
+    if (BD.ghost && BD.ghost.bad) { ctx.fillStyle = '#a8482e'; ctx.fillText('这里不行：' + BD.ghost.bad, P.x + 20, by + 100); }
     // 虚影
     if (BD.sel && BD.ghost) { const g = BD.ghost, [sx, sy] = toScr(g.x, g.y), s = z(); ctx.globalAlpha = .75; spr(ctx, MOD[BD.sel].t === 'tree' ? BD.sel + '_sapling' : cardArt(BD.sel), sx, sy, s); ctx.globalAlpha = 1;
       const gw = wOf(BD.sel) * s; ctx.strokeStyle = g.bad ? '#e0492c' : '#3fd0a0'; ctx.lineWidth = 3; ctx.strokeRect(sx, sy, gw, U * s); ctx.fillStyle = g.bad ? 'rgba(224,73,44,.25)' : 'rgba(63,208,160,.18)'; ctx.fillRect(sx, sy, gw, U * s); }
