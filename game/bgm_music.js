@@ -122,7 +122,7 @@
   // 首领战：赵师弟 / 寨主 / 带 boss 标记的战斗
   startBattle = (orig => function (cfg) {
     const r = orig.apply(this, arguments);
-    try { const boss = cfg && (cfg.boss || /赵|寨主|首领|Boss|boss|城主|魔/.test(cfg.title || '') || (cfg.enemies || []).some(e => /^b_/.test(e.key || ''))); if (boss) playBgm('bgm_boss'); } catch (e) {}
+    try { const boss = cfg && (cfg.boss || /赵|寨主|首领|Boss|boss|城主|魔/.test(cfg.title || '') || (cfg.enemies || []).some(e => /^b_/.test(e.key || ''))); if (boss && !cfg.normalBgm) playBgm('bgm_boss'); } catch (e) {}   // 作者 11-10：cfg.normalBgm = 先用普通战斗曲（黑风寨周虎方烈、魔族高手半血变身前）
     return r;
   })(startBattle);
   // 测试面板用：试听 / 指定标题曲、广场曲、野外曲

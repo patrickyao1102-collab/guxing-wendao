@@ -3982,7 +3982,7 @@ function fanglie() { return { name: '方烈', key: 'e_fanglie', hp: 1000, maxhp:
 function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', hp: 2600, maxhp: 2600, atk: 56, def: 20, spd: 12, h: 330, color: '#3a2a4a', fxColor: '#b07aff', boss: true, slot: [330, 600],
   ai: async (e, b) => {
     e.turn = (e.turn || 0) + 1;
-    if (e.hp < e.maxhp * .5 && !e.phase2) { e.phase2 = true; await say('魔族高手', '能把本座逼到这一步……你们两个小辈，确实有点本事。'); await say('魔族高手', '魔渊护体！');
+    if (e.hp < e.maxhp * .5 && !e.phase2) { e.phase2 = true; try { playBgm('bgm_boss', true); } catch (er) {}   /* 作者 11-10：半血突破（以后变身）这一刻切首领战曲 */ await say('魔族高手', '能把本座逼到这一步……你们两个小辈，确实有点本事。'); await say('魔族高手', '魔渊护体！');
       fx('fx3_orb_violet', { loop: true, life: 1.6, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.6 * Math.min(1, k * 3), alpha: 1.3, fadeOut: .4 }); playSnd('sfx_ult', .7);
       e.shield = 500; e.shieldMax = 500; e.atk += 12; floatText(e.x, e.y - e.h - 40, '凝丹六重！', '#d6a8ff', 54); await sleep(1400); return true; }
     if (e.hp < e.maxhp * .3 && e.phase2 && !e.phase3) { e.phase3 = true; // 原著第十九章：云霆求死，叶孤星硬接一掌，双曜暴怒
@@ -4230,14 +4230,14 @@ async function hfBoss() {
   await say('方烈·坏笑', '你很快就知道了。');
   await say('林震山·怒', '周虎！今日便是你黑风寨覆灭之时！长老们，随我上！');
   await fadeOut(200);
-  const pr2 = startBattle({ title: '周虎 · 方烈', bg: 'bg_hall', enemies: [zhouhu(), fanglie()], exp: 520, gold: 400, boss: true }); await fadeIn(250); await pr2;
+  const pr2 = startBattle({ title: '周虎 · 方烈', bg: 'bg_hall', enemies: [zhouhu(), fanglie()], exp: 520, gold: 400, boss: true, normalBgm: true }); await fadeIn(250); await pr2;
   S.scene = drawMap; world.actors = world.actors.filter(a => a !== zh && a !== fl);
   await narrate('就在此时，黑风谷深处，一股强大的气息宛如觉醒的洪荒凶兽般骤然爆发——');
   const mz = addActor('e_mozu', p.x + 260, p.y - 60, '神秘高手', '#7a5aaa'); mz.h = 150; mz.dir = -1; mz.alpha = 0; await tween(600, t => mz.alpha = t);
   await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
   await say('星旋', '小心！这家伙的气息不对劲——是魔族！');
   await fadeOut(200);
-  const pr3 = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [mozuBoss()], exp: 900, gold: 600, boss: true }); await fadeIn(250); const win = await pr3;
+  const pr3 = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [mozuBoss()], exp: 900, gold: 600, boss: true, normalBgm: true }); await fadeIn(250); const win = await pr3;
   S.scene = drawMap; world.actors = world.actors.filter(a => a !== mz);
   await narrate('贪狼剑意凌厉无匹，贯穿了魔族高手的魔渊护体。他瞪大猩红的双眼，皮肤下浮现出一道道漆黑的魔纹。');
   await say('魔族高手', '咳……杀了本座又如何……魔族的计划，远比你们想象的……更可怕……');
