@@ -19,18 +19,7 @@
     try {
       const f = F();
       if (name === 'tj_market' && f.ch2_liuyun && !f.ch2_depart && !f.ch2_market) {
-        f.ch2_market = 1;
-        setTimeout(async () => {
-          if (world.mapName !== 'tj_market') return;
-          const lk = world.locked; world.locked = true;
-          try {
-            await say('星旋', '到了！丹药铺的回春丹、回灵丹多备几颗，打黑风寨用得上。');
-            await say('星旋', '兵甲坊看看护甲和饰品；典籍阁有《剑诀·卷二》——学过的招式拿它参悟，能修到第二重。');
-            await say('叶孤星', '灵石就这么点……得省着花。');
-            await say('星旋', '买完了回问剑坪，南边山门出发。');
-            S.quest = '在天剑集市采买（丹药铺 / 兵甲坊 / 典籍阁），买完回问剑坪南边山门出发';
-          } finally { world.locked = lk; }
-        }, 900);
+        f.ch2_market = 1;   // 作者 11-10：「你定吧」——旧版进集市的四句星旋台词和 R134 的购物单重复，删掉旧版，只留 R134 的购物单（它也会写任务栏）
       }
     } catch (e) {}
     return r;
