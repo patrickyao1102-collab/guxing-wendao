@@ -52,7 +52,7 @@
     bingxin: aux('全队解控，免疫 1 回合'), bingdun: aux('护盾 30% 上限气血，持续 2 回合', '持续 3 回合'),
     qxq: aux('单体回复 35% 气血并解异常'), yinzhang: aux('全队护盾 25% 上限气血，持续 2 回合', '持续 3 回合'), jiuyinhe: aux('全队回复 35% 气血，怒气 +20'),
   });
-  const tiersOf = id => TIERS[id] || dmg(TGT[id] || '单体');
+  const tiersOf = id => TIERS[id] || (TIERS[id] = dmg(TGT[id] || '单体'));   // R189：缓存下来，好让数值层改写成实际威力
   // ---------- 各人的剑谱 ----------
   const N = (id, icon, short, o) => Object.assign({ id, icon, short }, o || {});
   const TREE = {
