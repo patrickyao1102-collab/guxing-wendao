@@ -84,7 +84,7 @@
 
   // ---- 自动寻路 ----
   { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) {
-    R.RULES.unshift([/^今夜：/, () => (F().ch2_liuyun ? { map: 'tj_room' } : { map: 'tj_houshan' })]);
+    R.RULES.unshift([/^今夜：/, () => (F().ch2_liuyun ? (F().ch2_pill || world.mapName !== 'tj_room' ? { map: 'tj_room' } : { map: 'tj_room', tell: '睡前先服凝元丹：点右下「行囊」，选中凝元丹，点「使用」' }) : { map: 'tj_houshan' })]);   /* 11-10 跑 bug：回到居室还没吃丹，寻路只说「目标就在这张地图上，四处看看」——屋里没有可走的点，直接告诉玩家去行囊里用 */
     R.RULES.unshift([/和云霆一起去天剑集市/, () => ({ map: 'tj_market' })]);
   } }
 

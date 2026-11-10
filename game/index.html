@@ -14375,6 +14375,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     // 括号里的是补充说明（如“后山可以四处看看”），不参与判断目的地
     const q0 = (S.quest || '').replace(/（[^）]*）|\([^)]*\)/g, '');
     const rule = RULES.find(([re]) => re.test(q0)) || RULES.find(([re]) => re.test(S.quest || '')); const goal = window.QNAV_GOAL ? window.QNAV_GOAL() : rule && rule[1]();
+    if (goal && goal.tell && (goal.map === here || !goal.map)) { stop(goal.tell); return; }   // 不用走路、要在菜单里做的事（如服丹）：直接说怎么做
     if (goal && goal.side && (goal.map === here || !goal.map)) {   // 支线：到了就找接任务 / 要找的人；没人可找就提示一句
       const it = goal.map && goal.pick && (world.actors || []).filter(a => a.npc && !a.hidden && a.npc.name === goal.pick).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
       if (it) { walkTo(it.x, it.y + 40, 2, () => { stop(); doInteract({ type: 'npc', a: it }); }); toast('自动寻路：去找' + goal.pick, 1200); } else stop(goal.msg || '就在这张地图上，四处看看'); return; }

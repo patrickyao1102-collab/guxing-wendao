@@ -207,7 +207,7 @@
   }
   // 载入画面期间：收起地图 HUD、不让角色乱走
   drawMapHud = (orig => function () { if (shown >= .99 && performance.now() - drawnAt < 600) return; return orig.apply(this, arguments); })(drawMapHud);   /* 11-10：载入层要是没在画了（被清掉），别让 shown 卡住把 HUD 永远藏起来 */
-  updateMap = (orig => function (dt) { if (readiness() < 1) { if (world.player) world.player.moving = false; return; } return orig(dt); })(updateMap);
+  updateMap = (orig => function (dt) { if (loadingNow()) { if (world.player) world.player.moving = false; return; } return orig(dt); })(updateMap);   /* 11-10 跑 bug：原来只看 readiness()，同一次进图准备好过、中途懒加载掉回 < 1 时载入画面不盖了，人却被定住（自动寻路走到一半停住、点地不动），改成和点击拦截同一个判断 */
   // 预载相邻地图（出口 / 门通向的图），下一次换图就不用等
   function preloadNear(name) {
     const d = TMAPS[name]; if (!d) return;
