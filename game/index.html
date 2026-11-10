@@ -3985,22 +3985,27 @@ function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', 
     if (e.hp < e.maxhp * .5 && !e.phase2) { e.phase2 = true; try { playBgm('bgm_boss', true); } catch (er) {}   /* 作者 11-10：半血突破（以后变身）这一刻切首领战曲 */ await say('魔族高手', '能把本座逼到这一步……你们两个小辈，确实有点本事。'); await say('魔族高手', '魔渊护体！');
       fx('fx3_orb_violet', { loop: true, life: 1.6, layer: 0, x: e.x, y: e.y - e.h * .45, scale: k => 1.6 * Math.min(1, k * 3), alpha: 1.3, fadeOut: .4 }); playSnd('sfx_ult', .7);
       e.shield = 500; e.shieldMax = 500; floatText(e.x, e.y - e.h - 40, '凝丹六重！', '#d6a8ff', 54); await sleep(1100);
-      if (window.R189M) { await R189M.transform(e); e.atk += 28; e.spd += 2; floatText(e.x, e.y - e.h - 20, '攻击大幅提升', '#ff7ab0', 40); await sleep(700); } else { e.atk += 12; await sleep(300); } return true; }   /* 作者 11-10：突破后撕斗篷变身魔族真身，攻击大幅提升 */
-    if (e.hp < e.maxhp * .3 && e.phase2 && !e.phase3) { e.phase3 = true; // 原著第十九章：云霆求死，叶孤星硬接一掌，双曜暴怒
-      const yt = b.heroes.find(u => u.ally === 'yunting'), P = b.heroes.find(u => !u.ally);
+      // 作者 11-11：「魔族变身以后技能也应该升级炫酷，威力大幅度提升」
+      if (window.R189M) { await R189M.transform(e); e.trueForm = true; e.atk = Math.round(e.atk * 1.7); e.spd += 3; floatText(e.x, e.y - e.h - 20, '攻击大幅提升', '#ff7ab0', 44); await sleep(700); } else { e.atk += 12; await sleep(300); } return true; }   /* 作者 11-10：突破后撕斗篷变身魔族真身 */
+    if ((e.trueForm || (!window.R189M && e.phase2)) && !e.phase3) { e.phase3 = true; // 原著第十九章：云霆求死，叶孤星硬接一掌，双曜暴怒
+      // 作者 11-11：「变身后第一下，云霆必定被秒杀；叶孤星帮他挡，也只是让他活着（现实意义），战斗里已经无法参战了」
+      const yt = b.heroes.find(u => u.ally === 'yunting' && u.alive), P = b.heroes.find(u => !u.ally);
       await say('魔族高手·怒', '够了！本座没空陪你们玩——先送这个姓云的小子上路！');
-      fx('fx3_burst_violet', { x: (yt || P).x, y: (yt || P).y - 120, life: .7, scale: 2.2, alpha: 1.2 }); playSnd('sfx_hit_heavy'); S.shake = 18;
-      if (yt) { yt.hp = Math.max(1, Math.round(yt.maxhp * .08)); yt.hurt = 1; }
-      await sleep(500); await say('云霆·伤', '（视线开始模糊）……爹，娘。……也好。');
-      await narrate('黑煞魔掌再次压下。就在掌风落下的刹那，一道白影挡在了云霆身前——叶孤星张开双臂，硬生生接下了这一掌。');
+      if (window.R189M && R189M.killStrike) await R189M.killStrike(e, yt || P);
+      else { fx('fx3_burst_violet', { x: (yt || P).x, y: (yt || P).y - 120, life: .7, scale: 2.2, alpha: 1.2 }); playSnd('sfx_hit_heavy'); S.shake = 18; }
+      await narrate('一爪落下，魔焰撕开云霆的护体剑气。云霆连剑都没来得及抬，整个人便被掀飞出去——');
+      await narrate('第二爪紧随而至。就在爪风落下的刹那，一道白影挡在了云霆身前——叶孤星张开双臂，硬生生接下了这一爪。');
       if (P) { P.hp = Math.max(1, Math.round(P.hp * .45)); P.hurt = 1; } S.shake = 22; S.flash = .9; S.flashColor = '#ffffff'; playSnd('sfx_ult', .8);
+      if (yt) { yt.hp = 0; yt.alive = false; yt.hurt = 1; floatText(yt.x, yt.y - yt.h - 30, '重伤 · 无法再战', '#ff6a6a', 40); }
+      await sleep(500); await say('云霆·伤', '（视线开始模糊）……爹，娘。……也好。');
       await say('叶孤星', '（咳出一口血）云霆，你要是敢死在这儿，回去我就跟全宗门说你是被吓死的。');
       await say('叶孤星', '老东西——该我了。');
       await narrate('丹田中，天枢与天璇两颗星辰同时炸亮，星力如决堤江河般涌入四肢百骸。');
-      if (P) { P.atk = Math.round(P.atk * 1.8); P.rage = 100; P.mp = P.maxmp; floatText(P.x, P.y - P.h - 40, '双曜 · 怒', '#ffe48a', 64, 1.2, BRUSH); }
+      if (P) { P.atk = Math.round(P.atk * 1.8); P.hp = Math.max(P.hp, Math.round(P.maxhp * .85)); P.rage = 100; P.mp = P.maxmp; floatText(P.x, P.y - P.h - 40, '双曜 · 怒', '#ffe48a', 64, 1.2, BRUSH); }
       S.flash = .7; S.flashColor = '#fff3c0'; await sleep(900);
       await say('星旋', '双曜星力融合了！小子，趁现在——追魂！');
       return true; }
+    if (e.trueForm && window.R189M && R189M.trueSkill) { const n = (e.tfTurn = (e.tfTurn || 0) + 1); if (n % 4 === 1) return R189M.trueSkill(e, b, 'claw'); if (n % 4 === 3) return R189M.trueSkill(e, b, 'aoe'); return false; }   /* 噬魂魔爪 → 普攻 → 黑煞天坠 → 普攻 循环 */
     if (e.turn % 3 === 0) return enemyAoE(e, '黑煞掌印', 'fx3_burst_violet', .85);
     return false;
   } }; }

@@ -189,7 +189,45 @@
     try { if (!(typeof AUD !== 'undefined' && AUD.muted)) { LINE.currentTime = 0; LINE.play().catch(() => {}); } } catch (er) {}
     await say('魔族高手·坏笑', '既然看见了本座的真身——你们，一个都别想活着离开。');
   }
-  window.R189M = { transform, truePortraits, IM };
+  // ---------- 真身技能（作者 11-11：「魔族变身以后技能也应该升级炫酷，威力大幅度提升」）----------
+  const banner = (t, col) => floatText(W / 2, 210, t, col || '#d9a0ff', 78, 1.3, BRUSH);
+  async function windup(e, name, col) {
+    banner(name, col); try { playSnd('sfx_charge'); } catch (er) {} await dimTo(.65, 220);
+    e.pose = 'atk'; S.shake = 10;   // 双翼猛地张开
+    fx('fx3_orb_violet', { loop: true, life: .9, layer: 2, x: e.x + e.h * .25, y: e.y - e.h * .55, scale: k => .4 + k * 1.1, alpha: 1.4, fadeOut: .2 });
+    await sleep(650);
+  }
+  const strikeFx = (t, big) => { const x = t.x, y = t.y - t.h * .5, s = big ? 1.5 : 1.1;
+    fx('fx3_claw_red', { x: x - 10, y, scale: s, rot: -.3, alpha: 1.5 }); setTimeout(() => fx('fx3_claw_red', { x: x + 14, y: y + 10, scale: s * .9, rot: .5, flip: true, alpha: 1.4 }), 110);
+    fx('fx3_burst_violet', { x, y, scale: big ? 2.4 : 1.6, alpha: 1.4 }); sparks(x, y, big ? 30 : 18, { speed: 520, size: 1 });
+    try { playSnd('sfx_hit_heavy', .9); } catch (er) {} S.shake = big ? 24 : 16; S.flash = big ? .6 : .35; S.flashColor = '#ff2040'; };
+  // 剧情一爪：直取云霆（伤害由剧情接管）
+  async function killStrike(e, t) {
+    await windup(e, '魔翼 · 噬魂爪', '#ff6a8a'); if (t) strikeFx(t, true); await sleep(800); e.pose = null; await dimTo(0, 250);
+  }
+  async function trueSkill(e, b, kind) {
+    const alive = (b.heroes || [b.P]).filter(u => u.alive); if (!alive.length) return false;
+    if (kind === 'claw') {   // 噬魂魔爪：单体重击 + 吸血回复
+      const t = alive.find(u => !u.ally) || alive[0];
+      await windup(e, '噬魂魔爪', '#ff6a8a'); strikeFx(t, false);
+      let { d, crit } = dmgCalc(e, t, 1.4, .1); if (t.buffs && t.buffs.def) { d = Math.round(d * .4); delete t.buffs.def; } else if (t.buffs && t.buffs.shield) d = Math.round(d * .5);
+      applyDamage(t, d, crit);
+      const heal = Math.round(d * .4); e.hp = Math.min(e.maxhp, e.hp + heal);
+      for (let i = 0; i < 16; i++) { const sx = t.x, sy = t.y - t.h * .5, life = .6 + Math.random() * .4, ox = (Math.random() - .5) * 80, oy = (Math.random() - .5) * 80;
+        addFx({ life, layer: 2, draw(f) { const k = f.t / f.life, x = sx + ox * (1 - k) + (e.x - sx) * k * k, y = sy + oy * (1 - k) + (e.y - e.h * .5 - sy) * k * k; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.sin(Math.PI * k);
+          const g = ctx.createRadialGradient(x, y, 0, x, y, 14); g.addColorStop(0, 'rgba(255,90,140,1)'); g.addColorStop(1, 'rgba(160,40,200,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fill(); ctx.restore(); } }); }
+      await sleep(700); floatText(e.x, e.y - e.h - 30, '噬魂 +' + heal, '#ff8ad0', 40);
+      await sleep(400); e.pose = null; await dimTo(0, 250); return true;
+    }
+    // 魔翼 · 黑煞天坠：骨翼一扇，黑煞魔焰从天而降砸满全场
+    await windup(e, '魔翼 · 黑煞天坠', '#c79bff');
+    for (let i = 0; i < 7; i++) setTimeout(() => { const t = alive[i % alive.length], x = t.x + (Math.random() - .5) * 220, y = t.y - t.h * (.2 + Math.random() * .5);
+      fx('fx3_burst_violet', { x, y, scale: 1.3 + Math.random() * .8, alpha: 1.4 }); try { playSnd('sfx_boom', .5); } catch (er) {} S.shake = 14; }, i * 120);
+    await sleep(500);
+    for (const t of alive) { strikeFx(t, false); let { d, crit } = dmgCalc(e, t, 1.2, .05); if (t.buffs && t.buffs.def) { d = Math.round(d * .4); delete t.buffs.def; } else if (t.buffs && t.buffs.shield) d = Math.round(d * .5); applyDamage(t, d, crit); }
+    S.shake = 22; await sleep(900); e.pose = null; await dimTo(0, 250); return true;
+  }
+  window.R189M = { transform, truePortraits, IM, killStrike, trueSkill };
   if (typeof ch2After === 'function') ch2After = (o => async function () { truePortraits(false); return o.apply(this, arguments); })(ch2After);
   // 打输了 / 跳过战斗也换回来
   startBattle = (o => function (cfg) { const pr = o.apply(this, arguments); try { if (!(cfg && (cfg.enemies || []).some(x => x && x.key === 'e_mozu'))) truePortraits(false); } catch (e) {} return pr; })(startBattle);
