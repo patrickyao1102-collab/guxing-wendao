@@ -520,8 +520,11 @@
         const [c, r] = at(948, 3168); tileSetMap(PFX + 'yy_verge', c, r, 'up'); S.scene = drawMap; S.hud = true; world.locked = true; await fadeIn(800);
         await narrate('出了秘境，已是深夜。两人落回幽影林——脚下是归林的南径，往东走到头，就能出林。');
         await say('星旋', '……林子深处有人声。压低点。');
-        S.quest = '幽影林：往东出林（林子深处有人声）'; world.locked = false;
-        addTrigger(2424, 1560, 150, async () => { world.locked = true; world.path = null; world.player.moving = false; world.camFocus = [2560, 1400];
+        S.quest = '幽影林：往东出林（林子深处有人声）'; world.locked = false; addVerge(); };
+      // 作者 11-10：读档 / 重进「林尽闻声」时触发点没了（触发点不存档）→ 进图就补上；圈放大、圆心挪到三个邪修身前（古樟东侧）
+      V.onEnter = async () => { if (mtOn()) { if (!S.quest || !/出林|人声/.test(S.quest)) S.quest = '幽影林：往东出林（林子深处有人声）'; addVerge(); } };
+      const addVerge = () => { if ((world.triggers || []).some(t => t._verge && !t.done)) return;
+        addTrigger(2540, 1470, 230, async () => { world.locked = true; world.path = null; world.player.moving = false; world.camFocus = [2560, 1400];
           await narrate('树根后传来低语。叶孤星和云霆贴着古樟的树干，屏住了呼吸。');
           await say('邪修', '……苍月城那边又抓了七个，都是散修，没人会来找。');
           await say('邪修', '长老说了，天剑宗那个女修在城里查了半个月，再让她查下去，迟早摸到城北。');
@@ -550,8 +553,9 @@
           if (typeof C3 === 'object' && C3.scene) { C3.scene('bg_shandao', .55, 'rgba(20,30,70,.4)'); await fadeIn(800);
             await narrate('同一时刻，苍月城。'); await narrate('林雪走在空无一人的巷子里，脚步忽然一顿。');
             await say('林雪·坏笑', '……跟了我三条街了。出来吧。'); await narrate('巷子两头，同时走出了三个蒙着面的黑影。'); await fadeOut(900); }
-          if (window.SET_TOD) SET_TOD(''); await ch3End(); }, true, true);
+          if (window.SET_TOD) SET_TOD(''); await ch3End(); }, true, true); world.triggers[world.triggers.length - 1]._verge = 1;
       };
+      setInterval(() => { try { if (world.mapName === PFX + 'yy_verge' && mtOn() && !world.locked && typeof battle !== 'undefined' && !battle) addVerge(); } catch (e) {} }, 1000);   // 读档直接落在这张图上时也补
     } }
   // 进图时载地面和图集；幽影林两张的「树上挂魂」：走到树下就开打（打过一次就不再来）
   tileSetMap =(o => function (name) { const d = TMAPS[name]; if (d && d.r107) { loadAtlas(); loadGround(d.r107); } const r = o.apply(this, arguments);
