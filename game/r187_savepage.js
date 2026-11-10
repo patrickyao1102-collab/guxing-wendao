@@ -48,7 +48,7 @@
       if (st) { const h = 28; ctx.drawImage(st, tx, r.y + r.h * .19, h * st.width / st.height, h); }
       ctx.save(); ctx.fillStyle = '#493a33'; ctx.textBaseline = 'alphabetic';
       ctx.font = `20px ${FONT}`; ctx.fillText(d ? (d.title || d.map || '') : (P.mode === 'save' ? '空 · 点这里记下此刻' : '空'), tx, r.y + r.h * 179 / 244);
-      if (d) { ctx.font = `16px ${FONT}`; ctx.textAlign = 'right'; ctx.fillText(when(d), r.x + 2140 * s, r.y + r.h * .82); }
+      if (d) { ctx.font = `600 23px ${FONT}`; ctx.textAlign = 'right'; ctx.fillText(when(d), r.x + 2140 * s, r.y + r.h * .84); }   // 作者 11-10：「存档的日期可以放大一点」
       ctx.restore();
     }
     // 底部：返回 / 动作 / 最近进度
