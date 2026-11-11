@@ -4,7 +4,7 @@
 // 「!名字 ×数量」是一件物品，后面不带「!」的那行当这件物品的说明。
 (function () {
   if (typeof showPanel !== 'function') return;
-  const TITLES = new Set(['打开宝箱', '获得道具', '获得宝物', '获得物品']);
+  const TITLES = new Set(['打开宝箱', '获得道具', '获得宝物', '获得物品', /* 作者 11-11：以后获得物品一律用白色「获得物品」框 */ '兑换成功', '获得坐骑', '盘缠', '星痕衣 → 云霆', '凝霜剑 → 林雪', '星痕剑升级', '星痕剑 · 升阶', '父亲所赠', '炼器成功', '城主府宝库', '晶核炼化', '强化成功', '九曜神器 · 流云仙衣']);
   const byName = () => { const m = {}; try { for (const [id, it] of Object.entries(ITEM_DB)) if (it && it.name) m[it.name] = id; } catch (e) {} return m; };
   let NAMES = null;
   function toItems(lines) {
