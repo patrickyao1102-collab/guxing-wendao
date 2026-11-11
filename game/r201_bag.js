@@ -172,7 +172,10 @@
   window.R201_JADE = JADE;
   // 菜单里各页原来写的 ${FONT} / ${BRUSH}：画行囊期间把 ctx.font 映射到 Codex 字体（画完还原，地图 / 战斗不受影响）
   const FD = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'font');
-  const mapFont = v => typeof v !== 'string' ? v : v.indexOf('R201') >= 0 ? v : v.replace(BRUSH, '"R201MS",' + BRUSH).replace(FONT, '"R201WK",' + FONT);
+  /* 玄青暗色皮（作者 11-12：要和 Codex 效果图同一套字）：效果图里名目、名字、物品名这些短字都是马善政毛笔字 → 18px 及以上的正文字也用马善政，小字说明仍用霞鹜文楷 */
+  const mapFont = v => { if (typeof v !== 'string' || v.indexOf('R201') >= 0) return v; let body = '"R201WK",' + FONT;
+    if (window.BAG_DARK) { const m = /(\d+)px/.exec(v); if (m && +m[1] >= 18) body = '"R209DG","R201MS","R201WK",' + FONT; }   /* 数字、英文走文楷（R209DG 只管 ASCII），汉字走马善政 */
+    return v.replace(BRUSH, '"R201MS",' + BRUSH).replace(FONT, body); };
   function fontOn() { try { Object.defineProperty(ctx, 'font', { configurable: true, get() { return FD.get.call(this); }, set(v) { FD.set.call(this, mapFont(v)); } }); } catch (e) {} }
   function fontOff() { try { delete ctx.font; } catch (e) {} }
   // ---------------- 主画 ----------------

@@ -22,7 +22,10 @@
     fade1: 'rgba(16,34,42,1)', fade0: 'rgba(16,34,42,0)', line: 'rgba(143,124,84,.55)', grainA: .12, gold: C.gold, gold2: C.gold2, text: C.text, sub: C.sub, dim: '#8A9493', red: '#3a3020', red2: '#8F7C54',
     title: C.gold2, titleLine: 'rgba(6,16,24,.85)', hp: '#963E34', mp: '#3E6583', exp: '#8F7C54' };
   const IM = {}; let nOk = 0, started = false;
-  function load() { if (started) return; started = true; for (const k of N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r209/' + k + '.webp'; } }
+  // 底图：作者 11-12「人家有背景图的呀…放叶孤星抬头望星空那张，和它一个色调，淡入进去」→ 作者指定载入插画 NA77（墨青水面上的背影）
+  let BG = null;
+  function load() { if (started) return; started = true; { const im = new Image(); im.onload = () => { BG = im; }; im.src = 'r157/sel/NA77.webp'; }
+    try { const f = new FontFace('R209DG', 'url(fonts/r201_wenkai.woff)', { unicodeRange: 'U+0020-007E' }); f.load().then(x => document.fonts.add(x)).catch(() => {}); } catch (e) {} for (const k of N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r209/' + k + '.webp'; } }
   let pick = 'dark'; try { pick = localStorage.getItem('bag_skin') || 'dark'; } catch (e) {}
   const want = () => pick === 'dark';
   const ready = () => nOk >= N.length;
@@ -49,24 +52,31 @@
       try { g.filter = `blur(${3 * sc}px)`; } catch (e) {}
       g.drawImage(cv, -pad, -pad, cv.width + pad * 2, cv.height + pad * 2); try { g.filter = 'none'; } catch (e) {}
       g.fillStyle = 'rgba(6,16,24,.36)'; g.fillRect(0, 0, o.width, o.height); SNAP.key = menuKey; SNAP.w = cv.width; }
+    if (SNAP.t0key !== menuKey) { SNAP.t0key = menuKey; SNAP.t0 = performance.now(); }
     c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(SNAP.c, 0, 0); c.restore();
-    nine('curtain_9', 0, 0, W, H); }
+    if (BG) { const k = Math.min(1, (performance.now() - SNAP.t0) / 450), s = Math.max(W / BG.width, H / BG.height), bw = BG.width * s, bh = BG.height * s;   // 淡入；铺满、人物偏右留给面板左边的字
+      c.save(); c.globalAlpha = k; c.drawImage(BG, (W - bw) / 2, (H - bh) / 2, bw, bh); c.restore(); }
+    c.save(); if (BG) c.globalAlpha = .55; nine('curtain_9', 0, 0, W, H); c.restore(); }   /* 有底图时幕淡一点，让画透出来 */
 
   // ---------------- 白玉件 → 玄青件 的对照（R201 / R202 里画的每个件都过这里）----------------
   const LAB = { label_灵石: '灵石', label_星辰点: '星辰点' };
-  const QK = { 凡: 'fan', 灵: 'ling', 玄: 'xuan', 仙: 'xian' };
+  const QK = { 凡: 'fan', 灵: 'ling', 玄: 'xuan', 仙: 'xian' }; const TINT = {};
   function bag(k, x, y, w, h, isNine) {   // R201 的 D / nine
     let m;
     if (k === 'bg_full') return true;   // 底由 frame() 画透景
     if (k === 'panel_main_9') { nine('panel_main_9', x, y, w, h); D('star_corner', 700, 0, 328, 96); const c = X(); c.save(); c.translate(910 + 164, 624 + 48); c.rotate(Math.PI); D('star_corner', -164, -48, 328, 96); c.restore(); return true; }
-    if (k === 'title_xingnang') { D('title_ornament_blank', x, y, w, h); T('行 囊', x + 92, y + 46, 52, C.gold2); return true; }
-    if ((m = /^tab_(.+)_(n|s)$/.exec(k))) { D(m[2] === 's' ? 'tab_s' : 'tab_n', x, y, 76, 104); vtext(m[1], x + 38, y + 52, 26, m[2] === 's' ? '#F3E3B2' : C.sub); return true; }
+    if (k === 'title_xingnang') { D('title_ornament_blank', x, y, w, h); const src = window.R201_BAG && R201_BAG.IM.title_xingnang;   /* 效果图的「行囊」是那张书法字，染成米金色 */
+      if (src) { const o = TINT.c || (TINT.c = document.createElement('canvas')); if (TINT.src !== src) { o.width = src.width; o.height = src.height; const g = o.getContext('2d'); g.clearRect(0, 0, o.width, o.height); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'source-in';
+          const gr = g.createLinearGradient(0, 0, 0, o.height); gr.addColorStop(0, '#FFF1CF'); gr.addColorStop(.55, '#E9D3A0'); gr.addColorStop(1, '#B9955C'); g.fillStyle = gr; g.fillRect(0, 0, o.width, o.height); g.globalCompositeOperation = 'source-over'; TINT.src = src; }
+        const c = X(); c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 6; c.drawImage(o, x, y, w, h); c.restore(); }
+      else T('行 囊', x + 92, y + 46, 52, C.gold2); return true; }
+    if ((m = /^tab_(.+)_(n|s)$/.exec(k))) { D(m[2] === 's' ? 'tab_s' : 'tab_n', x, y, 76, 104); vtext(m[1], x + 38, y + 52, 30, m[2] === 's' ? '#F6E6BC' : '#D6CCB2'); return true; }
     if (k === 'avatar_empty') { D('avatar_empty', x, y, w, h); T('+', x + w / 2, y + h / 2, 28, C.lineDim, 'center', NUM()); return true; }
     if (k === 'avatar_ring_n') return D('avatar_n', x, y, w, h);
     if (k === 'avatar_ring_s') return D('avatar_s', x, y, w, h);
     if (k === 'avatar_name_plate') return nine('avatar_name_blank', x, y, w, h);
     if (k === 'currency_bar_9') return nine('currency_bar_9', x, y, w, h);
-    if (LAB[k]) { T(LAB[k], x, y + h / 2, 20, C.gold, 'left', KAI()); return true; }
+    if (LAB[k]) { T(LAB[k], x, y + h / 2, 24, '#E9D9A8', 'left', KAI()); return true; }
     if (k === 'btn_close_n' || k === 'btn_close_p') { nine(k === 'btn_close_p' ? 'close_p' : 'close_n', x, y, w, h); T('关 闭', x + w / 2, y + h / 2 + 1, 22, C.gold2); return true; }
     if (k === 'slot_card_9') return nine('card_n_9', x, y, w, h);
     if (k === 'slot_card_empty_9') return nine('card_d_9', x, y, w, h);
