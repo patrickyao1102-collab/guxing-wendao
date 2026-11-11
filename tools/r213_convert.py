@@ -8,6 +8,8 @@ meta.update(small)
 SC = {'qy_yicui': '一_倚翠楼/01_一楼琴堂', 'qy_yicui_2f': '一_倚翠楼/02_二楼听雨阁', 'qy_changle': '二_长乐坊/01_一楼赌坊', 'qy_changle_2f': '二_长乐坊/02_二楼账房'}
 ALIAS = {'qy_yicui_1f': 'qy_yicui', 'qy_changle_1f': 'qy_changle'}
 used, rooms = set(), {}
+import glob
+for f in glob.glob(OUT + '/o_*.webp'): os.remove(f)
 for sid, p in SC.items():
     L = json.load(open(R + '/' + p + '/layout.json'))
     Image.open(R + '/' + p + '/ground.png').convert('RGB').save(f'{OUT}/g_{sid}.webp', quality=88, method=6)
@@ -23,8 +25,10 @@ sizes = {}
 for k in sorted(used):
     im = Image.open(f'{OBJ}/{k}.png').convert('RGBA'); im.save(f'{OUT}/o_{k}.webp', quality=90, method=6); sizes[k] = {'w': im.width, 'h': im.height, 'ax': meta[k]['anchor_px'][0], 'ay': meta[k]['anchor_px'][1]}
 for src, dst in (('五_新NPC/苏晚/苏晚_对话512x768.png', 'p_suwan'), ('五_新NPC/长乐坊庄家/长乐坊庄家_对话512x768.png', 'p_dealer')):
-    Image.open(R + '/' + src).convert('RGBA').save(f'{OUT}/{dst}.webp', quality=90, method=6)
-import shutil; shutil.copy(R + '/五_新NPC/npc_map_atlas_r213.webp', OUT + '/npc_atlas.webp')
-at = json.load(open(R + '/五_新NPC/npc_map_atlas_r213.json'))['map']
+    if os.path.exists(R + '/' + src): Image.open(R + '/' + src).convert('RGBA').save(f'{OUT}/{dst}.webp', quality=90, method=6)
+import shutil
+NP = R + '/五_新NPC/npc_map_atlas_r213'
+if os.path.exists(NP + '.webp'): shutil.copy(NP + '.webp', OUT + '/npc_atlas.webp'); at = json.load(open(NP + '.json'))['map']; json.dump(at, open(OUT + '/npc_atlas.json', 'w'))
+else: at = json.load(open(OUT + '/npc_atlas.json'))
 open(OUT + '/rooms.js', 'w', encoding='utf8').write('// 由 tools/r213_convert.py 生成（Codex R213 交付），不要手改\nwindow.R213_ROOMS = ' + json.dumps({'rooms': rooms, 'objs': sizes, 'npc': at}, ensure_ascii=False, separators=(',', ':')) + ';\n')
 print(sorted(used)); print({k: (v['exits'], v['slots'], v['inter']) for k, v in rooms.items()})
