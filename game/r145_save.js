@@ -159,6 +159,16 @@
     loadGame(ne[j]); return true;
   };
 
+  // 作者 11-11：「有时候玩着玩着就突然回到主界面」—— 多半是手机浏览器内存吃紧、把页面整个重新载入了（不是游戏自己跳的）。
+  //   补救：开局后在本标签页记一个「正在玩」标记；页面被意外重载、回到主界面时，直接从最近的自动存档接着玩（自动存档每 20 秒滚动一次），不用玩家自己去「前尘再续」。
+  setInterval(() => { try { if (S.started) sessionStorage.setItem('gx_alive', '1'); } catch (e) {} }, 3000);
+  window.GX_RESUME = async function () {
+    let alive = null; try { alive = sessionStorage.getItem('gx_alive'); sessionStorage.removeItem('gx_alive'); } catch (e) {}
+    if (alive !== '1' || !readSlot('auto')) return false;
+    try { await fadeOut(300); } catch (e) {}
+    if (!loadGame('auto')) return false;
+    setTimeout(() => T()('刚才画面意外中断了，已从最近的进度接着玩', 2600), 900); return true;
+  };
   // 自由走动时每 20 秒滚动自动存档（最近进度），外加原有的升级 / 领悟后 saveGame()
   setInterval(() => { try { if (safeNow()) window.saveGame(); } catch (e) {} }, 20000);
 })();

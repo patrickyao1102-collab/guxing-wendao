@@ -6,7 +6,10 @@
 // 刚升档就又卡（6 秒内）→ 下次升档要等的流畅时间翻倍（最多 60 秒），稳定一分钟后复原，免得在临界点来回跳。
 (function () {
   if (typeof resize !== 'function') return;
-  const STEPS = [2, 1.5, 1.25];
+  // 作者 11-11：「手机清晰度怎么比电脑还低，不是说小屏幕清晰度反而越高吗？」—— 手机屏是 3 倍像素，但按 2 倍画再被放大到 3 倍就糊了；
+  //   电脑窗口宽、2 倍就有 2500+ 像素。所以小屏（宽 < 1100）且 3 倍屏的手机，平时按 3 倍画（总像素和电脑 2 倍差不多），掉帧仍自动降 2 / 1.5 / 1.25
+  const SMALL3 = (window.devicePixelRatio || 1) > 2.2 && Math.min(innerWidth, innerHeight) < 1100 && Math.max(innerWidth, innerHeight) < 1400;
+  const STEPS = SMALL3 ? [Math.min(3, window.devicePixelRatio), 2, 1.5, 1.25] : [2, 1.5, 1.25];
   let lv = 0, ema = 16.7, last = 0, slowT = 0, fastT = 0, hold = 0, upWait = 3, lastUp = -1e9, clock = 0, base = 16.7;
   hold = 5;   // 刚启动的几秒在加载素材，帧慢不算卡
   window.DPR_CAP = STEPS[0];

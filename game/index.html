@@ -3405,6 +3405,8 @@ titleScreen = (orig => async function () {
   };
   S.scene = draw0;
   await nextFrame(); consumeTap();
+  // 11-11：页面被手机意外重载（玩着玩着回到主界面）→ 直接从自动存档接着玩
+  { for (let i = 0; i < 120 && !window.GX_RESUME; i++) await nextFrame(); let ok = false; try { ok = window.GX_RESUME ? await window.GX_RESUME() : false; } catch (e) {} if (ok) return new Promise(() => {}); S.scene = draw0; }
   while (true) {
     const t = consumeTap();
     if (t) {
