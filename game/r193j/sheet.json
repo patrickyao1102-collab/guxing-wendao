@@ -1,0 +1,2426 @@
+{
+  "schema_version": "1.0",
+  "project": "R193J",
+  "canvas": [
+    1280,
+    720
+  ],
+  "coordinates": {
+    "origin": "top-left",
+    "units": "px",
+    "rect_format": "[x,y,width,height]",
+    "frame_index_base": 0,
+    "alpha": "straight / unpremultiplied",
+    "color_space": "sRGB"
+  },
+  "water": {
+    "depth_y_ranges": {
+      "deep": [
+        70,
+        229
+      ],
+      "center": [
+        230,
+        429
+      ],
+      "shallow": [
+        430,
+        619
+      ]
+    },
+    "float_playable_polygon": [
+      [
+        190,
+        82
+      ],
+      [
+        1115,
+        82
+      ],
+      [
+        1200,
+        245
+      ],
+      [
+        1135,
+        383
+      ],
+      [
+        956,
+        442
+      ],
+      [
+        789,
+        515
+      ],
+      [
+        621,
+        606
+      ],
+      [
+        330,
+        608
+      ],
+      [
+        180,
+        497
+      ],
+      [
+        120,
+        329
+      ]
+    ],
+    "exclude_polygons": [
+      [
+        [
+          750,
+          505
+        ],
+        [
+          1280,
+          455
+        ],
+        [
+          1280,
+          720
+        ],
+        [
+          680,
+          720
+        ]
+      ],
+      [
+        [
+          0,
+          554
+        ],
+        [
+          303,
+          554
+        ],
+        [
+          334,
+          720
+        ],
+        [
+          0,
+          720
+        ]
+      ]
+    ],
+    "notes": "水深按浮漂落点的屏幕 y 分类；同时必须在 playable_polygon 内且不在 exclude_polygons 内。近岸侧翼虽可见浅水，不作投漂目标。边界为美术推荐，玩法可进一步收紧。"
+  },
+  "assets": {
+    "bg_mao": {
+      "file": "bg_mao.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "opaque": true
+    },
+    "bg_wu": {
+      "file": "bg_wu.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "opaque": true
+    },
+    "bg_you": {
+      "file": "bg_you.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "opaque": true
+    },
+    "bg_xu": {
+      "file": "bg_xu.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "opaque": true
+    },
+    "bg_zi": {
+      "file": "bg_zi.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "opaque": true
+    },
+    "btn_main_normal": {
+      "file": "btn_main_normal.webp",
+      "image_size": [
+        150,
+        150
+      ],
+      "cell_size": [
+        150,
+        150
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        75,
+        75
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            150,
+            150
+          ]
+        }
+      ]
+    },
+    "btn_left_normal": {
+      "file": "btn_left_normal.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ]
+    },
+    "btn_right_normal": {
+      "file": "btn_right_normal.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ]
+    },
+    "box_gear_normal": {
+      "file": "box_gear_normal.webp",
+      "image_size": [
+        144,
+        116
+      ],
+      "cell_size": [
+        144,
+        116
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        72,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            144,
+            116
+          ]
+        }
+      ]
+    },
+    "tag_quit_normal": {
+      "file": "tag_quit_normal.webp",
+      "image_size": [
+        72,
+        116
+      ],
+      "cell_size": [
+        72,
+        116
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        36,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            72,
+            116
+          ]
+        }
+      ]
+    },
+    "closeup_frame": {
+      "file": "closeup_frame.webp",
+      "image_size": [
+        160,
+        160
+      ],
+      "cell_size": [
+        160,
+        160
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        80,
+        80
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            160,
+            160
+          ]
+        }
+      ]
+    },
+    "seal": {
+      "file": "seal.webp",
+      "image_size": [
+        120,
+        120
+      ],
+      "cell_size": [
+        120,
+        120
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        60,
+        60
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    "caption_ink": {
+      "file": "caption_ink.webp",
+      "image_size": [
+        520,
+        60
+      ],
+      "cell_size": [
+        520,
+        60
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        260,
+        30
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            520,
+            60
+          ]
+        }
+      ]
+    },
+    "btn_main_down": {
+      "file": "btn_main_down.webp",
+      "image_size": [
+        150,
+        150
+      ],
+      "cell_size": [
+        150,
+        150
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        75,
+        75
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            150,
+            150
+          ]
+        }
+      ]
+    },
+    "btn_left_down": {
+      "file": "btn_left_down.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ]
+    },
+    "btn_right_down": {
+      "file": "btn_right_down.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ]
+    },
+    "box_gear_hover": {
+      "file": "box_gear_hover.webp",
+      "image_size": [
+        144,
+        116
+      ],
+      "cell_size": [
+        144,
+        116
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        72,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            144,
+            116
+          ]
+        }
+      ]
+    },
+    "tag_quit_down": {
+      "file": "tag_quit_down.webp",
+      "image_size": [
+        72,
+        116
+      ],
+      "cell_size": [
+        72,
+        116
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        36,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            72,
+            116
+          ]
+        }
+      ]
+    },
+    "closeup_mask": {
+      "file": "closeup_mask.webp",
+      "image_size": [
+        160,
+        160
+      ],
+      "cell_size": [
+        160,
+        160
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        80,
+        80
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            160,
+            160
+          ]
+        }
+      ]
+    },
+    "rod_bell": {
+      "file": "rod_bell.webp",
+      "image_size": [
+        448,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        7,
+        1
+      ],
+      "frame_count": 7,
+      "fps": 18,
+      "anchor": [
+        32,
+        12
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            64,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            128,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            192,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            256,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            320,
+            0,
+            64,
+            64
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            384,
+            0,
+            64,
+            64
+          ]
+        }
+      ],
+      "animations": {
+        "idle": {
+          "frames": [
+            0
+          ],
+          "fps": 0
+        },
+        "shake": {
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "fps": 18,
+          "loop": true
+        }
+      }
+    },
+    "seal_stamp": {
+      "file": "seal_stamp.webp",
+      "image_size": [
+        864,
+        144
+      ],
+      "cell_size": [
+        144,
+        144
+      ],
+      "grid": [
+        6,
+        1
+      ],
+      "frame_count": 6,
+      "fps": 18,
+      "anchor": [
+        72,
+        72
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            144,
+            144
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            144,
+            0,
+            144,
+            144
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            288,
+            0,
+            144,
+            144
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            432,
+            0,
+            144,
+            144
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            576,
+            0,
+            144,
+            144
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            720,
+            0,
+            144,
+            144
+          ]
+        }
+      ]
+    },
+    "btn_main_glow": {
+      "file": "btn_main_glow.webp",
+      "image_size": [
+        150,
+        150
+      ],
+      "cell_size": [
+        150,
+        150
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        75,
+        75
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            150,
+            150
+          ]
+        }
+      ],
+      "blend": "screen",
+      "draw_over_normal": true
+    },
+    "btn_left_glow": {
+      "file": "btn_left_glow.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ],
+      "blend": "screen",
+      "draw_over_normal": true
+    },
+    "btn_right_glow": {
+      "file": "btn_right_glow.webp",
+      "image_size": [
+        64,
+        64
+      ],
+      "cell_size": [
+        64,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        32,
+        32
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ]
+        }
+      ],
+      "blend": "screen",
+      "draw_over_normal": true
+    },
+    "hero_idle": {
+      "file": "hero_idle.webp",
+      "image_size": [
+        1792,
+        768
+      ],
+      "cell_size": [
+        448,
+        384
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "frame_count": 8,
+      "fps": 8,
+      "anchor": [
+        260,
+        320
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            448,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            896,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            1344,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            0,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            448,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            896,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1344,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            144,
+            164
+          ]
+        }
+      ]
+    },
+    "hero_fight": {
+      "file": "hero_fight.webp",
+      "image_size": [
+        1792,
+        384
+      ],
+      "cell_size": [
+        448,
+        384
+      ],
+      "grid": [
+        4,
+        1
+      ],
+      "frame_count": 4,
+      "fps": 6,
+      "anchor": [
+        260,
+        320
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            120,
+            146
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            448,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            120,
+            138
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            896,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            121,
+            127
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            1344,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            123,
+            145
+          ]
+        }
+      ]
+    },
+    "hero_cast": {
+      "file": "hero_cast.webp",
+      "image_size": [
+        1344,
+        768
+      ],
+      "cell_size": [
+        448,
+        384
+      ],
+      "grid": [
+        3,
+        2
+      ],
+      "frame_count": 6,
+      "fps": 10,
+      "anchor": [
+        260,
+        320
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            150,
+            177
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            448,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            147,
+            141
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            896,
+            0,
+            448,
+            384
+          ],
+          "grip": [
+            284,
+            71
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            0,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            95,
+            73
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            448,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            77,
+            78
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            896,
+            384,
+            448,
+            384
+          ],
+          "grip": [
+            145,
+            176
+          ]
+        }
+      ],
+      "rod_frame_map": [
+        0,
+        7,
+        6,
+        7,
+        8,
+        0
+      ]
+    },
+    "rod": {
+      "file": "rod.webp",
+      "image_size": [
+        1536,
+        1536
+      ],
+      "cell_size": [
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ],
+      "frame_count": 9,
+      "fps": 0,
+      "anchor": [
+        352,
+        430
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            512,
+            512
+          ],
+          "tip": [
+            185,
+            185
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            512,
+            0,
+            512,
+            512
+          ],
+          "tip": [
+            166,
+            198
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            1024,
+            0,
+            512,
+            512
+          ],
+          "tip": [
+            148,
+            221
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            0,
+            512,
+            512,
+            512
+          ],
+          "tip": [
+            143,
+            253
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            512,
+            512,
+            512,
+            512
+          ],
+          "tip": [
+            133,
+            289
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            1024,
+            512,
+            512,
+            512
+          ],
+          "tip": [
+            119,
+            342
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            0,
+            1024,
+            512,
+            512
+          ],
+          "tip": [
+            372,
+            174
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            512,
+            1024,
+            512,
+            512
+          ],
+          "tip": [
+            254,
+            142
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        },
+        {
+          "index": 8,
+          "rect": [
+            1024,
+            1024,
+            512,
+            512
+          ],
+          "tip": [
+            123,
+            168
+          ],
+          "grip": [
+            352,
+            430
+          ]
+        }
+      ],
+      "states": {
+        "rest": [
+          0
+        ],
+        "bend_light_to_heavy": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "cast": [
+          6,
+          7,
+          8
+        ]
+      }
+    },
+    "fg": {
+      "file": "fg.webp",
+      "image_size": [
+        2560,
+        1440
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "frame_count": 4,
+      "fps": 4,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            1280,
+            720
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            1280,
+            0,
+            1280,
+            720
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            0,
+            720,
+            1280,
+            720
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            1280,
+            720,
+            1280,
+            720
+          ]
+        }
+      ]
+    },
+    "chest_shadow": {
+      "file": "chest_shadow.webp",
+      "image_size": [
+        128,
+        96
+      ],
+      "cell_size": [
+        128,
+        96
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        64,
+        48
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            128,
+            96
+          ]
+        }
+      ],
+      "recommended_opacity": 0.4,
+      "underwater": true
+    },
+    "shadow_s": {
+      "file": "shadow_s.webp",
+      "image_size": [
+        1280,
+        96
+      ],
+      "cell_size": [
+        160,
+        96
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "frame_count": 8,
+      "fps": 8,
+      "anchor": [
+        80,
+        48
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            160,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            320,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            480,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            640,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            800,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            960,
+            0,
+            160,
+            96
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1120,
+            0,
+            160,
+            96
+          ]
+        }
+      ],
+      "direction": "right",
+      "underwater": true,
+      "recommended_opacity": 0.33
+    },
+    "shadow_m": {
+      "file": "shadow_m.webp",
+      "image_size": [
+        1536,
+        96
+      ],
+      "cell_size": [
+        192,
+        96
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "frame_count": 8,
+      "fps": 8,
+      "anchor": [
+        96,
+        48
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            192,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            384,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            576,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            768,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            960,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            1152,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1344,
+            0,
+            192,
+            96
+          ]
+        }
+      ],
+      "direction": "right",
+      "underwater": true,
+      "recommended_opacity": 0.33
+    },
+    "shadow_l": {
+      "file": "shadow_l.webp",
+      "image_size": [
+        2048,
+        128
+      ],
+      "cell_size": [
+        256,
+        128
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "frame_count": 8,
+      "fps": 6,
+      "anchor": [
+        128,
+        64
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            256,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            512,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            768,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            1024,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            1280,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            1536,
+            0,
+            256,
+            128
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1792,
+            0,
+            256,
+            128
+          ]
+        }
+      ],
+      "direction": "right",
+      "underwater": true,
+      "recommended_opacity": 0.33
+    },
+    "shadow_gold": {
+      "file": "shadow_gold.webp",
+      "image_size": [
+        1536,
+        96
+      ],
+      "cell_size": [
+        192,
+        96
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "frame_count": 8,
+      "fps": 8,
+      "anchor": [
+        96,
+        48
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            192,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            384,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            576,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            768,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            960,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            1152,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1344,
+            0,
+            192,
+            96
+          ]
+        }
+      ],
+      "direction": "right",
+      "underwater": true,
+      "recommended_opacity": 0.42
+    },
+    "shadow_hooked": {
+      "file": "shadow_hooked.webp",
+      "image_size": [
+        1536,
+        96
+      ],
+      "cell_size": [
+        192,
+        96
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "frame_count": 8,
+      "fps": 12,
+      "anchor": [
+        96,
+        48
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            192,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            384,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            576,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 4,
+          "rect": [
+            768,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 5,
+          "rect": [
+            960,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 6,
+          "rect": [
+            1152,
+            0,
+            192,
+            96
+          ]
+        },
+        {
+          "index": 7,
+          "rect": [
+            1344,
+            0,
+            192,
+            96
+          ]
+        }
+      ],
+      "direction": "right",
+      "underwater": true,
+      "recommended_opacity": 0.33
+    },
+    "box_gear": {
+      "file": "box_gear.webp",
+      "image_size": [
+        288,
+        116
+      ],
+      "cell_size": [
+        144,
+        116
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "frame_count": 2,
+      "fps": 0,
+      "anchor": [
+        72,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            144,
+            116
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            144,
+            0,
+            144,
+            116
+          ]
+        }
+      ],
+      "states": [
+        "normal",
+        "hover"
+      ]
+    },
+    "tag_quit": {
+      "file": "tag_quit.webp",
+      "image_size": [
+        144,
+        116
+      ],
+      "cell_size": [
+        72,
+        116
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "frame_count": 2,
+      "fps": 0,
+      "anchor": [
+        36,
+        58
+      ],
+      "loop": false,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            72,
+            116
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            72,
+            0,
+            72,
+            116
+          ]
+        }
+      ],
+      "states": [
+        "normal",
+        "down"
+      ]
+    }
+  },
+  "preview_layout": {
+    "hero": {
+      "asset": "hero_idle",
+      "position": [
+        960,
+        620
+      ],
+      "anchor": [
+        260,
+        320
+      ],
+      "z": 50
+    },
+    "rod": {
+      "asset": "rod",
+      "attach": "hero.frame.grip",
+      "anchor": [
+        352,
+        430
+      ],
+      "z": 40
+    },
+    "bell": {
+      "asset": "rod_bell",
+      "attach": "rod.frame.tip",
+      "offset": [
+        3,
+        8
+      ],
+      "scale": 0.65,
+      "z": 42
+    },
+    "float": {
+      "external": "../R193I3/float/idle.webp",
+      "position": [
+        586,
+        325
+      ],
+      "anchor": [
+        64,
+        184
+      ],
+      "scale": 0.56,
+      "z": 35
+    },
+    "dragonfly": {
+      "external": "../R193G/dragonfly.webp",
+      "row": 1,
+      "attach": "rod.frame.tip",
+      "anchor": [
+        128,
+        180
+      ],
+      "scale": 0.4,
+      "z": 44
+    },
+    "main": {
+      "asset": "btn_main_normal",
+      "position": [
+        1125,
+        632
+      ],
+      "z": 90
+    },
+    "left": {
+      "asset": "btn_left_normal",
+      "position": [
+        1030,
+        646
+      ],
+      "z": 90
+    },
+    "right": {
+      "asset": "btn_right_normal",
+      "position": [
+        1220,
+        646
+      ],
+      "z": 90
+    },
+    "box": {
+      "asset": "box_gear_normal",
+      "position": [
+        134,
+        626
+      ],
+      "z": 70
+    },
+    "quit": {
+      "asset": "tag_quit_normal",
+      "position": [
+        234,
+        633
+      ],
+      "z": 70
+    },
+    "closeup": {
+      "asset": "closeup_frame",
+      "position": [
+        1168,
+        176
+      ],
+      "z": 90,
+      "mask": "closeup_mask"
+    },
+    "foreground": {
+      "asset": "fg",
+      "position": [
+        0,
+        0
+      ],
+      "z": 80
+    },
+    "shadows": [
+      {
+        "asset": "shadow_s",
+        "position": [
+          246,
+          402
+        ],
+        "scale": 0.75,
+        "opacity": 0.23,
+        "angle": -16
+      },
+      {
+        "asset": "shadow_m",
+        "position": [
+          378,
+          303
+        ],
+        "scale": 0.7,
+        "opacity": 0.26,
+        "angle": -22
+      },
+      {
+        "asset": "shadow_m",
+        "position": [
+          737,
+          377
+        ],
+        "scale": 0.6,
+        "opacity": 0.28,
+        "angle": 18
+      },
+      {
+        "asset": "shadow_l",
+        "position": [
+          826,
+          168
+        ],
+        "scale": 0.9,
+        "opacity": 0.23,
+        "angle": -10
+      },
+      {
+        "asset": "shadow_gold",
+        "position": [
+          982,
+          257
+        ],
+        "scale": 0.55,
+        "opacity": 0.13,
+        "angle": 6
+      },
+      {
+        "asset": "chest_shadow",
+        "position": [
+          966,
+          157
+        ],
+        "scale": 0.8,
+        "opacity": 0.32,
+        "angle": 0
+      }
+    ]
+  },
+  "draw_order": [
+    "background",
+    "underwater_shadows",
+    "runtime_fishing_line",
+    "float_and_water_fx",
+    "rod",
+    "hero",
+    "rod_bell_and_insect",
+    "box_and_quit",
+    "fg",
+    "buttons",
+    "closeup",
+    "seal_and_runtime_text"
+  ],
+  "attachment_rules": {
+    "hero_origin": "hero.position - hero.anchor",
+    "rod_grip_world": "hero_origin + current_hero_frame.grip",
+    "rod_origin": "rod_grip_world - rod.anchor",
+    "rod_tip_world": "rod_origin + current_rod_frame.tip",
+    "bell_world": "rod_tip_world + [3,8]",
+    "line_start": "rod_tip_world",
+    "line_end": "R193I3 float frames[i].tip_xy 或水线 contact_xy；黑漂时使用 contact_xy",
+    "hero_cast_rod_frames": [
+      0,
+      7,
+      6,
+      7,
+      8,
+      0
+    ],
+    "hero_idle_rod_frame": 0,
+    "fight_rod_frame": "按线力映射1..5，独立于人物4帧循环"
+  },
+  "recommended_time_tint": {
+    "mao": [
+      1,
+      0.97,
+      0.92
+    ],
+    "wu": [
+      1,
+      1,
+      1
+    ],
+    "you": [
+      1,
+      0.88,
+      0.74
+    ],
+    "xu": [
+      0.73,
+      0.76,
+      0.94
+    ],
+    "zi": [
+      0.52,
+      0.64,
+      0.83
+    ]
+  },
+  "dependencies": [
+    {
+      "path": "../R193I3/float/sheet.json",
+      "use": "16段浮漂动作，保持原件，不重复交付"
+    },
+    {
+      "path": "../R193F/water_fx.webp",
+      "meta": "../R193F/sheet.json",
+      "use": "水花与涟漪"
+    },
+    {
+      "path": "../R193G/dragonfly.webp",
+      "meta": "../R193G/sheet.json",
+      "use": "预览中停在竿梢的蜻蜓，继续复用原件"
+    }
+  ],
+  "notes": [
+    "所有美术图无文字。木匣仅松树图案，未刻松字。",
+    "按钮按下态向下2px；glow仅叠层，不替代normal。",
+    "人物帧不含鱼竿。竿、铃、线分别跟随握点和竿梢点。",
+    "box_gear和tag_quit同时提供两格图集与单态文件，可任选一种接入。",
+    "五时辰背景不包含前景叶、鱼影、主角或UI；前景叶与角色/UI可由游戏按时辰统一调光。"
+  ]
+}
