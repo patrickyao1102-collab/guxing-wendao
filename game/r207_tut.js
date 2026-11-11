@@ -22,7 +22,7 @@
   window.addEventListener('pointerup', e => { if (blockedDown) { blockedDown = false; e.stopImmediatePropagation(); } }, { capture: true });
   window.addEventListener('keydown', e => { if (CUR && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.stopImmediatePropagation(); } }, { capture: true });
 
-  const hudWillDraw = () => { try { return S.hud && !(typeof battle !== 'undefined' && battle) && !dialog && !choice && !sysPanel; } catch (e) { return false; } };
+  const hudWillDraw = () => { try { return !(window.R135G_OPEN && R135G_OPEN()) && S.hud && !(typeof battle !== 'undefined' && battle) && !dialog && !choice && !sysPanel; } catch (e) { return false; } };
   if (typeof drawMapHud === 'function') drawMapHud = (o => function () { const r = o.apply(this, arguments); try { if (hudWillDraw()) ov.paint(); } catch (e) {} return r; })(drawMapHud);   // 菜单在 HUD 里画，引导要盖在菜单上面
   const ov = { draw() { if (!hudWillDraw()) this.paint(); }, paint() {
     if (!CUR) return; const st = CUR.steps[CUR.i]; if (!st) return; const t = now(), R = st.rect && st.rect();
@@ -55,6 +55,7 @@
       const iv = setInterval(() => { const C = CUR; if (!C || C.res !== res) { clearInterval(iv); return; }
         const end = r => { clearInterval(iv); CUR = null; const k = S.overlay.indexOf(ov); if (k >= 0) S.overlay.splice(k, 1); res(r); };
         if (C.skip) return end('skip');
+        if (S.overlay[S.overlay.length - 1] !== ov) { const k = S.overlay.indexOf(ov); if (k >= 0) S.overlay.splice(k, 1); S.overlay.push(ov); }   // 衣柜之类后开的界面层也盖不住引导
         const st = C.steps[C.i]; let ok = false; try { ok = st.done ? !!st.done() : false; } catch (e) {}
         if (!ok && st.tap && C.tapAt && now() - C.tapAt > .25) ok = true;
         if (ok) { C.i++; C.tapAt = 0; try { playSnd('ui_click'); } catch (e) {} if (C.i >= C.steps.length) return end('done'); }
@@ -104,6 +105,24 @@
       ]);
       if (r === 'skip' && !F().ch2_pill) { try { if (S.menu) closeMenu(); } catch (e) {} if (window.CH2_EAT_PILL) await CH2_EAT_PILL(); }
     } finally { pillBusy = false; }
+  };
+  // 流云仙衣：行囊 → 换装 → 穿上流云仙衣 → 换回弟子服 → 再穿回（跳过＝直接整套穿上）
+  const cardR = id => { try { if (!(window.R135G_OPEN && R135G_OPEN())) return null; return id === 'baipao' ? [852, 154, 374, 187] : [852, 364, 374, 187]; } catch (e) { return null; } };
+  const wearing = () => { try { return window.YEGX_OUTFIT ? YEGX_OUTFIT.get() : ''; } catch (e) { return ''; } };
+  window.R207_OUTFIT_TUT = async function () {
+    if (F().tut_outfit) return; F().tut_outfit = 1;
+    await say('星旋', '仙衣能幻化成任何模样。穿什么样子你自己挑——我教你在哪儿换：');
+    const wardOrTab = () => (window.R135G_OPEN && R135G_OPEN()) ? null : tabR('换装');
+    const r = await SPOT.run([
+      { title: '打开行囊', text: '点右下角的「行囊」。', rect: () => S.menu ? null : BAG, done: () => !!S.menu },
+      { title: '换装', text: '点左边的「换装」。', rect: () => wardOrTab(), done: () => !!(window.R135G_OPEN && R135G_OPEN()) || isTab('换装') },
+      { title: '穿上流云仙衣', text: '点「流云仙衣」那张卡，整套换上。', rect: () => cardR('guxing'), done: () => wearing() === 'guxing' },
+      { title: '换回来试试', text: '再点「天剑弟子服」——随时都能换回来。', rect: () => cardR('baipao'), done: () => wearing() === 'baipao' },
+      { title: '想穿哪套就穿哪套', text: '最后再点「流云仙衣」穿回白衣。', rect: () => cardR('guxing'), done: () => wearing() === 'guxing' },
+    ]);
+    if (r === 'skip' || wearing() !== 'guxing') { try { if (window.YEGX_OUTFIT) YEGX_OUTFIT.set('guxing'); } catch (e) {} }
+    try { const C = window.R135G_CUR && R135G_CUR(); if (C && C.close) { C.close(); C.res && C.res(); } } catch (e) {}
+    try { if (S.menu) closeMenu(); } catch (e) {}
   };
   window.R207_JT_TUT = async function () {
     if (F().yt_jiutian) return;

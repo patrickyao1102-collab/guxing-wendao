@@ -6212,12 +6212,13 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
       addItem('a_liuyun'); equipItem('a_liuyun'); const i = SHENQI.findIndex(s => s.item === 'a_liuyun'); if (i >= 0) giveShenqi(i);
       if (window.R134_UNLOCK) await R134_UNLOCK({ item: 'a_liuyun', kicker: '九曜神器 · 解锁', title: '流云仙衣', lines: ['已装备　防御 +22　气血 +160', '神器图鉴 · 天璇位点亮（1 / 9）', '换装开启：可在「行囊 · 换装」里自由切换叶孤星的衣着'] });
       else await showPanel('九曜神器 · 流云仙衣', ['!流云仙衣（已装备）', '防御 +22　气血 +160', '神器图鉴 · 天璇位点亮（1 / 9）']);
-      try { if (window.YEGX_OUTFIT) YEGX_OUTFIT.set('guxing'); } catch (e) {}
+      // 作者 11-11：不再自动换上白衣（以前只换了一半：立绘/施法是白的、走路还是蓝的）——下面教玩家自己去「换装」穿上
       await narrate('白衣落入手中，轻得像一片云。一穿上身，衣袍便自行幻化成一身寻常白衣。');
       await say('星旋', '小子，你爹说这是极品灵器？他骗你的！这是实打实的极品仙器！');
       await say('叶孤星·思', '……');
       await narrate('叶孤星想起父亲书房里那盏亮到深夜的灯，眼底一阵发酸，没有说话。');
       S.flags.ch2_liuyun = 1;
+      if (window.R207_OUTFIT_TUT) { world.locked = false; try { await R207_OUTFIT_TUT(); } catch (e) { console.warn(e); } world.locked = true; }
       if (S.flags.ch2_night && !S.flags.ch2_roam && window.CH2_ROBE_NIGHT) { world.locked = false; return CH2_ROBE_NIGHT(); }   // 作者 11-07：当晚取的衣 → 回屋服丹歇息，集市留到明天和云霆一起
       // 作者 11-03：离开天剑宗前先去集市一趟，买点装备、剑诀卷册、丹药再出门
       await say('星旋', '仙衣到手！不过小子，下山可不是逛后山——丹药、护具、剑诀卷册，一样都不能少。');
