@@ -363,8 +363,8 @@
   const SHOPLIST = [
     { id: 'p_small', n: 3, shop: '丹药铺', label: '回春丹 ×3' },
     { id: 'p_mp', n: 2, shop: '丹药铺', label: '回灵丹 ×2' },
+    { id: 'juan2', n: 1, shop: '典籍阁', label: '《剑诀·卷二》' },   // 作者 11-11：先教叶孤星拿卷二参悟「凝神」升重，再教云霆参悟九天神雷
     { id: 'bk_yt_jiutian', n: 1, shop: '典籍阁', label: '云霆秘传《九天神雷》' },
-    { id: 'juan2', n: 1, shop: '典籍阁', label: '《剑诀·卷二》', opt: true },
   ];
   const buys = () => (F().r134_buy = F().r134_buy || {});
   const shopping = () => { const f = F(); return f.ch2_liuyun && !f.ch2_depart && f.ch2_market; };
@@ -374,7 +374,7 @@
     const req = SHOPLIST.filter(it => !it.opt).every(itemDone);
     return '集市采买·' + (req ? '必买的都齐了，回问剑坪南边山门出发 · ' : '') + parts.join(' · '); }
   addItem = (orig => function (id, n = 1) { const r = orig.apply(this, arguments);
-    try { if (shopping()) { const b = buys(); b[id] = (b[id] || 0) + n; } if (id === 'bk_yt_jiutian' && !F().yt_jiutian) later(() => whenFree(() => window.R207_JT_TUT ? R207_JT_TUT() : ytLearn()), 50); /* 11-11：买下后教玩家去技能页参悟（跳过＝直接学会） */ } catch (e) {}
+    try { if (shopping()) { const b = buys(); b[id] = (b[id] || 0) + n; } if (id === 'juan2' && shopping() && !F().r207_up_tut && window.R207_UP_TUT) { F().r207_up_tut = 1; later(() => whenFree(() => R207_UP_TUT()), 50); } if (id === 'bk_yt_jiutian' && !F().yt_jiutian) later(() => whenFree(() => window.R207_JT_TUT ? R207_JT_TUT() : ytLearn()), 50); /* 11-11：买下后教玩家去技能页参悟（跳过＝直接学会） */ } catch (e) {}
     return r; })(addItem);
   async function ytLearn() {
     const f = F(); if (f.yt_jiutian) return; f.yt_jiutian = 1; const h = S.hero; if (h.bag && h.bag.bk_yt_jiutian) { delete h.bag.bk_yt_jiutian; }
@@ -395,9 +395,9 @@
       later(() => whenFree(async () => { world.locked = true; try {
         await say('星旋', '我给你列个单子，照着买准没错：');
         await say('星旋', '一、丹药铺：回春丹三颗、回灵丹两颗——打黑风寨，丹药就是命。');
-        await say('星旋', '二、典籍阁：《九天神雷》——云霆那小子盯了三年的秘传，买下来他当场就能参悟，满怒气就是一记群体雷劈。');
+        await say('星旋', '二、典籍阁：《剑诀·卷二》——拿它把你的「凝神」参悟到第二重，下一招更狠。');
+        await say('星旋', '三、还是典籍阁：《九天神雷》——云霆那小子盯了三年的秘传，买下来让他参悟，满怒气就是一记群体雷劈。');
         if ((S.party || []).includes('yunting')) await say('云霆', '……钱不够我自己补上。先看看再说。');
-        await say('星旋', '三、有余钱再去典籍阁买《剑诀·卷二》，学过的招式拿它参悟到第二重。');
         await say('星旋', '要买的店，我在头顶给你点了金光，跟着走就行。点任务栏也能自动走过去。');
         S.quest = shopQuest(); } finally { world.locked = false; } }), 2600); } } catch (e) {}
     return r; })(tileSetMap);

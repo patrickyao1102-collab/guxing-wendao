@@ -194,5 +194,6 @@
     open(who, id) { const d = build(who, id); if (!d) return false; load(TH); if (window.IMG_GUARD) try { IMG_GUARD.bumpMatch(['r154/' + TH + '/']); } catch (e) {} D = { who, id, t0: performance.now(), d }; return true; },
     close, 
     get state() { return D && D.d; },
+    get hit() { return D && D.d && V[D.d.v] && V[D.d.v].hit; },   // 11-11：新手引导要知道「参悟升重」按钮在哪
   };
 })();

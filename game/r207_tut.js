@@ -70,6 +70,24 @@
   const BAG = [W - 128, H - 112, 112, 104];
   const isTab = n => S.menu && MTABS[S.menu.tab] === n;
   window.SPOT_STEPS = { tabR, memR, nodeR, btnR, BAG, isTab };
+  // 叶孤星：用《剑诀·卷二》把凝神（还没学会就用点星）参悟到第二重（跳过＝直接升）
+  window.R207_UP_TUT = async function () {
+    const id = (S.hero.skills || []).includes('ningshen') || (window.SK4 && SK4.learned && SK4.learned('hero', 'ningshen')) ? 'ningshen' : 'dianxing', nm = id === 'ningshen' ? '凝神' : '点星';
+    const tier = () => { try { return window.SKILL_TIER ? SKILL_TIER('hero', id) : 1; } catch (e) { return 1; } };
+    if (tier() >= 2) return;
+    await say('星旋', '卷二到手——先给你自己用。我教你怎么参悟升重：');
+    const isN = o => o.n && o.n.id === id;
+    const upR = () => { try { const h = window.R154 && R154.hit; const u = h && h.upgrade; return u ? u.rect : null; } catch (e) { return null; } };
+    const r = await SPOT.run([
+      { title: '打开行囊', text: '点右下角的「行囊」。', rect: () => S.menu ? null : BAG, done: () => !!S.menu },
+      { title: '技能页', text: '点左边的「技能」。', rect: () => tabR('技能'), done: () => isTab('技能') },
+      { title: '看叶孤星', text: '上面选叶孤星自己的头像。', rect: () => memR('hero'), done: () => isTab('技能') && S.menu.who === 'hero' },
+      { title: '找到' + nm, text: '点一下「' + nm + '」。', rect: () => nodeR('hero', isN), done: () => window.SKT_SEL && SKT_SEL() === 'hero.' + id },
+      { title: '参悟', text: '右下角「参悟」，打开这一招的详情。', rect: () => window.R154 && R154.state ? null : btnR(), done: () => !!(window.R154 && R154.state) || tier() >= 2 },
+      { title: '参悟升重', text: '点「参悟升重」，用掉卷二，' + nm + '升到第二重。', rect: () => upR(), done: () => tier() >= 2 },
+    ]);
+    if (r === 'skip' && tier() < 2) { try { if (window.SKT && SKT.upgrade) SKT.upgrade('hero', id); } catch (e) {} }
+  };
   window.R207_JT_TUT = async function () {
     if (F().yt_jiutian) return;
     await say('星旋', '秘卷到手了——别光揣着，得让云霆参悟了才算数。我教你一遍：');
