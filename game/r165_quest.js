@@ -18,7 +18,7 @@
     return Promise.all(Object.entries(j.assets).map(([k, a]) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { IM[k] = im; res(); }; im.onerror = rej; im.src = 'r165/' + a.file; }))); })
     .then(() => { ready = !!window.R140Q; }).catch(e => console.warn('R165 载入失败', e));
   { const pr = load(); try { window.PRELOAD && PRELOAD('R165 任务栏', pr); } catch (e) {} }
-  window.R165Q = { ready: () => ready && !!window.R140Q };
+  window.R165Q = { ready: () => ready && !!window.R140Q };   // UI 在下面定义后挂上（新手引导要知道任务栏在哪）
 
   // ---------- 数据 ----------
   const shortMap = id => { try { const t = (TMAPS[id] && TMAPS[id].title) || (MAPS[id] && MAPS[id].title) || ''; return t.replace(/^.*·\s*/, ''); } catch (e) { return ''; } };
@@ -69,6 +69,7 @@
 
   // ---------- 状态 ----------
   const UI = { open: false, scroll: 0, press: null, hits: [], panel: null, clipR: null, contentH: 0, mini: true, peekUntil: 0, touchAt: 0, lastQ: null };   // 作者 11-10：「主线任务也可以收起，平时就留一个标记」
+  R165Q.UI = UI;
   let drag = null;
   function rowH(r) { ctx.font = font('goal'); const gl = wrap(r.goal, 281).length; ctx.font = font('reward'); const rl = wrap(r.reward, 184).length; return { h: 68 + (gl - 1) * 19 + (rl - 1) * 18, gl, rl }; }
 

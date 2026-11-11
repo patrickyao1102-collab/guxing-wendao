@@ -44,6 +44,7 @@
   const RING = [['mi', 'mi', 1, -150], ['skill', 'xian', 126, -63], ['atk', 'atk', 125, 75], ['item', 'item', 1, 147], ['def', 'def', -124, 74], ['flee', 'flee', -128, -63]];
   const SPOS = i => ({ x: DCX + RING[i][2] * DSC, y: DCY + RING[i][3] * DSC });
   const SR = 53 * DSC;
+  window.R86_RING = { pos: k => { const i = RING.findIndex(r => r[0] === k); return i >= 0 ? SPOS(i) : null; }, r: SR, on: () => READY() && R7OK() };   // R200 新手引导要圈「仙术」
   const DEF_NOTE = { atk: '普通攻击', def: '减伤·回灵', flee: '脱离战斗', item: '使用丹药', mi: '秘传绝技', skill: '施展仙术' };
   let selI = -1, selAt = 0;
   const ease = q => 1 - Math.pow(1 - Math.max(0, Math.min(1, q)), 3), back = q => { q = Math.max(0, Math.min(1, q)); const c = 1.6; return 1 + (c + 1) * Math.pow(q - 1, 3) + c * Math.pow(q - 1, 2); };
