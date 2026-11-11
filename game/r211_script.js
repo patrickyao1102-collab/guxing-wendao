@@ -97,3 +97,18 @@
   };
 
 })();
+
+// —— 方烈对话立绘换成 Codex R211 新画的（红发高束、黑红甲、脸上一道旧刀疤，和新战斗建模同一个人）——
+(function () {
+  if (typeof IMG === 'undefined') return;
+  const MAP = { default: 'p_c_fanglie_default', grin: 'p_c_fanglie_grin', angry: 'p_c_fanglie_angry', surprise: 'p_c_fanglie_surprise' };
+  for (const [e, key] of Object.entries(MAP)) {
+    const im = new Image(); let ok = false, old = IMG[key]; im.onload = () => { ok = true; }; im.src = 'portraits/fanglie_r211_' + e + '.webp';
+    try { Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => (ok ? im : (old || IMG.__fl_def)), set: v => { old = v; } }); } catch (x) {}
+    if (e === 'default') Object.defineProperty(IMG, '__fl_def', { configurable: true, enumerable: false, get: () => (ok ? im : old) });
+    try { if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE[key] = { fx: .42, fy: .24, span: .4 }; } catch (x) {}
+  }
+  try { if (typeof SPEAKERS !== 'undefined') { const base = SPEAKERS['方烈'] || { color: '#ff7a8a' };
+    SPEAKERS['方烈·怒'] = { p: MAP.angry, name: '方烈', color: base.color || '#ff7a8a' };
+    SPEAKERS['方烈·惊'] = { p: MAP.surprise, name: '方烈', color: base.color || '#ff7a8a' }; } } catch (x) {}
+})();
