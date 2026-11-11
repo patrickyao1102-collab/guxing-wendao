@@ -112,7 +112,7 @@
     qy_defense: [[21.3, 3.5, [['p_big', 1]]], [4.5, 29, [['gold', 150]]]],
     qy_rescue: [[31.5, 18.8, [['p_big', 1], ['p_mp', 2]]], [3, 28.5, [['gold', 150]]], [3.5, 2.8, [['p_revive', 1]]]],
     lin_court: [[28, 29.1, [['gold', 160]]], [4.9, 4.6, [['p_big', 1]]]],
-    tj_market: [[47.6, 32.1, [['gold', 90]]], [7.1, 31.8, [['p_small', 2], ['p_mp', 1]]]],
+    tj_market: [[51, 18.5, [['gold', 90]]], [9, 40, [['p_small', 2], ['p_mp', 1]]]],   // 11-11：原来两只都悬在云里（47.6,32.1 / 7.1,31.8），挪到能走到的地面
   };
   for (const [m, list] of Object.entries(ADD)) {
     const def = TMAPS[m]; if (!def) continue;
