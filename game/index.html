@@ -6432,12 +6432,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
     if (!S.flags.ch2_roam) return;
     if (!S.flags.ch2_hall) { const [x, y] = near(1792, 760); addTrigger(x, y, 70, ch2Hall); }
     if (S.flags.ch2_liuyun && !S.flags.ch2_depart && !(window.CH2_GATE_OK && CH2_GATE_OK())) { const [x, y] = near(1792, 2420); addTrigger(x, y, 90, async () => {
-      if (!S.flags.ch2_market) {   // 没去过集市：提醒一下，可以先去买东西
-        await say('星旋', '就这么走了？集市都不逛一下？丹药没备够，到了黑风寨可没地方买。');
-        const c = await choose('出发之前……', ['先去天剑集市（问剑坪东口）', '不买了，直接出发']);
-        if (c === 0) { S.flags.ch2_market_skip = 0; const t = world.triggers.find(t => t.fn && t.x === x && t.y === y); if (t) t.done = false; world.player.y -= 120; toast('问剑坪东口就是天剑集市', 2200); return; }
-      }
-      if (window.R134_BEFORE_DEPART) await R134_BEFORE_DEPART();
+      if (window.R134_BEFORE_DEPART && (await R134_BEFORE_DEPART()) === false) { const t = world.triggers.find(t => t.fn && t.x === x && t.y === y); if (t) t.done = false; world.player.y -= 120; return; }
       return ch2Depart(); }); }
   }
   // —— 大殿：任务分配 + 赠宝（流云仙衣改为：封在后山九曜锁灵阵，要他自己去取）——
@@ -6543,9 +6538,7 @@ const CROWD_ATLAS = {"pages": 1, "map": {"c_a1": [0, 0, 0, 127, 469], "c_a2": [0
   // 作者 11-07：出发改在天剑山门送别庭触发（走过云阶松径到山门，叶擎苍在那里送行）
   window.CH2_DEPART_GO = async function () {
     if (S.flags.ch2_depart) return;
-    if (!S.flags.ch2_market) { await say('星旋', '就这么走了？集市都不逛一下？丹药没备够，到了黑风寨可没地方买。');
-      const c = await choose('出发之前……', ['回去逛天剑集市（演武广场东口）', '不买了，直接出发']); if (c === 0) { toast('演武广场东口就是天剑集市', 2200); return false; } }
-    if (window.R134_BEFORE_DEPART) await R134_BEFORE_DEPART();
+    if (window.R134_BEFORE_DEPART && (await R134_BEFORE_DEPART()) === false) return false;
     await ch2Depart(); return true;
   };
   window.CH2_SEND_OFF = async function () {
@@ -16809,6 +16802,6 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=6"></script><script src="r193_art.js?v=6"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=6"></script><script src="r193_art.js?v=6"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script>
 <script src="asset_ready.js"></script>
 </body></html>

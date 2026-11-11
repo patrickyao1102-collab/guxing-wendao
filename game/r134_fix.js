@@ -374,7 +374,7 @@
     const req = SHOPLIST.filter(it => !it.opt).every(itemDone);
     return '集市采买·' + (req ? '必买的都齐了，回问剑坪南边山门出发 · ' : '') + parts.join(' · '); }
   addItem = (orig => function (id, n = 1) { const r = orig.apply(this, arguments);
-    try { if (shopping()) { const b = buys(); b[id] = (b[id] || 0) + n; } if (id === 'bk_yt_jiutian') later(() => whenFree(ytLearn), 50); } catch (e) {}
+    try { if (shopping()) { const b = buys(); b[id] = (b[id] || 0) + n; } if (id === 'bk_yt_jiutian' && !F().yt_jiutian) later(() => whenFree(() => window.R207_JT_TUT ? R207_JT_TUT() : ytLearn()), 50); /* 11-11：买下后教玩家去技能页参悟（跳过＝直接学会） */ } catch (e) {}
     return r; })(addItem);
   async function ytLearn() {
     const f = F(); if (f.yt_jiutian) return; f.yt_jiutian = 1; const h = S.hero; if (h.bag && h.bag.bk_yt_jiutian) { delete h.bag.bk_yt_jiutian; }
@@ -405,7 +405,20 @@
   { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/集市采买·/, () => { const it = nextItem(); return it ? { map: 'tj_market', pick: it.shop } : { map: 'tj_front' }; }]); }
   // 出发前：云霆还没学会九天神雷 → 他自己掏钱去买（剧情保证学会）
   window.R134_BEFORE_DEPART = async function () {
-    const f = F(); if (f.yt_jiutian) return true;
+    const f = F();
+    // 作者 11-11：下山前必须把单子上的东西买齐；灵石不够就由云霆补上，放行
+    if (f.ch2_liuyun && !f.ch2_depart) { const need = SHOPLIST.filter(it => !it.opt && !itemDone(it));
+      if (need.length) { const price = it => ((ITEM_DB[it.id] || {}).price || 0) * (it.id === 'bk_yt_jiutian' ? 1 : Math.max(0, it.n - (buys()[it.id] || 0)));
+        const cost = need.reduce((s2, it) => s2 + price(it), 0);
+        if ((S.hero.gold || 0) >= cost) {
+          await say('星旋', '慢着——单子上的东西还没买齐：' + need.map(it => it.label).join('、') + '。买齐了再下山。');
+          S.flags.ch2_market = 1; S.quest = shopQuest(); toast('先去天剑集市把东西买齐（任务栏可自动寻路）', 2600); return false; }
+        await say('云霆', '灵石不够？我这儿还有些，先拿去。');
+        const got = [];
+        for (const it of need) { if (it.id === 'bk_yt_jiutian') continue; const k = Math.max(0, it.n - (buys()[it.id] || 0)); if (k) { addItem(it.id, k); buys()[it.id] = it.n; got.push({ icon: 'item:' + it.id, name: (ITEM_DB[it.id] || {}).name || it.label, count: '×' + k, desc: '云霆给的' }); } }
+        if (got.length && window.itemGet) await itemGet(got, '获得物品');
+      } }
+    if (f.yt_jiutian) return true;
     await say('云霆', '等等。（从怀里摸出一卷秘卷）自己掏钱买的。走之前，得先学会。');
     await ytLearn(); return true;
   };

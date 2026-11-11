@@ -100,7 +100,9 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
   const key = (who, id) => who + '.' + id;
   function info(who, n) {
     let src = null, learned = true, why = '';
-    if (n.id === 'ult') { learned = !(n.lock && n.lock()); why = n.why || ''; return Object.assign({ name: n.name, cost: n.cost, desc: n.desc, learned, why, ult: true, max: 1, tier: 1 }, {}); }
+    if (n.id === 'ult') { learned = !(n.lock && n.lock()); why = n.why || ''; let book = null;   // 11-11：九天神雷买了书以后在技能页自己参悟（不再买下就自动学会）
+      if (!learned && who === 'yunting' && n.name === '九天神雷') { const has = itemCount('bk_yt_jiutian') > 0; book = { item: 'bk_yt_jiutian', has, lvok: true, lv: 1 }; if (has) why = '已持有《九天神雷》秘传，点下面「参悟」即可领悟'; }
+      return Object.assign({ name: n.name, cost: n.cost, desc: n.desc, learned, why, ult: true, max: 1, tier: 1, book }, {}); }
     if (n.future) return { name: n.name, cost: n.cost, desc: n.desc, learned: false, why: '下次更新开放', max: 5, tier: 1 };
     const K4 = window.SK4, xd = K4 && K4.X[who] && K4.X[who][n.id];
     if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind === 'mi';   // 辅助第一重不需要书
@@ -340,7 +342,8 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     if (I.lore && !PHONE) { ctx.font = `13px ${FONT}`; ctx.fillStyle = J('#a8957a'); for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19 * LF; } }
     y += 6; if (R2.on()) R2.D('divider_diamond', x - 2, y - 9, DP.w - 36, 18); else { ctx.strokeStyle = J('rgba(232,194,122,.3)'); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); } y += 22 * LF;
     const row = (lab, txt, col, labCol) => { if (S.menu && S.menu.who !== 'hero') txt = String(txt || '').replace('（叶孤星施展打八折）', '');   /* 11-11：云霆的点星不该写叶孤星打折 */ ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || J('#c9b48c'); ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
-    if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], J('#f5ead2'));
+    if (!I.learned && I.ult) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); row('领悟后', '怒气满 100 时在「秘传」中施展，不需修炼重数。', J('#f5ead2')); }
+    else if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], J('#f5ead2'));
       if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', J('#e9dcc0')); }
     else {
@@ -353,7 +356,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
       else row('已臻化境', '此招已修至第五重。', J('#ffd76a'), J('#ffd76a'));
     }
     // 参悟按钮
-    if (!I.ult && !I.solo && cu && (cu.q || cu.learn)) { const b = G.btn, ok = cu.ok;
+    if ((!I.ult || (cu && cu.learn)) && !I.solo && cu && (cu.q || cu.learn)) { const b = G.btn, ok = cu.ok;
       if (R2.on()) { R2.D(ok ? 'btn_n' : 'btn_d', b.x - 2, b.y - 2, b.w + 4, b.h + 4); if (ok) { ctx.save(); roundRect(b.x + 4, b.y + 4, b.w - 8, b.h - 8, 10); ctx.clip(); const sx = b.x + ((t * 160) % (b.w + 200)) - 100, g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,250,220,0)'); g.addColorStop(.5, 'rgba(255,250,220,.25)'); g.addColorStop(1, 'rgba(255,250,220,0)'); ctx.fillStyle = g; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); } } else {
       lacquer(b.x, b.y, b.w, b.h, { r: 12, top: ok ? J('#b8402a') : J('rgba(60,46,34,.9)'), bot: ok ? J('#6e1a10') : J('rgba(34,26,20,.9)') });
       if (ok) { ctx.save(); roundRect(b.x, b.y, b.w, b.h, 12); ctx.clip(); const sx = b.x + ((t * 160) % (b.w + 200)) - 100, g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.5, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(255,240,200,0)'); ctx.fillStyle = g; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); }
@@ -377,6 +380,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
   const nodeOf = (who, id) => { const T = TREE[who]; if (!T) return null; if (T.ult && T.ult.id === id) return T.ult; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return n; return null; };
   const colOf = (who, id) => { const T = TREE[who]; if (!T) return ''; if (T.ult && T.ult.id === id) return '秘传'; for (const c of T.cols) for (const n of c[1]) if (n.id === id) return c[0]; return ''; };
   const iconByName = name => { const s = String(name || '').replace(/^!/, '').trim(); for (const T of Object.values(TREE)) { const all = [T.ult, ...T.cols.flatMap(c => c[1])].filter(Boolean); for (const n of all) { const nm = n.name || n.short; if (nm && (nm === s || s.includes(nm) || nm.includes(s) || n.short === s)) return n.icon; } } return null; };
+  window.SKT_GEO = () => { try { return geo(menuLayout().body); } catch (e) { return null; } }; window.SKT_SEL = () => selKey;   // 11-11：新手引导要知道招式图标在哪、选中了哪个
   window.SKT = { iconByName, info, need, tiersOf, TGT, CN, CAPTXT, realmCap, bookId, nodeOf, colOf,
     canUp: (who, id) => { const n = nodeOf(who, id); return n ? canUp({ who }, { n }) : null; },
     upgrade: (who, id) => { const n = nodeOf(who, id); if (!n) return false; const G = { who }, o = { n }, cu = canUp(G, o); return cu && cu.q ? doUp(G, o, cu) : false; } };
@@ -388,6 +392,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     for (const R of G.roots) if (Math.hypot(tp.x - R.x, tp.y - R.y) < R.r + 14 || (Math.abs(tp.x - R.x) < 60 && tp.y > R.y + R.r && tp.y < R.y + R.r + 32)) { input.tapped = null; ACTIVE[G.who] = R.gongfa; selKey = 'root:' + G.who + ':' + R.gongfa; playSnd('ui_click'); return; }
     for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; const again = selKey === key(G.who, o.n.id); selKey = key(G.who, o.n.id); playSnd('ui_click'); if (again && window.R154 && info(G.who, o.n).learned) R154.open(G.who, o.n.id); return; }
     if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
+      if (cu && cu.learn && o.n.id === 'ult') { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast('没有《九天神雷》秘传（天剑集市 · 典籍阁有售）'); return; } anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 }; if (window.R134_YT_LEARN) R134_YT_LEARN(); return; }
       if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
         if (window.SKWIN) { const xd = cu.I; SKWIN.learn({ k: o.n.id, name: xd.name, desc: xd.desc || '', meta: xd.cost ? String(xd.cost).replace(/^灵力 /, '消耗灵力：') : '' }); } else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
