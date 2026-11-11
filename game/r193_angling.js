@@ -20,14 +20,18 @@
   // 天气：每天每个时辰定一次（卯时四成起雾，一成半下雨，子时偶尔雷雨）
   function wx() { const f = F(), k = (f.qz_day || 1) + SHI(); f.r193_wx = f.r193_wx || {}; if (!f.r193_wx[k]) { const s = SHI(), r = Math.random(); f.r193_wx[k] = s === '子' && r < .06 ? '雷雨' : r < .15 ? '雨' : s === '卯' && r < .55 ? '雾' : '晴'; } return f.r193_wx[k]; }
   // ---------- 输入 ----------
-  const P = { x: 0, y: 0, down: false, x0: 0, y0: 0, t0: 0, taps: 0, swUp: 0, swDn: 0, key: 0 }; let ON = false;
+  const P = { x: 0, y: 0, down: false, x0: 0, y0: 0, t0: 0, taps: 0, swUp: 0, swDn: 0, key: 0, kl: 0, kr: 0 }; let ON = false;
   const toL = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; };
-  window.addEventListener('pointerdown', e => { if (!ON) return; const [x, y] = toL(e); Object.assign(P, { x, y, x0: x, y0: y, t0: now(), down: true }); P.taps++; }, true);
+  window.addEventListener('pointerdown', e => { if (!ON) return; const [x, y] = toL(e); Object.assign(P, { x, y, x0: x, y0: y, t0: now(), down: true }); P.taps++; if ((ST.ph === 'wait' || ST.ph === 'bite') && inR(BTN.main, x, y)) P.swUp++; }, true);
   window.addEventListener('pointermove', e => { if (!ON) return; const [x, y] = toL(e); P.x = x; P.y = y; if (P.down && P.y0 - y > 46 && now() - P.t0 < .6) { P.swUp++; P.t0 = -9; } if (P.down && y - P.y0 > 60 && now() - P.t0 < .6) { P.swDn++; P.t0 = -9; } }, true);
   for (const ev of ['pointerup', 'pointercancel', 'blur']) window.addEventListener(ev, () => { P.down = false; }, true);
-  window.addEventListener('keydown', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { P.swUp++; P.key = 1; e.preventDefault(); e.stopPropagation(); } }, true);
-  window.addEventListener('keyup', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') P.key = 0; }, true);
-  const held = () => P.down || P.key;
+  window.addEventListener('keydown', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { if (!e.repeat) P.swUp++; P.key = 1; e.preventDefault(); e.stopPropagation(); }
+    if (e.code === 'KeyA' || e.code === 'ArrowLeft') { P.kl = 1; e.preventDefault(); e.stopPropagation(); } if (e.code === 'KeyD' || e.code === 'ArrowRight') { P.kr = 1; e.preventDefault(); e.stopPropagation(); } }, true);
+  window.addEventListener('keyup', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') P.key = 0; if (e.code === 'KeyA' || e.code === 'ArrowLeft') P.kl = 0; if (e.code === 'KeyD' || e.code === 'ArrowRight') P.kr = 0; }, true);
+  // 按住：收线 / 蓄力。按在「左带」「右带」上不算收线
+  const onDrag = () => P.down && (inR(BTN.L, P.x0, P.y0) || inR(BTN.R, P.x0, P.y0));
+  const held = () => !!(P.key || (P.down && !onDrag()));
+  const dragDir = () => P.kl ? -1 : P.kr ? 1 : P.down && inR(BTN.L, P.x0, P.y0) ? -1 : P.down && inR(BTN.R, P.x0, P.y0) ? 1 : P.down && Math.abs(P.x - P.x0) > 40 ? Math.sign(P.x - P.x0) : 0;
   const inR = (r, x = P.x, y = P.y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
   // ---------- 状态 ----------
   const ST = { ph: 'gear', t0: 0, pow: 0, fx: 640, fy: 500, fk: 1, layer: 0, plan: null, signs: [], nextSign: 0, cap: null, flt: 'idle', flt0: 0, seq: null, win: 0, fight: null, msg: '', msgT: 0, log: [], fxs: [] };
@@ -35,7 +39,8 @@
   const say1 = (m, s = 2) => { ST.msg = m; ST.msgT = now() + s; };
   const setFlt = a => { ST.flt = a; ST.flt0 = now(); ST.fdir = Math.random() < .5 ? -1 : 1; };
   const fxAdd = (k, x, y, s = 1) => ST.fxs.push({ k, x, y, s, t0: now() });
-  const BTN = { quit: { x: 24, y: H - 74, w: 160, h: 54 }, reel: { x: 24, y: H - 74, w: 160, h: 54 } };
+  const BTN = { quit: { x: 24, y: H - 74, w: 160, h: 54 }, reel: { x: 24, y: H - 74, w: 160, h: 54 },
+    main: { x: 974, y: 544, w: 132, h: 132 }, L: { x: 706, y: 580, w: 104, h: 68 }, R: { x: 822, y: 580, w: 104, h: 68 } };   // 作者 11-11：要有按钮和能量条，玩家才知道怎么玩
   const ART = () => window.R193_ART;   // 画面在 r193_art.js（Codex R193F 素材）
   // ---------- 占位画法（素材没到时开发用） ----------
   function drawTmp(t) { ctx.fillStyle = '#9cc9d6'; ctx.fillRect(0, 0, W, WY0); const g = ctx.createLinearGradient(0, WY0, 0, H); g.addColorStop(0, '#3f8ea0'); g.addColorStop(1, '#1d4f60'); ctx.fillStyle = g; ctx.fillRect(0, WY0, W, H - WY0);
@@ -84,19 +89,20 @@
       if (inR(R.go)) { if (!baits().length) { say1('没有饵了', 1.4); continue; } if (!itemCount(g.bait)) g.bait = baits()[0].id; return true; } } }
   async function bookScreen() { ST.ph = 'book'; const N = D.FISH.length; ST.bi = ST.bi || 0;
     while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.quit)) return; ST.bi = (ST.bi + (P.x < 640 ? N - 1 : 1)) % N; try { playSnd('ui_confirm', .3); } catch (e) {} } }
-  async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71;
+  async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71; ST.maxP = maxP;
     while (true) { await frame(); if (busy()) continue;
-      if (!P.down) continue;
-      if (inR(BTN.quit, P.x0, P.y0)) { while (P.down) await frame(); return false; }
-      const t0 = now(); ST.holding = true; while (P.down) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); }   // 蓄满会往回落，要在最远时松手
+      if (!held()) continue;
+      if (P.down && inR(BTN.quit, P.x0, P.y0)) { while (P.down) await frame(); return false; }
+      const t0 = now(); ST.holding = true; while (held()) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); }   // 蓄满会往回落，要在最远时松手
       ST.holding = false; ST.castT = now(); F().r193_n = (F().r193_n || 0) + 1; { const A = ART(); if (A && A.scareAll) A.scareAll(ST); } ST.layer = layerOf(ST.pow); ST.fy = NEAR - (NEAR - FAR) * ST.pow; ST.fx = 640 + rnd(-90, 90) * (1 - ST.pow * .5); ST.fk = 1 - ST.pow * .55;
       SX('cast');
       setFlt('idle'); { const t1 = now(); while (now() - t1 < .32) await frame(); } fxAdd('splash', ST.fx, ST.fy, ST.fk); SX('plop'); return true; } }
   // 等鱼：征兆每 4–8 秒一个；往下一划 / 点「收竿」就收竿重抛（不费饵）
   async function waitBite() { const g = gear(), ro = D.rod(g.rod), o = { bait: g.bait, shi: SHI(), layer: ST.layer, wx: wx(), sens: ro.sens, once: F().r175_turtle ? { turtle: 1 } : null };
-    ST.plan = D.plan(o); ST.signs = []; ST.ph = 'wait'; ST.t0 = now(); ST.nextSign = ST.t0 + rnd(2.5, 5); const sd = P.swDn, tp = P.taps;
+    ST.plan = D.plan(o); ST.signs = []; ST.ph = 'wait'; ST.t0 = now(); ST.nextSign = ST.t0 + rnd(2.5, 5); const sd = P.swDn, tp = P.taps, su = P.swUp;
     while (true) { await frame(); const t = now(); if (busy()) { ST.t0 += 1 / 60; ST.nextSign += 1 / 60; continue; }
       if (P.swDn !== sd || (P.taps !== tp && inR(BTN.quit, P.x0, P.y0))) return 'recast';
+      if (P.swUp !== su) { say1('提竿——钩上空空的。浮漂真往下沉了再提', 2); SX('plop', .4); return 'recast'; }
       const el = t - ST.t0;
       if (ST.plan.fish && el >= ST.plan.at) return 'bite';
       if (!ST.plan.fish && el >= D.WAIT_MAX) { say1('……没动静', 1.4); return 'recast'; }
@@ -114,7 +120,7 @@
   async function fight() { const g = gear(), f = ST.plan.fish; ST.fight = D.fightInit(f, g.rod, g.line); ST.ph = 'fight'; let last = now(), dir = 0;
     SX('hook'); const lp = SL('fight');
     try { while (true) { await frame(); const t = now(), dt = Math.min(.05, t - last); last = t; if (busy()) continue;
-      dir = P.down && Math.abs(P.x - P.x0) > 40 ? Math.sign(P.x - P.x0) : 0;
+      dir = dragDir(); ST.drag = dir; ST.held = held();
       const r = D.fightStep(ST.fight, dt, held(), dir); const s = ST.fight;
       ST.fx = 640 + s.dir * 180 * Math.min(1, s.dist) * (s.burst > 0 ? 1.2 : .7) * (1 - ST.pow * .4) + Math.sin(t * 2) * 20; ST.fy = clamp(NEAR - (NEAR - FAR) * Math.min(1, s.dist) * (.4 + ST.pow * .6), WY0 + 30, NEAR);
       if (s.burst > 0 && Math.random() < dt * 8) fxAdd('burst', ST.fx, ST.fy, ST.fk + .4);
