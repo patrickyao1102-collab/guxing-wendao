@@ -59,6 +59,10 @@
       txt(DK() ? '换白玉' : '换玄青', r.x + r.w / 2, r.y + r.h / 2 + 1, 16, DK() ? '#C2AD78' : C.gold, 'center', '"R201WK",' + FONT, 600); }
   }
   const SKIN_R = { x: 1162, y: 80, w: 90, h: 28 };
+  // 作者 11-12：游戏里没法退出 → 行囊左下角「返回主界面」（问一句再回标题，没存的进度会丢）
+  const HOME_R = { x: 30, y: 668, w: 158, h: 42 }; let homeDown = false;
+  function homeBtn() { const r = HOME_R; if (DK()) { BDK.btn('返回主界面', r.x, r.y, r.w, r.h, homeDown ? 'p' : 'n'); return; }
+    nine('btn_gold_9', r.x, r.y, r.w, r.h); if (!IM.btn_gold_9) { ctx.save(); if (typeof roundRect === 'function') roundRect(r.x, r.y, r.w, r.h, 12); ctx.fillStyle = '#C69B57'; ctx.fill(); ctx.restore(); } txt('返回主界面', r.x + r.w / 2, r.y + r.h / 2 + 1, 20, '#FFF5DA', 'center'); }
   let closeDown = false;
 
   // ---------------- 装备页 ----------------
@@ -191,7 +195,7 @@
       else { ctx.save(); ctx.beginPath(); ctx.rect(B.x, B.y, B.w, B.h); ctx.clip();
         if (m.tab === 0) drawStatus(B, mi, now); else if (m.tab === 2) drawBag(B, L); else if (m.tab === 3) drawSkills(B, L); else drawQuest(B);
         ctx.restore(); }
-      header(L, m);
+      header(L, m); homeBtn();
     } finally { window.R201_IN = false; window.BAG_DARK = false; fontOff(); ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
   };
 
@@ -204,6 +208,8 @@
     // 关闭按钮按下态
     closeDown = !!(input.down && inR(input, L.close));
     { const t = input.tapped; if (t && !t.key && window.BDK && inR(t, SKIN_R)) { consumeTap(); BDK.toggle(); playSnd('ui_click'); return; } }
+    { const t = input.tapped; if (t && !t.key && inR(t, HOME_R) && !(typeof choice !== 'undefined' && choice)) { consumeTap(); homeDown = true; setTimeout(() => { homeDown = false; }, 160); playSnd('ui_click');
+      (async () => { const c = await choose('返回主界面？还没存档的进度会丢失', ['返回主界面', '先存档', '取消']); if (c === 0) { try { await fadeOut(400); } catch (e) {} location.href = location.pathname; } else if (c === 1) { m.savePage = true; m.saveSel = null; m.eqInfo = null; } })(); return; } }
     // 「存档」页签：就在行囊里画存档页（不再跳出去）
     { const t = input.tapped, si = MTABS.indexOf('存档');
       if (t && !t.key && si >= 0 && L.tabs[si] && inR(t, L.tabs[si])) { consumeTap(); m.savePage = true; m.saveSel = null; m.eqInfo = null; playSnd('ui_click'); return; }
