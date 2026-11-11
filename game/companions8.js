@@ -10,7 +10,7 @@
   const IM = {}, OK = {};
   for (const k in DEF) { const id = DEF[k][0], im = new Image(); im.onload = () => { OK[id] = 1; }; im.src = 'walk8c/' + id + '.webp'; IM[id] = im; }
   let on = true; try { on = localStorage.getItem('comp8') !== '0'; } catch (e) {}
-  const keyOf = a => DEF[a.key] ? a.key : (ALIAS[a.key] && (a.moving || a._c8m) ? ALIAS[a.key] : null);
+  const keyOf = a => DEF[a.key] ? a.key : (ALIAS[a.key] && !a._keepPose ? ALIAS[a.key] : null);   // 作者 11-11：地图上云霆 / 林雪一出场就用行走图（原来站着时是战斗立绘，一走才换，出场会闪一下战斗图）
   const active = a => { if (!on || !a || a.hidden) return null; const k = keyOf(a); return k && OK[DEF[k][0]] ? k : null; };
   const DIRS = ['right', 'downright', 'down', 'downleft', 'left', 'upleft', 'up', 'upright'];
 
