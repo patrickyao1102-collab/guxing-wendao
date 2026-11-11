@@ -11,7 +11,11 @@
   const C = { ink: '#3E2D18', grey: '#77746E', light: '#FFF5DA', red: '#A43B2E', blue: '#315E90', gold: '#9A671F', line: '#C69B57', green: '#2f7a2a' };
   const IM = {}; let nOk = 0; const NALL = Object.keys(N).length;
   // 菜单图在第一次打开行囊前就下好（开局空闲时下，不抢地图图）
-  let started = false; function load() { if (started) return; started = true; for (const k in N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r201/' + N[k] + '.webp'; } }
+  // 作者 11-11：「还是 Codex 的字体好」→ 行囊里的字全换成 Codex 配的三款（OFL 免费商用，按游戏用字裁剪）：
+  //   马善政毛笔楷书 = 名字 / 标题；霞鹜文楷 = 正文说明；Noto Serif SC = 数字（灵石、等级、时间）
+  const FF = [['R201MS', 'fonts/r201_mashan.woff', {}], ['R201WK', 'fonts/r201_wenkai.woff', {}], ['R201NS', 'fonts/r201_noto.woff', { weight: '200 900' }]];
+  function loadFonts() { for (const [n, u, d] of FF) { try { const f = new FontFace(n, `url(${u})`, d); f.load().then(x => document.fonts.add(x)).catch(() => {}); } catch (e) {} } }
+  let started = false; function load() { if (started) return; started = true; loadFonts(); for (const k in N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r201/' + N[k] + '.webp'; } }
   setTimeout(load, 6000);
   const READY = () => nOk >= NALL;
   window.R201_BAG = { ready: READY, IM, nine: (...a) => nine(...a), D: (...a) => D(...a) };
@@ -19,7 +23,7 @@
   function nine(k, x, y, w, h) { const im = IM[k]; if (!im) return; const p = NINE[k]; if (!p) return D(k, x, y, w, h);
     const [l, t, r, b] = p, s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
-  const KAI = '"GuxingWKB","GuxingKai",' + BRUSH;   // Codex 推荐的霞鹜文楷（游戏里已按用字裁剪好）
+  const KAI = '"R201MS","GuxingWKB",' + BRUSH, NUM = '"R201NS",' + FONT;
   const txt = (s, x, y, size, col, align = 'left', font, wt) => { ctx.font = `${wt || 400} ${size}px ${font || KAI}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); };
   const fit = (s, maxW) => { let t = s; while (t.length > 1 && ctx.measureText(t).width > maxW) t = t.slice(0, -1); return t === s ? s : t.slice(0, -1) + '…'; };
 
@@ -47,7 +51,7 @@
       if (sel) { D('avatar_name_plate', x - 3, y + 79, 92, 26); txt(info.name, x + 43, y + 92, 17, C.ink, 'center'); }
       else txt(info.name, x + 43, y + 92, 17, C.ink, 'center'); }
     nine('currency_bar_9', 778, 28, 352, 54); D('icon_lingshi', 797, 37, 30, 34); D('label_灵石', 829, 40, 50, 30); D('icon_xingchen', 960, 37, 32, 34); D('label_星辰点', 993, 40, 76, 30);
-    txt(String(S.hero.gold || 0), 886, 56, 22, C.gold, 'left', FONT, 700); txt(String(S.hero.points || 0), 1076, 56, 22, C.blue, 'left', FONT, 700);
+    txt(String(S.hero.gold || 0), 886, 56, 22, C.gold, 'left', NUM, 700); txt(String(S.hero.points || 0), 1076, 56, 22, C.blue, 'left', NUM, 700);
     D(closeDown ? 'btn_close_p' : 'btn_close_n', 1148, 28, 118, 46);
   }
   let closeDown = false;
@@ -125,7 +129,7 @@
         const h = d.hero || {}, t = new Date(d.t || 0);
         txt('存档' + CN3[i] + ' · ' + fit(d.title || '某处', 300), 663, y + 35, 31, C.ink);
         txt('叶孤星 · ' + (h.realm ? h.realm + ' · ' : '') + (h.lv || '?') + '级', 672, y + 71, 22, C.ink, 'left', FONT, 600);
-        txt(t.getFullYear() + '-' + two(t.getMonth() + 1) + '-' + two(t.getDate()) + '  ' + two(t.getHours()) + ':' + two(t.getMinutes()), 672, y + 103, 22, C.ink, 'left', FONT, 600); }
+        txt(t.getFullYear() + '-' + two(t.getMonth() + 1) + '-' + two(t.getDate()) + '  ' + two(t.getHours()) + ':' + two(t.getMinutes()), 672, y + 103, 22, C.ink, 'left', NUM, 600); }
       else { D('save_thumb_empty', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12); txt('存档' + CN3[i] + ' · 空存档', 663, y + 68, 31, C.ink); } }
     D('divider_h', 272, 606, 460, 10); D('hint_diamond', 258, 632, 22, 22);
     if (sel == null) D('label_请选择一个存档位', 288, 625, 300, 36); else txt('已选 存档' + CN3[sel] + (sread(String(sel + 1)) ? '（再存会覆盖）' : ''), 292, 643, 22, C.ink);
@@ -150,6 +154,11 @@
     fade1: 'rgba(240,239,236,1)', fade0: 'rgba(240,239,236,0)', line: 'rgba(198,155,87,.55)', grainA: .12, gold: '#C69B57', gold2: '#7a5226', text: '#3E2D18', sub: '#5a4a34', dim: '#77746E',
     red: '#9a6524', red2: '#c79246', title: '#3E2D18', titleLine: 'rgba(255,253,246,.95)' };
   window.R201_JADE = JADE;
+  // 菜单里各页原来写的 ${FONT} / ${BRUSH}：画行囊期间把 ctx.font 映射到 Codex 字体（画完还原，地图 / 战斗不受影响）
+  const FD = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'font');
+  const mapFont = v => typeof v !== 'string' ? v : v.indexOf('R201') >= 0 ? v : v.replace(BRUSH, '"R201MS",' + BRUSH).replace(FONT, '"R201WK",' + FONT);
+  function fontOn() { try { Object.defineProperty(ctx, 'font', { configurable: true, get() { return FD.get.call(this); }, set(v) { FD.set.call(this, mapFont(v)); } }); } catch (e) {} }
+  function fontOff() { try { delete ctx.font; } catch (e) {} }
   // ---------------- 主画 ----------------
   const prevDraw = drawMenu;
   drawMenu = function () {
@@ -157,7 +166,7 @@
     const m = S.menu, L = menuLayout(), mi = memberInfo(m.who), now = performance.now() / 1000;
     const keep = {}; for (const k in UI) keep[k] = UI[k];
     try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, JADE, { id: 'paper' }); } catch (e) {}
-    ctx.save(); window.R201_IN = true;
+    ctx.save(); window.R201_IN = true; fontOn();
     try {
       frame(L, m);
       const B = L.body, tab = MTABS[m.tab];
@@ -170,7 +179,7 @@
         if (m.tab === 0) drawStatus(B, mi, now); else if (m.tab === 2) drawBag(B, L); else if (m.tab === 3) drawSkills(B, L); else drawQuest(B);
         ctx.restore(); }
       header(L, m);
-    } finally { window.R201_IN = false; ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
+    } finally { window.R201_IN = false; fontOff(); ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
   };
 
   // ---------------- 装备页点击 + 拖动 ----------------

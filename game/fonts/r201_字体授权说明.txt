@@ -1,0 +1,25 @@
+字体与授权
+
+1. 马善政毛笔楷书（Ma Shan Zheng）
+文件：MaShanZheng-Regular.ttf
+用途：固定页签、按钮、页标题已用此字体排入 PNG；运行时人物名、物品名可沿用，建议 22–30 逻辑像素。
+授权：SIL Open Font License 1.1；原文 MaShanZheng-OFL.txt。
+项目：https://github.com/googlefonts/mashanzheng
+授权来源：https://github.com/google/fonts/blob/main/ofl/mashanzheng/OFL.txt
+
+2. 霞鹜文楷（LXGW WenKai）
+文件：LXGWWenKai-Regular.ttf
+用途：装备说明、任务正文、长句提示，建议 20–24 逻辑像素。比毛笔字更适合长段阅读。
+授权：SIL Open Font License 1.1；原文 LXGWWenKai-OFL.txt。
+项目：https://github.com/lxgw/LxgwWenKai
+授权来源：https://github.com/lxgw/LxgwWenKai/blob/main/OFL.txt
+
+3. Noto Serif SC（思源宋体同源的简体中文宋体）
+文件：NotoSerifSC-Variable.ttf
+用途：灵石、星辰点、等级数字、时间和需要清晰对齐的文字。建议 weight=600；预览采用 SemiBold。
+授权：SIL Open Font License 1.1；原文 NotoSerifSC-OFL.txt。
+字体来源：https://github.com/google/fonts/tree/main/ofl/notoserifsc
+授权来源：https://github.com/google/fonts/blob/main/ofl/notoserifsc/OFL.txt
+
+三款均允许商业项目使用、嵌入和随软件分发；分发字体时保留原授权及版权声明，字体文件本身不得单独销售。修改字体时遵守各自 OFL 中的保留字体名称条款。
+交付的固定字样已栅格化，无需游戏再加载字体。字体包保留完整字符覆盖，体积较大；若做子集或修改字体，请保留授权并按原授权处理命名。
