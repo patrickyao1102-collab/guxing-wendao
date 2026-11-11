@@ -235,6 +235,7 @@
       h.atk += 8; F().xh_grade = 1; if (ITEM_DB.w_xinghen) ITEM_DB.w_xinghen.name = '星痕剑·下品玄器'; };
     await forgeUI(apply);
     apply();   // 万一界面中途出错被关掉，也保证升阶生效
+    try { const a0 = (ITEM_DB.w_xinghen || {}).atk || 0; if (window.itemGet) await itemGet([{ icon: 'item:w_xinghen', name: '星痕剑 · 下品玄器', count: '×1', desc: '极品灵器 → 下品玄器　攻击 ' + a0 + ' → ' + (a0 + 8) }], '炼器成功'); } catch (e) {}   // 作者 11-11：升阶后用白色获得物品框展示新旧属性
     await say('星旋', '以后别的装备也能炼——宗门铸剑师、各城铁匠都会精炼，材料打妖兽掉的就行。');
   })(window.R134_FORGE);
 
