@@ -137,10 +137,11 @@
     if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; readyAt = null; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
       else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
-      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; } S.flags.first_art_try = 1; } }   // 11-11：不再一过图就算「第一次」用完——新游戏开场会连着切几张图，真正露脸的那张载入图被别的图顶掉；改成下面：第一次载入画面真的放了 2 秒以上才算
+      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; LB.hold = performance.now() + 5600; } S.flags.first_art_try = 1; } }   // 11-11：不再一过图就算「第一次」用完——新游戏开场会连着切几张图，真正露脸的那张载入图被别的图顶掉；改成下面：第一次载入画面真的放了 2 秒以上才算
       if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
       COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
+    if (LB.hold && performance.now() < LB.hold && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-11：星落襁褓（藏经阁回青竹那一次）停 5～6 秒
     if (LB.qz && LB.qz.min && LB.qz.ok && performance.now() - t0 < LB.qz.min && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-08：从外面走进青竹，专属载入图至少露个脸
     // 兜底：只要这一帧地面画的还是绿色占位（不管哪条剧情路径进的图），就盖上载入画面
     if (window.__GPH && performance.now() - window.__GPH < 250 && forced !== world.mapName) r = Math.min(r, .6);
