@@ -23,7 +23,7 @@
       BM.exits.push({ x: 6, y: 78, w: 10, h: 18, to: 'tj_scripture', label: '西 · 藏经阁', at: atIn('tj_scripture', 1024, 1900), face: 'up' });
     // 藏经阁外院南阶 → 竹林归径（落在西边空地）
     const back = SC.exits.find(e => e.to === 'tj_front');
-    if (back) { back.to = 'qingzhu_bamboo'; back.label = '南 · 竹林归径'; back.at = atIn('qingzhu_bamboo', 190, 690); back.face = 'right'; }
+    if (back && CXB2.tj_front) { back.to = 'tj_front'; back.label = '南 · 宗门广场'; back.at = atIn('tj_front', 1790, 2250); back.face = 'up'; }   // 作者 11-11：藏经阁出去是宗门广场
   }
   if (FR) {
     // 演武广场南门：山门 · 下山
