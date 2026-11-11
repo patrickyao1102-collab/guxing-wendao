@@ -177,7 +177,7 @@
     ctx.restore(); }
   drawActorT = (o => function (a) {
     const free = !(typeof battle !== 'undefined' && battle);
-    try { if (free && a === world.player && TJ(world.mapName) && !world.locked && S.quest && !(window.HANXING_GUIDE && HANXING_GUIDE.need())) { const b = target(); if (b) arrow(a, b); } } catch (e) {}
+    try { if (free && a === world.player && TJ(world.mapName) && window.R134_SHOPPING && R134_SHOPPING() && !world.locked && S.quest &&   /* 作者 11-11：地上箭头只在「第一次拿寒星剑」（r200）和「集市采买到下山」这两段出现 */ !(window.HANXING_GUIDE && HANXING_GUIDE.need())) { const b = target(); if (b) arrow(a, b); } } catch (e) {}
     const r = o.apply(this, arguments);
     return r;
   })(drawActorT);
