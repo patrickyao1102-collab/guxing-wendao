@@ -94,7 +94,7 @@
   }));
   // 按名字找技能键（图标用）
   // 作者 11-08：领悟窗图标空了（「破军剑意·破军剑阵」找不到、「破军剑阵」被错认成星罗）→ 先精确、再按「·」后半段、再技能树、最后才模糊（取最长的名字）
-  const ALIAS = { '破军剑阵': 'pojun' };
+  const ALIAS = { '破军剑阵': 'pojun', '天璇': 'pojun' };
   const keyOf = name => { const s = String(name || '').replace(/^!/, '').trim(), tail = s.split(/[·・]/).pop().trim(); let E = [];
     try { E = Object.entries(SKILL_DB).filter(([k, d]) => d && d.name); } catch (e) {}
     const tl = n => n.split(/[·・]/).pop().trim();

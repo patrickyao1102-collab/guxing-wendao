@@ -41,8 +41,8 @@
   const roomAt = room => { const B = CXB2[room]; if (!B) return null; const e = (B.exits || [])[0]; if (e && e.region) return atIn(room, e.region.x + e.region.w / 2, e.region.y - 70); return atIn(room, B.w / 2, B.h - 120); };
   let gate = null;   // 镇上林府府门（改指向前先记下位置）
   const townAt = () => (window.qyBack && (qyBack.lin_manor || qyBack.lin_guest_west)) || (gate ? P(gate.x, gate.y + 70) : null);
-  const TITLE = { lin_court: '林府 · 曲水花庭', lin_study: '林府 · 家主书房', lin_yi_room: '林府 · 林逸住处', lin_service: '林府 · 药灶与杂役房' };
-  const LABEL = { lin_manor: '正厅', lin_guest_west: '西厢 · 叶孤星客房', lin_guest_east: '东厢 · 云霆客房', lin_guest_xue: '内院 · 林雪静养房', lin_study: '家主书房', lin_yi_room: '林逸住处', lin_service: '药灶房', qy_town: '出府 · 青阳镇' };
+  const TITLE = { lin_court: '林府 · 曲水花庭', lin_study: '林府 · 家主书房', lin_yi_room: '林府 · 偏院小厢房', lin_service: '林府 · 药灶与杂役房' };
+  const LABEL = { lin_manor: '正厅', lin_guest_west: '西厢 · 客房', lin_guest_east: '东厢 · 客房', lin_guest_xue: '内院 · 厢房', lin_study: '家主书房', lin_yi_room: '偏院 · 小厢房', lin_service: '药灶房', qy_town: '出府 · 青阳镇' };
   const say2 = lines => async () => { for (const l of lines) { const i = l.indexOf('：'); if (i > 0 && i < 6) await say(l.slice(0, i), l.slice(i + 1)); else await narrate(l); } };
 
   // ---- 注册四张新图 ----

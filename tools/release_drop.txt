@@ -416,3 +416,5 @@ r107/e_xguard2.webp
 r107/e_xguard3.webp
 r107/e_xspider.webp
 r107/e_xwraith.webp
+fx/jade_merge.mp4
+fx/jade_merge.webm

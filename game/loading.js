@@ -55,16 +55,16 @@
   // 作者 11-09：加载时点一下，插画也一起换一张（青竹专属插画那套照旧由它自己轮换）
   // 作者 11-09：第一次加载固定用「一剑止雨」（NA74），之后才随机
   // 作者 11-09：第一次加载在「一剑止雨」（NA74）和「生辰又见流星」（NB01）里二选一，之后才随机
-  const FIRST_ART = ['NA74', 'NB01', 'NH01'][Math.floor(Math.random() * 3)];   // 作者 11-10：存档页背景「花树系舟」（作者从一千多张里挑的）也进第一次加载三选一
+  const FIRST_ART = ['NA74', 'NB01', '01'][Math.floor(Math.random() * 3)];   // 作者 11-11：花树系舟换成「叶孤星拿风铃」（01）   // 作者 11-10：存档页背景「花树系舟」（作者从一千多张里挑的）也进第一次加载三选一
   const ixOf = id => SEL.findIndex(x => x[0] === id), okI = i => i >= 0 && LB.im[i] && LB.im[i].ok;
   // 作者 11-09：「星落襁褓」（叶擎苍看着襁褓里的叶孤星，NB13）只在生辰夜送残本之后那次载入出现一次，平时极少抽到
   const RARE = 'NB13';
   const firstArt = () => { try { const F = S.flags || {};
     if (F.nb13_pending) { const i = ixOf(RARE); if (okI(i)) return i; }
-    if (F.first_art) return -1; const i = ixOf(FIRST_ART); if (okI(i)) return i; for (const id of ['NA74', 'NB01', 'NH01']) { const j = ixOf(id); if (okI(j)) return j; } return -1; } catch (e) { return -1; } };
+    if (F.first_art) return -1; const i = ixOf(FIRST_ART); if (okI(i)) return i; for (const id of ['NA74', 'NB01', '01']) { const j = ixOf(id); if (okI(j)) return j; } return -1; } catch (e) { return -1; } };
   const rareOut = i => !(SEL[i] && SEL[i][0] === RARE) || Math.random() < .04;
   // 作者 11-11：「第一次加载的时候只放三张插画作为加载图，但是我发现第一次加载还会加载别的图」—— 还没进过游戏（第一次载入）时，点屏幕换图、兜底抽图都只在这三张里换
-  const FIRST3 = ['NA74', 'NB01', 'NH01'];
+  const FIRST3 = ['NA74', 'NB01', '01'];
   const isFirstLoad = () => { try { return !(S.flags && S.flags.first_art); } catch (e) { return true; } };
   const firstOk = i => !isFirstLoad() || FIRST3.includes(SEL[i] && SEL[i][0]);
   const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i) && firstOk(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
@@ -137,7 +137,7 @@
     if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; readyAt = null; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
       else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
-      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; } S.flags.first_art = 1; } }
+      { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; } S.flags.first_art_try = 1; } }   // 11-11：不再一过图就算「第一次」用完——新游戏开场会连着切几张图，真正露脸的那张载入图被别的图顶掉；改成下面：第一次载入画面真的放了 2 秒以上才算
       if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
       COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
@@ -149,6 +149,7 @@
     if (r >= 1) readyAt = mapAt;
     else if (readyAt === mapAt && force == null && S.scene === drawMap) { try { window.__LOAD_DROP = { map: mapAt, r, img: imgReady(), extra: extraReady(), pend, t: performance.now() }; } catch (e) {} r = 1; }
     if (r >= 1) { shown = Math.max(0, shown - .08); if (!shown) return; } else shown = 1;
+    if (shown > .5 && S.started && S.flags && S.flags.first_art_try && !S.flags.first_art && performance.now() - t0 > 2000) S.flags.first_art = 1;   // 第一次载入画面真露脸 2 秒才算用完
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
     ctx.save(); ctx.globalAlpha = a;
