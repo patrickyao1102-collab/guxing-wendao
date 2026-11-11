@@ -1,10 +1,10 @@
-// R104 山外树林 · 林逸获救（作者 11-03）
+// R104 山外树林 · 林溪获救（作者 11-03）
 // 1) 指引：以前一进树林只有「穿过山外树林」，玩家径直走到东北出口，才弹一句「林子里好像有人在呼救……」，完全不知道该去哪。
-//    现在：刚进林子就听见呼救、镜头推到北边空地让玩家亲眼看到林逸被两头妖兽围住；
-//    任务改成「循着呼救声……」，点任务栏自动寻路直达；离得远时主角身边有金色箭头指着呼救方向；林逸头上一直冒「救命——！」。
-// 2) 实景剧情：用现有的建模（林逸、银纹妖狼、黑甲犀牛、烈焰妖豹、叶孤星、云霆）在地图上直接演——
-//    妖狼扑倒林逸 → 叶孤星冲上去一剑劈开 → 云霆雷光逼退犀牛 → 第一战 → 妖豹从暗处扑向云霆后背、叶孤星挡在前面（流云仙衣泛光）
-//    → 第二战 → 妖豹负伤逃进林子 → 林逸上前道谢 → 林逸在前面带路，在东北南门口等着。
+//    现在：刚进林子就听见呼救、镜头推到北边空地让玩家亲眼看到林溪被两头妖兽围住；
+//    任务改成「循着呼救声……」，点任务栏自动寻路直达；离得远时主角身边有金色箭头指着呼救方向；林溪头上一直冒「救命——！」。
+// 2) 实景剧情：用现有的建模（林溪、银纹妖狼、黑甲犀牛、烈焰妖豹、叶孤星、云霆）在地图上直接演——
+//    妖狼扑倒林溪 → 叶孤星冲上去一剑劈开 → 云霆雷光逼退犀牛 → 第一战 → 妖豹从暗处扑向云霆后背、叶孤星挡在前面（流云仙衣泛光）
+//    → 第二战 → 妖豹负伤逃进林子 → 林溪上前道谢 → 林溪在前面带路，在东北南门口等着。
 // 代码只做摆放、走位、倒地、气泡和刀光；人物都是原来的立绘。
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.lin_forest || typeof tileSetMap !== 'function' || typeof drawActorT !== 'function') return;
@@ -12,9 +12,9 @@
   const MAP = 'lin_forest';
   const sl = ms => new Promise(r => setTimeout(r, ms));
   const C = () => { const r = TMAPS.lin_forest.rescue || [1664, 578]; return [r[0], r[1]]; };
-  const EXIT_WAIT = [2716, 312];   // 林逸在青阳镇南门口等着的位置
+  const EXIT_WAIT = [2716, 312];   // 林溪在青阳镇南门口等着的位置
   const QUEST_FIND = '循着呼救声，去树林北边的空地救人';
-  const QUEST_GO = '跟着林逸，往东北走出青阳镇南门';
+  const QUEST_GO = '跟着林溪，往东北走出青阳镇南门';
   let ST = null;   // 当前这一幕的演员
 
   // 出口提示改成说清楚方向
@@ -31,21 +31,21 @@
   function knock(a, x, y, ms = 260) { const x0 = a.x, y0 = a.y; a.moving = true; return tween(ms, t => { const e = 1 - (1 - t) * (1 - t); a.x = x0 + (x - x0) * e; a.y = y0 + (y - y0) * e; a.moving = t < 1; }); }
   function drop(a) { world.actors = world.actors.filter(x => x !== a); }
 
-  // ---------------- 布景：林逸 + 两头妖兽（未救下时）/ 南门口等人的林逸（救下后、还没进镇）----------------
+  // ---------------- 布景：林溪 + 两头妖兽（未救下时）/ 南门口等人的林溪（救下后、还没进镇）----------------
   function stage() {
     if (world.mapName !== MAP) return;
     if ((world.actors || []).some(a => a.r104)) return;
     const f = F();
     if (!f.ch2_linyi && f.ch2_forest) {
       const [cx, cy] = C();
-      const ly = mk('n_linyi', cx + 6, cy - 34, '林逸', 104, 1);
+      const ly = mk('n_linyi', cx + 6, cy - 34, '林溪', 104, 1);
       const wolf = mk('e_wolf2', cx - 178, cy + 8, '银纹妖狼', 112, 1);
       const rhino = mk('e_rhino', cx + 210, cy - 4, '黑甲犀牛', 124, -1);
       ST = { ly, wolf, rhino, cx, cy, idle: true, home: { ly: [ly.x, ly.y], wolf: [wolf.x, wolf.y], rhino: [rhino.x, rhino.y] }, nextCry: performance.now() + 600 };
       addTrigger(cx, cy + 10, 330, () => rescueScene(), true, false);
       if (!/呼救/.test(S.quest || '')) S.quest = QUEST_FIND;
     } else if (f.ch2_linyi && !f.ch2_town) {
-      const ly = mk('n_linyi', EXIT_WAIT[0], EXIT_WAIT[1], '林逸', 104, 1);
+      const ly = mk('n_linyi', EXIT_WAIT[0], EXIT_WAIT[1], '林溪', 104, 1);
       ST = { ly, waiting: true, nextCry: performance.now() + 800 };
     } else ST = null;
   }
@@ -54,7 +54,7 @@
   // 任务栏自动寻路：「呼救声」直接去空地（原来「有人呼救」那条规则指的是落云岭的山洞，这里用不同的字避开）
   function addRule() { const R = window.QUEST_ROUTE && QUEST_ROUTE.RULES; if (!R || R.__r104) return; R.__r104 = 1;
     R.unshift([/呼救声/, () => { const [cx, cy] = C(); return { map: MAP, pt: [cx, cy + 150] }; }]);
-    R.unshift([/跟着林逸/, () => ({ map: 'qy_town' })]); }
+    R.unshift([/跟着林溪/, () => ({ map: 'qy_town' })]); }
   addRule(); setTimeout(addRule, 0);
 
   // ---------------- 每帧：待机小动作、气泡、箭头、刀光 ----------------
@@ -110,7 +110,7 @@
     ctx.save(); ctx.translate(p.x + Math.cos(ang) * r, p.y - 46 + Math.sin(ang) * r * .7); ctx.scale(1 / z, 1 / z);
     ctx.save(); ctx.rotate(ang); ctx.fillStyle = '#ffd36a'; ctx.strokeStyle = '#4a2a08'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-8, -20); ctx.lineTo(-2, -7); ctx.lineTo(-26, -7); ctx.lineTo(-26, 7); ctx.lineTo(-2, 7); ctx.lineTo(-8, 20); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
     ctx.font = `800 20px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(30,14,2,.9)'; ctx.fillStyle = '#ffe9a8';
-    const lab = ST.idle ? '呼救声' : '林逸'; ctx.strokeText(lab, 0, 38); ctx.fillText(lab, 0, 38);
+    const lab = ST.idle ? '呼救声' : '林溪'; ctx.strokeText(lab, 0, 38); ctx.fillText(lab, 0, 38);
     ctx.restore();
   }
   tileAmbientHigh = (o => function (T, cam, now) {
@@ -134,7 +134,7 @@
     await sl(250); bub(s.ly, '救命——！', 2200); try { playSnd('sfx_wolf_howl', .7); } catch (e) {}
     await narrate('林子深处忽然传来一声凄厉的呼救——');
     world.camFocus = [cx, cy - 10]; await sl(1300);
-    // 妖狼往前一扑，林逸往后跌
+    // 妖狼往前一扑，林溪往后跌
     s.idle = false; bub(s.ly, '别过来！', 1300);
     const w0 = [s.wolf.x, s.wolf.y]; await moveActor(s.wolf, w0[0] + 70, w0[1] - 8, 520); try { playSnd('sfx_claw', .6); } catch (e) {}
     await tween(220, t => { s.ly.x = s.home.ly[0] + 16 * t; s.ly.rot = .12 * Math.sin(t * Math.PI); }); s.ly.rot = 0;
@@ -154,7 +154,7 @@
     // 云霆：把跟随的队友换成能随意走位的替身，演完再换回去
     const fol = (world.followers || []).find(f => f.key === 'w_yunting');
     const yt = mk('w_yunting', fol ? fol.x : p.x + 50, fol ? fol.y : p.y + 30, '云霆', 108, 1); yt.face = 'up'; if (fol) fol.hidden = true;
-    // 妖狼扑倒林逸
+    // 妖狼扑倒林溪
     try { playSnd('sfx_wolf_howl', .9); } catch (e) {}
     await sl(420); bub(ly, '啊——！', 900);
     await moveActor(wolf, cx - 62, cy - 6, 950); try { playSnd('sfx_claw', .8); } catch (e) {} S.shake = 7;
@@ -208,17 +208,17 @@
     bub(lp, '！', 800); await sl(450); lp.dir = -1;
     const run = moveActor(lp, cx - 820, cy - 120, 1300); await sl(260); fadeA(lp, 0, 380); await run; drop(lp);
     await narrate('烈焰妖豹眼露惊骇，发出一声惊恐的咆哮，化作一道火光窜入密林深处。');
-    // 林逸上前道谢
+    // 林溪上前道谢
     p.face = 'up'; yt.face = 'up';
     await moveActor(ly, p.x + 34, p.y - 74, 230); ly.dir = -1;
     ly.bowing = 1; await sl(900); ly.bowing = 0;   // 作揖（R105 作揖单帧）
-    await say('林逸', '多谢两位出手相救！若非两位仗义相助，我今天恐怕就要丧命于妖兽口中了。');
+    await say('林溪', '多谢两位出手相救！若非两位仗义相助，我今天恐怕就要丧命于妖兽口中了。');
     await say('云霆', '你是什么人？为何独自闯入这片妖兽横行的树林？');
-    await say('林逸', '我叫林逸，是青阳镇林家家主之子。数月前黑风寨威胁我林家，要我们每月上交大量灵石……父亲让我去飞云宗求援，谁知刚出镇子就被黑风寨的人一路追杀。');
+    await say('林溪', '我叫林溪，是青阳镇林家家主的女儿。数月前黑风寨威胁我林家，要我们每月上交大量灵石……父亲让我去飞云宗求援，谁知刚出镇子就被黑风寨的人一路追杀。');
     await say('叶孤星·笑', '这可真巧，我们正是天剑宗派来剿灭黑风寨的。走，带路，去青阳镇！');
-    bub(ly, '好！', 800); await say('林逸·笑', '多谢叶大哥！青阳镇南门就在东北边，我在前面带路！');
+    bub(ly, '好！', 800); await say('林溪·笑', '多谢叶大哥！……叶大哥方才那一剑，真好看。'); await say('林溪', '青阳镇南门就在东北边，我、我在前面带路！叶大哥跟紧我呀！');
     S.flags.ch2_linyi = 1;
-    // 林逸往东北跑出画面，再到南门口等着
+    // 林溪往东北跑出画面，再到南门口等着
     ly.dir = 1; const go = moveActor(ly, ly.x + 300, ly.y - 150, 300); await sl(500); await Promise.all([go, fadeA(ly, 0, 420)]);
     ly.x = EXIT_WAIT[0]; ly.y = EXIT_WAIT[1]; ly.alpha = 1; ly.rot = 0; ly.sq = 1;
     Object.assign(s, { idle: false, waiting: true, nextCry: performance.now() + 1500, wolf: null, rhino: null });
@@ -227,7 +227,7 @@
     world.trail = [[p.x, p.y, p.face]];
     world.mobs && world.mobs.forEach(m => m.hidden = false);
     world.camFocus = null;
-    S.quest = QUEST_GO; toast('林逸在东北边的南门口等着——跟着金色箭头走', 2600);
+    S.quest = QUEST_GO; toast('林溪在东北边的南门口等着——跟着金色箭头走', 2600);
   }
 
   window.R104_LY = { intro, stage, rescueScene, get state() { return ST; } };
