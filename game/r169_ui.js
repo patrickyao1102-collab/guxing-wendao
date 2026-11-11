@@ -92,11 +92,11 @@
       midText(p.title, x + w / 2 + 12, y + 60, fitFont(p.title, '#px ' + HEAD, 40, w - 220, 24), '#f3ebd6');
       lines.forEach((l, i) => { const hl = l.startsWith('!'), s = hl ? l.slice(1) : l; midText(s, x + 103, y + 122 + i * lh, fitFont(s, '#px ' + BODY, 27, w - 170, 16), hl ? '#e3d1a2' : '#f2ecde', 'left'); });
     } else {
-      const w = 880, h = Math.max(308, 190 + lines.length * lh), x = W / 2 - w / 2, y = H / 2 - h / 2;
+      const w = 880, h = Math.max(308, 224 + lines.length * lh), x = W / 2 - w / 2, y = H / 2 - h / 2;   // 11-11：底下多留一行，「点按继续」不再压着最后一行
       part('paper_scroll', x, y, w, h);
       midText(p.title, W / 2, y + 86, fitFont(p.title, '#px ' + HEAD, 39, w - 240, 24), '#513a29');
       lines.forEach((l, i) => { const hl = l.startsWith('!'), s = hl ? l.slice(1) : l; midText(s, W / 2, y + 146 + i * lh, fitFont(s, '#px ' + BODY, 27, w - 220, 16), hl ? '#a8382b' : '#513a29'); });
-      if (p.t > .4) { ctx.globalAlpha = k * (.55 + .3 * Math.sin(performance.now() / 300)); midText('点按继续', W / 2, y + h - 72, '19px ' + BODY, '#513a29'); }
+      if (p.t > .4) { ctx.globalAlpha = k * (.55 + .3 * Math.sin(performance.now() / 300)); midText('点按继续', W / 2, y + h - 64, '19px ' + BODY, '#8a6c52'); }
     }
     ctx.restore(); return true;
   };
