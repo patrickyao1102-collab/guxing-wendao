@@ -88,6 +88,23 @@
     ]);
     if (r === 'skip' && tier() < 2) { try { if (window.SKT && SKT.upgrade) SKT.upgrade('hero', id); } catch (e) {} }
   };
+  // 凝元丹：行囊 → 背包 → 选中凝元丹 → 使用（跳过＝直接服下）
+  const cellR = id => { try { const L = menuLayout(), c = bagCells(L).find(c => c.id === id); return c ? [c.x, c.y, c.w, c.h] : null; } catch (e) { return null; } };
+  const useR = () => { try { const b = useBtn(menuLayout()); return b ? [b.x, b.y, b.w, b.h] : null; } catch (e) { return null; } };
+  let pillBusy = false;
+  window.R207_PILL_TUT = async function () {
+    if (pillBusy || F().ch2_pill || !itemCount('n_ningyuan')) return; pillBusy = true; F().tut_pill = 1;
+    try {
+      await say('星旋', '睡前先把凝元丹服了。丹药都在行囊里——我教你怎么用：');
+      const r = await SPOT.run([
+        { title: '打开行囊', text: '点右下角的「行囊」。', rect: () => S.menu ? null : BAG, done: () => !!S.menu },
+        { title: '背包', text: '点左边的「背包」。', rect: () => tabR('背包'), done: () => isTab('背包') },
+        { title: '找到凝元丹', text: () => cellR('n_ningyuan') ? '点一下凝元丹。' : '上面换到「全部」，找到凝元丹点一下。', rect: () => cellR('n_ningyuan') || (bagTabs(menuLayout()).map(b => [b.x, b.y, b.w, b.h])[0] || null), done: () => isTab('背包') && S.menu.sel === 'n_ningyuan' },
+        { title: '服下', text: '点「使用」，服下凝元丹。', rect: () => useR(), done: () => !!F().ch2_pill },
+      ]);
+      if (r === 'skip' && !F().ch2_pill) { try { if (S.menu) closeMenu(); } catch (e) {} if (window.CH2_EAT_PILL) await CH2_EAT_PILL(); }
+    } finally { pillBusy = false; }
+  };
   window.R207_JT_TUT = async function () {
     if (F().yt_jiutian) return;
     await say('星旋', '秘卷到手了——别光揣着，得让云霆参悟了才算数。我教你一遍：');

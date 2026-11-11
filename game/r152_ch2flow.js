@@ -51,9 +51,7 @@
     f.ch2_pill = 1; world.locked = true; S.hud = false; if (world.player) world.player.moving = false;
     try {
       if (h.bag && h.bag.n_ningyuan) { h.bag.n_ningyuan--; if (!h.bag.n_ningyuan) delete h.bag.n_ningyuan; }
-      await narrate('叶孤星盘膝坐下，服下凝元丹，运转九曜剑典第二重——凝丹境的功法口诀。');
-      await starSea(5200, lv => { if (lv === 3) { S.flash = .8; S.flashColor = '#fff'; } });
-      await say('星旋', '用破军剑意稳定天璇星之力，用贪狼剑意引导天枢星之力，两种剑意同时催动，才能真正融合这两颗星辰！');
+      // 作者 11-11：不要星空打坐那段花哨过场，服下直接弹升级面板
       h.realm = '凝丹二重'; h.maxhp += 84; h.maxmp += 31; h.atk += 9; h.def += 5; h.hp = h.maxhp; h.mp = h.maxmp; S.hero.learnQ = [];
       playSnd('jingle_levelup'); S.flash = .9; S.flashColor = '#fff3c0';
       await showPanel('突破 · 凝丹境', ['!练气九重 → 凝丹二重', '丹田中凝出一颗灵丹，天枢、天璇双星图案浮现其上', '破军剑意·天璇　贪狼剑意·追魂　重新凝聚', '凝元丹药力磅礴，一口气冲开了凝丹一重、二重', '气血 +84　灵力 +31　攻击 +9　防御 +5']);
@@ -73,7 +71,7 @@
     const r = orig.apply(this, arguments);
     try { const f = F(); if (name === 'tj_room' && night() && f.ch2_liuyun) whenFree(async () => {
       if (world.mapName !== 'tj_room' || !night()) return;
-      if (!F().ch2_pill) { world.locked = true; try { await say('星旋', '睡之前，先把凝元丹服了——行囊里，选中点「使用」。'); } finally { world.locked = false; } return; }
+      if (!F().ch2_pill) { if (window.R207_PILL_TUT) return R207_PILL_TUT(); world.locked = true; try { await say('星旋', '睡之前，先把凝元丹服了——行囊里，选中点「使用」。'); } finally { world.locked = false; } return; }
       sleepNow();
     }); } catch (e) {}
     return r;
