@@ -8,7 +8,8 @@
   const N = {"avatar_empty": "a000", "avatar_name_plate": "a001", "avatar_ring_n": "a002", "avatar_ring_s": "a003", "bg_full": "a004", "btn_blue_9": "a005", "btn_close_n": "a006", "btn_close_p": "a007", "btn_gold_9": "a008", "btn_丢弃_d": "a009", "btn_丢弃_n": "a010", "btn_丢弃_p": "a011", "btn_使用_d": "a012", "btn_使用_n": "a013", "btn_使用_p": "a014", "btn_删除_d": "a015", "btn_删除_n": "a016", "btn_删除_p": "a017", "btn_卸下_d": "a018", "btn_卸下_n": "a019", "btn_卸下_p": "a020", "btn_存档_d": "a021", "btn_存档_n": "a022", "btn_存档_p": "a023", "btn_换上_d": "a024", "btn_换上_n": "a025", "btn_换上_p": "a026", "btn_查看_d": "a027", "btn_查看_n": "a028", "btn_查看_p": "a029", "btn_覆盖_d": "a030", "btn_覆盖_n": "a031", "btn_覆盖_p": "a032", "btn_读档_d": "a033", "btn_读档_n": "a034", "btn_读档_p": "a035", "chip_n": "a036", "chip_s": "a037", "chip_丹药_n": "a038", "chip_丹药_s": "a039", "chip_全部_n": "a040", "chip_全部_s": "a041", "chip_材料_n": "a042", "chip_材料_s": "a043", "chip_秘籍_n": "a044", "chip_秘籍_s": "a045", "chip_装备_n": "a046", "chip_装备_s": "a047", "currency_bar_9": "a048", "divider_h": "a049", "dot_diamond": "a050", "ghost_武器": "a051", "ghost_衣服": "a052", "ghost_鞋子": "a053", "ghost_饰品": "a054", "hero_name_plate": "a055", "hero_sub_plate": "a056", "hint_diamond": "a057", "icon_lingshi": "a058", "icon_xingchen": "a059", "info_box_9": "a060", "item_card_9_n": "a061", "item_card_9_s": "a062", "item_disc": "a063", "item_disc_empty": "a064", "label_星辰点": "a065", "label_灵石": "a066", "label_请选择一个存档位": "a067", "page_title_任务": "a068", "page_title_出战": "a069", "page_title_图鉴": "a070", "page_title_坐骑": "a071", "page_title_存档": "a072", "page_title_技能": "a073", "page_title_换装": "a074", "page_title_状态": "a075", "page_title_神器": "a076", "page_title_背包": "a077", "page_title_装备": "a078", "panel_main_9": "a079", "save_row_9_empty": "a080", "save_row_9_n": "a081", "save_row_9_s": "a082", "save_thumb_empty": "a083", "save_thumb_frame": "a084", "scroll_thumb": "a085", "scroll_track": "a086", "section_可替换装备": "a087", "slot_card_9": "a088", "slot_card_empty_9": "a089", "slot_label_武器": "a090", "slot_label_衣服": "a091", "slot_label_鞋子": "a092", "slot_label_饰品": "a093", "swap_card_9_n": "a094", "swap_card_9_s": "a095", "tab_任务_n": "a096", "tab_任务_s": "a097", "tab_出战_n": "a098", "tab_出战_s": "a099", "tab_图鉴_n": "a100", "tab_图鉴_s": "a101", "tab_坐骑_n": "a102", "tab_坐骑_s": "a103", "tab_存档_n": "a104", "tab_存档_s": "a105", "tab_技能_n": "a106", "tab_技能_s": "a107", "tab_换装_n": "a108", "tab_换装_s": "a109", "tab_状态_n": "a110", "tab_状态_s": "a111", "tab_神器_n": "a112", "tab_神器_s": "a113", "tab_背包_n": "a114", "tab_背包_s": "a115", "tab_装备_n": "a116", "tab_装备_s": "a117", "title_xingnang": "a118"};
   // 九宫格保护边（逻辑像素，Codex layout.json）
   const NINE = { panel_main_9: [112, 102, 112, 100], currency_bar_9: [44, 14, 44, 14], slot_card_9: [40, 30, 76, 46], slot_card_empty_9: [40, 30, 76, 46], swap_card_9_n: [40, 28, 106, 55], swap_card_9_s: [40, 28, 106, 55], save_row_9_n: [42, 26, 240, 80], save_row_9_s: [42, 26, 240, 80], save_row_9_empty: [42, 26, 240, 80], btn_gold_9: [32, 14, 32, 14], btn_blue_9: [32, 14, 32, 14], chip_n: [18, 9, 18, 9], chip_s: [18, 9, 18, 9], info_box_9: [52, 48, 106, 80], item_card_9_n: [28, 30, 42, 50], item_card_9_s: [28, 30, 48, 68] };
-  const C = { ink: '#3E2D18', grey: '#77746E', light: '#FFF5DA', red: '#A43B2E', blue: '#315E90', gold: '#9A671F', line: '#C69B57', green: '#2f7a2a' };
+  const C = { ink: '#3E2D18', grey: '#77746E', light: '#FFF5DA', red: '#A43B2E', blue: '#315E90', gold: '#9A671F', line: '#C69B57', green: '#2f7a2a' }, CJ = Object.assign({}, C),
+    CD = { ink: '#E4DDC9', grey: '#8A9493', light: '#F3E3B2', red: '#D98A78', blue: '#9CC3E8', gold: '#C2AD78', line: '#8F7C54', green: '#9FC98F' };
   const IM = {}; let nOk = 0; const NALL = Object.keys(N).length;
   // 菜单图在第一次打开行囊前就下好（开局空闲时下，不抢地图图）
   // 作者 11-11：「还是 Codex 的字体好」→ 行囊里的字全换成 Codex 配的三款（OFL 免费商用，按游戏用字裁剪）：
@@ -19,8 +20,9 @@
   setTimeout(load, 6000);
   const READY = () => nOk >= NALL;
   window.R201_BAG = { ready: READY, IM, nine: (...a) => nine(...a), D: (...a) => D(...a) };
-  const D = (k, x, y, w, h) => { const im = IM[k]; if (!im) return; if (w == null) { w = im.width / 2; h = im.height / 2; } ctx.drawImage(im, x, y, w, h); };
-  function nine(k, x, y, w, h) { const im = IM[k]; if (!im) return; const p = NINE[k]; if (!p) return D(k, x, y, w, h);
+  const DK = () => !!window.BAG_DARK;   /* R209 玄青暗色皮：画每个件之前先问它要不要换成暗色件 */
+  const D = (k, x, y, w, h) => { if (DK() && BDK.bag(k, x, y, w, h)) return; const im = IM[k]; if (!im) return; if (w == null) { w = im.width / 2; h = im.height / 2; } ctx.drawImage(im, x, y, w, h); };
+  function nine(k, x, y, w, h) { if (DK() && BDK.bag(k, x, y, w, h, true)) return; const im = IM[k]; if (!im) return; const p = NINE[k]; if (!p) return D(k, x, y, w, h);
     const [l, t, r, b] = p, s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
   const KAI = '"R201MS","GuxingWKB",' + BRUSH, NUM = '"R201NS",' + FONT;
@@ -37,7 +39,7 @@
 
   // ---------------- 外框 ----------------
   function frame(L, m) {
-    ctx.fillStyle = '#E9E6E0'; ctx.fillRect(0, 0, W, H); D('bg_full', 0, 0, W, H); nine('panel_main_9', PANEL.x, PANEL.y, PANEL.w, PANEL.h);
+    if (DK()) BDK.backdrop(S.menu); else { ctx.fillStyle = '#E9E6E0'; ctx.fillRect(0, 0, W, H); D('bg_full', 0, 0, W, H); } nine('panel_main_9', PANEL.x, PANEL.y, PANEL.w, PANEL.h);
   }
   function header(L, m) {
     D('title_xingnang', 14, 6, 204, 100);
@@ -53,7 +55,10 @@
     nine('currency_bar_9', 778, 28, 352, 54); D('icon_lingshi', 797, 37, 30, 34); D('label_灵石', 829, 40, 50, 30); D('icon_xingchen', 960, 37, 32, 34); D('label_星辰点', 993, 40, 76, 30);
     txt(String(S.hero.gold || 0), 886, 56, 22, C.gold, 'left', NUM, 700); txt(String(S.hero.points || 0), 1076, 56, 22, C.blue, 'left', NUM, 700);
     D(closeDown ? 'btn_close_p' : 'btn_close_n', 1148, 28, 118, 46);
+    if (window.BDK) { const r = SKIN_R; ctx.save(); ctx.globalAlpha = .92; if (typeof roundRect === 'function') roundRect(r.x, r.y, r.w, r.h, 12); ctx.fillStyle = DK() ? 'rgba(12,26,34,.85)' : 'rgba(255,252,244,.9)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = DK() ? 'rgba(143,124,84,.8)' : 'rgba(198,155,87,.8)'; ctx.stroke(); ctx.restore();
+      txt(DK() ? '换白玉' : '换玄青', r.x + r.w / 2, r.y + r.h / 2 + 1, 16, DK() ? '#C2AD78' : C.gold, 'center', '"R201WK",' + FONT, 600); }
   }
+  const SKIN_R = { x: 1162, y: 80, w: 90, h: 28 };
   let closeDown = false;
 
   // ---------------- 装备页 ----------------
@@ -78,8 +83,11 @@
     const m = S.menu, eq = eqNow(), sel = m.eqSlot || 'weapon', now = performance.now() / 1000;
     // 中间立绘（底部淡出，头顶可以越过主框上沿，照 Codex 图）
     const im = IMG[mi.p]; if (im) { const ph = 520, pw = ph * im.width / im.height, cx = 722; ctx.save(); ctx.beginPath(); ctx.rect(500, 66, 444, 434); ctx.clip();
-      const fy = 470; ctx.drawImage(im, cx - pw / 2, 76 + Math.sin(now * 1.2) * 2, pw, ph);
-      const g = ctx.createLinearGradient(0, fy - 60, 0, 500); g.addColorStop(0, 'rgba(240,239,236,0)'); g.addColorStop(1, 'rgba(240,239,236,1)'); ctx.fillStyle = g; ctx.fillRect(500, fy - 60, 444, 500 - fy + 60); ctx.restore(); }
+      const fy = 470;
+      if (DK()) { const o = PFADE.c || (PFADE.c = document.createElement('canvas')); o.width = 444; o.height = 434; const g2 = o.getContext('2d'); g2.clearRect(0, 0, 444, 434); g2.drawImage(im, cx - pw / 2 - 500, 76 + Math.sin(now * 1.2) * 2 - 66, pw, ph);
+        g2.globalCompositeOperation = 'destination-out'; const gg = g2.createLinearGradient(0, fy - 60 - 66, 0, 500 - 66); gg.addColorStop(0, 'rgba(0,0,0,0)'); gg.addColorStop(1, 'rgba(0,0,0,1)'); g2.fillStyle = gg; g2.fillRect(0, fy - 60 - 66, 444, 434); g2.globalCompositeOperation = 'source-over'; ctx.drawImage(o, 500, 66); ctx.restore(); }
+      else { ctx.drawImage(im, cx - pw / 2, 76 + Math.sin(now * 1.2) * 2, pw, ph);
+      const g = ctx.createLinearGradient(0, fy - 60, 0, 500); g.addColorStop(0, 'rgba(240,239,236,0)'); g.addColorStop(1, 'rgba(240,239,236,1)'); ctx.fillStyle = g; ctx.fillRect(500, fy - 60, 444, 500 - fy + 60); ctx.restore(); } }
     D('hero_sub_plate', 547, 454, 350, 46); D('hero_name_plate', 610, 420, 224, 44);
     txt(mi.name, 722, 442, 30, C.light, 'center'); txt(mi.realm + ' · ' + mi.lv + '级', 722, 478, 22, C.ink, 'center');
     // 四个栏位
@@ -108,9 +116,9 @@
     if (all > 3) { const off = m.eqScroll || 0, mx = maxScroll(all); ctx.save(); ctx.fillStyle = C.line;
       if (off > 2) { ctx.beginPath(); ctx.moveTo(ROW.x - 14, ROW.y + 56); ctx.lineTo(ROW.x - 2, ROW.y + 44); ctx.lineTo(ROW.x - 2, ROW.y + 68); ctx.fill(); }
       if (off < mx - 2) { ctx.beginPath(); ctx.moveTo(ROW.x + ROW.w + 14, ROW.y + 56); ctx.lineTo(ROW.x + ROW.w + 2, ROW.y + 44); ctx.lineTo(ROW.x + ROW.w + 2, ROW.y + 68); ctx.fill(); }
-      ctx.restore(); ctx.font = `600 14px ${FONT}`; const lab = '共 ' + all + ' 件 · 左右拖动', lw = ctx.measureText(lab).width; ctx.fillStyle = '#F0EFEC'; ctx.fillRect(1204 - lw - 10, 517, lw + 14, 18); txt(lab, 1200, 526, 14, C.grey, 'right', FONT, 600); }
+      ctx.restore(); ctx.font = `600 14px ${FONT}`; const lab = '共 ' + all + ' 件 · 左右拖动', lw = ctx.measureText(lab).width; ctx.fillStyle = DK() ? 'rgba(12,26,34,.95)' : '#F0EFEC'; ctx.fillRect(1204 - lw - 10, 517, lw + 14, 18); txt(lab, 1200, 526, 14, C.grey, 'right', FONT, 600); }
   }
-  let wearDown = null;
+  let wearDown = null; const PFADE = {};
 
 
   // ---------------- 存档页（Codex 版式：三条存档条 + 缩略金框 + 存档 / 读档）----------------
@@ -169,7 +177,8 @@
     if (!READY() || !S.menu) { load(); return prevDraw.apply(this, arguments); }
     const m = S.menu, L = menuLayout(), mi = memberInfo(m.who), now = performance.now() / 1000;
     const keep = {}; for (const k in UI) keep[k] = UI[k];
-    try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, JADE, { id: 'paper' }); } catch (e) {}
+    const dark = !!(window.BDK && BDK.on); window.BAG_DARK = dark; Object.assign(C, dark ? CD : CJ);
+    try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, dark ? BDK.PAL : JADE, { id: dark ? 'xuanqing' : 'paper' }); } catch (e) {}
     ctx.save(); window.R201_IN = true; fontOn();
     try {
       frame(L, m);
@@ -183,7 +192,7 @@
         if (m.tab === 0) drawStatus(B, mi, now); else if (m.tab === 2) drawBag(B, L); else if (m.tab === 3) drawSkills(B, L); else drawQuest(B);
         ctx.restore(); }
       header(L, m);
-    } finally { window.R201_IN = false; fontOff(); ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
+    } finally { window.R201_IN = false; window.BAG_DARK = false; fontOff(); ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
   };
 
   // ---------------- 装备页点击 + 拖动 ----------------
@@ -194,6 +203,7 @@
     const L = menuLayout();
     // 关闭按钮按下态
     closeDown = !!(input.down && inR(input, L.close));
+    { const t = input.tapped; if (t && !t.key && window.BDK && inR(t, SKIN_R)) { consumeTap(); BDK.toggle(); playSnd('ui_click'); return; } }
     // 「存档」页签：就在行囊里画存档页（不再跳出去）
     { const t = input.tapped, si = MTABS.indexOf('存档');
       if (t && !t.key && si >= 0 && L.tabs[si] && inR(t, L.tabs[si])) { consumeTap(); m.savePage = true; m.saveSel = null; m.eqInfo = null; playSnd('ui_click'); return; }

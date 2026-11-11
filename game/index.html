@@ -5967,19 +5967,20 @@ window.NO_CG = true;
     // 右侧：古卷轴（美术）+ 详情
     const s = SHENQI[sel], on = owned(s), areaX = B.x + 520, areaW = B.w - 540, ph = B.h - 16, py = B.y + 8;
     let pw = areaW, px = areaX;
-    if (has('sq_scroll')) { const im = IMG.sq_scroll; pw = Math.min(areaW, ph * im.width / im.height * 1.35); px = areaX + (areaW - pw) / 2; ctx.drawImage(im, px, py, pw, ph); }
-    const tx = px + pw * .17, tw = pw * .66; let y = py + ph * .17;
+    const DKs = !!window.BAG_DARK;   /* R209 玄青：卷轴换暗色说明框，字换浅色 */
+    if (DKs) { BDK.nine('panel_detail_9', px, py, pw, ph); } else if (has('sq_scroll')) { const im = IMG.sq_scroll; pw = Math.min(areaW, ph * im.width / im.height * 1.35); px = areaX + (areaW - pw) / 2; ctx.drawImage(im, px, py, pw, ph); }
+    const tx = DKs ? px + 26 : px + pw * .17, tw = DKs ? pw - 52 : pw * .66; let y = py + (DKs ? 44 : ph * .17);
     ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.font = `36px ${BRUSH}`; ctx.fillStyle = on ? '#3a2410' : '#5a4a30'; ctx.fillText(on ? (s.name || '？？？') : '？？？', tx, y);
-    y += 40; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#6a4e2a'; ctx.fillText(s.star + '位 · ' + s.owner + ' · ' + s.slot, tx, y);
-    if (s.hint) { y += 26; ctx.fillStyle = '#8a6a3a'; ctx.fillText('（' + s.hint + '）', tx, y); }
-    y += 18; ctx.fillStyle = 'rgba(140,100,50,.35)'; ctx.fillRect(tx, y, tw, 1); y += 24;
-    ctx.font = `16px ${FONT}`; ctx.fillStyle = '#3a2a18';
+    ctx.font = `36px ${BRUSH}`; ctx.fillStyle = DKs ? (on ? '#E9D9A8' : '#A6AEA6') : on ? '#3a2410' : '#5a4a30'; ctx.fillText(on ? (s.name || '？？？') : '？？？', tx, y);
+    y += 40; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = DKs ? '#C2AD78' : '#6a4e2a'; ctx.fillText(s.star + '位 · ' + s.owner + ' · ' + s.slot, tx, y);
+    if (s.hint) { y += 26; ctx.fillStyle = DKs ? '#A6AEA6' : '#8a6a3a'; ctx.fillText('（' + s.hint + '）', tx, y); }
+    y += 18; ctx.fillStyle = DKs ? 'rgba(143,124,84,.5)' : 'rgba(140,100,50,.35)'; ctx.fillRect(tx, y, tw, 1); y += 24;
+    ctx.font = `16px ${FONT}`; ctx.fillStyle = DKs ? '#E4DDC9' : '#3a2a18';
     const txt = on ? (s.desc || '') : '封印于一座' + s.star + '色光芒的大锁灵阵中。所在之地、名字与来历，尚待揭晓。';
     wrapText(txt, tw).slice(0, 6).forEach((l, i) => ctx.fillText(l, tx, y + i * 26));
-    y = py + ph * .70; ctx.fillStyle = 'rgba(140,100,50,.35)'; ctx.fillRect(tx, y - 16, tw, 1);
-    ['叶孤星', '神乐', '洛尘'].forEach((o, k) => { const n = SHENQI.filter(q => q.owner === o && owned(q)).length; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#4a3418'; ctx.fillText(o, tx, y + k * 28);
-      for (let j = 0; j < 3; j++) { ctx.beginPath(); ctx.arc(tx + 74 + j * 20, y + k * 28, 6, 0, 7); ctx.fillStyle = j < n ? '#c0802a' : 'rgba(120,90,50,.25)'; ctx.fill(); }
+    y = py + ph * .70; ctx.fillStyle = DKs ? 'rgba(143,124,84,.5)' : 'rgba(140,100,50,.35)'; ctx.fillRect(tx, y - 16, tw, 1);
+    ['叶孤星', '神乐', '洛尘'].forEach((o, k) => { const n = SHENQI.filter(q => q.owner === o && owned(q)).length; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = DKs ? '#E4DDC9' : '#4a3418'; ctx.fillText(o, tx, y + k * 28);
+      for (let j = 0; j < 3; j++) { ctx.beginPath(); ctx.arc(tx + 74 + j * 20, y + k * 28, 6, 0, 7); ctx.fillStyle = j < n ? '#c0802a' : DKs ? 'rgba(143,124,84,.35)' : 'rgba(120,90,50,.25)'; ctx.fill(); }
       ctx.fillStyle = UI.sub; ctx.font = `14px ${FONT}`; ctx.fillText(n >= 2 ? '套装效果待定' : '', tx + 140, y + k * 28); });
     ctx.restore();
     // 破阵灵晶 / 收集数
@@ -12643,9 +12644,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; const x = B.x + 30, w = B.w - 60; let y = B.y + 40;
     ctx.font = `34px ${BRUSH}`; textOutline('主线', x, y, UI.gold2, 'rgba(255,248,230,.6)', 3);
     ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(CHAP(), x + 90, y + 2); y += 30;
-    lacquer(x, y, w, 76, { r: 10, thin: true, top: window.R201_IN ? 'rgba(252,247,236,.97)' : 'rgba(90,30,20,.88)', bot: window.R201_IN ? 'rgba(240,229,206,.97)' : 'rgba(50,16,10,.88)' });   /* R201 白玉宣纸：主线条改浅底 */
-    ctx.font = `600 22px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#3E2D18' : '#f7ecd4'; ctx.fillText(S.quest || '（暂无）', x + 20, y + 26);
-    const h = MAIN_HINT.find(([re]) => re.test(S.quest || '')); ctx.font = `15px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#77746E' : '#e2cfa8';
+    if (window.BAG_DARK) BDK.nine('card_s_9', x, y, w, 76); else lacquer(x, y, w, 76, { r: 10, thin: true, top: window.R201_IN ? 'rgba(252,247,236,.97)' : 'rgba(90,30,20,.88)', bot: window.R201_IN ? 'rgba(240,229,206,.97)' : 'rgba(50,16,10,.88)' });   /* R201 白玉宣纸：主线条改浅底 */
+    ctx.font = `600 22px ${FONT}`; ctx.fillStyle = window.R201_IN && !window.BAG_DARK ? '#3E2D18' : '#f7ecd4'; ctx.fillText(S.quest || '（暂无）', x + 20, y + 26);
+    const h = MAIN_HINT.find(([re]) => re.test(S.quest || '')); ctx.font = `15px ${FONT}`; ctx.fillStyle = window.BAG_DARK ? '#A6AEA6' : window.R201_IN ? '#77746E' : '#e2cfa8';
     ctx.fillText(h ? '地点：' + h[1] + (h[2] ? '　｜　' + h[2] : '') : '点右上角任务栏可以自动寻路', x + 20, y + 56); y += 104;
     const act = SQ.filter(q => st(q.id).s === 1 || st(q.id).s === 2), can = SQ.filter(q => st(q.id).s === 0 && avail(q)), done = SQ.filter(q => st(q.id).s === 3).length;
     ctx.font = `34px ${BRUSH}`; textOutline('支线', x, y, UI.gold2, 'rgba(255,248,230,.6)', 3);
@@ -14161,15 +14162,15 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     ctx.font = `40px ${BRUSH}`; textOutline('出战阵容', B.x + B.w / 2, B.y + 34, UI.title, UI.titleLine, 5);
     for (const c of cards(B)) {
       const on = c.k === 'hero' || l.includes(c.k), info = memberInfo(c.k), lc = c.k === 'luochen';
-      lacquer(c.x, c.y, c.w, c.h, { r: 12, thin: true, top: window.R201_IN ? (on ? 'rgba(253,248,236,.97)' : 'rgba(238,235,228,.92)') : on ? 'rgba(110,38,22,.92)' : 'rgba(30,22,16,.85)', bot: window.R201_IN ? (on ? 'rgba(240,226,196,.97)' : 'rgba(226,222,214,.92)') : on ? 'rgba(60,18,10,.92)' : 'rgba(14,10,8,.85)' });
+      if (window.BAG_DARK) BDK.nine(on ? 'card_s_9' : 'card_n_9', c.x, c.y, c.w, c.h); else lacquer(c.x, c.y, c.w, c.h, { r: 12, thin: true, top: window.R201_IN ? (on ? 'rgba(253,248,236,.97)' : 'rgba(238,235,228,.92)') : on ? 'rgba(110,38,22,.92)' : 'rgba(30,22,16,.85)', bot: window.R201_IN ? (on ? 'rgba(240,226,196,.97)' : 'rgba(226,222,214,.92)') : on ? 'rgba(60,18,10,.92)' : 'rgba(14,10,8,.85)' });
       if (on) { ctx.save(); ctx.shadowColor = UI.gold; ctx.shadowBlur = 10 + Math.sin(now * 4) * 4; roundRect(c.x, c.y, c.w, c.h, 12); ctx.lineWidth = 2.5; ctx.strokeStyle = UI.gold2; ctx.stroke(); ctx.restore(); }
       ctx.globalAlpha = on ? 1 : .6;
       medallion(info.p, c.x + c.w / 2, c.y + 70, 50, { sel: on, name: info.name, color: info.color });
-      ctx.font = `34px ${BRUSH}`; if (window.R201_IN) textOutline(info.name, c.x + c.w / 2, c.y + 150, '#3E2D18', 'rgba(255,253,246,.9)', 3); else textOutline(info.name, c.x + c.w / 2, c.y + 150, on ? '#f6dfa6' : '#cbb994', '#1a0800', 4);
-      ctx.font = `600 16px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#5a4a34' : '#efdcb4'; ctx.fillText('攻 ' + info.atk + '　防 ' + info.def, c.x + c.w / 2, c.y + 184);
+      ctx.font = `34px ${BRUSH}`; if (window.R201_IN && !window.BAG_DARK) textOutline(info.name, c.x + c.w / 2, c.y + 150, '#3E2D18', 'rgba(255,253,246,.9)', 3); else textOutline(info.name, c.x + c.w / 2, c.y + 150, on ? '#f6dfa6' : '#cbb994', '#1a0800', 4);
+      ctx.font = `600 16px ${FONT}`; ctx.fillStyle = window.R201_IN && !window.BAG_DARK ? '#5a4a34' : '#efdcb4'; ctx.fillText('攻 ' + info.atk + '　防 ' + info.def, c.x + c.w / 2, c.y + 184);
       ctx.globalAlpha = 1;
       if (lc) { const b = bond(); ctx.font = `600 16px ${FONT}`; ctx.fillStyle = b >= COST_BOSS ? '#ffd27a' : b >= COST_MOB ? '#f0b070' : '#ff7a6a'; ctx.fillText('好感 ' + b, c.x + c.w / 2, c.y + 212);
-        ctx.font = `600 13px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#77746E' : '#cdb98e'; ctx.fillText('小怪 -' + COST_MOB + '　Boss -' + COST_BOSS, c.x + c.w / 2, c.y + 234); }
+        ctx.font = `600 13px ${FONT}`; ctx.fillStyle = window.R201_IN && !window.BAG_DARK ? '#77746E' : '#cdb98e'; ctx.fillText('小怪 -' + COST_MOB + '　Boss -' + COST_BOSS, c.x + c.w / 2, c.y + 234); }
       { const sv = UI.sub; if (!on) UI.sub = '#e6d6b4'; sealText(c.k === 'hero' ? '主角' : on ? '出战' : '休整', c.x + 22, c.y + c.h - 54, c.w - 44, 40, on); UI.sub = sv; }
     }
     ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.textAlign = 'center';
@@ -16823,5 +16824,6 @@ window.MarketEffects = (() => {
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
 <script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=6"></script><script src="r193_art.js?v=6"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js"></script>
+<script src="r209_bagdark.js?v=1"></script>
 <script src="asset_ready.js"></script>
 </body></html>
