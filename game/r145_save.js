@@ -161,9 +161,10 @@
 
   // 作者 11-11：「有时候玩着玩着就突然回到主界面」—— 多半是手机浏览器内存吃紧、把页面整个重新载入了（不是游戏自己跳的）。
   //   补救：开局后在本标签页记一个「正在玩」标记；页面被意外重载、回到主界面时，直接从最近的自动存档接着玩（自动存档每 20 秒滚动一次），不用玩家自己去「前尘再续」。
-  setInterval(() => { try { if (S.started) sessionStorage.setItem('gx_alive', '1'); } catch (e) {} }, 3000);
+  setInterval(() => { try { if (S.started && !window.GX_GOING_HOME) sessionStorage.setItem('gx_alive', '1'); } catch (e) {} }, 3000);
   window.GX_RESUME = async function () {
     let alive = null; try { alive = sessionStorage.getItem('gx_alive'); sessionStorage.removeItem('gx_alive'); } catch (e) {}
+    try { if (sessionStorage.getItem('gx_home')) { sessionStorage.removeItem('gx_home'); return false; } } catch (e) {}   /* 玩家自己点了「返回主界面」：不自动接档 */
     if (alive !== '1' || !readSlot('auto')) return false;
     try { await fadeOut(300); } catch (e) {}
     if (!loadGame('auto')) return false;
