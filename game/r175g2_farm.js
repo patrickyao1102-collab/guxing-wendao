@@ -162,7 +162,7 @@
   const LAB = { gate_open: '开闸', gate_close: '关闸', soil: '养土', sow: '播种', harvest: '采收', pick: '采摘', collect: '收蛋', chick: '放雏', hatch: '孵蛋', kill: '宰杀', shop: '买苗', hire: '雇工', book: '园簿', brew: '酿酒', take: '取酒' };
 
   // ---------- 干活 ----------
-  const give = async (list, title) => { const items = list.filter(([, n]) => n > 0); for (const [id, n] of items) addItem(id, n);
+  const give = async (list, title) => { const items = list.filter(([, n]) => n > 0); for (const [id, n, had] of items) if (!had) addItem(id, n);
     try { if (window.itemGet) await itemGet(items.map(([id, n]) => ({ icon: 'item:' + id, name: (ITEM_DB[id] && ITEM_DB[id].name) || id, count: '×' + n, desc: (ITEM_DB[id] && ITEM_DB[id].desc) || '' })), title); else toast(title, 1600); } catch (e) { toast(title, 1600); } };
   const takeItem = (id, n) => { if (itemCount(id) < n) return false; S.hero.bag[id] -= n; if (!S.hero.bag[id]) delete S.hero.bag[id]; return true; };
   const pay = n => { if ((S.hero.gold || 0) < n) { toast('灵石不够（要 ' + n + '，身上 ' + (S.hero.gold || 0) + '）', 1800); snd('ui_cancel', .4); return false; } S.hero.gold -= n; return true; };
@@ -185,8 +185,9 @@
         if (it.gate) { it.w = WMAX; toast('提起石闸，渠水哗哗流进' + t.name + '——水满了记得关闸，关了闸苗才长', 2600); }
         else toast(it.w > 0 ? '落了闸，田里存着水' + (it.st >= 1 && it.st < 4 ? '，歇一觉长一截' : '') : '落了闸。田里是干的，要先开闸放水', 2200); return; }
       if (o.k === 'sow') { const i = await choose(t.name + ' · 种什么', SEEDS.map(k => CROP[k].name + (k === 'rice' ? '秧' : '籽')).concat(['先不种'])); if (i < 0 || i >= SEEDS.length) return;
-        it.crop = SEEDS[i]; it.st = 1; snd('ui_confirm', .5); toast(t.name + '种上了' + CROP[it.crop].name + (it.gate ? '——闸还开着，关了闸才长' : it.w > 0 ? '，田里存着水，歇一觉长一截' : '——田是干的，先开闸放水'), 2400); return; }
-      if (o.k === 'harvest') { if (it.st < 4) return; const c = CROP[it.crop], n = mul(c.n * QM[it.q || 0]); it.st = 0; snd('ui_confirm', .5); await give([[c.item, n]], t.name + ' · 收成' + (it.q ? '（' + QN[it.q] + '）' : '') + hireTag()); return; } }
+        it.crop = SEEDS[i]; it.st = 1; snd('ui_confirm', .5); if (window.R193_FARM) setTimeout(() => R193_FARM('sow'), 2600); toast(t.name + '种上了' + CROP[it.crop].name + (it.gate ? '——闸还开着，关了闸才长' : it.w > 0 ? '，田里存着水，歇一觉长一截' : '——田是干的，先开闸放水'), 2400); return; }
+      if (o.k === 'harvest') { if (it.st < 4) return; const c = CROP[it.crop], n = mul(c.n * QM[it.q || 0]); it.st = 0; snd('ui_confirm', .5); const ex = window.R193_FARM ? R193_FARM('harvest', it.crop) : [];   // 翻土捡蚯蚓、叶子当饵（r193_gear）
+        await give([[c.item, n]].concat(ex.map(([id, k]) => [id, k, 1])), t.name + ' · 收成' + (it.q ? '（' + QN[it.q] + '）' : '') + hireTag()); return; } }
     if (t.k === 'tree') { if (it.age < TREE_AGE || it.cd > 0) return; const m = MOD[it.m]; it.cd = FRUIT_CD; SHK[it.id] = now(); snd('ui_confirm', .5); await new Promise(r => setTimeout(r, 700)); await give([[IT[m.fruit], mul(m.n * QM[it.q || 0] * pen(it))]], t.name + ' · 采摘' + (it.q ? '（' + QN[it.q] + '）' : '') + (pen(it) < 1 ? '（种在围栏里，减半）' : '') + hireTag()); return; }
     if (t.k === 'house') { const m = MOD[it.m];
       if (o.k === 'collect') { if (!it.eggs) return; const n = mul(it.eggs * pen(it)); it.eggs = 0; await give([[m.egg, n]], t.name + ' · 收蛋' + (pen(it) < 1 ? '（不在围栏里，减半）' : '') + hireTag()); return; }

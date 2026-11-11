@@ -125,8 +125,9 @@
       row(R.rod, '竿', ro.name, (g.rods.length > 1 ? '点一下换 · ' : '') + (ro.far >= 2 ? '抛得到深水' : '只到潭心') + (ro.tough ? ' · 卸力 ' + Math.round(ro.tough * 100) + '%' : ''));
       row(R.line, '线', li.name, (g.lines.length > 1 ? '点一下换 · ' : '') + '承重 ' + li.cap);
       row(R.bait, '饵', b && n ? b.name + ' ×' + n : '没有饵了', b && n ? '点一下换 · ' + b.k + '饵' + (b.like.length ? ' · 招' + b.like.map(i => D.fish(i).name).join('、') : '') : '');
-      ctx.textAlign = 'center'; ctx.fillStyle = '#6a4a2a'; ctx.font = `18px ${FONT}`; ctx.fillText(((S.flags && S.flags.qz_shi) || '午') + '时 · ' + H2.wx() + (H2.wx() === '雾' ? ' · 雾天灵鲵爱出来' : H2.wx() === '雷雨' ? ' · 雷雨夜，潭底有东西不安分' : ''), 640, 456);
-      btn(R.go, b && n ? '去钓台' : '没有饵', P.down && P.inR(R.go)); if (R.book) btn(R.book, '鱼谱', P.down && P.inR(R.book)); btn(H2.BTN.quit, '不钓了', P.down && P.inR(H2.BTN.quit)); }
+      ctx.textAlign = 'center'; ctx.fillStyle = '#6a4a2a'; ctx.font = `18px ${FONT}`; ctx.fillText(((S.flags && S.flags.qz_shi) || '午') + '时 · ' + H2.wx() + (H2.wx() === '雾' ? ' · 雾天灵鲵爱出来' : H2.wx() === '雷雨' ? ' · 雷雨夜，潭底有东西不安分' : ''), 640, 466);
+      btn(R.go, b && n ? '去钓台' : '没有饵', P.down && P.inR(R.go)); if (R.book) btn(R.book, '鱼谱', P.down && P.inR(R.book));
+      for (const e of R.extra || []) { const hv = P.inR(e); ctx.save(); ctx.fillStyle = hv ? 'rgba(122,74,26,.22)' : 'rgba(122,74,26,.12)'; ctx.strokeStyle = 'rgba(122,74,26,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(e.x, e.y, e.w, e.h, 8); ctx.fill(); ctx.stroke(); ctx.textAlign = 'center'; ctx.fillStyle = '#5a3412'; ctx.font = `22px ${BRUSH}`; ctx.fillText(e.label, e.x + e.w / 2, e.y + 28); ctx.restore(); } btn(H2.BTN.quit, '不钓了', P.down && P.inR(H2.BTN.quit)); }
     if (ST.ph === 'book') drawBook(ST, t, H2);
     if (ST.ph === 'aim') { const hint = ST.holding ? ['浅水', '潭心', '深水'][ST.pow < .38 ? 0 : ST.pow < .72 ? 1 : 2] + (ST.pow > .95 ? ' · 松手！' : '') : '按住蓄力，松手抛竿';
       T(hint, 640, H - 44, 30, '#fff1c8'); if (ST.holding) { const y = 640 - 310 * ST.pow, k = kAt(y); ctx.save(); ctx.globalAlpha = .55; ctx.strokeStyle = '#fff8e0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(640, y, 46 * k * 2, 13 * k * 2, 0, 0, 7); ctx.stroke(); ctx.restore(); } }

@@ -12,7 +12,8 @@
   for (const b of D.BAITS) ITEM_DB[b.id] = Object.assign(ITEM_DB[b.id] || {}, { name: b.name, cat: '钓具', sell: 0, desc: b.k + '饵。' + (b.like.length ? '特别招' + b.like.map(i => D.fish(i).name).join('、') + '。' : '什么鱼都吃一点。') + '（' + b.from + '）' });
   for (const f of D.FISH.concat(D.JUNK)) if (f.isNew && !f.junk) ITEM_DB['fish_' + f.id] = Object.assign(ITEM_DB['fish_' + f.id] || {}, { name: f.name, sell: f.sell || 0, cat: '食材', desc: '在云海后庭的钓鱼潭里钓到的' + f.name + '。' });
   const F = () => (S.flags = S.flags || {});
-  const gear = () => { const f = F(); if (!f.r193_gear) f.r193_gear = { rods: ['rod_old'], lines: ['line_hemp'], rod: 'rod_old', line: 'line_hemp', bait: 'bait_worm' }; return f.r193_gear; };
+  const gear = () => { const f = F(); if (!f.r193_gear) f.r193_gear = { rods: ['rod_old'], lines: ['line_hemp'], rod: 'rod_old', line: 'line_hemp', bait: 'bait_worm' }; const g = f.r193_gear;
+    for (const r of D.RODS) if (g.rods.indexOf(r.id) < 0 && itemCount(r.id) > 0) g.rods.push(r.id); for (const l of D.LINES) if (g.lines.indexOf(l.id) < 0 && itemCount(l.id) > 0) g.lines.push(l.id); return g; };   // 买的、人送的竿和线在行囊里
   const baits = () => D.BAITS.filter(b => itemCount(b.id) > 0);
   const SHI = () => (F().qz_shi || '午');
   // 天气：每天每个时辰定一次（卯时四成起雾，一成半下雨，子时偶尔雷雨）
@@ -71,12 +72,13 @@
   const frame = () => nextFrame();
   const busy = () => (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice);
   async function waitTap() { const s = P.taps; while (P.taps === s) await frame(); }
-  function gearRows() { return { rod: { x: 300, y: 236, w: 680, h: 46 }, line: { x: 300, y: 290, w: 680, h: 46 }, bait: { x: 300, y: 344, w: 680, h: 46 }, go: { x: 525, y: 474, w: 230, h: 76 }, book: { x: 330, y: 484, w: 170, h: 56 } }; }
+  function gearRows() { return { rod: { x: 300, y: 236, w: 680, h: 46 }, line: { x: 300, y: 290, w: 680, h: 46 }, bait: { x: 300, y: 344, w: 680, h: 46 }, go: { x: 525, y: 474, w: 230, h: 76 }, book: { x: 330, y: 484, w: 170, h: 56 }, extra: (window.R193_EXTRA ? R193_EXTRA() : []).map((e, i, a) => Object.assign(e, { x: 640 - a.length * 105 + i * 210 + 8, y: 398, w: 194, h: 40 })) }; }
   function cycle(list, cur) { const i = list.indexOf(cur); return list[(i + 1) % list.length]; }
   async function gearScreen() { ST.ph = 'gear'; const g = gear();
     while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.quit)) return false; const R = gearRows();
       if (inR(R.rod)) { g.rod = cycle(g.rods, g.rod); continue; } if (inR(R.line)) { g.line = cycle(g.lines, g.line); continue; }
       if (inR(R.bait)) { const bs = baits().map(b => b.id); if (bs.length) g.bait = cycle(bs, bs.includes(g.bait) ? g.bait : bs[bs.length - 1]); continue; }
+      { const e = R.extra.find(q => inR(q)); if (e) { await R193_EXTRA_DO(e.k); continue; } }
       if (inR(R.book)) { await bookScreen(); ST.ph = 'gear'; continue; }
       if (inR(R.go)) { if (!baits().length) { say1('没有饵了', 1.4); continue; } if (!itemCount(g.bait)) g.bait = baits()[0].id; return true; } } }
   async function bookScreen() { ST.ph = 'book'; const N = D.FISH.length; ST.bi = ST.bi || 0;
@@ -121,7 +123,7 @@
     fxAdd('leap', ST.fx, ST.fy, 1.2); try { playSnd('ui_confirm', .6); } catch (e) {}
     const A = ART(); if (!f.junk && A) ST.lift = { id: f.id, t0: now(), x: ST.fx, y: ST.fy }; if (A && A.cardArt) card.art = A.cardArt(f.id) || undefined;
     { const t0 = now(); while (now() - t0 < (ST.lift ? 1.25 : .7)) await frame(); }
-    if (f.id === 'shrimp') addItem('bait_shrimp', 1);
+    if (f.id === 'shrimp') addItem('bait_shrimp', 1); if (window.R193_LANDED) R193_LANDED(f);
     await API.showCard(card); ST.lift = null; API.G.phase = 'pond';
     ST.log.push(f.name); }
   const FAILS = { early: '提早了，鱼吓跑了', late: '饵被吃光了', snap: '线断了——', lost: '脱钩了' };
@@ -133,6 +135,7 @@
       await narrate('（按住蓄力、松手抛竿，越用力抛得越远越深。等浮漂真沉下去时往上一划提竿；之前那几下轻点是在试口，提了就空。）');
       await narrate('（鱼上钩后按住收线；水面一鼓、它要猛冲时松手，线差的话大鱼一冲就断。）'); }
     { const A = ART(); if (A && !A.ready()) { try { await A.load(); } catch (e) {} } }
+    if (window.R193_GIFTS) { try { await R193_GIFTS(); } catch (e) { console.warn('R193 gifts', e); } }
     const hud0 = S.hud; S.hud = false; world.locked = true; G.on = true; G.phase = 'pond'; G.caught = []; G.card = null; G.fv = false; G.sh = null;
     if (S.overlay.indexOf(OV) < 0) S.overlay.unshift(OV); ON = true; ST.log = [];
     try {
