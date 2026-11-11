@@ -66,3 +66,13 @@
   for (const [c, e] of [['linyi_default', 'default'], ['linyi_smile', 'smile'], ['linyi_surprise', 'surprise']]) { let old = IMG['p_c_' + c];
     Object.defineProperty(IMG, 'p_c_' + c, { configurable: true, enumerable: true, get: () => IMG['p_lx_' + e] || old, set: v => { old = v; } }); }
 })();
+
+// ================= 作者 11-11：全游戏字体换成 Codex 配的三款（马善政 = 标题 / 名字；霞鹜文楷 = 正文；Noto Serif = 兜底和数字）=================
+// 原来只在行囊里换。现在在画布 font 的原型上统一映射：代码里写的 ${BRUSH} → 马善政(R201MS)，${FONT} → 霞鹜文楷(R201WK)
+(function () {
+  const P = CanvasRenderingContext2D.prototype, FD = Object.getOwnPropertyDescriptor(P, 'font'); if (!FD || !FD.set || P.__r206font) return; P.__r206font = 1;
+  const map = v => typeof v !== 'string' || v.indexOf('R201') >= 0 ? v : v.split(BRUSH).join('"R201MS",' + BRUSH).split(FONT).join('"R201WK",' + FONT);
+  Object.defineProperty(P, 'font', { configurable: true, enumerable: FD.enumerable, get() { return FD.get.call(this); }, set(v) { FD.set.call(this, map(v)); } });
+  for (const [n, u, d] of [['R201MS', 'fonts/r201_mashan.woff', {}], ['R201WK', 'fonts/r201_wenkai.woff', {}], ['R201NS', 'fonts/r201_noto.woff', { weight: '200 900' }]]) {
+    try { const f = new FontFace(n, `url(${u})`, d); const pr = f.load().then(x => document.fonts.add(x)).catch(() => {}); if (window.PRELOAD) try { PRELOAD('字体', pr); } catch (e) {} } catch (e) {} }
+})();
