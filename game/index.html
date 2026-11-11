@@ -4553,7 +4553,7 @@ function drawStatus(B, mi, now) {
   row('气血', mi.hp / mi.maxhp, UI.hp, mi.hp + ' / ' + mi.maxhp); row('灵力', mi.mp / mi.maxmp, UI.mp, mi.mp + ' / ' + mi.maxmp);
   if (!mi.ally) row('修为', mi.exp / mi.need, UI.exp, mi.exp + ' / ' + mi.need);
   y += 10; const stats = [['攻', '攻击', mi.atk], ['防', '防御', mi.def], ['速', '身法', mi.spd]];
-  stats.forEach(([g, n, v], i) => { const sx = x + i * 150; ctx.save(); ctx.beginPath(); ctx.arc(sx + 20, y + 22, 20, 0, 7); ctx.fillStyle = 'rgba(142,42,28,.85)'; ctx.fill(); ctx.strokeStyle = UI.gold; ctx.lineWidth = 1.5; ctx.stroke(); ctx.font = `22px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(g, sx + 20, y + 24); ctx.restore();
+  stats.forEach(([g, n, v], i) => { const sx = x + i * 150; ctx.save(); ctx.beginPath(); ctx.arc(sx + 20, y + 22, 20, 0, 7); ctx.fillStyle = window.R201_IN ? 'rgba(168,116,44,.92)' : 'rgba(142,42,28,.85)'; ctx.fill(); ctx.strokeStyle = UI.gold; ctx.lineWidth = 1.5; ctx.stroke(); ctx.font = `22px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(g, sx + 20, y + 24); ctx.restore();
     ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(n, sx + 48, y + 12); ctx.font = `700 24px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(String(v), sx + 48, y + 36); });
   y += 76;
   if (!mi.ally) { const h = S.hero; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('随身', x, y); y += 30;
@@ -4586,19 +4586,19 @@ function drawEquip(B, L, mi) {
 }
 function drawBag(B, L) {
   const cells = bagCells(L), m = S.menu;
-  for (const b of bagTabs(L)) { const on = (m.bagCat || 'all') === b.k, n = b.k === 'all' ? bagIds().length : bagIds().filter(id => bagCatOf(id) === b.k).length; roundRect(b.x, b.y, b.w, b.h, 18); ctx.fillStyle = on ? 'rgba(142,42,28,.85)' : UI.slot; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
+  for (const b of bagTabs(L)) { const on = (m.bagCat || 'all') === b.k, n = b.k === 'all' ? bagIds().length : bagIds().filter(id => bagCatOf(id) === b.k).length; if (window.R201_IN) R201_BAG.nine(on ? 'chip_s' : 'chip_n', b.x, b.y - 2, b.w, b.h + 4); else { roundRect(b.x, b.y, b.w, b.h, 18); ctx.fillStyle = on ? 'rgba(142,42,28,.85)' : UI.slot; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke(); }   /* R201 白玉宣纸：Codex 分类签 */
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = on ? '#fff2d6' : (n ? UI.text : UI.dim); ctx.fillText(b.n + (n ? ' ' + n : ''), b.x + b.w / 2, b.y + b.h / 2 + 1); }
   { const n = bagPages(); if (n > 1) { const P = bagPager(L), pg = Math.min(m.bagPage || 0, n - 1); for (const [r, lab, ok] of [[P.prev, '上页', pg > 0], [P.next, '下页', pg < n - 1]]) { ctx.globalAlpha = ok ? 1 : .4; roundRect(r.x, r.y, r.w, r.h, 18); ctx.fillStyle = UI.slot; ctx.fill(); ctx.strokeStyle = UI.line; ctx.stroke(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(lab, r.x + r.w / 2, r.y + r.h / 2 + 1); ctx.globalAlpha = 1; }
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'center'; ctx.fillText((pg + 1) + ' / ' + n, (P.prev.x + P.prev.w + P.next.x) / 2, P.prev.y + 19); } }
   if (!cells.length && bagIds().length) { ctx.font = `600 20px ${FONT}`; ctx.fillStyle = UI.dim; ctx.textAlign = 'left'; ctx.fillText('这一类暂时没有东西。', B.x + 30, B.y + 90); }
   if (!bagIds().length) { ctx.font = `600 22px ${FONT}`; ctx.fillStyle = UI.dim; ctx.textAlign = 'left'; ctx.fillText('行囊空空如也。', B.x + 30, B.y + 50); }
-  for (const c of cells) { const sel = m.sel === c.id; roundRect(c.x, c.y, c.w, c.h, 10); ctx.fillStyle = sel ? 'rgba(142,42,28,.45)' : UI.slot; ctx.fill(); ctx.lineWidth = sel ? 2 : 1; ctx.strokeStyle = sel ? UI.gold2 : UI.line; ctx.stroke();
+  for (const c of cells) { const sel = m.sel === c.id; if (window.R201_IN) R201_BAG.nine(sel ? 'item_card_9_s' : 'item_card_9_n', c.x, c.y, c.w, c.h); else { roundRect(c.x, c.y, c.w, c.h, 10); ctx.fillStyle = sel ? 'rgba(142,42,28,.45)' : UI.slot; ctx.fill(); ctx.lineWidth = sel ? 2 : 1; ctx.strokeStyle = sel ? UI.gold2 : UI.line; ctx.stroke(); }
     itemIcon(c.id, c.x + 34, c.y + c.h / 2, 22); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `700 18px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(ITEM_DB[c.id].name, c.x + 64, c.y + 34);
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.gold; ctx.fillText('× ' + itemCount(c.id), c.x + 64, c.y + 62); }
   // 详情
   const dy = B.y + B.h - 110; ctx.fillStyle = UI.line; ctx.fillRect(B.x + 14, dy - 8, B.w - 28, 1);
   if (m.sel && ITEM_DB[m.sel]) { const it = ITEM_DB[m.sel]; itemIcon(m.sel, B.x + 50, dy + 44, 30); ctx.textAlign = 'left'; ctx.font = `30px ${BRUSH}`; ctx.fillStyle = UI.gold2; ctx.fillText(it.name, B.x + 96, dy + 26);
-    ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText((it.desc || '') + (it.slot ? '　' + statText(it) : ''), B.x + 96, dy + 62);
+    ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; { const full = (it.desc || '') + (it.slot ? '　' + statText(it) : ''), mw = B.w - 110 - (useBtn(L) ? 380 : 0), ls = []; let ln = ''; for (const ch of full) { if (ctx.measureText(ln + ch).width > mw && ln) { ls.push(ln); ln = ch; } else ln += ch; } if (ln) ls.push(ln); ls.slice(0, 2).forEach((l, i) => ctx.fillText(i === 1 && ls.length > 2 ? l.slice(0, -1) + '…' : l, B.x + 96, dy + 58 + i * 24)); }   /* 说明太长折两行，不再出框 */
     const ub = useBtn(L); if (ub) { sealText('使用', ub.x, ub.y, ub.w, ub.h, true); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'right'; ctx.fillText('给：' + memberInfo(m.who).name + '（点上方头像切换）', ub.x - 12, ub.y + 30); } }
   else { ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.dim; ctx.textAlign = 'left'; ctx.fillText('点选物品查看详情；丹药可以给队伍里任何人服用。', B.x + 30, dy + 40); }
 }
@@ -12643,9 +12643,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; const x = B.x + 30, w = B.w - 60; let y = B.y + 40;
     ctx.font = `34px ${BRUSH}`; textOutline('主线', x, y, UI.gold2, 'rgba(255,248,230,.6)', 3);
     ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(CHAP(), x + 90, y + 2); y += 30;
-    lacquer(x, y, w, 76, { r: 10, thin: true, top: 'rgba(90,30,20,.88)', bot: 'rgba(50,16,10,.88)' });
-    ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#f7ecd4'; ctx.fillText(S.quest || '（暂无）', x + 20, y + 26);
-    const h = MAIN_HINT.find(([re]) => re.test(S.quest || '')); ctx.font = `15px ${FONT}`; ctx.fillStyle = '#e2cfa8';
+    lacquer(x, y, w, 76, { r: 10, thin: true, top: window.R201_IN ? 'rgba(252,247,236,.97)' : 'rgba(90,30,20,.88)', bot: window.R201_IN ? 'rgba(240,229,206,.97)' : 'rgba(50,16,10,.88)' });   /* R201 白玉宣纸：主线条改浅底 */
+    ctx.font = `600 22px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#3E2D18' : '#f7ecd4'; ctx.fillText(S.quest || '（暂无）', x + 20, y + 26);
+    const h = MAIN_HINT.find(([re]) => re.test(S.quest || '')); ctx.font = `15px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#77746E' : '#e2cfa8';
     ctx.fillText(h ? '地点：' + h[1] + (h[2] ? '　｜　' + h[2] : '') : '点右上角任务栏可以自动寻路', x + 20, y + 56); y += 104;
     const act = SQ.filter(q => st(q.id).s === 1 || st(q.id).s === 2), can = SQ.filter(q => st(q.id).s === 0 && avail(q)), done = SQ.filter(q => st(q.id).s === 3).length;
     ctx.font = `34px ${BRUSH}`; textOutline('支线', x, y, UI.gold2, 'rgba(255,248,230,.6)', 3);
@@ -14161,15 +14161,15 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     ctx.font = `40px ${BRUSH}`; textOutline('出战阵容', B.x + B.w / 2, B.y + 34, UI.title, UI.titleLine, 5);
     for (const c of cards(B)) {
       const on = c.k === 'hero' || l.includes(c.k), info = memberInfo(c.k), lc = c.k === 'luochen';
-      lacquer(c.x, c.y, c.w, c.h, { r: 12, thin: true, top: on ? 'rgba(110,38,22,.92)' : 'rgba(30,22,16,.85)', bot: on ? 'rgba(60,18,10,.92)' : 'rgba(14,10,8,.85)' });
+      lacquer(c.x, c.y, c.w, c.h, { r: 12, thin: true, top: window.R201_IN ? (on ? 'rgba(253,248,236,.97)' : 'rgba(238,235,228,.92)') : on ? 'rgba(110,38,22,.92)' : 'rgba(30,22,16,.85)', bot: window.R201_IN ? (on ? 'rgba(240,226,196,.97)' : 'rgba(226,222,214,.92)') : on ? 'rgba(60,18,10,.92)' : 'rgba(14,10,8,.85)' });
       if (on) { ctx.save(); ctx.shadowColor = UI.gold; ctx.shadowBlur = 10 + Math.sin(now * 4) * 4; roundRect(c.x, c.y, c.w, c.h, 12); ctx.lineWidth = 2.5; ctx.strokeStyle = UI.gold2; ctx.stroke(); ctx.restore(); }
       ctx.globalAlpha = on ? 1 : .6;
       medallion(info.p, c.x + c.w / 2, c.y + 70, 50, { sel: on, name: info.name, color: info.color });
-      ctx.font = `34px ${BRUSH}`; textOutline(info.name, c.x + c.w / 2, c.y + 150, on ? '#f6dfa6' : '#cbb994', '#1a0800', 4);
-      ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#efdcb4'; ctx.fillText('攻 ' + info.atk + '　防 ' + info.def, c.x + c.w / 2, c.y + 184);
+      ctx.font = `34px ${BRUSH}`; if (window.R201_IN) textOutline(info.name, c.x + c.w / 2, c.y + 150, '#3E2D18', 'rgba(255,253,246,.9)', 3); else textOutline(info.name, c.x + c.w / 2, c.y + 150, on ? '#f6dfa6' : '#cbb994', '#1a0800', 4);
+      ctx.font = `600 16px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#5a4a34' : '#efdcb4'; ctx.fillText('攻 ' + info.atk + '　防 ' + info.def, c.x + c.w / 2, c.y + 184);
       ctx.globalAlpha = 1;
       if (lc) { const b = bond(); ctx.font = `600 16px ${FONT}`; ctx.fillStyle = b >= COST_BOSS ? '#ffd27a' : b >= COST_MOB ? '#f0b070' : '#ff7a6a'; ctx.fillText('好感 ' + b, c.x + c.w / 2, c.y + 212);
-        ctx.font = `600 13px ${FONT}`; ctx.fillStyle = '#cdb98e'; ctx.fillText('小怪 -' + COST_MOB + '　Boss -' + COST_BOSS, c.x + c.w / 2, c.y + 234); }
+        ctx.font = `600 13px ${FONT}`; ctx.fillStyle = window.R201_IN ? '#77746E' : '#cdb98e'; ctx.fillText('小怪 -' + COST_MOB + '　Boss -' + COST_BOSS, c.x + c.w / 2, c.y + 234); }
       { const sv = UI.sub; if (!on) UI.sub = '#e6d6b4'; sealText(c.k === 'hero' ? '主角' : on ? '出战' : '休整', c.x + 22, c.y + c.h - 54, c.w - 44, 40, on); UI.sub = sv; }
     }
     ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.textAlign = 'center';
@@ -14556,7 +14556,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     ctx.font = `30px ${BRUSH}`; textOutline('妖 兽 图 鉴', B.x + 16, B.y + 26, UI.title, UI.titleLine, 4);
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('已收录 ' + got + ' / ' + CAT.length, B.x + 200, B.y + 28);
     for (const g of grid(B)) { const r = bk[g.c[0]], on = !!r, isSel = g.i === sel;
-      roundRect(g.x, g.y, g.w, g.h, 10); ctx.fillStyle = isSel ? 'rgba(142,42,28,.45)' : UI.slot; ctx.fill(); ctx.lineWidth = isSel ? 2 : 1; ctx.strokeStyle = isSel ? UI.gold2 : UI.line; ctx.stroke();
+      roundRect(g.x, g.y, g.w, g.h, 10); ctx.fillStyle = isSel ? (window.R201_IN ? 'rgba(198,155,87,.30)' : 'rgba(142,42,28,.45)') : UI.slot; ctx.fill(); ctx.lineWidth = isSel ? 2 : 1; ctx.strokeStyle = isSel ? UI.gold2 : UI.line; ctx.stroke();
       const im = imgOf(g.c, r); ctx.save(); roundRect(g.x + 2, g.y + 2, g.w - 4, g.h - 4, 9); ctx.clip(); if (im) fit(im, g.x + 6, g.y + 6, g.w - 12, g.h - 34, !on); ctx.restore();
       ctx.textAlign = 'center'; ctx.font = `600 14px ${FONT}`; textOutline(on ? NAME[g.c[0]] : '？？？', g.x + g.w / 2, g.y + g.h - 15, UI.id === 'paper' ? '#2a1a0e' : '#f5ead2', UI.id === 'paper' ? 'rgba(255,248,230,.95)' : 'rgba(0,0,0,.85)', 3);
       if (/首领|魔族/.test(g.c[3]) && on) { ctx.font = `13px ${BRUSH}`; ctx.fillStyle = '#ffcf6a'; ctx.fillText('首', g.x + 14, g.y + 14); } }
@@ -14566,7 +14566,7 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
     ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText((page + 1) + ' / ' + pages, B.x + 257, B.y + B.h - 28);
     // 右侧详情
     const c = CAT[sel], r = bk[c[0]], dx = B.x + 530, dw = B.w - 546, dy = B.y + 12, dh = B.h - 24;
-    roundRect(dx, dy, dw, dh, 12); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fill(); ctx.strokeStyle = UI.line; ctx.stroke();
+    roundRect(dx, dy, dw, dh, 12); ctx.fillStyle = window.R201_IN ? 'rgba(198,155,87,.10)' : 'rgba(0,0,0,.22)'; ctx.fill(); ctx.strokeStyle = UI.line; ctx.stroke();
     const im = imgOf(c, r), ih = dh * .56;
     if (im) { ctx.save(); const gl = ctx.createRadialGradient(dx + dw / 2, dy + ih * .7, 10, dx + dw / 2, dy + ih * .7, ih * .7); gl.addColorStop(0, r ? 'rgba(255,200,120,.22)' : 'rgba(120,120,150,.15)'); gl.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gl; ctx.fillRect(dx, dy, dw, ih + 20);
       fit(im, dx + 20, dy + 10 + Math.sin(now * 1.6) * 2, dw - 40, ih, !r); ctx.restore(); }

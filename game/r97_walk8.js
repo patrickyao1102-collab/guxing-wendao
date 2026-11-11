@@ -55,7 +55,7 @@
     drawQuest = (orig => function (B) { const r = orig.apply(this, arguments); if (!isTab()) return r;
       const g = G(B); ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText('行走动作', B.x + 18, g.y + 8);
       for (const [rc, lab, sel] of [[g.a, '新版八向', on], [g.b, '原版行走', !on]]) {
-        roundRect(rc.x, rc.y, rc.w, rc.h, 12); ctx.fillStyle = sel ? 'rgba(142,42,28,.32)' : UI.slot; ctx.fill(); ctx.lineWidth = sel ? 2.5 : 1; ctx.strokeStyle = sel ? UI.gold2 : UI.line; ctx.stroke();
+        roundRect(rc.x, rc.y, rc.w, rc.h, 12); ctx.fillStyle = sel ? (window.R201_IN ? 'rgba(198,150,72,.30)' : 'rgba(142,42,28,.32)') : UI.slot; ctx.fill(); ctx.lineWidth = sel ? 2.5 : 1; ctx.strokeStyle = sel ? UI.gold2 : UI.line; ctx.stroke();
         ctx.textAlign = 'center'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = sel ? (UI.gold2 || '#ffe08a') : UI.text; ctx.fillText(lab, rc.x + rc.w / 2, rc.y + rc.h / 2 + 1); }
       ctx.restore(); return r; })(drawQuest);
     menuUpdate = (orig => function () { const t = input.tapped;

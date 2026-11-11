@@ -64,10 +64,10 @@
     ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'left'; ctx.fillStyle = UI.title || UI.gold2; ctx.fillText('坐 骑', B.x + 18, B.y + 28);
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('已获得 ' + Object.keys(o).length + ' / ' + MOUNTS.length, B.x + 104, B.y + 30);
     for (const c of cells) { const got = !!o[c.m.id], on = m0.mt === c.m.id, im = img(c.m);
-      roundRect(c.x, c.y, c.w, c.h, 12); ctx.fillStyle = on ? 'rgba(142,42,28,.32)' : UI.slot; ctx.fill(); ctx.lineWidth = on ? 2.5 : 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
+      roundRect(c.x, c.y, c.w, c.h, 12); ctx.fillStyle = on ? (window.R201_IN ? 'rgba(198,150,72,.30)' : 'rgba(142,42,28,.32)') : UI.slot; ctx.fill(); ctx.lineWidth = on ? 2.5 : 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
       if (im) { ctx.save(); roundRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4, 10); ctx.clip(); const k = (c.h - 26) / im.height, w = im.width * k; if (!got) ctx.filter = 'grayscale(1) brightness(.35) opacity(.55)'; ctx.drawImage(im, c.x + c.w / 2 - w / 2, c.y + 2, w, c.h - 26); ctx.restore(); }
       ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = got ? UI.text : UI.dim; ctx.fillText(got ? c.m.name : '？？？', c.x + c.w / 2, c.y + c.h - 12);
-      if (got && cur() === c.m.id) { ctx.font = `600 12px ${FONT}`; roundRect(c.x + 6, c.y + 6, 38, 20, 10); ctx.fillStyle = 'rgba(142,42,28,.9)'; ctx.fill(); ctx.fillStyle = '#fff2cc'; ctx.fillText('乘用', c.x + 25, c.y + 16); } }
+      if (got && cur() === c.m.id) { ctx.font = `600 12px ${FONT}`; roundRect(c.x + 6, c.y + 6, 38, 20, 10); ctx.fillStyle = (window.R201_IN ? 'rgba(198,150,72,.95)' : 'rgba(142,42,28,.9)'); ctx.fill(); ctx.fillStyle = '#fff2cc'; ctx.fillText('乘用', c.x + 25, c.y + 16); } }
     // 右侧详情
     lacquer(D.x, D.y, D.w, D.h, { r: 14, thin: true, top: UI.cTop, bot: UI.cBot });
     const got = !!o[sel.id], im = img(sel);
@@ -108,7 +108,7 @@
     return orig.apply(this, arguments);
   })(drawActorT);
   drawQuest = (orig => function (B) { const r = orig.apply(this, arguments); if (!(S.menu && MTABS[S.menu.tab] === '出战')) return r;
-    const b = R(B), on = !off(); ctx.save(); roundRect(b.x, b.y, b.w, b.h, 20); ctx.fillStyle = on ? 'rgba(142,42,28,.85)' : UI.slot; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
+    const b = R(B), on = !off(); ctx.save(); roundRect(b.x, b.y, b.w, b.h, 20); ctx.fillStyle = on ? (window.R201_IN ? 'rgba(198,150,72,.92)' : 'rgba(142,42,28,.85)') : UI.slot; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
     ctx.font = `600 16px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = on ? '#fff2d6' : UI.text; ctx.fillText('大地图队友跟随：' + (on ? '开' : '关'), b.x + b.w / 2, b.y + b.h / 2 + 1); ctx.restore(); return r; })(drawQuest);
   menuUpdate = (orig => function () { const m = S.menu, t = input.tapped;
     if (m && t && !t.key && MTABS[m.tab] === '出战') { const L = menuLayout(); if (inR(t, R(L.body))) { input.tapped = null; F().noFollow = off() ? 0 : 1; try { playSnd('ui_click'); } catch (e) {} try { toast(off() ? '队友不再在大地图上跟随' : '队友恢复跟随'); } catch (e) {} return; } }

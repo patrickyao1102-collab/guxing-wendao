@@ -76,10 +76,10 @@
     ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'left'; ctx.fillStyle = UI.title || UI.gold2; ctx.fillText('换 装', B.x + 18, B.y + 28);
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('叶孤星 · ' + OUTFITS.length + ' 套', B.x + 104, B.y + 30);
     for (const c of cells) { const on = m0.of === c.o.id, im = c.o.img ? thumb[c.o.id] : (c.o.walkOnly ? walkThumb(c.o.id) : ORIG.b_yegx);
-      roundRect(c.x, c.y, c.w, c.h, 12); ctx.fillStyle = on ? 'rgba(142,42,28,.32)' : UI.slot; ctx.fill(); ctx.lineWidth = on ? 2.5 : 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
+      roundRect(c.x, c.y, c.w, c.h, 12); ctx.fillStyle = on ? (window.R201_IN ? 'rgba(198,150,72,.30)' : 'rgba(142,42,28,.32)') : UI.slot; ctx.fill(); ctx.lineWidth = on ? 2.5 : 1; ctx.strokeStyle = on ? UI.gold2 : UI.line; ctx.stroke();
       if (im) { ctx.save(); roundRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4, 10); ctx.clip(); const k = Math.min((c.h - 30) / im.height, (c.w - 8) / im.width), w = im.width * k, h = im.height * k; ctx.drawImage(im, c.x + c.w / 2 - w / 2, c.y + c.h - 28 - h, w, h); ctx.restore(); }
       ctx.font = `600 14px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = UI.text; ctx.fillText(c.o.name, c.x + c.w / 2, c.y + c.h - 13);
-      if (cur === c.o.id) { ctx.font = `600 12px ${FONT}`; roundRect(c.x + 6, c.y + 6, 50, 20, 10); ctx.fillStyle = 'rgba(142,42,28,.9)'; ctx.fill(); ctx.fillStyle = '#fff2cc'; ctx.fillText('穿着中', c.x + 31, c.y + 16); } }
+      if (cur === c.o.id) { ctx.font = `600 12px ${FONT}`; roundRect(c.x + 6, c.y + 6, 50, 20, 10); ctx.fillStyle = (window.R201_IN ? 'rgba(198,150,72,.95)' : 'rgba(142,42,28,.9)'); ctx.fill(); ctx.fillStyle = '#fff2cc'; ctx.fillText('穿着中', c.x + 31, c.y + 16); } }
     lacquer(D.x, D.y, D.w, D.h, { r: 14, thin: true, top: UI.cTop, bot: UI.cBot });
     const big = sel.portrait ? LOADED[sel.portrait] : sel.walkOnly ? walkThumb(sel.id) : (IMG.p_yegx || ORIG.b_yegx);
     if (big) { const maxH = D.h - 40, k = Math.min(maxH / big.height, (D.w * .55) / big.width), w = big.width * k, h = big.height * k, bob = Math.sin(t * 1.8) * 3;

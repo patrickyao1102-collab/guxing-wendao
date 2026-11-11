@@ -14,7 +14,7 @@
   let started = false; function load() { if (started) return; started = true; for (const k in N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r201/' + N[k] + '.webp'; } }
   setTimeout(load, 6000);
   const READY = () => nOk >= NALL;
-  window.R201_BAG = { ready: READY, IM };
+  window.R201_BAG = { ready: READY, IM, nine: (...a) => nine(...a), D: (...a) => D(...a) };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (!im) return; if (w == null) { w = im.width / 2; h = im.height / 2; } ctx.drawImage(im, x, y, w, h); };
   function nine(k, x, y, w, h) { const im = IM[k]; if (!im) return; const p = NINE[k]; if (!p) return D(k, x, y, w, h);
     const [l, t, r, b] = p, s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
@@ -145,14 +145,19 @@
       playSnd('ui_confirm'); try { await fadeOut(400); } catch (e) {} const ok = window.loadGame && window.loadGame(s); try { await fadeIn(400); } catch (e) {} return; }
   }
 
+  // 白玉宣纸配色（Codex 配色.json）：各页原来用 UI.* 画的卡片、字、分隔线、选中签都跟着换成白玉 + 描金 + 金褐
+  const JADE = { pTop: '#F4F2EE', pBot: '#E9E6E0', cTop: 'rgba(252,251,248,.96)', cBot: 'rgba(236,233,226,.96)', cOff: 'rgba(228,225,218,.85)', well: 'rgba(198,155,87,.05)', slot: 'rgba(198,155,87,.10)',
+    fade1: 'rgba(240,239,236,1)', fade0: 'rgba(240,239,236,0)', line: 'rgba(198,155,87,.55)', grainA: .12, gold: '#C69B57', gold2: '#7a5226', text: '#3E2D18', sub: '#5a4a34', dim: '#77746E',
+    red: '#9a6524', red2: '#c79246', title: '#3E2D18', titleLine: 'rgba(255,253,246,.95)' };
+  window.R201_JADE = JADE;
   // ---------------- 主画 ----------------
   const prevDraw = drawMenu;
   drawMenu = function () {
     if (!READY() || !S.menu) { load(); return prevDraw.apply(this, arguments); }
     const m = S.menu, L = menuLayout(), mi = memberInfo(m.who), now = performance.now() / 1000;
     const keep = {}; for (const k in UI) keep[k] = UI[k];
-    try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, { id: 'paper' }); } catch (e) {}
-    ctx.save();
+    try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, JADE, { id: 'paper' }); } catch (e) {}
+    ctx.save(); window.R201_IN = true;
     try {
       frame(L, m);
       const B = L.body, tab = MTABS[m.tab];
@@ -165,7 +170,7 @@
         if (m.tab === 0) drawStatus(B, mi, now); else if (m.tab === 2) drawBag(B, L); else if (m.tab === 3) drawSkills(B, L); else drawQuest(B);
         ctx.restore(); }
       header(L, m);
-    } finally { ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
+    } finally { window.R201_IN = false; ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
   };
 
   // ---------------- 装备页点击 + 拖动 ----------------

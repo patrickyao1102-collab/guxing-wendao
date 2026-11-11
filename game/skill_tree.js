@@ -1,3 +1,5 @@
+// R201：行囊换成白玉宣纸后，功法页跟着换浅色（只在行囊里画时；J() 把原来的夜空深色换成白玉 + 墨字）
+const J = (() => { const M = {'#120a04':'rgba(255,253,246,.92)','#0a0604':'rgba(255,253,246,.92)','#1a0800':'rgba(90,58,18,.85)','#f6e6bf':'#3E2D18','#f5ead2':'#3E2D18','#9fe28a':'#2f7a2a','#ff9a7a':'#A43B2E','#b8402a':'#c99446','#6e1a10':'#8a5a22','rgba(60,46,34,.9)':'rgba(212,208,200,.95)','rgba(34,26,20,.9)':'rgba(186,182,174,.95)','#18213a':'#F8F6F1','#0b0f1d':'#EDE9E0','rgba(22,13,8,.96)':'rgba(251,250,246,.97)','rgba(12,10,20,.9)':'rgba(252,250,244,.96)','rgba(12,10,20,.92)':'rgba(252,250,244,.96)','#2a3150':'#ddd6c8','#cfe0ff':'rgba(176,132,62,.9)','rgba(232,194,122,.45)':'rgba(198,155,87,.75)','rgba(232,194,122,.7)':'rgba(198,155,87,.8)','rgba(232,194,122,.55)':'rgba(198,155,87,.7)','rgba(232,194,122,.5)':'rgba(198,155,87,.7)','rgba(232,194,122,.3)':'rgba(198,155,87,.5)','rgba(232,194,122,.35)':'rgba(198,155,87,.5)','#eadcbc':'#3E2D18','#e9dcc0':'#3E2D18','#a8957a':'#77746E','#c9b48c':'#5a4a34','rgba(214,196,150,.8)':'#5a4a34','rgba(232,210,160,.75)':'#5a4a34','rgba(232,210,160,.7)':'#5a4a34','#9cc3ff':'#315E90','#ffd76a':'#9A671F','#ff8a7a':'#A43B2E','#f6dfa6':'#3E2D18','#8f8370':'#77746E','#ffb070':'#a8622a','rgba(142,42,28,.85)':'rgba(168,116,44,.92)','rgba(200,170,110,.28)':'rgba(150,115,60,.38)','rgba(255,214,130,.22)':'rgba(198,155,87,.38)','#f0cf86':'#C69B57','#d8c49a':'#77746E','rgba(8,10,18,.35)':'rgba(120,110,95,.22)','rgba(8,10,18,.66)':'rgba(120,110,95,.45)'}; return c => (window.R201_IN && M[c]) || c; })();
 // ================= 剑诀栏：技能树 + 重数 + 参悟 =================
 // 菜单「技能」页换成一张星图剑谱：上面是绝技，下面按 单攻 / 群攻 / 增益 / 秘传 分列，每列一条修炼线。
 // 每个技能一到五重（总策划）：二重 +15%，三重 +30%（附特效），四重 +45%，五重 +60%（附特效）。
@@ -13,7 +15,7 @@
     luanshen: ['#ffb8e6', '#4e1440'], tianlai: ['#c8ffd8', '#164a2a'], guangming: ['#fff0b0', '#7a5410'], heian: ['#ff8a8a', '#2a0608'],
     riyue: ['#ffe0a0', '#2a1a4e'], shikong: ['#c4b8ff', '#10304a'],
     // R94 正式图标的光晕色
-    duopo: ['#ff8a7a', '#5a0c10'], ningshen: ['#b8e0ff', '#123a66'], juling: ['#d8e8ff', '#14265e'], xl_wushang: ['#ffe8a8', '#3a2a5e'],
+    duopo: [J('#ff8a7a'), '#5a0c10'], ningshen: ['#b8e0ff', '#123a66'], juling: ['#d8e8ff', '#14265e'], xl_wushang: ['#ffe8a8', '#3a2a5e'],
     qianggong: ['#d6c4ff', '#2c1660'], jifeng: ['#c9a6ff', '#2a1450'], boming: ['#c4a8ff', '#30105a'], yunlei: ['#b8b0ff', '#1c1a5e'],
     shuangjia: ['#d4f6ff', '#1a4a66'], bingxin: ['#d8f2ff', '#1a3a66'], bingdun: ['#c4ecff', '#123a5a'], bingfeng: ['#d4f6ff', '#164a6e'],
     qxq: ['#c8ffd8', '#164a2a'], yinzhang: ['#b4fff0', '#0e4a48'], shenfa: ['#c8f0ff', '#14365a'], jiuyinhe: ['#c8ffe8', '#164a3a'], qingxin: ['#fff0c0', '#4a2a5e'],
@@ -161,7 +163,7 @@
     ctx.save(); ctx.translate(x, y);
     if (o.sel || o.glow) { const pr = 1 + Math.sin(t * 4) * .06, g = ctx.createRadialGradient(0, 0, r * .8, 0, 0, r * 1.7 * pr); g.addColorStop(0, c1 + 'aa'); g.addColorStop(1, c1 + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 1.7 * pr, 0, 7); ctx.fill(); }
     if (window.UI_ICONS && UI_ICONS.has(k)) { UI_ICONS.draw(k, 0, 0, r, o.locked);
-      if (o.locked) { ctx.fillStyle = 'rgba(8,10,18,.35)'; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); lockGlyph(0, 0, r * .32); }
+      if (o.locked) { ctx.fillStyle = J('rgba(8,10,18,.35)'); ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); lockGlyph(0, 0, r * .32); }
       if (o.sel) { ctx.lineWidth = 2.5; ctx.strokeStyle = `rgba(255,236,170,${.6 + Math.sin(t * 5) * .35})`; ctx.setLineDash([r * .3, r * .18]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(0, 0, r + 9, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
       ctx.restore(); return; }
     const g = ctx.createRadialGradient(-r * .3, -r * .35, r * .05, 0, 0, r); g.addColorStop(0, c1); g.addColorStop(.45, mix(c1, c2, .55)); g.addColorStop(1, c2);
@@ -176,11 +178,11 @@
     ctx.lineWidth = Math.max(2, r * .09); ctx.strokeStyle = '#c9963e'; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.stroke();
     ctx.lineWidth = 1; ctx.strokeStyle = '#ffe9b0'; ctx.beginPath(); ctx.arc(0, 0, r - ctx.lineWidth * 2, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, r + 2.5, 0, 7); ctx.strokeStyle = 'rgba(80,46,10,.9)'; ctx.stroke();
     for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + Math.PI / 8; ctx.save(); ctx.rotate(a); ctx.fillStyle = '#f3d590'; ctx.beginPath(); ctx.moveTo(0, -r - 4); ctx.lineTo(3, -r); ctx.lineTo(0, -r + 4); ctx.lineTo(-3, -r); ctx.closePath(); ctx.fill(); ctx.restore(); }
-    if (o.locked) { ctx.fillStyle = 'rgba(8,10,18,.66)'; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); lockGlyph(0, 0, r * .32); }
+    if (o.locked) { ctx.fillStyle = J('rgba(8,10,18,.66)'); ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); lockGlyph(0, 0, r * .32); }
     if (o.sel) { ctx.lineWidth = 2.5; ctx.strokeStyle = `rgba(255,236,170,${.6 + Math.sin(t * 5) * .35})`; ctx.setLineDash([r * .3, r * .18]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(0, 0, r + 9, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
     ctx.restore();
   }
-  function lockGlyph(x, y, s) { ctx.save(); ctx.fillStyle = '#d8c49a'; ctx.strokeStyle = '#d8c49a'; ctx.lineWidth = s * .28; ctx.beginPath(); ctx.arc(x, y - s * .35, s * .55, Math.PI, 0); ctx.stroke(); roundRect(x - s * .85, y - s * .3, s * 1.7, s * 1.25, s * .2); ctx.fill(); ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(x, y + s * .2, s * .18, 0, 7); ctx.fill(); ctx.restore(); }
+  function lockGlyph(x, y, s) { ctx.save(); ctx.fillStyle = J('#d8c49a'); ctx.strokeStyle = J('#d8c49a'); ctx.lineWidth = s * .28; ctx.beginPath(); ctx.arc(x, y - s * .35, s * .55, Math.PI, 0); ctx.stroke(); roundRect(x - s * .85, y - s * .3, s * 1.7, s * 1.25, s * .2); ctx.fill(); ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(x, y + s * .2, s * .18, 0, 7); ctx.fill(); ctx.restore(); }
   function mix(a, b, u) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * u).toString(16).padStart(2, '0')).join(''); }
   window.SKILL_ICON = icon;
 
@@ -222,17 +224,17 @@
   };
   const rootSel = G => { if (!selKey || !selKey.startsWith('root:' + G.who + ':')) return null; const g = selKey.split(':')[2]; return G.roots.find(r => r.gongfa === g) || null; };
   function drawRootDetail(G, R, t) {
-    const { DP, who, T } = G; ctx.save(); roundRect(DP.x, DP.y, DP.w, DP.h, 12); ctx.fillStyle = 'rgba(22,13,8,.96)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(232,194,122,.45)'; ctx.stroke();
+    const { DP, who, T } = G; ctx.save(); roundRect(DP.x, DP.y, DP.w, DP.h, 12); ctx.fillStyle = J('rgba(22,13,8,.96)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = J('rgba(232,194,122,.45)'); ctx.stroke();
     const x = DP.x + 20, y = DP.y + 56, im = GF[R.gongfa]; if (im) ctx.drawImage(im, x, y - 38, 76, 76);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(R.name, x + 92, y - 12, '#f6dfa6', '#120a04', 4);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(R.name, x + 92, y - 12, J('#f6dfa6'), J('#120a04'), 4);
     const all = R.cols.flatMap(c => (T.cols[c] || [, []])[1]).filter(n => !n.future), got = all.filter(n => info(who, n).learned).length;
-    ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#9cc3ff'; ctx.fillText('功法　·　已领悟 ' + got + ' / ' + all.length + ' 招', x + 94, y + 22);
-    ctx.fillStyle = 'rgba(232,194,122,.35)'; ctx.fillRect(x, y + 50, DP.w - 40, 1);
+    ctx.font = `600 14px ${FONT}`; ctx.fillStyle = J('#9cc3ff'); ctx.fillText('功法　·　已领悟 ' + got + ' / ' + all.length + ' 招', x + 94, y + 22);
+    ctx.fillStyle = J('rgba(232,194,122,.35)'); ctx.fillRect(x, y + 50, DP.w - 40, 1);
     const d = GF_DESC[R.gongfa], desc = typeof d === 'object' ? (who === 'hero' ? d.hero : d.other) : d || '';
-    ctx.font = `17px ${FONT}`; ctx.fillStyle = '#eadcbc'; let yy = y + 80; for (const l of wrap(desc, DP.w - 44)) { ctx.fillText(l, x, yy); yy += 26; }
+    ctx.font = `17px ${FONT}`; ctx.fillStyle = J('#eadcbc'); let yy = y + 80; for (const l of wrap(desc, DP.w - 44)) { ctx.fillText(l, x, yy); yy += 26; }
     yy += 14; for (const c of R.cols) { const [lab, ns] = T.cols[c] || []; if (!lab) continue;
-      ctx.save(); roundRect(x, yy - 12, 46, 24, 12); ctx.fillStyle = 'rgba(142,42,28,.85)'; ctx.fill(); ctx.font = `16px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(lab, x + 23, yy + 1); ctx.restore();
-      let xx = x + 58; ctx.font = `600 16px ${FONT}`; for (const n of ns) { if (n.future) continue; const I = info(who, n), nm = I.name && I.name.length <= 4 ? I.name : n.short; const w = ctx.measureText(nm).width; if (xx + w > DP.x + DP.w - 16) { yy += 26; xx = x + 58; } ctx.fillStyle = I.learned ? '#f6e6bf' : '#7d705e'; ctx.fillText(nm, xx, yy); xx += w + 14; }
+      ctx.save(); roundRect(x, yy - 12, 46, 24, 12); ctx.fillStyle = J('rgba(142,42,28,.85)'); ctx.fill(); ctx.font = `16px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(lab, x + 23, yy + 1); ctx.restore();
+      let xx = x + 58; ctx.font = `600 16px ${FONT}`; for (const n of ns) { if (n.future) continue; const I = info(who, n), nm = I.name && I.name.length <= 4 ? I.name : n.short; const w = ctx.measureText(nm).width; if (xx + w > DP.x + DP.w - 16) { yy += 26; xx = x + 58; } ctx.fillStyle = I.learned ? J('#f6e6bf') : '#7d705e'; ctx.fillText(nm, xx, yy); xx += w + 14; }
       yy += 34; }
     ctx.restore();
   }
@@ -243,22 +245,22 @@
   drawSkills = function (B) {
     const G = geo(B), { TA, DP, T, who } = G, t = performance.now() / 1000, selRoot = rootSel(G), sel = selRoot ? { n: { id: '' } } : curSel(G);
     // 星图剑谱底
-    ctx.save(); roundRect(TA.x, TA.y, TA.w, TA.h, 12); const bg = ctx.createLinearGradient(0, TA.y, 0, TA.y + TA.h); bg.addColorStop(0, '#18213a'); bg.addColorStop(1, '#0b0f1d'); ctx.fillStyle = bg; ctx.fill(); ctx.clip();
+    ctx.save(); roundRect(TA.x, TA.y, TA.w, TA.h, 12); const bg = ctx.createLinearGradient(0, TA.y, 0, TA.y + TA.h); bg.addColorStop(0, J('#18213a')); bg.addColorStop(1, J('#0b0f1d')); ctx.fillStyle = bg; ctx.fill(); ctx.clip();
     if (!stars) { stars = []; let s = 7; const R = () => (s = (s * 9301 + 49297) % 233280) / 233280; for (let i = 0; i < 90; i++) stars.push([R(), R(), R()]); }
-    for (const [u, v, w] of stars) { ctx.globalAlpha = .25 + .5 * w * (.6 + .4 * Math.sin(t * 1.5 + w * 20)); ctx.fillStyle = '#cfe0ff'; ctx.fillRect(TA.x + u * TA.w, TA.y + v * TA.h, 1 + w * 1.6, 1 + w * 1.6); }
+    for (const [u, v, w] of stars) { ctx.globalAlpha = .25 + .5 * w * (.6 + .4 * Math.sin(t * 1.5 + w * 20)); ctx.fillStyle = J('#cfe0ff'); ctx.fillRect(TA.x + u * TA.w, TA.y + v * TA.h, 1 + w * 1.6, 1 + w * 1.6); }
     ctx.globalAlpha = .08; ctx.strokeStyle = '#e8c27a'; ctx.lineWidth = 1; for (const rr of [150, 230, 320]) { ctx.beginPath(); ctx.arc(TA.x + TA.w / 2, TA.y + (G.root ? 66 : 84), rr, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
     ctx.restore();
-    roundRect(TA.x, TA.y, TA.w, TA.h, 12); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(232,194,122,.55)'; ctx.stroke();
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(T.title, TA.x + 18, TA.y + 28, '#f6dfa6', '#120a04', 4);
-    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = 'rgba(214,196,150,.8)'; ctx.fillText(memberInfo(who).name + ' · ' + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56);
+    roundRect(TA.x, TA.y, TA.w, TA.h, 12); ctx.lineWidth = 1.5; ctx.strokeStyle = J('rgba(232,194,122,.55)'); ctx.stroke();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(T.title, TA.x + 18, TA.y + 28, J('#f6dfa6'), J('#120a04'), 4);
+    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = J('rgba(214,196,150,.8)'); ctx.fillText(memberInfo(who).name + ' · ' + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56);
     // 连线
     const ult = G.nodes.find(o => o.col < 0), byCol = {};
     for (const o of G.nodes) if (o.col >= 0) (byCol[o.col] = byCol[o.col] || []).push(o);
     const link = (a, b, lit, curve) => { ctx.save(); ctx.lineCap = 'round';
       const path = () => { ctx.beginPath(); ctx.moveTo(a[0], a[1]); if (curve) ctx.bezierCurveTo(a[0], (a[1] + b[1]) / 2, b[0], (a[1] + b[1]) / 2, b[0], b[1]); else ctx.lineTo(b[0], b[1]); };
-      if (lit) { ctx.strokeStyle = 'rgba(255,214,130,.22)'; ctx.lineWidth = 8; path(); ctx.stroke(); ctx.strokeStyle = '#f0cf86'; ctx.lineWidth = 2; path(); ctx.stroke();
+      if (lit) { ctx.strokeStyle = J('rgba(255,214,130,.22)'); ctx.lineWidth = 8; path(); ctx.stroke(); ctx.strokeStyle = J('#f0cf86'); ctx.lineWidth = 2; path(); ctx.stroke();
         ctx.setLineDash([3, 22]); ctx.lineDashOffset = -t * 40; ctx.strokeStyle = '#fff6d8'; ctx.lineWidth = 3.5; path(); ctx.stroke(); }
-      else { ctx.setLineDash([5, 7]); ctx.strokeStyle = 'rgba(200,170,110,.28)'; ctx.lineWidth = 1.6; path(); ctx.stroke(); }
+      else { ctx.setLineDash([5, 7]); ctx.strokeStyle = J('rgba(200,170,110,.28)'); ctx.lineWidth = 1.6; path(); ctx.stroke(); }
       ctx.restore(); };
     for (const c in byCol) { const ns = byCol[c], hx = ns[0].x, hy = ns[0].y - ns[0].r - 30, L0 = info(who, ns[0].n).learned;
       const RT = G.root, src = RT ? [RT.x, RT.y + RT.r + 30] : ult && [ult.x, ult.y + ult.r + 4];
@@ -266,7 +268,7 @@
       if (G.root && T.solo) link([G.root.x, G.root.y + G.root.r + 30], [ns[0].x, ns[0].y - ns[0].r - 30], true, true);
       for (let j = 1; j < ns.length; j++) link([ns[j - 1].x, ns[j - 1].y + ns[j - 1].r + (G.compact ? 20 : 26)], [ns[j].x, ns[j].y - ns[j].r - 4], info(who, ns[j].n).learned, false);
       // 列名
-      ctx.save(); const lab = ns[0].lab, tw = 54; roundRect(hx - tw / 2, hy - 13, tw, 26, 13); ctx.fillStyle = 'rgba(142,42,28,.85)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#e8c27a'; ctx.stroke();
+      ctx.save(); const lab = ns[0].lab, tw = 54; roundRect(hx - tw / 2, hy - 13, tw, 26, 13); ctx.fillStyle = J('rgba(142,42,28,.85)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#e8c27a'; ctx.stroke();
       ctx.font = `18px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(lab, hx, hy + 1); ctx.restore();
       if (!T.solo) link([hx, hy + 13], [ns[0].x, ns[0].y - ns[0].r - 4], L0, false); }
     // 功法根节点
@@ -274,25 +276,25 @@
       if (ult && R === G.root) link([R.x + R.r + 6, R.y + 4], [ult.x - ult.r - 6, ult.y], info(who, ult.n).learned, false);
       ctx.save(); const pr = 1 + Math.sin(t * 2) * .05, g = ctx.createRadialGradient(R.x, R.y, R.r * .7, R.x, R.y, R.r * 1.9 * pr); g.addColorStop(0, 'rgba(255,224,150,.55)'); g.addColorStop(1, 'rgba(255,214,130,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(R.x, R.y, R.r * 1.9 * pr, 0, 7); ctx.fill();
       if (G.multi && !R.on) ctx.globalAlpha = .55;
-      if (!im) { ctx.fillStyle = '#2a3150'; ctx.beginPath(); ctx.arc(R.x, R.y, R.r, 0, 7); ctx.fill(); }   // 图没加载完才画底色圆（以前画在图上面，不点就看不见功法图）
+      if (!im) { ctx.fillStyle = J('#2a3150'); ctx.beginPath(); ctx.arc(R.x, R.y, R.r, 0, 7); ctx.fill(); }   // 图没加载完才画底色圆（以前画在图上面，不点就看不见功法图）
       if (im) ctx.drawImage(im, R.x - R.r * 1.12, R.y - R.r * 1.12, R.r * 2.24, R.r * 2.24);
       if (selRoot === R) { ctx.lineWidth = 2.5; ctx.strokeStyle = `rgba(255,236,170,${.6 + Math.sin(t * 5) * .35})`; ctx.setLineDash([R.r * .3, R.r * .18]); ctx.lineDashOffset = -t * 30; ctx.beginPath(); ctx.arc(R.x, R.y, R.r + 10, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
-      ctx.font = `20px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const nw = ctx.measureText(R.name).width + 26; roundRect(R.x - nw / 2, R.y + R.r + 4, nw, 26, 13); ctx.fillStyle = 'rgba(12,10,20,.9)'; ctx.fill(); ctx.strokeStyle = 'rgba(232,194,122,.7)'; ctx.lineWidth = 1; ctx.stroke(); ctx.fillStyle = '#f6dfa6'; ctx.fillText(R.name, R.x, R.y + R.r + 18);
-      if (G.multi && !R.on) { ctx.globalAlpha = .8; ctx.font = `600 11px ${FONT}`; ctx.fillStyle = '#c9b48c'; ctx.fillText('点此切换', R.x, R.y + R.r + 40); }
+      ctx.font = `20px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const nw = ctx.measureText(R.name).width + 26; roundRect(R.x - nw / 2, R.y + R.r + 4, nw, 26, 13); ctx.fillStyle = J('rgba(12,10,20,.9)'); ctx.fill(); ctx.strokeStyle = J('rgba(232,194,122,.7)'); ctx.lineWidth = 1; ctx.stroke(); ctx.fillStyle = J('#f6dfa6'); ctx.fillText(R.name, R.x, R.y + R.r + 18);
+      if (G.multi && !R.on) { ctx.globalAlpha = .8; ctx.font = `600 11px ${FONT}`; ctx.fillStyle = J('#c9b48c'); ctx.fillText('点此切换', R.x, R.y + R.r + 40); }
       ctx.restore(); }
     // 节点
     for (const o of G.nodes) { const I = info(who, o.n), cu = canUp(G, o), isSel = o === sel;
       icon(o.n.icon, o.x, o.y, o.r, { locked: !I.learned, sel: isSel, glow: o.col < 0 && I.learned });
       if (anim && anim.k === key(who, o.n.id)) drawAnim(o, t);
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = o.col < 0 ? `24px ${BRUSH}` : `600 15px ${FONT}`;
-      if (o.col < 0) { const tw = ctx.measureText(o.n.short).width + 28; ctx.save(); roundRect(o.x - tw / 2, o.y + o.r + 6, tw, 30, 15); ctx.fillStyle = 'rgba(12,10,20,.92)'; ctx.fill(); ctx.strokeStyle = 'rgba(232,194,122,.5)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
-      textOutline(o.n.short, o.x, o.y + o.r + (o.col < 0 ? 20 : G.compact ? 11 : 15), I.learned ? '#f6e6bf' : '#8f8370', '#0a0604', 3);
+      if (o.col < 0) { const tw = ctx.measureText(o.n.short).width + 28; ctx.save(); roundRect(o.x - tw / 2, o.y + o.r + 6, tw, 30, 15); ctx.fillStyle = J('rgba(12,10,20,.92)'); ctx.fill(); ctx.strokeStyle = J('rgba(232,194,122,.5)'); ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+      textOutline(o.n.short, o.x, o.y + o.r + (o.col < 0 ? 20 : G.compact ? 11 : 15), I.learned ? J('#f6e6bf') : J('#8f8370'), J('#0a0604'), 3);
       if (I.max > 1 && I.learned) for (let k = 1; k <= I.max; k++) { const px = o.x + (k - (I.max + 1) / 2) * (G.compact && o.col >= 0 ? (I.max > 5 ? 7.5 : 9) : (I.max > 5 ? 9.5 : 11)), py = o.y + o.r + (G.compact && o.col >= 0 ? -2 : 32); ctx.save(); ctx.translate(px, py); ctx.rotate(Math.PI / 4);
-        const lit = k <= I.tier; ctx.fillStyle = lit ? '#ffd76a' : 'rgba(120,100,70,.5)'; if (lit) { ctx.shadowColor = '#ffcc55'; ctx.shadowBlur = 6; } ctx.fillRect(-3.5, -3.5, 7, 7); ctx.restore(); }
-      if (o.col < 0) { ctx.font = `600 12px ${FONT}`; ctx.fillStyle = I.learned ? '#ffb070' : '#8f8370'; ctx.fillText(I.learned ? '绝 技' : '未领悟', o.x, o.y - o.r - 12); }
+        const lit = k <= I.tier; ctx.fillStyle = lit ? J('#ffd76a') : 'rgba(120,100,70,.5)'; if (lit) { ctx.shadowColor = '#ffcc55'; ctx.shadowBlur = 6; } ctx.fillRect(-3.5, -3.5, 7, 7); ctx.restore(); }
+      if (o.col < 0) { ctx.font = `600 12px ${FONT}`; ctx.fillStyle = I.learned ? J('#ffb070') : J('#8f8370'); ctx.fillText(I.learned ? '绝 技' : '未领悟', o.x, o.y - o.r - 12); }
       if (cu && cu.ok) { const bx = o.x + o.r * .78, by = o.y - o.r * .78, p = 1 + Math.sin(t * 6) * .12; ctx.save(); ctx.translate(bx, by); ctx.scale(p, p); ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7); ctx.fillStyle = '#3fae5a'; ctx.fill(); ctx.strokeStyle = '#eaffd8'; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(5, 1); ctx.lineTo(1.8, 1); ctx.lineTo(1.8, 6); ctx.lineTo(-1.8, 6); ctx.lineTo(-1.8, 1); ctx.lineTo(-5, 1); ctx.closePath(); ctx.fill(); ctx.restore(); } }
-    if (T.solo) { ctx.textAlign = 'center'; ctx.font = `600 15px ${FONT}`; ctx.fillStyle = 'rgba(232,210,160,.75)'; ctx.fillText('烛龙血脉 · 灵力怒气无限，四大本源绝技随时可放', TA.x + TA.w / 2, TA.y + TA.h - 60); }
+    if (T.solo) { ctx.textAlign = 'center'; ctx.font = `600 15px ${FONT}`; ctx.fillStyle = J('rgba(232,210,160,.75)'); ctx.fillText('烛龙血脉 · 灵力怒气无限，四大本源绝技随时可放', TA.x + TA.w / 2, TA.y + TA.h - 60); }
     if (selRoot) drawRootDetail(G, selRoot, t); else drawDetail(G, sel, t);
     if (anim && t - anim.t0 > 1.4) anim = null;
   };
@@ -307,36 +309,36 @@
   function wrap(s, w) { const out = []; let line = ''; for (const ch of s) { if (ctx.measureText(line + ch).width > w && line) { out.push(line); line = ch; } else line += ch; } if (line) out.push(line); return out; }
   function drawDetail(G, o, t) {
     const { DP, who } = G, I = info(who, o.n), cu = canUp(G, o);
-    ctx.save(); roundRect(DP.x, DP.y, DP.w, DP.h, 12); ctx.fillStyle = 'rgba(22,13,8,.96)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(232,194,122,.45)'; ctx.stroke();
+    ctx.save(); roundRect(DP.x, DP.y, DP.w, DP.h, 12); ctx.fillStyle = J('rgba(22,13,8,.96)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = J('rgba(232,194,122,.45)'); ctx.stroke();
     let x = DP.x + 20, y = DP.y + 54;
     // 作者 11-07：手机上字放大了，行距跟着拉开；背景故事那几行手机上不显示，留位置给数值
     const LF = window.GX_TEXT_BOOST && GX_TEXT_BOOST() > 1 ? Math.min(1.3, GX_TEXT_BOOST() * 1.05) : 1, PHONE = LF > 1;
     icon(o.n.icon, x + 34, y, 34, { locked: !I.learned });
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `${I.name.length > 6 ? 24 : 28}px ${BRUSH}`; textOutline(I.name, x + 82, y - 14, '#f6dfa6', '#120a04', 4);
-    ctx.font = `600 14px ${FONT}`; ctx.fillStyle = '#9cc3ff'; ctx.fillText(I.cost, x + 84, y + 18);
-    if (I.max > 1) { ctx.fillStyle = '#ffd76a'; ctx.textAlign = 'right'; ctx.fillText(I.learned ? '第' + CN[I.tier] + '重' : '', DP.x + DP.w - 18, y + 18); ctx.textAlign = 'left'; }
-    y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = '#e9dcc0'; for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24 * LF; }
-    if (I.lore && !PHONE) { ctx.font = `13px ${FONT}`; ctx.fillStyle = '#a8957a'; for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19 * LF; } }
-    y += 6; ctx.strokeStyle = 'rgba(232,194,122,.3)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22 * LF;
-    const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || '#c9b48c'; ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
-    if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', '#ff9a7a'); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], '#f5ead2');
-      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? '#e9dcc0' : '#ff8a7a'; ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
-    else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', '#e9dcc0'); }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `${I.name.length > 6 ? 24 : 28}px ${BRUSH}`; textOutline(I.name, x + 82, y - 14, J('#f6dfa6'), J('#120a04'), 4);
+    ctx.font = `600 14px ${FONT}`; ctx.fillStyle = J('#9cc3ff'); ctx.fillText(I.cost, x + 84, y + 18);
+    if (I.max > 1) { ctx.fillStyle = J('#ffd76a'); ctx.textAlign = 'right'; ctx.fillText(I.learned ? '第' + CN[I.tier] + '重' : '', DP.x + DP.w - 18, y + 18); ctx.textAlign = 'left'; }
+    y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = J('#e9dcc0'); for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24 * LF; }
+    if (I.lore && !PHONE) { ctx.font = `13px ${FONT}`; ctx.fillStyle = J('#a8957a'); for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19 * LF; } }
+    y += 6; ctx.strokeStyle = J('rgba(232,194,122,.3)'); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); y += 22 * LF;
+    const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || J('#c9b48c'); ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
+    if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], J('#f5ead2'));
+      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
+    else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', J('#e9dcc0')); }
     else {
-      const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], '#f5ead2');
-      if (cu && cu.q) { row('下一重 · 第' + CN[cu.q.t] + '重', T[cu.q.t - 1], '#9fe28a', '#9fe28a');
-        const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? '#e9dcc0' : '#ff8a7a'; ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24 * LF;
-        if (cu.q.t > cu.q.cap) { ctx.fillStyle = '#ff8a7a'; ctx.fillText(cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24 * LF; }
-        else if (cu.q.t <= 3) { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22 * LF; }
-        else { ctx.fillStyle = '#a8957a'; ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22 * LF; } }
-      else row('已臻化境', '此招已修至第五重。', '#ffd76a', '#ffd76a');
+      const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], J('#f5ead2'));
+      if (cu && cu.q) { row('下一重 · 第' + CN[cu.q.t] + '重', T[cu.q.t - 1], J('#9fe28a'), J('#9fe28a'));
+        const have = itemCount(cu.q.item); ctx.font = `600 15px ${FONT}`; ctx.fillStyle = have >= cu.q.n ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText('需要 ' + cu.q.label + ' ×' + cu.q.n + '（现有 ' + have + '）', x, y); y += 24 * LF;
+        if (cu.q.t > cu.q.cap) { ctx.fillStyle = J('#ff8a7a'); ctx.fillText(cu.q.capTxt || CAPTXT[cu.q.cap] || '境界不足', x, y); y += 24 * LF; }
+        else if (cu.q.t <= 3) { ctx.fillStyle = J('#a8957a'); ctx.font = `14px ${FONT}`; ctx.fillText('卷册可在天剑宗集市·典籍阁购得', x, y); y += 22 * LF; }
+        else { ctx.fillStyle = J('#a8957a'); ctx.font = `14px ${FONT}`; ctx.fillText('卷四、卷五：引魂境后典籍阁上架，首领也掉', x, y); y += 22 * LF; } }
+      else row('已臻化境', '此招已修至第五重。', J('#ffd76a'), J('#ffd76a'));
     }
     // 参悟按钮
     if (!I.ult && !I.solo && cu && (cu.q || cu.learn)) { const b = G.btn, ok = cu.ok;
-      lacquer(b.x, b.y, b.w, b.h, { r: 12, top: ok ? '#b8402a' : 'rgba(60,46,34,.9)', bot: ok ? '#6e1a10' : 'rgba(34,26,20,.9)' });
+      lacquer(b.x, b.y, b.w, b.h, { r: 12, top: ok ? J('#b8402a') : J('rgba(60,46,34,.9)'), bot: ok ? J('#6e1a10') : J('rgba(34,26,20,.9)') });
       if (ok) { ctx.save(); roundRect(b.x, b.y, b.w, b.h, 12); ctx.clip(); const sx = b.x + ((t * 160) % (b.w + 200)) - 100, g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(.5, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(255,240,200,0)'); ctx.fillStyle = g; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); }
-      ctx.textAlign = 'center'; ctx.font = `30px ${BRUSH}`; textOutline('参 悟', b.x + b.w / 2, b.y + b.h / 2 + 1, ok ? '#fff2cc' : '#8a7a5c', '#1a0800', 4); }
-    else if (I.learned && window.R154) { const b = G.btn; ctx.textAlign = 'center'; ctx.font = `600 15px ${FONT}`; ctx.fillStyle = 'rgba(232,210,160,.7)'; ctx.fillText('再点一下招式图标 · 查看详情', b.x + b.w / 2, b.y + b.h / 2); }
+      ctx.textAlign = 'center'; ctx.font = `30px ${BRUSH}`; textOutline('参 悟', b.x + b.w / 2, b.y + b.h / 2 + 1, ok ? '#fff2cc' : '#8a7a5c', J('#1a0800'), 4); }
+    else if (I.learned && window.R154) { const b = G.btn; ctx.textAlign = 'center'; ctx.font = `600 15px ${FONT}`; ctx.fillStyle = J('rgba(232,210,160,.7)'); ctx.fillText('再点一下招式图标 · 查看详情', b.x + b.w / 2, b.y + b.h / 2); }
     ctx.restore();
   }
 
