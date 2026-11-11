@@ -44,7 +44,7 @@
     ctx.drawImage(IM[BG[shi]] || IM.bg_wu, 0, 0, W, H);
     { const f = Math.floor(t * 8) % 4; ctx.save(); ctx.globalAlpha = dk ? .14 : .28; ctx.drawImage(IM.waterfall, (f % 2) * 256, Math.floor(f / 2) * 256, 256, 256, 947 - 128 * .58, 272 - 220 * .76, 256 * .58, 256 * .76); ctx.restore(); }
     if (wx === '雨' || wx === '雷雨') { const f = Math.floor(t * 8) % 4; ctx.save(); ctx.globalAlpha = wx === '雷雨' ? .95 : .7; ctx.drawImage(IM.rain, (f % 2) * 1280, Math.floor(f / 2) * 720, 1280, 720, 0, 0, W, H); ctx.restore();
-      if (wx === '雷雨' && (Math.floor(t * 10) % 97) === 0) { ctx.fillStyle = 'rgba(230,240,255,.35)'; ctx.fillRect(0, 0, W, H); } }
+      if (wx === '雷雨' && ST.flashT && t > ST.flashT && t - ST.flashT < .18) { ctx.fillStyle = 'rgba(230,240,255,.35)'; ctx.fillRect(0, 0, W, H); } }
     // 水面效果
     for (let i = ST.fxs.length - 1; i >= 0; i--) { const q = ST.fxs[i], m = WF[FXMAP[q.k] || 'small']; if (!m) { ST.fxs.splice(i, 1); continue; } const n = Math.floor((t - q.t0) * m[2]); if (n >= m[1]) { ST.fxs.splice(i, 1); continue; }
       cell(IM.water_fx, n, m[0], 256, 128, q.x, q.y, 128, m[4], kAt(q.y) * 2.4 * (FXSCALE[q.k] || 1) * (q.k === 'leap' || q.k === 'tail' ? 1.2 : 1), null, q.flip); }
