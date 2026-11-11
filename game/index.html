@@ -6896,7 +6896,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   };
   // ---------- 南边石阶下的传送法阵（下山去天剑宫/演武广场）----------
   { const PX = z(1322), PY = z(1800); let cool = 0, armed = false;
-    const active = () => !!(S.flags.ch2_roam || S.flags.hs_explored);
+    const active = () => !!(S.flags.ch2_roam || S.flags.hs_explored || S.flags.ch2_seal_open);   /* 11-12 真机 bug：取流云仙衣那一夜（ch2_seal_open）南边法阵不通、还写着「藏经阁」 */
     const EX = TMAPS.tj_houshan.exits[0], LBL = (EX && EX.label) || '下山'; if (EX) { EX.label = ''; EX.cond = () => false; EX.msg = ''; }   // 只走法阵下山：地图边缘的出口箭头和边缘小法阵不再显示
     const label = () => window.HS_DOWN_LABEL || LBL;
     window.drawTeleportArray = function (x, y, now, text, col = [255, 205, 90]) {
@@ -6927,12 +6927,12 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
       // 用之前认可的程序传送阵（lightfx.js teleportCircle：双环刻度 + 符文 + 八角星 + 光柱 + 光粒）；白石板上先垫一层淡青底色，免得发光被地面吃掉
       ctx.save(); ctx.translate(PX, PY); ctx.scale(1, .42); const g = ctx.createRadialGradient(0, 0, 10, 0, 0, 96); g.addColorStop(0, 'rgba(18,80,125,.62)'); g.addColorStop(.75, 'rgba(18,80,125,.42)'); g.addColorStop(1, 'rgba(40,120,170,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 96, 0, 7); ctx.fill(); ctx.restore();
       runeCircle(PX, PY, 80, LFX_COL.cyan, now, { alpha: 1 }); lightPillar(PX, PY, 80 * 1.1, 80 * 2.4, LFX_COL.cyan, now, .38); risingMotes(PX, PY, 72, 150, 22, LFX_COL.cyan, now, 1);   // 光柱压暗：白石板上满亮会糊成白方块
-      ctx.save(); ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'center'; textOutline((S.flags.ch2_roam || S.flags.ch1_free) ? label() : '下山 · 藏经阁', PX, PY - 60 + Math.sin(now * 3) * 3, '#e6fbff', '#06283a', 4); ctx.restore(); })(tileAmbientLow);
+      ctx.save(); ctx.font = `600 20px ${FONT}`; ctx.textAlign = 'center'; textOutline((S.flags.ch2_roam || S.flags.ch1_free || S.flags.ch2_seal_open) ? label() : '下山 · 藏经阁', PX, PY - 60 + Math.sin(now * 3) * 3, '#e6fbff', '#06283a', 4); ctx.restore(); })(tileAmbientLow);
     // 第二章自由探索时，踩上法阵就下山（第一章由剧情触发器处理）
     updateMap = (orig => function (dt) {
       orig(dt); if (cool > 0) { cool -= dt; return; }
       if (world.mapName !== 'tj_houshan') { armed = false; return; }
-      if (!(S.flags.ch2_roam || S.flags.ch1_free) || world.locked || world.hold || dialog || choice || !world.player) return;
+      if (!(S.flags.ch2_roam || S.flags.ch1_free || S.flags.ch2_seal_open) || world.locked || world.hold || dialog || choice || !world.player) return;
       const p = world.player, dd = Math.hypot(p.x - PX, (p.y - PY) * 2.4); if (dd > 130) armed = true;   // 刚传送到法阵上时不会立刻又被送走，先走开再回来才生效
       if (armed && dd < 60) { const e = TMAPS.tj_houshan.exits[0]; if (e && e.at) { armed = false; cool = 2; goMap(e.to, e.at[0], e.at[1], e.face || 'down'); } }
     })(updateMap);
