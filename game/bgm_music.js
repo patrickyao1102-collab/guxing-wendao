@@ -21,6 +21,7 @@
   // 作者 11-02：「疾锋·快打（喜庆）」难听，永远不准再出现在游戏里——文件和条目已删，旧存档里选过它的也作废
   const BANNED = new Set(['lib_nk1']);
   let PICK = {}; try { PICK = JSON.parse(localStorage.getItem('bgm29_pick') || '{}') || {}; } catch (e) {}
+  if (window.GX_TRIAL) PICK = {};   // 11-12：纯净版没有曲库面板，也不带弃用的备选曲子——一律用默认配乐，不认以前手选的
   for (const k in PICK) if (BANNED.has(PICK[k])) delete PICK[k];
   // 作者 11-07：问剑坪（演武广场）换成「清正高远」——以前在曲库里给广场手选过别的曲子的，作废一次，让新曲生效
   // 作者 11-07：「最喜欢的就是纳月降临（测试战）那首」= 首领战默认「剑风疾·对决」(lib_nk2)。手机上赵师弟一战放的不是它 → 那台设备在曲库里给首领战另指定过别的；清一次，所有设备回到默认
