@@ -63,7 +63,7 @@
     await say('林震山', '黑风寨寨主名叫周虎，本来只有凝丹二重。近几个月搜刮了大量灵石，修为突破到了凝丹三重。');
     await say('林震山', '更麻烦的是，寨子里来了一位神秘高手，带着个叫方烈的手下，也是凝丹三重。那神秘高手——至少凝丹五重，甚至更高。');
     await say('叶孤星', '林家主，周虎和方烈就由您和三位长老联手牵制，那些练气境的山贼交给林家弟子。那个神秘高手，交给我们。');
-    await say('林震山', '好！两位少侠先在府中歇息一晚，明日一早，我们一同前往黑风谷！'); await say('林溪·笑', '叶大哥的客房我去收拾！就在我住的小院隔壁……我、我是说，离得近，有事好照应。'); await say('林震山', '……这丫头。');
+    await say('林震山', '好！两位少侠先在府中歇息一晚，明日一早，我们一同前往黑风谷！'); await say('林溪·羞', '叶大哥的客房我去收拾！就在我住的小院隔壁……我、我是说，离得近，有事好照应。'); await say('林震山', '……这丫头。');
     await fadeOut(500); partyRest(); world.actors = world.actors.filter(a => a !== ly);
     // 作者 11-03：林家府邸早换成 Codex 的「林府 · 曲水花庭」了，夜谈不再用老院子图
     if (TMAPS.lin_court) { if (window.SET_TOD) SET_TOD('night'); tileSetMap('lin_court', 880 / 64 - .5, 745 / 64 - .8, 'right'); world.actors = world.actors.filter(a => !a.follower); world.followers = []; }

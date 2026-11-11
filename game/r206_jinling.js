@@ -55,3 +55,15 @@
   try { if (window.SKT && SKT.nodeOf) { const n = SKT.nodeOf('yunting', 'ult'); if (n) n.desc = D; } } catch (e) {}
   try { if (ITEM_DB.bk_yt_jiutian) ITEM_DB.bk_yt_jiutian.desc = '云霆的秘传。' + D.replace('引', '引') + '。买下后在技能页给云霆参悟'; } catch (e) {}
 })();
+
+// ================= 作者 11-11：林溪（Codex R205 重画）对话立绘：默认 / 笑 / 惊 / 羞 / 偷看。旧图集 chars1 里的林逸三格不再用 =================
+(function () {
+  const E = { default: '', smile: '笑', surprise: '惊', shy: '羞', peek: '偷看' };
+  for (const [e, n] of Object.entries(E)) { const key = 'p_lx_' + e, im = new Image(); im.onload = () => { IMG[key] = im; }; im.src = 'portraits/linxi_' + e + '.webp';
+    const nm = n ? '林溪·' + n : '林溪'; SPEAKERS[nm] = Object.assign({}, SPEAKERS['林溪'] || {}, { p: key, name: '林溪', color: '#bff5d0' });
+    if (typeof MEDAL_FACE !== 'undefined') MEDAL_FACE[key] = { fx: .5, fy: .2, span: .4 }; }
+  SPEAKERS['林溪·喜'] = SPEAKERS['林溪·笑']; SPEAKERS['林溪·害羞'] = SPEAKERS['林溪·羞'];
+  // 旧图集载完会把 p_c_linyi_* 填成男版林逸——锁成新图
+  for (const [c, e] of [['linyi_default', 'default'], ['linyi_smile', 'smile'], ['linyi_surprise', 'surprise']]) { let old = IMG['p_c_' + c];
+    Object.defineProperty(IMG, 'p_c_' + c, { configurable: true, enumerable: true, get: () => IMG['p_lx_' + e] || old, set: v => { old = v; } }); }
+})();
