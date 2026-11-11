@@ -131,3 +131,12 @@
   };
   window.R210_HF = { load, ready, DEF, IM };
 })();
+
+// ================= 方烈战斗建模 · 迎敌精修（Codex R207 修订，作者 11-12「做了新建模方烈的，你接入」）=================
+// 朝右（左敌右我）、双脚落地、刀锋前指。用新文件名避开旧图集里的同名缓存；图没下好之前仍用旧图。
+(function () {
+  if (typeof IMG === 'undefined') return;
+  const im = new Image(); let ok = false; im.onload = () => { ok = true; }; im.src = 'assets3/e_fanglie_r207.webp';
+  let old = IMG.e_fanglie;
+  try { Object.defineProperty(IMG, 'e_fanglie', { configurable: true, enumerable: true, get: () => (ok ? im : old), set: v => { old = v; } }); } catch (e) {}
+})();
