@@ -13,6 +13,7 @@
   window.addEventListener('pointerdown', e => {
     if (!CUR) return; const c = document.querySelector('canvas'); if (!c || e.target !== c) return;
     const r = c.getBoundingClientRect(), p = { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+    if (dialog || sysPanel || choice || (window.ITEMGET_ACTIVE && ITEMGET_ACTIVE()) || (window.R169_SHOP && R169_SHOP.open)) return;   // 11-11 重要 bug：剧情台词 / 面板 / 商店开着时绝不拦点击（之前拦了，台词点不过去就卡住）
     if (inRect(p, SK)) { CUR.skip = true; blockedDown = true; e.stopImmediatePropagation(); e.preventDefault(); try { playSnd('ui_click'); } catch (_) {} return; }
     const st = CUR.steps[CUR.i], R = st && st.rect && st.rect();
     if (R && inRect(p, [R[0] - 10, R[1] - 10, R[2] + 20, R[3] + 20])) { if (st.tap) CUR.tapAt = now(); return; }
@@ -49,6 +50,7 @@
   } };
   window.SPOT = {
     active: () => !!CUR,
+    cancel(r) { const C = CUR; if (!C) return; CUR = null; const k = S.overlay.indexOf(ov); if (k >= 0) S.overlay.splice(k, 1); try { C.res(r || 'skip'); } catch (e) {} },
     run(steps) { return new Promise(res => {
       if (CUR) { CUR.res('skip'); }
       CUR = { steps, i: 0, res, skip: false, tapAt: 0, t0: now() }; if (S.overlay.indexOf(ov) < 0) S.overlay.push(ov);
@@ -75,6 +77,7 @@
   window.R207_UP_TUT = async function () {
     const id = (S.hero.skills || []).includes('ningshen') || (window.SK4 && SK4.learned && SK4.learned('hero', 'ningshen')) ? 'ningshen' : 'dianxing', nm = id === 'ningshen' ? '凝神' : '点星';
     const tier = () => { try { return window.SKILL_TIER ? SKILL_TIER('hero', id) : 1; } catch (e) { return 1; } };
+    for (let i = 0; i < 600 && ((window.R169_SHOP && R169_SHOP.open) || dialog || sysPanel || choice || world.locked); i++) await sleep(200);
     if (tier() >= 2) return;
     await say('星旋', '卷二到手——先给你自己用。我教你怎么参悟升重：');
     const isN = o => o.n && o.n.id === id;
@@ -124,7 +127,10 @@
     try { const C = window.R135G_CUR && R135G_CUR(); if (C && C.close) { C.close(); C.res && C.res(); } } catch (e) {}
     try { if (S.menu) closeMenu(); } catch (e) {}
   };
+  let jtBusy = false;
   window.R207_JT_TUT = async function () {
+    if (F().yt_jiutian || jtBusy) return; jtBusy = true; try {
+    for (let i = 0; i < 600 && ((window.R169_SHOP && R169_SHOP.open) || dialog || sysPanel || choice || world.locked); i++) await sleep(200);   // 等商店关了、剧情空闲再教
     if (F().yt_jiutian) return;
     await say('星旋', '秘卷到手了——别光揣着，得让云霆参悟了才算数。我教你一遍：');
     const isJT = o => o.n && o.n.name === '九天神雷';
@@ -136,6 +142,7 @@
       { title: '参悟', text: '右下角「参悟」——用掉秘卷，云霆就学会了。', rect: () => btnR(), done: () => !!F().yt_jiutian },
     ]);
     if (r === 'skip' && !F().yt_jiutian && window.R134_YT_LEARN) { try { if (S.menu && typeof closeMenu === 'function') closeMenu(); } catch (e) {} await R134_YT_LEARN(); }
+    } finally { jtBusy = false; }
   };
 })();
 

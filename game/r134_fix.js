@@ -368,7 +368,7 @@
   ];
   const buys = () => (F().r134_buy = F().r134_buy || {});
   const shopping = () => { const f = F(); return f.ch2_liuyun && !f.ch2_depart && f.ch2_market; };
-  const itemDone = it => it.id === 'bk_yt_jiutian' ? !!F().yt_jiutian : (buys()[it.id] || 0) >= it.n;
+  const itemDone = it => it.id === 'bk_yt_jiutian' ? (!!F().yt_jiutian || itemCount('bk_yt_jiutian') > 0) : (buys()[it.id] || 0) >= it.n;   // 11-11：秘卷买到手就算买齐（参悟另教）
   const nextItem = () => SHOPLIST.find(it => !it.opt && !itemDone(it)) || SHOPLIST.find(it => !itemDone(it));
   function shopQuest() { const parts = SHOPLIST.map(it => (itemDone(it) ? '✓' : '') + it.shop + ' ' + it.label + (it.id === 'bk_yt_jiutian' || it.opt ? '' : '（' + Math.min(it.n, buys()[it.id] || 0) + '/' + it.n + '）') + (it.opt ? '（有余钱再买）' : ''));
     const req = SHOPLIST.filter(it => !it.opt).every(itemDone);
@@ -377,7 +377,7 @@
     try { if (shopping()) { const b = buys(); b[id] = (b[id] || 0) + n; } if (id === 'juan2' && shopping() && !F().r207_up_tut && window.R207_UP_TUT) { F().r207_up_tut = 1; later(() => whenFree(() => R207_UP_TUT()), 50); } if (id === 'bk_yt_jiutian' && !F().yt_jiutian) later(() => whenFree(() => window.R207_JT_TUT ? R207_JT_TUT() : ytLearn()), 50); /* 11-11：买下后教玩家去技能页参悟（跳过＝直接学会） */ } catch (e) {}
     return r; })(addItem);
   async function ytLearn() {
-    const f = F(); if (f.yt_jiutian) return; f.yt_jiutian = 1; const h = S.hero; if (h.bag && h.bag.bk_yt_jiutian) { delete h.bag.bk_yt_jiutian; }
+    const f = F(); if (f.yt_jiutian) return; f.yt_jiutian = 1; try { if (window.SPOT && SPOT.active()) SPOT.cancel('done'); } catch (e) {} const h = S.hero; if (h.bag && h.bag.bk_yt_jiutian) { delete h.bag.bk_yt_jiutian; }
     world.locked = true; try {
       await say('云霆', '……《九天神雷》。典籍阁那本，我盯了三年。');
       await narrate('云霆捧着秘卷，指尖电光噼啪作响。片刻之后，一道细小的紫雷绕着他的手腕转了三圈，钻进了经脉。');
@@ -421,6 +421,8 @@
         if (got.length && window.itemGet) await itemGet(got, '获得物品');
       } }
     if (f.yt_jiutian) return true;
+    // 作者 11-11：秘卷已经买了、还没参悟 → 不替玩家学，拦下来让玩家自己去技能页参悟
+    if (itemCount('bk_yt_jiutian') > 0) { await say('星旋', '慢着——《九天神雷》买了还没让云霆参悟呢。行囊 → 技能 → 云霆 → 九天神雷 → 参悟。'); if (window.R207_JT_TUT) setTimeout(() => R207_JT_TUT(), 300); return false; }
     await say('云霆', '等等。（从怀里摸出一卷秘卷）自己掏钱买的。走之前，得先学会。');
     await ytLearn(); return true;
   };
