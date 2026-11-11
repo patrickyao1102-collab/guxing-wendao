@@ -330,6 +330,7 @@
   async function session() {
     if (G.on) return;
     const f = F();
+    if (window.R193_ANGLE && window.R193_ON) { need(); return R193_ANGLE({ FISH, FD, F, cardCanvas, IM, IM2, showCard, G, SHI, catName, ui }); }   // 作者 11-11：换成「潭边垂钓」（r193_*.js），旧的几版接好后删
     if (left() <= 0) { await narrate('今天潭里的鱼都学精了——歇一觉再来。'); return; }
     need(); if (!IM.angler || !IM.float || !IM.ui) { toast('钓具还在拿……稍等一下再点', 1400); return; }
     if (!f.r175_rod) { f.r175_rod = 1; await narrate('钓台柱子上斜靠着一根旧竹竿，竿梢磨得发亮——是松伯的。'); await say('叶孤星', '（借来用用，回头跟松伯说一声。）'); }
