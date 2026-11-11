@@ -132,16 +132,15 @@
     if (F().yt_jiutian || jtBusy) return; jtBusy = true; try {
     for (let i = 0; i < 600 && ((window.R169_SHOP && R169_SHOP.open) || dialog || sysPanel || choice || world.locked); i++) await sleep(200);   // 等商店关了、剧情空闲再教
     if (F().yt_jiutian) return;
-    await say('星旋', '秘卷到手了——别光揣着，得让云霆参悟了才算数。我教你一遍：');
-    const isJT = o => o.n && o.n.name === '九天神雷';
-    const r = await SPOT.run([
+    // 作者 11-12：不许自动学会——在行囊（背包）里选中《九天神雷》点「使用」，云霆才领悟；跳过教学也不替玩家学
+    await say('星旋', '秘卷到手了——别光揣着。打开行囊，选中它点「使用」，云霆才能领悟。我教你一遍：');
+    const JT = 'bk_yt_jiutian';
+    await SPOT.run([
       { title: '打开行囊', text: '点右下角的「行囊」。', rect: () => S.menu ? null : BAG, done: () => !!S.menu },
-      { title: '技能页', text: '点左边的「技能」。', rect: () => tabR('技能'), done: () => isTab('技能') },
-      { title: '换到云霆', text: '点上面云霆的头像，看他的技能。', rect: () => memR('yunting'), done: () => isTab('技能') && S.menu.who === 'yunting' },
-      { title: '找到九天神雷', text: '「秘传」一列里就是九天神雷，点一下它。', rect: () => nodeR('yunting', isJT), done: () => window.SKT_SEL && /^yunting\.ult$/.test(SKT_SEL() || '') },
-      { title: '参悟', text: '右下角「参悟」——用掉秘卷，云霆就学会了。', rect: () => btnR(), done: () => !!F().yt_jiutian },
+      { title: '背包', text: '点左边的「背包」。', rect: () => tabR('背包'), done: () => isTab('背包') },
+      { title: '找到《九天神雷》', text: () => cellR(JT) ? '点一下《九天神雷》秘传。' : '上面换到「全部」，找到《九天神雷》点一下。', rect: () => cellR(JT) || (bagTabs(menuLayout()).map(b => [b.x, b.y, b.w, b.h])[0] || null), done: () => isTab('背包') && S.menu.sel === JT },
+      { title: '使用', text: '点「使用」——云霆就会参悟这卷秘传。', rect: () => useR(), done: () => !!F().yt_jiutian },
     ]);
-    if (r === 'skip' && !F().yt_jiutian && window.R134_YT_LEARN) { try { if (S.menu && typeof closeMenu === 'function') closeMenu(); } catch (e) {} await R134_YT_LEARN(); }
     } finally { jtBusy = false; }
   };
 })();

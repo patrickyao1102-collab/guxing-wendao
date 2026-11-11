@@ -94,9 +94,9 @@
   startBattle = (orig => function () { const r = orig.apply(this, arguments); try { if (battle) battle._lv64 = S.hero.lv; } catch (e) {} return r; })(startBattle);
   const idOf = name => { try { for (const [id, it] of Object.entries(ITEM_DB)) if (it && it.name === name) return id; } catch (e) {} return null; };
   let soloN = 0;
-  function pick(allies) { if (!allies.length) return (soloN++ % 2) ? '08' : '07';   // 单人出战：叶孤星独像（两张轮流）
+  function pick(allies) { if (!allies.length) return '08';   // 作者 11-12：单人出战只用 08「收剑睥睨」，07 回身斩不再出现
     let best = '03', sc = -Infinity;
-    for (const [k, set] of Object.entries(SETS)) { const hit = set.filter(a => allies.includes(a)).length, miss = set.length - hit, extra = allies.length - hit, s = hit * 10 - miss * 3 - extra; if (s > sc) { sc = s; best = k; } }
+    for (const [k, set] of Object.entries(SETS)) { if (k === '07') continue; const hit = set.filter(a => allies.includes(a)).length, miss = set.length - hit, extra = allies.length - hit, s = hit * 10 - miss * 3 - extra; if (s > sc) { sc = s; best = k; } }
     return best; }
   showPanel = (orig => function (title, lines) {
     try {

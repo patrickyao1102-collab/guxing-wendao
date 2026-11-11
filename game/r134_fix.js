@@ -422,7 +422,7 @@
       } }
     if (f.yt_jiutian) return true;
     // 作者 11-11：秘卷已经买了、还没参悟 → 不替玩家学，拦下来让玩家自己去技能页参悟
-    if (itemCount('bk_yt_jiutian') > 0) { await say('星旋', '慢着——《九天神雷》买了还没让云霆参悟呢。行囊 → 技能 → 云霆 → 九天神雷 → 参悟。'); if (window.R207_JT_TUT) setTimeout(() => R207_JT_TUT(), 300); return false; }
+    if (itemCount('bk_yt_jiutian') > 0) { await say('星旋', '慢着——《九天神雷》买了还没让云霆参悟呢。打开行囊，在背包里选中它，点「使用」。'); if (window.R207_JT_TUT) setTimeout(() => R207_JT_TUT(), 300); return false; }
     await say('云霆', '等等。（从怀里摸出一卷秘卷）自己掏钱买的。走之前，得先学会。');
     await ytLearn(); return true;
   };

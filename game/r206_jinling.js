@@ -52,7 +52,7 @@
   setInterval(() => { try { if (S.party && S.party.includes('yunting') && !(S.sk4 && S.sk4['yunting.qianggong'])) give(); } catch (e) {} }, 2000);
   const D = '引九天雷霆劈落全体：四段雷击，威力合计 385%（每个敌人），40% 麻痹';
   try { if (window.SKT && SKT.nodeOf) { const n = SKT.nodeOf('yunting', 'ult'); if (n) n.desc = D; } } catch (e) {}
-  try { if (ITEM_DB.bk_yt_jiutian) ITEM_DB.bk_yt_jiutian.desc = '云霆的秘传。' + D.replace('引', '引') + '。买下后在技能页给云霆参悟'; } catch (e) {}
+  try { if (ITEM_DB.bk_yt_jiutian) ITEM_DB.bk_yt_jiutian.desc = '云霆的秘传。' + D.replace('引', '引') + '。买下后在行囊里点「使用」，云霆即可领悟'; } catch (e) {}
 })();
 
 // ================= 作者 11-11：林溪（Codex R205 重画）对话立绘：默认 / 笑 / 惊 / 羞 / 偷看。旧图集 chars1 里的林逸三格不再用 =================

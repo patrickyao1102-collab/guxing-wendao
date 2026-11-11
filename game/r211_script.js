@@ -112,3 +112,20 @@
     SPEAKERS['方烈·怒'] = { p: MAP.angry, name: '方烈', color: base.color || '#ff7a8a' };
     SPEAKERS['方烈·惊'] = { p: MAP.surprise, name: '方烈', color: base.color || '#ff7a8a' }; } } catch (x) {}
 })();
+
+// —— 作者 11-12：《九天神雷》秘传在行囊里直接点「使用」→ 云霆领悟（和凝元丹一个用法）；买到手不再自动学会 ——
+(function () {
+  const JT = 'bk_yt_jiutian', isJT = id => id === JT;
+  if (typeof useBtn === 'function') useBtn = (o => function (L) {
+    const id = S.menu && S.menu.sel;
+    if (isJT(id) && itemCount(id) && !(S.flags && S.flags.yt_jiutian)) return { x: L.body.x + L.body.w - 170, y: L.body.y + L.body.h - 92, w: 150, h: 56 };
+    return o.apply(this, arguments);
+  })(useBtn);
+  if (typeof useItemOn === 'function') useItemOn = (o => function (id) {
+    if (!isJT(id)) return o.apply(this, arguments);
+    if (typeof battle !== 'undefined' && battle) { toast('战斗中不能参悟', 1400); return; }
+    if (!(S.party || []).includes('yunting')) { toast('这是云霆的秘传——等他入队再用', 1800); return; }
+    try { closeMenu(); } catch (e) { S.menu = null; world.locked = false; }
+    setTimeout(() => { try { window.R134_YT_LEARN && R134_YT_LEARN(); } catch (e) {} }, 40);
+  })(useItemOn);
+})();

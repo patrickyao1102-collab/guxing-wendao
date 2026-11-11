@@ -122,7 +122,14 @@
     if (k === 'rank_lit' || k === 'rank_dim') return D(k, x, y, w, h);
     if (k === 'badge_upgrade') return D('icon_upgrade', x, y, w, h);
     if (k === 'icon_lock') return D('icon_lock', x, y, w, h);
-    if (k === 'btn_n' || k === 'btn_d' || k === 'btn_p') { nine(k === 'btn_d' ? 'learn_button_d' : k === 'btn_p' ? 'learn_button_p' : 'learn_button_n', x + 2, y + 2, w - 4, h - 4); T('参 悟', cx, cy + 1, 30, k === 'btn_d' ? C.dim : C.gold2); return true; }
+    if (k === 'btn_n' || k === 'btn_d' || k === 'btn_p') { nine(k === 'btn_d' ? 'learn_button_d' : k === 'btn_p' ? 'learn_button_p' : 'learn_button_n', x + 2, y + 2, w - 4, h - 4);
+      if (k !== 'btn_d') {   // 作者 11-12：条件满足时「参悟」要亮起来——暗色版原来亮 / 灰两个状态几乎一样。金色内光 + 呼吸外晕
+        const c = X(), pu = .5 + .5 * Math.sin(performance.now() / 420); c.save();
+        c.shadowColor = 'rgba(255,205,110,' + (.55 + .35 * pu) + ')'; c.shadowBlur = 16 + 12 * pu; c.strokeStyle = 'rgba(255,214,130,' + (.75 + .25 * pu) + ')'; c.lineWidth = 2;
+        c.beginPath(); if (c.roundRect) c.roundRect(x + 6, y + 6, w - 12, h - 12, 12); else c.rect(x + 6, y + 6, w - 12, h - 12); c.stroke(); c.shadowBlur = 0;
+        const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(255,214,130,.34)'); g.addColorStop(.55, 'rgba(214,150,60,.22)'); g.addColorStop(1, 'rgba(150,90,30,.30)'); c.fillStyle = g;
+        c.beginPath(); if (c.roundRect) c.roundRect(x + 7, y + 7, w - 14, h - 14, 11); else c.rect(x + 7, y + 7, w - 14, h - 14); c.fill(); c.restore(); }
+      T('参 悟', cx, cy + 1, 30, k === 'btn_d' ? C.dim : '#fff3cf'); return true; }
     if (k === 'divider_diamond') { nine('divider_h_3', x, cy - 5, w, 10); D('divider_jewel', cx - 15, cy - 9, 30, 18); return true; }
     if (k === 'panel_detail_9') return nine('panel_detail_9', x, y, w, h);
     return false;
