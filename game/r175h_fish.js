@@ -294,7 +294,7 @@
     const small = fish.id === 'minnow' || fish.id === 'shrimp' || fish.id === 'crucian';
     const btns = fish.id === 'salamander' || fish.id === 'turtle' ? ['release'] : fish.junk ? ['take'] : (G.cat && small ? ['keep', 'release', 'feed'] : ['keep', 'release']);
     const title = fish.junk ? '……钓到了' : fish.r === '传说' || fish.r === '稀世' ? '稀世鱼获' : '今日鱼获';
-    G.card = { t0: now(), art: cardCanvas(fish.id), name: fish.name, title, btns, line: fish.junk ? (fish.id === 'sandal' ? '左脚的，右脚的还在潭底' : '它看起来比你还惊讶') : sizeTxt(size) + ' · ' + fish.r };
+    G.card = { t0: now(), art: fish.art || cardCanvas(fish.id), name: fish.name, title, btns, line: fish.junk ? (fish.id === 'sandal' ? '左脚的，右脚的还在潭底' : '它看起来比你还惊讶') : sizeTxt(size) + ' · ' + fish.r };
     G.phase = 'card'; TAPS.length = 0;
     let pick = null; while (!pick) { await frame(); const tp = take(); if (!tp) continue; if (now() - G.card.t0 < .35) continue; for (const b of cardRects(G.card).bs) if (inR(tp, b)) { pick = b.k; break; } }   // 卡片淡入时手还在连点，先不算
     G.card = null;

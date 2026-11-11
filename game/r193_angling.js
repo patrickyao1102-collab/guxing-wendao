@@ -64,26 +64,29 @@
     if (ST.msg && t < ST.msgT) { ctx.font = `40px ${BRUSH}`; ctx.fillStyle = '#ffe39a'; ctx.fillText(ST.msg, 640, 380); }
     if (ST.ph !== 'fight') { ctx.fillStyle = 'rgba(240,225,190,.92)'; ctx.fillRect(BTN.quit.x, BTN.quit.y, BTN.quit.w, BTN.quit.h); ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#3a1a06'; ctx.fillText(ST.ph === 'gear' ? '不钓了' : '收竿', BTN.quit.x + 80, BTN.quit.y + 35); }
   }
-  const PV = { get down() { return !!held(); }, inR };
-  const OV = { draw() { if (!ON) return; try { const t = now(), A = ART(); if (A && A.ready()) A.draw(ST, t, { floatDy, held, gear, D, BTN, wx, P: PV, rows: gearRows() }); else { drawTmp(t); drawUI(t); } } catch (e) { console.warn('R193 draw', e); } } };
+  const PV = { get down() { return !!held(); }, inR }; let API0 = null; const cardArt = id => { try { return API0 && API0.cardCanvas(id); } catch (e) { return null; } };
+  const OV = { draw() { if (!ON) return; try { const t = now(), A = ART(); if (A && A.ready()) A.draw(ST, t, { floatDy, held, gear, D, BTN, wx, P: PV, rows: gearRows(), cardArt }); else { drawTmp(t); drawUI(t); } } catch (e) { console.warn('R193 draw', e); } } };
   const layerOf = p => p < .38 ? 0 : p < .72 ? 1 : 2;
   // ---------- 流程 ----------
   const frame = () => nextFrame();
   const busy = () => (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice);
   async function waitTap() { const s = P.taps; while (P.taps === s) await frame(); }
-  function gearRows() { return { rod: { x: 300, y: 236, w: 680, h: 46 }, line: { x: 300, y: 290, w: 680, h: 46 }, bait: { x: 300, y: 344, w: 680, h: 46 }, go: { x: 525, y: 474, w: 230, h: 76 } }; }
+  function gearRows() { return { rod: { x: 300, y: 236, w: 680, h: 46 }, line: { x: 300, y: 290, w: 680, h: 46 }, bait: { x: 300, y: 344, w: 680, h: 46 }, go: { x: 525, y: 474, w: 230, h: 76 }, book: { x: 330, y: 484, w: 170, h: 56 } }; }
   function cycle(list, cur) { const i = list.indexOf(cur); return list[(i + 1) % list.length]; }
   async function gearScreen() { ST.ph = 'gear'; const g = gear();
     while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.quit)) return false; const R = gearRows();
       if (inR(R.rod)) { g.rod = cycle(g.rods, g.rod); continue; } if (inR(R.line)) { g.line = cycle(g.lines, g.line); continue; }
       if (inR(R.bait)) { const bs = baits().map(b => b.id); if (bs.length) g.bait = cycle(bs, bs.includes(g.bait) ? g.bait : bs[bs.length - 1]); continue; }
+      if (inR(R.book)) { await bookScreen(); ST.ph = 'gear'; continue; }
       if (inR(R.go)) { if (!baits().length) { say1('没有饵了', 1.4); continue; } if (!itemCount(g.bait)) g.bait = baits()[0].id; return true; } } }
+  async function bookScreen() { ST.ph = 'book'; const N = D.FISH.length; ST.bi = ST.bi || 0;
+    while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.quit)) return; ST.bi = (ST.bi + (P.x < 640 ? N - 1 : 1)) % N; try { playSnd('ui_confirm', .3); } catch (e) {} } }
   async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71;
     while (true) { await frame(); if (busy()) continue;
       if (!P.down) continue;
       if (inR(BTN.quit, P.x0, P.y0)) { while (P.down) await frame(); return false; }
       const t0 = now(); ST.holding = true; while (P.down) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); }   // 蓄满会往回落，要在最远时松手
-      ST.holding = false; ST.castT = now(); ST.layer = layerOf(ST.pow); ST.fy = NEAR - (NEAR - FAR) * ST.pow; ST.fx = 640 + rnd(-90, 90) * (1 - ST.pow * .5); ST.fk = 1 - ST.pow * .55;
+      ST.holding = false; ST.castT = now(); F().r193_n = (F().r193_n || 0) + 1; { const A = ART(); if (A && A.scareAll) A.scareAll(ST); } ST.layer = layerOf(ST.pow); ST.fy = NEAR - (NEAR - FAR) * ST.pow; ST.fx = 640 + rnd(-90, 90) * (1 - ST.pow * .5); ST.fk = 1 - ST.pow * .55;
       try { playSnd('sfx_swing', .5); } catch (e) {}
       setFlt('idle'); { const t1 = now(); while (now() - t1 < .32) await frame(); } fxAdd('splash', ST.fx, ST.fy, ST.fk); return true; } }
   // 等鱼：征兆每 4–8 秒一个；往下一划 / 点「收竿」就收竿重抛（不费饵）
@@ -95,7 +98,7 @@
       if (ST.plan.fish && el >= ST.plan.at) return 'bite';
       if (!ST.plan.fish && el >= D.WAIT_MAX) { say1('……没动静', 1.4); return 'recast'; }
       if (t >= ST.nextSign && !(ST.plan.fish && ST.plan.fish.bite && ST.plan.fish.bite.still && el > ST.plan.at - 8)) { const k = D.sign(o, ST.plan); ST.signs.push(k); ST.cap = { s: D.SIGNS[k].name, t0: t, k }; showSign(k); ST.nextSign = t + rnd(4, 8); } } }
-  function showSign(k) { const x = ST.fx + rnd(-140, 140), y = clamp(ST.fy + rnd(-60, 30), WY0 + 20, H - 40); if (/ripple|bubbles|jump|scatter|whirl|weed|lotus|gold|silver|petals/.test(k)) fxAdd(k, x, y, ST.fk + .3); }
+  function showSign(k) { const x = ST.fx + rnd(-140, 140), y = clamp(ST.fy + rnd(-60, 30), WY0 + 20, H - 40); if (/ripple|bubbles|jump|scatter|whirl|weed|lotus|gold|silver|petals/.test(k)) fxAdd(k, x, y, ST.fk + .3); const A = ART(); if (A && A.spawn) A.spawn(k, ST); }
   // 看漂 + 提竿：试口时提 = 空竿（鱼惊走）；真咬钩后 0.8 秒内提（湘妃竹竿多 0.3 秒）；晚了 = 偷饵
   async function biteAndStrike() { const f = ST.plan.fish, seq = D.biteSeq(f), ro = D.rod(gear().rod), winLen = .8 + (ro.sens >= 3 ? .3 : 0);
     ST.ph = 'bite'; ST.realT = 0; let su = P.swUp; const early = () => P.swUp !== su;
@@ -103,7 +106,7 @@
     for (const a of seq.pre) { setFlt(a === 'none' ? 'still' : 'dot'); fxAdd('ring', ST.fx, ST.fy, ST.fk * .6); const t0 = now(), d = rnd(.45, .9); while (now() - t0 < d) { await frame(); if (early()) return 'early'; } setFlt('idle'); }
     if (seq.pause) { const t0 = now(); while (now() - t0 < .8) { await frame(); if (early()) return 'early'; } }
     setFlt(seq.real); ST.realT = now(); fxAdd('ring', ST.fx, ST.fy, ST.fk); const t0 = now();
-    while (now() - t0 < winLen) { await frame(); if (early()) return 'hook'; }
+    while (now() - t0 < winLen) { await frame(); if (early()) { const A = ART(); if (A && A.scareAll) A.scareAll(ST); return 'hook'; } }
     return 'late'; }
   async function fight() { const g = gear(), f = ST.plan.fish; ST.fight = D.fightInit(f, g.rod, g.line); ST.ph = 'fight'; let last = now(), dir = 0;
     try { playSnd('sfx_hit', .5); } catch (e) {}
@@ -116,13 +119,14 @@
   async function landed(API, f) { const card = Object.assign({}, f, { r: f.junk ? '' : D.TIERS[f.t] });
     const book = F().r193_sg = F().r193_sg || {}; if (!f.junk) { const s = new Set(book[f.id] || []); ST.signs.forEach(k => s.add(k)); book[f.id] = [...s].slice(0, 8); }
     fxAdd('leap', ST.fx, ST.fy, 1.2); try { playSnd('ui_confirm', .6); } catch (e) {}
-    { const t0 = now(); while (now() - t0 < .7) await frame(); }
+    const A = ART(); if (!f.junk && A) ST.lift = { id: f.id, t0: now(), x: ST.fx, y: ST.fy }; if (A && A.cardArt) card.art = A.cardArt(f.id) || undefined;
+    { const t0 = now(); while (now() - t0 < (ST.lift ? 1.25 : .7)) await frame(); }
     if (f.id === 'shrimp') addItem('bait_shrimp', 1);
-    await API.showCard(card); API.G.phase = 'pond';
+    await API.showCard(card); ST.lift = null; API.G.phase = 'pond';
     ST.log.push(f.name); }
   const FAILS = { early: '提早了，鱼吓跑了', late: '饵被吃光了', snap: '线断了——', lost: '脱钩了' };
   window.R193_ANGLE = async function (API) {
-    const f = F(), G = API.G;
+    const f = F(), G = API.G; API0 = API;
     if (!f.r193_kit) { f.r193_kit = 1; addItem('bait_worm', 12); addItem('bait_dough', 6); gear();
       await narrate('钓台柱子边多了一只旧木匣，匣盖上刻着一个「松」字。里面是那根旧竹竿、一卷麻线，还有一罐蚯蚓、一包面团。');
       await narrate('（钓鱼换了玩法：看不见水下，只能看浮漂、看水面、看落在竿上的小东西，猜咬钩的是什么。）');
@@ -145,7 +149,7 @@
           const f2 = fish; say1(res === 'snap' ? (f2.t >= 3 ? '线断了——那一下的力气，' + D.line(gear().line).name + '吃不住' : '线断了') : FAILS.lost, 2.2); fxAdd('tail', ST.fx, ST.fy, 1.4); await sleepS(1.6);
         } }
       if (ST.log.length) await narrate('收竿。这一趟钓上来：' + ST.log.join('、') + '。');
-    } finally { ON = false; const i = S.overlay.indexOf(OV); if (i >= 0) S.overlay.splice(i, 1); G.on = false; G.phase = ''; G.card = null; world.locked = false; S.hud = hud0; P.down = false; ST.fight = null; }
+    } finally { ON = false; const i = S.overlay.indexOf(OV); if (i >= 0) S.overlay.splice(i, 1); G.on = false; G.phase = ''; G.card = null; world.locked = false; S.hud = hud0; P.down = false; ST.fight = null; ST.lift = null; ST.crs = []; }
   };
   async function sleepS(s) { const t0 = now(); while (now() - t0 < s) await frame(); }
 })();
