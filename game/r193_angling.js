@@ -1,11 +1,12 @@
 // ================= R193 · 潭边垂钓（独立窗口）=================
 // 作者 11-11 定的设计：看水面猜鱼、靠耐心和钓具的概率游戏（数据和概率在 r193_data.js）。
 // 流程：钓具匣选竿 / 线 / 饵 → 按住蓄力抛竿 → 等（征兆）→ 看漂 → 往上一划提竿 → 搏鱼（按住收、松手放、往鱼反方向拖）→ 出水。
-// 美术等 Codex R193F；没到之前 window.R193_ON 不开，钓台还走旧的。图没到时这里只画占位，不上线。
+// 美术是 Codex R193F（r193_art.js 画）；图没读好时先画占位。
 (function () {
   if (typeof S === 'undefined' || typeof ctx === 'undefined' || !window.R193) return;
+  if (window.R193_ON === undefined) window.R193_ON = 1;   // 作者 11-11 认可方案，素材到齐后正式换上
   const D = window.R193, now = () => performance.now() / 1000, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), rnd = (a, b) => a + Math.random() * (b - a);
-  const WY0 = 250, NEAR = 650, FAR = 312;   // 水面从 y=250 往下；抛近落在 650，抛满落在 312
+  const WY0 = 285, NEAR = 640, FAR = 335;   // 照 R193F 背景：水面从 y≈285 往下；抛近落在 640，抛满落在 335
   const LAYN = ['浅水', '潭心', '深水'];
   // ---------- 物品 ----------
   for (const b of D.BAITS) ITEM_DB[b.id] = Object.assign(ITEM_DB[b.id] || {}, { name: b.name, cat: '钓具', sell: 0, desc: b.k + '饵。' + (b.like.length ? '特别招' + b.like.map(i => D.fish(i).name).join('、') + '。' : '什么鱼都吃一点。') + '（' + b.from + '）' });
@@ -30,10 +31,10 @@
   const ST = { ph: 'gear', t0: 0, pow: 0, fx: 640, fy: 500, fk: 1, layer: 0, plan: null, signs: [], nextSign: 0, cap: null, flt: 'idle', flt0: 0, seq: null, win: 0, fight: null, msg: '', msgT: 0, log: [], fxs: [] };
   window.R193_ST = ST; window.R193_P = P;
   const say1 = (m, s = 2) => { ST.msg = m; ST.msgT = now() + s; };
-  const setFlt = a => { ST.flt = a; ST.flt0 = now(); };
+  const setFlt = a => { ST.flt = a; ST.flt0 = now(); ST.fdir = Math.random() < .5 ? -1 : 1; };
   const fxAdd = (k, x, y, s = 1) => ST.fxs.push({ k, x, y, s, t0: now() });
   const BTN = { quit: { x: 24, y: H - 74, w: 160, h: 54 }, reel: { x: 24, y: H - 74, w: 160, h: 54 } };
-  const ART = window.R193_ART || null;   // 素材到了以后由 r193_art.js 提供 draw(ST, ...)
+  const ART = () => window.R193_ART;   // 画面在 r193_art.js（Codex R193F 素材）
   // ---------- 占位画法（素材没到时开发用） ----------
   function drawTmp(t) { ctx.fillStyle = '#9cc9d6'; ctx.fillRect(0, 0, W, WY0); const g = ctx.createLinearGradient(0, WY0, 0, H); g.addColorStop(0, '#3f8ea0'); g.addColorStop(1, '#1d4f60'); ctx.fillStyle = g; ctx.fillRect(0, WY0, W, H - WY0);
     for (const q of ST.fxs) { const u = (t - q.t0) / 1.6; if (u > 1) continue; ctx.strokeStyle = `rgba(255,255,255,${.6 * (1 - u)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(q.x, q.y, 10 + 60 * u * q.s, (10 + 60 * u * q.s) * .3, 0, 0, 7); ctx.stroke(); }
@@ -63,27 +64,28 @@
     if (ST.msg && t < ST.msgT) { ctx.font = `40px ${BRUSH}`; ctx.fillStyle = '#ffe39a'; ctx.fillText(ST.msg, 640, 380); }
     if (ST.ph !== 'fight') { ctx.fillStyle = 'rgba(240,225,190,.92)'; ctx.fillRect(BTN.quit.x, BTN.quit.y, BTN.quit.w, BTN.quit.h); ctx.font = `600 22px ${FONT}`; ctx.fillStyle = '#3a1a06'; ctx.fillText(ST.ph === 'gear' ? '不钓了' : '收竿', BTN.quit.x + 80, BTN.quit.y + 35); }
   }
-  const OV = { draw() { if (!ON) return; try { const t = now(); if (ART && ART.ready()) ART.draw(ST, t, { floatDy, held, gear, D, BTN }); else { drawTmp(t); drawUI(t); } } catch (e) { console.warn('R193 draw', e); } } };
+  const PV = { get down() { return !!held(); }, inR };
+  const OV = { draw() { if (!ON) return; try { const t = now(), A = ART(); if (A && A.ready()) A.draw(ST, t, { floatDy, held, gear, D, BTN, wx, P: PV, rows: gearRows() }); else { drawTmp(t); drawUI(t); } } catch (e) { console.warn('R193 draw', e); } } };
   const layerOf = p => p < .38 ? 0 : p < .72 ? 1 : 2;
   // ---------- 流程 ----------
   const frame = () => nextFrame();
   const busy = () => (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice);
   async function waitTap() { const s = P.taps; while (P.taps === s) await frame(); }
-  function gearRows() { return { rod: { x: 320, y: 236, w: 640, h: 36 }, bait: { x: 320, y: 278, w: 640, h: 36 }, go: { x: 460, y: 430, w: 360, h: 60 } }; }
+  function gearRows() { return { rod: { x: 300, y: 236, w: 680, h: 46 }, line: { x: 300, y: 290, w: 680, h: 46 }, bait: { x: 300, y: 344, w: 680, h: 46 }, go: { x: 525, y: 474, w: 230, h: 76 } }; }
   function cycle(list, cur) { const i = list.indexOf(cur); return list[(i + 1) % list.length]; }
   async function gearScreen() { ST.ph = 'gear'; const g = gear();
     while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.quit)) return false; const R = gearRows();
-      if (inR(R.rod)) { if (P.x < 640) g.rod = cycle(g.rods, g.rod); else g.line = cycle(g.lines, g.line); continue; }
+      if (inR(R.rod)) { g.rod = cycle(g.rods, g.rod); continue; } if (inR(R.line)) { g.line = cycle(g.lines, g.line); continue; }
       if (inR(R.bait)) { const bs = baits().map(b => b.id); if (bs.length) g.bait = cycle(bs, bs.includes(g.bait) ? g.bait : bs[bs.length - 1]); continue; }
       if (inR(R.go)) { if (!baits().length) { say1('没有饵了', 1.4); continue; } if (!itemCount(g.bait)) g.bait = baits()[0].id; return true; } } }
-  async function aim() { ST.ph = 'aim'; ST.pow = 0; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71;
+  async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71;
     while (true) { await frame(); if (busy()) continue;
       if (!P.down) continue;
       if (inR(BTN.quit, P.x0, P.y0)) { while (P.down) await frame(); return false; }
-      const t0 = now(); while (P.down) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); }   // 蓄满会往回落，要在最远时松手
-      ST.layer = layerOf(ST.pow); ST.fy = NEAR - (NEAR - FAR) * ST.pow; ST.fx = 640 + rnd(-90, 90) * (1 - ST.pow * .5); ST.fk = 1 - ST.pow * .55;
+      const t0 = now(); ST.holding = true; while (P.down) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); }   // 蓄满会往回落，要在最远时松手
+      ST.holding = false; ST.castT = now(); ST.layer = layerOf(ST.pow); ST.fy = NEAR - (NEAR - FAR) * ST.pow; ST.fx = 640 + rnd(-90, 90) * (1 - ST.pow * .5); ST.fk = 1 - ST.pow * .55;
       try { playSnd('sfx_swing', .5); } catch (e) {}
-      fxAdd('splash', ST.fx, ST.fy, ST.fk); setFlt('idle'); return true; } }
+      setFlt('idle'); { const t1 = now(); while (now() - t1 < .32) await frame(); } fxAdd('splash', ST.fx, ST.fy, ST.fk); return true; } }
   // 等鱼：征兆每 4–8 秒一个；往下一划 / 点「收竿」就收竿重抛（不费饵）
   async function waitBite() { const g = gear(), ro = D.rod(g.rod), o = { bait: g.bait, shi: SHI(), layer: ST.layer, wx: wx(), sens: ro.sens, once: F().r175_turtle ? { turtle: 1 } : null };
     ST.plan = D.plan(o); ST.signs = []; ST.ph = 'wait'; ST.t0 = now(); ST.nextSign = ST.t0 + rnd(2.5, 5); const sd = P.swDn, tp = P.taps;
@@ -126,6 +128,7 @@
       await narrate('（钓鱼换了玩法：看不见水下，只能看浮漂、看水面、看落在竿上的小东西，猜咬钩的是什么。）');
       await narrate('（按住蓄力、松手抛竿，越用力抛得越远越深。等浮漂真沉下去时往上一划提竿；之前那几下轻点是在试口，提了就空。）');
       await narrate('（鱼上钩后按住收线；水面一鼓、它要猛冲时松手，线差的话大鱼一冲就断。）'); }
+    { const A = ART(); if (A && !A.ready()) { try { await A.load(); } catch (e) {} } }
     const hud0 = S.hud; S.hud = false; world.locked = true; G.on = true; G.phase = 'pond'; G.caught = []; G.card = null; G.fv = false; G.sh = null;
     if (S.overlay.indexOf(OV) < 0) S.overlay.unshift(OV); ON = true; ST.log = [];
     try {

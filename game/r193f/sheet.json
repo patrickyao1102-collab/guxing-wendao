@@ -1,0 +1,3777 @@
+{
+  "schema_version": "1.0",
+  "project": "R193F",
+  "title": "潭边垂钓 · 第一批",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "coordinates": {
+    "origin": "top-left",
+    "x": "right",
+    "y": "down",
+    "units": "px",
+    "frame_index_base": 0,
+    "row_index_base": 0,
+    "rect_format": "[x,y,width,height]",
+    "alpha": "straight / unpremultiplied",
+    "color_space": "sRGB"
+  },
+  "assets": {
+    "bg_mao": {
+      "file": "bg_mao.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "opaque": true
+    },
+    "bg_wu": {
+      "file": "bg_wu.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "opaque": true
+    },
+    "bg_you": {
+      "file": "bg_you.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "opaque": true
+    },
+    "bg_xu": {
+      "file": "bg_xu.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "opaque": true
+    },
+    "bg_zi": {
+      "file": "bg_zi.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "opaque": true
+    },
+    "rain": {
+      "file": "rain.webp",
+      "image_size": [
+        2560,
+        1440
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "frame_count": 4,
+      "fps": 8,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            1280,
+            0,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            0,
+            720,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            1280,
+            720,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "fg": {
+      "file": "fg.webp",
+      "image_size": [
+        2560,
+        1440
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "frame_count": 4,
+      "fps": 2,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            1280,
+            0,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            0,
+            720,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            1280,
+            720,
+            1280,
+            720
+          ],
+          "anchor": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "fog": {
+      "file": "fog.webp",
+      "image_size": [
+        1280,
+        720
+      ],
+      "cell_size": [
+        1280,
+        720
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        0,
+        0
+      ],
+      "loop": false,
+      "recommended_opacity": 1,
+      "scroll": {
+        "axis": "x",
+        "speed_px_per_second": 5,
+        "tile_mode": "mirrored-repeat",
+        "draw_adjacent_copies": true
+      }
+    },
+    "rods": {
+      "file": "rods.webp",
+      "image_size": [
+        5760,
+        2560
+      ],
+      "cell_size": [
+        640,
+        640
+      ],
+      "grid": [
+        9,
+        4
+      ],
+      "frame_count": 36,
+      "frames_per_row": 9,
+      "fps": 12,
+      "anchor": [
+        608,
+        608
+      ],
+      "loop": false,
+      "rows": [
+        {
+          "id": "old",
+          "name": "松伯的旧竹竿",
+          "row": 0,
+          "frame_count": 9,
+          "fps": 12,
+          "loop": false,
+          "selection": "rest=0; tension selects 1..5; windup plays 6..8 at 12fps",
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                81,
+                81
+              ],
+              "pose": "rest",
+              "tension": 0
+            },
+            {
+              "index": 1,
+              "rect": [
+                640,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                80,
+                102
+              ],
+              "pose": "bend_1",
+              "tension": 0.2
+            },
+            {
+              "index": 2,
+              "rect": [
+                1280,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                80,
+                130
+              ],
+              "pose": "bend_2",
+              "tension": 0.4
+            },
+            {
+              "index": 3,
+              "rect": [
+                1920,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                83,
+                189
+              ],
+              "pose": "bend_3",
+              "tension": 0.6
+            },
+            {
+              "index": 4,
+              "rect": [
+                2560,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                82,
+                266
+              ],
+              "pose": "bend_4",
+              "tension": 0.8
+            },
+            {
+              "index": 5,
+              "rect": [
+                3200,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                102,
+                395
+              ],
+              "pose": "bend_5",
+              "tension": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                3840,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                246,
+                88
+              ],
+              "pose": "windup_1",
+              "tension": null
+            },
+            {
+              "index": 7,
+              "rect": [
+                4480,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                299,
+                66
+              ],
+              "pose": "windup_2",
+              "tension": null
+            },
+            {
+              "index": 8,
+              "rect": [
+                5120,
+                0,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                480,
+                53
+              ],
+              "pose": "windup_3",
+              "tension": null
+            }
+          ]
+        },
+        {
+          "id": "purple",
+          "name": "紫竹竿",
+          "row": 1,
+          "frame_count": 9,
+          "fps": 12,
+          "loop": false,
+          "selection": "rest=0; tension selects 1..5; windup plays 6..8 at 12fps",
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                81,
+                71
+              ],
+              "pose": "rest",
+              "tension": 0
+            },
+            {
+              "index": 1,
+              "rect": [
+                640,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                75,
+                97
+              ],
+              "pose": "bend_1",
+              "tension": 0.2
+            },
+            {
+              "index": 2,
+              "rect": [
+                1280,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                75,
+                146
+              ],
+              "pose": "bend_2",
+              "tension": 0.4
+            },
+            {
+              "index": 3,
+              "rect": [
+                1920,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                100,
+                174
+              ],
+              "pose": "bend_3",
+              "tension": 0.6
+            },
+            {
+              "index": 4,
+              "rect": [
+                2560,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                118,
+                290
+              ],
+              "pose": "bend_4",
+              "tension": 0.8
+            },
+            {
+              "index": 5,
+              "rect": [
+                3200,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                126,
+                346
+              ],
+              "pose": "bend_5",
+              "tension": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                3840,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                229,
+                43
+              ],
+              "pose": "windup_1",
+              "tension": null
+            },
+            {
+              "index": 7,
+              "rect": [
+                4480,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                334,
+                27
+              ],
+              "pose": "windup_2",
+              "tension": null
+            },
+            {
+              "index": 8,
+              "rect": [
+                5120,
+                640,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                490,
+                15
+              ],
+              "pose": "windup_3",
+              "tension": null
+            }
+          ]
+        },
+        {
+          "id": "xiang",
+          "name": "湘妃竹竿",
+          "row": 2,
+          "frame_count": 9,
+          "fps": 12,
+          "loop": false,
+          "selection": "rest=0; tension selects 1..5; windup plays 6..8 at 12fps",
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                76,
+                54
+              ],
+              "pose": "rest",
+              "tension": 0
+            },
+            {
+              "index": 1,
+              "rect": [
+                640,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                84,
+                79
+              ],
+              "pose": "bend_1",
+              "tension": 0.2
+            },
+            {
+              "index": 2,
+              "rect": [
+                1280,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                80,
+                121
+              ],
+              "pose": "bend_2",
+              "tension": 0.4
+            },
+            {
+              "index": 3,
+              "rect": [
+                1920,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                109,
+                134
+              ],
+              "pose": "bend_3",
+              "tension": 0.6
+            },
+            {
+              "index": 4,
+              "rect": [
+                2560,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                135,
+                271
+              ],
+              "pose": "bend_4",
+              "tension": 0.8
+            },
+            {
+              "index": 5,
+              "rect": [
+                3200,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                110,
+                315
+              ],
+              "pose": "bend_5",
+              "tension": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                3840,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                251,
+                28
+              ],
+              "pose": "windup_1",
+              "tension": null
+            },
+            {
+              "index": 7,
+              "rect": [
+                4480,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                328,
+                12
+              ],
+              "pose": "windup_2",
+              "tension": null
+            },
+            {
+              "index": 8,
+              "rect": [
+                5120,
+                1280,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                471,
+                5
+              ],
+              "pose": "windup_3",
+              "tension": null
+            }
+          ]
+        },
+        {
+          "id": "spirit",
+          "name": "灵木竿",
+          "row": 3,
+          "frame_count": 9,
+          "fps": 12,
+          "loop": false,
+          "selection": "rest=0; tension selects 1..5; windup plays 6..8 at 12fps",
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                94,
+                79
+              ],
+              "pose": "rest",
+              "tension": 0
+            },
+            {
+              "index": 1,
+              "rect": [
+                640,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                93,
+                107
+              ],
+              "pose": "bend_1",
+              "tension": 0.2
+            },
+            {
+              "index": 2,
+              "rect": [
+                1280,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                93,
+                151
+              ],
+              "pose": "bend_2",
+              "tension": 0.4
+            },
+            {
+              "index": 3,
+              "rect": [
+                1920,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                100,
+                185
+              ],
+              "pose": "bend_3",
+              "tension": 0.6
+            },
+            {
+              "index": 4,
+              "rect": [
+                2560,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                144,
+                289
+              ],
+              "pose": "bend_4",
+              "tension": 0.8
+            },
+            {
+              "index": 5,
+              "rect": [
+                3200,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                145,
+                360
+              ],
+              "pose": "bend_5",
+              "tension": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                3840,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                248,
+                54
+              ],
+              "pose": "windup_1",
+              "tension": null
+            },
+            {
+              "index": 7,
+              "rect": [
+                4480,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                310,
+                34
+              ],
+              "pose": "windup_2",
+              "tension": null
+            },
+            {
+              "index": 8,
+              "rect": [
+                5120,
+                1920,
+                640,
+                640
+              ],
+              "anchor": [
+                608,
+                608
+              ],
+              "tip": [
+                461,
+                13
+              ],
+              "pose": "windup_3",
+              "tension": null
+            }
+          ]
+        }
+      ]
+    },
+    "line_hemp": {
+      "file": "line_hemp.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": false,
+      "material": "hemp"
+    },
+    "line_cotton": {
+      "file": "line_cotton.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": false,
+      "material": "cotton"
+    },
+    "line_ice_silk": {
+      "file": "line_ice_silk.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": false,
+      "material": "ice_silk"
+    },
+    "line_dragon_sinew": {
+      "file": "line_dragon_sinew.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": false,
+      "material": "dragon_sinew"
+    },
+    "line_hemp_tension": {
+      "file": "line_hemp_tension.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": true,
+      "material": "hemp"
+    },
+    "line_cotton_tension": {
+      "file": "line_cotton_tension.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": true,
+      "material": "cotton"
+    },
+    "line_ice_silk_tension": {
+      "file": "line_ice_silk_tension.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": true,
+      "material": "ice_silk"
+    },
+    "line_dragon_sinew_tension": {
+      "file": "line_dragon_sinew_tension.webp",
+      "image_size": [
+        8,
+        64
+      ],
+      "cell_size": [
+        8,
+        64
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "frame_count": 1,
+      "fps": 0,
+      "anchor": [
+        4,
+        0
+      ],
+      "loop": false,
+      "tile_y": true,
+      "tile_period_px": 64,
+      "tension": true,
+      "material": "dragon_sinew"
+    },
+    "float": {
+      "file": "float.webp",
+      "image_size": [
+        768,
+        1344
+      ],
+      "cell_size": [
+        96,
+        192
+      ],
+      "grid": [
+        8,
+        7
+      ],
+      "frame_count": 52,
+      "fps": 8,
+      "anchor": [
+        48,
+        140
+      ],
+      "loop": false,
+      "rows": [
+        {
+          "id": "idle",
+          "name": "静立轻浮",
+          "row": 0,
+          "frame_count": 8,
+          "fps": 6,
+          "loop": true,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 6,
+              "rect": [
+                576,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 7,
+              "rect": [
+                672,
+                0,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        },
+        {
+          "id": "nibble",
+          "name": "轻点（试口）",
+          "row": 1,
+          "frame_count": 6,
+          "fps": 10,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                192,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        },
+        {
+          "id": "dip",
+          "name": "顿一下",
+          "row": 2,
+          "frame_count": 6,
+          "fps": 12,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                384,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        },
+        {
+          "id": "submerge",
+          "name": "黑漂",
+          "row": 3,
+          "frame_count": 8,
+          "fps": 8,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": true
+            },
+            {
+              "index": 6,
+              "rect": [
+                576,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": true
+            },
+            {
+              "index": 7,
+              "rect": [
+                672,
+                576,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": true
+            }
+          ]
+        },
+        {
+          "id": "rise",
+          "name": "送漂",
+          "row": 4,
+          "frame_count": 8,
+          "fps": 6,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 6,
+              "rect": [
+                576,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 7,
+              "rect": [
+                672,
+                768,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        },
+        {
+          "id": "drift",
+          "name": "横移",
+          "row": 5,
+          "frame_count": 8,
+          "fps": 8,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 6,
+              "rect": [
+                576,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 7,
+              "rect": [
+                672,
+                960,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        },
+        {
+          "id": "entry",
+          "name": "入水溅花",
+          "row": 6,
+          "frame_count": 8,
+          "fps": 14,
+          "loop": false,
+          "anchor": [
+            48,
+            140
+          ],
+          "waterline_y": 140,
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 1,
+              "rect": [
+                96,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 2,
+              "rect": [
+                192,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 3,
+              "rect": [
+                288,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 4,
+              "rect": [
+                384,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 5,
+              "rect": [
+                480,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 6,
+              "rect": [
+                576,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            },
+            {
+              "index": 7,
+              "rect": [
+                672,
+                1152,
+                96,
+                192
+              ],
+              "anchor": [
+                48,
+                140
+              ],
+              "fully_submerged": false
+            }
+          ]
+        }
+      ],
+      "unused_cells": "Rows nibble and dip: columns 6 and 7 are fully transparent"
+    },
+    "water_fx": {
+      "file": "water_fx.webp",
+      "image_size": [
+        3072,
+        1408
+      ],
+      "cell_size": [
+        256,
+        128
+      ],
+      "grid": [
+        12,
+        11
+      ],
+      "frame_count": 94,
+      "fps": 8,
+      "anchor": [
+        128,
+        72
+      ],
+      "loop": false,
+      "rows": [
+        {
+          "id": "small",
+          "name": "细碎涟漪",
+          "row": 0,
+          "frame_count": 8,
+          "fps": 8,
+          "loop": true,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                0,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            }
+          ]
+        },
+        {
+          "id": "large",
+          "name": "大涟漪慢慢扩开",
+          "row": 1,
+          "frame_count": 10,
+          "fps": 6,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.55
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.7
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.85
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.95
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.85
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.7
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.5
+            },
+            {
+              "index": 8,
+              "rect": [
+                2048,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.28
+            },
+            {
+              "index": 9,
+              "rect": [
+                2304,
+                128,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.1
+            }
+          ]
+        },
+        {
+          "id": "bubbles",
+          "name": "一串气泡",
+          "row": 2,
+          "frame_count": 8,
+          "fps": 8,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.6
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                256,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.22
+            }
+          ]
+        },
+        {
+          "id": "gold",
+          "name": "水下金光一闪",
+          "row": 3,
+          "frame_count": 8,
+          "fps": 12,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                384,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            }
+          ]
+        },
+        {
+          "id": "silver",
+          "name": "月下银光一闪",
+          "row": 4,
+          "frame_count": 8,
+          "fps": 12,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                512,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            }
+          ]
+        },
+        {
+          "id": "vortex",
+          "name": "无风起漩涡",
+          "row": 5,
+          "frame_count": 12,
+          "fps": 8,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 8,
+              "rect": [
+                2048,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 9,
+              "rect": [
+                2304,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.65
+            },
+            {
+              "index": 10,
+              "rect": [
+                2560,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.4
+            },
+            {
+              "index": 11,
+              "rect": [
+                2816,
+                640,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.17
+            }
+          ]
+        },
+        {
+          "id": "muddy",
+          "name": "浑水一片",
+          "row": 6,
+          "frame_count": 8,
+          "fps": 6,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.6
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                768,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.22
+            }
+          ]
+        },
+        {
+          "id": "petals",
+          "name": "花瓣打转",
+          "row": 7,
+          "frame_count": 8,
+          "fps": 6,
+          "loop": true,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                896,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            }
+          ]
+        },
+        {
+          "id": "wake",
+          "name": "鱼拖出的水线",
+          "row": 8,
+          "frame_count": 8,
+          "fps": 12,
+          "loop": false,
+          "anchor": [
+            128,
+            72
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.6
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                1024,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                72
+              ],
+              "alpha_baked": 0.22
+            }
+          ]
+        },
+        {
+          "id": "dash",
+          "name": "猛冲炸开的水花",
+          "row": 9,
+          "frame_count": 8,
+          "fps": 16,
+          "loop": false,
+          "anchor": [
+            128,
+            94
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 0.6
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                1152,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 0.22
+            }
+          ]
+        },
+        {
+          "id": "breach",
+          "name": "鱼破水而出的大水花",
+          "row": 10,
+          "frame_count": 8,
+          "fps": 16,
+          "loop": false,
+          "anchor": [
+            128,
+            94
+          ],
+          "frames": [
+            {
+              "index": 0,
+              "rect": [
+                0,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 1,
+              "rect": [
+                256,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 2,
+              "rect": [
+                512,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 3,
+              "rect": [
+                768,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 4,
+              "rect": [
+                1024,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 5,
+              "rect": [
+                1280,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 1
+            },
+            {
+              "index": 6,
+              "rect": [
+                1536,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 0.6
+            },
+            {
+              "index": 7,
+              "rect": [
+                1792,
+                1280,
+                256,
+                128
+              ],
+              "anchor": [
+                128,
+                94
+              ],
+              "alpha_baked": 0.22
+            }
+          ]
+        }
+      ],
+      "unused_cells": "All columns at or beyond the row frame_count are fully transparent"
+    },
+    "waterfall": {
+      "file": "waterfall.webp",
+      "image_size": [
+        512,
+        512
+      ],
+      "cell_size": [
+        256,
+        256
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "frame_count": 4,
+      "fps": 8,
+      "anchor": [
+        128,
+        220
+      ],
+      "loop": true,
+      "frames": [
+        {
+          "index": 0,
+          "rect": [
+            0,
+            0,
+            256,
+            256
+          ],
+          "anchor": [
+            128,
+            220
+          ]
+        },
+        {
+          "index": 1,
+          "rect": [
+            256,
+            0,
+            256,
+            256
+          ],
+          "anchor": [
+            128,
+            220
+          ]
+        },
+        {
+          "index": 2,
+          "rect": [
+            0,
+            256,
+            256,
+            256
+          ],
+          "anchor": [
+            128,
+            220
+          ]
+        },
+        {
+          "index": 3,
+          "rect": [
+            256,
+            256,
+            256,
+            256
+          ],
+          "anchor": [
+            128,
+            220
+          ]
+        }
+      ],
+      "recommended_scene_position": [
+        947,
+        272
+      ],
+      "recommended_scale": [
+        0.58,
+        0.76
+      ],
+      "recommended_opacity": 0.28,
+      "blend_mode": "normal",
+      "note": "Optional flowing highlights over the waterfall already painted in all five backgrounds; reduce opacity at night."
+    }
+  },
+  "render_order": [
+    "background",
+    "waterfall",
+    "rain",
+    "water_fx",
+    "float",
+    "fog",
+    "fg",
+    "line",
+    "rods"
+  ],
+  "preview": {
+    "size": [
+      1280,
+      720
+    ],
+    "background": "bg_wu",
+    "rod": {
+      "row": 2,
+      "frame": 5,
+      "handle": [
+        1268,
+        714
+      ],
+      "scale": 1
+    },
+    "float": {
+      "row": 0,
+      "frame": 2,
+      "waterline": [
+        646,
+        466
+      ],
+      "scale": 0.48
+    },
+    "ripple": {
+      "row": 1,
+      "frame": 6,
+      "center": [
+        660,
+        472
+      ],
+      "scale": 1.15
+    },
+    "line": {
+      "asset": "line_ice_silk_tension",
+      "width": 4,
+      "from": "rod.tip transformed to scene",
+      "to": [
+        646,
+        466
+      ],
+      "resolved_tip": [
+        770,
+        421
+      ]
+    }
+  }
+}
