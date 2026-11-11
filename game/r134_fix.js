@@ -415,7 +415,7 @@
           await say('星旋', '慢着——单子上的东西还没买齐：' + need.map(it => it.label).join('、') + '。买齐了再下山。');
           S.flags.ch2_market = 1; S.quest = shopQuest(); toast('先去天剑集市把东西买齐（任务栏可自动寻路）', 2600); return false; }
         await say('云霆', '灵石不够？我这儿还有些，先拿去。');
-        const got = [];
+        const got = []; f.r207_up_tut = 1;   // 云霆补的卷二不再弹参悟教学（马上就下山了）
         for (const it of need) { if (it.id === 'bk_yt_jiutian') continue; const k = Math.max(0, it.n - (buys()[it.id] || 0)); if (k) { addItem(it.id, k); buys()[it.id] = it.n; got.push({ icon: 'item:' + it.id, name: (ITEM_DB[it.id] || {}).name || it.label, count: '×' + k, desc: '云霆给的' }); } }
         if (got.length && window.itemGet) await itemGet(got, '获得物品');
       } }
