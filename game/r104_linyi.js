@@ -7,6 +7,13 @@
 //    → 第二战 → 妖豹负伤逃进林子 → 林溪上前道谢 → 林溪在前面带路，在东北南门口等着。
 // 代码只做摆放、走位、倒地、气泡和刀光；人物都是原来的立绘。
 (function () {
+  /* 林溪呼救配音（小云雀，作者 11-11 选第 3 条）：待机呼救约每 7 秒一次，离得越远越轻 */
+  let LXB = null, LXP = null;
+  function lxCry(vol) { try { if (typeof AUD === 'undefined' || AUD.muted || typeof AC === 'undefined' || !AC || AUD.mode !== 'webaudio' || !AUD.sfxGain) return;
+    if (!LXP) LXP = fetch('vo/lx_jiuming.mp3?v=1').then(r => r.arrayBuffer()).then(b => new Promise((res, rej) => AC.decodeAudioData(b, res, rej))).then(b => (LXB = b)).catch(() => null);
+    LXP.then(b => { if (!b) return; const s = AC.createBufferSource(); s.buffer = b; const g = AC.createGain(); g.gain.value = .95 * vol; s.connect(g); g.connect(AUD.sfxGain); s.start(); }); } catch (e) {} }
+  try { (window.VOICE_LAB || (window.VOICE_LAB = [])).push({ group: '林溪 · 呼救（小云雀）', name: '林溪呼救 3（现用）', desc: '', src: 'vo/lx_jiuming.mp3?v=1' }); } catch (e) {}
+
   if (typeof TMAPS === 'undefined' || !TMAPS.lin_forest || typeof tileSetMap !== 'function' || typeof drawActorT !== 'function') return;
   const F = () => S.flags || (S.flags = {});
   const MAP = 'lin_forest';
@@ -66,7 +73,7 @@
       wolf.x = home.wolf[0] + Math.sin(t * 2.1) * 16; wolf.y = home.wolf[1] + Math.sin(t * 1.3) * 4; wolf.moving = Math.abs(Math.cos(t * 2.1)) > .35; wolf.dir = 1;
       rhino.x = home.rhino[0] + Math.sin(t * 1.4 + 1) * 10; rhino.moving = Math.abs(Math.cos(t * 1.4 + 1)) > .5; rhino.dir = -1;
       ly.x = home.ly[0] + Math.sin(t * 31) * 1.4; ly.dir = Math.sin(t * .9) > 0 ? 1 : -1;
-      if (now > ST.nextCry && !dialog) { ST.nextCry = now + 3400; bub(ly, Math.random() < .5 ? '救命——！' : '谁来救救我——！', 1900); }
+      if (now > ST.nextCry && !dialog) { ST.nextCry = now + 3400; bub(ly, Math.random() < .5 ? '救命——！' : '谁来救救我——！', 1900); if (!ST.lastVo || now - ST.lastVo > 6800) { ST.lastVo = now; const p = world.player, d = p ? Math.hypot(p.x - ly.x, p.y - ly.y) : 9999; lxCry(Math.max(.15, Math.min(1, 1.15 - d / 1400))); } }
     } else if (ST.waiting && !world.locked && !dialog) {
       const p = world.player, d = Math.hypot(p.x - ST.ly.x, p.y - ST.ly.y);
       ST.ly.dir = p.x >= ST.ly.x ? 1 : -1;
@@ -131,7 +138,7 @@
   async function intro() {
     const [cx, cy] = C(); stage(); const s = ST; if (!s || !s.idle) return;
     world.locked = true;
-    await sl(250); bub(s.ly, '救命——！', 2200); try { playSnd('sfx_wolf_howl', .7); } catch (e) {}
+    await sl(250); bub(s.ly, '救命——！', 2200); lxCry(1); try { playSnd('sfx_wolf_howl', .45); } catch (e) {}
     await narrate('林子深处忽然传来一声凄厉的呼救——');
     world.camFocus = [cx, cy - 10]; await sl(1300);
     // 妖狼往前一扑，林溪往后跌
