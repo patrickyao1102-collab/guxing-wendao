@@ -55,7 +55,7 @@
     nine('currency_bar_9', 778, 28, 352, 54); D('icon_lingshi', 797, 37, 30, 34); D('label_灵石', 829, 40, 50, 30); D('icon_xingchen', 960, 37, 32, 34); D('label_星辰点', 993, 40, 76, 30);
     txt(String(S.hero.gold || 0), 886, 56, 22, C.gold, 'left', NUM, 700); txt(String(S.hero.points || 0), 1076, 56, 22, C.blue, 'left', NUM, 700);
     D(closeDown ? 'btn_close_p' : 'btn_close_n', 1148, 28, 118, 46);
-    if (window.BDK) { const r = SKIN_R; ctx.save(); ctx.globalAlpha = .92; if (typeof roundRect === 'function') roundRect(r.x, r.y, r.w, r.h, 12); ctx.fillStyle = DK() ? 'rgba(12,26,34,.85)' : 'rgba(255,252,244,.9)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = DK() ? 'rgba(143,124,84,.8)' : 'rgba(198,155,87,.8)'; ctx.stroke(); ctx.restore();
+    if (window.BDK && !window.GX_TRIAL) { const r = SKIN_R;   /* 11-12：纯净版不给「换白玉」入口（白玉版是弃稿） */ ctx.save(); ctx.globalAlpha = .92; if (typeof roundRect === 'function') roundRect(r.x, r.y, r.w, r.h, 12); ctx.fillStyle = DK() ? 'rgba(12,26,34,.85)' : 'rgba(255,252,244,.9)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = DK() ? 'rgba(143,124,84,.8)' : 'rgba(198,155,87,.8)'; ctx.stroke(); ctx.restore();
       txt(DK() ? '换白玉' : '换玄青', r.x + r.w / 2, r.y + r.h / 2 + 1, 16, DK() ? '#C2AD78' : C.gold, 'center', '"R201WK",' + FONT, 600); }
   }
   const SKIN_R = { x: 1162, y: 80, w: 90, h: 28 };
@@ -210,7 +210,7 @@
     const L = menuLayout();
     // 关闭按钮按下态
     closeDown = !!(input.down && inR(input, L.close));
-    { const t = input.tapped; if (t && !t.key && window.BDK && inR(t, SKIN_R)) { consumeTap(); BDK.toggle(); playSnd('ui_click'); return; } }
+    { const t = input.tapped; if (t && !t.key && window.BDK && !window.GX_TRIAL && inR(t, SKIN_R)) { consumeTap(); BDK.toggle(); playSnd('ui_click'); return; } }
     { const t = input.tapped; if (t && !t.key && inR(t, HOME_R) && !(typeof choice !== 'undefined' && choice)) { consumeTap(); homeDown = true; setTimeout(() => { homeDown = false; }, 160); playSnd('ui_click');
       (async () => { const c = await choose('返回主界面？还没存档的进度会丢失', ['返回主界面', '先存档', '取消']); if (c === 0) { try { await fadeOut(400); } catch (e) {} window.GX_GOING_HOME = true; S.started = false; try { sessionStorage.removeItem('gx_alive'); sessionStorage.setItem('gx_home', '1'); } catch (e) {} location.href = location.pathname; }   /* 11-12：先清掉「正在玩」标记，不然被当成意外重载又自动接档 */ else if (c === 1) { m.savePage = true; m.saveSel = null; m.eqInfo = null; } })(); return; } }
     // 「存档」页签：就在行囊里画存档页（不再跳出去）
