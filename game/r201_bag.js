@@ -37,7 +37,7 @@
   }
   function header(L, m) {
     D('title_xingnang', 14, 6, 204, 100);
-    L.tabs.forEach((r, i) => { const t = MTABS[i], k = 'tab_' + t + '_' + (i === m.tab ? 's' : 'n'); if (IM[k]) D(k, r.x, r.y, 76, 116); else { ctx.save(); txt(t, r.x + 38, r.y + 58, 22, C.ink, 'center'); ctx.restore(); } });
+    L.tabs.forEach((r, i) => { const t = MTABS[i], on = m.savePage ? t === '存档' : i === m.tab, k = 'tab_' + t + '_' + (on ? 's' : 'n'); if (IM[k]) D(k, r.x, r.y, 76, 116); else { ctx.save(); txt(t, r.x + 38, r.y + 58, 22, C.ink, 'center'); ctx.restore(); } });
     // 队伍头像：先画圆形裁切的人像，再叠头像框
     for (let i = 0; i < 4; i++) { const x = 250 + i * 112, y = 4, r = L.members[i];
       if (!r) { D('avatar_empty', x, y, 86, 86); continue; }
@@ -108,6 +108,43 @@
   }
   let wearDown = null;
 
+
+  // ---------------- 存档页（Codex 版式：三条存档条 + 缩略金框 + 存档 / 读档）----------------
+  const TH = {}; for (const k of ['loc_qy', 'loc_xt', 'loc_pine']) { const im = new Image(); im.onload = () => { TH[k] = im; }; im.src = 'r187/' + k + '.webp'; }
+  const SKEY = s => 'gx_save_' + s, sread = s => { try { const d = JSON.parse(localStorage.getItem(SKEY(s)) || 'null'); return d && d.hero ? d : null; } catch (e) { return null; } };
+  const locOf = d => /^qy_/.test(d.map || '') ? 'loc_qy' : /^xt_/.test(d.map || '') ? 'loc_xt' : 'loc_pine';
+  const CN3 = ['一', '二', '三'], two = n => String(n).padStart(2, '0');
+  const srow = i => ({ x: 248, y: 172 + i * 144, w: 952, h: 136 }), SBTN = { x: 758, y: 602, w: 208, h: 66 }, LBTN = { x: 984, y: 602, w: 208, h: 66 };
+  let btnDown = null;
+  function drawSavePage(L, m) {
+    const sel = m.saveSel;
+    for (let i = 0; i < 3; i++) { const r = srow(i), d = sread(String(i + 1)), y = r.y;
+      nine(!d ? 'save_row_9_empty' : sel === i ? 'save_row_9_s' : 'save_row_9_n', r.x, y, r.w, r.h);
+      if (d) { const th = TH[locOf(d)]; if (th) { ctx.save(); ctx.beginPath(); ctx.rect(287, y + 19, 322, 100); ctx.clip(); const s = Math.max(322 / th.width, 100 / th.height); ctx.drawImage(th, 448 - th.width * s / 2, y + 69 - th.height * s / 2, th.width * s, th.height * s); ctx.restore(); }
+        D('save_thumb_frame', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12);
+        const h = d.hero || {}, t = new Date(d.t || 0);
+        txt('存档' + CN3[i] + ' · ' + fit(d.title || '某处', 300), 663, y + 35, 31, C.ink);
+        txt('叶孤星 · ' + (h.realm ? h.realm + ' · ' : '') + (h.lv || '?') + '级', 672, y + 71, 22, C.ink, 'left', FONT, 600);
+        txt(t.getFullYear() + '-' + two(t.getMonth() + 1) + '-' + two(t.getDate()) + '  ' + two(t.getHours()) + ':' + two(t.getMinutes()), 672, y + 103, 22, C.ink, 'left', FONT, 600); }
+      else { D('save_thumb_empty', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12); txt('存档' + CN3[i] + ' · 空存档', 663, y + 68, 31, C.ink); } }
+    D('divider_h', 272, 606, 460, 10); D('hint_diamond', 258, 632, 22, 22);
+    if (sel == null) D('label_请选择一个存档位', 288, 625, 300, 36); else txt('已选 存档' + CN3[sel] + (sread(String(sel + 1)) ? '（再存会覆盖）' : ''), 292, 643, 22, C.ink);
+    const hasD = sel != null && !!sread(String(sel + 1)), canS = sel != null, canL = hasD;
+    D(!canS ? 'btn_存档_d' : btnDown === 'save' ? 'btn_存档_p' : 'btn_存档_n', SBTN.x, SBTN.y, SBTN.w, SBTN.h);
+    D(!canL ? 'btn_读档_d' : btnDown === 'load' ? 'btn_读档_p' : 'btn_读档_n', LBTN.x, LBTN.y, LBTN.w, LBTN.h);
+    D('page_title_存档', 492, 90, 400, 74);
+  }
+  async function saveTap(t, m) {
+    for (let i = 0; i < 3; i++) if (inR(t, srow(i))) { m.saveSel = i; playSnd('ui_click'); return; }
+    const sel = m.saveSel; if (sel == null) return; const s = String(sel + 1), d = sread(s);
+    if (inR(t, SBTN)) { btnDown = 'save'; setTimeout(() => { btnDown = null; }, 160);
+      if (d) { const c = await choose('覆盖「存档' + CN3[sel] + '」？', ['覆盖', '取消']); if (c !== 0) return; }
+      const ok = window.saveGame && window.saveGame(s); if (ok) { playSnd('ui_confirm'); toast('已存入 存档' + CN3[sel]); } else toast('这里暂时不能存档', 1600); return; }
+    if (inR(t, LBTN) && d) { btnDown = 'load'; setTimeout(() => { btnDown = null; }, 160);
+      const c = await choose('读取「存档' + CN3[sel] + '」？当前没存的进度会丢失', ['读取', '取消']); if (c !== 0) return;
+      playSnd('ui_confirm'); try { await fadeOut(400); } catch (e) {} const ok = window.loadGame && window.loadGame(s); try { await fadeIn(400); } catch (e) {} return; }
+  }
+
   // ---------------- 主画 ----------------
   const prevDraw = drawMenu;
   drawMenu = function () {
@@ -119,7 +156,8 @@
     try {
       frame(L, m);
       const B = L.body, tab = MTABS[m.tab];
-      if (m.tab === 1) { drawEquipPage(L, mi);
+      if (m.savePage) drawSavePage(L, m);
+      else if (m.tab === 1) { drawEquipPage(L, mi);
         if (m.eqInfo && ITEM_DB[m.eqInfo.id]) { // 原来的装备详情（卸下 / 换上）：只让它画在详情框那块，底下我们的页面不被盖
           const w = 620, h = 400, bx = B.x + (B.w - w) / 2, by = B.y + (B.h - h) / 2; ctx.save(); ctx.fillStyle = 'rgba(40,30,18,.35)'; ctx.fillRect(PANEL.x + 20, PANEL.y + 20, PANEL.w - 40, PANEL.h - 40);
           ctx.beginPath(); ctx.rect(bx - 2, by - 2, w + 4, h + 4); ctx.clip(); drawEquip(B, L, mi); ctx.restore(); } }
@@ -138,6 +176,12 @@
     const L = menuLayout();
     // 关闭按钮按下态
     closeDown = !!(input.down && inR(input, L.close));
+    // 「存档」页签：就在行囊里画存档页（不再跳出去）
+    { const t = input.tapped, si = MTABS.indexOf('存档');
+      if (t && !t.key && si >= 0 && L.tabs[si] && inR(t, L.tabs[si])) { consumeTap(); m.savePage = true; m.saveSel = null; m.eqInfo = null; playSnd('ui_click'); return; }
+      if (m.savePage) { if (!t) return; if (t.key === 'Escape' || inR(t, L.close)) { m.savePage = false; return prevUpd.apply(this, arguments); }
+        if (L.tabs.some(r => inR(t, r)) || L.members.some(r => inR(t, r))) { m.savePage = false; return prevUpd.apply(this, arguments); }
+        if (typeof choice !== 'undefined' && choice) return; consumeTap(); saveTap(t, m); return; } }
     if (m.tab !== 1 || m.eqInfo) { drag = null; return prevUpd.apply(this, arguments); }
     // 下排拖动
     const n = swapList().length;
