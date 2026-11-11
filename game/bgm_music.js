@@ -88,8 +88,8 @@
     if (S.flags && S.flags.ch2_jm && m === 'tj_front') return 'xiashan';
     if (m === 'tj_room') return 'room';   // 作者：卧室原来的枫林太难听
     if (/^xt_city/.test(m)) return 'xtcity';   // 玄天城：清光升·纯乐
-    if (m === 'qy_yicui') return 'yicui';   // 作者 11-12 青阳镇支线：倚翠楼用「月夜离箫」（古琴洞箫，离别），长乐坊用「夜弦潜行」（悬疑）
-    if (m === 'qy_changle') return 'changle';
+    if (/^qy_yicui/.test(m)) return 'yicui';   // 作者 11-12 青阳镇支线：倚翠楼用「月夜离箫」（古琴洞箫，离别），长乐坊用「夜弦潜行」（悬疑）
+    if (/^qy_changle/.test(m)) return 'changle';
     if (m === 'xt_inn_hall') return 'xtinn';   // 玄天城探案支线：客栈大堂轻快，案发的客房悬疑
     if (m === 'xt_inn_room3') return 'xtcase';
     if (/^qingzhu_garden/.test(m)) return 'garden';   // 作者 11-11：青竹菜园用小云雀第二批 13「古筝独奏·悠闲」（第一批 03 作者嫌难听）
