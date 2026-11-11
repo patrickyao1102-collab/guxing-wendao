@@ -2,16 +2,19 @@
 // 星旋 / 玉佩 / 传音（原来的墨玉绿框）和所有「领悟……」框 → 灵雾横框 + 左侧星盘；1～4 行自动定高，多于 4 行分页。拆件尺寸、坐标按 R204 layout.json。
 (function () {
   const N = ['mist_panel_9', 'astrolabe', 'continue_normal', 'continue_pressed'], IM = {}; let n = 0;
-  for (const k of N) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = 'r204g/' + k + '.webp'; }
+  { const ps = N.map(k => new Promise(res => { const im = new Image(); im.onload = () => { IM[k] = im; n++; res(); }; im.onerror = () => res(); im.src = 'r204g/' + k + '.webp'; }));
+    /* 作者 11-12 真机：手机上这四张图没载完时会退回旧的墨玉绿框 → 进游戏前就载好；万一还没到，也只退到宣纸卷轴，绝不再出绿框 */
+    try { window.PRELOAD && PRELOAD('剧情提示框', Promise.all(ps)); } catch (e) {} }
   const ok = () => n >= N.length;
   const C = { title: '#FBE0A9', body: '#F6E9D1', gold: '#F1CC87', red: '#F08F83', hint: '#C4B7A3', special: '#C7E4E1' };
+  window.R208_NOJADE = true;   /* 墨玉绿框整体停用 */
   const DF = '"GuxingDF",' + BRUSH;
   /* 作者 11-12：这个提示框的字也换成 Codex 那套（行囊里用的）：标题马善政，正文霞鹜文楷 */
-  const TF = '"R201MS","GuxingWKB",' + BRUSH, BF = '"R201WK",' + FONT, BW = 400;   /* 作者 11-12：之前的字太粗 → 正文用霞鹜文楷常规字重 */
+  const TF = '"R201MS","GuxingWKB",' + BRUSH, BF = '"GuxingKai","R201WK",' + FONT, BW = 400;   /* 作者 11-12 真机：常规体在手机上太细 → 换成霞鹜文楷 Medium（比粗体细、比常规体实） */   /* 作者 11-12：之前的字太粗 → 正文用霞鹜文楷常规字重 */
   const WANT = p => /星旋|玉佩|传音|黑玉|领悟|吞噬之力|封印/.test(String(p.title || '')) && !p.eqp;
   function nine(im, x, y, w, h, l, t, r, b) { const s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
-  function wrap(s, w) { const out = []; let line = ''; for (const ch of s) { if (ctx.measureText(line + ch).width > w && line) { out.push(line); line = ch; } else line += ch; } if (line) out.push(line); return out; }
+  function wrap(s, w) { const out = []; let line = ''; for (const ch of s) { if (ctx.measureText(line + ch).width > w && line && !/[%％，。、；：！？）」』》0-9]/.test(ch)) { out.push(line); line = ch; } else line += ch; }   /* 行首不放标点、百分号，数字不拆开 */ if (line) out.push(line); return out; }
   // 把面板的行拆成物理行（已按字体宽度折好）
   function rows(p) { if (p._g208) return p._g208; const R = [];
     for (const raw of (p.lines || []).filter(Boolean)) { const s0 = String(raw), hl = s0.startsWith('!'), s = hl ? s0.slice(1) : s0, hint = /^[（(].*[）)]$/.test(s);
@@ -21,6 +24,7 @@
   const pages = p => Math.max(1, Math.ceil(rows(p).length / 4));
   const prev = window.R169_DRAWPANEL;
   window.R169_DRAWPANEL = function (p, k) {
+    if (p && WANT(p) && !ok()) p._nojade = true;
     if (!p || !WANT(p) || !ok()) return prev ? prev.apply(this, arguments) : false;
     const R = rows(p), pg = p._g208p || 0, cur = R.slice(pg * 4, pg * 4 + 4), nl = Math.max(1, cur.length), h = 186 + 38 * nl, w = 720, x = (W - w) / 2, y = (H - h) / 2;
     ctx.save(); ctx.fillStyle = `rgba(0,0,0,${.38 * k})`; ctx.fillRect(0, 0, W, H);
@@ -48,7 +52,7 @@
   const hook = () => { if (!window.SKWIN || SKWIN.__g208) return false; SKWIN.__g208 = 1; const old = SKWIN.learn;
     SKWIN.learn = function (o) { if (!ok()) return old.apply(this, arguments); o = o || {}; try { playSnd('sfx_sword_ring'); } catch (e) {} S.flash = .3; S.flashColor = '#cfe6ff';
       const k = o.k || (SKWIN.keyOf && SKWIN.keyOf(o.name)), lines = ['!' + (o.name || ''), o.desc || '', o.meta ? '（' + String(o.meta).replace(/^（|）$/g, '') + '）' : ''].filter(Boolean);
-      return new Promise(res => { sysPanel = { title: (o.note ? o.note + ' · ' : '') + '领悟技能', lines, t: 0, ms: 0, res: () => res(true), _g208icon: k }; }); };
+      return new Promise(res => { sysPanel = { title: o.note ? (/领悟/.test(o.note) ? String(o.note).replace(/\s*领悟.*$/, '') + ' · 领悟技能' : o.note + ' · 领悟技能') : '领悟技能', lines, t: 0, ms: 0, res: () => res(true), _g208icon: k }; }); };
     return true; };
   if (!hook()) { const iv = setInterval(() => { if (hook()) clearInterval(iv); }, 300); }
   // 多于 4 行：点一下翻下一页，最后一页再点才关

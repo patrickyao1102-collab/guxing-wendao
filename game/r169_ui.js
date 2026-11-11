@@ -79,7 +79,7 @@
   };
 
   // ---------------- 系统面板：星旋 / 玉佩 → 墨玉传音；其余 → 宣纸卷轴 ----------------
-  const JADE = p => /星旋|玉佩|传音|黑玉/.test(String(p.title || ''));
+  const JADE = p => !p._nojade && !window.R208_NOJADE && /星旋|玉佩|传音|黑玉/.test(String(p.title || ''));
   window.R169_DRAWPANEL = function (p, k) {
     if (!p || p.eqp) return false;
     const jade = JADE(p); if (jade ? !ok('ink_jade_panel', 'black_jade_charm') : !ok('paper_scroll')) return false;
