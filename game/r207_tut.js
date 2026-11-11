@@ -192,3 +192,22 @@
   window.addEventListener('pointerdown', e => { if (!want()) return; const c = document.querySelector('canvas'); if (!c || e.target !== c) return; const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
     if (x >= SKIP[0] && x <= SKIP[0] + SKIP[2] && y >= SKIP[1] && y <= SKIP[1] + SKIP[3]) { off = true; e.stopImmediatePropagation(); e.preventDefault(); try { playSnd('ui_click'); } catch (_) {} } }, { capture: true });
 })();
+
+// ================= 作者 11-11：星影木人试剑 —— 只能放该放的那招（先破军·天璇，再贪狼·追魂直到成功），别的全部锁住；右上角「跳过」=====
+(function () {
+  const isSpar = b => b && b.cfg && (b.cfg.title === '青竹小院 · 试剑' || b.cfg.title === '小院 · 练剑');
+  const want = b => { if (!isSpar(b)) return null; if (!b._tlTaught) return 'pojun'; if (b.tanlangUsed > 0) return null; return 'tanlang'; };
+  const NM = { pojun: '破军剑意 · 天璇', tanlang: '贪狼剑意 · 追魂' };
+  const SK = [W - 150, 22, 124, 46];
+  const lockMsg = k => toast('现在只能放「' + NM[k] + '」——点「仙术」找发光的那一招', 1800);
+  if (typeof heroSkills === 'function') heroSkills = (o => function () { const L = o.apply(this, arguments); try { const b = battle, k = want(b); if (k) for (const s of L) if (s && s.k !== k) { s.disabled = true; s.why = '现在只能放「' + NM[k] + '」'; } } catch (e) {} return L; })(heroSkills);
+  if (typeof doHeroAction === 'function') doHeroAction = (o => async function (k) { try { const b = battle, w = want(b); if (w && b && b.P && !b.P.ally && k !== w) { lockMsg(w); if (b.state !== 'menu') { b.state = 'menu'; b.menu = { sel: null, sub: null }; } return; } } catch (e) {} return o.apply(this, arguments); })(doHeroAction);
+  function skip() { const b = battle; if (!isSpar(b)) return; try { if (!S.hero.skills.includes('pojun')) S.hero.skills.push('pojun'); if (!S.hero.skills.includes('tanlang')) S.hero.skills.push('tanlang'); } catch (e) {}
+    b._tlTaught = true; b.tanlangUsed = Math.max(1, b.tanlangUsed || 0); b._g207skip = 1; for (const e of b.enemies) { e.hp = 0; e.alive = false; } toast('已跳过试剑', 1400); }
+  drawBattle = (o => function () { const r = o.apply(this, arguments); try { const b = battle; if (!want(b) || b._g207skip) return r;
+    ctx.save(); const [x, y, w, h] = SK; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 23) : ctx.rect(x, y, w, h); ctx.fillStyle = 'rgba(20,16,12,.85)'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(232,194,122,.9)'; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `22px ${BRUSH}`; ctx.fillStyle = '#ffe9b8'; ctx.fillText('跳 过 ›', x + w / 2, y + h / 2 + 1); ctx.restore(); } catch (e) {} return r; })(drawBattle);
+  window.addEventListener('pointerdown', e => { try { const b = typeof battle !== 'undefined' && battle; if (!want(b) || b._g207skip || dialog || sysPanel) return; const c = document.querySelector('canvas'); if (!c || e.target !== c) return;
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+    if (x >= SK[0] && x <= SK[0] + SK[2] && y >= SK[1] && y <= SK[1] + SK[3]) { e.stopImmediatePropagation(); e.preventDefault(); skip(); } } catch (_) {} }, { capture: true });
+})();

@@ -33,14 +33,13 @@
 
 // ================= 作者 11-11：云霆「九天神雷」大幅加强 —— 每个敌人吃到的伤害 ≈ 叶孤星「绝影」的三分之二（群攻）=================
 // 绝影 = 叶孤星攻击 × 600%；九天神雷原来三轮小雷 .5×3 + 主雷 1.2 = 云霆攻击 × 270%。
-// 现在按「叶孤星攻击 × 400%」折算回云霆身上的倍率（云霆攻击高了低了都对得上），最少也有原来的 1.3 倍。
+// 现在定成云霆攻击 × 385%（四段合计），说明里直接写百分比。
 (function () {
   if (typeof dmgCalc !== 'function') return;
   dmgCalc = (orig => function (att, def, mult = 1, critRate) {
     try { const b = typeof battle !== 'undefined' && battle;
       if (b && b.curSk === 'ult' && att && att.ally === 'yunting' && def && def.side === 'enemy') {
-        const H = b.main && !b.main.ally ? b.main : null, ha = H ? H.atk : att.atk;
-        mult *= Math.max(1.3, (4.75 * ha) / (2.7 * Math.max(1, att.atk))); /* 4 段各吃一次防御，实测 4.75 ≈ 绝影的 2/3 */ } } catch (e) {}
+        mult *= 3.85 / 2.7; /* 作者 11-11：定成云霆攻击 × 385%（四段合计，每个敌人）——实测约等于同级叶孤星绝影的三分之二 */ } } catch (e) {}
     return orig.call(this, att, def, mult, critRate);
   })(dmgCalc);
 })();
@@ -51,7 +50,7 @@
   if (typeof joinParty === 'function') joinParty = (o => function (k) { const r = o.apply(this, arguments); if (k === 'yunting') give(); return r; })(joinParty);
   // 读档进来、已经在队里的也补上
   setInterval(() => { try { if (S.party && S.party.includes('yunting') && !(S.sk4 && S.sk4['yunting.qianggong'])) give(); } catch (e) {} }, 2000);
-  const D = '引九天雷霆劈落全体，每个敌人约吃叶孤星「绝影」三分之二的伤害，40% 麻痹';
+  const D = '引九天雷霆劈落全体：四段雷击，威力合计 385%（每个敌人），40% 麻痹';
   try { if (window.SKT && SKT.nodeOf) { const n = SKT.nodeOf('yunting', 'ult'); if (n) n.desc = D; } } catch (e) {}
   try { if (ITEM_DB.bk_yt_jiutian) ITEM_DB.bk_yt_jiutian.desc = '云霆的秘传。' + D.replace('引', '引') + '。买下后在技能页给云霆参悟'; } catch (e) {}
 })();

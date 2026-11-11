@@ -15,7 +15,7 @@
     c_tayun: { name: '踏云靴', slot: 'shoe', spd: 3, def: 4, lvReq: 6, desc: '叶孤星衣柜深处翻出来的旧靴子，靴底绣着流云纹。速度 +3，防御 +4' },
     m_xcsha: { name: '星辰砂', price: 0, desc: '星辰商店兑换的炼器材料。星痕剑升阶用' },
     n_ningyuan: { name: '凝元丹', desc: '叶擎苍所赠。服下可直接冲破练气关，踏入凝丹二重（在行囊里选中它，点「使用」）' },
-    bk_yt_jiutian: { name: '《九天神雷》秘传', price: 240, book: true, cat: '秘传', desc: '云霆的秘传。引九天雷霆劈落全体，30% 麻痹。买下后云霆当场参悟' },
+    bk_yt_jiutian: { name: '《九天神雷》秘传', price: 240, book: true, cat: '秘传', desc: '云霆的秘传。四段雷击劈落全体，威力合计 385%（每个敌人），40% 麻痹。买下后在技能页给云霆参悟' },
   });
   if (ITEM_DB.k_pokong) ITEM_DB.k_pokong.desc = '叶擎苍所赠的珍稀空间符箓。带在身上，战斗中「逃跑」成功率 +25%';
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id) { const a = [...arguments]; const M = { c_tayun: 'a_leather', m_xcsha: 'yunxingshi', n_ningyuan: 'p_big', bk_yt_jiutian: 'book_jianpu' };
@@ -382,7 +382,7 @@
       await say('云霆', '……《九天神雷》。典籍阁那本，我盯了三年。');
       await narrate('云霆捧着秘卷，指尖电光噼啪作响。片刻之后，一道细小的紫雷绕着他的手腕转了三圈，钻进了经脉。');
       S.flash = .7; S.flashColor = '#d8c8ff'; try { playSnd('sfx_thunder'); } catch (e) {}
-      await showPanel('云霆 · 领悟秘传', ['!九天神雷', '引九天雷霆劈落全体，30% 麻痹', '（怒气满 100 时，在「秘传」中使用）']);
+      await showPanel('云霆 · 领悟秘传', ['!九天神雷', '四段雷击劈落全体，威力合计 385%（每个敌人），40% 麻痹', '（怒气满 100 时，在「秘传」中使用）']);
       await say('云霆', '……成了。黑风寨那帮人，正好拿来试雷。');
       if (shopping()) S.quest = shopQuest();
     } finally { world.locked = false; }
