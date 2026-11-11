@@ -16,9 +16,9 @@
   // 只有在地图上自由走动时才是安全存档点
   function safeNow() {
     try {
-      return !!(S.started && world.map && world.player && S.scene === drawMap
-        && !(typeof battle !== 'undefined' && battle) && !dialog && !choice && !sysPanel
-        && !world.locked && !world.hold && !window.CINE_PAUSE);
+      // 作者 11-11：「开放所有地图都可以存档」—— 只要在地图上、不在打斗 / 对话 / 选项 / 过场里就能存（行囊、存档页自己会锁地图，不再算作不能存）
+      return !!(S.started && world.map && world.player && TMAPS[world.mapName]
+        && !(typeof battle !== 'undefined' && battle) && !dialog && !choice && !window.CINE_PAUSE);
     } catch (e) { return false; }
   }
   const clone = o => { try { return JSON.parse(JSON.stringify(o)); } catch (e) { return null; } };
@@ -121,13 +121,10 @@
 
   // 菜单右上角加一个「存档」按钮（在「换肤」左边）
   if (typeof menuLayout === 'function') {
-    menuLayout = (orig => function () { const L = orig(); if (L.skin) L.save = { x: L.skin.x - 96, y: L.skin.y, w: 84, h: L.skin.h }; return L; })(menuLayout);
-    menuUpdate = (orig => function () {
-      const t = input.tapped;
-      if (t && !t.key) { const L = menuLayout(); if (L.save && inR(t, L.save)) { consumeTap(); try { playSnd('ui_click'); } catch (e) {} const f = window.GX_SLOTMENU; Promise.resolve(f && f !== slotMenu ? f() : undefined).then(v => { if (v === undefined) slotMenu(); }); return; }   /* R187 整页存档界面接管，图没到时退回旧弹窗 */ }
-      return orig.apply(this, arguments);
-    })(menuUpdate);
-    drawMenu = (orig => function () { orig(); try { const L = menuLayout(); if (L.save) { ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; sealText('存档', L.save.x, L.save.y, L.save.w, L.save.h, false); ctx.restore(); } } catch (e) {} })(drawMenu);   // 补画前重置画笔（前面留下的半透明会让按钮看着像不能点）
+    // 作者 11-11：「把存档功能放进行囊的单独列表」—— 行囊左侧分页最后加一页「存档」，点它直接打开存档页（右上角那个小按钮去掉）
+    menuUpdate = (orig => function () { try { if (!MTABS.includes('存档')) MTABS.push('存档'); } catch (e) {} const r = orig.apply(this, arguments); try { const m = S.menu; if (m && MTABS[m.tab] === '存档') { m.tab = m._lastTab || 0; const f = window.GX_SLOTMENU || slotMenu; Promise.resolve(f()).then(v => { if (v === undefined && f !== slotMenu) {} }); } else if (m) m._lastTab = m.tab; } catch (e) {} return r; })(menuUpdate);
+    /* 右上角「存档」小按钮已挪进左侧分页 */
+    /* 右上角存档按钮不再画 */
   }
 
   // ---------------- 标题画面：有存档就先问「继续 / 重新开始」 ----------------

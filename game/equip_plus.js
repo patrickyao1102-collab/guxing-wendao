@@ -33,7 +33,7 @@
   async function refineUI(who) {
     wrapAll();
     for (;;) {
-      const h = S.hero, eq = h.equip || {}, slots = ['weapon', 'armor', 'acc'].filter(s => eq[s]);
+      const h = S.hero, eq = h.equip || {}, slots = ['weapon', 'armor', 'shoe', 'acc'].filter(s => eq[s]);
       const bagGear = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot && !slots.some(s => eq[s] === id));
       const list = [...slots.map(s => eq[s]), ...bagGear].slice(0, 6);
       if (!list.length) { await say(who, '你身上连件像样的家伙都没有，拿什么来强化？'); return; }

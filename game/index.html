@@ -1585,7 +1585,7 @@ function closeMenu() { S.menu = null; world.locked = false; playSnd('ui_click');
 const TABS = ['状态', '装备', '背包', '技能'];
 function menuItems() {
   const h = S.hero, m = S.menu;
-  if (m.tab === 1) { const slots = [['weapon', '武器'], ['armor', '衣甲'], ['acc', '饰品']]; const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
+  if (m.tab === 1) { const slots = [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']]; const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
     return [...slots.map(([s, n]) => ({ kind: 'slot', s, label: n + '：' + (h.equip[s] ? ITEM_DB[h.equip[s]].name : '（空）'), sub: h.equip[s] ? statText(ITEM_DB[h.equip[s]]) : '' })),
       ...own.map(id => ({ kind: 'equip', id, label: '换上 ' + ITEM_DB[id].name + (h.bag[id] > 1 ? ' ×' + h.bag[id] : ''), sub: statText(ITEM_DB[id]) + ' · ' + ITEM_DB[id].desc }))]; }
   if (m.tab === 2) { const ids = ['p_small', ...Object.keys(h.bag)].filter((v, i, a) => a.indexOf(v) === i && itemCount(v) > 0);
@@ -4466,7 +4466,7 @@ function bagTabs(L) { return BAG_CATS.map(([k, n], i) => ({ k, n, x: L.body.x + 
 function bagPager(L) { const y = L.body.y + 10; return { prev: { x: L.body.x + L.body.w - 250, y, w: 76, h: 36 }, next: { x: L.body.x + L.body.w - 88, y, w: 76, h: 36 } }; }
 function bagCells(L) { const cols = 5, cw = (L.body.w - 20) / cols, ch = 92, pg = Math.min(S.menu.bagPage || 0, bagPages() - 1); return bagFiltered().slice(pg * 15, pg * 15 + 15).map((id, i) => ({ id, x: L.body.x + 10 + (i % cols) * cw, y: L.body.y + 56 + Math.floor(i / cols) * (ch + 8), w: cw - 12, h: ch })); }
 function equipCards(L) {
-  const h = S.hero, slots = [['weapon', '武器'], ['armor', '衣甲'], ['acc', '饰品']], cw = (L.body.w - 40) / 3;
+  const h = S.hero, slots = [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']], cw = (L.body.w - 50) / 4;
   const top = slots.map(([s, n], i) => ({ s, n, id: h.equip[s], x: L.body.x + 10 + i * (cw + 10), y: L.body.y + 10, w: cw, h: 110 }));
   const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
   const pages = Math.max(1, Math.ceil(own.length / 8)), pg = Math.min(S.menu.eqPage || 0, pages - 1);
@@ -4553,7 +4553,7 @@ function drawStatus(B, mi, now) {
     ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(n, sx + 48, y + 12); ctx.font = `700 24px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(String(v), sx + 48, y + 36); });
   y += 76;
   if (!mi.ally) { const h = S.hero; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('随身', x, y); y += 30;
-    [['weapon', '武器'], ['armor', '衣甲'], ['acc', '饰品']].forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * 40, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * 40, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
+    [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']].forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * 40, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * 40, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
       ctx.font = `600 18px ${FONT}`; ctx.fillStyle = id ? UI.text : UI.dim; ctx.fillText(n + '　' + (id ? ITEM_DB[id].name : '未装备'), x + 44, y + i * 40 + 1); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; if (id) ctx.fillText(statText(ITEM_DB[id]), x + 230, y + i * 40 + 1); }); }
   else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(({ yunting: '天剑宗天才弟子，一身黑衣，冷峻寡言，被叶孤星戏称「冰块脸」。雷属性灵根，修天剑诀。嘴上不多说，却是肯为叶孤星豁出命去的兄弟。', linxue: '天剑宗天才弟子，叶孤星的师姐。容貌清丽，目光清冷，冰属性灵根，修天剑诀。看着冷淡，却嫉恶如仇，见不得恃强凌弱。', shenle: '音谷圣女，出身仙灵大陆三大仙宗之一的天音宗。月白长裙，手持晶莹长笛，清丽出尘如谪仙。修超神阶功法《九音录》，以音律化道，可镇魂杀敌于无形。', luochen: '来自南蛮大陆的妖族少年，身负极古老、极高贵的妖族血脉，双眸一黑一金。被妖皇追杀，流落云渺大陆，为叶孤星所救，暂居天剑宗，与他结为好友。' })[mi.k] || '', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
 }

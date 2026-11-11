@@ -12,7 +12,7 @@
 
   // ---- 新物品（图标先借相近的，Codex 的新图标到了再换）----
   Object.assign(ITEM_DB, {
-    c_tayun: { name: '踏云靴', slot: 'acc', spd: 3, def: 4, lvReq: 6, desc: '叶孤星衣柜深处翻出来的旧靴子，靴底绣着流云纹。速度 +3，防御 +4' },
+    c_tayun: { name: '踏云靴', slot: 'shoe', spd: 3, def: 4, lvReq: 6, desc: '叶孤星衣柜深处翻出来的旧靴子，靴底绣着流云纹。速度 +3，防御 +4' },
     m_xcsha: { name: '星辰砂', price: 0, desc: '星辰商店兑换的炼器材料。星痕剑升阶用' },
     n_ningyuan: { name: '凝元丹', desc: '叶擎苍所赠。服下可直接冲破练气关，踏入凝丹二重（在行囊里选中它，点「使用」）' },
     bk_yt_jiutian: { name: '《九天神雷》秘传', price: 240, book: true, cat: '秘传', desc: '云霆的秘传。引九天雷霆劈落全体，30% 麻痹。买下后云霆当场参悟' },
@@ -410,3 +410,5 @@
     await ytLearn(); return true;
   };
 })();
+// 作者 11-11：「装备增加鞋子，应该有四个装备栏：武器 / 衣服 / 鞋子 / 饰品」—— 踏云靴改成鞋子；老存档里戴在「饰品」格的靴子自动挪到「鞋子」格（属性是装上时加的，挪格子不变）
+setInterval(() => { try { const all = [S.hero && S.hero.equip].concat(Object.values(S.allyEq || {})); for (const eq of all) { if (!eq) continue; for (const k of ['acc', 'armor']) { const id = eq[k]; if (id && ITEM_DB[id] && ITEM_DB[id].slot === 'shoe' && !eq.shoe) { eq.shoe = id; delete eq[k]; } } } } catch (e) {} }, 1500);
