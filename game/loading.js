@@ -61,9 +61,13 @@
   const RARE = 'NB13';
   const firstArt = () => { try { const F = S.flags || {};
     if (F.nb13_pending) { const i = ixOf(RARE); if (okI(i)) return i; }
-    if (F.first_art) return -1; const i = ixOf(FIRST_ART); return okI(i) ? i : -1; } catch (e) { return -1; } };
+    if (F.first_art) return -1; const i = ixOf(FIRST_ART); if (okI(i)) return i; for (const id of ['NA74', 'NB01', 'NH01']) { const j = ixOf(id); if (okI(j)) return j; } return -1; } catch (e) { return -1; } };
   const rareOut = i => !(SEL[i] && SEL[i][0] === RARE) || Math.random() < .04;
-  const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
+  // 作者 11-11：「第一次加载的时候只放三张插画作为加载图，但是我发现第一次加载还会加载别的图」—— 还没进过游戏（第一次载入）时，点屏幕换图、兜底抽图都只在这三张里换
+  const FIRST3 = ['NA74', 'NB01', 'NH01'];
+  const isFirstLoad = () => { try { return !(S.flags && S.flags.first_art); } catch (e) { return true; } };
+  const firstOk = i => !isFirstLoad() || FIRST3.includes(SEL[i] && SEL[i][0]);
+  const nextArt = () => { try { if (LB.qz && LB.qz.ok) return; const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i) && firstOk(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; } catch (e) {} };
   // R177：玩法 + 已解锁的剧情随机抽；当前地图有原著摘句时，约三成概率抽一句原著。最近 10 条不重复
   const nextTip = () => {
     const G = window.GX_TIPS; let t = null;
@@ -106,7 +110,7 @@
     setTimeout(() => { try { window.PRELOAD && PRELOAD('载入插画', p1); } catch (e) {} }, 0); }
   window.LOADING_TIP = () => LB.tip;
   window.LOADING_ART_READY = () => LB.im.some(o => o && o.ok);
-  const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i)); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
+  const lbPick = () => { const ready = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && i !== LB.idx && rareOut(i) && firstOk(i)); LB.idx = ready.length ? ready[Math.floor(Math.random() * ready.length)] : -1; nextTip();
     lbNext = pickU(); lbLoad(lbNext); };   // 每次换图后再预载一张，下次就有新图可抽
   function lbBar(p, now) { const P = LB.parts; if (!P.track) return false;
     ctx.drawImage(P.track, 160, 648, 960, 34);
@@ -119,7 +123,7 @@
     return true; }
   // 作者 11-08：「换图会黑一下再出现图片，这个绝对不准出现！」—— 过图不再先黑屏：旧地图上直接淡入这次要用的载入插画，换完图插画接着盖着，地图好了再淡出
   const COVER = { on: false, to: null, from: null, t0: 0, ms: 220, idx: -1, qz: null };
-  const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i)); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
+  const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i) && firstOk(i)); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
   function coverStart(to, ms) {
     let qz = null; try { qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(to, world.mapName) : null; } catch (e) {} if (qz && !qz.ok) qz = null;
     const fa = firstArt(); if (fa >= 0) qz = null; const idx = fa >= 0 ? fa : anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
@@ -148,7 +152,7 @@
     prog += (r - prog) * .15; if (r < 1) prog = Math.min(prog, .97);
     const a = shown;
     ctx.save(); ctx.globalAlpha = a;
-    if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
+    if (!(LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok)) { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i) && firstOk(i)); if (rd.length) LB.idx = rd[Math.floor(Math.random() * rd.length)]; }   // 换图那一刻插画还没下好：下好一张就马上换上
     const QA = LB.qz && LB.qz.ok ? LB.qz : null;   // 作者 11-08：青竹一带用 R144 十二件小事插画，轮流放
     let B = QA ? QA.im : LB.idx >= 0 && LB.im[LB.idx] && LB.im[LB.idx].ok ? LB.im[LB.idx].im : null;
     if (!B && typeof IMG !== 'undefined' && IMG.title_art && IMG.title_art.width) B = IMG.title_art;   // 万一插画还没到：先铺标题封面，绝不露黑屏
