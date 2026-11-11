@@ -1,7 +1,7 @@
 // R201：行囊换成白玉宣纸后，功法页跟着换浅色（只在行囊里画时；J() 把原来的夜空深色换成白玉 + 墨字）
 const J = (() => { const M = {'#120a04':'rgba(255,253,246,.92)','#0a0604':'rgba(255,253,246,.92)','#1a0800':'rgba(90,58,18,.85)','#f6e6bf':'#3E2D18','#f5ead2':'#3E2D18','#9fe28a':'#2f7a2a','#ff9a7a':'#A43B2E','#b8402a':'#c99446','#6e1a10':'#8a5a22','rgba(60,46,34,.9)':'rgba(212,208,200,.95)','rgba(34,26,20,.9)':'rgba(186,182,174,.95)','#18213a':'#F8F6F1','#0b0f1d':'#EDE9E0','rgba(22,13,8,.96)':'rgba(251,250,246,.97)','rgba(12,10,20,.9)':'rgba(252,250,244,.96)','rgba(12,10,20,.92)':'rgba(252,250,244,.96)','#2a3150':'#ddd6c8','#cfe0ff':'rgba(176,132,62,.9)','rgba(232,194,122,.45)':'rgba(198,155,87,.75)','rgba(232,194,122,.7)':'rgba(198,155,87,.8)','rgba(232,194,122,.55)':'rgba(198,155,87,.7)','rgba(232,194,122,.5)':'rgba(198,155,87,.7)','rgba(232,194,122,.3)':'rgba(198,155,87,.5)','rgba(232,194,122,.35)':'rgba(198,155,87,.5)','#eadcbc':'#3E2D18','#e9dcc0':'#3E2D18','#a8957a':'#77746E','#c9b48c':'#5a4a34','rgba(214,196,150,.8)':'#5a4a34','rgba(232,210,160,.75)':'#5a4a34','rgba(232,210,160,.7)':'#5a4a34','#9cc3ff':'#315E90','#ffd76a':'#9A671F','#ff8a7a':'#A43B2E','#f6dfa6':'#3E2D18','#8f8370':'#77746E','#ffb070':'#a8622a','rgba(142,42,28,.85)':'rgba(168,116,44,.92)','rgba(200,170,110,.28)':'rgba(150,115,60,.38)','rgba(255,214,130,.22)':'rgba(198,155,87,.38)','#f0cf86':'#C69B57','#d8c49a':'#77746E','rgba(8,10,18,.35)':'rgba(120,110,95,.22)','rgba(8,10,18,.66)':'rgba(120,110,95,.45)'}; return c => (window.R201_IN && !window.R202_TREE && M[c]) || c; })();
 // R202 作者 11-11 选定 Codex「苍青星图」：行囊里技能页的星图底、说明卡、功法光环 / 名牌、分支签、招式圈、重数菱形、参悟按钮都换成拆件
-const R2 = (() => { const N = ['badge_upgrade', 'branch_fu', 'branch_jian', 'btn_d', 'btn_n', 'btn_p', 'divider_diamond', 'icon_lock', 'manual_halo_n', 'manual_halo_s', 'manual_plate_n', 'manual_plate_s', 'panel_detail_9', 'panel_star_fixed', 'rank_dim', 'rank_lit', 'skill_ring_d', 'skill_ring_n', 'skill_ring_s', 'title_gfsx'], IM = {}; let n = 0, st = false;
+const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'branch_jian', 'btn_d', 'btn_n', 'btn_p', 'divider_diamond', 'icon_lock', 'manual_halo_n', 'manual_halo_s', 'manual_plate_n', 'manual_plate_s', 'panel_detail_9', 'panel_star_fixed', 'rank_dim', 'rank_lit', 'skill_ring_d', 'skill_ring_n', 'skill_ring_s', 'title_gfsx'], IM = {}; let n = 0, st = false;
   const go = () => { if (st) return; st = true; for (const k of N) { const im = new Image(); im.onload = () => { IM[k] = im; n++; }; im.src = 'r202/' + k + '.webp'; } };
   const on = () => { if (!window.R201_IN) return false; go(); return n >= N.length; };
   const D = (k, x, y, w, h) => { const im = IM[k]; if (im) ctx.drawImage(im, x, y, w, h); };
@@ -113,7 +113,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_fu', 'branch_jian', 'btn
     return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: mx, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
   }
   // 必杀归入「秘传」列（九天神雷 / 大雪纷飞 / 寂灭仙曲）
-  {    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].push(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
+  {    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].unshift(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
   const MAXT = (who, id) => (who === 'shenle' && id === 'qingxin') ? 7 : 5;   // 成长技七重
   const realmCap = who => { const l = S.hero.lv; return l <= 9 ? 2 : l <= 18 ? 3 : l <= 27 ? 4 : 5; };   // 练气二重、凝丹三重、引魂四重、归元五重
   const CAPTXT = { 2: '练气期最多修至二重，凝丹后可继续', 3: '凝丹期最多修至三重，引魂后可继续', 4: '引魂期最多修至四重，归元后可继续' };
@@ -280,7 +280,8 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_fu', 'branch_jian', 'btn
       for (let j = 1; j < ns.length; j++) link([ns[j - 1].x, ns[j - 1].y + ns[j - 1].r + (G.compact ? 20 : 26)], [ns[j].x, ns[j].y - ns[j].r - 4], info(who, ns[j].n).learned, false);
       // 列名
       const BK = RZ && ({ '剑式': 'branch_jian', '辅助': 'branch_fu' })[ns[0].lab];
-      if (BK) R2.D(BK, hx - 38, hy - 15, 76, 30); else {
+      if (BK) R2.D(BK, hx - 38, hy - 15, 76, 30); else if (RZ && R2.D('branch_blank', hx - 38, hy - 15, 76, 30) !== false) {   // 11-11：秘传 / 破军 / 贪狼 这些列名也用同一枚金色签，不再是红底
+        ctx.save(); ctx.font = `600 17px "R201WK",${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff1cf'; ctx.shadowColor = 'rgba(90,50,10,.55)'; ctx.shadowBlur = 2; ctx.fillText(ns[0].lab, hx, hy + 1); ctx.restore(); } else {
       ctx.save(); const lab = ns[0].lab, tw = 54; roundRect(hx - tw / 2, hy - 13, tw, 26, 13); ctx.fillStyle = J('rgba(142,42,28,.85)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#e8c27a'; ctx.stroke();
       ctx.font = `18px ${BRUSH}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff2cc'; ctx.fillText(lab, hx, hy + 1); ctx.restore(); }
       if (!T.solo) link([hx, hy + 13], [ns[0].x, ns[0].y - ns[0].r - 4], L0, false); }
@@ -338,7 +339,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_fu', 'branch_jian', 'btn
     y += 52; ctx.font = `15px ${FONT}`; ctx.fillStyle = J('#e9dcc0'); for (const l of wrap(I.desc, DP.w - 40).slice(0, 3)) { ctx.fillText(l, x, y); y += 24 * LF; }
     if (I.lore && !PHONE) { ctx.font = `13px ${FONT}`; ctx.fillStyle = J('#a8957a'); for (const l of wrap(I.lore, DP.w - 40).slice(0, 4)) { ctx.fillText(l, x, y); y += 19 * LF; } }
     y += 6; if (R2.on()) R2.D('divider_diamond', x - 2, y - 9, DP.w - 36, 18); else { ctx.strokeStyle = J('rgba(232,194,122,.3)'); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(DP.x + DP.w - 20, y); ctx.stroke(); } y += 22 * LF;
-    const row = (lab, txt, col, labCol) => { ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || J('#c9b48c'); ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
+    const row = (lab, txt, col, labCol) => { if (S.menu && S.menu.who !== 'hero') txt = String(txt || '').replace('（叶孤星施展打八折）', '');   /* 11-11：云霆的点星不该写叶孤星打折 */ ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || J('#c9b48c'); ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
     if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], J('#f5ead2'));
       if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', J('#e9dcc0')); }

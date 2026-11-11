@@ -1310,6 +1310,7 @@ const ITEM_DB = {
   a_leather: { name: '兽皮软甲', slot: 'armor', def: 9, maxhp: 50, price: 220, desc: '野猪皮鞣制的软甲' },
   a_iron: { name: '玄铁软甲', slot: 'armor', def: 14, maxhp: 80, price: 480, desc: '轻便坚韧的玄铁甲' },
   a_wolf: { name: '狼皮大氅', slot: 'armor', def: 12, maxhp: 110, desc: '黑风寨主的狼皮大氅，带着一丝煞气' },
+  c_jinling: { name: '金铃', slot: 'acc', maxhp: 40, spd: 3, def: 2, desc: '赵师弟腰间常挂的护身金铃，铃声清越，能惊散近身的邪祟。' },   // 作者 11-11：擂台赢了赵师弟给第一件完整饰品
   c_jade: { name: '灵犀玉坠', slot: 'acc', maxmp: 25, price: 200, desc: '能聚拢灵力的玉坠' },
   c_tusk: { name: '铁背獠牙', slot: 'acc', atk: 6, desc: '铁背獠牙猪的獠牙，戴着有股凶劲' },
   c_token: { name: '黑煞令牌', slot: 'acc', atk: 8, maxmp: -10, desc: '刻着诡异符文的令牌，用了会被煞气侵蚀' },
@@ -3690,7 +3691,7 @@ function zhaoBoss() {
     } };
 }
 async function zhaoBattle(zb) {
-  const p = startBattle({ title: '擂台 · 赵师弟', bg: 'bg_plaza', enemies: [zb || zhaoBoss()], exp: 120, gold: 300, loot: '金铃（残）' });
+  const p = startBattle({ title: '擂台 · 赵师弟', bg: 'bg_plaza', enemies: [zb || zhaoBoss()], exp: 120, gold: 300 });   // 金铃在 r206_jinling.js 里发（真进行囊 + 白色获得物品框）
   await fadeIn(300);
   return p;
 }
@@ -12351,7 +12352,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
       e.name += ' Lv' + elv; ens.push(e); }
     // 经验：等级差越大越多；比你低太多（6 级以上）就没有经验了
     const d = f.lv - hl, fx = d <= -6 ? 0 : Math.max(.3, Math.min(2.2, 1 + d * .15)), base = ens.reduce((s, e) => s + Math.round(e.maxhp / 6), 0);
-    const exp = Math.round(base * fx * (f.tier === 'purple' ? 2 : f.tier === 'gold' ? 4 : 1)), gold = Math.round(ens.reduce((s, e) => s + e.maxhp / 12, 0) * (f.tier === 'gold' ? 6 : f.tier === 'purple' ? 2 : 1));
+    const exp = Math.round(base * fx * 1.4 * (f.tier === 'purple' ? 2 : f.tier === 'gold' ? 4 : 1)),   /* 作者 11-11：打小怪经验太少 → ×1.4 */ gold = Math.round(ens.reduce((s, e) => s + e.maxhp / 12, 0) * (f.tier === 'gold' ? 6 : f.tier === 'purple' ? 2 : 1));
     const px = world.player.x, py = world.player.y;
     S.flash = .5; S.flashColor = 'rgb(' + TIER[f.tier].c.join(',') + ')'; await sleep(120); await fadeOut(180);
     const pr = startBattle({ title: (def.title || '野外') + ' · ' + (f.kind === 'beast' ? '兽火' : '鬼火') + ' Lv' + f.lv, bg: def.mobs.bg, enemies: ens, exp: Math.max(1, exp), gold, loot: f.tier === 'purple' ? '大还丹 ×1' : f.tier === 'gold' ? '大还丹 ×2' : null, flee: true });
@@ -16808,6 +16809,6 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=5"></script><script src="r193_art.js?v=5"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=5"></script><script src="r193_art.js?v=5"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script>
 <script src="asset_ready.js"></script>
 </body></html>
