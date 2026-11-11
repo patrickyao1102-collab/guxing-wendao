@@ -3992,6 +3992,7 @@ function mozuBoss() { return { name: '神秘高手（魔族）', key: 'e_mozu', 
     if ((e.trueForm || (!window.R189M && e.phase2)) && !e.phase3) { e.phase3 = true; // 原著第十九章：云霆求死，叶孤星硬接一掌，双曜暴怒
       // 作者 11-11：「变身后第一下，云霆必定被秒杀；叶孤星帮他挡，也只是让他活着（现实意义），战斗里已经无法参战了」
       const yt = b.heroes.find(u => u.ally === 'yunting' && u.alive), P = b.heroes.find(u => !u.ally);
+      window.R189M && R189M.vo && R189M.vo('d');
       await say('魔族高手·怒', '够了！本座没空陪你们玩——先送这个姓云的小子上路！');
       if (window.R189M && R189M.killStrike) await R189M.killStrike(e, yt || P);
       else { fx('fx3_burst_violet', { x: (yt || P).x, y: (yt || P).y - 120, life: .7, scale: 2.2, alpha: 1.2 }); playSnd('sfx_hit_heavy'); S.shake = 18; }
@@ -4249,6 +4250,7 @@ async function hfBoss() {
   const pr3 = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [mozuBoss()], exp: 900, gold: 600, boss: true, normalBgm: true }); await fadeIn(250); const win = await pr3;
   S.scene = drawMap; world.actors = world.actors.filter(a => a !== mz);
   await narrate('贪狼剑意凌厉无匹，贯穿了魔族高手的魔渊护体。他瞪大猩红的双眼，皮肤下浮现出一道道漆黑的魔纹。');
+  window.R189M && R189M.vo && R189M.vo('h');
   await say('魔族高手', '咳……杀了本座又如何……魔族的计划，远比你们想象的……更可怕……');
   await narrate('话音未落，他的身躯化作缕缕黑烟，消散在山谷之中。');
   await say('星旋', '（魔族……这片大陆，已经很久没出现过魔族了。）');

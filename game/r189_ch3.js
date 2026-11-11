@@ -201,7 +201,13 @@
     spring: { at: [1150, 760], r: 200, flag: 'ch3_sp', async run() { await spring(); } },
   };
   // 千丝织天殿殿角：白衣男子（原来的「破庙」）
+  // 作者 11-11：月冥用魔族那个音色（不是魔化后的）配音，八句各一条（ym_1..8，Claude 选的版本）
+  let ymA = null; const YMV = {};
+  function ymv(n) { try { if (typeof AUD !== 'undefined' && AUD.muted) return; if (ymA) ymA.pause(); const a = YMV[n] || (YMV[n] = new Audio('r189/ym_' + n + '.mp4')); a.currentTime = 0; ymA = a; a.play().catch(() => {}); } catch (e) {} }
+  // 先把八句下好，免得点开对话才开始下
+  function ymPre() { for (let n = 1; n <= 8; n++) if (!YMV[n]) { const a = new Audio('r189/ym_' + n + '.mp4'); a.preload = 'auto'; YMV[n] = a; } }
   async function baiyi() {
+    ymPre();
     // 作者 11-11：月冥改到女娲石像脚下 —— 一开始看不见，触发后由无数白色光点凝聚成形（R195）
     const YM = window.R195YM, P0 = world.player;
     if (YM) {
@@ -213,23 +219,31 @@
     } else {
     await narrate('大殿的阴影里，不知什么时候多了一张草席。');
     await narrate('草席上躺着一个白衣男子，赤着脚，长发随意散着，像是已经在这里躺了很多年。'); }
+    ymv(1);
     await say('白衣男子', '……多少年了，终于又有人走到这里。');
     await say('星旋', '（——！！）');
     await narrate('叶孤星第一次感觉到，玉佩在发抖。');
+    ymv(2);
     await say('白衣男子·浅笑', '你们修的，是「无量剑派」的东西。有意思……一个星，一个剑。');
     await say('叶孤星', '前辈认得我们的功法？');
+    ymv(3);
     await say('白衣男子·追忆', '认得。很久以前的老朋友了。');
+    ymv(4);
     await say('白衣男子·哈欠', '（打了个哈欠）既然来了，送你们一点小玩意儿。');
     if (YM) await YM.rise();   // 懒洋洋撑着蛇尾站起来，迈下石座
     await narrate('他抬起一根手指，两缕极细的银光没入了叶孤星和云霆的眉心。');
     if (YM) await YM.gift([P0, (world.followers || [])[0]]);
     S.flash = 1; S.flashColor = '#e8e0ff'; try { playSnd('sfx_ult', .6); } catch (e) {} await sleep(600);
+    ymv(5);
     await say('白衣男子·神威', '纳月之力。吞天地之万法……');
+    ymv(6);
     await say('白衣男子·冷视', '用的时候，别吞错了东西。');
     if (!S.hero.skills.includes('tunshi')) S.hero.skills.push('tunshi'); F().yt_tunshi = 1;
     try { playSnd('sfx_sword_ring'); } catch (e) {} await showPanel('领悟 · 纳月之力', ['!纳月 · 吞噬', SKILL_DB.tunshi.desc, '灵力消耗 24']);
     await showPanel('云霆 · 领悟纳月之力', ['!纳月 · 吞噬（秘传）', '云霆也得了这缕银光：吞噬敌人灵力，伤害的一半化为自身气血', '灵力消耗 24']);
+    ymv(7);
     await say('白衣男子·悲悯', '殿东边有口泉，泡一泡，对你们有好处。');
+    ymv(8);
     await say('白衣男子·哈欠', '去吧，我要睡了。');
     if (YM) { const v = YM.vanish(); await narrate('话音刚落，白衣男子的身影一点一点散成了光点，飘回了五色石里。'); await v; }
     else await narrate('话音刚落，白衣男子的身影就像雾一样淡了下去，连那张草席也不见了。');
