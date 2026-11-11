@@ -23,6 +23,7 @@
       BM.exits.push({ x: 6, y: 78, w: 10, h: 18, to: 'tj_scripture', label: '西 · 藏经阁', at: atIn('tj_scripture', 1024, 1900), face: 'up' });
     // 藏经阁外院南阶 → 竹林归径（落在西边空地）
     const back = SC.exits.find(e => e.to === 'tj_front');
+    if (!SC.exits.some(e => e.to === 'qingzhu_bamboo')) SC.exits.push({ x: 18, y: 56, w: 4, h: 3, to: 'qingzhu_bamboo', label: '传送 · 竹林归径', at: atIn('qingzhu_bamboo', 190, 690), face: 'right', cond: () => !(S.flags && S.flags.lib_ch1), msg: '残本还没拿到，现在可不能走。' });   // 作者 11-11：藏经阁两个出口——南门去宗门广场，西边传送法阵去竹林归径
     if (back && CXB2.tj_front) { back.to = 'tj_front'; back.label = '南 · 宗门广场'; back.at = atIn('tj_front', 1790, 2250); back.face = 'up'; }   // 作者 11-11：藏经阁出去是宗门广场
   }
   if (FR) {
