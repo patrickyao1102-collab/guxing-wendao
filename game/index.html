@@ -4194,8 +4194,8 @@ TMAPS.lin_manor.onEnter = async function () {
   await say('叶孤星', '行，就这件星痕衣——给他。');
   await say('云霆', '我不要。');
   await say('叶孤星', '又不是给你的，是给我自己保命的。你挂了，谁替我挡刀？');
-  { const a = allyState('yunting'); PARTY_DB.yunting.base.def += 8; PARTY_DB.yunting.base.maxhp += 80; a.hp += 80; }
-  await showPanel('星痕衣 → 云霆', ['!极品灵器 · 星痕衣', '云霆 防御 +8　气血 +80']);
+  addItem('a_xinghenyi', 1);   /* 11-11 bug：原来直接改云霆底属性，行囊里没有这件衣服（读档还会丢）——改成真的给一件星痕衣 */
+  await showPanel('获得物品', ['!星痕衣', '极品灵器 · 防御 +8　气血 +80　（行囊 · 装备里给云霆穿上）']);
   await fadeOut(500); if (window.SET_TOD) SET_TOD('');
   S.flags.ch2_plan = 1; S.quest = '出镇往东，前往黑风谷';
   await goMap('qy_town', 23, 23.2, 'down');

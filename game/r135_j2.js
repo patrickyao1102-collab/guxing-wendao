@@ -114,8 +114,8 @@
       if (cine) ST.target = Math.max(ST.target, 10.3);
       await say('叶孤星', '又不是给你的，是给我自己保命的。你挂了，谁替我挡刀？');
       if (cine) await play(12.9);   // 云霆嫌弃地看一眼，把衣服塞到身后，再把酒坛拽到自己这边
-      { const a = allyState('yunting'); PARTY_DB.yunting.base.def += 8; PARTY_DB.yunting.base.maxhp += 80; a.hp += 80; }
-      await showPanel('星痕衣 → 云霆', ['!极品灵器 · 星痕衣', '云霆 防御 +8　气血 +80']);
+      addItem('a_xinghenyi', 1);   /* 11-11 bug：原来直接改云霆底属性，行囊里没有这件衣服（读档还会丢）——改成真的给一件星痕衣 */
+      await showPanel('获得物品', ['!星痕衣', '极品灵器 · 防御 +8　气血 +80　（行囊 · 装备里给云霆穿上）']);
       await fadeOut(500);
     } finally {
       ST.on = false; delete p.j2; delete p.j2carry; delete yt.j2;

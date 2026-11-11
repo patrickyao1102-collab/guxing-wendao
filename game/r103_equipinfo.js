@@ -24,7 +24,7 @@
     c_tusk: '铁背獠牙猪的獠牙，用皮绳串着挂在腰间，戴着有股凶劲。',
     c_token: '从黑风寨搜出的令牌，刻满诡异的邪修符文。能借煞气增长杀伐之力，代价是灵力会被慢慢侵蚀。',
   };
-  const RANK = { w_wood: '凡品', w_qingfeng: '凡品', a_cloth: '凡品', a_leather: '凡品', c_tusk: '凡品', w_hantie: '下品灵器', a_iron: '下品灵器', c_jade: '下品灵器', w_hanxing: '中品灵器', a_wolf: '中品灵器', c_token: '邪器', w_chixiao: '上品灵器', w_qingxiao: '极品灵器', w_xinghen: '极品灵器', a_nichang: '极品灵器', w_yunlei: '下品玄器', a_ziyun: '下品玄器', w_xinghen2: '中品玄器', a_liuyun: '极品仙器' };
+  const RANK = { a_xinghenyi: '极品灵器', w_wood: '凡品', w_qingfeng: '凡品', a_cloth: '凡品', a_leather: '凡品', c_tusk: '凡品', w_hantie: '下品灵器', a_iron: '下品灵器', c_jade: '下品灵器', w_hanxing: '中品灵器', a_wolf: '中品灵器', c_token: '邪器', w_chixiao: '上品灵器', w_qingxiao: '极品灵器', w_xinghen: '极品灵器', a_nichang: '极品灵器', w_yunlei: '下品玄器', a_ziyun: '下品玄器', w_xinghen2: '中品玄器', a_liuyun: '极品仙器' };
   window.EQUIP_LORE = LORE;
   const SLOT_CN = { weapon: '武器', armor: '衣服', shoe: '鞋子', acc: '饰品' };
   const isAlly = () => S.menu && S.menu.who && S.menu.who !== 'hero';
