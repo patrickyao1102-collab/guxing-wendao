@@ -142,7 +142,30 @@
     await say('叶孤星', '追！');
     await enterRift();
   }
+  // 作者 11-12：纯净试玩版 / 安卓包到女娲秘境之前为止（打包时写入 GX_TRIAL；测试版没有这个标记，照常进秘境）。本地加 ?trial=1 可以试。
+  const TRIAL = () => !!window.GX_TRIAL || /[?&]trial=1/.test(location.search);
+  async function trialEnd() {
+    world.locked = true; world.path = null; if (world.player) world.player.moving = false;
+    await narrate('裂隙深处月华流转，隐约传来溪水与编钟之声——那是一处尘封万年的秘境。');
+    try { window.saveGame && window.saveGame(); } catch (e) {}
+    await fadeOut(600); const prev = S.scene;
+    S.scene = () => { ctx.fillStyle = '#04050b'; ctx.fillRect(0, 0, W, H); ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `76px ${BRUSH}`; textOutline('试玩版 · 到此为止', W / 2, 250, '#ffe08a', '#2a0f00', 8);
+      ctx.font = `600 26px ${FONT}`; ctx.fillStyle = '#d9c7a0'; ctx.fillText('女娲秘境与之后的故事，还在打磨中，敬请期待。', W / 2, 360);
+      ctx.fillText('想知道叶孤星接下来的故事？请看小说《孤星问道》', W / 2, 404);
+      ctx.font = `600 20px ${FONT}`; ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillText('进度已保存 · 点击屏幕继续', W / 2, 620); ctx.restore(); };
+    const hud0 = S.hud; S.hud = false;
+    await fadeIn(600); await sleep(900);
+    await new Promise(res => { const h = () => { window.removeEventListener('pointerdown', h, true); window.removeEventListener('keydown', h, true); res(); }; window.addEventListener('pointerdown', h, true); window.addEventListener('keydown', h, true); });
+    try { consumeTap(); } catch (e) {}
+    await fadeOut(400); S.scene = prev || drawMap; S.hud = hud0; await fadeIn(400); try { consumeTap(); } catch (e) {}
+    const c = await choose('试玩内容已全部体验完', ['留在幽影林继续游历', '返回主界面']);
+    if (c === 1) { try { await fadeOut(400); } catch (e) {} window.GX_GOING_HOME = true; S.started = false; try { sessionStorage.removeItem('gx_alive'); sessionStorage.setItem('gx_home', '1'); } catch (e) {} location.href = location.pathname; return; }
+    if (world.player) { world.player.y += 150; world.player.face = 'down'; }   /* 退开一点，免得站在裂隙触发点上反复弹 */
+    world.locked = false;
+  }
   async function enterRift() {
+    if (TRIAL()) return trialEnd();
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     await narrate('两人刚踏进裂隙，一股巨力猛地将他们卷了进去，眼前天旋地转——');
     S.flash = 1; S.flashColor = '#ffffff'; try { playSnd('sfx_ult', .7); } catch (e) {}
