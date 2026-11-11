@@ -114,7 +114,7 @@
 
 
   // ---------------- 存档页（Codex 版式：三条存档条 + 缩略金框 + 存档 / 读档）----------------
-  const TH = {}; for (const k of ['loc_qy', 'loc_xt', 'loc_pine']) { const im = new Image(); im.onload = () => { TH[k] = im; }; im.src = 'r187/' + k + '.webp'; }
+  const TH = {}; for (const k of ['loc_qy', 'loc_xt', 'loc_pine', 'party_1', 'party_2', 'party_3', 'party_4', 'party_5']) { const im = new Image(); im.onload = () => { TH[k] = im; }; im.src = 'r187/' + k + '.webp'; }
   const SKEY = s => 'gx_save_' + s, sread = s => { try { const d = JSON.parse(localStorage.getItem(SKEY(s)) || 'null'); return d && d.hero ? d : null; } catch (e) { return null; } };
   const locOf = d => /^qy_/.test(d.map || '') ? 'loc_qy' : /^xt_/.test(d.map || '') ? 'loc_xt' : 'loc_pine';
   const CN3 = ['一', '二', '三'], two = n => String(n).padStart(2, '0');
@@ -124,7 +124,11 @@
     const sel = m.saveSel;
     for (let i = 0; i < 3; i++) { const r = srow(i), d = sread(String(i + 1)), y = r.y;
       nine(!d ? 'save_row_9_empty' : sel === i ? 'save_row_9_s' : 'save_row_9_n', r.x, y, r.w, r.h);
-      if (d) { const th = TH[locOf(d)]; if (th) { ctx.save(); ctx.beginPath(); ctx.rect(287, y + 19, 322, 100); ctx.clip(); const s = Math.max(322 / th.width, 100 / th.height); ctx.drawImage(th, 448 - th.width * s / 2, y + 69 - th.height * s / 2, th.width * s, th.height * s); ctx.restore(); }
+      if (d) { const pn = Math.max(1, Math.min(5, 1 + ((d.party || []).length))), pt = TH['party_' + pn], th = TH[locOf(d)];   // 作者 11-11：存档缩略图要有队伍头像（存档时队里有谁就画谁）
+        ctx.save(); ctx.beginPath(); ctx.rect(287, y + 19, 322, 100); ctx.clip();
+        if (pt) { const sw = 163 * 3.22, sx = Math.max(0, Math.min(pt.width - sw, 400 + pn * 20 - sw / 2)); ctx.drawImage(pt, sx, 0, sw, 163, 287, y + 19, 322, 100); }
+        else if (th) { const s = Math.max(322 / th.width, 100 / th.height); ctx.drawImage(th, 448 - th.width * s / 2, y + 69 - th.height * s / 2, th.width * s, th.height * s); }
+        ctx.restore();
         D('save_thumb_frame', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12);
         const h = d.hero || {}, t = new Date(d.t || 0);
         txt('存档' + CN3[i] + ' · ' + fit(d.title || '某处', 300), 663, y + 35, 31, C.ink);
