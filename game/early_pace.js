@@ -151,7 +151,9 @@
       setTimeout(async () => {
         try {
           world.locked = true; world.path = null; world.walkTarget = null;
-          const c2 = await choose('演武广场 · 测灵碑', ['三日已到——去参加修为检测', '再准备一下']);
+          // 作者 11-11：这个选项的背景要能看到天剑广场全貌——镜头拉到最广，对准广场中央
+          const Z0 = window.ZOOM_TEST; window.ZOOM_TEST = Object.assign({}, Z0 || {}, { tj_front: .01 }); const T0 = world.map && world.map.T; world.camFocus = T0 && T0.mw ? [T0.mw / 2, T0.mh / 2] : null;
+          let c2; try { c2 = await choose('演武广场 · 测灵碑', ['三日已到——去参加修为检测', '再准备一下']); } finally { window.ZOOM_TEST = Z0; world.camFocus = null; }
           if (c2 === 0) {
             F().ch1_free = 0; F().ch1_after = 1; S.quest = '';
             await fadeOut(600); await caption('三日后', 1500); await part5();
