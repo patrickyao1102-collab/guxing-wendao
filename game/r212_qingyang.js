@@ -73,7 +73,7 @@
     TMAPS.qy_town.doors.push({ x: doorXY[0], y: doorXY[1], rw: 30, rh: 20, to: id, at: T.start || [7.7, 12.1], face: 'up', label, cond: () => inTown(), msg: '门关着。' });
     return true;
   }
-  const HAS_YC = cloneRoom('qy_yicui', 'm_cy_guiying', '倚翠楼 · 听雨阁', [2080, 358], '倚翠楼');
+  const HAS_YC = cloneRoom('qy_yicui', 'm_cy_guiying', '倚翠楼 · 临河阁', [2080, 358], '倚翠楼');
   const HAS_CL = cloneRoom('qy_changle', 'm_cy_guest', '长乐坊 · 后堂', [737, 358], '长乐坊');
 
   // =====================================================================================
