@@ -7347,6 +7347,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     if (name === 'tj_library' && !said.l1) { said.l1 = 1; setTimeout(async () => { world.locked = true; await say('星旋', '一层都是寻常功法，没什么好看的。残本在二层典藏——后墙有楼道。');
       // 省掉一层来回找楼梯：直接摸上二层
       const M = TMAPS.tj_library, up = M && (M.doors || []).concat(M.exits || []).find(e => e.to === 'tj_forbidden' && e.at);
+      if (up && window.QUEST_NAV && QUEST_NAV.start) { S.quest = '从后墙楼道上二层'; world.locked = false; QUEST_NAV.start(); toast('叶孤星贴着书架往后墙的楼道摸过去……', 1800); return; }   // 作者 11-11：叶孤星自己走过去、走楼道上二层，不再一句旁白带过
       if (up) { await narrate('叶孤星贴着书架溜到后墙，踩着吱呀作响的木楼道，轻手轻脚上了二层。'); await fadeOut(400); tileSetMap('tj_forbidden', up.at[0], up.at[1], up.face || 'up'); S.scene = drawMap; await fadeIn(400); return; }
       S.quest = '从后墙楼道上二层'; world.locked = false; }, 700); }
     if (name === 'tj_forbidden' && !said.l2) { said.l2 = 1; setTimeout(async () => { world.locked = true;
