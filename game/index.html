@@ -14465,6 +14465,22 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
   }
   NAV.start = () => { if (!S.quest && !window.QNAV_GOAL) return; NAV.on = true; playSnd('ui_click'); step(); };
   NAV.stop = stop;
+  // 作者 11-11：地上方向箭头要知道「现在该往哪走」——和 step() 同一套判断，只算点、不走路
+  NAV.target = () => { try {
+    if (!world.map || !world.player) return null; const p = world.player, T = world.map.T, here = world.mapName, near = (arr) => arr.sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    const q0 = (S.quest || '').replace(/（[^）]*）|\([^)]*\)/g, ''); if (!q0 && !window.QNAV_GOAL) return null;
+    const rule = RULES.find(([re]) => re.test(q0)) || RULES.find(([re]) => re.test(S.quest || '')); const goal = window.QNAV_GOAL ? window.QNAV_GOAL() : rule && rule[1]();
+    if (goal && goal.tell) return null;
+    if (!goal || !TMAPS[goal.map] || goal.map === here) {
+      if (goal && goal.pick) { const it = near((world.actors || []).filter(a => a.npc && a.npc.name === goal.pick)); if (it) return [it.x, it.y]; }
+      if (goal && goal.pt) return [goal.pt[0], goal.pt[1]];
+      const tg = near((world.triggers || []).filter(t => !t.done && t.marker !== false)); if (tg) return [tg.x, tg.y];
+      const sp = near((world.spots || []).filter(t => typeof t.mark === 'function' ? t.mark() : t.mark)); if (sp) return [sp.x, sp.y];
+      const npc = (world.actors || []).find(a => a.npc && (!a.hidden || a.npc.key === 'none') && (typeof a.npc.mark === 'function' ? a.npc.mark() : a.npc.mark)); if (npc) return [npc.x, npc.y];
+      return null; }
+    const hop = nextHop(here, goal.map); if (!hop) { const tg = near((world.triggers || []).filter(t => !t.done && t.marker !== false)); return tg ? [tg.x, tg.y] : null; }
+    const e = linksOf(here).find(e => e.to === hop); return e ? exitPoint(T, e) : null;
+  } catch (e) { return null; } };
   // 换图后继续
   tileSetMap = (orig => function (name, c, r, face) { const res = orig(name, c, r, face); if (NAV.on) setTimeout(() => { if (NAV.on && !world.locked) step(); else if (NAV.on) { const w = setInterval(() => { if (!NAV.on) return clearInterval(w); if (!world.locked) { clearInterval(w); step(); } }, 300); } }, 450); return res; })(tileSetMap);
   // 老式整图（setMap）也要接着寻路：等剧情放开再走

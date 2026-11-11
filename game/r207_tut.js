@@ -84,3 +84,93 @@
     if (r === 'skip' && !F().yt_jiutian && window.R134_YT_LEARN) { try { if (S.menu && typeof closeMenu === 'function') closeMenu(); } catch (e) {} await R134_YT_LEARN(); }
   };
 })();
+
+// ================= 作者 11-11：天剑宗地图上，主角脚下有金色方向箭头指向任务目标（和寒星剑那个一样）；集市采买时要找的掌柜头顶一束巨大的金光 =================
+(function () {
+  const F = () => (S.flags = S.flags || {});
+  const TJ = m => /^(tj_|qingzhu)/.test(m || '');
+  let TGT = null, tAt = 0;
+  const target = () => { const t = performance.now(); if (t - tAt > 400) { tAt = t; TGT = window.QUEST_NAV && QUEST_NAV.target ? QUEST_NAV.target() : null; } return TGT; };
+  function arrow(p, b) {
+    const dx = b[0] - p.x, dy = b[1] - p.y, d = Math.hypot(dx, dy); if (d < 110) return;
+    const a = Math.atan2(dy, dx), t = performance.now() / 1000, fade = Math.min(1, (d - 110) / 160);
+    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1, .5);
+    ctx.globalAlpha = .8 * fade; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(60,36,8,.5)'; ctx.beginPath(); ctx.arc(0, 0, 60, 0, 7); ctx.stroke();
+    ctx.lineWidth = 3.2; ctx.strokeStyle = '#ffd25a'; ctx.shadowColor = '#ffb43a'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(0, 0, 60, 0, 7); ctx.stroke();
+    ctx.rotate(a);
+    for (let i = 0; i < 3; i++) { const k = (t * 1.6 - i * .28) % 1, al = Math.max(0, Math.sin(Math.PI * Math.max(0, k))), x = 78 + i * 38; ctx.globalAlpha = fade * (.55 + .45 * al);
+      ctx.beginPath(); ctx.moveTo(x + 24, 0); ctx.lineTo(x - 8, -20); ctx.lineTo(x + 1, 0); ctx.lineTo(x - 8, 20); ctx.closePath();
+      ctx.shadowBlur = 0; ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(60,36,8,.6)'; ctx.stroke(); ctx.shadowColor = '#ffb43a'; ctx.shadowBlur = 14; ctx.fillStyle = al > .6 ? '#fff4c4' : '#ffd25a'; ctx.fill(); }
+    ctx.restore(); }
+  // 掌柜头顶的巨大金光
+  const KEEPER = { 丹药铺: '老丹师', 典籍阁: '老修士' };
+  // window.R207_SHOP_TARGET 由 r134_fix 的采买单给：() => { shop, label } / null
+  function bigBeacon(a, label) {
+    const t = performance.now() / 1000, p = .5 + .5 * Math.sin(t * 3), top = a.y - (a.h || 108) - 30;
+    ctx.save();
+    // 光柱
+    const g = ctx.createLinearGradient(0, top - 360, 0, a.y); g.addColorStop(0, 'rgba(255,214,110,0)'); g.addColorStop(.6, 'rgba(255,214,110,' + (.22 + .12 * p) + ')'); g.addColorStop(1, 'rgba(255,236,170,' + (.35 + .15 * p) + ')');
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(a.x - 34, a.y); ctx.lineTo(a.x - 70, top - 360); ctx.lineTo(a.x + 70, top - 360); ctx.lineTo(a.x + 34, a.y); ctx.closePath(); ctx.fill();
+    // 脚下光圈
+    ctx.save(); ctx.translate(a.x, a.y); ctx.scale(1, .42); ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(255,220,120,' + (.55 + .35 * p) + ')'; ctx.shadowColor = '#ffc24a'; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(0, 0, 70 + 10 * p, 0, 7); ctx.stroke(); ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+    // 头顶大菱形 + 字
+    const by = top - 40 - 10 * Math.sin(t * 2.4);
+    ctx.save(); ctx.translate(a.x, by); ctx.shadowColor = '#ffb43a'; ctx.shadowBlur = 26 + 12 * p;
+    ctx.beginPath(); ctx.moveTo(0, -34); ctx.lineTo(28, 0); ctx.lineTo(0, 34); ctx.lineTo(-28, 0); ctx.closePath(); ctx.fillStyle = '#ffd25a'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#fff4c4'; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.font = `30px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#5a2a08'; ctx.fillText('买', 0, 2); ctx.restore();
+    if (label) { ctx.font = `600 18px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const w = ctx.measureText(label).width + 28; ctx.fillStyle = 'rgba(20,14,6,.82)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(a.x - w / 2, by - 70, w, 30, 15) : ctx.rect(a.x - w / 2, by - 70, w, 30); ctx.fill(); ctx.fillStyle = '#ffe9b8'; ctx.fillText(label, a.x, by - 55); }
+    ctx.restore(); }
+  drawActorT = (o => function (a) {
+    const free = !(typeof battle !== 'undefined' && battle);
+    try { if (free && a === world.player && TJ(world.mapName) && !world.locked && S.quest && !(window.HANXING_GUIDE && HANXING_GUIDE.need())) { const b = target(); if (b) arrow(a, b); } } catch (e) {}
+    const r = o.apply(this, arguments);
+    return r;
+  })(drawActorT);
+  // 掌柜本人是烘在地图里的（actor 是隐形的），所以在地面物件都画完之后单独画一遍光
+  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function () { const r = o.apply(this, arguments);
+    try { if (!(typeof battle !== 'undefined' && battle) && window.R207_SHOP_TARGET && world.mapName === 'tj_market') { const s = R207_SHOP_TARGET();
+      const a = s && (world.actors || []).find(a => a.npc && a.npc.name === KEEPER[s.shop]); if (a) { ctx.save(); ctx.translate(a.x, a.y); ctx.scale(1.55, 1.55); bigBeacon({ x: 0, y: 0, h: 70 }, s.label); ctx.restore(); } } } catch (e) {}
+    return r; })(tileAmbientHigh);
+})();
+
+// ================= 作者 11-11：第一次采买时商店里的引导 —— 空白条写「要买什么、买几个」，要买的那格发光、别的压暗，数量先填好，「购」发光；有跳过 =================
+(function () {
+  const NICHE = [[385, 161, 214, 130], [620, 161, 213, 130], [385, 333, 214, 130], [620, 333, 213, 130]], BUY = [1090, 578, 79, 78], STRIP = [445, 524, 335, 30], SKIP = [905, 586, 120, 40];
+  let off = false, lastOpen = false, lastSel = null, lastTgt = null;
+  const want = () => { if (off || (window.ITEMGET_ACTIVE && ITEMGET_ACTIVE()) || !window.R169_SHOP || !R169_SHOP.open || !window.R207_SHOP_TARGET) return null; const s = R207_SHOP_TARGET(), st = R169_SHOP.st; if (!s || !st || st.mode !== 'buy' || !st.ids.includes(s.id)) return null; return { s, st }; };
+  const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+  const ov = { draw() {
+    const W0 = want(); if (!W0) return; const { s, st } = W0, t = performance.now() / 1000, p = .5 + .5 * Math.sin(t * 5);
+    const k = st.ids.indexOf(s.id);
+    if (Math.floor(k / 4) !== st.page) return;   // 翻到别页了：不画
+    const N = NICHE[k % 4];
+    ctx.save();
+    // 别的格子压暗
+    for (let i = 0; i < 4; i++) if (i !== k % 4 && st.ids[st.page * 4 + i]) { const r = NICHE[i]; ctx.fillStyle = 'rgba(10,8,6,.55)'; rr(r[0], r[1], r[2], r[3] + 36, 10); ctx.fill(); }
+    // 要买的那格金框
+    ctx.save(); ctx.shadowColor = '#ffc24a'; ctx.shadowBlur = 18 + 10 * p; ctx.lineWidth = 3 + 1.5 * p; ctx.strokeStyle = '#ffd77a'; rr(N[0] - 4, N[1] - 4, N[2] + 8, N[3] + 44, 12); ctx.stroke(); ctx.restore();
+    // 购 发光
+    if (st.sel === s.id) { ctx.save(); ctx.shadowColor = '#ffd25a'; ctx.shadowBlur = 22 + 14 * p; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,226,140,' + (.6 + .4 * p) + ')'; rr(BUY[0] - 6, BUY[1] - 6, BUY[2] + 12, BUY[3] + 12, 14); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.translate(BUY[0] + BUY[2] / 2, BUY[1] - 16 - 6 * p); ctx.fillStyle = '#ffe08a'; ctx.strokeStyle = 'rgba(60,36,8,.7)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-12, -16); ctx.lineTo(-4, -16); ctx.lineTo(-4, -30); ctx.lineTo(4, -30); ctx.lineTo(4, -16); ctx.lineTo(12, -16); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); }
+    // 空白条里的说明
+    ctx.fillStyle = 'rgba(60,34,14,.92)'; rr(STRIP[0], STRIP[1], STRIP[2], STRIP[3], 8); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(232,194,122,.8)'; ctx.stroke();
+    ctx.font = `600 16px "R201WK",${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffe9b8';
+    ctx.fillText(st.sel === s.id ? '要买：' + s.name + ' ×' + s.left + '　数量已填好，点右下「购」' : '要买：' + s.name + ' ×' + s.left + '　先点发光的那一格', STRIP[0] + STRIP[2] / 2, STRIP[1] + STRIP[3] / 2 + 1);
+    // 跳过
+    ctx.fillStyle = 'rgba(30,20,10,.85)'; rr(SKIP[0], SKIP[1], SKIP[2], SKIP[3], 20); ctx.fill(); ctx.strokeStyle = 'rgba(232,194,122,.9)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = `20px ${BRUSH}`; ctx.fillStyle = '#ffe9b8'; ctx.fillText('跳过引导', SKIP[0] + SKIP[2] / 2, SKIP[1] + SKIP[3] / 2 + 1);
+    ctx.restore();
+  } };
+  // 每帧：商店一开就把这层压到最上面；选中目标时把数量填成还差几个
+  setInterval(() => { try {
+    const o = !!(window.R169_SHOP && R169_SHOP.open); if (o && !lastOpen) { const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); S.overlay.push(ov); lastSel = null; } if (!o) { const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); } lastOpen = o;
+    const W0 = want(); if (!W0) return; const { s, st } = W0, k = st.ids.indexOf(s.id);
+    if (S.overlay[S.overlay.length - 1] !== ov) { const i = S.overlay.indexOf(ov); if (i >= 0) S.overlay.splice(i, 1); S.overlay.push(ov); }   // 商店关了获得物品框后会把自己那层重新压上来
+    if (lastSel === null || lastTgt !== s.id) { st.page = Math.floor(k / 4); st.sel = s.id; lastTgt = s.id; lastSel = ''; }
+    if (st.sel === s.id && lastSel !== s.id + ':' + s.left) { st.qty = s.left; lastSel = s.id + ':' + s.left; } else if (st.sel !== s.id && lastSel && lastSel.indexOf(':') > 0) lastSel = '';
+  } catch (e) {} }, 60);
+  // 跳过：点到就关掉这次采买的商店引导
+  window.addEventListener('pointerdown', e => { if (!want()) return; const c = document.querySelector('canvas'); if (!c || e.target !== c) return; const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+    if (x >= SKIP[0] && x <= SKIP[0] + SKIP[2] && y >= SKIP[1] && y <= SKIP[1] + SKIP[3]) { off = true; e.stopImmediatePropagation(); e.preventDefault(); try { playSnd('ui_click'); } catch (_) {} } }, { capture: true });
+})();

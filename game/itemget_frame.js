@@ -9,6 +9,7 @@
 
   // 记录当前弹窗（最外层包一层，原链照走）
   let MY = null;
+  window.ITEMGET_ACTIVE = () => !!MY;   // 11-11：别的引导层知道「获得物品」框正开着，先别画
   window.itemGet = (o => function (items, title) {
     const p = o.apply(this, arguments), me = { items: items || [], title: title || '获得物品', t0: performance.now() }; MY = me;
     Promise.resolve(p).then(() => { if (MY === me) MY = null; });

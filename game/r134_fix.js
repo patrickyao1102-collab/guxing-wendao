@@ -401,6 +401,7 @@
         await say('星旋', '要买的店，我在头顶给你点了金光，跟着走就行。点任务栏也能自动走过去。');
         S.quest = shopQuest(); } finally { world.locked = false; } }), 2600); } } catch (e) {}
     return r; })(tileSetMap);
+  window.R207_SHOP_TARGET = () => { if (!shopping()) return null; const it = nextItem(); return it && !it.opt ? { shop: it.shop, label: '买 ' + it.label, id: it.id, name: (ITEM_DB[it.id] || {}).name || it.label, left: it.id === 'bk_yt_jiutian' ? 1 : Math.max(1, it.n - (buys()[it.id] || 0)) } : null; };
   window.R134_BEACON.list.push({ npc: true, map: 'tj_market', name: () => (nextItem() || {}).shop, label: () => { const it = nextItem(); return it ? '买 ' + it.label : ''; }, when: () => shopping() && !!nextItem() });
   { const R = window.QUEST_ROUTE; if (R && Array.isArray(R.RULES)) R.RULES.unshift([/集市采买·/, () => { const it = nextItem(); return it ? { map: 'tj_market', pick: it.shop } : { map: 'tj_front' }; }]); }
   // 出发前：云霆还没学会九天神雷 → 他自己掏钱去买（剧情保证学会）
