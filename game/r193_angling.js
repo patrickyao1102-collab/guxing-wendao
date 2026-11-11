@@ -22,16 +22,15 @@
   // ---------- 输入 ----------
   const P = { x: 0, y: 0, down: false, x0: 0, y0: 0, t0: 0, taps: 0, swUp: 0, swDn: 0, key: 0, kl: 0, kr: 0 }; let ON = false;
   const toL = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; };
-  window.addEventListener('pointerdown', e => { if (!ON) return; const [x, y] = toL(e); Object.assign(P, { x, y, x0: x, y0: y, t0: now(), down: true }); P.taps++; if ((ST.ph === 'wait' || ST.ph === 'bite') && inR(BTN.main, x, y)) P.swUp++; }, true);
-  window.addEventListener('pointermove', e => { if (!ON) return; const [x, y] = toL(e); P.x = x; P.y = y; if (P.down && P.y0 - y > 46 && now() - P.t0 < .6) { P.swUp++; P.t0 = -9; } if (P.down && y - P.y0 > 60 && now() - P.t0 < .6) { P.swDn++; P.t0 = -9; } }, true);
+  // 作者 11-12：「所有东西都用按钮来操控」——电脑、手机都只要点一下，不用按住、不用划。键盘：空格 = 大按钮，S = 松线，A / D = 左带 / 右带，1 2 3 = 浅水 / 潭心 / 深水
+  window.addEventListener('pointerdown', e => { if (!ON) return; const [x, y] = toL(e); Object.assign(P, { x, y, x0: x, y0: y, t0: now(), down: true, vk: null }); P.taps++; }, true);
+  window.addEventListener('pointermove', e => { if (!ON) return; const [x, y] = toL(e); P.x = x; P.y = y; }, true);
   for (const ev of ['pointerup', 'pointercancel', 'blur']) window.addEventListener(ev, () => { P.down = false; }, true);
-  window.addEventListener('keydown', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { if (!e.repeat) P.swUp++; P.key = 1; e.preventDefault(); e.stopPropagation(); }
-    if (e.code === 'KeyA' || e.code === 'ArrowLeft') { P.kl = 1; e.preventDefault(); e.stopPropagation(); } if (e.code === 'KeyD' || e.code === 'ArrowRight') { P.kr = 1; e.preventDefault(); e.stopPropagation(); } }, true);
-  window.addEventListener('keyup', e => { if (!ON) return; if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') P.key = 0; if (e.code === 'KeyA' || e.code === 'ArrowLeft') P.kl = 0; if (e.code === 'KeyD' || e.code === 'ArrowRight') P.kr = 0; }, true);
-  // 按住：收线 / 蓄力。按在「左带」「右带」上不算收线
-  const onDrag = () => P.down && (inR(BTN.L, P.x0, P.y0) || inR(BTN.R, P.x0, P.y0));
-  const held = () => !!(P.key || (P.down && !onDrag()));
-  const dragDir = () => P.kl ? -1 : P.kr ? 1 : P.down && inR(BTN.L, P.x0, P.y0) ? -1 : P.down && inR(BTN.R, P.x0, P.y0) ? 1 : P.down && Math.abs(P.x - P.x0) > 40 ? Math.sign(P.x - P.x0) : 0;
+  const KEYS = { Space: 'main', Enter: 'main', KeyW: 'main', ArrowUp: 'main', KeyS: 'loose', ArrowDown: 'loose', KeyA: 'L', ArrowLeft: 'L', KeyD: 'R', ArrowRight: 'R', Digit1: 'a0', Digit2: 'a1', Digit3: 'a2', Numpad1: 'a0', Numpad2: 'a1', Numpad3: 'a2' };
+  window.addEventListener('keydown', e => { if (!ON) return; const k = KEYS[e.code]; if (!k) return; e.preventDefault(); e.stopPropagation(); if (e.repeat) return; P.vk = k; P.x0 = P.y0 = -99; P.taps++; }, true);
+  // 这一下点的是哪个按钮（鼠标 / 手指点在按钮上，或者键盘上对应的键）
+  const hit = n => P.vk ? P.vk === n : !!BTN[n] && inR(BTN[n], P.x0, P.y0);
+  const held = () => !!ST.reel, dragDir = () => ST.pull || 0;
   const inR = (r, x = P.x, y = P.y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
   // ---------- 状态 ----------
   const ST = { ph: 'gear', t0: 0, pow: 0, fx: 640, fy: 500, fk: 1, layer: 0, plan: null, signs: [], nextSign: 0, cap: null, flt: 'idle', flt0: 0, seq: null, win: 0, fight: null, msg: '', msgT: 0, log: [], fxs: [] };
@@ -41,7 +40,8 @@
   const fxAdd = (k, x, y, s = 1) => ST.fxs.push({ k, x, y, s, t0: now() });
   // 作者 11-11：要有按钮，玩家才知道怎么玩；11-12 换成 R193J 的玉石按钮、钓具匣、收竿签（位置照 R193J preview_layout）
   const BTN = { gq: { x: 24, y: H - 74, w: 160, h: 54 }, main: { x: 1050, y: 557, w: 150, h: 150 }, L: { x: 998, y: 614, w: 64, h: 64 }, R: { x: 1188, y: 614, w: 64, h: 64 },
-    box: { x: 62, y: 568, w: 134, h: 116 }, tag: { x: 206, y: 588, w: 60, h: 108 } }; BTN.quit = BTN.gq;
+    box: { x: 62, y: 568, w: 134, h: 116 }, tag: { x: 206, y: 588, w: 60, h: 108 },
+    a2: { x: 1040, y: 490, w: 200, h: 64 }, a1: { x: 1040, y: 562, w: 200, h: 64 }, a0: { x: 1040, y: 634, w: 200, h: 64 }, loose: { x: 1074, y: 440, w: 102, h: 102 }, help: { x: 20, y: 18, w: 128, h: 48 }, gprev: { x: 300, y: 556, w: 160, h: 46 }, gnext: { x: 820, y: 556, w: 160, h: 46 } }; BTN.quit = BTN.gq;
   const ART = () => window.R193_ART;   // 画面在 r193_art.js（Codex R193F 素材）
   // ---------- 占位画法（素材没到时开发用） ----------
   function drawTmp(t) { ctx.fillStyle = '#9cc9d6'; ctx.fillRect(0, 0, W, WY0); const g = ctx.createLinearGradient(0, WY0, 0, H); g.addColorStop(0, '#3f8ea0'); g.addColorStop(1, '#1d4f60'); ctx.fillStyle = g; ctx.fillRect(0, WY0, W, H - WY0);
@@ -86,31 +86,36 @@
       if (inR(R.rod)) { g.rod = cycle(g.rods, g.rod); continue; } if (inR(R.line)) { g.line = cycle(g.lines, g.line); continue; }
       if (inR(R.bait)) { const bs = baits().map(b => b.id); if (bs.length) g.bait = cycle(bs, bs.includes(g.bait) ? g.bait : bs[bs.length - 1]); continue; }
       { const e = R.extra.find(q => inR(q)); if (e) { await R193_EXTRA_DO(e.k); continue; } }
-      if (inR(R.book)) { await bookScreen(); ST.ph = 'gear'; continue; }
+      if (inR(R.book)) { await bookScreen(); ST.ph = 'gear'; continue; } if (inR(BTN.help)) { await guide(); ST.ph = 'gear'; continue; }
       if (inR(R.go)) { if (!baits().length) { say1('没有饵了', 1.4); continue; } if (!itemCount(g.bait)) g.bait = baits()[0].id; return true; } } }
   async function bookScreen() { ST.ph = 'book'; const N = D.FISH.length; ST.bi = ST.bi || 0;
     while (true) { await frame(); if (busy()) continue; await waitTap(); if (inR(BTN.gq)) return; ST.bi = (ST.bi + (P.x < 640 ? N - 1 : 1)) % N; try { playSnd('ui_confirm', .3); } catch (e) {} } }
-  async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71; ST.maxP = maxP;
-    while (true) { await frame(); if (busy()) continue;
-      if (!held()) continue;
-      if (P.down && inR(BTN.box, P.x0, P.y0)) { while (P.down) await frame(); return false; }
-      if (P.down && inR(BTN.tag, P.x0, P.y0)) { while (P.down) await frame(); return 'quit'; }
-      const t0 = now(); ST.holding = true; ST.seed = rnd(-1, 1); ST.pow = 0; ST.aimPt = aimPt(0);
-      while (held()) { await frame(); const u = (now() - t0) / 1.6; ST.pow = Math.min(maxP, u < 1 ? u : 2 - u > 0 ? Math.max(.05, 2 - u) : .05); ST.aimPt = aimPt(ST.pow); }   // 蓄满会往回落，要在最远时松手
+  // 甩竿：点「浅水 / 潭心 / 深水」哪个就甩到哪一层（旧竹竿够不着深水）
+  async function aim() { ST.ph = 'aim'; ST.pow = 0; ST.castT = 0; ST.holding = false; const g = gear(), maxP = D.rod(g.rod).far >= 2 ? 1 : .71; ST.maxP = maxP; let tp = P.taps;
+    while (true) { await frame(); if (busy()) { tp = P.taps; continue; } ST.tutBtn = ST.tut ? 'a1' : null; if (P.taps === tp) continue; tp = P.taps;
+      if (hit('box')) return false; if (hit('tag')) return 'quit'; if (hit('help')) { await guide(); ST.ph = 'aim'; tp = P.taps; continue; }
+      const li = hit('a0') ? 0 : hit('a1') ? 1 : hit('a2') ? 2 : hit('main') ? (ST.lastLay != null ? ST.lastLay : 1) : -1; if (li < 0) continue;
+      if (li === 2 && maxP < 1) { say1('这根竿短，够不着深水', 1.6); continue; }
+      ST.lastLay = li; ST.tutBtn = null; ST.pow = li === 0 ? rnd(.1, .3) : li === 1 ? rnd(.45, .66) : rnd(.8, .97); ST.seed = rnd(-1, 1); ST.aimPt = aimPt(ST.pow); ST.holding = true; await sleepS(.38);
       ST.holding = false; ST.castT = now(); F().r193_n = (F().r193_n || 0) + 1; { const A = ART(); if (A && A.scareAll) A.scareAll(ST); }
       [ST.fx, ST.fy] = ST.aimPt; ST.cx = ST.fx; ST.cy = ST.fy; ST.layer = layerAt(ST.fy); ST.fk = 1 - ST.pow * .55;
       SX('cast');
       setFlt('idle'); { const t1 = now(); while (now() - t1 < .32) await frame(); } fxAdd('splash', ST.fx, ST.fy, ST.fk); SX('plop'); { const A = ART(); if (A && A.scatterAt) A.scatterAt(ST, ST.fx, ST.fy); } return true; } }
+  // 图文玩法说明：四页，点右半边 / 「下一页」往后翻，左半边往前翻，最后一页点完合上
+  async function guide() { const ph0 = ST.ph, t0 = now(); ST.ph = 'guide'; ST.gi = 0; ST.g0 = now(); F().r193_guide = 1;
+    while (true) { await waitTap(); const back = hit('gprev') || P.vk === 'L'; if (back) ST.gi = Math.max(0, ST.gi - 1); else if (ST.gi >= 3) break; else ST.gi++; ST.g0 = now(); try { playSnd('ui_confirm', .3); } catch (e) {} }
+    ST.ph = ph0; const dt = now() - t0; ST.t0 += dt; ST.nextSign += dt; }
   // 力度 → 落点：浅水（y 600→440）、潭心（425→235）、深水（228→100）；x 每一竿随一点，落点必须在能投漂的水里（R193J water）
   const powY = p => p < .38 ? 600 - p / .38 * 160 : p < .72 ? 425 - (p - .38) / .34 * 190 : 228 - (p - .72) / .28 * 128;
   const layerAt = y => (ART() && ART().LAYY ? ART().LAYY(y) : y < 230 ? 2 : y < 430 ? 1 : 0);
   function aimPt(p) { const y = powY(p), A = ART(); let x = 590 + ST.seed * (110 + (600 - y) * .7); if (A && A.inWater) { let i = 0; while (!A.inWater(x, y) && i++ < 60) x += (590 - x) * .1; } return [x, y]; }
   // 等鱼：征兆每 4–8 秒一个；往下一划 / 点「收竿」就收竿重抛（不费饵）
   async function waitBite() { const g = gear(), ro = D.rod(g.rod), o = { bait: g.bait, shi: SHI(), layer: ST.layer, wx: wx(), sens: ro.sens, once: F().r175_turtle ? { turtle: 1 } : null };
-    ST.plan = D.plan(o); ST.signs = []; ST.ph = 'wait'; ST.t0 = now(); ST.nextSign = ST.t0 + rnd(2.5, 5); const sd = P.swDn, tp = P.taps, su = P.swUp;
+    ST.plan = D.plan(o); ST.signs = []; ST.ph = 'wait'; ST.t0 = now(); ST.nextSign = ST.t0 + rnd(2.5, 5); let tp = P.taps;
+    if (ST.tut && D.fish('crucian')) { ST.plan = { fish: D.fish('crucian'), at: 5 }; }   // 头一回：一定是鲫鱼，带着钓上来
     while (true) { await frame(); const t = now(); if (busy()) { ST.t0 += 1 / 60; ST.nextSign += 1 / 60; continue; }
-      if (P.taps !== tp && inR(BTN.box, P.x0, P.y0)) return 'gear'; if (P.swDn !== sd || (P.taps !== tp && inR(BTN.tag, P.x0, P.y0))) return 'recast';
-      if (P.swUp !== su) { say1('提竿——钩上空空的。浮漂真往下沉了再提', 2); SX('plop', .4); return 'recast'; }
+      if (P.taps !== tp) { tp = P.taps; if (hit('box')) return 'gear'; if (hit('tag')) return 'recast'; if (hit('help')) { await guide(); tp = P.taps; continue; }
+        if (hit('main')) say1('还没咬钩——等浮漂动了再点', 1.6); }
       const el = t - ST.t0;
       if (ST.plan.fish && el >= ST.plan.at) return 'bite';
       if (!ST.plan.fish && el >= D.WAIT_MAX) { say1('……没动静', 1.4); return 'recast'; }
@@ -122,18 +127,23 @@
   const WIN = { crucian: [17, 21], minnow: [14, 17], shrimp: [8, 23], grass_carp: [4, 11], carp: [6, 23], yellow_catfish: [10, 15], perch: [3, 19], koi: [11, 23], silver_scale: [6, 15],
     starfish: [20, 23], salamander: [6, 23], golden_carp: [3, 15], turtle: [14, 23], jade_dragon_carp: [17, 23], debris: [6, 23] };
   async function biteAndStrike() { const f = ST.plan.fish, A = ART(), key = A && A.floatKey ? A.floatKey(f) : 'idle', a = A && A.sheet && A.sheet() && A.sheet()[key], ro = D.rod(gear().rod), sens = ro.sens >= 3;
-    ST.ph = 'bite'; ST.realT = 0; const su = P.swUp;
-    if (!a) { setFlt('black'); const t0 = now(); while (now() - t0 < .9) { await frame(); if (P.swUp !== su) return 'hook'; } return 'late'; }
+    ST.ph = 'bite'; ST.realT = 0; let tp = P.taps; const struck = () => { if (P.taps === tp) return false; tp = P.taps; return hit('main'); };
+    if (!a) { setFlt('black'); const t0 = now(); while (now() - t0 < .9) { await frame(); if (struck()) return 'hook'; } return 'late'; }
     const w = WIN[key] || [Math.floor(a.frame_count / 2), a.frame_count - 1], w0 = Math.max(0, w[0] - (sens ? 1 : 0)), nf = a.frame_count, fps = a.fps;
-    const grace = (a.frames[Math.min(w[1] + 1, nf - 1)].black_float || w[1] >= nf - 1 ? .5 : .18) + (sens ? .3 : 0), endT = a.loop ? nf * 3 / fps : (w[1] + 1) / fps + grace;
+    const grace = (a.frames[Math.min(w[1] + 1, nf - 1)].black_float || w[1] >= nf - 1 ? .5 : .18) + (sens ? .3 : 0) + (ST.tut ? 1.5 : 0), endT = a.loop ? nf * 3 / fps : (w[1] + 1) / fps + grace;
     ST.fa = key; ST.fa0 = now(); ST.realT = ST.fa0 + w0 / fps;
     while (true) { await frame(); if (busy()) { ST.fa0 += 1 / 60; continue; } const u = now() - ST.fa0, n = Math.floor(u * fps);
-      if (P.swUp !== su) { const m = a.loop ? n % nf : n, ok = a.loop ? m >= w0 && m <= w[1] + 1 : m >= w0;
+      if (ST.tut) { const inw = n >= w0; ST.tutBtn = inw ? 'main' : null; ST.tutMsg = inw ? '就是现在——点「提竿」！' : '先别点，这几下轻点是试口……'; }
+      if (struck()) { const m = a.loop ? n % nf : n, ok = a.loop ? m >= w0 && m <= w[1] + 1 : m >= w0; ST.tutBtn = null; ST.tutMsg = null;
         if (ok) { if (A.scareAll) A.scareAll(ST); return 'hook'; } return 'early'; }
-      if (u > endT) return 'late'; } }
-  async function fight() { const g = gear(), f = ST.plan.fish, A0 = ART(); ST.fight = D.fightInit(f, g.rod, g.line); ST.ph = 'fight'; let last = now(), dir = 0, sway = 0;
+      if (u > endT) { ST.tutBtn = null; ST.tutMsg = null; return 'late'; } } }
+  async function fight() { const g = gear(), f = ST.plan.fish, A0 = ART(); ST.fight = D.fightInit(f, g.rod, g.line); ST.ph = 'fight'; let last = now(), dir = 0, sway = 0, tp = P.taps, wasB = false; ST.reel = true; ST.pull = 0;   // 一上钩就在收线；点「松线」松，点「收线」再收
     SX('hook'); const lp = SL('fight');
     try { while (true) { await frame(); const t = now(), dt = Math.min(.05, t - last); last = t; if (busy()) continue;
+      if (P.taps !== tp) { tp = P.taps; if (hit('L')) ST.pull = ST.pull === -1 ? 0 : -1; else if (hit('R')) ST.pull = ST.pull === 1 ? 0 : 1; else if (hit('loose')) ST.reel = false; else if (hit('main')) ST.reel = true; }
+      { const b = ST.fight.burst > 0; if (wasB && !b) ST.pull = 0; wasB = b; }   // 这一冲过去了，带竿回正
+      if (ST.tut) { const q = ST.fight, hot = q.warn > 0 || (q.burst > 0 && !q.tired); ST.tutBtn = hot ? (ST.reel ? 'loose' : q.burst > 0 && ST.pull !== -q.dir ? (q.dir < 0 ? 'R' : 'L') : null) : ST.reel ? null : 'main';
+        ST.tutMsg = hot ? (ST.reel ? '它要冲了——点「松线」！' : '往它冲的反方向带，它累得快') : ST.reel ? '收线中……盯着水面，一鼓就点「松线」' : '冲完了——点「收线」'; }
       dir = dragDir(); ST.drag = dir; ST.held = held();
       const r = D.fightStep(ST.fight, dt, held(), dir); const s = ST.fight;
       { const d = clamp(s.dist, 0, 1), sx = 600, sy = 585, cx = ST.cx || 600, cy = ST.cy || 400, kk = A0 && A0.kAt ? A0.kAt(cy) / .56 : 1;   // 远近：岸边（竹台前）到抛下去的地方；鱼往哪冲就往哪偏
@@ -141,7 +151,7 @@
         if (A0 && A0.inWater) { let i = 0; while (!A0.inWater(x, y) && i++ < 40) { x += (sx - x) * .12; y += (sy - y) * .12; } } ST.fx = x; ST.fy = y; }
       if (s.burst > 0 && Math.random() < dt * 8) fxAdd('burst', ST.fx, ST.fy, ST.fk + .4);
       if (lp) lp.vol(.3 + .45 * clamp(s.ten / s.cap, 0, 1));
-      if (r) { if (r === 'snap') SX('snap'); else if (r === 'lost') SX('plop', .5); return r; } } } finally { if (lp) lp.stop(.3); } }
+      if (r) { if (r === 'snap') SX('snap'); else if (r === 'lost') SX('plop', .5); return r; } } } finally { if (lp) lp.stop(.3); ST.tutBtn = null; ST.tutMsg = null; ST.reel = false; ST.pull = 0; } }
   async function landed(API, f) { const card = Object.assign({}, f, { r: f.junk ? '' : D.TIERS[f.t] });
     const book = F().r193_sg = F().r193_sg || {}; if (!f.junk) { const s = new Set(book[f.id] || []); ST.signs.forEach(k => s.add(k)); book[f.id] = [...s].slice(0, 8); }
     fxAdd('leap', ST.fx, ST.fy, 1.2); SX('lift');
@@ -150,34 +160,35 @@
     if (f.id === 'shrimp') addItem('bait_shrimp', 1); if (window.R193_LANDED) R193_LANDED(f);
     await API.showCard(card); ST.lift = null; API.G.phase = 'pond';
     ST.log.push(f.name); }
-  const FAILS = { early: '提早了，鱼吓跑了', late: '饵被吃光了', snap: '线断了——', lost: '脱钩了' };
+  const FAILS = { early: '提早了，鱼吓跑了——饵还在，接着等', late: '饵被吃光了', snap: '线断了——', lost: '脱钩了' };
   window.R193_ANGLE = async function (API) {
     const f = F(), G = API.G; API0 = API;
     if (!f.r193_kit) { f.r193_kit = 1; addItem('bait_worm', 12); addItem('bait_dough', 6); gear();
       await narrate('钓台柱子边多了一只旧木匣，匣盖上刻着一个「松」字。里面是那根旧竹竿、一卷麻线，还有一罐蚯蚓、一包面团。');
       await narrate('（钓鱼换了玩法：潭水清，看得见水底游着的鱼影，可看不清是什么鱼。要猜咬钩的是什么，得看浮漂——每种鱼咬钩，浮漂动法都不一样；水面、竿上落的小东西也是征兆。）');
-      await narrate('（按住蓄力、松手抛竿，越用力抛得越远越深。等浮漂真沉下去时往上一划提竿；之前那几下轻点是在试口，提了就空。）');
-      await narrate('（鱼上钩后按住收线；水面一鼓、它要猛冲时松手，线差的话大鱼一冲就断。）'); }
+      }
     { const A = ART(); if (A && !A.ready()) { try { await A.load(); } catch (e) {} } }
     if (window.R193_GIFTS) { try { await R193_GIFTS(); } catch (e) { console.warn('R193 gifts', e); } }
     const hud0 = S.hud; S.hud = false; world.locked = true; G.on = true; G.phase = 'pond'; G.caught = []; G.card = null; G.fv = false; G.sh = null;
-    if (S.overlay.indexOf(OV) < 0) S.overlay.unshift(OV); ON = true; ST.log = [];
+    if (S.overlay.indexOf(OV) < 0) S.overlay.unshift(OV); ON = true; ST.log = []; ST.tut = !f.r193_tut; ST.keep = 0;
     // 声音：瀑布环境 / 雨，雷雨夜不时一声雷；配乐换成垂钓曲（白天古筝、月夜箫琴），收竿后回到钓台的曲子
     try { if (window.R193_SFX) R193_SFX.preload(); } catch (e) {}
     const amb = SL('amb'), w0 = wx(), rain = /雨/.test(w0) ? SL('rain') : null;
     const thunder = setInterval(() => { if (!ON) return; if (wx() === '雷雨' && Math.random() < .3) { ST.flashT = now(); setTimeout(() => SX('thunder'), 300); } }, 6000);
     try { if (typeof playBgm === 'function') playBgm(/戌|子/.test(SHI()) ? 'lib_xyq_dy_nightb' : 'lib_xyq_dy_daya', true); } catch (e) {}
     try {
+      if (!f.r193_guide) { ST.ph = 'gear'; await guide(); }
       outer: while (await gearScreen()) {
         while (true) {
           if (!itemCount(gear().bait)) { say1('这种饵用完了', 1.4); break; }
-          const am = await aim(); if (am === 'quit') break outer; if (!am) break;
+          const am = ST.keep ? true : await aim(); ST.keep = 0; if (am === 'quit') break outer; if (!am) break;
           const w = await waitBite(); if (w === 'gear') { setFlt('idle'); break; } if (w === 'recast') continue;
           const r = await biteAndStrike(); const fish = ST.plan.fish;
           if (r !== 'early') addItem(gear().bait, -1);   // 鱼咬了钩就耗饵；提早只是吓跑
+          if (r === 'early') { say1(FAILS.early, 1.8); await sleepS(.5); setFlt('idle'); ST.keep = 1; continue; }   // 提早了：鱼跑了，饵还在，浮漂留在原地接着等
           if (r !== 'hook') { say1(FAILS[r], 1.6); await sleepS(.6); setFlt('idle'); await sleepS(.6); continue; }
           const res = await fight(); ST.fight = null;
-          if (res === 'land') { await landed(API, fish); continue; }
+          if (res === 'land') { await landed(API, fish); if (ST.tut) { ST.tut = false; F().r193_tut = 1; say1('会了！往后就靠自己看漂了', 2.4); } continue; }
           const f2 = fish; say1(res === 'snap' ? (f2.t >= 3 ? '线断了——那一下的力气，' + D.line(gear().line).name + '吃不住' : '线断了') : FAILS.lost, 2.2); fxAdd('tail', ST.fx, ST.fy, 1.4); await sleepS(1.6);
         } }
       if (ST.log.length) await narrate('收竿。这一趟钓上来：' + ST.log.join('、') + '。');

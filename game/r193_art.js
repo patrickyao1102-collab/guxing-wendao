@@ -95,7 +95,7 @@
   function draw(ST, t, H2) { const shi = SHI(), g = H2.gear(), wx = H2.wx(), dk = night(shi), dt = clamp(t - lastT, 0, .05); lastT = t;
     ctx.drawImage(IM['j_bg_' + SHK[shi]] || IM.j_bg_wu, 0, 0, W, H);
     if (wx === '雷雨' && ST.flashT && t > ST.flashT && t - ST.flashT < .18) { ctx.fillStyle = 'rgba(230,240,255,.35)'; ctx.fillRect(0, 0, W, H); }
-    if (ST.ph !== 'gear' && ST.ph !== 'book') drawShadows(ST, t, dt, dk);
+    if (!/gear|book|guide/.test(ST.ph)) drawShadows(ST, t, dt, dk);
     if (ST.fight) drawHooked(ST, t, dk);
     // 水面涟漪
     for (let i = ST.fxs.length - 1; i >= 0; i--) { const q = ST.fxs[i], m = WF[FXMAP[q.k] || 'small']; if (!m) { ST.fxs.splice(i, 1); continue; } const n = Math.floor((t - q.t0) * m[2]); if (n >= m[1]) { ST.fxs.splice(i, 1); continue; }
@@ -108,7 +108,7 @@
     if (showF) top = drawFloatAt(ST.fa || 'idle', t - (ST.fa0 || 0), ST.fx, ST.fy, k);
     drawCreatures(ST, t, g, dk, 'water'); drawLift(ST, t, g, dk);
     // 线
-    if (ST.ph !== 'gear' && ST.ph !== 'book' && !(ST.ph === 'aim' && !ST.castT && !ST.holding)) { const ten = ST.fight ? clamp(ST.fight.ten / ST.fight.cap, 0, 1.2) : 0, wob = ten > .7 ? Math.sin(t * 60) * 1.2 : 0;
+    if (!/gear|book|guide/.test(ST.ph) && !(ST.ph === 'aim' && !ST.castT && !ST.holding)) { const ten = ST.fight ? clamp(ST.fight.ten / ST.fight.cap, 0, 1.2) : 0, wob = ten > .7 ? Math.sin(t * 60) * 1.2 : 0;
       let e = top || [ST.fx, ST.fy]; if (ST.fight) e = [ST.fx, ST.fy]; if (ST.lift && ST.lift.mx != null) e = [ST.lift.mx, ST.lift.my];
       if (!(ST.ph === 'aim' && ST.holding)) sagLine(tx, ty, e[0] + wob, e[1], g.line, ten, ST.fight ? (ST.fight.slack > .4 ? 30 : 4 * (1 - ten)) : fly ? 0 : 14);
       if (ST.fight && t - (ST.wakeT || 0) > .2) { ST.wakeT = t; ST.fxs.push({ k: ST.fight.burst > 0 ? 'dash' : 'wake', x: ST.fx, y: ST.fy, t0: t, flip: ST.fight.dir < 0 }); } }
@@ -167,9 +167,15 @@
   function ink(cx, cy, w, al) { if (!INK && IM.j_caption_ink) { INK = document.createElement('canvas'); INK.width = 520; INK.height = 60; const g = INK.getContext('2d'); for (let i = 0; i < 4; i++) g.drawImage(IM.j_caption_ink, 0, 0); }
     const im = INK; if (!im || al <= 0) return; ctx.save(); ctx.globalAlpha = al; const h = 60 * w / 520 * 1.1; ctx.drawImage(im, cx - w / 2, cy - h / 2, w, h); ctx.restore(); }
   // ---------- 按钮（R193J 玉石按钮 / 钓具匣 / 收竿签）----------
-  function mainBtn(B, label, down, glow, t) { const cx = B.x + B.w / 2, cy = B.y + B.h / 2, dy = down ? 2 : 0;
-    img(down ? 'btn_main_down' : 'btn_main_normal', cx, cy + dy); if (glow) img('btn_main_glow', cx, cy + dy, 1, .55 + .45 * Math.sin(t * 7), 'screen');
-    T(label, cx, cy + 14 + dy, 44, '#3a2a14', BRUSH, 1, 'rgba(250,244,220,.75)'); }
+  // on = 现在正起作用的那个（收线 / 松线），按下去的样子、字亮；dim = 另一个，淡一点
+  function mainBtn(B, label, down, glow, t, k = 1, dim) { const cx = B.x + B.w / 2, cy = B.y + B.h / 2, dy = down ? 2 * k : 0;
+    img(down ? 'btn_main_down' : 'btn_main_normal', cx, cy + dy, k, dim ? .8 : 1); if (glow) img('btn_main_glow', cx, cy + dy, k, .55 + .45 * Math.sin(t * 7), 'screen');
+    T(label, cx, cy + 14 * k + dy, Math.round(44 * k), dim ? '#6a5a40' : '#3a2a14', BRUSH, 1, 'rgba(250,244,220,.75)'); }
+  // 教学：该点的按钮外面一圈一圈往里收的红圈，旁边一只手指
+  function tutRing(B, t) { const cx = B.x + B.w / 2, cy = B.y + B.h / 2, r0 = Math.max(B.w, B.h) / 2, u = (t * 1.4) % 1; ctx.save(); ctx.strokeStyle = '#ff5a3c'; ctx.lineWidth = 4; ctx.globalAlpha = .9;
+    if (B.w > B.h * 1.5) { ctx.beginPath(); ctx.roundRect(B.x - 6 - 14 * (1 - u), B.y - 6 - 14 * (1 - u), B.w + 12 + 28 * (1 - u), B.h + 12 + 28 * (1 - u), 16); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.arc(cx, cy, r0 + 6 + 22 * (1 - u), 0, 7); ctx.stroke(); } ctx.restore();
+    const hy = Math.sin(t * 6) * 6; ctx.save(); ctx.font = '44px serif'; ctx.textAlign = 'center'; ctx.fillText('👆', B.x - 30, cy + 34 + hy); ctx.restore(); }
   function sideBtn(B, side, down, glow, t) { const cx = B.x + B.w / 2, cy = B.y + B.h / 2, dy = down ? 2 : 0;
     img('btn_' + side + (down ? '_down' : '_normal'), cx, cy + dy); if (glow) img('btn_' + side + '_glow', cx, cy + dy, 1, .55 + .45 * Math.sin(t * 9), 'screen'); }
   function box(B, label, hov, t) { const cx = B.x + B.w / 2, cy = B.y + B.h / 2; img(hov ? 'box_gear_hover' : 'box_gear_normal', cx, cy); T(label, cx, B.y + B.h + 2, 20, '#fff3d6', BRUSH); }
@@ -214,34 +220,65 @@
       row(R.bait, '饵', b && n ? b.name + ' ×' + n : '没有饵了', b && n ? '点一下换 · ' + b.k + '饵' + (b.like.length ? ' · 招' + b.like.map(i => D.fish(i).name).join('、') : '') : '');
       ctx.textAlign = 'center'; ctx.fillStyle = '#6a4a2a'; ctx.font = `18px ${FONT}`; ctx.fillText(SHI() + '时 · ' + H2.wx() + (H2.wx() === '雾' ? ' · 雾天灵鲵爱出来' : H2.wx() === '雷雨' ? ' · 雷雨夜，潭底有东西不安分' : ''), 640, 466);
       btn(R.go, b && n ? '去钓台' : '没有饵', P.down && P.inR(R.go)); if (R.book) btn(R.book, '鱼谱', P.down && P.inR(R.book));
-      for (const e of R.extra || []) { const hv = P.inR(e); ctx.save(); ctx.fillStyle = hv ? 'rgba(122,74,26,.22)' : 'rgba(122,74,26,.12)'; ctx.strokeStyle = 'rgba(122,74,26,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(e.x, e.y, e.w, e.h, 8); ctx.fill(); ctx.stroke(); ctx.textAlign = 'center'; ctx.fillStyle = '#5a3412'; ctx.font = `22px ${BRUSH}`; ctx.fillText(e.label, e.x + e.w / 2, e.y + 28); ctx.restore(); } btn(B.gq, '不钓了', P.down && P.inR(B.gq)); }
+      for (const e of R.extra || []) { const hv = P.inR(e); ctx.save(); ctx.fillStyle = hv ? 'rgba(122,74,26,.22)' : 'rgba(122,74,26,.12)'; ctx.strokeStyle = 'rgba(122,74,26,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(e.x, e.y, e.w, e.h, 8); ctx.fill(); ctx.stroke(); ctx.textAlign = 'center'; ctx.fillStyle = '#5a3412'; ctx.font = `22px ${BRUSH}`; ctx.fillText(e.label, e.x + e.w / 2, e.y + 28); ctx.restore(); } btn(B.gq, '不钓了', P.down && P.inR(B.gq)); btn(B.help, '？玩法', P.down && P.inR(B.help)); }
     if (ST.ph === 'book') { drawBook(ST, t, H2); return; }
+    if (ST.ph === 'guide') { drawGuide(ST, t, H2); return; }
     if (!scene) return;
     // 蓄力：水面上一圈落点，跟着力度往远处走；旧竹竿够不着深水
     if (ST.ph === 'aim' && ST.holding && ST.aimPt) { const [x, y] = ST.aimPt, kk = kAt(y), pul = 1 + .06 * Math.sin(t * 10); ctx.save(); ctx.globalAlpha = .7; ctx.strokeStyle = '#fff8e0'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(x, y, 60 * kk * pul, 17 * kk * pul, 0, 0, 7); ctx.stroke(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.ellipse(x, y, 90 * kk, 26 * kk, 0, 0, 7); ctx.stroke(); ctx.restore();
-      const capped = ST.maxP < 1 && ST.pow >= ST.maxP - .01; T(LAYN[LAYY(y)] + (capped ? '　竿短，够不着深水' : ''), x, y - 34 * kk - 8, 24, capped ? '#ffd0a0' : '#fff3d6'); }
+      ctx.beginPath(); ctx.ellipse(x, y, 60 * kk * pul, 17 * kk * pul, 0, 0, 7); ctx.stroke(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.ellipse(x, y, 90 * kk, 26 * kk, 0, 0, 7); ctx.stroke(); ctx.restore(); T(LAYN[LAYY(y)], x, y - 34 * kk - 8, 24, '#fff3d6'); }
+    // 甩竿：三个按钮，点哪个甩到哪一层（深水在上、浅水在下，跟画面远近一致）
+    if (ST.ph === 'aim' && !ST.castT && !ST.holding) { T('甩到哪儿？', 1140, 474, 24, '#fff3d6');
+      [['a2', '深水', '3'], ['a1', '潭心', '2'], ['a0', '浅水', '1']].forEach(([k2, n2, key]) => { const r = B[k2], no = k2 === 'a2' && ST.maxP < 1; ctx.save(); if (no) ctx.globalAlpha = .55; btn(r, no ? '深水（竿短）' : n2, no || (P.down && P.inR(r))); ctx.restore(); }); }
     // 搏鱼按钮在右下；平时只有主按钮
     const held = H2.held(), s = ST.fight;
-    if (ST.ph === 'aim') mainBtn(B.main, '甩竿', ST.holding, false, t);
     if (ST.ph === 'wait' || ST.ph === 'bite') mainBtn(B.main, '提竿', P.down && P.inR(B.main), false, t);
     if (ST.ph === 'fight' && s) { const hot = s.burst > 0 && !s.tired, need = hot ? -s.dir : 0, loose = s.warn > 0 || hot;
-      mainBtn(B.main, loose ? '松手' : '收线', held, s.tired, t); sideBtn(B.L, 'left', ST.drag === -1, need === -1, t); sideBtn(B.R, 'right', ST.drag === 1, need === 1, t);
+      mainBtn(B.main, '收线', held, !held && !loose, t, 1, !held); mainBtn(B.loose, '松线', !held, held && loose, t, .68, held);
+      { const ab = held ? B.main : B.loose; img('btn_main_glow', ab.x + ab.w / 2, ab.y + ab.h / 2 + 2 * (held ? 1 : .68), held ? 1 : .68, .5, 'screen'); }   // 正起作用的那个亮着
+      T(held ? '正在收线' : '线松着', 1125, 430, 18, held ? '#d8f4b0' : '#ffd27a', FONT, .95);
+      sideBtn(B.L, 'left', ST.drag === -1, need === -1 && ST.drag !== -1, t); sideBtn(B.R, 'right', ST.drag === 1, need === 1 && ST.drag !== 1, t);
       if (s.warn > 0 && !ST._warn) ST.seal = { t0: t, ch: '松' }; ST._warn = s.warn > 0; fightBars(ST, t);
-      if (hot) T(s.dir < 0 ? '鱼往左冲 → 往右带' : '鱼往右冲 → 往左带', 1125, 540, 19, '#ffe3a0', FONT, .95);
-      if (s.tired) { ink(640, 250, 420, .7); T('它没力气了，按住收线！', 640, 262, 30, '#d8f4b0'); } else if (s.slack > 1) { ink(640, 250, 420, .7); T('线松了，快收线，不然脱钩', 640, 262, 26, '#ffd27a'); } }
+      if (hot) T(s.dir < 0 ? '鱼往左冲 → 点右边「带」' : '鱼往右冲 → 点左边「带」', 1125, 400, 19, '#ffe3a0', FONT, .95);
+      if (s.tired) { ink(640, 250, 420, .7); T(held ? '它没力气了，拉上来！' : '它没力气了，点「收线」！', 640, 262, 30, '#d8f4b0'); } else if (s.slack > 1) { ink(640, 250, 420, .7); T('线松太久要脱钩——点「收线」', 640, 262, 26, '#ffd27a'); } }
     // 钓具匣（回去换竿线饵）和收竿签
     if (ST.ph === 'aim' || ST.ph === 'wait' || ST.ph === 'bite') { box(B.box, '钓具匣', P.inR(B.box), t); tag(B.tag, ST.ph === 'aim' ? '不钓' : '收竿', P.down && P.inR(B.tag));
       if (b) { icon(b.id, B.box.x + 4, B.box.y - 30, 44); ctx.save(); ctx.font = `600 17px ${FONT}`; ctx.textAlign = 'left'; textOutline(b.name + ' ×' + itemCount(b.id), B.box.x + 48, B.box.y - 2, '#fff3d6', 'rgba(10,20,26,.9)', 3); ctx.restore(); } }
     // 特写圆框
     if ((ST.ph === 'wait' || ST.ph === 'bite' || (ST.ph === 'aim' && ST.castT && t - ST.castT > .32)) && !ST.fight && !ST.lift) closeup(ST, t, top, k, dk);
-    // 头几回的提示
-    if (!F.r193_n || F.r193_n < 8) { const tip = ST.ph === 'aim' ? '按住「甩竿」蓄力，水面那一圈走到想钓的地方就松手' : ST.ph === 'wait' ? '盯着浮漂（右上角放大了）。没动静别提竿；征兆能猜出是什么鱼' : ST.ph === 'bite' ? '每种鱼咬钩浮漂动法不同：轻点多是试口；顿下、没入、上送、拖走——提竿' : ST.ph === 'fight' ? '平时按住「收线」；水面一鼓就松手；往鱼冲的反方向带，它累得快' : '';
-      if (tip) { ink(660, H - 92, 760, .55); T(tip, 660, H - 86, 18, '#f2ead2', FONT, .95); } }
+    // 「玩法」按钮：随时翻图文说明
+    if (ST.ph !== 'fight' && ST.ph !== 'land') btn(B.help, '？玩法', P.down && P.inR(B.help));
+    // 教学（头一回）：该点哪个按钮就圈哪个，上面一句话；之后头几回只留一行小字
+    if (ST.tut) { if (ST.tutBtn && B[ST.tutBtn]) tutRing(B[ST.tutBtn], t);
+      const m = ST.ph === 'aim' ? (ST.castT ? '' : '第一步：点「潭心」，把钩甩到潭中间') : ST.ph === 'wait' ? '第二步：等。盯着右上角放大的浮漂，它不动就别点' : ST.tutMsg || '';
+      if (m) { ink(640, 560, 760, .9); T(m, 640, 570, 28, '#fff3d6'); } }
+    else if (!F.r193_n || F.r193_n < 8) { const tip = ST.ph === 'aim' ? '点「浅水 / 潭心 / 深水」甩竿；不同的鱼待在不同的水层' : ST.ph === 'wait' ? '盯着浮漂（右上角放大了）。没动静别点「提竿」' : ST.ph === 'bite' ? '轻点多是试口；顿下、没入、上送、拖走——点「提竿」' : ST.ph === 'fight' ? '水面一鼓就点「松线」，冲完再点「收线」；往它冲的反方向带' : '';
+      if (tip) { ink(640, H - 92, 700, .55); T(tip, 640, H - 86, 18, '#f2ead2', FONT, .95); } }
     if (ST.cap && t - ST.cap.t0 < 3.4) { const u = t - ST.cap.t0, al = Math.min(1, u / .2, (3.4 - u) / .8); ink(640, 104, 460, al * .9); T(ST.cap.s, 640, 114, 30, '#fbf3dc', BRUSH, al); }
     if (ST.msg && t < ST.msgT) { ink(640, 330, 560, .8); T(ST.msg, 640, 344, 38, '#ffe39a'); }
     seal(ST, t);
   }
+  // ---------- 图文玩法说明：四页，每页一张游戏里的图（r193j/guide）+ 红圈标出要看 / 要点的地方 + 两句话；第三页是三支浮漂并排动 ----------
+  const GUIDE = [
+    { t: '一 · 甩竿', im: 'guide1', marks: [[.806, .689, .16, .3, '点一个']], lines: ['右下角三个按钮：点哪个，钩就甩到哪一层水。', '浅水多小鱼，深水才有大鱼——旧竹竿够不着深水。'] },
+    { t: '二 · 等鱼、看漂', im: 'guide2', marks: [[.912, .245, .075, .13, '放大的浮漂'], [.88, .875, .07, .12, '动了再点']], lines: ['右上角圆框里是放大的浮漂。它不动，就什么都别点。', '浮漂一动——轻轻点几下是鱼在试口，先忍住。'] },
+    { t: '三 · 什么时候点「提竿」', floats: [['crucian', '鲫鱼', '轻点三下，然后一顿', '顿下去那一下点'], ['grass_carp', '草鱼', '不打招呼，直接沉没', '一沉就点'], ['carp', '鲤鱼', '慢慢往上顶起来', '顶起来就点']], lines: ['每种鱼咬钩，浮漂动法都不一样——认出来，就知道底下是什么。', '点早了鱼吓跑（饵还在）；点晚了饵被吃掉。钓到过的鱼，鱼谱里记着它的动法。'] },
+    { t: '四 · 搏鱼', im: 'guide4', marks: [[.785, .783, .115, .2, ''], [.785, .435, .085, .15, '要冲了点这个'], [.653, .817, .05, .09, '带'], [.917, .817, .05, .09, '带']], lines: ['鱼上钩后自动在收线。水面一鼓、盖出红「松」字——马上点「松线」，不然线断。', '它冲完了再点「收线」。它往哪边冲，就点另一边的「带」，它累得快。'] }];
+  for (const k of ['guide1', 'guide2', 'guide4']) JK.push('guide/' + k);
+  function drawGuide(ST, t, H2) { const P = H2.P, B = H2.BTN, i = ST.gi || 0, G = GUIDE[i]; ctx.save(); ctx.fillStyle = 'rgba(6,14,20,.55)'; ctx.fillRect(0, 0, W, H); ctx.drawImage(IM.scroll, 111, 26, 1058, 667); ctx.restore();   // 卷轴放大一点，图才看得清
+    ctx.textAlign = 'center'; ctx.fillStyle = '#4a2a10'; ctx.font = `36px ${BRUSH}`; ctx.fillText(G.t, 640, 152);
+    const X = 360, Y = 166, Wd = 560, Hd = 315;
+    if (G.im) { const im = IM['j_guide/' + G.im]; if (im) ctx.drawImage(im, X, Y, Wd, Hd); ctx.strokeStyle = 'rgba(90,52,18,.8)'; ctx.lineWidth = 3; ctx.strokeRect(X, Y, Wd, Hd);
+      for (const [mx, my, rw, rh, lab] of G.marks) { const cx = X + mx * Wd, cy = Y + my * Hd, pul = 1 + .08 * Math.sin(t * 6); ctx.save(); ctx.strokeStyle = '#e8402a'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.ellipse(cx, cy, rw * Wd * pul, rh * Hd * pul, 0, 0, 7); ctx.stroke(); ctx.restore();
+        if (lab) T(lab, clamp(cx, X + 70, X + Wd - 70), cy - rh * Hd - 12, 24, '#fff', BRUSH, 1, 'rgba(160,30,20,.95)'); } }
+    if (G.floats) { const u = (t - (ST.g0 || 0)) % 4.2; G.floats.forEach(([k, n, how, when], j) => { const cx = X + Wd * (j + .5) / 3, a = FS && FS[k], bgim = IM.j_bg_wu;
+        ctx.save(); ctx.beginPath(); ctx.rect(cx - 80, Y, 160, 220); ctx.clip(); if (bgim) ctx.drawImage(bgim, 520, 280, 160, 220, cx - 80, Y, 160, 220); if (a) drawFloatAt(k, Math.max(0, u - .8), cx, Y + 150, 1, ctx); ctx.restore();
+        ctx.strokeStyle = 'rgba(90,52,18,.8)'; ctx.lineWidth = 3; ctx.strokeRect(cx - 80, Y, 160, 220);
+        ctx.fillStyle = '#3a2410'; ctx.font = `26px ${BRUSH}`; ctx.fillText(n, cx, Y + 252); ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#5a3a1a'; ctx.fillText(how, cx, Y + 277); ctx.fillStyle = '#b8301c'; ctx.font = `700 17px ${FONT}`; ctx.fillText('▶ ' + when, cx, Y + 302); }); }
+    ctx.fillStyle = '#3a2410'; ctx.font = `600 17px ${FONT}`; G.lines.forEach((l, j) => ctx.fillText(l, 640, 520 + j * 25));
+    for (let j = 0; j < 4; j++) { ctx.fillStyle = j === i ? '#b8301c' : 'rgba(122,74,26,.35)'; ctx.beginPath(); ctx.arc(610 + j * 20, 495, 5, 0, 7); ctx.fill(); }
+    const nb = B.gnext, pb = B.gprev; btn(nb, i >= 3 ? '开始钓' : '下一页', P.down && P.inR(nb)); if (i > 0) btn(pb, '上一页', P.down && P.inR(pb));
+    T('电脑也可以用键盘：空格 = 大按钮　S = 松线　A / D = 左右带　1 2 3 = 浅水 / 潭心 / 深水', 640, 682, 17, '#f2ead2', FONT, .95); }
   // ---------- 鱼谱：左页鱼像（没钓到是灰墨剪影），右页名字、等级、出没、见过的征兆 ----------
   const SHN = { 卯: '卯时', 午: '午时', 酉: '酉时', 戌: '戌时', 子: '子时' };
   function drawBook(ST, t, H2) { const D = H2.D, f = D.FISH[ST.bi || 0], F = S.flags || {}, got = !!(F.r175_book && F.r175_book[f.id] != null), seen = (F.r193_sg && F.r193_sg[f.id]) || [];
