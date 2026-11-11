@@ -200,10 +200,12 @@
   const NM = { pojun: '破军剑意 · 天璇', tanlang: '贪狼剑意 · 追魂' };
   const SK = [W - 150, 22, 124, 46];
   const lockMsg = k => toast('现在只能放「' + NM[k] + '」——点「仙术」找发光的那一招', 1800);
-  if (typeof heroSkills === 'function') heroSkills = (o => function () { const L = o.apply(this, arguments); try { const b = battle, k = want(b); if (k) for (const s of L) if (s && s.k !== k) { s.disabled = true; s.why = '现在只能放「' + NM[k] + '」'; } } catch (e) {} return L; })(heroSkills);
-  if (typeof doHeroAction === 'function') doHeroAction = (o => async function (k) { try { const b = battle, w = want(b); if (w && b && b.P && !b.P.ally && k !== w) { lockMsg(w); if (b.state !== 'menu') { b.state = 'menu'; b.menu = { sel: null, sub: null }; } return; } } catch (e) {} return o.apply(this, arguments); })(doHeroAction);
+  if (typeof heroSkills === 'function') heroSkills = (o => function () { const L = o.apply(this, arguments); try { const b = battle, k = want(b); if (k && b.P && !b.P.ally) for (const s of L) if (s && s.k !== k) { s.disabled = true; s.why = '现在只能放「' + NM[k] + '」'; } } catch (e) {} return L; })(heroSkills);
+  let MINE = null;
+  const wrapAct = () => { if (typeof doHeroAction === 'function' && doHeroAction !== MINE) MINE = doHeroAction = (o => async function (k) { try { const b = battle, w = want(b); if (w && b && b.P && !b.P.ally && k !== w) { lockMsg(w); if (b.state !== 'menu') { b.state = 'menu'; b.menu = { sel: null, sub: null }; } return; } } catch (e) {} return o.apply(this, arguments); })(doHeroAction); };
+  setInterval(wrapAct, 500);   // 别的脚本在 load 之后还会再包一层 doHeroAction：始终保持这层在最外面（试剑时才拦）   // r106 在 load 后才包一层，要包在它外面
   function skip() { const b = battle; if (!isSpar(b)) return; try { if (!S.hero.skills.includes('pojun')) S.hero.skills.push('pojun'); if (!S.hero.skills.includes('tanlang')) S.hero.skills.push('tanlang'); } catch (e) {}
-    b._tlTaught = true; b.tanlangUsed = Math.max(1, b.tanlangUsed || 0); b._g207skip = 1; for (const e of b.enemies) { e.hp = 0; e.alive = false; } toast('已跳过试剑', 1400); }
+    b._tlTaught = true; b.tanlangUsed = Math.max(1, b.tanlangUsed || 0); b._g207skip = 1; for (const e of b.enemies) { e.hp = 0; e.alive = false; } toast('已跳过试剑', 1400); b.state = 'act'; b.menu = null; Promise.resolve().then(() => afterAct()).catch(e => console.warn('skip', e)); }
   drawBattle = (o => function () { const r = o.apply(this, arguments); try { const b = battle; if (!want(b) || b._g207skip) return r;
     ctx.save(); const [x, y, w, h] = SK; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 23) : ctx.rect(x, y, w, h); ctx.fillStyle = 'rgba(20,16,12,.85)'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(232,194,122,.9)'; ctx.stroke();
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `22px ${BRUSH}`; ctx.fillStyle = '#ffe9b8'; ctx.fillText('跳 过 ›', x + w / 2, y + h / 2 + 1); ctx.restore(); } catch (e) {} return r; })(drawBattle);
