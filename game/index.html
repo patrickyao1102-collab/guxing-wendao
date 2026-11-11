@@ -4232,7 +4232,7 @@ function hfHall() { if (world.mapName !== 'hf_camp' || S.flags.ch2_done || (worl
 setInterval(() => { try { if (world.mapName === 'hf_camp' && S.flags.ch2_gate && !S.flags.ch2_done && !world.locked && !battle) hfHall(); } catch (e) {} }, 1000);   // 读档直接落在寨子里时也补上
 async function hfBoss() {
   const p = world.player; world.locked = true; world.path = null; p.moving = false;
-  await narrate('聚义厅前的空地上火把通明。厅门「轰」地被一脚踹开——一个满脸横肉的大汉提着鬼头刀走了出来，身后跟着一个阴沉的灰袍人。');
+  await narrate('聚义厅前的空地上火把通明。厅门「轰」地被一脚踹开——一个披着兽毛披肩、满脸横肉的大汉提着厚背弯刀走了出来，身后跟着一个红发束起、一身黑红轻甲的年轻人。');
   const zh = addActor('e_zhouhu', p.x + 220, p.y - 120, '周虎', '#ff9a7a'); zh.h = 250;   /* R191 新模型整幅 720 高、人只占下面 404 */ zh.dir = -1; zh.alpha = 0;
   const fl = addActor('e_fanglie', p.x + 330, p.y - 70, '方烈', '#ff7a8a'); fl.h = 140; fl.dir = -1; fl.alpha = 0;
   await tween(500, t => { zh.alpha = t; fl.alpha = t; });
@@ -4247,7 +4247,7 @@ async function hfBoss() {
   await narrate('就在此时，黑风谷深处，一股强大的气息宛如觉醒的洪荒凶兽般骤然爆发——');
   const mz = addActor('e_mozu', p.x + 260, p.y - 60, '神秘高手', '#7a5aaa'); mz.h = 150; mz.dir = -1; mz.alpha = 0; await tween(600, t => mz.alpha = t);
   window.R189M && R189M.vo && R189M.vo('b0');
-  await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
+  await say('魔族高手·坏笑', '凝丹初期居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
   await say('星旋', '小心！这家伙的气息不对劲——是魔族！');
   await fadeOut(200);
   const pr3 = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [mozuBoss()], exp: 900, gold: 600, boss: true, normalBgm: true }); await fadeIn(250); const win = await pr3;
@@ -4287,9 +4287,9 @@ async function ch2After() {
   partyRest();
   await narrate('与此同时，那颗与他完全融合的天枢星骤然大放光明——一道澎湃的星辰之力从虚空落下，直接灌入叶孤星的丹田。');
   playSnd('jingle_levelup'); S.flash = .8; S.flashColor = '#fff3c0';
-  const h = S.hero; if (h.lv < 11) { h.realm = '凝丹二重'; for (const k in GROW) h[k] += GROW[k]; h.hp = h.maxhp; h.mp = h.maxmp; }
-  await showPanel('突破 · 凝丹二重', ['!' + h.realm, '气血、灵力全满']);
-  await say('星旋', '刚突破凝丹二重，就算兑换了绝影，施展一次也得躺地上任人宰割。不如先换个实用的群攻——破军剑意·星罗。');
+  const h = S.hero; const r0 = h.realm; { h.realm = realmOf(Math.max(11, (h.lv || 10) + 1)); for (const k in GROW) h[k] += GROW[k]; h.hp = h.maxhp; h.mp = h.maxmp; }   /* 11-12：按正常等级往上破一重，不再重复弹「凝丹二重」 */
+  await showPanel('突破 · ' + h.realm, ['!' + r0 + ' → ' + h.realm, '气血、灵力全满']);
+  await say('星旋', '刚突破' + h.realm + '，就算兑换了绝影，施展一次也得躺地上任人宰割。不如先换个实用的群攻——破军剑意·星罗。');
   await say('叶孤星', '那就兑换星罗！');
   if (!h.skills.includes('xingluo')) h.skills.push('xingluo');
   playSnd('sfx_sword_ring'); S.flash = .5; S.flashColor = '#cfe6ff';
@@ -4329,7 +4329,7 @@ async function ch2EndNew() {
   if (q === 'camp') setTimeout(async () => { setup(13); joinParty('yunting'); S.flags.ch2_plan = 1; S.hud = true; S.fade = 1; await goMap('hf_camp', ...(TMAPS.hf_camp.arrive ? TMAPS.hf_camp.arrive.hf_valley : [2, 18]), 'right'); }, 60);
   // 作者 11-11：「测试版弄一个版本我去看看」—— 直接进魔族这一战，血量压到 52%，打一下就突破、撕斗篷变身（输不了）
   if (q === 'mozu') setTimeout(async () => { setup(13); joinParty('yunting'); S.hud = true; S.fade = 1; const e = mozuBoss(); e.hp = Math.round(e.maxhp * .56); e.turn = 2;   /* 测试：先听开战台词，敌方第一回合就放黑煞掌印 */
-    S.scene = drawMap; await fadeIn(200); window.R189M && R189M.vo && R189M.vo('b0'); await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。'); await fadeOut(200);
+    S.scene = drawMap; await fadeIn(200); window.R189M && R189M.vo && R189M.vo('b0'); await say('魔族高手·坏笑', '凝丹初期居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。'); await fadeOut(200);
     const pr = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [e], exp: 1, gold: 1, boss: true, normalBgm: true, cannotLose: true }); await fadeIn(250); await pr; }, 60);
   if (q === 'ch2n') setTimeout(() => { S.fade = 1; Object.assign(S.flags, { hs_impact: 1, hs_meet: 1 }); ch2Start(); }, 60);
 })();
@@ -5226,25 +5226,39 @@ async function ch3Bridge() {
   await narrate('河对岸的灯火照不到这边。石桥下的空地上，云霆一个人在练剑。');
   await narrate('一剑，又一剑。剑锋划过的地方，河面竟结出了一层薄薄的白霜。');
   await say('星旋', '（嗯？这小子的剑意……冷得不太对劲。）');
-  await say('叶孤星', '庙会都快散了，你在这儿跟河水较什么劲？');
+  await say('叶孤星', '庙会都快散了，你怎么还在这儿练？');
   await say('云霆', '……你来干什么。');
-  const opts = ['「伤还没好透，就这么练？」', '「打一场？」'];
-  if (S.flags.ch3_candy) opts.push('（把冷脸糖人丢过去）');
-  const i = await choose('对云霆说……', opts);
-  if (i === 0) { await say('云霆', '死不了。百草轩的药我吃了……林溪那丫头说是她买的，她说谎的时候耳朵会红。'); await say('叶孤星', '……那丫头。'); C3.bond(1); }
-  else if (i === 1) { await narrate('两人的剑在桥下碰了十几招。云霆的剑很快，快得近乎不要命——每一剑都只攻不守。'); await say('叶孤星', '（他这是在拿自己的命换剑速。）'); C3.bond(1); }
-  else { await narrate('云霆抬手接住，低头一看——一个板着脸、抱着剑的小糖人，冷冰冰的神情学了个十成十。'); await say('云霆', '……这是我？'); await say('叶孤星', '星旋挑的，不关我事。'); await say('星旋', '喂！'); await narrate('云霆没说话，咬了一口糖人的脑袋。紧绷了好几天的脸，总算松了一点。'); C3.bond(2); }
+  if (S.flags.ch3_candy) { await narrate('叶孤星把一个糖人丢了过去。云霆抬手接住，低头一看——一个板着脸、抱着剑的小糖人，冷冰冰的神情学了个十成十。'); await say('云霆', '……这是我？'); await say('叶孤星', '星旋挑的，不关我事。'); await narrate('云霆没说话，咬了一口糖人的脑袋。'); C3.bond(1); }
+  await say('叶孤星', '伤还没好透，就这么练？');
+  await say('云霆', '死不了。躺了三天，剑都生了。');
+  await say('叶孤星', '三天不练就生？你对自己也太狠了。');
+  await narrate('云霆没有接话，又是一剑劈出，河面的白霜裂开一道细缝。');
+  await say('叶孤星', '一个人对着河水练有什么意思。来，打一场。');
+  await say('云霆', '……你认真的？');
+  await say('叶孤星', '点到为止。让我看看你这三天到底在跟谁较劲。');
+  await say('云霆', '……好。别留手。');
+  await say('叶孤星', '（他心里憋着一口气。这一场……让他赢。）');
+  await narrate('叶孤星暗暗把灵力压下了一半。');
+  // 作者 11-12：两人真打一场——叶孤星让着他，只带半血，云霆一式点星分出胜负
+  try {
+    if (window.R211_SPAR) { await fadeOut(250); const pr = R211_SPAR(); await fadeIn(250); await pr; S.scene = drawMap; await fadeIn(250); }
+  } catch (e) { console.warn('spar', e); try { S.scene = drawMap; S.fade = 0; } catch (e2) {} }
+  world.locked = true;
+  await narrate('一式点星直刺而来——叶孤星的剑慢了半拍，剑尖已停在他喉前。');
+  await narrate('云霆的剑却迟迟没有收回，握剑的手微微发抖。');
+  await say('云霆', '……你出剑的时候，留手了。');
+  await say('叶孤星', '没有。倒是你，这一剑像是在跟自己拼命。');
+  C3.bond(1);
   await narrate('河灯一盏一盏漂远。云霆收了剑，靠着桥墩坐下，半天没说话。');
-  await say('云霆·思', '……黑风寨那天，我想过认输。');
-  await say('叶孤星', '然后呢。');
-  await say('云霆', '没有然后。下次不会了。');
-  await say('叶孤星', '行。下次再想认输，先把欠我的酒钱还了。');
-  await say('云霆', '……什么酒钱。');
-  await say('叶孤星', '林府那坛。你喝了大半。');
-  await say('云霆·坏笑', '那是你顺的。');
-  await say('叶孤星', '顺的也是我顺的。');
+  await say('云霆·思', '……树林里那一爪，是你替我挡的。黑风寨那一下，也是你挡在前面。');
+  await say('叶孤星', '换了你，你也会替我挡。');
+  await say('云霆', '七岁那年，我爹娘也是这样挡在我前面的。');
+  await narrate('叶孤星一时说不出话来。');
+  await say('云霆', '十一年了。我以为不会再有第二次。');
+  await say('叶孤星', '不一样。那时候你七岁，现在你是我兄弟。兄弟之间，没有谁护着谁，只有今天我挡、明天你挡。');
+  await say('云霆', '……嗯。');
   await say('云霆', '（起身）明早去玄天城，向据点禀报魔族的事。');
-  await say('星旋', '（嘴硬。不过……他这剑意，迟早要出事。）');
+  await say('星旋', '（嘴上应了，心里那道坎可没过去。这剑意再这么冷下去……迟早要出事。）');
   await fadeOut(700); S.flags.ch3_night = 0; S.flags.ch3_city = 1;
   await ch3City(false);
 }
@@ -5279,7 +5293,7 @@ function ch3CityTriggers(yt) {
       await say('星旋', '一万？！你身上满打满算才多少……');
       await narrate('叶孤星没有说话，把黑风寨抄来的全部家当，连同林家主硬塞的谢礼，一股脑儿全压在了柜台上。');
       await say('玄兵阁掌柜', '够、够了！成交！');
-      S.flags.qingxiao = 1; S.hero.gold = Math.max(0, S.hero.gold - 300);
+      S.flags.qingxiao = 1;   /* 11-12：记账，不扣灵石 */
       await narrate('云霆从据点出来时，叶孤星把青霄剑直接塞进他怀里。');
       await say('云霆·惊', '这是……？');
       await say('叶孤星', '你那把剑在黑风寨崩了口子。拿着。');
@@ -5323,7 +5337,7 @@ async function ch3ForestEnter() {
 async function ch3Tiger() {
   world.locked = true;
   await narrate('空地中央，一头浑身覆满黑铁鳞甲的巨虎正在撕咬一具妖狼的尸体。它缓缓抬起头，额心那只竖眼亮起了暗红的光。');
-  await say('星旋', '铁鳞魔虎，凝丹五重！小子，比你高了三个小境界——');
+  { const d = 14 - (S.hero.lv || 11); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
   await say('叶孤星', '那正好，试试刚换的星罗。');
   await fadeOut(250);
   const pr = startBattle({ title: '铁鳞魔虎', bg: 'bg_youying', enemies: [tigerBoss()], exp: 260, gold: 400, boss: true, loot: '铁鳞 ×3' }); await fadeIn(250); await pr;
@@ -6875,7 +6889,6 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await say('星旋', '这几只是打发了，可流星的星力还没散——山里的小妖还会被引过来。');
     await say('星旋·严肃', '你拿根桃木剑跟妖兽拼命，看得本器灵心惊肉跳。刚才打着打着，我闻到溪边岩隙里有一股剑气——像是哪位前辈弟子藏了把剑在那儿。');
     await say('星旋', '先去把剑取了。顺便在后山转转，碰上那些发光的兽火就是妖兽，练练手。练够了，顺着南边的石阶下山去藏经阁。');
-    await say('星旋', '对了……刚才流星一落，右边石台上那圈星钉好像亮了。你要是好奇，也可以去瞧一眼。');
     S.quest = S.flags.hs_chest ? '去藏经阁（看左上角小地图的金圈，可先在后山打兽火历练）' : '去溪边岩隙取剑（看左上角小地图的金圈）'; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('碰到发光的兽火就会开打。灵草、宝箱、古阵也都能去看看。走到南边石阶口就去藏经阁', 3600);
     const [tx, ty] = near(1322, 1800);
     addTrigger(tx, ty, 110, async () => { world.hold = true; S.quest = ''; await fadeOut(500); await (window.LIB_PART3 || origPart3)(); });
@@ -7616,7 +7629,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
   async function roomDawn() {
     // 作者 11-03：第二天早上叶擎苍不再来居室（父子见面太频繁）。三日后修为检测的消息改由执事堂告示带到
     world.locked = true; const p = world.player;
-    await narrate('天边泛起鱼肚白。叶孤星打了个哈欠，刚准备躺下，门缝底下被人塞进来一张盖着执事堂印的告示。');
+    await narrate('叶孤星打了个哈欠，刚准备躺下，门缝底下被人塞进来一张盖着执事堂印的告示。');
     await moveActor(p, ...nearOf(TR)(544, 700), 150); p.face = 'down';
     await narrate('「三日后辰时，演武广场测灵碑前检测修为，以定各弟子下山历练去处。——天剑宗执事堂」');
     await say('星旋', '三天后？来得正好。你那点剑意，到时候当着全宗的面亮出来。');
@@ -7636,7 +7649,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     RES_TOD('night'); const [c, r] = atOf(TR)(824, 615); tileSetMap('tj_room', c, r, 'up'); S.scene = drawMap; S.hud = false; world.locked = true;
     const p = world.player;
     await fadeIn(600);
-    await narrate('叶孤星慢悠悠地回到住所，还没来得及躺下，门外便传来了轻轻的敲门声。');
+    await narrate('此后三日，叶孤星闭门休整，把一身星力慢慢稳住。'); await narrate('下山前的最后一夜，他刚准备歇下，门外便传来了轻轻的敲门声。');
     await say('叶擎苍', '孤星，是我。');
     const [fx, fy] = nearOf(TR)(544, 740), f = addActor('w_father', fx, fy, '叶擎苍', '#3a4a7a'); f.alpha = 0; f.h = 118; f.face = 'up';
     await tween(400, t => f.alpha = t); await moveActor(f, p.x - 50, p.y + 70, 120); p.face = 'down';
@@ -7658,7 +7671,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     // 作者 11-07（修改1 第 16 条）：宝物就在这一晚交给叶孤星（原来在第二天大殿里给）
     await say('叶擎苍', '孤星，下山历练凶险。为父有几样东西，本想明日在大殿交给你——既然前辈也在，今晚就给你吧。');
     if (window.R134_GIFT) await R134_GIFT();
-    await say('叶擎苍', '去吧。取了仙衣，早点回来歇息——三日后就要下山了。');
+    await say('叶擎苍', '去吧。取了仙衣，早点回来歇息——明早就要下山了。');
     await moveActor(f, fx, fy, 120); await tween(400, t => f.alpha = 1 - t); f.hidden = true;
     await say('叶孤星', '你能不能不要摆出一副神棍的模样？你知道丢人二字怎么写吗？');
     await say('星旋', '你懂什么，这叫高手风范！');
@@ -7672,7 +7685,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
     await fadeOut(700);
     // 三日后清晨
     RES_TOD('dawn'); { const [c2, r2] = atOf(TR)(200, 415); tileSetMap('tj_room', c2, r2, 'down'); } S.scene = drawMap;
-    await caption('三日后 · 清晨', 1500);
+    await caption('次日 · 清晨', 1500);
     await fadeIn(500);
     await say('星旋', '哎呀，终于要下山历练了，真是激动啊！');
     await say('叶孤星', '拜托，又不是你历练，你激动个什么劲？');
@@ -7744,7 +7757,7 @@ window.HS12 = {"cols":160,"rows":120,"cs":16,"blocked":"111111111111111111111111
           await say('星旋', '一万？！你身上满打满算才多少……');
           await narrate('叶孤星没有说话，把黑风寨抄来的全部家当，连同林家主硬塞的谢礼，一股脑儿全压在了柜台上。');
           await say('玄兵阁掌柜', '够、够了！成交！');
-          F().qingxiao = 1; S.hero.gold = Math.max(0, S.hero.gold - 300);
+          F().qingxiao = 1;   /* 11-12：记账，不扣灵石 */
           await narrate('云霆从据点出来时，叶孤星把青霄剑直接塞进他怀里。');
           await say('云霆·惊', '这是……？');
           await say('叶孤星', '你那把剑在黑风寨崩了口子。拿着。');
@@ -16825,6 +16838,7 @@ window.MarketEffects = (() => {
 <script src="r153_skillwin.js"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
 <script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=7"></script><script src="r193_art.js?v=7"></script><script src="r193_gear.js?v=1"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js"></script>
 <script src="r209_bagdark.js?v=1"></script>
-<script src="r210_hfcine.js?v=1"></script>
+<script src="r210_hfcine.js?v=2"></script>
+<script src="r211_script.js?v=1"></script>
 <script src="asset_ready.js"></script>
 </body></html>

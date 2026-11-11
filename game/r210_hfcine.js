@@ -62,7 +62,7 @@
       cast.push(lz, ...team);
       const march = Promise.all([(async () => { await walkTo(lz, X - 250, Y - 150, 200); await walkTo(lz, X - 84, Y - 26, 200); })(), ...team.map((a, i) => (async () => { await sleep(120 + i * 90); await walkTo(a, X - 290 + (i % 3) * 22, Y - 150 - (i % 2) * 18, 200); await walkTo(a, a._to[0], a._to[1], 200); })())]);
       await sleep(900); await march; for (const a of [lz, ...team]) { a.face = 'right'; a.moving = false; }
-      await narrate('聚义厅前的空地上火把通明。厅门「轰」地被一脚踹开——一个满脸横肉的大汉提着鬼头刀走了出来，身后跟着一个阴沉的灰袍人。');
+      await narrate('聚义厅前的空地上火把通明。厅门「轰」地被一脚踹开——一个披着兽毛披肩、满脸横肉的大汉提着厚背弯刀走了出来，身后跟着一个红发束起、一身黑红轻甲的年轻人。');
       // ---- B. 门板碎飞、周虎踹出，方烈跟出 ----
       const door = mk('door_break', X + 372, Y + 6, { fx: true, f: 2 }); cast.push(door);
       zh = mk('zhouhu_kick', X + 318, Y - 26, { f: 0 }); zh.alpha = 0; cast.push(zh);
@@ -85,7 +85,7 @@
       await narrate('就在此时，黑风谷深处，一股强大的气息宛如觉醒的洪荒凶兽般骤然爆发——');
       mz = mk('demon_reveal', X + 250, Y - 74, { f: 0 }); mz.alpha = 0; cast.push(mz); await tween(600, t => { mz.alpha = t; });
       window.R189M && R189M.vo && R189M.vo('b0');
-      await say('魔族高手·坏笑', '凝丹一重居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
+      await say('魔族高手·坏笑', '凝丹初期居然能发挥出这种威力……天剑诀，果然不同凡响。可惜，今日你们都得死在这里。');
       await say('星旋', '小心！这家伙的气息不对劲——是魔族！');
       await fadeOut(200);
       const pr3 = startBattle({ title: '神秘高手', bg: 'bg_hall', enemies: [mozuBoss()], exp: 900, gold: 600, boss: true, normalBgm: true }); await fadeIn(250); await pr3;

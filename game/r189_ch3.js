@@ -95,7 +95,7 @@
   async function tigerFight() {
     world.locked = true; world.path = null; world.player.moving = false; world.camFocus = [TIGER_AT[0] - 60, TIGER_AT[1] - 80];
     await narrate('古樟东侧的空地上，一头浑身覆满黑铁鳞甲的巨虎正伏在一具妖狼的尸体上撕咬。它缓缓抬起头，额心那只竖眼亮起了暗红的光。');
-    await say('星旋', '铁鳞魔虎，凝丹五重！小子，比你高了三个小境界——');
+    { const d = 14 - (S.hero.lv || 11); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
     await say('叶孤星', '那正好，试试刚换的星罗。');
     await fadeOut(250);
     const pr = startBattle({ title: '铁鳞魔虎', bg: 'bg_youying', enemies: [tigerBoss()], exp: 260, gold: 400, boss: true, loot: '铁鳞 ×3' }); await fadeIn(250); await pr;

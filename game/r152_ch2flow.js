@@ -26,7 +26,7 @@
   window.CH2_ROBE_NIGHT = async function () {
     world.locked = true;
     try {
-      await say('星旋', '仙衣到手！回小院歇着吧，三日后就要下山了。');
+      await say('星旋', '仙衣到手！回小院歇着吧，明早就要下山了。');
       if (!F().ch2_pill) await say('星旋', '对了——凝元丹还没吃呢。在行囊里，选中点「使用」。');
       S.quest = nightQuest();
     } finally { world.locked = false; }
