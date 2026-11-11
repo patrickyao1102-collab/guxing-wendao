@@ -129,3 +129,15 @@
     setTimeout(() => { try { window.R134_YT_LEARN && R134_YT_LEARN(); } catch (e) {} }, 40);
   })(useItemOn);
 })();
+
+// —— 作者 11-12 真机：第一战放「星落」流星砸下来会卡 —— 光效图第一次画才现场解开。改成：进游戏后在后台一张张提前解开；进战斗时再确认一遍 ——
+(function () {
+  if (typeof IMG === 'undefined') return;
+  const done = new WeakSet(); let busy = false;
+  const list = () => { const out = []; try { for (const k of Object.keys(IMG)) { if (!/^(fx\d*_|fx_)/.test(k)) continue; let im = null; try { im = IMG[k]; } catch (e) {} if (im && im instanceof HTMLImageElement && im.complete && im.naturalWidth && !done.has(im)) out.push(im); } } catch (e) {} return out; };
+  async function warm(maxMs) { if (busy) return; busy = true; const t0 = performance.now();
+    try { for (const im of list()) { if (performance.now() - t0 > maxMs) break; try { if (im.decode) await im.decode(); } catch (e) {} done.add(im); await new Promise(r => setTimeout(r, 0)); } } finally { busy = false; } }
+  window.R211_FXWARM = warm;
+  let n = 0; const iv = setInterval(() => { try { if (typeof S === 'undefined' || !S.started) return; if (typeof battle !== 'undefined' && battle) return; warm(1500); if (++n > 40 && !list().length) clearInterval(iv); } catch (e) {} }, 3000);
+  if (typeof startBattle === 'function') startBattle = (o => function () { const r = o.apply(this, arguments); try { warm(2500); } catch (e) {} return r; })(startBattle);
+})();

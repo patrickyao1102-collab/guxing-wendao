@@ -9,14 +9,19 @@
   // 作者 11-11：「手机清晰度怎么比电脑还低，不是说小屏幕清晰度反而越高吗？」—— 手机屏是 3 倍像素，但按 2 倍画再被放大到 3 倍就糊了；
   //   电脑窗口宽、2 倍就有 2500+ 像素。所以小屏（宽 < 1100）且 3 倍屏的手机，平时按 3 倍画（总像素和电脑 2 倍差不多），掉帧仍自动降 2 / 1.5 / 1.25
   const SMALL3 = (window.devicePixelRatio || 1) > 2.2 && Math.min(innerWidth, innerHeight) < 1100 && Math.max(innerWidth, innerHeight) < 1400;
-  const STEPS = SMALL3 ? [Math.min(3, window.devicePixelRatio), 2, 1.5, 1.25] : [2, 1.5, 1.25];
+  const STEPS = SMALL3 ? [Math.min(3, window.devicePixelRatio), 2, 1.5] : [2, 1.5];   // 作者 11-12 真机：「第一战画面糊」——最低只降到 1.5 倍，不再掉到 1.25（那一档糊得最明显）
   let lv = 0, ema = 16.7, last = 0, slowT = 0, fastT = 0, hold = 0, upWait = 3, lastUp = -1e9, clock = 0, base = 16.7;
   hold = 5;   // 刚启动的几秒在加载素材，帧慢不算卡
+  let startAt = 0, battleAt = -1e9, lastB = null;
   window.DPR_CAP = STEPS[0];
   const set = i => { if (i === lv) return;
     if (i > lv && clock - lastUp < 6) upWait = Math.min(60, upWait * 2);   // 刚升上去就又卡 → 下次要流畅更久才升（防止来回跳）
     if (i < lv) lastUp = clock;
-    lv = i; window.DPR_CAP = STEPS[i]; try { resize(); } catch (e) {} hold = 1.2; slowT = fastT = 0; };
+    lv = i; window.DPR_CAP = STEPS[i];
+    // 11-12：换清晰度会清空画布，手机上那一帧是黑的（过图时看着像「先黑一下」）→ 先把当前画面存下来，换完马上铺回去
+    try { const c = document.getElementById('c'), tmp = document.createElement('canvas'); tmp.width = c.width; tmp.height = c.height; tmp.getContext('2d').drawImage(c, 0, 0);
+      resize(); const g = c.getContext('2d'); g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(tmp, 0, 0, c.width, c.height); g.restore(); } catch (e) { try { resize(); } catch (e2) {} }
+    hold = 1.2; slowT = fastT = 0; };
   function tick(t) {
     if (last) {
       const dt = Math.min(250, t - last);
@@ -25,10 +30,13 @@
         if (clock - lastUp > 60) upWait = 3;   // 稳定一分钟，恢复正常升档速度
         base = Math.min(base + s * .05, ema);   // 屏幕本身的刷新上限（60Hz≈16.7ms；省电模式锁 30 帧≈33ms）：取跑得最快时的帧间隔，只极慢地回调，不跟着降档变
         const SLOW = Math.max(30, base * 1.5), FAST = Math.max(19, base * 1.15);
-        let loading = false; try { loading = !!(window.MAP_LOADING && MAP_LOADING()) || !S.started; } catch (e) {}
+        let loading = false; try { loading = !!(window.MAP_LOADING && MAP_LOADING()) || !S.started || !!(window.FXW && FXW.active) || !!(typeof battle !== 'undefined' && battle && battle.__warm); } catch (e) {}
+        // 11-12：刚进游戏的头 90 秒、每场战斗开打的头 4 秒，素材还在解开，帧慢不是手机不行——这段时间要连续慢 2.5 秒才降档（平时 0.5 秒）
+        try { if (S.started && !startAt) startAt = clock; const b = (typeof battle !== 'undefined') ? battle : null; if (b && b !== lastB) { lastB = b; battleAt = clock; } if (!b) lastB = null; } catch (e) {}
+        const warm = (startAt && clock - startAt < 90) || (clock - battleAt < 4), NEED = warm ? 2.5 : .5;
         if (loading) { hold = Math.max(hold, 1.5); ema = Math.min(ema, base * 1.2); }   // 切地图 / 标题加载时不判断
         if (hold > 0) hold -= s;
-        else if (ema > SLOW) { fastT = 0; slowT += s; if (slowT > .5 && lv < STEPS.length - 1) set(lv + 1); }
+        else if (ema > SLOW) { fastT = 0; slowT += s; if (slowT > NEED && lv < STEPS.length - 1) set(lv + 1); }
         else if (ema < FAST) { slowT = 0; fastT += s; if (fastT > upWait && lv > 0) set(lv - 1); }
         else { slowT = Math.max(0, slowT - s); fastT = Math.max(0, fastT - s); }
       }
