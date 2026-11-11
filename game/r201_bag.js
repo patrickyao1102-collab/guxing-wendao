@@ -1,0 +1,161 @@
+// ================= R201 · 行囊「白玉宣纸」（作者 11-11 选定 Codex R199 第 02 版；R200 拆件，固定字都是 Codex 写进图里的）=================
+// 外框：白玉宣纸底 + 主框 + 「行囊」+ 两列页签 + 队伍头像 + 灵石条 + 关闭；各页内容照旧画在主框里（宣纸配色）。
+// 装备页按 Codex 版式重做：左武器 / 衣服、右鞋子 / 饰品，中间人物立绘；下排「可替换装备」——
+//   作者 11-11：「可替换装备有很多怎么办」→「滑吧」：点哪个栏位下排就只列那一类，左右拖动翻看，比身上强的排前面并标「↑」。
+// 点卡片选中、选中的卡上出「换上」；再点选中的卡 / 点已穿的栏位 → 原来的装备详情（卸下 / 换上）。
+(function () {
+  if (typeof drawMenu !== 'function' || typeof menuLayout !== 'function') return;
+  const N = {"avatar_empty": "a000", "avatar_name_plate": "a001", "avatar_ring_n": "a002", "avatar_ring_s": "a003", "bg_full": "a004", "btn_blue_9": "a005", "btn_close_n": "a006", "btn_close_p": "a007", "btn_gold_9": "a008", "btn_丢弃_d": "a009", "btn_丢弃_n": "a010", "btn_丢弃_p": "a011", "btn_使用_d": "a012", "btn_使用_n": "a013", "btn_使用_p": "a014", "btn_删除_d": "a015", "btn_删除_n": "a016", "btn_删除_p": "a017", "btn_卸下_d": "a018", "btn_卸下_n": "a019", "btn_卸下_p": "a020", "btn_存档_d": "a021", "btn_存档_n": "a022", "btn_存档_p": "a023", "btn_换上_d": "a024", "btn_换上_n": "a025", "btn_换上_p": "a026", "btn_查看_d": "a027", "btn_查看_n": "a028", "btn_查看_p": "a029", "btn_覆盖_d": "a030", "btn_覆盖_n": "a031", "btn_覆盖_p": "a032", "btn_读档_d": "a033", "btn_读档_n": "a034", "btn_读档_p": "a035", "chip_n": "a036", "chip_s": "a037", "chip_丹药_n": "a038", "chip_丹药_s": "a039", "chip_全部_n": "a040", "chip_全部_s": "a041", "chip_材料_n": "a042", "chip_材料_s": "a043", "chip_秘籍_n": "a044", "chip_秘籍_s": "a045", "chip_装备_n": "a046", "chip_装备_s": "a047", "currency_bar_9": "a048", "divider_h": "a049", "dot_diamond": "a050", "ghost_武器": "a051", "ghost_衣服": "a052", "ghost_鞋子": "a053", "ghost_饰品": "a054", "hero_name_plate": "a055", "hero_sub_plate": "a056", "hint_diamond": "a057", "icon_lingshi": "a058", "icon_xingchen": "a059", "info_box_9": "a060", "item_card_9_n": "a061", "item_card_9_s": "a062", "item_disc": "a063", "item_disc_empty": "a064", "label_星辰点": "a065", "label_灵石": "a066", "label_请选择一个存档位": "a067", "page_title_任务": "a068", "page_title_出战": "a069", "page_title_图鉴": "a070", "page_title_坐骑": "a071", "page_title_存档": "a072", "page_title_技能": "a073", "page_title_换装": "a074", "page_title_状态": "a075", "page_title_神器": "a076", "page_title_背包": "a077", "page_title_装备": "a078", "panel_main_9": "a079", "save_row_9_empty": "a080", "save_row_9_n": "a081", "save_row_9_s": "a082", "save_thumb_empty": "a083", "save_thumb_frame": "a084", "scroll_thumb": "a085", "scroll_track": "a086", "section_可替换装备": "a087", "slot_card_9": "a088", "slot_card_empty_9": "a089", "slot_label_武器": "a090", "slot_label_衣服": "a091", "slot_label_鞋子": "a092", "slot_label_饰品": "a093", "swap_card_9_n": "a094", "swap_card_9_s": "a095", "tab_任务_n": "a096", "tab_任务_s": "a097", "tab_出战_n": "a098", "tab_出战_s": "a099", "tab_图鉴_n": "a100", "tab_图鉴_s": "a101", "tab_坐骑_n": "a102", "tab_坐骑_s": "a103", "tab_存档_n": "a104", "tab_存档_s": "a105", "tab_技能_n": "a106", "tab_技能_s": "a107", "tab_换装_n": "a108", "tab_换装_s": "a109", "tab_状态_n": "a110", "tab_状态_s": "a111", "tab_神器_n": "a112", "tab_神器_s": "a113", "tab_背包_n": "a114", "tab_背包_s": "a115", "tab_装备_n": "a116", "tab_装备_s": "a117", "title_xingnang": "a118"};
+  // 九宫格保护边（逻辑像素，Codex layout.json）
+  const NINE = { panel_main_9: [112, 102, 112, 100], currency_bar_9: [44, 14, 44, 14], slot_card_9: [40, 30, 76, 46], slot_card_empty_9: [40, 30, 76, 46], swap_card_9_n: [40, 28, 106, 55], swap_card_9_s: [40, 28, 106, 55], save_row_9_n: [42, 26, 240, 80], save_row_9_s: [42, 26, 240, 80], save_row_9_empty: [42, 26, 240, 80], btn_gold_9: [32, 14, 32, 14], btn_blue_9: [32, 14, 32, 14], chip_n: [18, 9, 18, 9], chip_s: [18, 9, 18, 9], info_box_9: [52, 48, 106, 80], item_card_9_n: [28, 30, 42, 50], item_card_9_s: [28, 30, 48, 68] };
+  const C = { ink: '#3E2D18', grey: '#77746E', light: '#FFF5DA', red: '#A43B2E', blue: '#315E90', gold: '#9A671F', line: '#C69B57', green: '#2f7a2a' };
+  const IM = {}; let nOk = 0; const NALL = Object.keys(N).length;
+  // 菜单图在第一次打开行囊前就下好（开局空闲时下，不抢地图图）
+  let started = false; function load() { if (started) return; started = true; for (const k in N) { const im = new Image(); im.onload = () => { IM[k] = im; nOk++; }; im.src = 'r201/' + N[k] + '.webp'; } }
+  setTimeout(load, 6000);
+  const READY = () => nOk >= NALL;
+  window.R201_BAG = { ready: READY, IM };
+  const D = (k, x, y, w, h) => { const im = IM[k]; if (!im) return; if (w == null) { w = im.width / 2; h = im.height / 2; } ctx.drawImage(im, x, y, w, h); };
+  function nine(k, x, y, w, h) { const im = IM[k]; if (!im) return; const p = NINE[k]; if (!p) return D(k, x, y, w, h);
+    const [l, t, r, b] = p, s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
+  const KAI = '"GuxingWKB","GuxingKai",' + BRUSH;   // Codex 推荐的霞鹜文楷（游戏里已按用字裁剪好）
+  const txt = (s, x, y, size, col, align = 'left', font, wt) => { ctx.font = `${wt || 400} ${size}px ${font || KAI}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); };
+  const fit = (s, maxW) => { let t = s; while (t.length > 1 && ctx.measureText(t).width > maxW) t = t.slice(0, -1); return t === s ? s : t.slice(0, -1) + '…'; };
+
+  // ---------------- 布局（照 Codex layout.json）----------------
+  const PANEL = { x: 204, y: 114, w: 1044, h: 580 }, BODY = { x: 236, y: 146, w: 980, h: 516 };
+  menuLayout = (orig => function () { const L = orig(); if (!READY()) return L;
+    L.close = { x: 1148, y: 28, w: 118, h: 46 };
+    L.tabs = MTABS.map((t, i) => ({ x: 30 + (i % 2) * 82, y: 124 + Math.floor(i / 2) * 108, w: 76, h: 104 }));
+    L.members = partyList().slice(0, 4).map((k, i) => ({ k, x: 250 + i * 112, y: 4, w: 86, h: 104 }));
+    L.body = Object.assign({}, BODY); L.skin = { x: -999, y: -999, w: 0, h: 0 }; return L; })(menuLayout);
+
+  // ---------------- 外框 ----------------
+  function frame(L, m) {
+    ctx.fillStyle = '#E9E6E0'; ctx.fillRect(0, 0, W, H); D('bg_full', 0, 0, W, H); nine('panel_main_9', PANEL.x, PANEL.y, PANEL.w, PANEL.h);
+  }
+  function header(L, m) {
+    D('title_xingnang', 14, 6, 204, 100);
+    L.tabs.forEach((r, i) => { const t = MTABS[i], k = 'tab_' + t + '_' + (i === m.tab ? 's' : 'n'); if (IM[k]) D(k, r.x, r.y, 76, 116); else { ctx.save(); txt(t, r.x + 38, r.y + 58, 22, C.ink, 'center'); ctx.restore(); } });
+    // 队伍头像：先画圆形裁切的人像，再叠头像框
+    for (let i = 0; i < 4; i++) { const x = 250 + i * 112, y = 4, r = L.members[i];
+      if (!r) { D('avatar_empty', x, y, 86, 86); continue; }
+      const info = memberInfo(r.k), sel = r.k === m.who;
+      if (typeof medallion === 'function') { ctx.save(); medallion(info.p, x + 43, y + 43, 34, { sel: false, name: info.name, color: info.color, bg: '#e9e4da' }); ctx.restore(); }
+      D(sel ? 'avatar_ring_s' : 'avatar_ring_n', x, y, 86, 86);
+      if (sel) { D('avatar_name_plate', x - 3, y + 79, 92, 26); txt(info.name, x + 43, y + 92, 17, C.ink, 'center'); }
+      else txt(info.name, x + 43, y + 92, 17, C.ink, 'center'); }
+    nine('currency_bar_9', 778, 28, 352, 54); D('icon_lingshi', 797, 37, 30, 34); D('label_灵石', 829, 40, 50, 30); D('icon_xingchen', 960, 37, 32, 34); D('label_星辰点', 993, 40, 76, 30);
+    txt(String(S.hero.gold || 0), 886, 56, 22, C.gold, 'left', FONT, 700); txt(String(S.hero.points || 0), 1076, 56, 22, C.blue, 'left', FONT, 700);
+    D(closeDown ? 'btn_close_p' : 'btn_close_n', 1148, 28, 118, 46);
+  }
+  let closeDown = false;
+
+  // ---------------- 装备页 ----------------
+  const SLOTS = [['weapon', '武器', 244, 167], ['armor', '衣服', 244, 328], ['shoe', '鞋子', 953, 167], ['acc', '饰品', 953, 328]];
+  const ROW = { x: 244, y: 550, w: 970, h: 112 }, CW = 310, GAP = 20;
+  const isAlly = () => S.menu && S.menu.who && S.menu.who !== 'hero';
+  const eqNow = () => isAlly() && window.allyEqOf ? allyEqOf(S.menu.who) : S.hero.equip;
+  const okFor = id => !isAlly() || !window.ALLY_EQ_OK || ALLY_EQ_OK(id);
+  function score(it, cur) { let s = 0; for (const k of STATS) { const d = (it[k] || 0) - ((cur && cur[k]) || 0); s += (k === 'maxhp' || k === 'maxmp') ? d / 5 : d; } return s; }
+  function swapList() { const m = S.menu, slot = m.eqSlot || 'weapon', eq = eqNow(), cur = eq[slot] ? ITEM_DB[eq[slot]] : null;
+    return Object.keys(S.hero.bag).filter(id => S.hero.bag[id] > 0 && ITEM_DB[id] && ITEM_DB[id].slot === slot && okFor(id)).map(id => ({ id, sc: score(ITEM_DB[id], cur) })).sort((a, b) => b.sc - a.sc); }
+  const maxScroll = n => Math.max(0, n * (CW + GAP) - GAP - ROW.w);
+  function clampScroll(n) { const m = S.menu; m.eqScroll = Math.max(0, Math.min(maxScroll(n), m.eqScroll || 0)); }
+  const prevEquipCards = equipCards;
+  equipCards = function (L) { if (!READY()) return prevEquipCards(L); const eq = eqNow();
+    const top = SLOTS.map(([s, n, x, y]) => ({ s, n, id: eq[s], x, y, w: 254, h: 132 }));
+    const ls = swapList(); clampScroll(ls.length); const off = S.menu.eqScroll || 0;
+    const list = ls.map((o, i) => ({ id: o.id, sc: o.sc, x: ROW.x + i * (CW + GAP) - off, y: ROW.y, w: CW, h: ROW.h })).filter(c => c.x + c.w > ROW.x && c.x < ROW.x + ROW.w);
+    return { top, list, pager: null, all: ls.length }; };
+  const wearBtn = c => ({ x: c.x + c.w - 112, y: c.y + 34, w: 102, h: 44 });
+  function drawEquipPage(L, mi) {
+    const m = S.menu, eq = eqNow(), sel = m.eqSlot || 'weapon', now = performance.now() / 1000;
+    // 中间立绘（底部淡出，头顶可以越过主框上沿，照 Codex 图）
+    const im = IMG[mi.p]; if (im) { const ph = 520, pw = ph * im.width / im.height, cx = 722; ctx.save(); ctx.beginPath(); ctx.rect(500, 66, 444, 434); ctx.clip();
+      const fy = 470; ctx.drawImage(im, cx - pw / 2, 76 + Math.sin(now * 1.2) * 2, pw, ph);
+      const g = ctx.createLinearGradient(0, fy - 60, 0, 500); g.addColorStop(0, 'rgba(240,239,236,0)'); g.addColorStop(1, 'rgba(240,239,236,1)'); ctx.fillStyle = g; ctx.fillRect(500, fy - 60, 444, 500 - fy + 60); ctx.restore(); }
+    D('hero_sub_plate', 547, 454, 350, 46); D('hero_name_plate', 610, 420, 224, 44);
+    txt(mi.name, 722, 442, 30, C.light, 'center'); txt(mi.realm + ' · ' + mi.lv + '级', 722, 478, 22, C.ink, 'center');
+    // 四个栏位
+    const { top } = equipCards(L);
+    for (const c of top) { const has = !!c.id, x = c.x, y = c.y;
+      nine(has ? 'slot_card_9' : 'slot_card_empty_9', x, y, 254, 132);
+      if (c.s === sel) { ctx.save(); ctx.strokeStyle = `rgba(214,160,60,${.65 + .35 * Math.sin(now * 4)})`; ctx.lineWidth = 3; ctx.shadowColor = '#f0c060'; ctx.shadowBlur = 12; if (typeof roundRect === 'function') roundRect(x + 4, y + 4, 246, 124, 14); ctx.stroke(); ctx.restore(); }
+      D('slot_label_' + c.n, x + 30, y - 13, 116, 34);
+      D(has ? 'item_disc' : 'item_disc_empty', x + 24, y + 37, 82, 82);
+      if (has) { itemIcon(c.id, x + 65, y + 78, 30); const it = ITEM_DB[c.id]; ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
+      else { D('ghost_' + c.n, x + 39, y + 44, 52, 64); txt('未装备', x + 115, y + 72, 25, C.grey); } }
+    // 可替换装备
+    D('section_可替换装备', 250, 501, 948, 50);
+    const { list, all } = equipCards(L), cur = eq[sel] ? ITEM_DB[eq[sel]] : null;
+    ctx.save(); ctx.beginPath(); ctx.rect(ROW.x - 4, ROW.y - 6, ROW.w + 8, ROW.h + 12); ctx.clip();
+    if (!list.length) txt('背包里没有能换的' + SLOTS.find(s => s[0] === sel)[1], ROW.x + ROW.w / 2, ROW.y + ROW.h / 2, 24, C.grey, 'center');
+    for (const c of list) { const it = ITEM_DB[c.id], on = m.eqPick === c.id;
+      nine(on ? 'swap_card_9_s' : 'swap_card_9_n', c.x, c.y, c.w, c.h); D('item_disc', c.x + 18, c.y + 15, 82, 82); itemIcon(c.id, c.x + 59, c.y + 56, 30);
+      const nameW = on ? 96 : 190; ctx.font = `24px ${KAI}`; txt(fit(it.name + (S.hero.bag[c.id] > 1 ? '×' + S.hero.bag[c.id] : ''), nameW), c.x + 110, c.y + 42, 24, C.ink);
+      if (c.sc > 0) txt('↑', c.x + 110 + Math.min(nameW, ctx.measureText(it.name).width) + 8, c.y + 40, 24, C.green, 'left', FONT);
+      // 和身上那件比
+      let dx = c.x + 110; ctx.font = `600 14px ${FONT}`; for (const k of STATS) { const d = (it[k] || 0) - ((cur && cur[k]) || 0); if (!it[k] && !(cur && cur[k])) continue; const s = STAT_CN[k] + (d > 0 ? '▲' + d : d < 0 ? '▼' + (-d) : '='); if (dx + ctx.measureText(s).width > c.x + (on ? c.w - 116 : c.w - 16)) break; txt(s, dx, c.y + 76, 14, d > 0 ? C.green : d < 0 ? C.red : C.grey, 'left', FONT); dx += ctx.measureText(s).width + 8; }
+      if (on) { const b = wearBtn(c); D(wearDown === c.id ? 'btn_换上_p' : 'btn_换上_n', b.x, b.y, b.w, b.h); } }
+    ctx.restore();
+    // 滑动提示：两头的小箭头 + 共几件
+    if (all > 3) { const off = m.eqScroll || 0, mx = maxScroll(all); ctx.save(); ctx.fillStyle = C.line;
+      if (off > 2) { ctx.beginPath(); ctx.moveTo(ROW.x - 14, ROW.y + 56); ctx.lineTo(ROW.x - 2, ROW.y + 44); ctx.lineTo(ROW.x - 2, ROW.y + 68); ctx.fill(); }
+      if (off < mx - 2) { ctx.beginPath(); ctx.moveTo(ROW.x + ROW.w + 14, ROW.y + 56); ctx.lineTo(ROW.x + ROW.w + 2, ROW.y + 44); ctx.lineTo(ROW.x + ROW.w + 2, ROW.y + 68); ctx.fill(); }
+      ctx.restore(); ctx.font = `600 14px ${FONT}`; const lab = '共 ' + all + ' 件 · 左右拖动', lw = ctx.measureText(lab).width; ctx.fillStyle = '#F0EFEC'; ctx.fillRect(1204 - lw - 10, 517, lw + 14, 18); txt(lab, 1200, 526, 14, C.grey, 'right', FONT, 600); }
+  }
+  let wearDown = null;
+
+  // ---------------- 主画 ----------------
+  const prevDraw = drawMenu;
+  drawMenu = function () {
+    if (!READY() || !S.menu) { load(); return prevDraw.apply(this, arguments); }
+    const m = S.menu, L = menuLayout(), mi = memberInfo(m.who), now = performance.now() / 1000;
+    const keep = {}; for (const k in UI) keep[k] = UI[k];
+    try { if (typeof UI_BASE !== 'undefined') Object.assign(UI, UI_BASE, (typeof THEMES !== 'undefined' && THEMES.paper) || {}, { id: 'paper' }); } catch (e) {}
+    ctx.save();
+    try {
+      frame(L, m);
+      const B = L.body, tab = MTABS[m.tab];
+      if (m.tab === 1) { drawEquipPage(L, mi);
+        if (m.eqInfo && ITEM_DB[m.eqInfo.id]) { // 原来的装备详情（卸下 / 换上）：只让它画在详情框那块，底下我们的页面不被盖
+          const w = 620, h = 400, bx = B.x + (B.w - w) / 2, by = B.y + (B.h - h) / 2; ctx.save(); ctx.fillStyle = 'rgba(40,30,18,.35)'; ctx.fillRect(PANEL.x + 20, PANEL.y + 20, PANEL.w - 40, PANEL.h - 40);
+          ctx.beginPath(); ctx.rect(bx - 2, by - 2, w + 4, h + 4); ctx.clip(); drawEquip(B, L, mi); ctx.restore(); } }
+      else { ctx.save(); ctx.beginPath(); ctx.rect(B.x, B.y, B.w, B.h); ctx.clip();
+        if (m.tab === 0) drawStatus(B, mi, now); else if (m.tab === 2) drawBag(B, L); else if (m.tab === 3) drawSkills(B, L); else drawQuest(B);
+        ctx.restore(); }
+      header(L, m);
+    } finally { ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
+  };
+
+  // ---------------- 装备页点击 + 拖动 ----------------
+  let drag = null;
+  const prevUpd = menuUpdate;
+  menuUpdate = function () {
+    const m = S.menu; if (!READY() || !m) return prevUpd.apply(this, arguments);
+    const L = menuLayout();
+    // 关闭按钮按下态
+    closeDown = !!(input.down && inR(input, L.close));
+    if (m.tab !== 1 || m.eqInfo) { drag = null; return prevUpd.apply(this, arguments); }
+    // 下排拖动
+    const n = swapList().length;
+    if (input.down) { if (!drag && inR(input, { x: ROW.x, y: ROW.y, w: ROW.w, h: ROW.h })) drag = { x0: input.x, s0: m.eqScroll || 0, moved: false };
+      if (drag) { const dx = input.x - drag.x0; if (Math.abs(dx) > 8) drag.moved = true; if (drag.moved) { m.eqScroll = drag.s0 - dx; clampScroll(n); } } }
+    const t = input.tapped; if (!t) { if (!input.down) drag = null; return; }
+    if (drag && drag.moved) { consumeTap(); drag = null; return; } drag = null;
+    if (t.key || inR(t, L.close) || L.tabs.some(r => inR(t, r)) || L.members.some(r => inR(t, r))) { m.eqPick = null; return prevUpd.apply(this, arguments); }
+    const { top, list } = equipCards(L);
+    for (const c of top) if (inR(t, c)) { consumeTap(); if ((m.eqSlot || 'weapon') !== c.s) { m.eqSlot = c.s; m.eqScroll = 0; m.eqPick = null; playSnd('ui_click'); } else if (c.id) { m.eqInfo = { id: c.id, slot: c.s, from: 'slot' }; playSnd('ui_click'); } return; }
+    for (const c of list) if (inR(t, c)) { consumeTap();
+      if (m.eqPick === c.id && inR(t, wearBtn(c))) { wearDown = c.id; setTimeout(() => { wearDown = null; }, 160); wear(c.id); m.eqPick = null; return; }
+      if (m.eqPick === c.id) { m.eqInfo = { id: c.id, from: 'bag' }; playSnd('ui_click'); return; }
+      m.eqPick = c.id; playSnd('ui_click'); return; }
+    consumeTap(); m.eqPick = null;
+  };
+  function wear(id) {
+    if (isAlly()) { if (window.ALLY_EQ_OK && !ALLY_EQ_OK(id)) { toast(ITEM_DB[id].name + '是叶孤星专属，旁人用不了'); return; } if (window.equipAlly && equipAlly(S.menu.who, id)) toast(memberInfo(S.menu.who).name + ' 换上了 ' + ITEM_DB[id].name); }
+    else { equipItem(id); playSnd('ui_confirm'); toast('已装备 ' + ITEM_DB[id].name); }
+  }
+})();
