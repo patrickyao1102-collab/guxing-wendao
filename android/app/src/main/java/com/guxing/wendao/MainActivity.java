@@ -45,6 +45,13 @@ public class MainActivity extends Activity {
             lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
             getWindow().setAttributes(lp);
         }
+        if (BuildConfig.TEST_URL.length() > 0) {             // 测试版壳：不带素材、不走热更新，直接开线上测试页
+            web.setWebViewClient(new android.webkit.WebViewClient());
+            web.setBackgroundColor(0xFF000000);
+            setContentView(web);
+            web.loadUrl(BuildConfig.TEST_URL);
+            return;
+        }
         web.setWebViewClient(new Client(getAssets(), updateDir));
         web.setBackgroundColor(0xFF000000);
         web.addJavascriptInterface(new Bridge(), "GuxingApp");

@@ -22,6 +22,15 @@ android {
         release { minifyEnabled false; signingConfig signingConfigs.release }
         debug { signingConfig signingConfigs.release }
     }
+    // 两个 App 并存：pure = 纯净版（包名不变，自带整包素材 + 热更新）；dev = 测试版（包名多 .test，可与纯净版同时安装）
+    // 测试版只是一个很小的壳，直接打开线上测试页，所以永远是最新的，不用每次重新下载几百兆
+    buildFeatures { buildConfig true }
+    flavorDimensions "kind"
+    productFlavors {
+        pure { dimension "kind"; buildConfigField "String", "TEST_URL", "\"\"" }
+        dev { dimension "kind"; applicationIdSuffix ".test"; versionNameSuffix "-test"
+              buildConfigField "String", "TEST_URL", "\"https://patrickyao1102-collab.github.io/guxing-wendao/play/\"" }
+    }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     // 游戏文件不压缩打包，WebView 直接流式读取
     aaptOptions { noCompress "webp", "mp3", "mp4", "json", "js", "html", "css" }
