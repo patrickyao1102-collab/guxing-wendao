@@ -8,7 +8,7 @@
   :root{--bg:#05070d;--ink:#f5e6c4;--gold:#ffd66b;color-scheme:dark}
   html,body{height:100%;background:var(--bg);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;color:var(--ink)}
   body{display:flex;align-items:center;justify-content:center;margin:0}
-  canvas{display:block;background:#000;max-width:100%}
+  canvas{display:block;background:#000;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}   /* 作者 11-11：画面整体偏左、字出屏——画布钉在视口正中，不受页面留白影响 */
   #rotate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;
     font-family:"Noto Serif SC","Songti SC",serif;background:radial-gradient(circle at 50% 40%,#1b2340,var(--bg));text-align:center;padding:16px}
   #rotate b{font-family:"Ma Shan Zheng","STKaiti",serif;font-size:56px;font-weight:400;color:var(--gold)}
@@ -58,7 +58,7 @@ const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
 let SCALE = 1;
 function resize() {
-  const vw = window.innerWidth, vh = window.innerHeight;
+  const VV = window.visualViewport, vw = Math.min(window.innerWidth, (VV && VV.width) || 1e9, document.documentElement.clientWidth || 1e9), vh = Math.min(window.innerHeight, (VV && VV.height) || 1e9);   // 11-11：手机浏览器地址栏 / 刘海让 innerWidth 比真正看得见的宽，画面会超出屏幕
   SCALE = Math.min(vw / W, vh / H);
   // 作者 11-07：手机上画质不如电脑 → 手机也按 2 倍画（以前手机封顶 1.5）；放大招吃力时 r148_quality.js 临时降到 1.5 / 1.25，流畅后升回
   const dpr = Math.min(window.devicePixelRatio || 1, window.DPR_CAP || 2);
@@ -70,6 +70,8 @@ function resize() {
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
 }
 window.addEventListener('resize', resize);
+if (window.visualViewport) visualViewport.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => { setTimeout(resize, 120); setTimeout(resize, 600); });
 resize();
 
 const FONT = '"Noto Serif SC","Songti SC","STSong",serif';
