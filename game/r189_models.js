@@ -146,7 +146,7 @@
     }
     if (u && u.side === 'enemy' && u.key === 'e_mozu2' && u.alive && has3()) {
       const ps = pose(u), P = M3.pose[ps], now = performance.now() / 1000, kk = u.h / M3.idleH;
-      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy - (R.float ? u.h * (.06 + .03 * Math.sin(now * 1.6 + (u.x || 0))) : 0);   // 魂体悬空、上下浮
+      const x = u.x + u.ox + (u.hurt > 0 ? Math.sin(now * 80) * 8 * u.hurt : 0), y = u.y + u.oy;   // 11-11 修：这里原来误用了后面才声明的 R（魂体悬空），一画就报错 → 变身后魔族真身和叶孤星都画不出来
       const k0 = u.key; u.key = '__r189_none'; try { o(u); } finally { u.key = k0; }   // 影子、血条、名字照旧
       const st = IM[P.f], w = st.width / P.sc * kk, h = st.height / P.sc * kk;
       // 魔气剪影按当前姿势的静态图，再按 Codex 的脚底锚点放（画幅左右不对称时也对得上）
