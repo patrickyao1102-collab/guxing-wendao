@@ -80,9 +80,10 @@
     : /^tj_(scripture|library|forbidden)$/.test(m) ? 'map_cangjing' : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
   const generic = () => { try { const n = AUD.bgmName || '', T = BGM29.T || {}; return /^lib_r227_/.test(n) || [T.wild, T.shop, T.xtcity, T.sect, T.town, T.fair, T.linfu].includes(n); } catch (e) { return false; } };
 
+  const back = () => { if (S.started) return BGM29.resume(); AUD.bgmName = ''; playBgm('bgm_shanmen', true); };   // 没正式开局（测试面板跳图）时 resume 会放标题曲，这里直接接回本地图的曲子
   function apply() {
-    try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; if (!(world && world.map) || !S.started) return;
-      const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '') && !MAPBGM(world.mapName)) BGM29.resume(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
+    try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; if (!(world && world.map) || !(S.started || S.scene === drawMap)) return;   // 作者 11-13：从测试面板直接跳地图时 S.started 还是假的，新配乐一首都不放——改成「人已经站在地图上」也算
+      const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '') && !MAPBGM(world.mapName)) back(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
   }
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function () { const r = orig.apply(this, arguments); setTimeout(apply, 0); setTimeout(apply, 400); return r; })(tileSetMap);
   setInterval(apply, 1000);   // 案子推进一步（或打完架回到地图）后一秒内换过来
@@ -103,5 +104,5 @@
       if (hit) { cue = hit[0]; cueMap = world.mapName; cueEnd = hit[1] ? Date.now() + hit[1] * 1000 : 0; apply(); } } catch (e) {}
     return orig.apply(this, arguments);
   })(say);
-  window.R227 = { TR, want, apply, id, MAPBGM, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else BGM29.resume(); } };
+  window.R227 = { TR, want, apply, id, MAPBGM, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else back(); } };
 })();
