@@ -82,7 +82,7 @@
     const chest = D.rooms.qy_changle_2f.objs.find(o => /treasure_chest/.test(o.id)), desk = D.rooms.qy_changle_2f.objs.find(o => o.id === 'ledger_desk');
     const n2 = [];
     if (desk) n2.push(spot([desk.x + desk.w / 2, desk.sy + 34], '账桌', async () => {
-      const f = F();
+      const f = F(); try { if (window.R212 && R212.ledgerLook && await R212.ledgerLook()) { f.qd_ledger = 1; return; } } catch (e) {}
       await L([['', '账桌上摊着一本没来得及收的流水账。'], ['', '每月初三都有同一笔开销：「山上茶水钱 · 五十」。翻回去，一笔不落，记了整整两年。'], ['星旋', '（山上——黑风寨。难怪这赌坊在镇上开得这么安稳，没人敢来掀它的桌子。）']]);
       if (!f.qd_ledger) { f.qd_ledger = 1; await L([['叶孤星', '（黑风寨已经没了。这本账……先收着，也许有人用得上。）']]); if (typeof toast === 'function') toast('记下了：长乐坊每月给黑风寨上供', 2400); }
     }));
