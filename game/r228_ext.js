@@ -15,15 +15,17 @@
     ['xt_city', 'xt_teahouse_22', 'teahouse3', 460, 660, 230, 642],   // R246：正门改成半开的雕花格扇门、门里亮着（作者：原来像个大门洞）
     // 旧：     // 听雨楼：R238 按正确比例重画（门洞 108×136，一层茶堂 + 两层露台 + 伞顶）
   ];
-  for (const [map, uid, k, w, h, ax, ay] of L) {
-    const M = TMAPS[map], o = M && M.baked && (M.baked.objs || []).find(o => o.uid === uid); if (!o) continue;
-    const im = new Image();
-    im.onload = () => { try { IMG['r228_' + k] = im; const X = o.ax != null ? o.ax : o.x + o.w / 2, Y = o.ay != null ? o.ay : o.sy;
-      const nw = { img: 'r228_' + k, w, h, x: Math.round(X - ax), y: Math.round(Y - ay), noPre: true }; Object.assign(o, nw);
-      // 作者 11-13：从测试面板直接跳进玄天城时新楼不出来（要进一次楼再出来才换）、M 键大地图也还是旧楼——
-      // 地图是进图那一刻照着数据抄一份的，图片后到就只改了数据、没改已经抄好的那份。这里把眼前这张图也一起改掉，再让大地图重画。
-      try { if (typeof world !== 'undefined' && world.map && world.mapName === map) { const lo = (world.map.T.objs || []).find(x => x.uid === uid); if (lo) Object.assign(lo, nw); } } catch (e) {}
-      try { if (window.MM_CLEAR) MM_CLEAR(map); } catch (e) {} } catch (e) {} };
-    im.src = 'r228/' + k + '.webp';
-  }
+  // 作者 11-13：从测试面板直接跳进玄天城，新楼还是不出来、M 键大地图也是旧的——
+  // 原来只在脚本刚载入时换一次：那时地图数据 / 贴图表有时还没备好（或之后被重建），这一次就白换了。
+  // 现在改成每隔半秒核对一遍：数据里的、眼前这张地图里的，只要还是旧图就再换，换到为止（换好后几乎不花时间）。
+  const IM = {}; for (const [, , k] of L) { const im = new Image(); im.onload = () => { im._ok = 1; apply(); }; im.src = 'r228/' + k + '.webp'; IM[k] = im;
+    try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }   // 开局阶段不要紧的图会排队慢慢下（img_guard.js，停在标题画面时一次只下两张）；这几张楼要马上用，插队
+  function apply() { let ch = null;
+    for (const [map, uid, k, w, h, ax, ay] of L) { const im = IM[k]; if (!im._ok) continue; const key = 'r228_' + k;
+      try { if (IMG[key] !== im) IMG[key] = im; } catch (e) {}
+      const fix = o => { if (!o || o.img === key) return; const X = o.ax != null ? o.ax : o.x + o.w / 2, Y = o.ay != null ? o.ay : o.sy; Object.assign(o, { img: key, w, h, x: Math.round(X - ax), y: Math.round(Y - ay), noPre: true }); ch = map; };
+      try { const M = TMAPS[map]; fix(M && M.baked && (M.baked.objs || []).find(o => o.uid === uid)); } catch (e) {}
+      try { if (typeof world !== 'undefined' && world.map && world.mapName === map && world.map.T) fix((world.map.T.objs || []).find(o => o.uid === uid)); } catch (e) {} }
+    if (ch) try { if (window.MM_CLEAR) MM_CLEAR(ch); } catch (e) {} }
+  apply(); setInterval(apply, 500);
 })();

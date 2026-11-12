@@ -6,14 +6,20 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8], L = async a => { for (const [w, t] of a) await say(w, t); };
   const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
   // ---- 人物 ----
-  const WS = {}; for (const k of ['keeper', 'tea_yellow', 'tea_green', 'tea_lotus']) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r246/ws_' + k + '.webp'; WS[k] = im; }
+  const WS = {}; for (const k of ['keeper', 'tea_yellow', 'tea_green', 'tea_lotus']) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r246/ws_' + k + '.webp'; WS[k] = im; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
   if (typeof window.NPC_WALK === 'function') { const NW = window.NPC_WALK;
     window.NPC_WALK = function (a, now) {
       try { const n = a.npc, im = n && n.ws && WS[n.ws];
-        if (im && im._ok && !a.hidden) { const f = n.face, row = f === 'up' ? 1 : (f === 'left' || f === 'right') ? 2 : 0, bob = Math.sin(now * 1.8 + a.x * .01) * .8;
+        if (im && im._ok && !a.hidden) {   // 和游戏自带的 NPC 走路图同一套规矩：0 列站姿，1–6 列走路 8fps；行 = 下 / 上 / 左（右 = 左镜像）
+          let dx = (a.tx ?? a.x) - a.x, dy = (a.ty ?? a.y) - a.y; if (a._lx != null && Math.hypot(a.x - a._lx, a.y - a._ly) > .2) { dx = a.x - a._lx; dy = a.y - a._ly; } a._lx = a.x; a._ly = a.y;
+          if (a.moving) a._walkT = .15; else a._walkT = Math.max(0, (a._walkT || 0) - 1 / 60);
+          let row, flip = false; const f = n.face;
+          if (a.moving || a._walkT > 0) { if (Math.abs(dx) > Math.abs(dy) * .8) { row = 2; flip = dx > 0; } else row = dy < 0 ? 1 : 0; if (Math.abs(dx) + Math.abs(dy) < .01) { row = a._row ?? 0; flip = !!a._flip; } a._row = row; a._flip = flip; }
+          else { row = a._row != null && n.wander ? a._row : (f === 'up' ? 1 : (f === 'left' || f === 'right') ? 2 : 0); flip = a._row != null && n.wander ? !!a._flip : f === 'right'; if (row === 1 && n.wander) { row = 0; flip = false; } }
+          const col = a.moving ? 1 + Math.floor(now * 8 + (a.x * .013 % 1) * 6) % 6 : 0, bob = a.moving ? 0 : Math.sin(now * 1.8 + a.x * .01) * .8;
           ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 20, 6.5, 0, 0, 7); ctx.fill();
-          ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y - bob); if (f === 'right') ctx.scale(-1, 1); ctx.scale(.5, .5);
-          ctx.drawImage(im, 0, row * 240, 160, 240, -80, -232, 160, 240); ctx.restore(); return true; } } catch (e) {}
+          ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y - bob); if (flip) ctx.scale(-1, 1); ctx.scale(.5, .5);
+          ctx.drawImage(im, col * 160, row * 240, 160, 240, -80, -232, 160, 240); ctx.restore(); return true; } } catch (e) {}
       return NW.apply(this, arguments); }; }
   load('p_r246_keeper', 'r246/p_keeper.webp');
   try { SPEAKERS['听雨楼掌柜'] = Object.assign({}, SPEAKERS['听雨楼掌柜'], { p: 'p_r246_keeper', color: '#cfe6ea' }); for (const n of ['茶娘·阿杏', '茶娘·青禾', '茶娘·素笺', '抚琴女子', '凭栏的白衣剑客', '对弈的茶客', '写诗的书生', '斟茶的茶娘']) SPEAKERS[n] = SPEAKERS[n] || { p: '', color: '#e6dccb' }; } catch (e) {}

@@ -63,8 +63,8 @@
   if (T) {
     const [c, r] = atIn('qingyang', 1226, 892);
     T.npcs.push({ key: 'none', c, r, name: '林府家训', hidden: true, h: 110, talk: async () => { await narrate('木牌上刻着几行端正的小楷：'); await narrate('「待客以诚，持家以俭；扶危济困，不负乡邻。」——林氏家训'); } });
-    for (const [x, name, look] of [[1444, '林府门房', 'villager_m'], [1564, '林府门房', 'scribe']]) { const [gc, gr] = P(x, 804);   // 作者 11-13：门房不该是官兵的样子——换成家仆打扮
-      T.npcs.push({ key: 'none', cx: look, c: gc, r: gr, name, face: 'down', wander: false, h: 118, random: true,
+    for (const [x, name, look] of [[1444, '林府门房', 'waiter'], [1564, '林府门房', 'waiter']]) { const [gc, gr] = P(x, 804);   // 作者 11-13：门房不该是官兵的样子——换成家仆打扮
+      T.npcs.push({ key: 'none', cx: look, mirror: x > 1500, c: gc, r: gr, name, face: 'down', wander: false, h: 118, random: true,
         talk: ['少侠请进，家主吩咐过，少侠来府上不必通报。', '仪门里头就是曲水花庭，再往里是正厅。', '西厢是待客茶坊，东厢是杂役房。'] }); }
   }
   window.LIN54_ON = true;

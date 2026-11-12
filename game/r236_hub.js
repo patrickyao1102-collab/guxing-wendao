@@ -8,7 +8,7 @@
   const night = () => { try { const f = S.flags || {}; return f.res_tod === 'night' || !!f.auc_night || window.R236_FORCE === 'night'; } catch (e) { return false; } };
 
   // 灵枢本体会动（Codex R236：铜环缓缓转、灵石上下浮；白天 / 夜晚各 12 帧，8fps）
-  { const FR = { day: [], night: [] }; for (const k of ['day', 'night']) { const im = new Image(); im.onload = () => { for (let i = 0; i < 12; i++) { const c = document.createElement('canvas'); c.width = 352; c.height = 337; c.getContext('2d').drawImage(im, i * 352, 0, 352, 337, 0, 0, 352, 337); FR[k].push(c); } }; im.src = 'r236/hub_' + k + '.webp'; }
+  { const FR = { day: [], night: [] }; for (const k of ['day', 'night']) { const im = new Image(); im.onload = () => { for (let i = 0; i < 12; i++) { const c = document.createElement('canvas'); c.width = 352; c.height = 337; c.getContext('2d').drawImage(im, i * 352, 0, 352, 337, 0, 0, 352, 337); FR[k].push(c); } }; im.src = 'r236/hub_' + k + '.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
     const o = (TMAPS.xt_city.baked.objs || []).find(o => o.uid === 'xt_fountain_56'), old = o && o.img;
     if (o) { try { Object.defineProperty(IMG, 'r236_hub', { configurable: true, enumerable: true, set: () => {}, get: () => { const f = FR[night() && FR.night.length ? 'night' : 'day']; return f.length ? f[Math.floor(performance.now() / 125) % 12] : IMG[old]; } });
         Object.assign(o, { img: 'r236_hub', x: Math.round(o.ax - 176), y: Math.round(o.ay - 331), w: 352, h: 337, noPre: true }); } catch (e) {} } }

@@ -10,7 +10,7 @@
   window.NPC_WALK = function (a, now) {
     try { const n = a.npc, k = n && n.cx;
       if (k && SC[k] && !a.moving && !(a._walkT > 0) && !a.hidden && !n.sidePose && !window.R243_OFF) { const im = get(k);
-        if (im) { const f = n.face, row = f === 'up' ? 1 : (f === 'left' || f === 'right') ? 2 : 0, flip = f === 'right' || (row === 0 && false), s = SC[k], bob = Math.sin(now * 1.8 + a.x * .01) * .8;
+        if (im) { const f = n.face, row = f === 'up' ? 1 : (f === 'left' || f === 'right') ? 2 : 0, flip = f === 'right' || (row === 0 && !!n.mirror), s = SC[k], bob = Math.sin(now * 1.8 + a.x * .01) * .8;
           ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 22, 7, 0, 0, 7); ctx.fill();
           ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y - bob); if (flip) ctx.scale(-1, 1); ctx.scale(s, s);
           ctx.drawImage(im, 0, row * 240, 160, 240, -80, -232, 160, 240); ctx.restore(); return true; } }
