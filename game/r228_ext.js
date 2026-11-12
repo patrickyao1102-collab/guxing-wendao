@@ -18,7 +18,11 @@
     const M = TMAPS[map], o = M && M.baked && (M.baked.objs || []).find(o => o.uid === uid); if (!o) continue;
     const im = new Image();
     im.onload = () => { try { IMG['r228_' + k] = im; const X = o.ax != null ? o.ax : o.x + o.w / 2, Y = o.ay != null ? o.ay : o.sy;
-      Object.assign(o, { img: 'r228_' + k, w, h, x: Math.round(X - ax), y: Math.round(Y - ay), noPre: true }); } catch (e) {} };
+      const nw = { img: 'r228_' + k, w, h, x: Math.round(X - ax), y: Math.round(Y - ay), noPre: true }; Object.assign(o, nw);
+      // 作者 11-13：从测试面板直接跳进玄天城时新楼不出来（要进一次楼再出来才换）、M 键大地图也还是旧楼——
+      // 地图是进图那一刻照着数据抄一份的，图片后到就只改了数据、没改已经抄好的那份。这里把眼前这张图也一起改掉，再让大地图重画。
+      try { if (typeof world !== 'undefined' && world.map && world.mapName === map) { const lo = (world.map.T.objs || []).find(x => x.uid === uid); if (lo) Object.assign(lo, nw); } } catch (e) {}
+      try { if (window.MM_CLEAR) MM_CLEAR(map); } catch (e) {} } catch (e) {} };
     im.src = 'r228/' + k + '.webp';
   }
 })();
