@@ -37,6 +37,9 @@ def yicui1(g, o, h, w, H, S, V):
     o[y0:y1, mid:x1] = o[y0:y1, x1:x1 + (x1 - mid)][:, ::-1]; o[y0:y1, x0:mid] = o[y0:y1, x0 - (mid - x0):x0][:, ::-1]
     o = remap(o, g, rug & (S > .12) & (V < .62), '#B99590', gamma=.45, lo=.62, hi=1.45, keep=.12)      # 牡丹毯：紫红底提成藕荷，花纹保留
     o = remap(o, g, run_ & (H > 190) & (H < 250) & (S > .2), '#74909A', gamma=.5, lo=.7, hi=1.35)     # 云纹走道毯
+    # 作者 11-12：蓝走道毯和粉牡丹毯叠在一起很突兀 → 去掉蓝毯，只留牡丹毯（用旁边同一排地板镜像补平）
+    rx0, rx1, ry0, ry1 = 566, 782, 699, 772
+    o[ry0:ry1, rx0:rx1] = o[ry0:ry1, rx0 - (rx1 - rx0):rx0][:, ::-1]
     return o
 def changle1(g, o, h, w, H, S, V):
     fl = box(h, w, 0, 205, w, h); felt = fl & red(H, S, V) & (V > .22)
