@@ -6,7 +6,7 @@
   Object.assign(D.objs, Pt.objs);
   for (const sid in Pt.rooms) D.rooms[sid] = Pt.rooms[sid];
   for (const k in Pt.anim) { const a = Pt.anim[k], key = 'r213_' + k, d = Object.getOwnPropertyDescriptor(IMG, key); if (d && d.get) continue;
-    const im = new Image(), fr = []; im.onload = () => { for (let i = 0; i < a.n; i++) { const c = document.createElement('canvas'); c.width = a.fw; c.height = a.fh; c.getContext('2d').drawImage(im, i * a.fw, 0, a.fw, a.fh, 0, 0, a.fw, a.fh); fr.push(c); } };
+    const im = new Image(), fr = []; im.onload = () => { const fw = im.width / a.n, fh = im.height; for (let i = 0; i < a.n; i++) { const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(im, i * fw, 0, fw, fh, 0, 0, fw, fh); fr.push(c); } };
     im.src = 'r213/a_' + k + '.webp';
     try { Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => fr.length ? fr[Math.floor(performance.now() / 1000 * a.fps) % fr.length] : undefined, set: () => {} }); } catch (e) {} }
   window.R229_ON = true;

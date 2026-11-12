@@ -6,7 +6,7 @@
   // 账房：整间换成新布局
   if (Pt.rooms.qy_changle_2f) D.rooms.qy_changle_2f = Pt.rooms.qy_changle_2f;
   // 带人座位组：六帧循环，切成单帧，IMG 里按时间取帧
-  const anim = (k) => { const a = Pt.anim[k], key = 'r213_' + k, im = new Image(), fr = []; im.onload = () => { for (let i = 0; i < a.n; i++) { const c = document.createElement('canvas'); c.width = a.fw; c.height = a.fh; c.getContext('2d').drawImage(im, i * a.fw, 0, a.fw, a.fh, 0, 0, a.fw, a.fh); fr.push(c); } };
+  const anim = (k) => { const a = Pt.anim[k], key = 'r213_' + k, im = new Image(), fr = []; im.onload = () => { const fw = im.width / a.n, fh = im.height; for (let i = 0; i < a.n; i++) { const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(im, i * fw, 0, fw, fh, 0, 0, fw, fh); fr.push(c); } };
     im.src = 'r213/a_' + k + '.webp'; try { Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => fr.length ? fr[Math.floor(performance.now() / 1000 * a.fps) % fr.length] : undefined, set: () => {} }); } catch (e) {} return a; };
   // 倚翠楼琴堂：四张饭馆方桌 → 茶座（两组有客人在喝茶听琴，两组空着）
   { const R = D.rooms.qy_yicui, kinds = ['set_tea_two_scholars', 'tea_seat_low', 'tea_seat_round', 'set_tea_two_couple']; let i = 0;

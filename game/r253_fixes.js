@@ -119,7 +119,7 @@
       // 露台两张空桌 → 坐上客人（R230 的座位组，六帧循环）：近处一位观雨的老先生（茶娘正给他斟茶），伞边一位摇扇的妇人
       // 这一组别处没用过的话，六帧循环的图要自己挂上（不然进图会一直等这张图）
       const anim = k => { const key = 'r230_' + k, d = Object.getOwnPropertyDescriptor(IMG, key); if (d && d.get) return; const a = A[k], im = new Image(), fr = [];
-        im.onload = () => { for (let i = 0; i < 6; i++) { const c = document.createElement('canvas'); c.width = a[0]; c.height = a[1]; c.getContext('2d').drawImage(im, i * a[0], 0, a[0], a[1], 0, 0, a[0], a[1]); fr.push(c); } };
+        im.onload = () => { const fw = im.width / 6, fh = im.height; for (let i = 0; i < 6; i++) { const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(im, i * fw, 0, fw, fh, 0, 0, fw, fh); fr.push(c); } };
         im.src = 'r230/a_' + k + '.webp';
         try { Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => fr.length ? fr[Math.floor(performance.now() / 1000 * 6) % fr.length] : undefined, set: () => {} }); } catch (e) {} };
       const put = (o, k, cx, by) => { const a = A[k]; anim(k); for (const key of Object.keys(o)) delete o[key];
