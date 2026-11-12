@@ -10,10 +10,9 @@
     ['xt_city', 'xt_inn_20', 'yunlai2', 797, 564, 399, 551],
     ['xt_city', 'xt_auction_23', 'wanbao', 359, 607, 179.309, 600.114],
     // R234 第一批（作者 11-12：这种创意给玄天城其他有特色的也改一下）
-    ['xt_city', 'xt_arms_17', 'arms2', 540, 530, 270, 520],             // 玄兵阁：R237 重画（作者：发灰暗、线条重 → 暖白石、青碧瓦、亮银剑、轻描边）
+    // 玄兵阁、玄元拍卖场：作者 11-13 说更喜欢老版本，换回原图（R234 / R237 的图留在 Codex 交付目录里，不再用）
     ['xt_city', 'xt_apothecary_21', 'danxia2', 321, 620, 160.5, 613],   // 丹霞堂：R235 丹药葫芦（作者：丹炉像炼器，要葫芦）
     ['xt_city', 'xt_teahouse_22', 'teahouse', 390, 640, 195, 632],      // 茶楼：云上茶台
-    ['xt_city', 'commerce-r23-facade', 'auction', 650, 580, 325, 572],  // 玄元拍卖场：悬着玉磬的圆殿
   ];
   for (const [map, uid, k, w, h, ax, ay] of L) {
     const M = TMAPS[map], o = M && M.baked && (M.baked.objs || []).find(o => o.uid === uid); if (!o) continue;
