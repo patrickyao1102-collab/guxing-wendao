@@ -7,7 +7,7 @@
 //   硬：【青阳镇】黑风寨的账本——没查完，认不出百草轩那页旧账的来路，说不清动机，当众指认会失败（不卡死：查完账本回来找柳三娘重新指认）。
 //   省步骤：天字三号房（城卫直接放行）、九灯拱一枢（司灯老人直接说）、三十个名字（说书先生直接说）、万宝楼的赝品（掌柜直接认刀）、
 //           长乐坊（叶孤星自己看出左手）、十年剑穗（倚翠楼的人直接开口）。
-// 场景暂借：天字一号房用天字三号房那张图；人物借现成的路人形象。Codex 的新图到了再换。只进测试版。
+// 场景与人物：Codex R233（天字一号房命案现场；雷大勇、阿贵、阿芜的行走图和立绘）。只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined' || !window.SQ_DEFS || !TMAPS.xt_city || !TMAPS.xt_inn_hall || !TMAPS.xt_inn_room3 || !TMAPS.xt_inn_corr) return;
   const F = () => (S.flags = S.flags || {});
@@ -41,16 +41,39 @@
   const spot = (mid, x, y, name, talk, extra) => { const [c, r] = P(x, y); return add(mid, Object.assign({ key: 'none', c, r, name, hidden: true, h: 110, talk }, extra || {})); };
   const shown = () => q().s === 1 || q().s === 3;
 
-  // ---------------- 场景：天字一号房（暂借三号房的图）----------------
-  const R3 = TMAPS.xt_inn_room3, CORR = TMAPS.xt_inn_corr, HALL = TMAPS.xt_inn_hall;
-  TMAPS.xt_inn_room1 = Object.assign({}, R3, { title: '云来客栈 · 天字一号房', npcs: [], chests: [], doors: [], onEnter: null,
+  // ---------------- 场景：天字一号房（Codex R233：命案现场；没读到新图就借三号房的）----------------
+  const R3 = TMAPS.xt_inn_room3, CORR = TMAPS.xt_inn_corr, HALL = TMAPS.xt_inn_hall, D1 = (window.R233_ROOM || {}).xt_inn_room1;
+  const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
+  let CLUE = [], BLOOD = null;
+  if (D1) { load('r233g_room1', 'r233/g_xt_inn_room1.webp');
+    for (const o of D1.objs) load(o.img, 'r233/' + (o.img.startsWith('r233c_') ? 'c_' + o.img.slice(6) : 'o_' + o.img.slice(5)) + '.webp');
+    CLUE = D1.objs.filter(o => /^clue_/.test(o.id)); D1.base = D1.objs.filter(o => !/^clue_/.test(o.id));
+    const e0 = D1.exits[0], r = e0.region, cs = D1.cs;
+    TMAPS.xt_inn_room1 = { title: '云来客栈 · 天字一号房', baked: Object.assign({ ground: 'r233g_room1' }, D1), indoor: true, npcs: [], chests: [], doors: [], start: P(D1.spawn[0], D1.spawn[1] - 40),
+      exits: [{ x: Math.floor(r.x / cs), y: Math.floor(r.y / cs), w: Math.ceil(r.w / cs), h: Math.ceil(r.h / cs), to: 'xt_inn_corr', at: P(283, 470), face: 'down', label: '出房门 · 二楼走廊' }] };
+    load('r233_corr_blood', 'r233/corr_blood.webp'); BLOOD = { id: 'hx_blood', img: 'r233_corr_blood', uid: 'hx-blood', x: 300, y: 500, w: 400, h: 60, sy: 560, flat: true };
+  } else TMAPS.xt_inn_room1 = Object.assign({}, R3, { title: '云来客栈 · 天字一号房', npcs: [], chests: [], doors: [], onEnter: null,
     exits: [Object.assign({}, (R3.exits || [])[0], { to: 'xt_inn_corr', at: P(283, 470), face: 'down', label: '出房门 · 二楼走廊' })] });
   try { if (typeof MAP_ZOOM !== 'undefined' && MAP_ZOOM.xt_inn_room3) MAP_ZOOM.xt_inn_room1 = MAP_ZOOM.xt_inn_room3; } catch (e) {}
+  // 现场的痕迹只在案子办着的时候摆出来：尸首、带血的门闩、走廊的血点；结案后收走（茶具和包袱留着）
+  if (D1 && typeof tileSetMap === 'function') tileSetMap = (orig => function (m) { try {
+      if (m === 'xt_inn_room1') D1.objs = TMAPS.xt_inn_room1.baked.objs = D1.base.concat(CLUE.filter(o => on() || !/body_he|latch_blood/.test(o.id)));
+      if (m === 'xt_inn_corr' && CORR.baked && CORR.baked.objs) { CORR.baked.objs = CORR.baked.objs.filter(o => o !== BLOOD); if (on() && IMG.r233_corr_blood) CORR.baked.objs.push(BLOOD); }
+    } catch (e) {} return orig.apply(this, arguments); })(tileSetMap);
+  // 新人物：雷大勇、阿贵、阿芜（行走图的正面站姿）+ 立绘
+  { const im = new Image(); let A = null; im.onload = () => { A = im; }; im.src = 'r233/npc.webp'; const IDX = { lei: 0, agui: 1, awu: 2 };
+    if (typeof drawActorT === 'function') drawActorT = (orig => function (a, now) { const k = a.npc && a.npc.hx, i = k != null ? IDX[k] : undefined;
+      if (i === undefined || !A || a.hidden) return orig(a, now);
+      const sc = .5, bob = Math.sin(now * 2 + a.x) * 1; ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 22, 7, 0, 0, 7); ctx.fill();
+      ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y - bob); ctx.drawImage(A, i * 160, 0, 160, 240, -80 * sc, -232 * sc, 160 * sc, 240 * sc); ctx.restore(); })(drawActorT);
+    for (const [k, f] of [['p_r233_lei', 'p_lei'], ['p_r233_lei_nu', 'p_lei_nu'], ['p_r233_agui', 'p_agui'], ['p_r233_awu', 'p_awu'], ['p_r233_he', 'p_he']]) load(k, 'r233/' + f + '.webp');
+    try { SPEAKERS[LEI] = { p: 'p_r233_lei', color: '#c8a890' }; SPEAKERS[GUI] = { p: 'p_r233_agui', color: '#c8c0a0' }; SPEAKERS[WU] = Object.assign({}, SPEAKERS[WU], { p: 'p_r233_awu', color: '#d8e0d8' }); } catch (e) {}
+    const w = (TMAPS.qy_yicui && TMAPS.qy_yicui.npcs || []).find(n => n.name === WU && !n.hidden); if (w) w.hx = 'awu'; }
   // 楼梯：原来只有「天字三号房」在办或办完才上得去；这桩案子拿到准话也放行
   for (const e of HALL.exits || []) if (e.to === 'xt_inn_corr') { const c0 = e.cond; e.cond = () => (shown() && (!!F().hx_pass || q().s === 3)) || (typeof c0 === 'function' ? c0() : true); }
   for (const n of HALL.npcs || []) if (n.name === '守楼梯的城卫') { const c0 = n.cond; n.cond = () => !(shown() && F().hx_pass) && (typeof c0 === 'function' ? c0() : true); }
   { const d = (CORR.npcs || []).find(n => n.name === '天字一号的房门'); if (d) { const orig = d.talk; d.talk = async function (a) {
-      if (shown()) { const [c, r] = R3.start || [9.5, 11.45]; try { await goMap('xt_inn_room1', c, r, 'up'); } catch (e) { tileSetMap('xt_inn_room1', c, r, 'up'); } if (on()) setTimeout(() => mood('case_xiongsha'), 600); return; }
+      if (shown()) { const [c, r] = TMAPS.xt_inn_room1.start || [9.5, 11.45]; try { await goMap('xt_inn_room1', c, r, 'up'); } catch (e) { tileSetMap('xt_inn_room1', c, r, 'up'); } if (on()) setTimeout(() => mood('case_xiongsha'), 600); return; }
       return orig.call(this, a); }; } }
 
   // ---------------- 第一幕：接案（大堂 · 柳三娘）----------------
@@ -84,10 +107,10 @@
       [YE, '门闩上的血指印，是从里面按上去的。闩门的人，是他自己。'], [YE, '他在别处中的刀。带着刀逃回房里，闩上门，才倒下。'],
       [XX, '（所以要问的不是「凶手怎么出的房」，是「他在哪儿、什么时辰中的刀」。小子，下楼。把昨晚在这店里的人，一个一个问过去。）']]);
     note('密室是假的：门是死者自己从里面闩上的，他在别处中了刀才逃回房'); mood('case_yiyun'); s.n = 1; toast('迟了一刻的灯 —— 下楼到大堂问话', 2400); };
-  man('xt_inn_room1', 'town_guard', 420, 772, GUARD, async () => { const s = q();
+  man('xt_inn_room1', 'town_guard', D1 ? 300 : 420, D1 ? 790 : 772, GUARD, async () => { const s = q();
     if (s.s === 3) { await say(GUARD, '这间房，往后我每回巡街都要上来看一眼。'); return; }
     await say(GUARD, s.n === 0 ? '尸首不许挪。别的，你看你的。' : s.n >= 4 ? '仵作还在路上。你要再看，就再看。' : '我守着。你查你的。'); });
-  spot('xt_inn_room1', 304, 560, '倒在床前的人', async () => { const s = q(), f = F(); if (!on()) return;
+  spot('xt_inn_room1', D1 ? 449 : 304, D1 ? 510 : 560, '倒在床前的人', async () => { const s = q(), f = F(); if (!on()) return;
     if (s.n === 4 && !f.hx_body2) {
       mood('case_guiyi');
       await L([['', '叶孤星蹲下身，这一回，看的不是刀。'], ['', '刀口很浅。刀尖卡在肩胛骨上，离要害差着两寸，地上的血也只有巴掌大一摊。'], [YE, '这一刀，杀不了人。'],
@@ -98,10 +121,10 @@
     await L([['', '一个五十来岁的男人面朝下趴在床前的脚踏上，一只手还朝门的方向伸着。'], ['', '背后偏左的位置，插着一把乌木柄的短刀，直没到柄。'], [YE, '刀是从背后捅的，斜着往上。'],
       [XX, '（斜着往上，偏左。小子，你右手握刀从背后捅人，刀口往哪边斜？）'], [YE, '……往右。'], [XX, '（记一笔。）']]);
     if (seen('shi')) { note('短刀从背后偏左斜着往上捅入——握刀的是左手'); await count(); } }, { cond: on });
-  spot('xt_inn_room1', 640, 800, '门闩', async () => { if (!on()) return; await L([['', '门闩断成两截，是撞门时撞断的。闩身朝里的一面，有三个暗红的指印。'], [YE, '血指印。按在门闩朝里的一面。'], [XX, '（手上沾着血的人，在屋里，闩了这道门。）']]); if (seen('men')) { note('门闩朝里的一面有血指印'); await count(); } }, { cond: on });
-  spot('xt_inn_room1', 924, 576, '圆桌', async () => { if (!on()) return; await L([['', '桌上一壶冷茶，一只杯子。旁边搁着一只小瓷瓶，瓶身上贴着「护心丹」，已经吃空了大半。'], [YE, '护心丹。他心口有毛病？'], [XX, '（先记着。一个大老远来收账的人，随身带着一瓶快吃空的护心丹。）']]); if (seen('zhuo')) { note('桌上有一瓶吃空大半的护心丹'); await count(); } }, { cond: on });
-  spot('xt_inn_room1', 1148, 362, '后窗', async () => { if (!on()) return; await L([['', '窗栓插着，栓头上的灰完完整整。'], [YE, '没人从窗走。'], [XX, '（这家店的窗栓，倒是回回都清白。）']]); if (seen('chuang')) { note('后窗的栓插着，栓头有灰——没人走窗'); await count(); } }, { cond: on });
-  spot('xt_inn_room1', 1104, 898, '行李架上的包袱', async () => { if (!on()) return; await L([['', '包袱没被翻过。钱袋沉甸甸的还在，里头少说两百灵石。'], ['', '包袱底下压着一张当票似的小纸条：「青阳镇 · 百草轩 · 寄匣一只」。'], [YE, '不是劫财。'], [XX, '（钱一文没少。要他命的人，要的不是钱。——那张寄匣的条子，收好。）']]); if (seen('bao')) { note('钱袋没动，不是劫财；有一张「青阳镇百草轩 · 寄匣一只」的条子'); await count(); } }, { cond: on });
+  spot('xt_inn_room1', D1 ? 636 : 640, D1 ? 818 : 800, '门闩', async () => { if (!on()) return; await L([['', '门闩断成两截，是撞门时撞断的。闩身朝里的一面，有三个暗红的指印。'], [YE, '血指印。按在门闩朝里的一面。'], [XX, '（手上沾着血的人，在屋里，闩了这道门。）']]); if (seen('men')) { note('门闩朝里的一面有血指印'); await count(); } }, { cond: on });
+  spot('xt_inn_room1', D1 ? 910 : 924, D1 ? 646 : 576, '圆桌', async () => { if (!on()) return; await L([['', '桌上一壶冷茶，一只杯子。旁边搁着一只小瓷瓶，瓶身上贴着「护心丹」，已经吃空了大半。'], [YE, '护心丹。他心口有毛病？'], [XX, '（先记着。一个大老远来收账的人，随身带着一瓶快吃空的护心丹。）']]); if (seen('zhuo')) { note('桌上有一瓶吃空大半的护心丹'); await count(); } }, { cond: on });
+  spot('xt_inn_room1', D1 ? 1040 : 1148, D1 ? 340 : 362, '后窗', async () => { if (!on()) return; await L([['', '窗栓插着，栓头上的灰完完整整。'], [YE, '没人从窗走。'], [XX, '（这家店的窗栓，倒是回回都清白。）']]); if (seen('chuang')) { note('后窗的栓插着，栓头有灰——没人走窗'); await count(); } }, { cond: on });
+  spot('xt_inn_room1', D1 ? 1010 : 1104, D1 ? 804 : 898, '行李架上的包袱', async () => { if (!on()) return; await L([['', '包袱没被翻过。钱袋沉甸甸的还在，里头少说两百灵石。'], ['', '包袱底下压着一张当票似的小纸条：「青阳镇 · 百草轩 · 寄匣一只」。'], [YE, '不是劫财。'], [XX, '（钱一文没少。要他命的人，要的不是钱。——那张寄匣的条子，收好。）']]); if (seen('bao')) { note('钱袋没动，不是劫财；有一张「青阳镇百草轩 · 寄匣一只」的条子'); await count(); } }, { cond: on });
   spot('xt_inn_corr', 283, 520, '门槛前的地毯', async () => { await L([['', '靛蓝的长毯上，从后楼梯口到天字一号的门槛，隔几步就有一个铜钱大的暗点。'], [YE, '血。一路滴过来的。'], [XX, '（从后楼梯上来的。后楼梯通后巷。）']]); note('走廊地毯上有一路血点，从后楼梯口滴到天字一号门前'); }, { cond: on });
 
   // ---------------- 第三幕：大堂问话 ----------------
@@ -115,7 +138,7 @@
     if (f.hx_a_l) { await say(LEI, s.n >= 5 ? '（把酒碗往桌上一顿）还问？老子说了八遍了，灯亮的时候我在这儿划拳！' : '该说的我都说了。小兄弟，查案是官差的事。'); return; }
     await L([[YE, '雷镖头。点灯那晚，你在哪儿？'], [LEI, '（咧嘴一笑）在这儿啊。镇远镖局押完一趟镖，弟兄们凑一桌，划拳。灯亮的时候我正赢着呢，满大堂的人都看见了。'], [LEI, '那姓贺的？不认得。一个卖药的，跟我们走镖的八竿子打不着。'],
       ['', '他说话的工夫，伸手去够桌上的酒碗。'], fin('qy_dice') ? [YE, '（左手。筷子在左边，酒碗在左边，刀也挂在右腰——他是左撇子。在长乐坊看庄家看惯了，如今看人先看手。）'] : [XX, '（……小子，这人身上有点不对劲，我一时说不上来。先记着。）']]);
-    note('雷大勇：灯亮的时候在大堂划拳，满堂人作证；自称不认得贺九章'); if (fin('qy_dice')) { f.hx_left = 1; note('雷大勇是左撇子：酒碗、筷子都在左手边'); } await asked('l'); }, { cond: on });
+    note('雷大勇：灯亮的时候在大堂划拳，满堂人作证；自称不认得贺九章'); if (fin('qy_dice')) { f.hx_left = 1; note('雷大勇是左撇子：酒碗、筷子都在左手边'); } await asked('l'); }, { cond: on, hx: 'lei' });
   man('xt_inn_hall', 'kitchen_helper', 700, 600, GUI, async () => { const s = q(), f = F();
     if (s.s === 3) { await say(GUI, '我……我送东家回青阳镇。不管他做过什么，总得有人送。'); return; }
     if (s.n < 1) { await say(GUI, '（蹲在墙角，两眼通红）东家……东家……'); return; }
@@ -127,7 +150,7 @@
     if (f.hx_a_g) { await say(GUI, s.n >= 5 ? '少侠去青阳镇，替我……替我看看东家那只匣子里到底是什么。' : '我真是在街上看灯。卖糖画的能作证。'); return; }
     await L([[GUI, '（哑着嗓子）我跟了东家六年。他这回说来收一笔账，收完就回，不让我跟着，叫我自己上街看灯去。'], [GUI, '灯亮的时候，我在街口看糖画，卖糖画的还跟我搭过话。回来就……就……'], [YE, '他来收谁的账？'],
       [GUI, '不知道。东家的账从不让我看。只知道每个月都有一笔，雷打不动，二十两。'], [XX, '（每月二十两，雷打不动，不让人看。小子，这可不像药材账。）']]);
-    note('阿贵：灯亮的时候在街口看糖画；贺九章来玄天城收一笔每月二十两、不让人看的账'); await asked('g'); }, { cond: shown });
+    note('阿贵：灯亮的时候在街口看糖画；贺九章来玄天城收一笔每月二十两、不让人看的账'); await asked('g'); }, { cond: shown, hx: 'agui' });
 
   // ---------------- 第四幕：那盏灯 ----------------
   const lampDone = async () => { const f = F(), s = q(); if (s.n !== 2 || !(f.hx_deng && f.hx_shu)) return;
