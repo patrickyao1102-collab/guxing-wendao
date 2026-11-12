@@ -106,7 +106,7 @@
   // ---------------- 第五幕：旧染坊门前，当众说穿 ----------------
   const [gx, gy] = nearFree(3540, 2770);
   (CITY.npcs = CITY.npcs || []).push({ key: 'none', c: P(gx, gy)[0], r: P(gx, gy)[1], name: '旧染坊', hidden: true, h: 110, talk: async () => { const s = q();
-    if (s.s === 3) { await say('', '院门贴了城主府的封条。晾衣绳上的布收走了，只剩几只木夹子在风里晃。'); return; }
+    if (s.s === 3) { if (TMAPS.xt_dyeyard && window.R219_YARD_IN) { const k = await choose('旧染坊', ['进院子看看', '算了']); if (k === 0) { try { await goMap('xt_dyeyard', R219_YARD_IN[0], R219_YARD_IN[1], 'up'); } catch (e) { tileSetMap('xt_dyeyard', R219_YARD_IN[0], R219_YARD_IN[1], 'up'); } } return; } await say('', '院门贴了城主府的封条。'); return; }
     if (!on() || s.n < 5) { await say('', '一户寻常人家的院子，竹竿上晾着几匹蓝布。院门虚掩着。'); return; }
     await finale(); } });
   for (const [cx, x, y, name, line] of [['wandering_blade', -110, 36, '等着入场的散修', '嘘——别吵。里头正看宝呢，下一个就轮到我。'], ['villager_m', 90, 50, '抱着刀的散修', '七号是我。你几号？没帖子？没帖子凑什么热闹。']]) {
@@ -122,13 +122,15 @@
       ['等着入场的散修', '（凑过来，脸色慢慢变了）这上头……有我。「木灵根，魂纯」——「魂纯」是什么意思？！'], [YE, '是挑拣的意思。'],
       [YE, '第三件。印帖子的墨，是订货的人自己带来的。抄帖子的伙计说，那墨有股凉气，往骨头里钻。'], ['', '叶孤星并指一划，星力如水，漫过在场每一个人手里的帖子。'],
       ['', '烫金的字迹底下，齐刷刷泛起一层幽幽的青光——和南城门那几盏被蚀坏的灵灯，一模一样的颜色。'], [XX, '（引魂砂。拿在手里三天，魂火上就落了记号。就算今晚没来，他们也找得到人。）'],
-      ['', '「当啷」一声，抱刀的散修把帖子扔在了地上，像扔一块烧红的炭。'], ['', '院门后面，那只手慢慢缩了回去。然后，门自己开了。'],
+      ['', '「当啷」一声，抱刀的散修把帖子扔在了地上，像扔一块烧红的炭。'], ['', '院门后面，那只手慢慢缩了回去。然后，门自己开了。']]);
+    if (TMAPS.xt_dyeyard && window.R219_YARD_IN) { try { await fadeOut(260); tileSetMap('xt_dyeyard', R219_YARD_IN[0], R219_YARD_IN[1], 'up'); S.scene = drawMap; await fadeIn(320); } catch (e) {} await say('', '院子里没有鉴宝会。只有几口倒扣的染缸，两竿没人收的蓝布，和角落里一块压着地窖口的木盖板。'); }
+    await L([
       [ZS, '（斗笠压得很低，声音沙哑）天剑宗的小辈。一封密信，一把古剑，如今是三十个人——你坏了谷里三件事了。'], [ZS, '也好。星属性的凝丹修士，魂火比他们三十个加起来都亮。主上见了，想必欢喜。'],
       [NV, '（短剑出鞘，退后一步，与叶孤星并肩）……我的帖子，是一号。'], [NV, '所以这一剑，我先出。']]);
     const lv = Math.max(0, (S.hero.lv || 11) - 11);
     const mk = (name, key, hp, atk, def, extra) => Object.assign({ name, key: (typeof IMG !== 'undefined' && IMG[key]) ? key : 'e_grunt', hp, maxhp: hp, atk, def, spd: 13, h: 250, color: '#665' }, extra || {});
     let win = true;
-    try { await fadeOut(220); const pr = startBattle({ bg: 'bg_night', normalBgm: true, title: '旧染坊 · 月晦之前', boss: true, exp: 320, gold: 240,
+    try { await fadeOut(220); const pr = startBattle({ bg: (typeof IMG !== 'undefined' && IMG.bg_r219_dye) ? 'bg_r219_dye' : 'bg_night', normalBgm: true, title: '旧染坊 · 月晦之前', boss: true, exp: 320, gold: 240,
       enemies: [mk('炼魂谷接引使（凝丹三重）', 'e_xiexiu', 1900 + lv * 130, 50 + lv * 3, 14, { boss: true }), mk('炼魂谷执事', 'e_xiexiu', 900 + lv * 60, 40 + lv * 2, 10), mk('炼魂谷随从', 'e_grunt', 600 + lv * 40, 36 + lv * 2, 8)] });
       await fadeIn(220); const r = await pr; S.scene = drawMap; await fadeIn(200); win = !!r && r !== 'flee'; } catch (e) { console.warn('R216 fight', e); }
     if (!win) { try { partyRevive(.4); } catch (e) {} await L([[NV, '（挡在前面）退后调息。门口我守着，他们出不来。'], [XX, '（那丫头替你拖着。喘口气，再上。）']]); return; }

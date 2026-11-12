@@ -66,7 +66,7 @@
     if (s.s !== 1 && s.s !== 3) return false;
     const opts = ['去后院库房', '上二楼鉴宝雅间']; if (s.s === 1 && s.n >= 1 && !f.xw_a_h) opts.push('（压低声音）小伍这个人，平日怎么样？'); opts.push('没事');
     const k = await choose(HUO + '：客官要去哪儿？', opts), pick = opts[k];
-    if (pick === '去后院库房') { await go('xt_wanbao_store', storeIn); return true; }
+    if (pick === '去后院库房') { await go('xt_wanbao_store', window.R219_STORE_IN || storeIn); return true; }
     if (pick === '上二楼鉴宝雅间') { await go('xt_wanbao_vip', vipIn); return true; }
     if (/小伍/.test(pick || '')) {
       await L([[HUO, '小伍哥？人是不坏……就是手痒。'], [HUO, '上个月他告假回青阳镇老家，回来整个人都蔫了。后来才听说，在那边一个叫长乐坊的赌坊里，一晚上欠了八十两。'],

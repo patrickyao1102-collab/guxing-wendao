@@ -91,7 +91,7 @@
     if (/^qy_yicui/.test(m)) return 'yicui';   // 作者 11-12 青阳镇支线：倚翠楼用「月夜离箫」（古琴洞箫，离别），长乐坊用「夜弦潜行」（悬疑）
     if (/^qy_changle/.test(m)) return 'changle';
     if (m === 'xt_inn_hall') return 'xtinn';   // 玄天城探案支线：客栈大堂轻快，案发的客房悬疑
-    if (m === 'xt_inn_room3' || m === 'xt_inn_corr' || /^xt_wanbao_/.test(m)) return 'xtcase';
+    if (m === 'xt_inn_room3' || m === 'xt_inn_corr' || m === 'xt_dyeyard' || /^xt_wanbao_/.test(m)) return 'xtcase';
     if (/^qingzhu_garden/.test(m)) return 'garden';   // 作者 11-11：青竹菜园用小云雀第二批 13「古筝独奏·悠闲」（第一批 03 作者嫌难听）
     if (/^qingzhu_/.test(m)) return 'qingzhu';   // 青竹小院：清光升·纯乐   // 后山：夜径星铃（古琴、箫、风铃，幽静带点紧张）
     if (m === 'tj_hall') return 'hall';
