@@ -1,0 +1,19 @@
+// ================= R228 · 多层建筑外观（作者 11-12：里面房间多的楼，外面不能还是平房）=================
+// Codex 重画了四栋：倚翠楼（两层纱窗回廊）、长乐坊（厚顶封窗、侧面木梯）、云来客栈（两层横向长廊）、万宝楼（三层尖顶）。
+// 只换这四个实例的图和图像锚点；占地、门口、传送、碰撞一概不动。只进测试版。
+(function () {
+  if (typeof TMAPS === 'undefined' || typeof IMG === 'undefined') return;
+  const L = [
+    ['qy_town', 'house_03_3', 'yicui', 312, 404, 149.581, 399.181],
+    ['qy_town', 'house_02_2', 'changle', 312, 323, 155.742, 317.682],
+    ['xt_city', 'xt_inn_20', 'yunlai', 712, 504, 356.255, 492.02],
+    ['xt_city', 'xt_auction_23', 'wanbao', 359, 607, 179.309, 600.114],
+  ];
+  for (const [map, uid, k, w, h, ax, ay] of L) {
+    const M = TMAPS[map], o = M && M.baked && (M.baked.objs || []).find(o => o.uid === uid); if (!o) continue;
+    const im = new Image();
+    im.onload = () => { try { IMG['r228_' + k] = im; const X = o.ax != null ? o.ax : o.x + o.w / 2, Y = o.ay != null ? o.ay : o.sy;
+      Object.assign(o, { img: 'r228_' + k, w, h, x: Math.round(X - ax), y: Math.round(Y - ay), noPre: true }); } catch (e) {} };
+    im.src = 'r228/' + k + '.webp';
+  }
+})();
