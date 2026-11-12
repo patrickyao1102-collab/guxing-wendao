@@ -9,7 +9,7 @@
   const sq = () => ((F().sq || {}).xt_room3 || { s: 0, n: 0 });
   const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
   for (const [sid, R] of Object.entries(D)) { load('r217g_' + sid, 'r217/g_' + sid + '.webp');
-    for (const o of R.objs) load(o.img, 'r217/' + (o.img.startsWith('r217c_') ? 'c_' + o.img.slice(6) : 'o_' + o.img.slice(5)) + '.webp'); }
+    for (const o of R.objs) if (!/^r213_/.test(o.img)) load(o.img, 'r217/' + (o.img.startsWith('r217c_') ? 'c_' + o.img.slice(6) : 'o_' + o.img.slice(5)) + '.webp'); }
   try { delete MAP_ZOOM.xt_inn_hall; delete MAP_ZOOM.xt_inn_room3; } catch (e) {}
   const ex = (sid, id, o) => { const R = D[sid], e = R.exits.find(e => e.id === id), cs = R.cs, r = e.region;
     return Object.assign({ x: Math.floor(r.x / cs), y: Math.floor(r.y / cs), w: Math.ceil(r.w / cs), h: Math.ceil(r.h / cs), to: e.to, at: e.land ? P(e.land[0], e.land[1]) : null, face: 'down', label: e.label }, o || {}); };

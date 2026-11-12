@@ -45,15 +45,16 @@
   const mv = (n, xy, o) => { if (!n) return; const [c, r] = P(xy[0], xy[1]); Object.assign(n, { c, r, wander: false }, o || {}); };
   const mk = (cx, xy, name, talk, o) => { const [c, r] = P(xy[0], xy[1]); return Object.assign({ key: 'none', cx, c, r, name, h: 116, wander: false, face: 'down', talk }, o || {}); };
   const spot = (xy, name, talk, o) => { const [c, r] = P(xy[0], xy[1]); return Object.assign({ key: 'none', c, r, name, hidden: true, h: 110, talk }, o || {}); };
+  const POS = (sid, k, d) => (D.rooms[sid].at && D.rooms[sid].at[k]) || d;   // R229 新布局可以自带站位
 
   // ===== 倚翠楼 =====
   {
     const old = TMAPS.qy_yicui, back = (old.exits[0] || {}).at, suwan = (old.npcs || []).find(n => n.name === '苏晚');
     const done = () => sq('qy_tassel').s === 3;
     const n1 = [
-      mk('maid', [800, 690], '倚翠楼侍女', async () => { await say('倚翠楼侍女', done() ? '苏姑娘今日换了新曲子。我在这楼里五年，头一回听见。' : '公子是来听琴的？苏姑娘在二楼听雨阁，从左手边的楼梯上去。……她今日，又在弹那一支。'); }, { face: 'left' }),
-      mk('tea_guest', [440, 540], '听琴的茶客', async () => { await say('听琴的茶客', done() ? '怪了，那支曲子不弹了。……倒有点舍不得。' : '这楼里的琴，十年了就听她弹一支曲子。问她，她只说是等人。'); }),
-      mk('drunk_scholar', [1090, 520], '醉书生', async () => { await say('醉书生', done() ? '曲终人不见，江上数峰青……好，好。' : '好曲！可惜——曲中人不来。（又斟了一杯）'); }),
+      mk('maid', POS('qy_yicui', 'maid', [800, 690]), '倚翠楼侍女', async () => { await say('倚翠楼侍女', done() ? '苏姑娘今日换了新曲子。我在这楼里五年，头一回听见。' : '公子是来听琴的？苏姑娘在二楼听雨阁，从左手边的楼梯上去。……她今日，又在弹那一支。'); }, { face: 'left' }),
+      mk('tea_guest', POS('qy_yicui', 'tea_guest', [440, 540]), '听琴的茶客', async () => { await say('听琴的茶客', done() ? '怪了，那支曲子不弹了。……倒有点舍不得。' : '这楼里的琴，十年了就听她弹一支曲子。问她，她只说是等人。'); }),
+      mk('drunk_scholar', POS('qy_yicui', 'drunk_scholar', [1090, 520]), '醉书生', async () => { await say('醉书生', done() ? '曲终人不见，江上数峰青……好，好。' : '好曲！可惜——曲中人不来。（又斟了一杯）'); }),
     ];
     const B1 = room('qy_yicui', '倚翠楼 · 琴堂', n1, []);
     TMAPS.qy_yicui.exits = [exDoor(B1, back), exStair('qy_yicui', 'qy_yicui_2f', '上楼 · 听雨阁')];
@@ -61,7 +62,7 @@
     if (suwan) { const s = D.rooms.qy_yicui_2f.slots.suwan; mv(suwan, [s[0], s[1] + 6], { cx: null, cx2: 'suwan', h: 116 }); n2.push(suwan); }
     const tp = D.rooms.qy_yicui_2f.inter.sword_tassel_socket;
     n2.push(spot([tp[0], tp[1] - 40], '琴案', async () => { await say('', done() ? '琴案的右角空了。压了十年的地方，木色比别处浅一块。' : '琴案右角压着一枚褪了色的青色剑穗，穗子理得整整齐齐，一丝灰都没有。'); }));
-    n2.push(spot([600, 250], '临河的窗', async () => { await say('', '推窗就是青阳河。从这儿望出去，正对着东边那座石桥。'); }));
+    n2.push(spot(POS('qy_yicui_2f', 'window', [600, 250]), '临河的窗', async () => { await say('', '推窗就是青阳河。从这儿望出去，正对着东边那座石桥。'); }));
     room('qy_yicui_2f', '倚翠楼 · 听雨阁', n2, [exStair('qy_yicui_2f', 'qy_yicui', '下楼 · 琴堂')]);
     for (const d of TMAPS.qy_town.doors) if (d.to === 'qy_yicui') d.at = inAt(B1);
     for (const q of window.SQ_DEFS || []) if (q.id === 'qy_tassel') { q.giver = ['qy_yicui_2f', '苏晚']; q.where = '青阳镇 · 倚翠楼二楼听雨阁（河边北首）· 琴师苏晚'; }
@@ -74,9 +75,9 @@
     mv(by('庄家'), [S1.dealer[0], S1.dealer[1] - 8], { cx: null, cx2: 'dealer' });
     mv(by('长乐坊打手', 0), [S1.guard_left[0] - 40, S1.guard_left[1] - 40], { face: 'right' });
     mv(by('长乐坊打手', 1), [S1.guard_right[0] + 40, S1.guard_right[1] - 40], { face: 'left' });
-    mv(by('老赌客'), [215, 650]); mv(by('输红眼的汉子'), [1150, 470]);
-    N.push(mk('bandit', [130, 500], '守楼梯的打手', ['楼上是账房，闲人免进。'], { cond: () => !F().qd_won }));
-    N.push(mk('villager_m', [1010, 730], '看热闹的赌客', async () => { await say('看热闹的赌客', F().qd_won ? '钱都数回去了。这桌子掀得痛快！' : '我就看看，不下注。……这地方，十个进来九个光着出去。'); }));
+    mv(by('老赌客'), POS('qy_changle', 'old', [215, 650])); mv(by('输红眼的汉子'), POS('qy_changle', 'red', [1150, 470]));
+    N.push(mk('bandit', POS('qy_changle', 'stair_guard', [130, 500]), '守楼梯的打手', ['楼上是账房，闲人免进。'], { cond: () => !F().qd_won }));
+    N.push(mk('villager_m', POS('qy_changle', 'watcher', [1010, 730]), '看热闹的赌客', async () => { await say('看热闹的赌客', F().qd_won ? '钱都数回去了。这桌子掀得痛快！' : '我就看看，不下注。……这地方，十个进来九个光着出去。'); }));
     const B1 = room('qy_changle', '长乐坊 · 赌坊', N, []);
     TMAPS.qy_changle.exits = [exDoor(B1, back), exStair('qy_changle', 'qy_changle_2f', '上楼 · 账房', { cond: () => !!F().qd_won, msg: '打手横在楼梯口：「楼上是账房，闲人免进。」' })];
     const R2 = D.rooms.qy_changle_2f, IN = R2.inter || {}; let chest = R2.objs.find(o => /treasure_chest/.test(o.id)), desk = R2.objs.find(o => o.id === 'ledger_desk');
