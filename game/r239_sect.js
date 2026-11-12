@@ -27,12 +27,14 @@
     man('disciple_m', HS.attendant_left, '侍立弟子', ['见过少宗主。', '长老吩咐，厅里不得喧哗。……少宗主请便。', '我入门三年，头一回离山。玄天城比山下的镇子大了不知多少倍。'], { random: true }),
     man('disciple_m', HS.attendant_right, '侍立弟子', ['少宗主安好。', '夜里那道护城的光幕亮起来时，镇驿剑也会跟着轻轻地响。', '客舍在前院月洞门后头，被褥是新晒的。'], { random: true }),
     man('disciple_m', HS.reporting_disciple_1, '禀事弟子', ['城南的灵灯前几日暗过三盏，我正要把这事报上去。', '长老不在座上？……那我再等等。'], { random: true, face: 'up' }),
-    man('wandering_blade', HS.waiting_disciple, '候命弟子', ['我在等一趟去落云岭的护送任务。听说那边近来不太平。', '据点里最难熬的是等。等消息，等任务，等回山的那天。'], { random: true }),
+    man('disciple_f', HS.waiting_disciple, '候命弟子', ['我在等一趟去落云岭的护送任务。听说那边近来不太平。', '据点里最难熬的是等。等消息，等任务，等回山的那天。'], { random: true }),
     spot(HI.view_town_sword, '镇驿剑', async () => { await L([['', '剑龛里悬着一柄长剑，剑身通明，三道光环绕着它缓缓起落。匾上两个字：天剑。'], [YE, '（这剑意……和山门前的问剑碑是一路的。）'], [XX, '（镇驿剑。一处据点挂一柄，剑断了，山上立刻就知道这儿出了事。）']]); }),
     spot([HI.task_board[0] + 30, HI.task_board[1] + 40], '任务玉璧', async () => { await L([['', '玉璧上嵌着三排玉牌，有的亮着青光，有的已经暗了。'], ['', '「护送药材至苍月城」「探查幽影林灵气异动」「清剿落云岭外岭狼群」……'], [XX, '（想接活，找那个执事，或者莲台上的长老。）']]); }),
     spot(HI.message_sect, '传讯剑阵', async () => { await L([['', '三柄小剑绕着一方玉符缓缓旋转，剑尖始终指着同一个方向——天剑山。'], [XX, '（飞剑传书的阵眼。从这儿递一句话上山，比骑马快上十天。）']]); }),
     spot(HI.council_seating, '议事席', async () => { await say('', '四把圈椅围着一张矮几，茶还温着，像是刚有人议过事。'); }),
   ];
+  // 作者 11-13：正厅左边那块立着的「任务」剑碑去掉（玉璧和执事的桌子已经说明这里是接任务的地方）；它占的那块地也放开
+  { const st = H.objs.find(o => o.id === 'task_sword_stele'); if (st) { H.objs = H.objs.filter(o => o !== st); try { const B = H.blocked.split(''), cs = H.cs; for (let y = Math.floor(930 / cs); y <= Math.floor(1004 / cs); y++) for (let x = Math.floor(56 / cs); x <= Math.floor(141 / cs); x++) B[y * H.cols + x] = '0'; H.blocked = B.join(''); } catch (e) {} } }
   // 作者 11-13：据点长老不该站在大门口——他在正厅莲台上打坐；大门口由弟子守着，守卫也不是官兵。
     try { const C = TMAPS.xt_city, i = (C.npcs || []).findIndex(n => n.name === '据点长老');
     if (i >= 0) { const e = C.npcs.splice(i, 1)[0], [c, r] = P(HI.report_elder[0], HI.report_elder[1]);
@@ -62,14 +64,19 @@
   // ---------------- 客舍 ----------------
   const R = D.rest, RS = R.slots, RI = R.inter;
   R.objs = R.objs.filter(o => !/south_entrance_frame/.test(o.img));   // 作者 11-13：屋子中间立着的那副门框太突兀，取消（出口还在原处，脚下有传送阵）
+  // 作者 11-13：客舍布局难看——茶桌不在地毯上、两个人快叠在一起、没人走动、整体比例不对。
+  // ① 地毯放大并挪到茶桌正下方（连四只凳子一起罩住）；凳子原来只有桌腿粗细，放大到坐得下人
+  { const rug = R.objs.find(o => o.id === 'rug'), tb = R.objs.find(o => o.id === 'tea_table');
+    if (rug && tb) { const cx = tb.x + tb.w / 2, w = 372, h = 220; Object.assign(rug, { x: Math.round(cx - w / 2), y: 588, w, h, sy: 1 }); }
+    for (const o of R.objs) if (o.id === 'stool') { const cx = o.x + o.w / 2, by = o.y + o.h; Object.assign(o, { w: 48, h: 80, x: Math.round(cx - 24), y: by - 80 }); } }
   const restNpcs = [
     man('waiter', RS.rest_keeper, '客舍杂役', async () => {
       await say('客舍杂役', '少宗主要歇一歇么？榻是现成的，被褥今早才晒过。');
       const k = await choose('客舍', ['歇一歇（气血、灵力回满）', '不必了']); if (k !== 0) return;
       try { if (typeof fadeOut === 'function') await fadeOut(350); if (typeof partyRevive === 'function') partyRevive(1); const h = S.hero; h.hp = h.maxhp; h.mp = h.maxmp; if (typeof fadeIn === 'function') await fadeIn(350); } catch (e) {}
-      toast('气血、灵力回满', 1800); await say(XX, '（宗门的榻，睡着就是比客栈踏实。不要钱，更踏实。）'); }),
-    man('disciple_m', RI.injured_disciple, '养伤的弟子', ['幽影林里撞上一头成了气候的妖狼……命是捡回来了，胳膊得养上半个月。', '少宗主若要出城，千万别一个人往林子深处走。'], { random: true }),
-    man('disciple_f', RI.tea_disciple, '喝茶的弟子', ['这茶是执事从听雨楼捎回来的。他说那楼顶上撑着一把大伞，下雨天坐在露台上，一滴都淋不着。', '墙上那两个字是长老写的：戒躁。他自己倒是全据点脾气最急的一个。'], { random: true }),
+      toast('气血、灵力回满', 1800); await say(XX, '（宗门的榻，睡着就是比客栈踏实。不要钱，更踏实。）'); }, { wander: true }),
+    man('disciple_m', [905, 812], '养伤的弟子', ['幽影林里撞上一头成了气候的妖狼……命是捡回来了，胳膊得养上半个月。', '少宗主若要出城，千万别一个人往林子深处走。'], { random: true }),
+    man('disciple_f', [560, 800], '喝茶的弟子', ['这茶是执事从听雨楼捎回来的。他说那楼顶上撑着一把大伞，下雨天坐在露台上，一滴都淋不着。', '墙上那两个字是长老写的：戒躁。他自己倒是全据点脾气最急的一个。'], { random: true, wander: true }),
     spot([222, 585], '蒲团', async () => { await say('', '三只蒲团对着窗，窗外一片竹影。是弟子们早晚打坐的地方。'); }),
   ];
   TMAPS.xt_sect_rest = { title: '天剑宗玄天据点 · 客舍', baked: Object.assign({ ground: 'r239g_rest' }, R), indoor: true, npcs: restNpcs, chests: [], doors: [], start: P(R.spawn[0], R.spawn[1] - 40),

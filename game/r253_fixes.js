@@ -18,10 +18,17 @@
   // 把新内景里同类家具的尺寸除一下：万宝楼一层 / 据点正厅 / 天字一号房偏大四成左右，客栈大堂、三号房、万宝楼雅间和库房偏大两成多。
   // 房间比屏幕小的（两间客房 1280×960）缩了以后两侧留暗边，和别的小屋子（民居、养伤内堂）一样。
   try {
-    const Z = { xt_wanbao: .72, xt_sect_hall: .72, xt_inn_hall: .8, xt_wanbao_vip: .8334, xt_wanbao_store: .8334, xt_inn_room1: .75, xt_inn_room3: .75 };
-    const WIDE = { xt_inn_room1: 1, xt_inn_room3: 1 };
+    const Z = { xt_wanbao: .72, xt_sect_hall: .72, xt_inn_hall: .8, xt_wanbao_vip: .8334, xt_wanbao_store: .8334, xt_inn_room1: .75, xt_inn_room3: .75, xt_sect_rest: .75 };
+    const WIDE = { xt_inn_room1: 1, xt_inn_room3: 1, xt_sect_rest: 1 };
     for (const [k, z] of Object.entries(Z)) { const B = TMAPS[k] && TMAPS[k].baked; if (!B) continue;
       for (const [m, M] of Object.entries(TMAPS)) if (M && M.baked === B) { MAP_ZOOM[m] = z; if (WIDE[k] && typeof WIDE_OK === 'object') WIDE_OK[m] = 1; } }
+    // 作者 11-13：正厅缩小以后，莲台上的长老跟着缩成了「袖珍」的——他是画在场景里的人，不是家具。
+    // 规矩（全局）：地图整张缩小时，画在场景里的人（莲台长老、带人座位组）不跟着缩，按脚底放回和走动的人一样的大小。
+    // 客栈大堂那几桌当初摆的时候就放大过 1.2–1.3，正好抵掉，不再重复放大。
+    const isPerson = o => o.img === 'r239_elder' || /^set_/.test(o.id || '');
+    for (const [k, z] of Object.entries(Z)) { if (k === 'xt_inn_hall') continue; const B = TMAPS[k] && TMAPS[k].baked; if (!B) continue; for (const o of B.objs || []) if (isPerson(o)) o._pk = 1 / z; }
+    if (typeof drawBaked === 'function') drawBaked = (orig => function (o, now) { const k = o && o._pk; if (!k || k === 1) return orig.apply(this, arguments);
+      const cx = o.x + o.w / 2, by = o.y + o.h; ctx.save(); ctx.translate(cx, by); ctx.scale(k, k); ctx.translate(-cx, -by); try { return orig.apply(this, arguments); } finally { ctx.restore(); } })(drawBaked);
   } catch (e) { console.warn('r253 zoom', e); }
 
   // ---------------- ② 传送阵放在楼梯口 ----------------
@@ -47,7 +54,7 @@
   window.R253 = { ghost };
 
   // 据点长老：莲台上的人原来没有名牌、头顶也不出任务标记
-  try { const e = (TMAPS.xt_sect_hall && TMAPS.xt_sect_hall.npcs || []).find(n => n.name === '据点长老'); if (e) { e.hidden = false; e.ghost = true; e.h = 186; } } catch (e) {}
+  try { const e = (TMAPS.xt_sect_hall && TMAPS.xt_sect_hall.npcs || []).find(n => n.name === '据点长老'); if (e) { e.hidden = false; e.ghost = true; e.h = 160; } } catch (e) {}
 
   // 带人座位组：每一桌一个名字、几句闲话（按它所在的铺子写）
   const SETS = {
