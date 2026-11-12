@@ -74,7 +74,7 @@
     mv(by('庄家'), [S1.dealer[0], S1.dealer[1] - 8], { cx: null, cx2: 'dealer' });
     mv(by('长乐坊打手', 0), [S1.guard_left[0] - 40, S1.guard_left[1] - 40], { face: 'right' });
     mv(by('长乐坊打手', 1), [S1.guard_right[0] + 40, S1.guard_right[1] - 40], { face: 'left' });
-    mv(by('老赌客'), [250, 500]); mv(by('输红眼的汉子'), [1150, 470]);
+    mv(by('老赌客'), [215, 650]); mv(by('输红眼的汉子'), [1150, 470]);
     N.push(mk('bandit', [130, 500], '守楼梯的打手', ['楼上是账房，闲人免进。'], { cond: () => !F().qd_won }));
     N.push(mk('villager_m', [1010, 730], '看热闹的赌客', async () => { await say('看热闹的赌客', F().qd_won ? '钱都数回去了。这桌子掀得痛快！' : '我就看看，不下注。……这地方，十个进来九个光着出去。'); }));
     const B1 = room('qy_changle', '长乐坊 · 赌坊', N, []);
