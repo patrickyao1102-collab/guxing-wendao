@@ -179,7 +179,7 @@
       enemies: [mk('炼魂谷执事（凝丹二重）', 'e_xiexiu', 1500 + lv * 110, 46 + lv * 3, 13, { boss: true }), mk('炼魂谷随从', 'e_grunt', 560 + lv * 40, 34 + lv * 2, 8), mk('炼魂谷随从', 'e_grunt', 560 + lv * 40, 34 + lv * 2, 8)] });
       await fadeIn(220); const r = await pr; S.scene = drawMap; await fadeIn(200); win = !!r && r !== 'flee'; } catch (e) { console.warn('R215 fight', e); }
     if (!win) { try { partyRevive(.4); } catch (e) {} await say(XX, '（这执事有两下子。缓口气，回头再找掌柜把人叫齐。）'); return; }
-    await L([['', '执事撞碎了窗棂，带着一身的血翻了出去。地上落下一张烫金的帖子。'], ['', '帖子上没有抬头，只有一行字：「月晦之夜 · 城西 · 鉴宝小会」，下面压着一个数：「三十」。'],
+    await L([['', '执事撞碎了窗棂，带着一身的血翻了出去。地上落下一张烫金的帖子。'], ['', '帖子上没有抬头，只有一行字：「月晦之夜 · 城南 · 鉴宝小会」，下面压着一个数：「三十」。'],
       [XX, '（烫金的帖子……那个抄书的小伙计说的，就是这个？三十——又是三十。）'], [YE, '（青阳镇那封密信上也写着：凝丹修士三十。）'],
       [BOSS, '（腿还在抖）炼、炼魂谷……我差点把韩家先祖的魂，亲手卖给了炼魂谷……'], [BOSS, '老秦，我……我对不住你。那把钥匙，你拿回去。往后你用手验，我给你念。'], [QIN, '（笑了）掌柜的，你念字可不大利索。'],
       [HAN, '（双手捧着剑，对秦老深深一揖）老先生护的不是一把剑，是我韩家的先人。云舟无以为报。'], [HAN, '只是这剑……放在我手里，怕是护不住第二回。少侠，你说，它该去哪儿？']]);
@@ -191,7 +191,7 @@
     const h = S.hero, lv0 = h.lv; addItem('c_jianjing', 1); h.gold = (h.gold || 0) + Q.reward.gold; try { playSnd('jingle_win'); } catch (e) {}
     if (window.itemGet) await itemGet([{ icon: 'item:c_jianjing', id: 'c_jianjing', name: '鉴宝水晶镜', count: '×1', desc: ITEM_DB.c_jianjing.desc }, { icon: 'gold', name: '灵石', count: '×' + Q.reward.gold }], '支线完成 · 万宝楼的赝品');
     const ups = typeof gainExp === 'function' ? gainExp(Q.reward.exp) : 0; toast('修为 +' + Q.reward.exp, 1800); if (ups && typeof levelUpShow === 'function') await levelUpShow(lv0);
-    toast('捡到一张烫金请帖：「月晦之夜 · 城西 · 鉴宝小会」', 3200);
+    toast('捡到一张烫金请帖：「月晦之夜 · 城南 · 鉴宝小会」', 3200);
   }
   window.R215W = { st, Q, finale };
 })();
