@@ -32,7 +32,9 @@ def yicui1(g, o, h, w, H, S, V):
     floor = fl & red(H, S, V) & ~rug & ~stage
     band = fl & (V < .2) & (S < .5) & ~rug & ~run_
     o = remap(o, g, floor, '#C4B2A6'); o = remap(o, g, band, '#9C8A80', gamma=.2)
-    o = remap(o, g, stage, '#B8A08C', gamma=.6)
+    # 作者 11-12：地台那块颜色和周围分层、像硬抠进去的 → 不要地台，用左右同一排的地板镜像补平（琴台物件自己带台座）
+    x0, x1, y0, y1 = 436, 910, 246, 490; mid = (x0 + x1) // 2
+    o[y0:y1, mid:x1] = o[y0:y1, x1:x1 + (x1 - mid)][:, ::-1]; o[y0:y1, x0:mid] = o[y0:y1, x0 - (mid - x0):x0][:, ::-1]
     o = remap(o, g, rug & (S > .12) & (V < .62), '#B99590', gamma=.45, lo=.62, hi=1.45, keep=.12)      # 牡丹毯：紫红底提成藕荷，花纹保留
     o = remap(o, g, run_ & (H > 190) & (H < 250) & (S > .2), '#74909A', gamma=.5, lo=.7, hi=1.35)     # 云纹走道毯
     return o
