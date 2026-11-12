@@ -25,6 +25,10 @@
     tingyu: ['听雨阁', '倚翠楼二楼临河小阁：古琴独奏、洞箫中段加入，静、淡、清雅，带一点惦记', .72, 120],
     zhangfang: ['账房密谋', '长乐坊二楼账房：三弦低拨、木鱼算盘珠似的细碎节奏、低音提琴拨弦，鬼祟精明', .7, 91],
     diandeng: ['点灯', '玄天城点灵灯：扬琴主旋律、编钟钟琴一颗一颗亮起、竹笛、弦乐铺底，越往后越明亮', .7, 120],
+    // 第三批（11-12 夜，作者点名要的三种气氛：阴谋 / 诡异 / 凶杀）
+    case_yinmou: ['阴谋', '背后有人布局、越想越深：低音大提琴下行固定音型、古琴低音区主旋律、箫、定音鼓轻滚、云锣，阴沉、深不见底', .72, 90],
+    case_guiyi: ['诡异', '眼前的东西不对劲：古筝高音区零星单音与刮弦、二胡细长滑音、碟铃水滴似的点几下、低音弦铺底，发毛、空气像凝住了', .72, 90],
+    case_xiongsha: ['凶杀', '命案现场、血迹未干：大鼓心跳般单击、低音弦压抑顿弓、琵琶低音区扫弦绞弦、埙凄厉短旋律，肃杀惊心带一丝悲悯', .72, 90],
   };
   const lib = BGM_LIB.tracks; let i = 0;
   if (BGM_LIB.groups && !BGM_LIB.groups.includes(G)) BGM_LIB.groups.splice(Math.max(0, BGM_LIB.groups.indexOf('戊 · 战斗')), 0, G);
@@ -43,7 +47,7 @@
     if (/^xt_wanbao_/.test(m)) { const n = sq('xt_fake');
       if (n < 0) return 'wanbao';
       if (n <= 1) return m === 'xt_wanbao_store' ? 'case_yetan' : 'case_xunji';
-      if (n === 2 || n === 5) return 'case_yiyun'; if (n <= 4) return 'case_bijin'; return 'case_duizhi'; }
+      if (n === 2) return 'case_yiyun'; if (n === 5) return 'case_yinmou'; if (n <= 4) return 'case_bijin'; return 'case_duizhi'; }
     if (m === 'xt_dyeyard') return 'case_yetan';
     if (/^qy_changle/.test(m)) { if (m === 'qy_changle_2f') return sq('qy_ledger') >= 0 ? 'case_yetan' : 'zhangfang'; return 'changle'; }
     if (m === 'qy_yicui_2f') return 'tingyu';
@@ -59,8 +63,8 @@
   // 说到这句话就换曲子（一直放到离开这张图）
   const CUES = [
     [/所以没有贼。因为从头到尾，就没有那箱药/, 'case_jiexiao'], [/^他没有偷。/, 'case_jiexiao'], [/^都活着？/, 'case_jiexiao'],
-    [/齐刷刷泛起一层幽幽的青光/, 'case_yiyun'], [/然后，门自己开了/, 'case_bijin'], [/一刻钟进一个。前面的人进去了，可有一个出来过/, 'case_duizhi'],
-    [/账本写的是左手/, 'case_yiyun'], [/被黑风寨围住的那天。你摇了么/, 'case_duizhi'],
+    [/齐刷刷泛起一层幽幽的青光/, 'case_guiyi'], [/然后，门自己开了/, 'case_bijin'], [/一刻钟进一个。前面的人进去了，可有一个出来过/, 'case_duizhi'],
+    [/账本写的是左手/, 'case_yinmou'], [/被黑风寨围住的那天。你摇了么/, 'case_duizhi'],
     [/有人等了你十年/, 'case_jiushi'], [/代沈师兄谢过/, 'case_jiushi'], [/叶孤星一掌按在骰盅上/, 'case_bijin'],
     [/老先生眼睛瞎了，心倒不瞎/, 'case_xianshen'], [/天剑宗的小辈。一封密信，一把古剑/, 'case_xianshen'],
     [/客官，谢谢您信我/, 'case_jiean'], [/老秦，我……我对不住你/, 'case_jiean'], [/小兄弟。方才那几句话，对不住/, 'case_jiean'],
