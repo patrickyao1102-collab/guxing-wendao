@@ -1,12 +1,18 @@
 // ================= R236 · 护城灵枢的光效（作者 11-12：灵枢可以加动效和光效，夜晚散发出光芒护住城池）=================
 // 白天：灵石一呼一吸地发光，几粒光点绕着它转，隔几秒荡开一圈很淡的涟漪。
 // 夜晚：灵石大亮，一道光柱冲天；光点从灵枢飘向十盏灵灯；一圈一圈很柔的光晕从灵枢荡向全城；城的外沿罩着一层淡淡的光幕。（第二版：去掉了所有硬线条，只留柔光。）
-// 全是画在地图上的光（不改图、不挡路、不影响点击）。只进测试版。Codex 的转动帧到了再把浑天仪换成会转的。
+// 全是画在地图上的光（不改图、不挡路、不影响点击）。只进测试版。浑天仪本体的转动用 Codex R236 的帧。
 (function () {
   if (typeof tileAmbientHigh !== 'function' || typeof TMAPS === 'undefined' || !TMAPS.xt_city) return;
-  const HX = 2240, HY = 1575, R_CITY = 2350;
-  const LAMPS = (TMAPS.xt_city.baked.objs || []).filter(o => o.id === 'xt_spirit_lamp_r18').map(o => [o.ax, o.ay - 215]);
+  const HX = 2240, HY = 1563, R_CITY = 2350;
   const night = () => { try { const f = S.flags || {}; return f.res_tod === 'night' || !!f.auc_night || window.R236_FORCE === 'night'; } catch (e) { return false; } };
+
+  // 灵枢本体会动（Codex R236：铜环缓缓转、灵石上下浮；白天 / 夜晚各 12 帧，8fps）
+  { const FR = { day: [], night: [] }; for (const k of ['day', 'night']) { const im = new Image(); im.onload = () => { for (let i = 0; i < 12; i++) { const c = document.createElement('canvas'); c.width = 352; c.height = 337; c.getContext('2d').drawImage(im, i * 352, 0, 352, 337, 0, 0, 352, 337); FR[k].push(c); } }; im.src = 'r236/hub_' + k + '.webp'; }
+    const o = (TMAPS.xt_city.baked.objs || []).find(o => o.uid === 'xt_fountain_56'), old = o && o.img;
+    if (o) { try { Object.defineProperty(IMG, 'r236_hub', { configurable: true, enumerable: true, set: () => {}, get: () => { const f = FR[night() && FR.night.length ? 'night' : 'day']; return f.length ? f[Math.floor(performance.now() / 125) % 12] : IMG[old]; } });
+        Object.assign(o, { img: 'r236_hub', x: Math.round(o.ax - 176), y: Math.round(o.ay - 331), w: 352, h: 337, noPre: true }); } catch (e) {} } }
+  const LAMPS = (TMAPS.xt_city.baked.objs || []).filter(o => o.id === 'xt_spirit_lamp_r18').map(o => [o.ax, o.ay - 215]);
   const glow = (x, y, r, c0, c1) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c0); g.addColorStop(1, c1); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); };
   tileAmbientHigh = (orig => function (T, cam, now) {
     orig(T, cam, now);
@@ -15,8 +21,8 @@
       const br = .5 + .5 * Math.sin(now * 1.6);   // 呼吸
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
       if (see) {
-        glow(HX, HY, N ? 260 : 120, `rgba(150,255,225,${(N ? .50 : .22) + .12 * br})`, 'rgba(120,230,255,0)');
-        glow(HX, HY, N ? 54 : 44, `rgba(255,255,240,${(N ? .50 : .40) + .15 * br})`, 'rgba(200,255,240,0)');
+        glow(HX, HY, N ? 260 : 120, `rgba(150,255,225,${(N ? .42 : .16) + .10 * br})`, 'rgba(120,230,255,0)');
+        glow(HX, HY, N ? 50 : 34, `rgba(255,255,240,${(N ? .36 : .20) + .12 * br})`, 'rgba(200,255,240,0)');
         for (let i = 0; i < (N ? 9 : 5); i++) { const a = now * (.5 + i * .06) + i * 2.1, rx = 92 + i * 9, ry = 34 + i * 3, x = HX + Math.cos(a) * rx, y = HY + Math.sin(a) * ry - 6 * Math.sin(now * 2 + i); glow(x, y, N ? 11 : 8, `rgba(210,255,240,${N ? .9 : .6})`, 'rgba(160,240,255,0)'); }
         if (N) { const g = ctx.createLinearGradient(HX, HY, HX, HY - 900); g.addColorStop(0, `rgba(190,255,235,${.42 + .1 * br})`); g.addColorStop(.5, 'rgba(150,230,255,.16)'); g.addColorStop(1, 'rgba(150,230,255,0)'); ctx.fillStyle = g; for (const [w0, al] of [[58, .22], [36, .32], [18, .46]]) { ctx.globalAlpha = al; ctx.beginPath(); ctx.moveTo(HX - w0, HY); ctx.lineTo(HX + w0, HY); ctx.lineTo(HX + w0 * 2.4, HY - 900); ctx.lineTo(HX - w0 * 2.4, HY - 900); ctx.fill(); } ctx.globalAlpha = 1; }
       }
