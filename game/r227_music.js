@@ -77,7 +77,8 @@
   // 各地图自己的曲子（第四批）。只在「现在放的是通用地图曲」时才换——剧情里特意点的曲子（剑鸣、首领战、夜里的戏）不抢。
   const MAPBGM = m => m === 'xt_city' ? 'map_xtcity' : m === 'lin_forest' ? 'map_linforest' : /^hf_/.test(m) ? 'map_heifeng' : m === 'seal_field' ? 'map_sealfield' : /^ly_/.test(m) ? 'map_luoyun'
     : /^qy_(escape|defense|rescue)/.test(m) ? 'map_qywar' : m === 'qy_shelter' ? 'map_shelter' : m === 'tj_xiashan' ? 'map_songfeng' : m === 'm_cy_north' ? 'map_cybei' : /^m_cy_/.test(m) ? 'map_cangyue'
-    : /^tj_(scripture|library|forbidden)$/.test(m) ? 'map_cangjing' : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
+    /* 作者 11-13：藏经阁那首太难听 → 先撤下，藏经阁回到原来的曲子；重做好了再接回来 */
+    : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
   const generic = () => { try { const n = AUD.bgmName || '', T = BGM29.T || {}; return /^lib_r227_/.test(n) || [T.wild, T.shop, T.xtcity, T.sect, T.town, T.fair, T.linfu].includes(n); } catch (e) { return false; } };
 
   const back = () => { if (S.started) return BGM29.resume(); AUD.bgmName = ''; playBgm('bgm_shanmen', true); };   // 没正式开局（测试面板跳图）时 resume 会放标题曲，这里直接接回本地图的曲子
