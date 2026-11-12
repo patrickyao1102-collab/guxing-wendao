@@ -6,7 +6,9 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8], L = async a => { for (const [w, t] of a) await say(w, t); };
   const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
   // ---- 人物 ----
-  const WS = {}; for (const k of ['keeper', 'tea_yellow', 'tea_green', 'tea_lotus']) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r246/ws_' + k + '.webp'; WS[k] = im; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
+  // R248：每人另有一条站立待机 6 帧（拨算盘、托盘张望、拢袖、别头发……），站着不动时播这条；林府两名家丁也走这一套
+  const WI = {}; for (const k of ['keeper', 'tea_yellow', 'tea_green', 'tea_lotus', 'lin_slim', 'lin_stout']) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r246/wi_' + k + '.webp'; WI[k] = im; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
+  const WS = {}; for (const k of ['keeper', 'tea_yellow', 'tea_green', 'tea_lotus', 'lin_slim', 'lin_stout']) { const im = new Image(); im.onload = () => { im._ok = 1; }; im.src = 'r246/ws_' + k + '.webp'; WS[k] = im; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
   if (typeof window.NPC_WALK === 'function') { const NW = window.NPC_WALK;
     window.NPC_WALK = function (a, now) {
       try { const n = a.npc, im = n && n.ws && WS[n.ws];
@@ -16,6 +18,9 @@
           let row, flip = false; const f = n.face;
           if (a.moving || a._walkT > 0) { if (Math.abs(dx) > Math.abs(dy) * .8) { row = 2; flip = dx > 0; } else row = dy < 0 ? 1 : 0; if (Math.abs(dx) + Math.abs(dy) < .01) { row = a._row ?? 0; flip = !!a._flip; } a._row = row; a._flip = flip; }
           else { row = a._row != null && n.wander ? a._row : (f === 'up' ? 1 : (f === 'left' || f === 'right') ? 2 : 0); flip = a._row != null && n.wander ? !!a._flip : f === 'right'; if (row === 1 && n.wander) { row = 0; flip = false; } }
+          const idle = WI[n.ws], still = !a.moving && !(a._walkT > 0);
+          if (still && idle && idle._ok) { ctx.save(); ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y); if (n.mirror) ctx.scale(-1, 1); ctx.scale(.5, .5);
+            ctx.drawImage(idle, (Math.floor(now * 8 + a.x * .37) % 6) * 160, 0, 160, 240, -80, -232, 160, 240); ctx.restore(); return true; }
           const col = a.moving ? 1 + Math.floor(now * 8 + (a.x * .013 % 1) * 6) % 6 : 0, bob = a.moving ? 0 : Math.sin(now * 1.8 + a.x * .01) * .8;
           ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, 20, 6.5, 0, 0, 7); ctx.fill();
           ctx.globalAlpha *= a.alpha ?? 1; ctx.translate(a.x, a.y - bob); if (flip) ctx.scale(-1, 1); ctx.scale(.5, .5);
@@ -26,6 +31,11 @@
 
   // ---- 二层 ----
   const D = window.R246_2F; if (!D) return;
+  // R248：二层六位都会动了（抚琴、写诗、拈子落子、摇扇、凭栏衣摆、斟茶），每人一条 6 帧循环，位置和大小不变
+  for (const [k, w, h, ph] of [['qin_player_set', 92, 96, 0], ['poet_set', 96, 96, 2], ['chess_guest_blue', 79, 76, 0], ['chess_guest_sand', 67, 76, 3], ['rain_swordsman', 54, 112, 1], ['tea_attendant', 70, 108, 4]]) {
+    const fr = [], im = new Image(); im.onload = () => { for (let i = 0; i < 6; i++) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, i * w, 0, w, h, 0, 0, w, h); fr.push(c); } };
+    im.src = 'r246/a_' + k + '.webp'; let st = null;
+    try { Object.defineProperty(IMG, 'r246_' + k, { configurable: true, enumerable: true, set: v => { st = v; }, get: () => fr.length ? fr[(Math.floor(performance.now() / 125) + ph) % 6] : st }); } catch (e) {} }
   load('r246g_2f', 'r246/g_2f.webp'); for (const k of new Set(D.objs.map(o => o.img))) load(k, 'r246/o_' + k.slice(5) + '.webp');
   const spot = (xy, name, talk) => { const [c, r] = P(xy[0], xy[1]); return { key: 'none', c, r, name, hidden: true, h: 110, talk }; };
   const XX = '星旋', YE = '叶孤星', T = D.talk, UP = [1120, 487], DOWN = [272, 860];
