@@ -11,6 +11,10 @@
   // 倚翠楼琴堂：四张饭馆方桌 → 茶座（两组有客人在喝茶听琴，两组空着）
   { const R = D.rooms.qy_yicui, kinds = ['set_tea_two_scholars', 'tea_seat_low', 'tea_seat_round', 'set_tea_two_couple']; let i = 0;
     R.objs = R.objs.filter(o => o.id !== 'interior_wall_stairwell_front').map(o => { if (o.id !== 'tea_table') return o; const k = kinds[i++ % kinds.length], cx = o.x + o.w / 2, isA = !!Pt.anim[k], a = isA ? anim(k) : Pt.objs[k], w = isA ? a.fw : a.w, h = isA ? a.fh : a.h;
+      // 碰撞：茶几 + 两只绣墩（和坐着的人）占的地面，比原来的方桌宽
+      const bl = R.blocked.split(''), cs = R.cs, fx0 = cx - 84, fx1 = cx + 84, fy0 = o.sy - 62, fy1 = o.sy + 4;
+      for (let r = Math.floor(fy0 / cs); r <= Math.floor(fy1 / cs); r++) for (let c = Math.floor(fx0 / cs); c <= Math.floor(fx1 / cs); c++) if (r >= 0 && c >= 0 && r < R.rows && c < R.cols) bl[r * R.cols + c] = '1';
+      R.blocked = bl.join('');
       return { id: k, img: 'r213_' + k, uid: o.uid, x: cx - a.ax, y: o.sy - a.ay + 6, w, h, sy: o.sy + 6, flat: false, noPre: isA }; }); }
   { const R = D.rooms.qy_changle; R.objs = R.objs.filter(o => o.id !== 'interior_wall_stairwell_front'); }
   // 短楼梯口：传送点挪到楼梯口前的平地，原来长楼梯占的格子放开
