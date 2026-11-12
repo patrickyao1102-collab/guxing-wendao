@@ -48,6 +48,14 @@
   if (D1) { load('r233g_room1', 'r233/g_xt_inn_room1.webp');
     for (const o of D1.objs) load(o.img, 'r233/' + (o.img.startsWith('r233c_') ? 'c_' + o.img.slice(6) : 'o_' + o.img.slice(5)) + '.webp');
     CLUE = D1.objs.filter(o => /^clue_/.test(o.id)); D1.base = D1.objs.filter(o => !/^clue_/.test(o.id));
+    // 作者 11-13：天字号房间感觉好空——用现成的家具把一号房添满：衣柜、书桌、床头柜、屏风、落地灯、兰花几、香炉、盆松
+    { const ex = (id, img, x, y, w, h) => ({ id, img, uid: 'room1-x-' + id + x, x, y, w, h, sy: y + h, flat: false }), cs = D1.cs, B = D1.blocked.split('');
+      const X = [ex('wardrobe', 'r217_xt_inn_room3_wardrobe', 584, 26, 189, 285), ex('bedside', 'r217_xt_inn_room3_bedside', 500, 196, 81, 114), ex('writing_desk', 'r217_xt_inn_room3_writing_desk_set_2', 860, 150, 200, 176),
+        ex('screen', 'r213_n2_folding_screen', 70, 716, 264, 194), ex('lamp', 'r213_floor_lamp', 792, 232, 32, 88), ex('lamp', 'r213_floor_lamp', 1218, 800, 32, 88), ex('orchid', 'r213_n2_orchid_stand', 1086, 224, 48, 96),
+        ex('incense', 'r213_n2_incense_burner', 560, 560, 60, 79), ex('pine', 'r213_dwarf_pine', 1180, 868, 64, 80),
+        ex('chair', 'r213_guest_hat_chair', 402, 610, 76, 108), ex('chair', 'r213_guest_hat_chair_mirror', 642, 610, 76, 108), ex('teatable', 'r213_guest_low_tea_table', 496, 650, 128, 72), ex('orchid', 'r213_n2_orchid_stand', 20, 330, 48, 96)];
+      for (const o of X) { D1.base.push(o); for (let y = Math.floor((o.sy - Math.min(46, o.h * .35)) / cs); y <= Math.floor((o.sy - 1) / cs); y++) for (let x = Math.floor((o.x + 6) / cs); x <= Math.floor((o.x + o.w - 7) / cs); x++) if (x >= 0 && y >= 0 && x < D1.cols && y < D1.rows) B[y * D1.cols + x] = '1'; }
+      D1.blocked = B.join(''); D1.objs = D1.base.concat(CLUE); }
     const e0 = D1.exits[0], r = e0.region, cs = D1.cs;
     TMAPS.xt_inn_room1 = { title: '云来客栈 · 天字一号房', baked: Object.assign({ ground: 'r233g_room1' }, D1), indoor: true, npcs: [], chests: [], doors: [], start: P(D1.spawn[0], D1.spawn[1] - 40),
       exits: [{ x: Math.floor(r.x / cs), y: Math.floor(r.y / cs), w: Math.ceil(r.w / cs), h: Math.ceil(r.h / cs), to: 'xt_inn_corr', at: P(283, 470), face: 'down', label: '出房门 · 二楼走廊' }] };
