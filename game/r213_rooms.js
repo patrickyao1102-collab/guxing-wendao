@@ -39,7 +39,7 @@
   const exDoor = (B, back) => { const e = B.exits.find(e => e.to === 'qy_town' && e.land); return { x: Math.floor(g(B, e.region.x)), y: Math.floor(g(B, e.region.y)), w: Math.ceil(g(B, e.region.w)), h: 2, to: 'qy_town', at: back, face: 'down', label: '出门 · 青阳镇' }; };
   // 楼梯口：触发区按 Codex 的 layout 来；落点放在对面那层触发区的下方一步，不会一上楼又踩回去
   const exStair = (from, to, label, o) => { const R = D.rooms[from], e = R.exits.find(e => e.to === to), T = D.rooms[to], back = T.exits.find(x => x.to === from), cs = R.cs;
-    const at = back ? P(back.region.x + back.region.w / 2, back.region.y + back.region.h + 46) : P(147, 600);
+    const by = back ? back.region.y + back.region.h + 46 : 600; const at = back ? P(back.region.x + back.region.w / 2, by < T.h - 40 ? by : back.region.y - 40) : P(147, 600);   // 楼梯口落在触发区下方一步；房门在屋子最下沿的，落在门里侧
     return Object.assign({ x: Math.floor(e.region.x / cs), y: Math.floor(e.region.y / cs), w: Math.ceil(e.region.w / cs), h: Math.max(1, Math.round(e.region.h / cs)), to, at, face: 'down', label, arrow: -Math.PI / 2 }, o || {}); };
   const inAt = B => { const e = B.exits.find(e => e.to === 'qy_town' && e.land); return P(e.land[0], e.land[1] - 34); };
   const mv = (n, xy, o) => { if (!n) return; const [c, r] = P(xy[0], xy[1]); Object.assign(n, { c, r, wander: false }, o || {}); };

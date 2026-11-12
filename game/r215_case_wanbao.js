@@ -67,7 +67,7 @@
     const opts = ['去后院库房', '上二楼鉴宝雅间']; if (s.s === 1 && s.n >= 1 && !f.xw_a_h) opts.push('（压低声音）小伍这个人，平日怎么样？'); opts.push('没事');
     const k = await choose(HUO + '：客官要去哪儿？', opts), pick = opts[k];
     if (pick === '去后院库房') { await go('xt_wanbao_store', window.R219_STORE_IN || storeIn); return true; }
-    if (pick === '上二楼鉴宝雅间') { await go('xt_wanbao_vip', vipIn); return true; }
+    if (pick === '上二楼鉴宝雅间') { await go('xt_wanbao_vip', window.R219_VIP_IN || vipIn); return true; }
     if (/小伍/.test(pick || '')) {
       await L([[HUO, '小伍哥？人是不坏……就是手痒。'], [HUO, '上个月他告假回青阳镇老家，回来整个人都蔫了。后来才听说，在那边一个叫长乐坊的赌坊里，一晚上欠了八十两。'],
         f.qd_won ? [YE, '长乐坊。……那张桌子，是我掀的。'] : [XX, '（长乐坊？青阳镇西北角那家。小子，那地方的骰子可不干净。）'],
@@ -160,7 +160,7 @@
   // ---------------- 第六幕：当众说穿 ----------------
   async function finale() {
     const s = q(), f = F();
-    await go('xt_wanbao_vip', vipIn);
+    await go('xt_wanbao_vip', window.R219_VIP_IN || vipIn);
     await L([['', '鉴宝雅间的门关上了。掌柜、韩云舟、小伍，还有一位不请自来的客人——那位「志在必得」的贵客派来的管事，说是来看看压轴的剑。'], [BOSS, '少侠，人齐了。贼……到底是谁？'], [YE, '没有贼。'],
       [YE, '第一件。剑匣的锁没撬过，封条贴得整整齐齐。换剑的人有钥匙，而且爱惜这只匣子。'], [YE, '第二件。小伍初七夜里把钥匙借出去过。借钥匙的人替他还了八十两赌债——不是买通，是劝他别再赌。'], [WU, '（低着头）……是秦老。'], [BOSS, '秦老？！'],
       [YE, '第三件。赝品是一个月前在玄兵阁订的。图样尺寸标到毫厘，批注的字却有铜钱大。写字的人眼睛快看不见了，可他的手，记得那把剑的每一分每一寸。'],

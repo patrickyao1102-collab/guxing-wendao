@@ -41,6 +41,19 @@
       exits: [ex('xt_wanbao_store', 'to_hall', { label: '回前堂 · 万宝楼', at: P(1668, 420) })] };
     window.R219_STORE_IN = P(R.spawn[0], R.spawn[1] - 30);
   }
+  // ---- 万宝楼 · 二楼鉴宝雅间（R222：去掉房间里的楼梯、换配色；北墙七把仿古剑，第四把案子结了以后只剩一道浅印）----
+  if (window.R219_VIP && TMAPS.xt_wanbao_vip) { const R = R219_VIP.xt_wanbao_vip, old = TMAPS.xt_wanbao_vip, N = old.npcs || [], by = n => N.find(x => x.name === n);
+    load('r219g_xt_wanbao_vip', 'r219/g_xt_wanbao_vip.webp'); for (const o of R.objs) load(o.img, 'r219/' + (o.img.startsWith('r219c_') ? 'c_' + o.img.slice(6) : 'o_' + o.img.slice(5)) + '.webp');
+    try { delete MAP_ZOOM.xt_wanbao_vip; } catch (e) {}
+    mv(by('秦老'), [R.slots.old_appraiser[0], R.slots.old_appraiser[1]], { face: 'left' }); mv(by('北墙上的仿古摆件'), [R.clues.wall_sword_4[0], R.clues.wall_sword_4[1] + 10]); mv(by('鉴宝案'), R.inter.inspection_tools || [916, 772]);
+    const all = R.objs, B = Object.assign({ ground: 'r219g_xt_wanbao_vip' }, R);
+    Object.defineProperty(B, 'objs', { enumerable: true, get() { const gone = sq('xt_fake').s === 3; return all.filter(o => o.id === 'clue_wall_sword_4' ? !gone : o.id === 'clue_wall_sword_4_empty' ? gone : true); } });
+    const e = R.exits.find(e => e.id === 'to_hall'), cs = R.cs;
+    TMAPS.xt_wanbao_vip = { title: '万宝楼 · 二楼鉴宝雅间', baked: B, indoor: true, npcs: N, chests: [], doors: [], start: P(R.spawn[0], R.spawn[1] - 30),
+      exits: [{ x: Math.floor(e.region.x / cs), y: Math.floor(e.region.y / cs), w: Math.ceil(e.region.w / cs), h: Math.ceil(e.region.h / cs), to: 'xt_wanbao', at: P(228, 560), face: 'down', label: '出房门 · 下楼回大厅' }] };
+    for (const x of TMAPS.xt_wanbao.exits) if (x.to === 'xt_wanbao_vip') x.at = P(R.spawn[0], R.spawn[1] - 40);
+    window.R219_VIP_IN = P(R.spawn[0], R.spawn[1] - 40);
+  }
   // ---- 旧染坊 · 院内 ----
   { const R = D.xt_dyeyard, g = (window.R216T && R216T.gate) || [3540, 2770], done = () => sq('xt_thirty').s === 3;
     const npcs = [

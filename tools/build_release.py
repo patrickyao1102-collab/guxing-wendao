@@ -13,6 +13,9 @@ SRC = 'game'
 OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'release')
 SCRAMBLE = '--no-scramble' not in sys.argv
 DROP_DIRS = {'_tmp_walk', 'jyh3'}
+# 作者 11-12：青阳镇 / 玄天城支线和新室内只进测试版，让作者先测房间构图和玩法；正式版（纯净版）不带。作者说可以了，再把下面两行清空。
+TEST_ONLY_DIRS = {'r213', 'r217', 'r219', 'r221'}
+TEST_ONLY_JS = ['r212_qingyang.js', 'r213_xuantian.js', 'r213_rooms.js', 'r214_case_inn.js', 'r215_case_wanbao.js', 'r216_case_thirty.js', 'r217_inn.js', 'r219_scenes.js', 'r221_cine.js']
 # 不进安装包的子目录 / 单个文件（字体预览原件、旧配乐、旧素材……见 tools/release_drop.txt）
 DROP_SUB = {'fonts/_pv'}
 DROP_FILES = set()
@@ -65,6 +68,8 @@ def main():
         p = os.path.join(SRC, name)
         if name in DROP_DIRS:
             print('  剔除废图目录', name); continue
+        if name in TEST_ONLY_DIRS or name in TEST_ONLY_JS:
+            print('  只进测试版，正式版不带：', name); continue
         if os.path.isdir(p):
             shutil.copytree(p, os.path.join(OUT, name))
         else:
@@ -84,6 +89,10 @@ def main():
     # 去测试面板
     idx = open(os.path.join(SRC, 'index.html'), encoding='utf8').read()
     idx = strip_test_panel(idx)
+    import re
+    pat = '|'.join([re.escape(d) + r'/[^"?]+' for d in sorted(TEST_ONLY_DIRS)] + [re.escape(j) for j in TEST_ONLY_JS])
+    idx, k = re.subn(r'<script src="(?:' + pat + r')(?:\?v=\d+)?"></script>', '', idx)
+    print('  去掉只进测试版的脚本标签', k, '个')
     open(os.path.join(OUT, 'index.html'), 'w', encoding='utf8').write(idx)
     print('  已去除测试面板，index.html', len(idx.encode('utf8')), '字节')
     # 加扰
