@@ -18,16 +18,23 @@
     changle: ['长乐坊', '赌坊：三弦月琴带痞气、竹板小堂鼓小锣、板胡短句，市井躁动狡黠', .7, 120],
     yunlai: ['云来客栈', '大客栈大堂：扬琴、竹笛、中阮、木鱼手鼓，温暖热络有烟火气', .7, 120],
     wanbao: ['万宝楼', '珍宝铺：古筝、箜篌琶音、编钟点缀、弦乐轻铺，贵气雅致带点神秘', .72, 118],
+    // 第二批（11-12 晚，作者：「你多做一些」）
+    case_xianshen: ['炼魂谷现身', '反派撕下假面、开打前的对峙：低音铜管大提琴长音、大鼓缓慢沉重、埙的邪气短旋律，杀机四伏', .72, 90],
+    case_jiean: ['结案·轻松', '案子圆满了结、道谢道别：竹笛明亮主旋律、古筝琶音、扬琴、小手鼓，雨过天晴', .68, 61],
+    shuoshu: ['说书', '茶馆说书人讲故事：三弦带评书味、竹板小书鼓、二胡接句，娓娓道来带点悬念', .7, 91],
+    tingyu: ['听雨阁', '倚翠楼二楼临河小阁：古琴独奏、洞箫中段加入，静、淡、清雅，带一点惦记', .72, 120],
+    zhangfang: ['账房密谋', '长乐坊二楼账房：三弦低拨、木鱼算盘珠似的细碎节奏、低音提琴拨弦，鬼祟精明', .7, 91],
+    diandeng: ['点灯', '玄天城点灵灯：扬琴主旋律、编钟钟琴一颗一颗亮起、竹笛、弦乐铺底，越往后越明亮', .7, 120],
   };
   const lib = BGM_LIB.tracks; let i = 0;
   if (BGM_LIB.groups && !BGM_LIB.groups.includes(G)) BGM_LIB.groups.splice(Math.max(0, BGM_LIB.groups.indexOf('戊 · 战斗')), 0, G);
   for (const k in TR) { const [name, desc, vol, dur] = TR[k]; lib['lib_r227_' + k] = { no: '支' + String(++i).padStart(2, '0'), name, group: G, kind: 'bgm', file: 'r227/' + k + '.mp3', vol, desc: '小云雀 Seed Audio 1.0 · ' + desc, dur }; }
   const id = k => 'lib_r227_' + k;
   const sq = q => { try { const s = (S.flags.sq || {})[q]; return s && s.s === 1 ? s.n : -1; } catch (e) { return -1; } };
-  let cue = null, cueMap = '';   // 说到某句话时临时换的曲子：换地图就作废
+  let cue = null, cueMap = '', cueEnd = 0;   // 说到某句话时临时换的曲子：换地图就作废；带时限的到点也作废
   // 这张图现在该放哪首（null = 不管，照原来的）
   function want(m) {
-    if (cue && cueMap === m) return cue;
+    if (cue && cueMap === m && (!cueEnd || Date.now() < cueEnd)) return cue;
     cue = null;
     if (/^xt_inn_/.test(m)) { const n = sq('xt_room3');
       if (n < 0) return 'yunlai';
@@ -38,13 +45,14 @@
       if (n <= 1) return m === 'xt_wanbao_store' ? 'case_yetan' : 'case_xunji';
       if (n === 2 || n === 5) return 'case_yiyun'; if (n <= 4) return 'case_bijin'; return 'case_duizhi'; }
     if (m === 'xt_dyeyard') return 'case_yetan';
-    if (/^qy_changle/.test(m)) { if (m === 'qy_changle_2f' && sq('qy_ledger') >= 0) return 'case_yetan'; return 'changle'; }
+    if (/^qy_changle/.test(m)) { if (m === 'qy_changle_2f') return sq('qy_ledger') >= 0 ? 'case_yetan' : 'zhangfang'; return 'changle'; }
+    if (m === 'qy_yicui_2f') return 'tingyu';
     if (/^qy_yicui/.test(m)) return 'yicui';
     return null;
   }
   function apply() {
     try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; if (!(world && world.map) || !S.started) return;
-      const k = want(world.mapName); if (!k) return; if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
+      const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '')) BGM29.resume(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
   }
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function () { const r = orig.apply(this, arguments); setTimeout(apply, 0); setTimeout(apply, 400); return r; })(tileSetMap);
   setInterval(apply, 1000);   // 案子推进一步（或打完架回到地图）后一秒内换过来
@@ -54,9 +62,15 @@
     [/齐刷刷泛起一层幽幽的青光/, 'case_yiyun'], [/然后，门自己开了/, 'case_bijin'], [/一刻钟进一个。前面的人进去了，可有一个出来过/, 'case_duizhi'],
     [/账本写的是左手/, 'case_yiyun'], [/被黑风寨围住的那天。你摇了么/, 'case_duizhi'],
     [/有人等了你十年/, 'case_jiushi'], [/代沈师兄谢过/, 'case_jiushi'], [/叶孤星一掌按在骰盅上/, 'case_bijin'],
+    [/老先生眼睛瞎了，心倒不瞎/, 'case_xianshen'], [/天剑宗的小辈。一封密信，一把古剑/, 'case_xianshen'],
+    [/客官，谢谢您信我/, 'case_jiean'], [/老秦，我……我对不住你/, 'case_jiean'], [/小兄弟。方才那几句话，对不住/, 'case_jiean'],
+    [/七年前，黑风寨头一回下山抢粮/, 'case_jiushi', 120], [/恕我冒昧。贵宗外门/, 'case_jiushi'],
   ];
+  // 跟这个人说话就换曲子（放一阵子自己换回去）
+  const WHO = { '说书先生': ['shuoshu', 100], '司灯老人': ['diandeng', 100] };
   say = (orig => function (who, text) {
-    try { const t = String(text || ''); for (const [re, k] of CUES) if (re.test(t)) { cue = k; cueMap = world.mapName; apply(); break; } } catch (e) {}
+    try { const t = String(text || ''); let hit = null; for (const [re, k, sec] of CUES) if (re.test(t)) { hit = [k, sec]; break; } if (!hit && WHO[who]) hit = WHO[who];
+      if (hit) { cue = hit[0]; cueMap = world.mapName; cueEnd = hit[1] ? Date.now() + hit[1] * 1000 : 0; apply(); } } catch (e) {}
     return orig.apply(this, arguments);
   })(say);
   window.R227 = { TR, want, apply, id, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else BGM29.resume(); } };
