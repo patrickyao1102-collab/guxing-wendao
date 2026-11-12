@@ -8,7 +8,9 @@
   const m = document.getElementById('m');
   if (!('serviceWorker' in navigator)) { m.textContent = '这个浏览器不支持试玩（需要 Service Worker），请换 Chrome / Safari 最新版'; return; }
   try {
-    await navigator.serviceWorker.register('sw.js', { scope: './' });
+    const reg = await navigator.serviceWorker.register('sw.js', { scope: './', updateViaCache: 'none' });
+    // 每次进来先问一遍有没有新版的 Service Worker，有就等它接管再进游戏（不然新加的素材要刷新两次才出得来）
+    try { m.textContent = '正在检查更新……'; await reg.update(); const w = reg.installing || reg.waiting; if (w) await new Promise(r => { navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }); setTimeout(r, 5000); }); } catch (e) {}
     await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller) await new Promise(r => { navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }); setTimeout(r, 3000); });
     location.replace('game.html' + location.hash);

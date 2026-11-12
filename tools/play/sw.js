@@ -19,7 +19,11 @@ self.addEventListener('fetch', e => {
   const rel = u.pathname.slice(base.length), real = base.replace(/play\/$/, '') + rel + u.search.replace(/[?&]retry=\d+/, '');
   e.respondWith((async () => {
     let r = await fetch(real, { cache: 'no-cache' }), plain = false;
-    if (r.status === 404) { const r2 = await fetch(RAW + rel.split('/').map(encodeURIComponent).join('/'), { cache: 'default', mode: 'cors' }).catch(() => null); if (r2 && r2.ok) { r = r2; plain = true; } }
+    if (r.status === 404) { const path = rel.split('/').map(encodeURIComponent).join('/');
+      let r2 = await fetch(RAW + path, { cache: 'default', mode: 'cors' }).catch(() => null);
+      // 作者 11-12：推了更新却看不到——浏览器里还是旧的 Service Worker，它认的是旧提交，新加的文件在那次提交里不存在。旧提交里找不到就去 main 上找。
+      if (!(r2 && r2.ok)) r2 = await fetch(RAW.replace('/__REF__/', '/main/').replace(/\/[0-9a-f]{40}\//, '/main/') + path, { cache: 'no-cache', mode: 'cors' }).catch(() => null);
+      if (r2 && r2.ok) { r = r2; plain = true; } }
     if (!r.ok) return r;
     const buf = await r.arrayBuffer(), body = plain ? new Uint8Array(buf) : xor(buf), ext = (rel.split('.').pop() || '').toLowerCase(), type = TYPES[ext] || 'application/octet-stream';
     const range = e.request.headers.get('range');
