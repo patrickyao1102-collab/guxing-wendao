@@ -34,9 +34,22 @@
     spot(HI.council_seating, '议事席', async () => { await say('', '四把圈椅围着一张矮几，茶还温着，像是刚有人议过事。'); }),
   ];
   // 作者 11-13：据点长老不该站在大门口——他在正厅莲台上打坐；大门口由弟子守着，守卫也不是官兵。
-  // （长老「闭目打坐、对话后睁眼」的坐姿图和立绘要等 Codex 画；先用现有形象坐镇莲台。）
-  try { const C = TMAPS.xt_city, i = (C.npcs || []).findIndex(n => n.name === '据点长老');
-    if (i >= 0) { const e = C.npcs.splice(i, 1)[0], [c, r] = P(HS.elder[0], HS.elder[1] + 30); Object.assign(e, { c, r, face: 'down', wander: false }); hallNpcs.unshift(e); }
+    try { const C = TMAPS.xt_city, i = (C.npcs || []).findIndex(n => n.name === '据点长老');
+    if (i >= 0) { const e = C.npcs.splice(i, 1)[0], [c, r] = P(HI.report_elder[0], HI.report_elder[1]);
+      // R247：长老盘膝坐在莲台上闭目打坐（6 帧呼吸），有人来说话才睁眼（4 帧过渡 → 睁眼 6 帧），说完过一会儿又合上眼。人是一件会动的物件，说话点在台前。
+      const FR = { closed: [], open: [], wake: [] }, N = { closed: 6, open: 6, wake: 4 }, MS = { closed: 220, open: 240 }, WK = [100, 100, 120, 160];
+      for (const k in FR) { const im = new Image(); im.onload = () => { for (let j = 0; j < N[k]; j++) { const cv = document.createElement('canvas'); cv.width = 192; cv.height = 224; cv.getContext('2d').drawImage(im, j * 192, 0, 192, 224, 0, 0, 192, 224); FR[k].push(cv); } }; im.src = 'r239/elder_' + k + '.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (er) {} }
+      let st = 'closed', t0 = 0, openT = 0;
+      try { Object.defineProperty(IMG, 'r239_elder', { configurable: true, enumerable: true, set: () => {}, get: () => { const now = performance.now();
+        if (st === 'wake') { let d = now - t0, j = 0; while (j < 3 && d > WK[j]) d -= WK[j++]; if (now - t0 > 480) { st = 'open'; openT = now; } return FR.wake[j] || FR.closed[0]; }
+        if (st === 'open' && now - openT > 9000 && !(typeof dialog !== 'undefined' && dialog) && !(typeof choice !== 'undefined' && choice)) st = 'closed';
+        const f = FR[st]; return f.length ? f[Math.floor(now / MS[st]) % f.length] : undefined; } }); } catch (er) {}
+      H.objs.push({ id: 'elder', img: 'r239_elder', uid: 'r239-elder', x: 848, y: 420, w: 96, h: 112, sy: 560, ax: 896, ay: 560, flat: false, flip: false, noBlock: true });
+      const t = e.talk; Object.assign(e, { c, r, cx: undefined, hidden: true, h: 150, face: 'down', wander: false,
+        talk: async function () { if (st === 'closed') { st = 'wake'; t0 = performance.now(); await new Promise(r => setTimeout(r, 520)); } openT = performance.now() + 1e7; try { return typeof t === 'function' ? await t.apply(this, arguments) : t; } finally { openT = performance.now(); } } });
+      if (typeof t !== 'function') e.talk = t;
+      load('p_r247_elder', 'r239/p_elder.webp'); SPEAKERS['据点长老'] = Object.assign({}, SPEAKERS['据点长老'], { p: 'p_r247_elder' });
+      hallNpcs.unshift(e); }
     for (const q of (window.SQ_DEFS || [])) if (q.giver && q.giver[1] === '据点长老') q.giver[0] = 'xt_sect_hall';
     const g1 = (C.npcs || []).find(n => n.name === '据点守卫'), g2 = (C.npcs || []).find(n => n.name === '天剑宗外门弟子');
     if (g1) { const [c, r] = P(868, 914); Object.assign(g1, { cx: 'disciple_m', name: '守门弟子', c, r, face: 'down', talk: ['天剑宗玄天据点。闲人勿近。', '少宗主？……失敬失敬！长老在正厅莲台上打坐，您里面请。'], random: true }); SPEAKERS['守门弟子'] = SPEAKERS['守门弟子'] || { p: '', color: '#cfe0ff' }; }
