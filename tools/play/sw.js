@@ -18,7 +18,10 @@ self.addEventListener('fetch', e => {
   if (/\/play\/game\.html$/.test(u.pathname)) { e.respondWith(fetch(e.request.url, { cache: 'no-cache' })); return; }
   const rel = u.pathname.slice(base.length), real = base.replace(/play\/$/, '') + rel + u.search.replace(/[?&]retry=\d+/, '');
   e.respondWith((async () => {
-    let r = await fetch(real, { cache: 'no-cache' }), plain = false;
+    // 作者 11-12 夜：GitHub Pages 报「Rate limit exceeded」——每开一次游戏，几百个素材都带 no-cache 去问一遍服务器，连刷几次就被限流。
+    // 改成：只有脚本 / 数据（js、json、html）每次都问新不新；图片、音乐、视频用浏览器缓存（最多旧 10 分钟），请求数少一大半。
+    const fresh = /\.(js|json|html|txt)$/i.test(rel);
+    let r = await fetch(real, { cache: fresh ? 'no-cache' : 'default' }), plain = false;
     if (r.status === 404) { const path = rel.split('/').map(encodeURIComponent).join('/');
       let r2 = await fetch(RAW + path, { cache: 'default', mode: 'cors' }).catch(() => null);
       // 作者 11-12：推了更新却看不到——浏览器里还是旧的 Service Worker，它认的是旧提交，新加的文件在那次提交里不存在。旧提交里找不到就去 main 上找。
