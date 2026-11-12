@@ -67,14 +67,14 @@
     const o = (M.baked.objs || []).find(o => o.id === oid); if (!o) { console.warn('R230 找不到家具', map, oid); continue; }
     const key = map + ':' + oid, [c, r] = P(o.x + o.w / 2, o.sy + 34);
     (M.npcs = M.npcs || []).push({ key: 'none', c, r, name, hidden: true, h: 110, r230: key, talk: async () => {
-      if (done(key)) { await say('', after); return; }
+      if (done(key)) { await say('', '已经翻过了。'); return; }
       let ok = false; try { ok = await fn(); } catch (e) { console.warn('R230', key, e); }
       if (ok) { const f = F(); (f.srch = f.srch || {})[key] = 1; } } });
   }
   // 提示（作者 11-12 晚定）：电脑——鼠标移到能翻 / 能对话的东西上变小手；手机——走近了头顶冒一只小手；
   // 不做「一键全亮」：让玩家自己找（作者 11-12 晚定）。小手只说明「这里能翻」，不保证有东西——有的地方翻了是空的。
   let reveal = 0;
-  const spots = () => (world.actors || []).filter(a => a.npc && a.npc.r230 && !done(a.npc.r230));
+  const spots = () => (world.actors || []).filter(a => a.npc && a.npc.r230);   // 作者 11-12 晚：翻过的地方小手照样出现，再翻只说「已经翻过了」
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function () { const r = orig.apply(this, arguments);
     try { const t = performance.now() / 1000, p = world.player, rv = false;
       for (const a of spots()) { const near = Math.hypot(a.x - p.x, a.y - p.y) < 170; if (!near && !rv) continue;
