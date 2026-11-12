@@ -50,7 +50,7 @@
   setInterval(apply, 1000);   // 案子推进一步（或打完架回到地图）后一秒内换过来
   // 说到这句话就换曲子（一直放到离开这张图）
   const CUES = [
-    [/所以没有贼。因为从头到尾，就没有那箱药/, 'case_jiexiao'], [/^他没有偷。$/, 'case_jiexiao'], [/^都活着？/, 'case_jiexiao'],
+    [/所以没有贼。因为从头到尾，就没有那箱药/, 'case_jiexiao'], [/^他没有偷。/, 'case_jiexiao'], [/^都活着？/, 'case_jiexiao'],
     [/齐刷刷泛起一层幽幽的青光/, 'case_yiyun'], [/然后，门自己开了/, 'case_bijin'], [/一刻钟进一个。前面的人进去了，可有一个出来过/, 'case_duizhi'],
     [/账本写的是左手/, 'case_yiyun'], [/被黑风寨围住的那天。你摇了么/, 'case_duizhi'],
     [/有人等了你十年/, 'case_jiushi'], [/代沈师兄谢过/, 'case_jiushi'], [/叶孤星一掌按在骰盅上/, 'case_bijin'],

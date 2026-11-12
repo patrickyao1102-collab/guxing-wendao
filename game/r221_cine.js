@@ -55,7 +55,7 @@
     [/所以没有贼。因为从头到尾，就没有那箱药/, truth],
     [/「扑通」一声，从椅子上滑到了地上/, async () => { S.shake = 8; const a = actor('钱满仓'); if (!a) return; a.alpha = 0; const h = fx('qian_mancang_kowtow', { x: a.x, y: a.y, sc: .5 }); const end = async () => { for (let i = 0; i < 600; i++) { await sleep(500); if (!world.locked && !S.dialog) break; } rm(h); a.alpha = 1; }; end(); }],
     // 万宝楼的赝品 · 当众说穿
-    [/^他没有偷。$/, truth],
+    [/^他没有偷。/, truth],
     [/剑出鞘三寸。满室生寒/, async () => { const p = hero(); snd('sfx_sword_ring', .7); const t = objOf('xt_wanbao_vip', 'appraisal_table');
       const ice = t ? fx('tea_ice', { x: t.x + t.w / 2 - 40, y: t.y + 70, sc: .5, fps: 5 }) : null; await once('frost_sword', { x: p.x + 46, y: p.y - 30, sc: .7, fps: 5 }, 600); if (ice) setTimeout(() => rm(ice), 6000); }],
     [/执事撞碎了窗棂/, async () => { const B = TMAPS.xt_wanbao_vip && TMAPS.xt_wanbao_vip.baked; const wx = B ? 1410 : hero().x + 300, wy = 300; S.shake = 12; snd('sfx_boom', .6);
