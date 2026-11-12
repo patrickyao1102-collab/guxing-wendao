@@ -12,6 +12,9 @@
   const note = (key, t) => { const f = F(); f[key] = f[key] || []; if (!f[key].includes(t)) { f[key].push(t); try { playSnd('ui_confirm'); } catch (e) {} if (typeof toast === 'function') toast('记入证词本：' + t, 2600); } };
   const gold = async (n, title) => { S.hero.gold = (S.hero.gold || 0) + n; if (window.itemGet) await itemGet([{ icon: 'gold', name: '灵石', count: '×' + n }], title); else if (typeof toast === 'function') toast('灵石 +' + n, 2000); };
   const pill = async title => { try { addItem('p_small', 1); } catch (e) {} if (window.itemGet) await itemGet([{ icon: 'item:p_small', id: 'p_small', name: '回春丹', count: '×1', desc: (ITEM_DB.p_small || {}).desc || '' }], title); else if (typeof toast === 'function') toast('获得：回春丹', 2000); };
+  const give = async (id, title) => { try { addItem(id, 1); } catch (e) {} const d = ITEM_DB[id] || {}; if (window.itemGet) await itemGet([{ icon: 'item:' + id, id, name: d.name || id, count: '×1', desc: d.desc || '' }], title); else if (typeof toast === 'function') toast('获得：' + (d.name || id), 2000); };
+  // 叶孤星还没有的辅助 / 秘传技能书里挑一本（没有可挑的就给一册剑诀卷二）
+  const heroBook = () => { try { const bag = S.hero.bag || {}, sk = S.hero.skills || []; for (const id in ITEM_DB) { const d = ITEM_DB[id]; if (d.sk4 && d.sk4.who === 'hero' && !bag[id] && !sk.includes(d.sk4.id)) return id; } } catch (e) {} return 'juan2'; };
   const YE = '叶孤星', XX = '星旋';
   // [地图, 家具 id（按出现顺序第几个，默认 0）, 名字, 翻的时候发生什么（返回 true = 这处翻完了，下次只给一句话）, 翻完以后那句话, 往下偏多少站位]
   const T = [
@@ -36,6 +39,12 @@
     ['qy_yicui_2f', 'vanity', '妆台', async () => { await say('', '妆匣里没有胭脂，只有一叠庙会的灯谜笺，叠得整整齐齐。数了数，十张——一年一张。'); return true; }, '那十张灯谜笺还在妆匣里。'],
     ['qy_yicui', 'plain_cabinet', '素柜', async () => { await say('', '柜里是待客的茶叶罐。罐子后面滚出一粒丹药，不知是哪位客人掉的。'); await pill('琴堂的素柜'); return true; }, '柜里只有茶叶罐。'],
     ['qy_yicui', 'instrument_rack', '乐器架', async () => { await say('', '琵琶、洞箫、笛子，都擦得发亮。只有最边上那支短箫落了灰，像是很久没人碰过。'); return true; }, '那支短箫还落着灰。'],
+    // —— 装备 / 宝物 / 技能书（作者 11-12 晚：「不只是线索，装备、宝物、技能书都可以通过这种方式，鼓励玩家去探索」——线索混在里面，玩家翻到线索也以为只是件隐藏道具）——
+    ['xt_inn_room3', 'bed_footstool_1', '床前的脚踏', async () => { await L([['', '脚踏底下滚着一枚玉坠，绳子断了，落了一层灰。看样子不是这一位住客的——不知在这儿躺了多久。']]); await give('c_jade', '脚踏底下的玉坠'); return true; }, '脚踏底下空了。'],
+    ['xt_inn_hall', 'wall_bench_14', '墙边的长凳', async () => { await L([['', '长凳底下塞着一卷旧皮子。抖开一看，是件兽皮软甲，胸口补过两回。'], ['云来客栈伙计', '那个啊？去年一位镖师抵的酒钱，掌柜的嫌占地方。客官用得上就拿去。']]); await give('a_leather', '长凳底下的旧软甲'); return true; }, '长凳底下只剩灰了。'],
+    ['xt_wanbao_vip', 'guest_low_tea_table_2', '客座的矮几', async () => { const id = heroBook(); await L([['', '矮几下层垫着一册旧书，书脊都压弯了——看来是拿来垫桌脚的。'], [XX, '（等等，小子。翻开看看。……拿剑谱垫桌脚，这万宝楼的眼力也就这样。）']]); await give(id, '垫桌脚的旧书'); return true; }, '矮几下面换了块木片垫着。'],
+    ['qy_changle_2f', 'ledger_bookcase', '账本书柜', async () => { await L([['', '一排排账本中间，夹着一册不一样的。封皮上写着「抵 · 三十两」。'], ['', '翻开，是一册剑诀。不知是哪个输光了的剑修押在这儿的。']]); await give('juan2', '夹在账本里的剑诀'); return true; }, '那一格空出了一册书的位置。'],
+    ['qy_yicui', 'flower_console', '花几', async () => { await say('', '花瓶底下压着一只小锦囊，里头是几枚灵石和一张字条：「琴听得好，赏。——过路人」。看来是哪位客人留给琴师的，没人发现。'); await gold(40, '花瓶下的锦囊'); return true; }, '花瓶下面空了。'],
     // —— 长乐坊 ——
     ['qy_changle', 'wine_rack', '酒架', async () => { await L([['', '最里头那一坛，封泥是新的。掀开一看——坛里不是酒，是半坛骰子。'], ['', '拣一颗掂了掂，沉得不对。骰子里灌了铅。'], [XX, '（十赌九输，剩下那一成是庄家自己。）']]);
       await gold(60, '坛底压着的灵石'); return true; }, '那坛灌铅的骰子还在老地方。'],
@@ -51,12 +60,27 @@
       let ok = false; try { ok = await fn(); } catch (e) { console.warn('R230', key, e); }
       if (ok) { const f = F(); (f.srch = f.srch || {})[key] = 1; } } });
   }
-  // 没翻过的地方冒一点点微光，翻过就不亮了（不然玩家不知道哪儿能点）
+  // 提示（作者 11-12 晚定）：电脑——鼠标移到能翻 / 能对话的东西上变小手；手机——走近了头顶冒一只小手；
+  // 再加一个「查看」按钮兜底：按一下，屋里还没翻过的地方一起亮三秒。平时不亮，保留一点「找」的乐趣。
+  let reveal = 0;
+  const spots = () => (world.actors || []).filter(a => a.npc && a.npc.r230 && !done(a.npc.r230));
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function () { const r = orig.apply(this, arguments);
-    try { const t = performance.now() / 1000; for (const a of world.actors || []) { const k = a.npc && a.npc.r230; if (!k || done(k)) continue;
-      const p = .5 + .5 * Math.sin(t * 2.4 + a.x * .01), y = a.y - 58; ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      const g = ctx.createRadialGradient(a.x, y, 0, a.x, y, 16 + 6 * p); g.addColorStop(0, 'rgba(255,236,170,' + (.55 * p + .2) + ')'); g.addColorStop(1, 'rgba(255,236,170,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, y, 22, 0, 7); ctx.fill(); ctx.restore(); } } catch (e) {}
+    try { const t = performance.now() / 1000, p = world.player, rv = performance.now() < reveal;
+      for (const a of spots()) { const near = Math.hypot(a.x - p.x, a.y - p.y) < 170; if (!near && !rv) continue;
+        const bob = Math.sin(t * 3 + a.x * .01) * 3, x = a.x, y = a.y - 96 + bob; ctx.save();
+        if (rv) { ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(a.x, a.y - 58, 0, a.x, a.y - 58, 46); g.addColorStop(0, 'rgba(255,236,170,.55)'); g.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, a.y - 58, 46, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
+        ctx.fillStyle = 'rgba(40,26,10,.82)'; ctx.strokeStyle = '#e8c878'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 15, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffe9b0'; ctx.fillText('☝', x, y + 1); ctx.restore(); } } catch (e) {}
     return r; })(tileAmbientHigh);
+  try { const cv = document.querySelector('canvas');
+    cv.addEventListener('mousemove', e => { try { if (S.scene !== drawMap || world.locked || dialog || choice || S.menu) { cv.style.cursor = ''; return; }
+      const b = cv.getBoundingClientRect(), lx = (e.clientX - b.left) * W / b.width, ly = (e.clientY - b.top) * H / b.height, cam = world.cam || { x: 0, y: 0 };
+      cv.style.cursor = pickInteract(lx / VZ() + cam.x, ly / VZ() + cam.y) ? 'pointer' : ''; } catch (err) {} });
+    const btn = document.createElement('button'); btn.textContent = '🔍 查看'; btn.style.cssText = 'position:fixed;left:8px;bottom:52px;z-index:9998;padding:7px 13px;border-radius:16px;border:1px solid #c9a35a;background:rgba(30,20,10,.78);color:#f5e6c4;font:14px sans-serif;display:none';
+    let cool = 0; btn.onclick = () => { const now = performance.now(); if (now < cool) return; reveal = now + 3000; cool = now + 12000; btn.style.opacity = .45; setTimeout(() => { btn.style.opacity = 1; }, 12000);
+      if (!spots().length && typeof toast === 'function') toast('这间屋子已经翻遍了', 1800); };
+    document.body.appendChild(btn);
+    setInterval(() => { try { const on = S.scene === drawMap && S.hud !== false && !battle && !dialog && !S.menu && (world.actors || []).some(a => a.npc && a.npc.r230); btn.style.display = on ? '' : 'none'; } catch (e) { btn.style.display = 'none'; } }, 500);
+  } catch (e) {}
   window.R230S = { T, done };
 })();
