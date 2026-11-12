@@ -53,8 +53,9 @@
       const X = [ex('wardrobe', 'r217_xt_inn_room3_wardrobe', 584, 26, 189, 285), ex('bedside', 'r217_xt_inn_room3_bedside', 500, 196, 81, 114), ex('writing_desk', 'r217_xt_inn_room3_writing_desk_set_2', 860, 150, 200, 176),
         ex('screen', 'r213_n2_folding_screen', 70, 716, 264, 194), ex('lamp', 'r213_floor_lamp', 792, 232, 32, 88), ex('lamp', 'r213_floor_lamp', 1218, 800, 32, 88), ex('orchid', 'r213_n2_orchid_stand', 1086, 224, 48, 96),
         ex('incense', 'r213_n2_incense_burner', 560, 560, 60, 79), ex('pine', 'r213_dwarf_pine', 1180, 868, 64, 80),
-        ex('chair', 'r213_guest_hat_chair', 402, 610, 76, 108), ex('chair', 'r213_guest_hat_chair_mirror', 642, 610, 76, 108), ex('teatable', 'r213_guest_low_tea_table', 496, 650, 128, 72), ex('orchid', 'r213_n2_orchid_stand', 20, 330, 48, 96)];
-      for (const o of X) { D1.base.push(o); for (let y = Math.floor((o.sy - Math.min(46, o.h * .35)) / cs); y <= Math.floor((o.sy - 1) / cs); y++) for (let x = Math.floor((o.x + 6) / cs); x <= Math.floor((o.x + o.w - 7) / cs); x++) if (x >= 0 && y >= 0 && x < D1.cols && y < D1.rows) B[y * D1.cols + x] = '1'; }
+        ex('chair', 'r213_guest_hat_chair', 402, 610, 76, 108), ex('chair', 'r213_guest_hat_chair_mirror', 642, 610, 76, 108), ex('teatable', 'r213_guest_low_tea_table', 496, 650, 128, 72), ex('orchid', 'r213_n2_orchid_stand', 20, 330, 48, 96),
+        Object.assign(ex('rug', 'cx2_bedroom_jade_rug_r6_8b986e', 330, 566, 620, 182), { flat: true, sy: 1 }), ex('curio', 'cx2_curio_shelf_0e07f3', 826, 742, 166, 178), ex('bamboo', 'cx2_bedroom_potted_bamboo_r6_6b9bfa', 1166, 590, 99, 149), ex('lampB', 'cx2_bedroom_standing_lamp_r6_31fffe', 352, 760, 37, 168)];
+      for (const o of X) { D1.base.push(o); if (o.flat) continue; for (let y = Math.floor((o.sy - Math.min(46, o.h * .35)) / cs); y <= Math.floor((o.sy - 1) / cs); y++) for (let x = Math.floor((o.x + 6) / cs); x <= Math.floor((o.x + o.w - 7) / cs); x++) if (x >= 0 && y >= 0 && x < D1.cols && y < D1.rows) B[y * D1.cols + x] = '1'; }
       D1.blocked = B.join(''); D1.objs = D1.base.concat(CLUE); }
     const e0 = D1.exits[0], r = e0.region, cs = D1.cs;
     TMAPS.xt_inn_room1 = { title: '云来客栈 · 天字一号房', baked: Object.assign({ ground: 'r233g_room1' }, D1), indoor: true, npcs: [], chests: [], doors: [], start: P(D1.spawn[0], D1.spawn[1] - 40),
@@ -115,7 +116,7 @@
       [YE, '门闩上的血指印，是从里面按上去的。闩门的人，是他自己。'], [YE, '他在别处中的刀。带着刀逃回房里，闩上门，才倒下。'],
       [XX, '（所以要问的不是「凶手怎么出的房」，是「他在哪儿、什么时辰中的刀」。小子，下楼。把昨晚在这店里的人，一个一个问过去。）']]);
     note('密室是假的：门是死者自己从里面闩上的，他在别处中了刀才逃回房'); mood('case_yiyun'); s.n = 1; toast('迟了一刻的灯 —— 下楼到大堂问话', 2400); };
-  man('xt_inn_room1', 'town_guard', D1 ? 300 : 420, D1 ? 790 : 772, GUARD, async () => { const s = q();
+  man('xt_inn_room1', 'town_guard', D1 ? 462 : 420, D1 ? 820 : 772, GUARD, async () => { const s = q();
     if (s.s === 3) { await say(GUARD, '这间房，往后我每回巡街都要上来看一眼。'); return; }
     await say(GUARD, s.n === 0 ? '尸首不许挪。别的，你看你的。' : s.n >= 4 ? '仵作还在路上。你要再看，就再看。' : '我守着。你查你的。'); });
   spot('xt_inn_room1', D1 ? 449 : 304, D1 ? 510 : 560, '倒在床前的人', async () => { const s = q(), f = F(); if (!on()) return;
