@@ -13,7 +13,7 @@
     ['叶孤星', '第三件你说药箱', 'ye2_1'], ['叶孤星', '可掌柜说你进店那天', 'ye2_2'], ['叶孤星', '所以没有贼', 'ye2_3'], ['叶孤星', '你的货三天前就该交', 'ye2_4'],
     ['星旋', '一进一出白赚两千一', 'xx_1'], ['星旋', '这掌柜的才是这屋里', 'xx_2'], ['星旋', '烫金的帖子不让人看', 'xx_3'],
   ];
-  const norm = t => String(t || '').replace(/^（[^）]*）/, '').replace(/（[^）]*）/g, '').replace(/[^一-鿿]/g, '');
+  const norm = t => { let s = String(t || ''); if (/^（[^）]*）$/.test(s)) s = s.slice(1, -1); return s.replace(/（[^）]*）/g, '').replace(/[^\u4e00-\u9fff]/g, ''); };   // 整句都在括号里（星旋的心里话）只去括号；句首的（动作）整段去掉
   let cur = null, on = true; try { on = localStorage.getItem('r227_vo_off') !== '1'; } catch (e) {}
   const stop = () => { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } };
   function play(id) { stop(); try { if (!on || (typeof AUD !== 'undefined' && (AUD.muted || !AUD.mode))) return; const a = new Audio('r227/vo/' + id + '.mp3'); a.volume = .95; cur = a; a.play().catch(() => {}); } catch (e) {} }
