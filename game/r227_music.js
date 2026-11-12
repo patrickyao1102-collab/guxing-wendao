@@ -40,6 +40,7 @@
   function want(m) {
     if (cue && cueMap === m && (!cueEnd || Date.now() < cueEnd)) return cue;
     cue = null;
+    if (/^xt_inn_/.test(m) && sq('xt_lamp') >= 0) { const n = sq('xt_lamp'); if (m === 'xt_inn_room1') return n === 4 ? 'case_guiyi' : 'case_xiongsha'; return n <= 1 ? 'case_yiyun' : n === 2 ? 'case_guiyi' : n <= 4 ? 'case_bijin' : n === 5 ? 'case_yinmou' : 'case_duizhi'; }
     if (/^xt_inn_/.test(m)) { const n = sq('xt_room3');
       if (n < 0) return 'yunlai';
       if (n <= 1) return m === 'xt_inn_hall' && n === 0 ? 'yunlai' : 'case_xunji';
