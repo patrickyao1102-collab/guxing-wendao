@@ -79,7 +79,8 @@
     N.push(mk('villager_m', [1010, 730], '看热闹的赌客', async () => { await say('看热闹的赌客', F().qd_won ? '钱都数回去了。这桌子掀得痛快！' : '我就看看，不下注。……这地方，十个进来九个光着出去。'); }));
     const B1 = room('qy_changle', '长乐坊 · 赌坊', N, []);
     TMAPS.qy_changle.exits = [exDoor(B1, back), exStair('qy_changle', 'qy_changle_2f', '上楼 · 账房', { cond: () => !!F().qd_won, msg: '打手横在楼梯口：「楼上是账房，闲人免进。」' })];
-    const chest = D.rooms.qy_changle_2f.objs.find(o => /treasure_chest/.test(o.id)), desk = D.rooms.qy_changle_2f.objs.find(o => o.id === 'ledger_desk');
+    const R2 = D.rooms.qy_changle_2f, IN = R2.inter || {}; let chest = R2.objs.find(o => /treasure_chest/.test(o.id)), desk = R2.objs.find(o => o.id === 'ledger_desk');
+    if (IN.ledger_desk) desk = { x: IN.ledger_desk[0], w: 0, sy: IN.ledger_desk[1] - 34 }; if (IN.money_box) chest = { x: IN.money_box[0], w: 0, sy: IN.money_box[1] - 30 };
     const n2 = [];
     if (desk) n2.push(spot([desk.x + desk.w / 2, desk.sy + 34], '账桌', async () => {
       const f = F(); try { if (window.R212 && R212.ledgerLook && await R212.ledgerLook()) { f.qd_ledger = 1; return; } } catch (e) {}
@@ -87,12 +88,12 @@
       if (!f.qd_ledger) { f.qd_ledger = 1; await L([['叶孤星', '（黑风寨已经没了。这本账……先收着，也许有人用得上。）']]); if (typeof toast === 'function') toast('记下了：长乐坊每月给黑风寨上供', 2400); }
     }));
     if (chest) n2.push(spot([chest.x + chest.w / 2, chest.sy + 30], '钱箱', async () => {
-      const f = F(); if (f.qd_box) { await say('', '钱箱空了。'); return; }
-      await L([['', '钱箱没锁。赌客们输掉的银子已经各自数回去了，箱底剩下的一小袋，袋口绣着庄家自己的名字。'], ['星旋', '（出千赢来的私房。小子，这个不拿白不拿。）']]);
+      const f = F(); if (f.qd_box) { await say('', '钱柜空了。'); return; }
+      await L([['', '钱柜的门半开着。赌客们输掉的银子已经各自数回去了，箱底剩下的一小袋，袋口绣着庄家自己的名字。'], ['星旋', '（出千赢来的私房。小子，这个不拿白不拿。）']]);
       f.qd_box = 1; S.hero.gold = (S.hero.gold || 0) + 150;
       if (window.itemGet) await itemGet([{ icon: 'gold', name: '灵石', count: '×150' }], '庄家的私房'); else if (typeof toast === 'function') toast('灵石 +150', 2000);
     }));
-    n2.push(spot([1004, 330], '后窗', async () => { await say('', '后窗大敞着，窗台上蹭掉了一块漆。庄家就是从这儿翻出去的。'); }));
+    n2.push(spot(IN.rear_window || [1004, 330], '后窗', async () => { await say('', '后窗大敞着，窗台上蹭掉了一块漆。庄家就是从这儿翻出去的。'); }));
     room('qy_changle_2f', '长乐坊 · 账房', n2, [exStair('qy_changle_2f', 'qy_changle', '下楼 · 赌坊')]);
     for (const d of TMAPS.qy_town.doors) if (d.to === 'qy_changle') d.at = inAt(B1);
   }
