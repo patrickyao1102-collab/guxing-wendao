@@ -37,7 +37,7 @@
     ctx.drawImage(im, col * d.w, row * d.h, d.w, d.h, -d.ax * sc, -d.ay * sc, d.w * sc, d.h * sc); ctx.restore();
   })(drawActorT);
   // 新画风立绘（Codex R224：人不变，只减写实感）——先到的两张
-  try { for (const [n, k, c] of [['沈霜', 'p2_shen_shuang', '#bcd0e0'], ['秦老', 'p2_qinlao', '#d8d0b8']]) { const im = new Image(); im.onload = () => { IMG['p_r221_' + k] = im; }; im.src = 'r221/' + k + '.webp'; SPEAKERS[n] = Object.assign({}, SPEAKERS[n], { p: 'p_r221_' + k, color: (SPEAKERS[n] || {}).color || c }); } } catch (e) {}
+  try { for (const [n, k, c] of [['沈霜', 'p2_shen_shuang', '#bcd0e0'], ['秦老', 'p2_qinlao', '#d8d0b8'], ['柳三娘', 'p2_liu_sanniang', '#e0b8c0'], ['钱满仓', 'p2_qian_mancang', '#e0c090'], ['云来客栈伙计', 'p2_ashun', '#d8d0a8'], ['斗笠人', 'p2_hatman', '#c9a0ff']]) { const im = new Image(); im.onload = () => { IMG['p_r221_' + k] = im; }; im.src = 'r221/' + k + '.webp'; SPEAKERS[n] = Object.assign({}, SPEAKERS[n], { p: 'p_r221_' + k, color: (SPEAKERS[n] || {}).color || c }); } } catch (e) {}
 
   // ---------- 说到哪句话，播哪段 ----------
   const truth = async () => { snd('sfx_star', .5); await once('truth_freeze', { screen: true, x: W / 2, y: H / 2, sc: 1, fps: 14 }); };
