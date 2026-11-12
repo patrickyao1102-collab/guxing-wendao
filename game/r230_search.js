@@ -50,6 +50,17 @@
       await gold(60, '坛底压着的灵石'); return true; }, '那坛灌铅的骰子还在老地方。'],
     ['qy_changle', 'chip_counter', '兑筹柜台', async () => { await say('', '柜台底下钉着一块小木牌：「筹码离柜，概不退换」。木牌边上，被人用指甲刻了一行小字：「还我棺材本」。'); return true; }, '那行指甲刻的小字还在。'],
   ];
+  // 作者 11-12 晚：「不亮一遍，让玩家自己找；靠近了有查找，但也可能什么都没有」——这些地方能翻，翻了是空的
+  const EMPTY = [
+    ['xt_inn_room3', 'clothes_rack', '衣架', '衣架上搭着一件外袍，口袋里空空的。'], ['xt_inn_room3', 'washstand', '脸盆架', '盆里的水早凉了。架子上下都看过，什么也没有。'], ['xt_inn_room3', 'bed', '床铺', '掀开被褥看了看，只有一股晒过的棉花味。'],
+    ['xt_inn_hall', 'counter', '柜台', '柜台上是算盘和茶壶。掌柜的看了你一眼，你把手收了回来。'], ['xt_inn_hall', 'menu_board_13', '菜牌', '清蒸鱼、时蔬、茶水。牌子后面什么也没藏。'], ['xt_inn_hall', 'wall_bench_right_15', '墙边的长凳', '凳子底下只有一只不知谁落下的草鞋。'],
+    ['xt_wanbao_vip', 'floor_lamp_3', '落地灯', '灯座是实心的，没有夹层。'], ['xt_wanbao_vip', 'appraiser_chair', '圈椅', '椅垫底下干干净净。'],
+    ['qy_yicui', 'tea_station', '茶水柜', '茶壶、茶罐、一摞干净的杯子。没有别的。'], ['qy_yicui', 'incense_burner', '香炉', '炉里只有香灰，还是温的。'],
+    ['qy_yicui_2f', 'cloak_rack', '披风架', '披风叠得很整齐，口袋里什么也没有。'], ['qy_yicui_2f', 'folding_screen', '屏风后面', '屏风后面只有一只空花架。'], ['qy_yicui_2f', 'tea_round', '小茶几', '两只绣墩，一壶凉茶。'],
+    ['qy_changle', 'wine_table', '酒桌', '酒壶是空的，碟子里剩几粒花生。'], ['qy_changle', 'wall_bench', '靠墙的长凳', '凳面上刻满了正字，不知是谁在记输赢。凳子底下什么也没有。'], ['qy_changle', 'brazier', '火盆', '拨了拨炭灰，只有炭灰。'],
+    ['qy_changle_2f', 'window_tea_console', '窗下的茶案', '茶案的抽屉拉开，里头是空的，连张纸都没有。'], ['qy_changle_2f', 'dwarf_pine', '矮松盆景', '盆土是实的，没埋东西。'], ['qy_changle_2f', 'guest_low_tea_table', '客座矮几', '矮几下面空空的。'],
+  ];
+  for (const [map, oid, name, line] of EMPTY) T.push([map, oid, name, async () => { await say('', line); return true; }, line]);
   const done = k => !!(F().srch || {})[k];
   for (const [map, oid, name, fn, after] of T) {
     const M = TMAPS[map]; if (!M || !M.baked) { console.warn('R230 没有地图', map); continue; }
@@ -61,11 +72,11 @@
       if (ok) { const f = F(); (f.srch = f.srch || {})[key] = 1; } } });
   }
   // 提示（作者 11-12 晚定）：电脑——鼠标移到能翻 / 能对话的东西上变小手；手机——走近了头顶冒一只小手；
-  // 再加一个「查看」按钮兜底：按一下，屋里还没翻过的地方一起亮三秒。平时不亮，保留一点「找」的乐趣。
+  // 不做「一键全亮」：让玩家自己找（作者 11-12 晚定）。小手只说明「这里能翻」，不保证有东西——有的地方翻了是空的。
   let reveal = 0;
   const spots = () => (world.actors || []).filter(a => a.npc && a.npc.r230 && !done(a.npc.r230));
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function () { const r = orig.apply(this, arguments);
-    try { const t = performance.now() / 1000, p = world.player, rv = performance.now() < reveal;
+    try { const t = performance.now() / 1000, p = world.player, rv = false;
       for (const a of spots()) { const near = Math.hypot(a.x - p.x, a.y - p.y) < 170; if (!near && !rv) continue;
         const bob = Math.sin(t * 3 + a.x * .01) * 3, x = a.x, y = a.y - 96 + bob; ctx.save();
         if (rv) { ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(a.x, a.y - 58, 0, a.x, a.y - 58, 46); g.addColorStop(0, 'rgba(255,236,170,.55)'); g.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(a.x, a.y - 58, 46, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
@@ -76,11 +87,6 @@
     cv.addEventListener('mousemove', e => { try { if (S.scene !== drawMap || world.locked || dialog || choice || S.menu) { cv.style.cursor = ''; return; }
       const b = cv.getBoundingClientRect(), lx = (e.clientX - b.left) * W / b.width, ly = (e.clientY - b.top) * H / b.height, cam = world.cam || { x: 0, y: 0 };
       cv.style.cursor = pickInteract(lx / VZ() + cam.x, ly / VZ() + cam.y) ? 'pointer' : ''; } catch (err) {} });
-    const btn = document.createElement('button'); btn.textContent = '🔍 查看'; btn.style.cssText = 'position:fixed;left:8px;bottom:52px;z-index:9998;padding:7px 13px;border-radius:16px;border:1px solid #c9a35a;background:rgba(30,20,10,.78);color:#f5e6c4;font:14px sans-serif;display:none';
-    let cool = 0; btn.onclick = () => { const now = performance.now(); if (now < cool) return; reveal = now + 3000; cool = now + 12000; btn.style.opacity = .45; setTimeout(() => { btn.style.opacity = 1; }, 12000);
-      if (!spots().length && typeof toast === 'function') toast('这间屋子已经翻遍了', 1800); };
-    document.body.appendChild(btn);
-    setInterval(() => { try { const on = S.scene === drawMap && S.hud !== false && !battle && !dialog && !S.menu && (world.actors || []).some(a => a.npc && a.npc.r230); btn.style.display = on ? '' : 'none'; } catch (e) { btn.style.display = 'none'; } }, 500);
   } catch (e) {}
   window.R230S = { T, done };
 })();
