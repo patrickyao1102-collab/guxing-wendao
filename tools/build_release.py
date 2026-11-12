@@ -15,7 +15,7 @@ SCRAMBLE = '--no-scramble' not in sys.argv
 DROP_DIRS = {'_tmp_walk', 'jyh3'}
 # 作者 11-12：青阳镇 / 玄天城支线和新室内只进测试版，让作者先测房间构图和玩法；正式版（纯净版）不带。作者说可以了，再把下面两行清空。
 TEST_ONLY_DIRS = {'r213', 'r217', 'r219', 'r221', 'r227', 'r228', 'r230', 'r233', 'r236', 'r238', 'r239', 'r246'}
-TEST_ONLY_JS = ['r212_qingyang.js', 'r213_xuantian.js', 'r213_rooms.js', 'r214_case_inn.js', 'r215_case_wanbao.js', 'r216_case_thirty.js', 'r217_inn.js', 'r219_scenes.js', 'r221_cine.js', 'r225_apply.js', 'r227_music.js', 'r227_vo.js', 'r229_apply.js', 'r230_search.js', 'r228_ext.js', 'r231_sets.js', 'r232_case_lamp.js', 'r236_hub.js', 'r238_teahouse.js', 'r239_sect.js', 'r246_teahouse2.js', 'r250_room3.js', 'r252_sun.js', 'r243_front.js']
+TEST_ONLY_JS = ['r212_qingyang.js', 'r213_xuantian.js', 'r213_rooms.js', 'r214_case_inn.js', 'r215_case_wanbao.js', 'r216_case_thirty.js', 'r217_inn.js', 'r219_scenes.js', 'r221_cine.js', 'r225_apply.js', 'r227_music.js', 'r227_vo.js', 'r229_apply.js', 'r230_search.js', 'r228_ext.js', 'r231_sets.js', 'r232_case_lamp.js', 'r236_hub.js', 'r238_teahouse.js', 'r239_sect.js', 'r246_teahouse2.js', 'r250_room3.js', 'r252_sun.js', 'r243_front.js', 'r253_fixes.js']
 # 不进安装包的子目录 / 单个文件（字体预览原件、旧配乐、旧素材……见 tools/release_drop.txt）
 DROP_SUB = {'fonts/_pv'}
 DROP_FILES = set()

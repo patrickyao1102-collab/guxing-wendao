@@ -23,9 +23,9 @@
         await L([[CLK, '少宗主。据点不比山上，人少事杂，怠慢了。'], [CLK, '这面玉璧上挂的是玄天城一带的宗门任务：护送、探查、清剿妖物。牌子亮着的，就是还没人接的。'],
           [CLK, '悬赏的事找莲台上的长老；要往山上递消息，用东边那座传讯剑阵；累了，东南角的阵法通客舍，榻是现成的。'], [XX, '（麻雀虽小，五脏俱全。你爹当年下山，头一站住的多半也是这儿。）']]); return; }
       await say(CLK, ['玉璧上的牌子每日卯时换一批。少宗主若要接悬赏，长老那里登记。', '城里若遇上棘手的事，报「天剑宗玄天据点」的名号，城卫多少给几分面子。', '镇驿剑是建据点那年宗主亲手挂上去的。剑在，据点就在。'][Math.floor(Math.random() * 3)]); }),
-    // 作者 11-13：两位侍立弟子要镜像对立——同一身形，一左一右互为镜像
+    // 作者 11-13：两位侍立弟子要镜像对立——同一身形，一左一右互为镜像；脸朝里（朝向由 r243_front.js 的全局规矩定：一左一右的两个人都朝中间）
     man('disciple_m', HS.attendant_left, '侍立弟子', ['见过少宗主。', '长老吩咐，厅里不得喧哗。……少宗主请便。', '我入门三年，头一回离山。玄天城比山下的镇子大了不知多少倍。'], { random: true }),
-    man('disciple_m', HS.attendant_right, '侍立弟子', ['少宗主安好。', '夜里那道护城的光幕亮起来时，镇驿剑也会跟着轻轻地响。', '客舍在东南角的阵法后面，被褥是新晒的。'], { random: true, mirror: true }),
+    man('disciple_m', HS.attendant_right, '侍立弟子', ['少宗主安好。', '夜里那道护城的光幕亮起来时，镇驿剑也会跟着轻轻地响。', '客舍在东南角的阵法后面，被褥是新晒的。'], { random: true }),
     man('disciple_m', HS.reporting_disciple_1, '禀事弟子', ['城南的灵灯前几日暗过三盏，我正要把这事报上去。', '长老不在座上？……那我再等等。'], { random: true, face: 'up' }),
     man('wandering_blade', HS.waiting_disciple, '候命弟子', ['我在等一趟去落云岭的护送任务。听说那边近来不太平。', '据点里最难熬的是等。等消息，等任务，等回山的那天。'], { random: true }),
     spot(HI.view_town_sword, '镇驿剑', async () => { await L([['', '剑龛里悬着一柄长剑，剑身通明，三道光环绕着它缓缓起落。匾上两个字：天剑。'], [YE, '（这剑意……和山门前的问剑碑是一路的。）'], [XX, '（镇驿剑。一处据点挂一柄，剑断了，山上立刻就知道这儿出了事。）']]); }),
@@ -53,7 +53,7 @@
     for (const q of (window.SQ_DEFS || [])) if (q.giver && q.giver[1] === '据点长老') q.giver[0] = 'xt_sect_hall';
     const g1 = (C.npcs || []).find(n => n.name === '据点守卫'), g2 = (C.npcs || []).find(n => n.name === '天剑宗外门弟子');
     if (g1) { const [c, r] = P(868, 914); Object.assign(g1, { cx: 'disciple_m', name: '守门弟子', c, r, face: 'down', talk: ['天剑宗玄天据点。闲人勿近。', '少宗主？……失敬失敬！长老在正厅莲台上打坐，您里面请。'], random: true }); SPEAKERS['守门弟子'] = SPEAKERS['守门弟子'] || { p: '', color: '#cfe0ff' }; }
-    if (g2) { const [c, r] = P(1052, 914); Object.assign(g2, { cx: 'disciple_m', name: '守门弟子', c, r, face: 'down', mirror: true, talk: ['长老脾气不太好，进去说话小心点。', '少宗主你也来历练？……听说你在测灵碑上把战力碑都打裂了？'], random: true }); }
+    if (g2) { const [c, r] = P(1052, 914); Object.assign(g2, { cx: 'disciple_m', name: '守门弟子', c, r, face: 'down', talk: ['长老脾气不太好，进去说话小心点。', '少宗主你也来历练？……听说你在测灵碑上把战力碑都打裂了？'], random: true }); }
   } catch (e) {}
   TMAPS.xt_sect_hall = { title: '天剑宗玄天据点 · 正厅', baked: Object.assign({ ground: 'r239g_hall' }, H), indoor: true, npcs: hallNpcs, chests: [], start: P(H.spawn[0], H.spawn[1] - 30),
     doors: [{ x: TOREST[0], y: TOREST[1], rw: 40, rh: 22, to: 'xt_sect_rest', at: P(D.rest.spawn[0], D.rest.spawn[1] - 40), face: 'up', label: '客舍' }],
