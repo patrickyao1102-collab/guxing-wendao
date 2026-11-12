@@ -29,6 +29,24 @@
     case_yinmou: ['阴谋', '背后有人布局、越想越深：低音大提琴下行固定音型、古琴低音区主旋律、箫、定音鼓轻滚、云锣，阴沉、深不见底', .72, 90],
     case_guiyi: ['诡异', '眼前的东西不对劲：古筝高音区零星单音与刮弦、二胡细长滑音、碟铃水滴似的点几下、低音弦铺底，发毛、空气像凝住了', .72, 90],
     case_xiongsha: ['凶杀', '命案现场、血迹未干：大鼓心跳般单击、低音弦压抑顿弓、琵琶低音区扫弦绞弦、埙凄厉短旋律，肃杀惊心带一丝悲悯', .72, 90],
+    // 第四批（11-13，作者：很多城池用的还是别的城池的曲子，最好每张地图的音乐都别重复；连着走的地图共用一首）
+    map_xtcity: ['玄天城', '修士往来的仙家大城，白天走在城中大街上：气派、明朗、繁华而不吵：扬琴与古筝奏明亮大气的主旋律，竹笛接句，中阮和大提琴铺底，编钟点缀，小堂鼓和手鼓给出从容的行进感', 0.7, 120],
+    map_linforest: ['山外树林', '云霄山脉脚下的树林，少年第一次出远门，清晨阳光透过树叶：竹笛奏轻快跳跃的主旋律，古筝琶音，木琴或竹板轻点，弦乐拨奏，小手鼓', 0.7, 110],
+    map_heifeng: ['黑风谷 · 黑风寨', '山贼盘踞的险恶峡谷和山寨，石壁阴森，路边有累累白骨：低音大鼓与战鼓沉重的固定节奏，唢呐或管子奏粗砺凶悍的短旋律，低音弦乐顿弓，铜钹和大锣偶尔一击，三弦低拨', 0.66, 110],
+    map_sealfield: ['后山林间', '宗门后山一片少有人来的密林，深处有一道古老的封印：古琴泛音奏空灵的主旋律，洞箫长音，颂钵与风铃，极轻的弦乐长音铺底，偶尔一声低沉的鼓', 0.7, 110],
+    map_luoyun: ['落云岭 · 落云谷', '云雾缭绕的高岭和深谷，松溪、乱林、雾锁灵渊：洞箫与竹笛对答的辽远主旋律，古筝流水般的琶音，箜篌或竖琴，弦乐长音像云一样铺开，远处的定音鼓轻滚', 0.7, 120],
+    map_qywar: ['兽潮战场', '妖兽压境，少年们在镇外拼死抵挡、追击救人：战鼓急促的行军节奏，弦乐急速顿弓，琵琶扫弦，唢呐与铜管奏悲壮激昂的主旋律，铜钹', 0.62, 100],
+    map_shelter: ['避难营', '兽潮之夜，镇上的老弱躲在后山营地，篝火旁有人低声安慰孩子：二胡奏温柔而疲惫的主旋律，古筝轻轻的分解和弦，洞箫，极轻的弦乐铺底', 0.7, 100],
+    map_songfeng: ['松风林道', '少年初次下山，走在松林间的山道上，前面是没见过的世界：竹笛奏洒脱明亮的主旋律，琵琶轮指，古筝，弦乐轻快的拨奏，小堂鼓和马蹄似的木鱼节奏', 0.7, 110],
+    map_cangyue: ['苍月城', '一座临水而建的月色之城，南门府街与临水的城主府，清冷雅致：古筝与箜篌奏清冷优美的主旋律，洞箫接句，钟琴或编钟像月光洒在水面，弦乐轻柔铺底，轻轻的水波似的琶音', 0.7, 120],
+    map_cybei: ['苍月北郊 · 白岩沉坛', '城北荒郊，一片惨白的岩石和一座沉入地下的古祭坛，邪气暗涌：低音弦乐极弱的长音，埙奏荒凉的短旋律，古琴低音区单音，颂钵，远处闷闷的大鼓，偶尔金属摩擦似的弦乐泛音', 0.66, 100],
+    map_cangjing: ['藏经阁', '宗门的藏书楼，外院、一层书库、二层禁阁，千年典籍，静得能听见翻书声：古琴奏沉静悠远的主旋律，编钟与磬轻轻点缀，洞箫长音，极轻的弦乐铺底', 0.7, 110],
+    map_paimai: ['玄元拍卖场', '修真大城里最大的拍卖场和二楼雅间，奇珍异宝，各方势力暗中较劲：古筝与扬琴奏华贵的主旋律，大提琴拨弦给出从容的律动，编钟，弦乐，低音鼓轻轻垫着，偶尔一声清脆的磬像落槌', 0.7, 100],
+    map_chaguan: ['青阳茶馆', '小镇茶馆，老人喝茶下棋，说书先生还没开讲：古筝奏悠闲的主旋律，竹笛，三弦轻拨，木鱼和小手鼓轻轻点着', 0.7, 90],
+    map_zuixian: ['醉仙楼', '小镇上最热闹的酒楼，划拳的、听琵琶的、喝醉的：琵琶奏活泼带醉意的主旋律，板胡或二胡接句，扬琴，竹板和手鼓，中阮', 0.7, 90],
+    map_yuelai: ['悦来客栈', '小镇客栈，朴实的掌柜，过路的行商，后厨飘来饭香：中阮与扬琴奏朴实温暖的主旋律，竹笛，木鱼和小手鼓，大提琴拨弦', 0.7, 90],
+    map_tiejiang: ['铁匠铺', '炉火通红，铁匠一锤一锤打着铁：铁砧似的金属敲击声当作节奏乐器（叮、当、叮叮当），低音鼓，三弦和板胡奏硬朗豪爽的主旋律，大提琴顿弓', 0.7, 90],
+    map_baicao: ['百草轩', '满屋药香的老药铺，掌柜慢条斯理地称药：洞箫奏温和安宁的主旋律，古筝，碟铃或小磬像戥子轻碰，极轻的弦乐铺底', 0.7, 90],
   };
   const lib = BGM_LIB.tracks; let i = 0;
   if (BGM_LIB.groups && !BGM_LIB.groups.includes(G)) BGM_LIB.groups.splice(Math.max(0, BGM_LIB.groups.indexOf('戊 · 战斗')), 0, G);
@@ -53,11 +71,18 @@
     if (/^qy_changle/.test(m)) { if (m === 'qy_changle_2f') return sq('qy_ledger') >= 0 ? 'case_yetan' : 'zhangfang'; return 'changle'; }
     if (m === 'qy_yicui_2f') return 'tingyu';
     if (/^qy_yicui/.test(m)) return 'yicui';
+    const mb = MAPBGM(m); if (mb) return generic() ? mb : null;
     return null;
   }
+  // 各地图自己的曲子（第四批）。只在「现在放的是通用地图曲」时才换——剧情里特意点的曲子（剑鸣、首领战、夜里的戏）不抢。
+  const MAPBGM = m => m === 'xt_city' ? 'map_xtcity' : m === 'lin_forest' ? 'map_linforest' : /^hf_/.test(m) ? 'map_heifeng' : m === 'seal_field' ? 'map_sealfield' : /^ly_/.test(m) ? 'map_luoyun'
+    : /^qy_(escape|defense|rescue)/.test(m) ? 'map_qywar' : m === 'qy_shelter' ? 'map_shelter' : m === 'tj_xiashan' ? 'map_songfeng' : m === 'm_cy_north' ? 'map_cybei' : /^m_cy_/.test(m) ? 'map_cangyue'
+    : /^tj_(scripture|library|forbidden)$/.test(m) ? 'map_cangjing' : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
+  const generic = () => { try { const n = AUD.bgmName || '', T = BGM29.T || {}; return /^lib_r227_/.test(n) || [T.wild, T.shop, T.xtcity, T.sect, T.town, T.fair, T.linfu].includes(n); } catch (e) { return false; } };
+
   function apply() {
     try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; if (!(world && world.map) || !S.started) return;
-      const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '')) BGM29.resume(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
+      const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '') && !MAPBGM(world.mapName)) BGM29.resume(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
   }
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function () { const r = orig.apply(this, arguments); setTimeout(apply, 0); setTimeout(apply, 400); return r; })(tileSetMap);
   setInterval(apply, 1000);   // 案子推进一步（或打完架回到地图）后一秒内换过来
@@ -78,5 +103,5 @@
       if (hit) { cue = hit[0]; cueMap = world.mapName; cueEnd = hit[1] ? Date.now() + hit[1] * 1000 : 0; apply(); } } catch (e) {}
     return orig.apply(this, arguments);
   })(say);
-  window.R227 = { TR, want, apply, id, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else BGM29.resume(); } };
+  window.R227 = { TR, want, apply, id, MAPBGM, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else BGM29.resume(); } };
 })();
