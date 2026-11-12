@@ -16,6 +16,7 @@
     ['qy_inn', 'tea_table', 1, 'sq2_merchants', 1], ['qy_inn', 'tea_table', 3, 'sq4_family', 1],
     ['xt_inn_hall', 'dining_03', 0, 'round5_feast', 1.3], ['xt_inn_hall', 'dining_01', 0, 'sq2_guards', 1.3], ['xt_inn_hall', 'dining_05', 0, 'long_solo_noodles', 1.2], ['xt_inn_hall', 'dining_09', 0, 'long6_caravan', 1.2], ['xt_inn_hall', 'dining_10', 0, 'sq2_cultivator_pair', 1.3],
     ['qy_yicui', 'r226_tea_low', 0, 'tea_two_ladies', 1, [['r226_stool_extra', 0], ['r226_stool_extra', 1]]], ['qy_yicui', 'set_tea_one', 0, 'tea_old_scholar', 1],
+    ['xt_teahouse', 'round_tea_table', 1, 'round2_old_friends', 1, [['wood_stool', 12], ['wood_stool', 13], ['wood_stool', 14], ['wood_stool', 15]]], ['xt_teahouse', 'square_tea_table', 0, 'sq2_cultivator_pair', 1, [['wood_stool', 4], ['wood_stool', 5], ['wood_stool', 6], ['wood_stool', 7]]],
     ['qy_changle', 'paijiu_table', 0, 'madiao4', 1, [['plain_stool', 0], ['plain_stool', 1], ['plain_stool', 2], ['plain_stool', 3]]], ['qy_changle', 'paijiu_table', 1, 'cards_two', 1, [['plain_stool', 4], ['plain_stool', 5], ['plain_stool', 6], ['plain_stool', 7]]], ['qy_changle', 'set_gamble_four', 1, 'gamble_winner', 1],
   ];
   const pick = (bk, id, i) => (bk.objs || []).filter(o => o.id === id)[i];

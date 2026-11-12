@@ -12,7 +12,7 @@
     // R234 第一批（作者 11-12：这种创意给玄天城其他有特色的也改一下）
     // 玄兵阁、玄元拍卖场：作者 11-13 说更喜欢老版本，换回原图（R234 / R237 的图留在 Codex 交付目录里，不再用）
     ['xt_city', 'xt_apothecary_21', 'danxia2', 321, 620, 160.5, 613],   // 丹霞堂：R235 丹药葫芦（作者：丹炉像炼器，要葫芦）
-    ['xt_city', 'xt_teahouse_22', 'teahouse', 390, 640, 195, 632],      // 茶楼：云上茶台
+    ['xt_city', 'xt_teahouse_22', 'teahouse2', 460, 660, 230, 642],     // 听雨楼：R238 按正确比例重画（门洞 108×136，一层茶堂 + 两层露台 + 伞顶）
   ];
   for (const [map, uid, k, w, h, ax, ay] of L) {
     const M = TMAPS[map], o = M && M.baked && (M.baked.objs || []).find(o => o.uid === uid); if (!o) continue;
