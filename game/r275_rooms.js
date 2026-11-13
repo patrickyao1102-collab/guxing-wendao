@@ -16,5 +16,6 @@
       exits: [{ x: 16, y: 29, w: 7, h: 1, to: 'qy_inn', at: back, face: 'down', label: '下楼 · 大堂' }] };
     (TMAPS.qy_inn.doors = TMAPS.qy_inn.doors || []).push({ x: hall[0], y: hall[1], rw: 40, rh: 20, to: id, at: TMAPS[id].start, face: 'up', label: k === 'a' ? '上楼 · 双人间' : '上楼 · 单人间' });
     try { if (window.R252_WIN) R252_WIN[id] = [[80, 210, 230, 300, 2, 2]]; } catch (e) {}
-    try { MAP_ZOOM[id] = 1; } catch (e) {} }
+    // 作者 11-14：「记得调整人物和建筑比例」——和醉仙楼、客舍一样整屋缩一点（人在屏幕上一样大）；屋子比屏幕窄，两侧留暗边
+    try { MAP_ZOOM[id] = .85; if (typeof WIDE_OK === 'object') WIDE_OK[id] = 1; } catch (e) {} }
 })();
