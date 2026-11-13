@@ -1,9 +1,9 @@
 // ================= R253 · 全局修正（作者 11-13 凌晨：「我说的所有问题都是全局的问题，不要只改一个地方」）=================
 // ① 人物和屋子的比例：把新做的内景逐张对着「人」量了一遍，家具明显偏大的整张缩小（人物在屏幕上的大小不变）。
 // ② 传送阵放在楼梯口：凡是楼梯尽头 / 楼梯顶上的传送阵，都挪到踏上楼梯的那一头；对面回来的落脚点跟着挪。
-// ③ 画在场景里的人（坐着喝茶的、抚琴的、下棋的、莲台上的长老……）都要有名字、能搭话：
+// ③ 画在场景里的人（抚琴的、下棋的、莲台上的长老……）都要有名字、能搭话（带人座位组已全部撤掉，换回空桌椅）：
 //    在人脚下放一个「只有名字和对话、不画身体」的 NPC（ghost），头顶就有名牌，点人或走近按键都能说话。
-// ④ 听雨楼二层：写诗的书生原来坐到了矮墙上，挪回地板；露台两张空桌坐上客人，斟茶的茶娘有了斟茶的对象；二层多一位走动的茶娘。
+// ④ 听雨楼二层：写诗的书生原来坐到了矮墙上，挪回地板；二层多一位走动的茶娘。（露台原来加的两位座位组客人已撤掉）
 // 只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined' || typeof drawActorT !== 'function') return;
@@ -56,61 +56,36 @@
   // 据点长老：莲台上的人原来没有名牌、头顶也不出任务标记
   try { const e = (TMAPS.xt_sect_hall && TMAPS.xt_sect_hall.npcs || []).find(n => n.name === '据点长老'); if (e) { e.hidden = false; e.ghost = true; e.h = 160; } } catch (e) {}
 
-  // 带人座位组：每一桌一个名字、几句闲话（按它所在的铺子写）
-  const SETS = {
-    qy_tea: {
-      set_tea_chess: ['对弈的老茶客', ['将！……哎，不算不算，我方才手滑了。', '在这茶馆下了二十年棋，赢的茶钱够再开一间茶馆。输的嘛，够开两间。', '后生，观棋不语。——除非你看出我要输了，那赶紧说。']],
-      set_tea_mother_girl: ['带着女儿的妇人', ['慢点喝，烫。……这孩子，一听要来镇上就不肯睡觉。', '她爹在林府当差，月底才回一趟家。我带她来看看热闹。', '（小姑娘捧着茶碗，偷偷看了你的剑一眼，又赶紧低下头。）']],
-    },
-    qy_tavern: {
-      set_sq4_escorts: ['歇脚的镖师', ['这趟镖走玄天城，路上不太平，东家多给了三成的脚钱。', '云霄山脉外头那片林子，夜里千万别生火。火一亮，什么都招来了。', '喝完这碗就上路。——小二，再切二斤牛肉包上！']],
-      set_round2_old_friends: ['叙旧的老友', ['一晃十年。你那时候说要去玄天城闯一闯，闯得如何？', '闯什么闯，在万宝楼后院搬了十年箱子。来，喝。', '镇上还是老样子。就是醉仙楼的酒，掺的水比从前少了。']],
-      set_sq2_drunk: ['喝高了的酒客', ['我、我没醉……这桌子怎么自己在转……', '嗝——我跟你说，我年轻时候也是测过灵根的！……杂灵根。嗝。', '（他趴在桌上，嘴里还在念叨一个人的名字。）']],
-      set_sq1_swordsman: ['独酌的剑客', ['……', '剑不离手，酒不过三。这是规矩。', '你的剑不错。握剑的手，还嫩了点。']],
-      set_round3_cultivators: ['论道的散修', ['凝丹难，难在一个「凝」字。灵力易聚，心念难收。', '听说天剑宗今年收徒，光测灵碑前就排了三天。', '散修有散修的好处——没人管。也有散修的坏处——没人管。']],
-    },
-    qy_inn: {
-      set_sq2_merchants: ['对账的行商', ['这批药材运到玄天城，丹霞堂给的价是青阳镇的两倍，刨去路上的损耗……还是赚。', '你那算盘打错一位了。重来。', '悦来客栈的床板硬是硬了点，胜在干净，不闹耗子。']],
-      set_sq4_family: ['投宿的一家人', ['孩子他爹，明天还得赶路，少喝两口。', '我们是去玄天城投亲的。听说那里夜里满城都是灵灯，亮得跟白天一样。', '（最小的那个孩子已经趴在桌边睡着了。）']],
-    },
-    xt_inn_hall: {
-      set_round5_feast: ['摆席的客人', ['今日是我们东家五十大寿，这一桌是掌柜的特意留的。', '来来来，满上！云来客栈的「三白酿」，出了玄天城可喝不着。', '听说了吗，玄元拍卖场这回要出一件压轴的东西，城里的客栈都住满了。']],
-      set_sq2_guards: ['歇脚的城卫', ['刚下值。这几日城门查得紧，站一天腿都是木的。', '上头只说「留意生面孔」，留意什么、为什么留意，一个字不讲。', '你也是来赶拍卖会的？住店记得把门闩插好。']],
-      set_long_solo_noodles: ['埋头吃面的汉子', ['（他头也不抬，呼噜呼噜吃得正香。）', '别跟我说话，面要坨了。', '这家的阳春面，汤是拿老鸡吊的。十文钱，值。']],
-      set_long6_caravan: ['商队的伙计们', ['我们是走苍月城那条线的商队，明早天不亮就得套车。', '头儿说这趟货贵重，夜里要轮着守。今晚我守下半夜，先吃饱。', '玄天城样样都好，就是东西贵。一碗面顶我们那儿三碗。']],
-      set_sq2_cultivator_pair: ['结伴的修士', ['拍卖会的入场牌子你拿到了么？我托人问了三家，都说没了。', '听说万宝楼二楼可以鉴宝，就是那位鉴宝师傅的眼光毒得很，一句话能把人说哭。', '师兄，我们的灵石只够住三晚。']],
-      set_dine_three_ochre: ['吃饭的行脚客', ['这城里的客栈，就数云来的饭菜实在。', '天字号的房？那是给有钱的主儿住的，我们睡通铺。', '掌柜的柳三娘你可别惹，她一个人能镇住半条街的泼皮。']],
-      set_dine_three_teal: ['闲谈的住客', ['昨夜二楼不知哪间房，半夜里咚的一声，吓我一跳。', '城主府的告示看了没有？这阵子入夜以后，少往偏巷里走。', '听雨楼的茶，云来的酒，万宝楼的眼——玄天城三绝。']],
-      set_dine_one: ['独坐的客人', ['……我在等人。', '这位置好，进门的、上楼的，谁都看得见。', '（他面前的茶早凉了，一口没动。）']],
-    },
-    qy_yicui: {
-      set_tea_two_ladies: ['听琴的姐妹', ['姐姐你听，这一段像不像落雨？', '嘘——苏姑娘抚琴的时候，楼里是不许出声的。', '我们攒了半个月的钱，就为来听这一曲。']],
-      set_tea_old_scholar: ['闭目听琴的老先生', ['（老先生闭着眼，手指在膝头轻轻打着拍子。）', '琴为心声。这位姑娘的琴里，有一桩放不下的旧事。', '老朽耳朵背了，琴声倒是越听越清楚。']],
-      set_tea_two_scholars: ['品茶的书生', ['倚翠楼的规矩：只听琴，不劝酒。这才是读书人该来的地方。', '兄台方才那句「弦上有秋声」，对得妙。', '我们是结伴去玄天城赶考的，路过青阳镇，慕名而来。']],
-      set_tea_two_couple: ['听曲的小夫妻', ['成亲三年，他头一回带我出来听曲。', '（男人不好意思地挠挠头）铺子里忙嘛……往后常来，常来。', '这茶点做得精致，回头我也学着做。']],
-    },
-    qy_changle: {
-      set_madiao4: ['打马吊的赌客', ['碰！……等等，你方才那张牌是从哪儿摸的？', '手气背的时候，喝口凉水都塞牙。再来一圈！', '长乐坊的庄家从不出千——他们用不着。']],
-      set_cards_two: ['斗叶子牌的两人', ['一对「万贯」，压你。', '急什么，我还有牌。……你看我这眼神，像是有牌的样子么？', '输了的请酒，说好的。']],
-      set_gamble_winner: ['赢了钱的赌客', ['哈哈哈哈！今晚的酒，我请！', '看见没有，这就叫时来运转！昨天我还欠着坊里二十两呢。', '见好就收？……再押一把，就一把。']],
-      set_gamble_four: ['押大小的赌客', ['大！大！大！——哎！', '我押小的时候它开大，我押大的时候它开小。这骰子是不是认得我？', '小兄弟，听句劝：这地方，站着看看就好。']],
-      set_gamble_watch: ['看热闹的闲汉', ['我不赌，我就看看。看别人输钱，比自己赢钱还解闷。', '那边那位，从晌午坐到现在，把媳妇的镯子都押上了。', '楼上账房管得严，欠了钱想赖？门口那两位打手可不是摆设。']],
-    },
-    xt_teahouse: {
-      set_round2_old_friends: ['叙旧的老茶客', ['这楼里的雨声，和四十年前一个样。人倒是换了好几茬。', '你还记得么，当年咱俩就是在这张桌上，为一碟茴香豆打了一架。', '掌柜的新换的茶娘，手比从前那几个稳。']],
-      set_sq2_cultivator_pair: ['结伴的修士', ['听雨楼的规矩，楼内不谈买卖，不动刀兵。连城主府的人进来都得先解剑。', '二楼露台那位白衣剑客，在栏杆边站了三天了，一句话没说过。', '师姐，这壶「檐下青」要八块灵石……我们还是喝白水吧。']],
-    },
-  };
+  // 带人座位组全部撤掉（作者 11-13：「这 30 桌人物和我们的画风格格不入」——桌子和人画在一张图里，人的画法和游戏里走动的人对不上）。
+  // R231 那一批（r231_sets.js）已经不加载，原来的空桌椅自己就回来了；这里把 R213 / R229 那一批（倚翠楼琴堂、长乐坊、云来大堂）换回同屋的空桌椅。
+  // 以后坐着的客人按游戏里行走图的画风一个一个单独做，再摆到这些桌子边上（拼接法）。
   try {
-    for (const [m, table] of Object.entries(SETS)) { const M = TMAPS[m], bk = M && M.baked; if (!bk) continue; M.npcs = M.npcs || [];
-      for (const o of bk.objs || []) { const d = table[o.id]; if (!d || o._r253) continue; o._r253 = 1;
-        const by = o.sy != null ? o.sy : o.y + o.h; M.npcs.push(ghost(o.x + o.w / 2, by - 2, d[0], d[1], Math.round(o.h * .74))); } }
+    const one = (img, w, h, ax, ay, cx, sy, id) => ({ id, uid: 'r253e_' + id + '_' + Math.round(cx) + '_' + Math.round(sy), img, w, h, x: Math.round(cx - ax), y: Math.round(sy - ay), sy: Math.round(sy), flat: false });
+    const EMPTY = {
+      // 琴堂：矮茶几（自带左右两只绣墩）+ 前后各一只绣墩，和琴堂里原来那组空茶座一样
+      qy_yicui: (cx, sy) => [one('r213_n1_r226_tea_low', 192, 160, 96, 144, cx, sy, 'tea_low'), one('r213_n1_r226_stool_extra', 47, 45, 23.5, 45, cx, sy - 48, 'stool_extra'), one('r213_n1_r226_stool_extra', 47, 45, 23.5, 45, cx, sy + 48, 'stool_extra')],
+      // 赌坊：牌九桌（自带两只凳）+ 左右各一只方凳；「看热闹」那条长凳组直接拿掉
+      qy_changle: (cx, sy, o) => /gamble_watch/.test(o.id) ? [] : [one('r213_c1_paijiu_table', 182, 114, 91, 108, cx, sy, 'paijiu_table'), one('r213_c1_plain_stool', 40, 40, 20, 40, cx - 96, sy, 'plain_stool'), one('r213_c1_plain_stool', 40, 40, 20, 40, cx + 96, sy, 'plain_stool')],
+      // 云来大堂：同屋那种圆桌配三只凳（位置正好落在原来那几张桌子排成的格子上）
+      xt_inn_hall: (cx, sy) => [one('r217_xt_inn_hall_dining_06', 212, 168, 106, 168, cx, sy, 'dining')],
+    };
+    for (const [m, M] of Object.entries(TMAPS)) { const bk = M && M.baked, f = EMPTY[m]; if (!bk || !bk.objs) continue;
+      if (!f) { if (bk.objs.some(o => /^r2(13|30)_set_|^r230_/.test(o.img || ''))) bk.objs = bk.objs.filter(o => !/^r2(13|30)_set_|^r230_/.test(o.img || '')); continue; }
+      const out = []; let hit = 0;
+      for (const o of bk.objs) { if (!/^r213_set_/.test(o.img || '')) { out.push(o); continue; } hit++; out.push(...f(o.x + o.w / 2, o.sy != null ? o.sy : o.y + o.h, o)); }
+      if (hit) bk.objs = out; }
+    // 赌坊拿掉的那条长凳原来占着的格子放开
+    { const bk = TMAPS.qy_changle && TMAPS.qy_changle.baked; if (bk) { const cs = bk.cs, B = bk.blocked.split(''); for (let y = 272; y < 320; y += cs) for (let x = 288; x < 448; x += cs) B[Math.floor(y / cs) * bk.cols + Math.floor(x / cs)] = '0'; bk.blocked = B.join(''); } }
   } catch (e) { console.warn('r253 sets', e); }
+  // 悦来客栈（青阳镇）：左边那道上楼的楼梯（楼上并没有房间）、右上角后厨那个门框拿掉，原来占着的地方放开
+  try { const bk = TMAPS.qy_inn && TMAPS.qy_inn.baked;
+    if (bk) { bk.objs = bk.objs.filter(o => o.id !== 'interior_stairs' && o.id !== 'kitchen_door'); const cs = bk.cs, B = bk.blocked.split(''), open = (x0, y0, x1, y1) => { for (let y = y0; y < y1; y += cs) for (let x = x0; x < x1; x += cs) B[Math.floor(y / cs) * bk.cols + Math.floor(x / cs)] = '0'; };
+      open(32, 256, 224, 416); open(928, 192, 1088, 224); bk.blocked = B.join(''); } } catch (e) { console.warn('r253 inn', e); }
 
   // ---------------- ④ 听雨楼二层 ----------------
   try {
-    const M = TMAPS.xt_teahouse_2f, bk = M && M.baked, A = window.R231S && R231S.A;
-    if (bk && A) {
+    const M = TMAPS.xt_teahouse_2f, bk = M && M.baked;
+    if (bk) {
       const cs = bk.cs, B = bk.blocked.split(''), set = (x0, y0, x1, y1, v) => { for (let y = Math.floor(y0 / cs); y <= Math.floor(y1 / cs); y++) for (let x = Math.floor(x0 / cs); x <= Math.floor(x1 / cs); x++) if (x >= 0 && y >= 0 && x < bk.cols && y < bk.rows) B[y * bk.cols + x] = v; };
       const O = bk.objs, byId = id => O.filter(o => o.id === id);
       // 西南角那座花罩雅座贴着矮墙，书生的桌子摆到了墙上 → 拿掉这座花罩，书生挪到地板上、琴师旁边（听着琴写诗）
@@ -123,18 +98,7 @@
         Object.assign(poet, { x: 430, y: 905, sy: 1001 }); set(446, 972, 510, 1000, '1');
         if (cush) Object.assign(cush, { x: 548, y: 978, sy: 1007 });
       }
-      // 露台两张空桌 → 坐上客人（R230 的座位组，六帧循环）：近处一位观雨的老先生（茶娘正给他斟茶），伞边一位摇扇的妇人
-      // 这一组别处没用过的话，六帧循环的图要自己挂上（不然进图会一直等这张图）
-      const anim = k => { const key = 'r230_' + k, d = Object.getOwnPropertyDescriptor(IMG, key); if (d && d.get) return; const a = A[k], im = new Image(), fr = [];
-        im.onload = () => { const fw = im.width / 6, fh = im.height; for (let i = 0; i < 6; i++) { const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(im, i * fw, 0, fw, fh, 0, 0, fw, fh); fr.push(c); } };
-        im.src = 'r230/a_' + k + '.webp';
-        try { Object.defineProperty(IMG, key, { configurable: true, enumerable: true, get: () => fr.length ? fr[Math.floor(performance.now() / 1000 * 6) % fr.length] : undefined, set: () => {} }); } catch (e) {} };
-      const put = (o, k, cx, by) => { const a = A[k]; anim(k); for (const key of Object.keys(o)) delete o[key];
-        Object.assign(o, { id: 'set_' + k, uid: 'r253_2f_' + k, img: 'r230_' + k, w: a[0], h: a[1], x: Math.round(cx - a[2]), y: Math.round(by - a[3]), sy: by, flat: false, noPre: true });
-        set(cx + a[4] - a[2], by + a[5] - a[3], cx + a[4] - a[2] + a[6] - 1, by + a[5] - a[3] + a[7] - 1, '1'); };
-      const tt = byId('terrace_tea_set');
-      if (tt[0]) put(tt[0], 'tea_old_scholar', 1092, 752);
-      if (tt[1]) put(tt[1], 'tea_lady_fan', 1150, 990);
+      // 露台两张空桌原来坐上了 R230 座位组的两位客人——座位组的人画风不对，撤掉，露台还是两张空桌
       bk.blocked = B.join('');
       // 人：都有名字、都能搭话（原来只有看不见的热点，头顶没名牌）
       const ob = id => O.find(o => o.id === id), feet = (o, dx) => [o.x + o.w / 2 + (dx || 0), o.sy - 2];
@@ -147,8 +111,6 @@
       if (csd) npcs.push(ghost(...feet(csd), '棋客·老贺', async () => { await L([['棋客·老贺', pick(['别吵别吵，这一手我想了半炷香了。', '他让我三子，我还是输。可在这楼上输棋，比在别处赢棋痛快。', '再来一盘！……掌柜的，记账！'])], [XX, '（黑棋那条大龙早死了，他还没看出来。）']]); }, 88));
       if (sw) npcs.push(ghost(...feet(sw), '白衣剑客·谢停云', async () => { await L([['白衣剑客·谢停云', pick(['从这儿望出去，十盏灵灯一盏不落。夜里灵枢的光幕升起来，雨打在上头，像打在一口倒扣的琉璃碗上。', '我在等一场雨停。停了，就该走了。……可这玄天城的雨，总也不停。', '剑在楼下。听雨楼的规矩，上楼不带兵刃——这规矩，我服。'])]]); }, 120));
       if (ta) npcs.push(ghost(...feet(ta), '茶娘·挽月', async () => { await say('茶娘·挽月', pick(['露台的茶凉得快，客官趁热。', '那把大伞是掌柜的亲手画的伞面。她说，伞底下的人不该淋雨，也不该淋愁。', '我管露台这几桌。客官要添水，招招手就好。'])); }, 116));
-      if (tt[0]) npcs.push(ghost(1092, 750, '观雨的老先生', ['（老先生捧着茶盏，望着雨幕出神。）', '老朽每逢落雨必来。这一城的屋瓦，淋湿了才好看。', '挽月这丫头斟茶，七分满，一滴不洒。如今的年轻人，难得。'], 110));
-      if (tt[1]) npcs.push(ghost(1150, 988, '摇扇的妇人', ['下着雨还摇扇子？——摇的不是风，是闲。', '我家那口子在万宝楼当掌眼，忙得脚不沾地。我一个人来，倒清净。', '这露台的位置要提前三天订。今日是托了掌柜的情面。'], 110));
       // 二层的茶娘：素笺从一层调上来，在雅座这半边走动添茶
       try { const one = TMAPS.xt_teahouse, i = (one.npcs || []).findIndex(n => n.name === '茶娘·素笺');
         if (i >= 0) { const n = one.npcs.splice(i, 1)[0]; const [c, r] = P(700, 850);
