@@ -53,7 +53,15 @@
   for (const k in TR) { const [name, desc, vol, dur] = TR[k]; lib['lib_r227_' + k] = { no: '支' + String(++i).padStart(2, '0'), name, group: G, kind: 'bgm', file: 'r227/' + k + '.mp3', vol, desc: '小云雀 Seed Audio 1.0 · ' + desc, dur }; }
   const id = k => 'lib_r227_' + k;
   const sq = q => { try { const s = (S.flags.sq || {})[q]; return s && s.s === 1 ? s.n : -1; } catch (e) { return -1; } };
-  let cue = null, cueMap = '', cueEnd = 0;   // 说到某句话时临时换的曲子：换地图就作废；带时限的到点也作废
+  let cue = null, cueMap = '', cueEnd = 0, cueTalk = false;   // 说到某句话时临时换的曲子：换地图就作废；带时限的到点也作废
+  // 作者 11-13：「说书先生说完话，他的专属曲整整放了很久——不是该 5–10 秒就停下来，接着放我们本来的曲子吗」
+  // → 跟人说话换的曲子（cueTalk）只在对话框开着的时候放，对话关掉 6 秒后回到本地图的曲子，而且从刚才停下的地方接着放，不从头来。
+  // 每首曲子换走时记住放到了第几秒；五分钟内又回到这首（出了民宅回到城里、说书说完回到茶馆的曲子……），就从那儿接着放。
+  // 战斗、首领、标题曲和剧情里点的气氛曲（案子各阶段、说书、点灯）不接，每次照常从头。
+  const POS = {};
+  const noResume = n => { const T = (window.BGM29 && BGM29.T) || {}; return !n || n === T.battle || n === T.boss || n === T.title || /^lib_r227_(case_|shuoshu|diandeng)/.test(n); };
+  const savePos = () => { try { if (AUD.bgmName && AUD.bgm && AUD.bgm.a) POS[AUD.bgmName] = { t: AUD.bgm.a.currentTime || 0, at: Date.now() }; } catch (e) {} };
+  const restorePos = () => { try { const n = AUD.bgmName, p = POS[n], a = AUD.bgm && AUD.bgm.a; if (p && a && !noResume(n) && Date.now() - p.at < 300000 && p.t > 1) a.currentTime = p.t; } catch (e) {} };
   // 这张图现在该放哪首（null = 不管，照原来的）
   function want(m) {
     if (cue && cueMap === m && (!cueEnd || Date.now() < cueEnd)) return cue;
@@ -63,7 +71,7 @@
       if (n < 0) return 'yunlai';
       if (n <= 1) return m === 'xt_inn_hall' && n === 0 ? 'yunlai' : 'case_xunji';
       if (n <= 3) return 'case_yiyun'; if (n === 4) return 'case_bijin'; return 'case_duizhi'; }
-    if (/^xt_wanbao_/.test(m)) { const n = sq('xt_fake');
+    if (/^xt_wanbao(_|$)/.test(m)) { const n = sq('xt_fake');   // 作者 11-13：一楼、二楼雅间、后院库房是同一座楼，用同一首（原来一楼漏了，上下楼就换曲）
       if (n < 0) return 'wanbao';
       if (n <= 1) return m === 'xt_wanbao_store' ? 'case_yetan' : 'case_xunji';
       if (n === 2) return 'case_yiyun'; if (n === 5) return 'case_yinmou'; if (n <= 4) return 'case_bijin'; return 'case_duizhi'; }
@@ -75,17 +83,30 @@
     return null;
   }
   // 各地图自己的曲子（第四批）。只在「现在放的是通用地图曲」时才换——剧情里特意点的曲子（剑鸣、首领战、夜里的戏）不抢。
-  const MAPBGM = m => m === 'xt_city' ? 'map_xtcity' : m === 'lin_forest' ? 'map_linforest' : /^hf_/.test(m) ? 'map_heifeng' : m === 'seal_field' ? 'map_sealfield' : /^ly_/.test(m) ? 'map_luoyun'
+  const MAPBGM = m => m === 'xt_city' || /^xt_home_/.test(m) ? 'map_xtcity' : m === 'lin_forest' ? 'map_linforest' : /^hf_/.test(m) ? 'map_heifeng' : m === 'seal_field' ? 'map_sealfield' : /^ly_/.test(m) ? 'map_luoyun'
     : /^qy_(escape|defense|rescue)/.test(m) ? 'map_qywar' : m === 'qy_shelter' ? 'map_shelter' : m === 'tj_xiashan' ? 'map_songfeng' : m === 'm_cy_north' ? 'map_cybei' : /^m_cy_/.test(m) ? 'map_cangyue'
     /* 作者 11-13：藏经阁那首太难听 → 先撤下，藏经阁回到原来的曲子；重做好了再接回来 */
     : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
   const generic = () => { try { const n = AUD.bgmName || '', T = BGM29.T || {}; return /^lib_r227_/.test(n) || [T.wild, T.shop, T.xtcity, T.sect, T.town, T.fair, T.linfu].includes(n); } catch (e) { return false; } };
 
-  const back = () => { if (S.started) return BGM29.resume(); AUD.bgmName = ''; playBgm('bgm_shanmen', true); };   // 没正式开局（测试面板跳图）时 resume 会放标题曲，这里直接接回本地图的曲子
+  const back = () => { if (S.started) BGM29.resume(); else { AUD.bgmName = ''; playBgm('bgm_shanmen', true); } };   // 没正式开局（测试面板跳图）时 resume 会放标题曲，这里直接接回本地图的曲子
   function apply() {
     try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; if (!(world && world.map) || !(S.started || S.scene === drawMap)) return;   // 作者 11-13：从测试面板直接跳地图时 S.started 还是假的，新配乐一首都不放——改成「人已经站在地图上」也算
+      if (cue && cueTalk && ((typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice))) cueEnd = Date.now() + 6000;   // 还在说话：往后顺延
       const k = want(world.mapName); if (!k) { if (/^lib_r227_/.test(AUD.bgmName || '') && !MAPBGM(world.mapName)) back(); return; } if (AUD.bgmName !== id(k) || !AUD.bgm) BGM29.audition(id(k)); } catch (e) {}
   }
+  // 作者 11-13：「很多地图音乐应该是连续的——明明是同一首，换一张地图就从头放」。
+  // 原因：进图时底层先按「地图类型」放一首通用曲（比如客栈走廊 = 商铺曲），这里稍后再换回本楼的曲子，一换就从头开始了。
+  // 改成：底层要放通用曲时先问一句「这张图有没有自己的曲子」——有，而且正在放的就是它，就什么都不做（接着放）；有但不是它，直接换成它。
+  if (typeof playBgm === 'function') playBgm = (orig => function (n, force) {
+    try { const T = (window.BGM29 && BGM29.T) || {}, gen = n === 'bgm_shanmen' || (Object.values(T).includes(n) && n !== T.battle && n !== T.boss && n !== T.title);
+      if (gen && world && world.map && !(typeof battle !== 'undefined' && battle) && AUD.mode && !AUD.muted) { const m = world.mapName, k = want(m);
+        if (/^qy_home_/.test(m) && AUD.bgmName === T.qytown && AUD.bgm) return;   // 青阳镇的民宅：镇上的曲子接着放
+        if (k) { if (AUD.bgmName === id(k) && AUD.bgm) return; BGM29.audition(id(k)); return; } } } catch (e) {}
+    return orig.apply(this, arguments); })(playBgm);
+  // 最外面一层：不管是谁换的曲子，换之前记下旧曲放到哪儿，换完看新曲以前有没有放到一半的
+  if (typeof playBgm === 'function') playBgm = (orig => function () { const before = AUD.bgmName; savePos(); const r = orig.apply(this, arguments); if (AUD.bgmName !== before) restorePos(); return r; })(playBgm);
+  { const au = BGM29.audition; BGM29.audition = function (k) { const before = AUD.bgmName; if (before !== k) savePos(); const r = au.apply(this, arguments); if (before !== k) restorePos(); return r; }; }
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function () { const r = orig.apply(this, arguments); setTimeout(apply, 0); setTimeout(apply, 400); return r; })(tileSetMap);
   setInterval(apply, 1000);   // 案子推进一步（或打完架回到地图）后一秒内换过来
   // 说到这句话就换曲子（一直放到离开这张图）
@@ -99,10 +120,11 @@
     [/七年前，黑风寨头一回下山抢粮/, 'case_jiushi', 120], [/恕我冒昧。贵宗外门/, 'case_jiushi'],
   ];
   // 跟这个人说话就换曲子（放一阵子自己换回去）
-  const WHO = { '说书先生': ['shuoshu', 100], '司灯老人': ['diandeng', 100] };
+  const WHO = { '说书先生': 'shuoshu', '司灯老人': 'diandeng' };
   say = (orig => function (who, text) {
-    try { const t = String(text || ''); let hit = null; for (const [re, k, sec] of CUES) if (re.test(t)) { hit = [k, sec]; break; } if (!hit && WHO[who]) hit = WHO[who];
-      if (hit) { cue = hit[0]; cueMap = world.mapName; cueEnd = hit[1] ? Date.now() + hit[1] * 1000 : 0; apply(); } } catch (e) {}
+    try { const t = String(text || ''); let hit = null, talk = false; for (const [re, k, sec] of CUES) if (re.test(t)) { hit = [k, sec]; break; } if (!hit && WHO[who]) { hit = [WHO[who], 6]; talk = true; }
+      if (hit && !(talk && cue === hit[0] && cueTalk)) { cue = hit[0]; cueMap = world.mapName; cueTalk = talk; cueEnd = hit[1] ? Date.now() + hit[1] * 1000 : 0; apply(); }
+      else if (talk && cue === hit[0]) cueEnd = Date.now() + 6000; } catch (e) {}
     return orig.apply(this, arguments);
   })(say);
   window.R227 = { TR, want, apply, id, MAPBGM, mood(k) { cue = k || null; cueMap = world.mapName; if (k) apply(); else back(); } };
