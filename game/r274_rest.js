@@ -18,7 +18,7 @@
   for (const n of R0.npcs) { const s = SPOT[n.name]; if (s) { const [c, r] = P(s[0], s[1]); n.c = c; n.r = r; } }
   { const [c, r] = P(320, 830); R0.npcs.push({ key: 'none', c, r, name: '茶案', hidden: true, h: 110, talk: ['茶案上一壶清茶还温着，四只白瓷杯倒扣在茶盘里。'], random: false }); }
   { const [c, r] = P(978, 830); R0.npcs.push({ key: 'none', c, r, name: '书案', hidden: true, h: 110, talk: ['书案上摊着一卷剑谱，页边用朱笔圈了好几处。笔还没洗。'], random: false }); }
-  // 作者 11-14：「记得调整人物和建筑比例」——整屋按 0.85 显示，人相对家具大一点（和醉仙楼、悦来客房一致）
-  try { MAP_ZOOM.xt_sect_rest = .85; if (typeof WIDE_OK === 'object') WIDE_OK.xt_sect_rest = 1; } catch (e) {}
+  // 作者 11-14：「记得调整人物和建筑比例」——整屋按 0.8 显示，人相对家具大一点；三张床拉直成左右竖直（原来近大远小像歪的）（和醉仙楼、悦来客房一致）
+  try { MAP_ZOOM.xt_sect_rest = .8; if (typeof WIDE_OK === 'object') WIDE_OK.xt_sect_rest = 1; } catch (e) {}
   try { if (window.R252_WIN) delete R252_WIN.xt_sect_rest; } catch (e) {}   // 窗光已经画在这张房里
 })();
