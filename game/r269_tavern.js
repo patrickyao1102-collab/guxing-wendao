@@ -18,6 +18,8 @@
   const start = P(960, 1070), up = P(700, 250), down = P(355, 860);
   T0.baked = { ground: K + 'g', cs: D.cs, cols: D.cols, rows: D.rows, w: D.w, h: D.h, blocked: D.blocked, objs };
   T0.start = start; T0.indoor = true; T0.chests = [];
+  // 作者 11-14：「醉仙楼比例不对，人物太小了」——整屋按 0.8 显示（人在屏幕上一样大，楼梯、柜台、桌子小一圈；桌面约是人身长的 1.3 倍，和青阳镇其它屋子一致）
+  try { MAP_ZOOM.qy_tavern = .8; } catch (e) {}
   T0.doors = [
     { x: 355, y: 826, rw: 46, rh: 22, to: 'qy_tavern', at: up, face: 'right', label: '上二楼' },
     { x: 660, y: 238, rw: 40, rh: 18, to: 'qy_tavern', at: down, face: 'down', label: '下楼' },
