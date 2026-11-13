@@ -27,6 +27,10 @@
   set(285, 256, 1653, 800, '1'); set(1709, 256, 2725, 736, '1');
   // ⑥ 院里原来有个宝箱（据点西北角竹子旁），院子封了以后够不着 → 挪到据点北墙外的草地上
   try { const ch = (M.chests || []).find(c => c.c === 6.5 && c.r === 4); if (ch) { ch.c = 420 / 64 - .5; ch.r = 92 / 64 - .8; } } catch (e) {}
+  // ⑦ 据点院里北面正中那栋：换成前院里那座新正厅（同一张图缩小），外面看和进门看是同一座楼
+  try { const h = B.objs.find(o => o.id === 'lin_main_hall' && Math.round(o.x) === 766); if (h && window.R260_COURT) {
+      if (!IMG.r260c_hall) { const im = new Image(); im.onload = () => { try { IMG.r260c_hall = im; } catch (e) {} }; im.src = 'r260/court/o_hall.webp'; }
+      const w = 520, hh = Math.round(w * 560 / 1000), cx = h.x + h.w / 2; Object.assign(h, { img: 'r260c_hall', x: Math.round(cx - w / 2), y: Math.round(h.sy - hh * 557 / 560), w, h: hh }); } } catch (e) {}
   B.blocked = bl.join('');
   try { if (window.MM_CLEAR) MM_CLEAR('xt_city'); } catch (e) {}
   window.R260W = { n };
