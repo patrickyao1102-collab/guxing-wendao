@@ -77,6 +77,8 @@
     // 赌坊拿掉的那条长凳原来占着的格子放开
     { const bk = TMAPS.qy_changle && TMAPS.qy_changle.baked; if (bk) { const cs = bk.cs, B = bk.blocked.split(''); for (let y = 272; y < 320; y += cs) for (let x = 288; x < 448; x += cs) B[Math.floor(y / cs) * bk.cols + Math.floor(x / cs)] = '0'; bk.blocked = B.join(''); } }
   } catch (e) { console.warn('r253 sets', e); }
+  // 林府门房（作者 11-13：「这两个门房好丑」）：R248 新画的两个家丁撤掉，换成游戏里原有的那位青衣家仆（干净利落的年轻人），一左一右，右边那个镜像
+  try { for (const n of (TMAPS.qy_town && TMAPS.qy_town.npcs) || []) if (n.name === '林府门房' && n.ws) { n.key = 'c_a1'; delete n.cx; delete n.ws; } } catch (e) {}
   // 悦来客栈（青阳镇）：左边那道上楼的楼梯（楼上并没有房间）、右上角后厨那个门框拿掉，原来占着的地方放开
   try { const bk = TMAPS.qy_inn && TMAPS.qy_inn.baked;
     if (bk) { bk.objs = bk.objs.filter(o => o.id !== 'interior_stairs' && o.id !== 'kitchen_door'); const cs = bk.cs, B = bk.blocked.split(''), open = (x0, y0, x1, y1) => { for (let y = y0; y < y1; y += cs) for (let x = x0; x < x1; x += cs) B[Math.floor(y / cs) * bk.cols + Math.floor(x / cs)] = '0'; };
