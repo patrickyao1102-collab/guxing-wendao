@@ -35,4 +35,9 @@
   if (rest) for (const e of rest.exits || []) if (e.to === 'xt_sect_hall') Object.assign(e, { to: 'xt_sect_court', at: P(1676, 650), face: 'down', label: '出门 · 前院' });
   hall.doors = (hall.doors || []).filter(d => d.to !== 'xt_sect_rest');   // 正厅东南角通客舍的临时传送阵撤掉（客舍改从前院月洞门进）
   for (const n of hall.npcs || []) if (n.name === '任务执事' && typeof n.talk === 'function') { /* 台词里提过「东南角的阵法通客舍」，保持原样不影响进出 */ }
+  // 作者 11-13：「守门弟子不应该是这样子，不好看，换个造型」「天剑宗弟子怎么会这么土，打扮得和普通人一样」
+  // → 据点里站着不动、脸朝外的弟子，换成天剑宗山上（演武广场）那一套弟子的样子：背剑的内门弟子、白衣蓝襟的弟子、持剑女弟子、浅蓝衣女弟子。
+  //   会走动的、背对着人的（看榜的、禀事的）还用原来那套能走路、有背面的。
+  try { const LOOK = { 守门弟子: 'c_a3', 侍立弟子: 'c_d2', 候命弟子: 'c_a5', 练剑的弟子: 'c_a3', 对练的女弟子: 'c_a5', 池边洗剑的女弟子: 'c_d3' };
+    for (const m of ['xt_city', 'xt_sect_hall', 'xt_sect_court']) for (const n of (TMAPS[m] && TMAPS[m].npcs) || []) { const k = LOOK[n.name]; if (!k || n.wander || (n.face && n.face !== 'down')) continue; n.key = k; delete n.cx; } } catch (e) {}
 })();
