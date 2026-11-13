@@ -33,12 +33,8 @@ jobs:
           python3 tools/make_manifest.py release "${GITHUB_SHA::7}"   # 更新清单（version.json 保持明文）
           mkdir -p _site
           cp -r release/. _site/
-      - name: 浏览器测试版 /play/（带测试面板；Service Worker 把根目录的加扰素材还原后给页面用，不另占一份素材空间）
-        run: |
-          mkdir -p _site/play
-          cp tools/play/index.html tools/play/sw.js _site/play/
-          sed -i "s/__REF__/${GITHUB_SHA}/" _site/play/sw.js   # 剔掉的素材从同一次提交的仓库原文件取
-          cp game/index.html _site/play/game.html
+      - name: 浏览器测试版 /play/（带测试面板；只进测试版的文件加扰后放 play/t/，连同清单一起发布；浏览器按清单取文件，见 tools/play/sw.js）
+        run: python3 tools/build_play.py _site "${GITHUB_SHA}"
       - name: 纯净版 /pure/（作者 11-11：没有一张废稿废图；去掉测试面板；正式版剔掉的文件直接 404，不从仓库补）
         run: |
           mkdir -p _site/pure
@@ -51,4 +47,12 @@ jobs:
         with:
           path: _site
       - id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      # GitHub 自己偶尔抽风（11-13 出过一次「Fetching artifact metadata failed」）：发布失败就等半分钟再试一次，不然测试版会停在旧版本上
+      - name: 发布失败 → 等 30 秒
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: 发布失败 → 再试一次
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4

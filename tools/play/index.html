@@ -1,19 +1,34 @@
 <!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>孤星问道 · 测试版</title>
-<style>html,body{margin:0;height:100%;background:#05070d url(https://raw.githubusercontent.com/patrickyao1102-collab/guxing-wendao/main/game/r157/bg_01.webp) center/cover no-repeat;color:#f5e6c4;font-family:"Songti SC","Noto Serif SC",serif;display:flex;align-items:flex-end;justify-content:center;text-align:center}body>div{margin-bottom:8vh;text-shadow:0 2px 6px #000}b{font-size:44px;color:#ffd66b;display:block;margin-bottom:12px}</style></head>
-<body><div><b>孤星问道</b><div id="m">正在准备测试版……</div></div>
+<style>html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 100%,#1a2238 0%,#0a0e1a 55%,#05070d 100%);color:#f5e6c4;font-family:"Songti SC","Noto Serif SC",serif;display:flex;align-items:flex-end;justify-content:center;text-align:center}body>div{margin-bottom:8vh;text-shadow:0 2px 6px #000}b{font-size:44px;color:#ffd66b;display:block;margin-bottom:12px}#v{margin-top:8px;font-size:14px;opacity:.75;min-height:18px}</style></head>
+<body><div><b>孤星问道</b><div id="m">正在准备测试版……</div><div id="v"></div></div>
 <script>
-// 先装好 Service Worker（负责把加扰的素材还原），再进游戏
+// 加载页：先把负责取文件的 Service Worker 装好、换成最新的，确认它在管这个页面，再进游戏。
+// 作者 11-13：测试版经常加载不出来更新后的版本——这里每次进来都查一遍，浏览器里装的要是旧的加载程序，就卸掉重装。
 (async () => {
-  const m = document.getElementById('m');
-  if (!('serviceWorker' in navigator)) { m.textContent = '这个浏览器不支持试玩（需要 Service Worker），请换 Chrome / Safari 最新版'; return; }
+  const m = document.getElementById('m'), v = document.getElementById('v'), say = t => { m.textContent = t; };
+  const NEED = 3, sleep = ms => new Promise(r => setTimeout(r, ms)), pad = n => String(n).padStart(2, '0');
+  const fmt = t => { const d = new Date(t); return isNaN(d) ? '' : (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  if (!('serviceWorker' in navigator)) { say('这个浏览器不支持试玩（需要 Service Worker），请换 Chrome / Safari 最新版'); return; }
+  const ping = async () => { try { const r = await fetch('__sw', { cache: 'no-store' }); return r.ok ? await r.json() : null; } catch (e) { return null; } };
   try {
+    say('正在检查更新……');
     const reg = await navigator.serviceWorker.register('sw.js', { scope: './', updateViaCache: 'none' });
-    // 每次进来先问一遍有没有新版的 Service Worker，有就等它接管再进游戏（不然新加的素材要刷新两次才出得来）
-    try { m.textContent = '正在检查更新……'; await reg.update(); const w = reg.installing || reg.waiting; if (w) await new Promise(r => { navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }); setTimeout(r, 5000); }); } catch (e) {}
+    try { await reg.update(); } catch (e) {}
+    const w = reg.installing || reg.waiting;
+    if (w) await new Promise(r => { const f = () => { if (w.state === 'activated' || w.state === 'redundant') r(); }; w.addEventListener('statechange', f); f(); setTimeout(r, 10000); });
     await navigator.serviceWorker.ready;
-    if (!navigator.serviceWorker.controller) await new Promise(r => { navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }); setTimeout(r, 3000); });
-    location.replace('game.html' + location.hash);
-  } catch (e) { m.textContent = '准备失败：' + e.message + '（刷新一下再试）'; }
+    if (!navigator.serviceWorker.controller) await new Promise(r => { navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }); setTimeout(r, 4000); });
+    let p = null; for (let i = 0; i < 16; i++) { p = await ping(); if (p && p.v >= NEED) break; await sleep(400); }
+    if (!(p && p.v >= NEED)) {   // 管着这个页面的还是旧的加载程序：卸掉重装（最多两次，免得来回转圈）
+      let n = 0; try { n = +(sessionStorage.getItem('gx_fix') || 0); } catch (e) {}
+      if (n < 2) { try { sessionStorage.setItem('gx_fix', String(n + 1)); } catch (e) {} say('正在换上新的加载程序……'); try { await reg.unregister(); } catch (e) {} await sleep(300); location.reload(); return; }
+      say('加载程序没换上。请把这个页面关掉再打开一次；还不行，就把这句话告诉 Claude。'); return;
+    }
+    try { sessionStorage.removeItem('gx_fix'); } catch (e) {}
+    try { const r = await fetch('build.json', { cache: 'no-store' }); if (r.ok) { const b = await r.json(), s = fmt(b.t); if (s) v.textContent = '版本：' + s; } } catch (e) {}
+    say('正在进入游戏……');
+    location.replace('game.html' + location.search + location.hash);
+  } catch (e) { say('准备失败：' + e.message + '（刷新一下再试）'); }
 })();
 </script></body></html>
