@@ -8,7 +8,7 @@
     ['qy_town', 'house_03_3', 'yicui3', 390, 505, 195, 496],   // R232：白色琴楼（作者：白一点、独特一点）
     ['qy_town', 'house_02_2', 'changle2', 437, 452, 218, 445],
     ['xt_city', 'xt_inn_20', 'yunlai2', 797, 564, 399, 551],
-    ['xt_city', 'xt_auction_23', 'wanbao', 359, 607, 179.309, 600.114],
+    ['xt_city', 'xt_auction_23', 'wanbao3', 460, 550, 257, 565],   // 作者 11-13 晚：万宝楼换成 R270「如意抱阁」（玉如意祥云抱着两层宝阁）；门对原入口，门口平台台阶另铺在地上
     // R234 第一批（作者 11-12：这种创意给玄天城其他有特色的也改一下）
     // 玄兵阁、玄元拍卖场：作者 11-13 说更喜欢老版本，换回原图（R234 / R237 的图留在 Codex 交付目录里，不再用）
     ['xt_city', 'xt_apothecary_21', 'danxia2', 321, 620, 160.5, 613],   // 丹霞堂：R235 丹药葫芦（作者：丹炉像炼器，要葫芦）
@@ -30,5 +30,9 @@
       try { const M = TMAPS[map]; fix(M && M.baked && (M.baked.objs || []).find(o => o.uid === uid)); } catch (e) {}
       try { if (typeof world !== 'undefined' && world.map && world.mapName === map && world.map.T) fix((world.map.T.objs || []).find(o => o.uid === uid)); } catch (e) {} }
     if (ch) try { if (window.MM_CLEAR) MM_CLEAR(ch); } catch (e) {} }
+  // 万宝楼门口的平台台阶（R270 单独交的地面件，贴地画，人走在上面）
+  { const im = new Image(); im.onload = () => { IMG.r270_wanbao_steps = im; }; im.src = 'r228/wanbao3_steps.webp';
+    const B = TMAPS.xt_city && TMAPS.xt_city.baked; if (B && B.objs && !B.objs.some(o => o.uid === 'r270_wanbao_steps'))
+      B.objs.push({ id: 'r270_wanbao_steps', uid: 'r270_wanbao_steps', img: 'r270_wanbao_steps', x: 3017, y: 688, w: 240, h: 70, sy: 1, ax: 3137, ay: 1, flat: true, flip: false, noBlock: true, noPre: true }); }
   apply(); setInterval(apply, 500);
 })();

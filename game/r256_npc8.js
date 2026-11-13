@@ -25,18 +25,27 @@
     ctx.globalAlpha *= alpha ?? 1; ctx.translate(x, y); if (r[1]) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(IM[k], f * 224, r[0] * 240, 224, 240, -112 * sc, -232 * sc, 224 * sc, 240 * sc); ctx.restore();
   }
+  // 作者 11-13 晚：「这些 NPC 怎么变小了这么多，而且都是平移不会走路了」——两处毛病：
+  //   ① 集市整图是缩小着看的（VZ 0.6），R91 把集市里的人统一反向放大（1.2 × 反缩放）；这里自己画人时漏了这一步，人就小了一大截。
+  //   ② 访客的姿态对象每一帧都是新做的，步态状态存在它身上等于每帧清零，「在不在走」永远算不出来，只剩站立帧平移。
+  //   → 步态状态按人存；集市里照 R91 的倍数放大；走没走直接看路线给的动作（walk / stand）。
+  const MK = () => world.mapName === 'tj_market' && window.R80_ON && !(window.R80 && R80.r93) ? 1.2 : 1;   // 和 R91 的 CHAR_K 一致
+  const AZK = () => { try { return typeof AZ === 'function' ? AZ() : 1; } catch (e) { return 1; } };
+  const scaled = (x, y, k, fn) => { if (k === 1) return fn(); ctx.save(); ctx.translate(x, y); ctx.scale(k, k); ctx.translate(-x, -y); try { return fn(); } finally { ctx.restore(); } };
   // 城里闲逛的路人
   drawActorT = (orig => function (a, now) {
     const k = a && !a.hidden && a.npc && a.npc.r66 && keyOf(a.npc.r66); if (!k) return orig.apply(this, arguments);
-    const st = a._n8 || (a._n8 = { dir: a.dir > 0 ? 'downright' : 'downleft' }); draw8(k, st, a.x, a.y, !!a.moving, a.alpha);
+    const st = a._n8 || (a._n8 = { dir: a.dir > 0 ? 'downright' : 'downleft' }); scaled(a.x, a.y, MK(), () => draw8(k, st, a.x, a.y, !!a.moving, a.alpha));
   })(drawActorT);
   // 集市里按路线走的访客：影子、名牌、任务标记还走原来那套（画的时候先把贴图关掉），人换成八向图
+  const ST = {};
   if (typeof drawBaked === 'function') drawBaked = (orig => function (o, now) {
     const p = o && o.r60 && o.pose, k = p && /^visitor_/.test(p.texture || '') && keyOf(p.texture);
     if (!k || !p.anchor) return orig.apply(this, arguments);
     const di = ctx.drawImage; ctx.drawImage = function () {}; try { orig.apply(this, arguments); } finally { delete ctx.drawImage; if (ctx.drawImage !== di) ctx.drawImage = di; }
-    const st = p._n8 || (p._n8 = { dir: p.row === 1 ? 'up' : p.row === 2 ? (p.flip ? 'right' : 'left') : 'down' }), [ax, ay] = p.anchor, mv = Math.hypot(ax - (st.px ?? ax), ay - (st.py ?? ay)) > .05;
-    draw8(k, st, ax, ay, mv, 1);
+    const id = o.r60, st = ST[id] || (ST[id] = { dir: p.row === 1 ? 'up' : p.row === 2 ? (p.flip ? 'right' : 'left') : 'down' }), [ax, ay] = p.anchor;
+    const mv = p.action === 'walk' || Math.hypot(ax - (st.px ?? ax), ay - (st.py ?? ay)) > .05;
+    scaled(ax, ay, world.mapName === 'tj_market' ? MK() * AZK() : 1, () => draw8(k, st, ax, ay, mv, 1));
   })(drawBaked);
   window.R256 = { IM, SC };
 })();

@@ -10,7 +10,13 @@
   const K = 'r260c_';
   load(K + 'g', 'r260/court/g.webp'); for (const f of new Set(D.objs.map(o => o.f))) load(K + f, 'r260/court/o_' + f + '.webp');
   // 北墙（wall）和贴地的水池、灌木、花带、草丛（floor）先画在地上；其余按脚底和人一起排前后
-  const objs = D.objs.map((o, i) => { const flat = o.layer !== 'depth'; return { id: o.id, uid: 'r260c_' + i, img: K + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: flat ? 1 : o.sy, ax: o.x + o.w / 2, ay: o.sy, flat, flip: false, noBlock: true, noPre: true }; });
+  // 作者 11-13 晚：「这张地图人物和建筑比例不对」——量下来是几样摆件画大了：灯柱有人的 2.2 倍高、木人桩和草靶比人还高一截、兵器架和剑旗也偏大。
+  // 照城主府前院的比例（灯柱约 1.6–1.7 个人高，木人桩、草靶和人差不多高）。
+  // 作者 11-13 晚又说：不只是摆件，镜头也要拉远（广角），不然地砖太糊 → 这张图镜头按城主府前院拉到 0.8（人在屏幕上一样大，地图整体小一圈），摆件只再收一点点。
+  const SHRINK = { dummy: .85, straw_target: .9 };
+  try { MAP_ZOOM.xt_sect_court = .8; } catch (e) {}
+  const objs = D.objs.map((o, i) => { const flat = o.layer !== 'depth', k = SHRINK[o.f] || 1, ax = o.x + o.w / 2, w = Math.round(o.w * k), h = Math.round(o.h * k);
+    return { id: o.id, uid: 'r260c_' + i, img: K + o.f, x: Math.round(ax - w / 2), y: Math.round(o.sy - (o.sy - o.y) * k), w, h, sy: flat ? 1 : o.sy, ax, ay: o.sy, flat, flip: false, noBlock: true, noPre: true }; });
   const cell = R => ({ x: Math.floor(R[0] / D.cs), y: Math.floor(R[1] / D.cs), w: Math.ceil(R[2] / D.cs), h: Math.ceil(R[3] / D.cs) });
   const reg = n => { try { SPEAKERS[n] = SPEAKERS[n] || { p: '', color: '#cfe0ff' }; } catch (e) {} };
   const man = (key, xy, name, talk, o) => { const [c, r] = P(xy[0], xy[1]); reg(name); return Object.assign({ key, c, r, name, h: 116, wander: false, face: 'down', talk, random: true }, o || {}); };
