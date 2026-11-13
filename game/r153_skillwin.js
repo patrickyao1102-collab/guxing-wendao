@@ -131,7 +131,8 @@
       if (/领悟/.test(T)) {
         const main = (L.find(l => l[0] === '!') || L[0] || '').replace(/^!/, ''), rest = L.filter(l => l.replace(/^!/, '') !== main);
         const who = (T.match(/^(云霆|林雪|神乐|洛尘)/) || [])[1];
-        const meta = rest.find(l => /灵力|怒气|消耗|（/.test(l));
+        /* 作者 11-13：领悟用回黑金窗。括号里的整句（「（怒气满 100 时……）」）才是用法说明；效果描述里夹着括号的那句（「385%（每个敌人）」）不是，原来先碰到哪句算哪句，两句会放反；「吞噬敌人灵力……」这种效果描述也不能当成「灵力消耗 24」 */
+        const rev = rest.slice().reverse(), meta = rev.find(l => /^（.*）$/.test(l)) || rev.find(l => /(消耗|灵力|怒气)[^，。；]{0,8}\d/.test(l) && l.length <= 20);
         const desc = rest.filter(l => l !== meta).join('，');
         const self2 = this, a2 = arguments; return SKWIN.learn({ name: main, desc: desc || '', meta: meta ? meta.replace(/^（|）$/g, '') : '', note: who ? who + ' 领悟' : '' }).then(ok => ok ? true : orig.apply(self2, a2));
       }

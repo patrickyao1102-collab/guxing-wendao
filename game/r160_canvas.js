@@ -39,10 +39,14 @@ function wrapDescription(ctx, layout, data) {
   return String(data.description ?? '').split(/\r?\n/u).flatMap(paragraph => {
     const lines = [];
     let line = '';
+    // 作者 11-13（领悟用回黑金窗时发现）：换行不能把逗号、句号、右括号甩到下一行行首，也不能把左括号留在行尾
     for (const ch of paragraph) {
       if (line && ctx.measureText(line + ch).width > layout.wrapWidth) {
+        let carry = '';
+        if ('，。、；：！？）」』》…'.includes(ch) && line.length > 1) { carry = line[line.length - 1]; line = line.slice(0, -1); }   // 标点不上行首：带着前一个字一起换到下一行
+        while (line.length > 1 && '（「『《'.includes(line[line.length - 1])) { carry = line[line.length - 1] + carry; line = line.slice(0, -1); }
         lines.push({line});
-        line = '';
+        line = carry;
       }
       line += ch;
     }

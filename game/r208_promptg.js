@@ -1,5 +1,7 @@
-// ================= R208 · 剧情提示框换成 Codex R204「G 星盘授印」（作者 11-11：那个绿色的框、领悟框都换掉）=================
-// 星旋 / 玉佩 / 传音（原来的墨玉绿框）和所有「领悟……」框 → 灵雾横框 + 左侧星盘；1～4 行自动定高，多于 4 行分页。拆件尺寸、坐标按 R204 layout.json。
+// ================= R208 · 剧情提示框换成 Codex R204「G 星盘授印」（作者 11-11：那个绿色的框换掉）=================
+// 星旋 / 玉佩 / 传音（原来的墨玉绿框）→ 灵雾横框 + 左侧星盘；1～4 行自动定高，多于 4 行分页。拆件尺寸、坐标按 R204 layout.json。
+// 作者 11-13：「新的蓝色的框只是九曜剑典提示而已，没有太多的情况需要使用」——领悟技能不用这个蓝框，用回之前认可的黑金领悟窗（r160_popups.js）。
+//   所以这里不再接管 SKWIN.learn，标题里带「领悟」的面板也不归这个框管；蓝框只留给玉佩 / 星旋 / 九曜剑典这一类提示。
 (function () {
   const N = ['mist_panel_9', 'astrolabe', 'continue_normal', 'continue_pressed'], IM = {}; let n = 0;
   { const ps = N.map(k => new Promise(res => { const im = new Image(); im.onload = () => { IM[k] = im; n++; res(); }; im.onerror = () => res(); im.src = 'r204g/' + k + '.webp'; }));
@@ -11,7 +13,7 @@
   const DF = '"GuxingDF",' + BRUSH;
   /* 作者 11-12：这个提示框的字也换成 Codex 那套（行囊里用的）：标题马善政，正文霞鹜文楷 */
   const TF = '"R201MS","GuxingWKB",' + BRUSH, BF = '"GuxingKai","R201WK",' + FONT, BW = 400;   /* 作者 11-12 真机：常规体在手机上太细 → 换成霞鹜文楷 Medium（比粗体细、比常规体实） */   /* 作者 11-12：之前的字太粗 → 正文用霞鹜文楷常规字重 */
-  const WANT = p => /星旋|玉佩|传音|黑玉|领悟|吞噬之力|封印/.test(String(p.title || '')) && !p.eqp;
+  const WANT = p => /星旋|玉佩|传音|黑玉|吞噬之力|封印/.test(String(p.title || '')) && !/领悟/.test(String(p.title || '')) && !p.eqp;
   function nine(im, x, y, w, h, l, t, r, b) { const s = 2, sw = im.width, sh = im.height, SX = [0, l * s, sw - r * s, sw], SY = [0, t * s, sh - b * s, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
   function wrap(s, w) { const out = []; let line = ''; for (const ch of s) { if (ctx.measureText(line + ch).width > w && line && !/[%％，。、；：！？）」』》0-9]/.test(ch)) { out.push(line); line = ch; } else line += ch; }   /* 行首不放标点、百分号，数字不拆开 */ if (line) out.push(line); return out; }
@@ -48,13 +50,6 @@
       if (pages(p) > 1) { ctx.globalAlpha = k * .8; ctx.font = `18px ${BF}`; ctx.fillStyle = C.hint; ctx.fillText((pg + 1) + ' / ' + pages(p), x + w - 90, by + 20); } }
     ctx.restore(); return true;
   };
-  // 领悟技能（剧情、升级、技能页参悟）也用这个横框，左边换成技能图标
-  const hook = () => { if (!window.SKWIN || SKWIN.__g208) return false; SKWIN.__g208 = 1; const old = SKWIN.learn;
-    SKWIN.learn = function (o) { if (!ok()) return old.apply(this, arguments); o = o || {}; try { playSnd('sfx_sword_ring'); } catch (e) {} S.flash = .3; S.flashColor = '#cfe6ff';
-      const k = o.k || (SKWIN.keyOf && SKWIN.keyOf(o.name)), lines = ['!' + (o.name || ''), o.desc || '', o.meta ? '（' + String(o.meta).replace(/^（|）$/g, '') + '）' : ''].filter(Boolean);
-      return new Promise(res => { sysPanel = { title: o.note ? (/领悟/.test(o.note) ? String(o.note).replace(/\s*领悟.*$/, '') + ' · 领悟技能' : o.note + ' · 领悟技能') : '领悟技能', lines, t: 0, ms: 0, res: () => res(true), _g208icon: k }; }); };
-    return true; };
-  if (!hook()) { const iv = setInterval(() => { if (hook()) clearInterval(iv); }, 300); }
   // 多于 4 行：点一下翻下一页，最后一页再点才关
   if (typeof updatePanel === 'function') updatePanel = (o => function (dt) {
     const p = sysPanel; if (p && WANT(p) && ok() && p.t + dt > .4 && input.tapped) { const pg = p._g208p || 0; if (pg + 1 < pages(p)) { consumeTap(); p._g208p = pg + 1; p.t = .2; try { playSnd('ui_click'); } catch (e) {} return; } }
