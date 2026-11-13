@@ -4,11 +4,14 @@
 (function () {
   if (!window.R80_ON || typeof IMG === 'undefined') return;
   const im = new Image();
+  // 作者 11-13：「天剑宗集市为什么都黑屏了」——新地面图只画了石板路和草地，四周的天空、云海、岛下的山崖是透明的；
+  // 原来是拿它把整张地面直接换掉，透明的地方就成了黑的。改成：先铺原来的整张地面（天空云海山崖都在），再把新石板盖上去。
+  const make = base => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const g = c.getContext('2d');
+    if (base && base.width) g.drawImage(base, 0, 0, c.width, c.height); g.drawImage(im, 0, 0); c._r91 = 1; c._r249 = 1; return c; };
   im.onload = () => { const put = () => { if (!window.R80_GROUND || !window.R80_GROUND.width) return setTimeout(put, 200);   // 等原地面先到位（它到了以后会把 IMG 槽占住），再整张换掉
-      const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); c._r91 = 1; c._r249 = 1;
-      window.R80_GROUND = c; IMG.cx2g_tj_market = c; try { if (window.MM_CLEAR) MM_CLEAR('tj_market'); } catch (e) {} };
+      const c = make(window.R80_GROUND); window.R80_GROUND = c; IMG.cx2g_tj_market = c; try { if (window.MM_CLEAR) MM_CLEAR('tj_market'); } catch (e) {} };
     put(); };
   im.src = 'r249/ground.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {}
   // 原地面晚到的话会把槽抢回去：盯着，抢了就再换回来
-  setInterval(() => { const g = window.R80_GROUND; if (g && !g._r249 && im.complete && im.width) { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); c._r91 = 1; c._r249 = 1; window.R80_GROUND = c; IMG.cx2g_tj_market = c; try { if (window.MM_CLEAR) MM_CLEAR('tj_market'); } catch (e) {} } }, 1000);
+  setInterval(() => { const g = window.R80_GROUND; if (g && !g._r249 && im.complete && im.width) { const c = make(g); window.R80_GROUND = c; IMG.cx2g_tj_market = c; try { if (window.MM_CLEAR) MM_CLEAR('tj_market'); } catch (e) {} } }, 1000);
 })();
