@@ -52,5 +52,7 @@
     R257.build('qy_home_chen', { plan: 'yi1', city: 'qy_town', door: [533 + 156, 1888], label: '陈家', title: '陈宅', people: [['villager_m', '陈老汉', ['这块地原先是醉仙楼。醉仙楼搬去玄天城开大店，我儿子跟去跑堂了，就把这块地盘下来给我养老。', '玄天城一碗面要十文！还是镇上好，清净，便宜。', '灶上炖着萝卜，少侠不嫌弃就尝一口。'], 'cooking', 'up']] });
     R257.build('qy_home_sun', { plan: 'yi2', city: 'qy_town', door: [2437 + 312 * .47, 332.8], label: '孙家', title: '孙宅', people: [['maid', '孙小翠', ['我在悦来客栈后厨帮工，今日轮休。', '我们东家是「八方来」，玄天城那家云来客栈也是一家的。听说那边一间上房，够我挣半年。', '难得歇一天，把攒了半个月的衣裳都补了。'], 'sewing_side']] });
   }
+  // 作者 11-14：青阳镇下排王家、东边李家的门都在城墙背后，人走过去被墙挡住 →「不要了，没必要放那么多人家」，两户关门（房子照旧摆着）
+  TMAPS.qy_town.doors = (TMAPS.qy_town.doors || []).filter(d => d.to !== 'qy_home_wang' && d.to !== 'qy_home_li');
   window.R278 = 1;
 })();
