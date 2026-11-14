@@ -12,17 +12,27 @@
   function setVec(p) { let dx = p.x - C.x, dy = p.y - C.y; const d = Math.hypot(dx, dy); if (d > R) { dx = dx / d * R; dy = dy / d * R; } kx = dx; ky = dy;
     const m = Math.min(1, d / R); input.joy = m < .18 ? null : { x: dx / (Math.hypot(dx, dy) || 1), y: dy / (Math.hypot(dx, dy) || 1), m }; }
   // 抢在画布自己的点击（点哪走哪）之前接住：按在圆盘范围里就归摇杆
+  // 作者 11-15：「有些 NPC 站在摇杆的位置，人就没法跟他说话」——按在摇杆范围里、正好按在一个能说话的人（或能点的东西）身上时：
+  // 先不推摇杆；手指一拖开（超过 12 像素）或者按住超过 0.25 秒，才当摇杆用；很快松手 = 点了那个人，照常走过去说话。
+  const hitAt = p => { try { if (typeof pickInteract !== 'function') return null; const cam = world.cam || { x: 0, y: 0 }; return pickInteract(p.x / VZ() + cam.x, p.y / VZ() + cam.y); } catch (er) { return null; } };
+  let tap0 = null;
   window.addEventListener('pointerdown', e => { if (pid !== null || !free() || e.target !== cv) return; const p = toL(e); if (Math.hypot(p.x - C.x, p.y - C.y) > R + 40) return;
-    pid = e.pointerId; act = 1; e.stopPropagation(); e.preventDefault(); try { cv.setPointerCapture(pid); } catch (er) {} if (world) { world.path = null; world.walkTarget = null; world.pending = null; } setVec(p); }, { capture: true });
-  window.addEventListener('pointermove', e => { if (e.pointerId !== pid) return; e.stopPropagation(); setVec(toL(e)); }, { capture: true });
-  const end = e => { if (e.pointerId !== pid) return; e.stopPropagation(); pid = null; kx = ky = 0; input.joy = null; act = 0; };
+    pid = e.pointerId; act = 1; e.stopPropagation(); e.preventDefault(); try { cv.setPointerCapture(pid); } catch (er) {} if (world) { world.path = null; world.walkTarget = null; world.pending = null; }
+    tap0 = hitAt(p) ? { p, t: performance.now() } : null; if (!tap0) setVec(p); }, { capture: true });
+  window.addEventListener('pointermove', e => { if (e.pointerId !== pid) return; e.stopPropagation(); const p = toL(e);
+    if (tap0 && (Math.hypot(p.x - tap0.p.x, p.y - tap0.p.y) > 12 || performance.now() - tap0.t > 250)) tap0 = null; if (!tap0) setVec(p); }, { capture: true });
+  setInterval(() => { if (tap0 && pid !== null && performance.now() - tap0.t > 250) tap0 = null; }, 50);
+  const end = e => { if (e.pointerId !== pid) return; e.stopPropagation(); const t = tap0; tap0 = null; pid = null; kx = ky = 0; input.joy = null; act = 0;
+    if (t && performance.now() - t.t <= 250) input.tapped = t.p; };
   window.addEventListener('pointerup', end, { capture: true }); window.addEventListener('pointercancel', end, { capture: true });
   // 进剧情 / 对话 / 战斗时立刻松开，免得角色一直走
   setInterval(() => { if (pid !== null && !free()) { pid = null; kx = ky = 0; input.joy = null; act = 0; } }, 100);
   drawMapHud = (o => function () { const r = o.apply(this, arguments); try { draw(); } catch (e) {} return r; })(drawMapHud);
   function draw() {
     shown += ((free() ? 1 : 0) - shown) * .2; if (shown < .02) return;
-    ctx.save(); ctx.globalAlpha = shown * (act ? .95 : .6);
+    // 有人站在摇杆底下时，摇杆淡一点，看得见那个人（作者 11-15）
+    let under = 0; if (!act) try { const cam = world.cam || { x: 0, y: 0 }, z = VZ(); for (const a of world.actors || []) { if (!a.npc || a.hidden) continue; const sx = (a.x - cam.x) * z, sy = (a.y - 40 - cam.y) * z; if (Math.hypot(sx - C.x, sy - C.y) < R + 30) { under = 1; break; } } } catch (er) {}
+    ctx.save(); ctx.globalAlpha = shown * (act ? .95 : under ? .32 : .6);
     const g = ctx.createRadialGradient(C.x, C.y, R * .2, C.x, C.y, R); g.addColorStop(0, 'rgba(20,16,10,.25)'); g.addColorStop(1, 'rgba(20,16,10,.5)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(C.x, C.y, R, 0, 7); ctx.fill();
     ctx.strokeStyle = 'rgba(232,196,120,.75)'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.strokeStyle = 'rgba(232,196,120,.3)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(C.x, C.y, R - 10, 0, 7); ctx.stroke();

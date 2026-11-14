@@ -123,6 +123,14 @@
   // 进新地图：等地图换好再按地图类型选曲（原来的挂钩在换图之前就调用了）
   const sync = () => { if (typeof battle !== 'undefined' && battle) return; if (!(world && world.map)) return; const k = T[mapKind()]; if (AUD.bgmName !== k || !AUD.bgm) playBgm(k, !AUD.bgm); };
   // 看门狗：在地图上自由走动时，如果配乐被剧情 / 升级音效 / 战斗结束停掉了没接回来（后山就是这样一直没声），3 秒后自动接回本地图的曲子
+  // 作者 11-15（手机完整版）：「有的地图音乐只播一遍，播完第二遍就不循环了」——不管是什么原因停的（循环没接上、播放器卡住、切回 App 后被系统暂停），
+  // 只要该放的那首（AUD.bgm）还在、声音没关、画面在前台，它却停着，2 秒内接着放；放到尾巴停住的从头（或高潮段开头）再来。卡在原地不动超过 6 秒的重新读一遍。
+  { let lastT = -1, still = 0;
+    setInterval(() => { try { const b = AUD.bgm, a = b && b.a; if (!a || AUD.muted || !AUD.mode || document.visibilityState === 'hidden' || a.__pend) { still = 0; return; }
+      const o = EL[AUD.bgmName];
+      if (a.paused) { if (a.ended || (a.duration && a.currentTime >= a.duration - .3)) { try { a.currentTime = o && o.loop ? o.loop[0] : 0; } catch (e) {} } a.play().catch(() => {}); still = 0; lastT = a.currentTime; return; }
+      if (window.AUDIO_BLOB && Math.abs(a.currentTime - lastT) < .01) { if (++still >= 3) { still = 0; const t = a.currentTime; try { const s0 = a.getAttribute('src') || a.src; a.src = s0; a.currentTime = t; a.play().catch(() => {}); } catch (e) {} } } else still = 0;
+      lastT = a.currentTime; } catch (e) {} }, 2000); }
   let quiet = 0; setInterval(() => { try { const free = typeof battle !== 'undefined' && !battle && world && world.map && S.scene === drawMap && !world.locked && !dialog && !choice && !(window.CINE_PAUSE);
     if (free && AUD.mode && !AUD.muted && !AUD.bgm) { if (++quiet >= 3) { quiet = 0; sync(); } } else quiet = 0; } catch (e) {} }, 1000);
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function () { const r = orig.apply(this, arguments); setTimeout(sync, 0); return r; })(tileSetMap);

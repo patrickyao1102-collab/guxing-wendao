@@ -8,7 +8,9 @@
   // 每项：[图集x, 图集y, 宽, 高, 在 512 原格里的左上 x, y, 缩放]
   const MAP = {"c0":[0,0,348,323,100,158,1],"c1":[350,0,348,323,100,158,1],"c2":[700,0,348,323,100,158,1],"c3":[1050,0,348,323,100,158,1],"c4":[1400,0,348,323,100,158,1],"c5":[0,325,348,323,100,158,1],"s0":[350,325,167,70,100,186,0.5],"s1":[519,325,167,70,100,186,0.5],"s2":[688,325,167,70,100,186,0.5],"s3":[857,325,167,70,100,186,0.5],"s4":[1026,325,167,70,100,186,0.5],"s5":[1195,325,167,70,100,186,0.5],"s6":[1364,325,167,70,100,186,0.5],"s7":[1533,325,167,70,100,186,0.5],"s8":[1702,325,167,70,100,186,0.5],"s9":[1871,325,167,70,100,186,0.5],"s10":[0,650,167,70,100,186,0.5],"s11":[169,650,167,70,100,186,0.5],"s12":[338,650,167,70,100,186,0.5],"s13":[507,650,167,70,100,186,0.5],"s14":[676,650,167,70,100,186,0.5],"s15":[845,650,167,70,100,186,0.5],"b1":[1014,650,96,86,154,152,0.5],"b2":[1112,650,96,86,154,152,0.5],"b3":[1210,650,96,86,154,152,0.5],"b4":[1308,650,96,86,154,152,0.5],"b5":[1406,650,96,86,154,152,0.5],"b6":[1504,650,96,86,154,152,0.5],"b7":[1602,650,96,86,154,152,0.5],"b8":[1700,650,96,86,154,152,0.5],"b9":[1798,650,96,86,154,152,0.5],"b10":[1896,650,96,86,154,152,0.5],"b11":[0,738,96,86,154,152,0.5],"b12":[98,738,96,86,154,152,0.5],"b13":[196,738,96,86,154,152,0.5]};
   let sheet = null, ready = false;
-  const load = () => { if (sheet) return; sheet = new Image(); sheet.onload = () => { (sheet.decode ? sheet.decode() : Promise.resolve()).catch(() => {}).then(() => { ready = true; }); }; sheet.src = URL; };
+  // 作者 11-15 手机实测「最卡的技能就是初级版的星落」：①星和星爆原来用「滤色」叠加（screen），手机浏览器画这种叠加很慢 → 改成加亮叠加（lighter，显卡直接做，素材本来就带透明，样子几乎一样）；
+  // ②整张图集第一次用时才传进显卡，出招那一下会顿 → 载入后先在一块小画布上把图集画一遍，提前传好；放招时直接从这块画布取。
+  const load = () => { if (sheet) return; const im = new Image(); im.onload = () => { (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { try { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const q = c.getContext('2d'); q.drawImage(im, 0, 0); sheet = c; } catch (e) { sheet = im; } ready = true; }); }; im.src = URL; sheet = im; };
   load();
   const ez = v => { v = Math.max(0, Math.min(1, v)); return v * v * (3 - 2 * v); };
   // 在「512 原格」坐标系里画一格：(gx, gy) 是这一格左上角在画面上的位置，s = 原格像素 → 画面像素
@@ -66,9 +68,9 @@
         draw(f) { if (!ready) return; const t = f.t; ctx.save();
           for (const e of ev) {
             if (t >= e.fire && t < e.hit) { const u = (t - e.fire) / e.travel, q = u * u;   // 由慢到快坠下
-              cellAt('s' + (Math.floor((t - e.fire) / (.5 / 16)) % 16), e.sx + (e.dx - e.sx) * q, e.sy + (e.dy - e.sy) * q, STAR_S * sc, STAR_AX, STAR_AY, e.rot, ez(u / .15), 'screen'); }
+              cellAt('s' + (Math.floor((t - e.fire) / (.5 / 16)) % 16), e.sx + (e.dx - e.sx) * q, e.sy + (e.dy - e.sy) * q, STAR_S * sc, STAR_AX, STAR_AY, e.rot, ez(u / .15), 'lighter'); }
             const age = t - e.hit;
-            if (age >= 0 && age < .43) { const fr = 1 + Math.min(12, Math.floor(age / (.43 / 16))); cellAt('b' + fr, e.dx, e.dy, BURST_S * sc, 256, 256, 0, 1, 'screen'); }
+            if (age >= 0 && age < .43) { const fr = 1 + Math.min(12, Math.floor(age / (.43 / 16))); cellAt('b' + fr, e.dx, e.dy, BURST_S * sc, 256, 256, 0, 1, 'lighter'); }
           }
           ctx.restore(); },
         onEnd() { if (b === battle) b.dim = 0; fin(); } });
