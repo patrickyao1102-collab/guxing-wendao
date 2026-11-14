@@ -9,6 +9,9 @@ on:
       bundle_game:
         description: "把当前 game/ 整个打进 APK（首次安装不用下载）"
         default: "true"
+      full:
+        description: "另外打一个「完整版」：测试版里的全部新内容都打进包里，完全离线"
+        default: "false"
 
 permissions:
   contents: write
@@ -50,6 +53,14 @@ jobs:
           # 整包素材只进纯净版（pure）；测试版（dev）是个小壳，直接开线上测试页
           mkdir -p android/app/src/pure/assets
           cp -r release/. android/app/src/pure/assets/
+      - name: 完整版（只在手动触发、勾了 full 时打）：测试版全部内容 + 去测试面板 + 加扰，完全离线
+        if: github.event_name == 'workflow_dispatch' && inputs.full == 'true'
+        run: |
+          python3 tools/build_release.py release_full --keep-test
+          python3 tools/make_manifest.py release_full "full-${GITHUB_SHA::7}"
+          mkdir -p android/app/src/full/assets
+          cp -r release_full/. android/app/src/full/assets/
+          rm -rf release_full
       - name: 编译
         working-directory: android
         env:
@@ -70,6 +81,7 @@ jobs:
           mkdir -p out
           cp android/app/build/outputs/apk/pure/release/app-pure-release.apk out/guxing-wendao.apk
           cp android/app/build/outputs/apk/dev/release/app-dev-release.apk out/guxing-wendao-test.apk
+          if [ -d android/app/src/full/assets ]; then cp android/app/build/outputs/apk/full/release/app-full-release.apk out/guxing-wendao-full.apk; fi
           ls -la out
       - uses: actions/upload-artifact@v4
         with: { name: guxing-wendao-apk, path: out/ }
@@ -83,3 +95,12 @@ jobs:
             out/guxing-wendao.apk
             out/guxing-wendao-test.apk
           prerelease: false
+      - name: 发布完整版（单独一个 Release：full）
+        if: github.event_name == 'workflow_dispatch' && inputs.full == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: full
+          name: 孤星问道 完整版（离线快照）
+          body: "测试版里的全部内容都在包里，装上就能玩、完全不联网，不会自动更新（是 ${{ github.sha }} 这一刻的快照）。可以和纯净版、测试版同时安装，存档互不相通。"
+          files: out/guxing-wendao-full.apk
+          prerelease: true

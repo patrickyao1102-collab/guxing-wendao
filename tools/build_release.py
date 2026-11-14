@@ -6,12 +6,13 @@
 #      这是「抬高随手扒素材的门槛」，不是绝对加密——铁了心逆向 APK 的人仍能找到 KEY，诚实如此。
 #   boot.html（安卓壳自带、游戏前加载）和 version.json（更新器按明文 JSON 读）不在 game/ 里，保持明文。
 #
-# 用法：python3 tools/build_release.py [release目录=release] [--no-scramble]
+# 用法：python3 tools/build_release.py [release目录=release] [--no-scramble] [--keep-test]
 import os, sys, shutil
 
 SRC = 'game'
 OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'release')
 SCRAMBLE = '--no-scramble' not in sys.argv
+KEEP_TEST = '--keep-test' in sys.argv   # 作者 11-14：要一个「完整安装包」看看最终效果 → 只进测试版的内容也打进去（测试面板照样去掉）
 DROP_DIRS = {'_tmp_walk', 'jyh3'}
 # 作者 11-12：青阳镇 / 玄天城支线和新室内只进测试版，让作者先测房间构图和玩法；正式版（纯净版）不带。作者说可以了，再把下面两行清空。
 TEST_ONLY_DIRS = {'r213', 'r217', 'r219', 'r221', 'r227', 'r228', 'r230', 'r233', 'r236', 'r238', 'r239', 'r246', 'r249', 'r253w', 'r255', 'r260', 'r262', 'r263', 'r272', 'r269', 'r274', 'r275', 'r254f2', 'r266', 'r276', 'r279'}
@@ -68,7 +69,7 @@ def main():
         p = os.path.join(SRC, name)
         if name in DROP_DIRS:
             print('  剔除废图目录', name); continue
-        if name in TEST_ONLY_DIRS or name in TEST_ONLY_JS:
+        if not KEEP_TEST and (name in TEST_ONLY_DIRS or name in TEST_ONLY_JS):
             print('  只进测试版，正式版不带：', name); continue
         if os.path.isdir(p):
             shutil.copytree(p, os.path.join(OUT, name))
@@ -91,7 +92,8 @@ def main():
     idx = strip_test_panel(idx)
     import re
     pat = '|'.join([re.escape(d) + r'/[^"?]+' for d in sorted(TEST_ONLY_DIRS)] + [re.escape(j) for j in TEST_ONLY_JS])
-    idx, k = re.subn(r'<script src="(?:' + pat + r')(?:\?v=\d+)?"></script>', '', idx)
+    k = 0
+    if not KEEP_TEST: idx, k = re.subn(r'<script src="(?:' + pat + r')(?:\?v=\d+)?"></script>', '', idx)
     print('  去掉只进测试版的脚本标签', k, '个')
     open(os.path.join(OUT, 'index.html'), 'w', encoding='utf8').write(idx)
     print('  已去除测试面板，index.html', len(idx.encode('utf8')), '字节')

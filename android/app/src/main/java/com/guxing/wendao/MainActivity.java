@@ -56,6 +56,11 @@ public class MainActivity extends Activity {
         web.setBackgroundColor(0xFF000000);
         web.addJavascriptInterface(new Bridge(), "GuxingApp");
         setContentView(web);
+        if (BuildConfig.NO_UPDATE) {                         // 完整版：整包素材都在 APK 里，不联网检查更新，直接进游戏
+            gameLoaded = true;
+            web.loadUrl("https://appassets.local/index.html");
+            return;
+        }
         web.loadUrl("https://appassets.local/boot.html");
         updater = new Updater(this, updateDir, new Updater.Listener() {
             @Override public void onStatus(final String text, final int done, final int total, final long bytes) {

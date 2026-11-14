@@ -27,9 +27,12 @@ android {
     buildFeatures { buildConfig true }
     flavorDimensions "kind"
     productFlavors {
-        pure { dimension "kind"; buildConfigField "String", "TEST_URL", "\"\"" }
+        pure { dimension "kind"; buildConfigField "String", "TEST_URL", "\"\""; buildConfigField "boolean", "NO_UPDATE", "false" }
         dev { dimension "kind"; applicationIdSuffix ".test"; versionNameSuffix "-test"
-              buildConfigField "String", "TEST_URL", "\"https://patrickyao1102-collab.github.io/guxing-wendao/play/\"" }
+              buildConfigField "String", "TEST_URL", "\"https://patrickyao1102-collab.github.io/guxing-wendao/play/\""; buildConfigField "boolean", "NO_UPDATE", "false" }
+        // 作者 11-14：想看「完整安装包」的最终效果 → full = 完整版：测试版里的所有新内容都打进包里，完全离线、不联网更新（是打包那一刻的快照），包名多 .full，三个 App 可同时安装
+        full { dimension "kind"; applicationIdSuffix ".full"; versionNameSuffix "-full"
+              buildConfigField "String", "TEST_URL", "\"\""; buildConfigField "boolean", "NO_UPDATE", "true" }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     // 游戏文件不压缩打包，WebView 直接流式读取
