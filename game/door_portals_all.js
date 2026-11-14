@@ -83,7 +83,7 @@
   // 地图边缘出口：地面层画法阵
   const prevLow = typeof tileAmbientLow === 'function' ? tileAmbientLow : null;
   tileAmbientLow = function (T, cam, now) { if (prevLow) prevLow(T, cam, now);
-    for (const d of T.doors) { if (!d.edge || !usable(d) || skipMap(d) || d.overOcc) continue; const [x, y] = spot(T, d); if (inView(x, y)) { const f = fit(T, d, x, y); circle(x, y, now, f.s, f.simple); } } };
+    for (const d of T.doors) { if (!d.edge || !usable(d) || skipMap(d) || d.overOcc) continue; const [x, y] = spot(T, d); if (inView(x, y)) { const f = fit(T, d, x, y); if (window.R277_EDGE) window.R277_EDGE(circle, T, d, x, y, now, f); else circle(x, y, now, f.s, f.simple); } } };
   // 上层：光柱、光粒、地名
   const prevHigh = tileAmbientHigh;
   tileAmbientHigh = function (T, cam, now) {
