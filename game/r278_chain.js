@@ -44,6 +44,7 @@
     for (let r = Math.floor(tpl.y / cs); r <= Math.floor((tpl.sy + 8) / cs); r++) for (let c = Math.floor(tpl.x / cs); c < Math.ceil((tpl.x + tpl.w) / cs); c++) if (B.blocked[at(c, r)] === '1') { const c2 = c + dx, r2 = r + dy; if (c2 >= 0 && c2 < cols && r2 >= 0 && r2 < rows) bl[at(c2, r2)] = '1'; }
     keep.splice(keep.indexOf(objs[iR - 1]) + 1, 0, H);
     B.objs = keep; B.blocked = bl.join('');
+    { const d0 = (TMAPS.qy_town.doors || []).find(d => d.to === 'qy_tavern'); if (d0) window.R278_TAVERN_AT = d0.at; }   // 醉仙楼门里落脚点，R282 在玄天城开门时用
     TMAPS.qy_town.doors = (TMAPS.qy_town.doors || []).filter(d => d.to !== 'qy_tavern');
     try { if (window.MM_CLEAR) MM_CLEAR('qy_town'); } catch (e) {}
   }
