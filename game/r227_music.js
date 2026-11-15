@@ -46,6 +46,8 @@
     map_zuixian: ['醉仙楼', '小镇上最热闹的酒楼，划拳的、听琵琶的、喝醉的：琵琶奏活泼带醉意的主旋律，板胡或二胡接句，扬琴，竹板和手鼓，中阮', 0.7, 90],
     map_yuelai: ['悦来客栈', '小镇客栈，朴实的掌柜，过路的行商，后厨飘来饭香：中阮与扬琴奏朴实温暖的主旋律，竹笛，木鱼和小手鼓，大提琴拨弦', 0.7, 90],
     map_tiejiang: ['铁匠铺', '炉火通红，铁匠一锤一锤打着铁：铁砧似的金属敲击声当作节奏乐器（叮、当、叮叮当），低音鼓，三弦和板胡奏硬朗豪爽的主旋律，大提琴顿弓', 0.7, 90],
+    // 第五批（11-15，作者：「听雨楼 B 挺好听，可以接入听雨楼地图」）
+    map_tingyulou: ['听雨楼', '玄天城临河茶楼，一楼大堂、二楼雅座露台，雨天听雨品茶：竹笛主旋律、古筝流水琶音、琵琶轻点、弦乐像细雨铺底，清雅闲适带江南烟雨的惆怅', 0.7, 120],
     map_baicao: ['百草轩', '满屋药香的老药铺，掌柜慢条斯理地称药：洞箫奏温和安宁的主旋律，古筝，碟铃或小磬像戥子轻碰，极轻的弦乐铺底', 0.7, 90],
   };
   const lib = BGM_LIB.tracks; let i = 0;
@@ -86,7 +88,7 @@
   const MAPBGM = m => m === 'xt_city' || /^xt_home_/.test(m) ? 'map_xtcity' : m === 'lin_forest' ? 'map_linforest' : /^hf_/.test(m) ? 'map_heifeng' : m === 'seal_field' ? 'map_sealfield' : /^ly_/.test(m) ? 'map_luoyun'
     : /^qy_(escape|defense|rescue)/.test(m) ? 'map_qywar' : m === 'qy_shelter' ? 'map_shelter' : m === 'tj_xiashan' ? 'map_songfeng' : m === 'm_cy_north' ? 'map_cybei' : /^m_cy_/.test(m) ? 'map_cangyue'
     /* 作者 11-13：藏经阁那首太难听 → 先撤下，藏经阁回到原来的曲子；重做好了再接回来 */
-    : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
+    : /^xt_teahouse/.test(m) ? 'map_tingyulou' : /^xt_auction/.test(m) ? 'map_paimai' : m === 'qy_tea' ? 'map_chaguan' : m === 'qy_tavern' ? 'map_zuixian' : m === 'qy_inn' ? 'map_yuelai' : m === 'qy_smith' ? 'map_tiejiang' : m === 'qy_herb' ? 'map_baicao' : null;
   const generic = () => { try { const n = AUD.bgmName || '', T = BGM29.T || {}; return /^lib_r227_/.test(n) || [T.wild, T.shop, T.xtcity, T.sect, T.town, T.fair, T.linfu].includes(n); } catch (e) { return false; } };
 
   const back = () => { if (S.started) BGM29.resume(); else { AUD.bgmName = ''; playBgm('bgm_shanmen', true); } };   // 没正式开局（测试面板跳图）时 resume 会放标题曲，这里直接接回本地图的曲子
