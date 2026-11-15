@@ -72,9 +72,9 @@
   const load = (k, s) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; };
   load('r312dx_g', 'r312/dx/g.webp');
   const objs = D.objs.map((o, i) => { load('r312dx_' + o.f, 'r312/dx/' + o.f + '.webp'); return { id: o.f, uid: 'r312dx' + i, img: 'r312dx_' + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; });
-  const door = { x: 2976, y: 1328, rw: 36, rh: 18, to: 'xt_danxia', at: P(D.spawn[0], D.spawn[1]), face: 'up', label: '丹霞堂' };
+  const door = { x: 2976, y: 1368, rw: 46, rh: 26, to: 'xt_danxia', at: P(D.spawn[0], D.spawn[1]), face: 'up', label: '丹霞堂' };
   const M = TMAPS.xt_danxia = Object.assign({}, TMAPS.xt_inn_room3, { title: '丹霞堂', npcs: [], chests: [], doors: [], onEnter: null, fog: false, petals: false, indoor: true,
-    exits: [Object.assign({}, (TMAPS.xt_inn_room3.exits || [])[0], D.exit, { to: 'xt_city', at: P(2976, 1400), face: 'down', label: '出门 · 玄天城', cond: null, msg: '' })] });
+    exits: [Object.assign({}, (TMAPS.xt_inn_room3.exits || [])[0], D.exit, { to: 'xt_city', at: P(2976, 1446), face: 'down', label: '出门 · 玄天城', cond: null, msg: '' })] });
   M.baked = { ground: 'r312dx_g', cs: D.cs, cols: D.cols, rows: D.rows, w: D.w, h: D.h, blocked: D.blocked, objs };
   M.start = P(D.spawn[0], D.spawn[1]);
   try { if (typeof WIDE_OK === 'object') WIDE_OK.xt_danxia = 1; if (window.R252_WIN) delete R252_WIN.xt_danxia; } catch (e) {}
