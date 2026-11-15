@@ -127,7 +127,7 @@
     const t = input.tapped;
     if (t && !t.key && HUD.rect && !busy() && inR(t.x, t.y, HUD.rect)) {
       input.tapped = null; const h = HUD.hits.find(h => inR(t.x, t.y, h.r)); if (h) { try { playSnd('ui_click'); } catch (e) {}
-        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') F().qt_min = 1; else if (h.a === 'book') openBook('book'); else if (h.a === 'go') go(h.it); }
+        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') F().qt_min = 1; else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') go(h.it); }
       return; }
     return o.apply(this, arguments);
   })(updateMap);
@@ -137,7 +137,7 @@
   function openBook(mode, title) {
     if (!S.menu) openMenu(); S.menu.tab = MTABS.indexOf('任务'); QB.mode = mode || 'book'; QB.title = title || ''; QB.filter = mode === 'board' ? 'avail' : 'doing'; QB.sel = null; QB.scroll = 0; QB.dscroll = 0; }
   window.QBOOK_OPEN = openBook;
-  function pal() { const light = !window.BAG_DARK; /* 行囊默认是白玉宣纸（浅色）*/ return light
+  function pal() { const light = !QB.solo && !window.BAG_DARK; /* 行囊默认是白玉宣纸（浅色）*/ return light
     ? { card: 'rgba(255,252,244,.92)', cardOn: 'rgba(255,238,200,.98)', line: 'rgba(120,80,30,.38)', gold: '#7a4a08', text: '#2a1f12', sub: '#5f5446', box: 'rgba(255,230,170,.55)', btn: 'rgba(120,80,30,.10)' }
     : { card: 'rgba(255,255,255,.05)', cardOn: 'rgba(232,201,138,.16)', line: 'rgba(226,190,112,.35)', gold: '#e8c98a', text: '#f2ead8', sub: '#a9b3bd', box: 'rgba(232,201,138,.10)', btn: 'rgba(255,255,255,.07)' }; }
   function drawBook(B) {
@@ -201,18 +201,44 @@
   menuUpdate = (o => function () {
     const m = S.menu; if (m && MTABS[m.tab] !== '任务' && QB.mode === 'board') QB.mode = 'book';
     if (!m || MTABS[m.tab] !== '任务' || !input.tapped || (drag && drag.moved)) return o();
-    const t = input.tapped, h = !t.key && QB.hits.find(h => inR(t.x, t.y, h.r)); if (!h) return o();
-    input.tapped = null; try { playSnd('ui_click'); } catch (e) {}
+    const t = input.tapped; if (t.key || !tapBook(t)) return o(); input.tapped = null;
+  })(menuUpdate);
+  function tapBook(t) { const h = QB.hits.find(h => inR(t.x, t.y, h.r)); if (!h) return false;
+    try { playSnd('ui_click'); } catch (e) {}
     if (h.a === 'filter') { QB.filter = h.k; QB.sel = null; QB.scroll = 0; QB.dscroll = 0; }
     else if (h.a === 'sel') { if (QB.sel !== h.id) QB.dscroll = 0; QB.sel = h.id; }
     else if (h.a === 'track') { const T = track(), i = T.indexOf(h.it.id); if (i >= 0) T.splice(i, 1); else { T.unshift(h.it.id); if (T.length > 2) T.length = 2; } F().qt_min = 0; }
     else if (h.a === 'go') { const it = h.it; if (it.kind === 'side') { const T = track(); if (!T.includes(it.id)) { T.unshift(it.id); if (T.length > 2) T.length = 2; } }
       if (it.status === 'avail' && QB.mode === 'board') { const q = R().SQ.find(x => x.id === it.id); F().qt_board = F().qt_board || {}; F().qt_board[it.id] = 1; toast('已揭榜：' + it.name + ' —— 去找' + (q ? q.giver[1] : '发话的人'), 2400); }
-      QB.mode = 'book'; closeMenu(); F().qt_min = 0; setTimeout(() => go(it), 60); }
-  })(menuUpdate);
+      QB.mode = 'book'; if (QB.solo) closeSolo(); else closeMenu(); F().qt_min = 0; setTimeout(() => go(it), 60); }
+    return true; }
+  // ---------- 独立任务簿（作者 11-15：任务不要和行囊绑在一起；右上「全部」、据点告示板都开这个，不弹整个行囊）----------
+  const SB = { x: 100, y: 64, w: 1080, h: 600 };
+  let SOLO = null;
+  function drawSolo() { const P = pal(), B = SB;
+    ctx.save(); ctx.fillStyle = 'rgba(4,6,10,.74)'; ctx.fillRect(0, 0, W, H);
+    const g = ctx.createLinearGradient(0, B.y, 0, B.y + B.h); g.addColorStop(0, '#1b2028'); g.addColorStop(1, '#10141a');
+    ctx.fillStyle = g; rr(B.x - 18, B.y - 46, B.w + 36, B.h + 64, 16); ctx.fill();
+    ctx.strokeStyle = 'rgba(226,190,112,.75)'; ctx.lineWidth = 2; ctx.stroke(); ctx.strokeStyle = 'rgba(226,190,112,.25)'; ctx.lineWidth = 1; rr(B.x - 11, B.y - 39, B.w + 22, B.h + 50, 12); ctx.stroke();
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillStyle = '#f0d596'; ctx.font = fnt(24, 700); ctx.fillText(QB.mode === 'board' ? '悬 赏 榜' : '任 务 簿', W / 2, B.y - 16);
+    ctx.textAlign = 'left'; ctx.font = fnt(15, 600); ctx.fillStyle = '#e8c98a'; ctx.fillText('悬赏点 ' + ((S.hero && S.hero.xs) || 0) + '　　灵石 ' + ((S.hero && S.hero.gold) || 0), B.x + 4, B.y - 16);
+    const cx = B.x + B.w - 70, cy = B.y - 32; ctx.fillStyle = 'rgba(255,255,255,.07)'; rr(cx, cy, 74, 32, 8); ctx.fill(); ctx.strokeStyle = 'rgba(226,190,112,.6)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#ffe3a3'; ctx.font = fnt(16, 700); ctx.textAlign = 'center'; ctx.fillText('关 闭', cx + 37, cy + 16); SOLO.close = [cx - 6, cy - 6, 86, 44];
+    ctx.restore(); drawBook(B); }
+  function closeSolo() { if (!SOLO) return; const i = S.overlay.indexOf(SOLO.layer); if (i >= 0) S.overlay.splice(i, 1); cv.removeEventListener('pointerup', SOLO.up); S.hud = SOLO.hud0; world.locked = SOLO.lock0; SOLO = null; QB.solo = false; QB.mode = 'book'; setTimeout(() => { input.tapped = null; }, 0); }
+  function openSolo(mode, title) {
+    if (SOLO) return; if (S.menu) closeMenu();
+    QB.solo = true; QB.mode = mode || 'book'; QB.title = title || ''; QB.filter = mode === 'board' ? 'avail' : 'doing'; QB.sel = null; QB.scroll = 0; QB.dscroll = 0;
+    SOLO = { layer: { draw() { try { drawSolo(); } catch (e) { console.warn('R287 solo', e); } } }, hud0: S.hud, lock0: world.locked };
+    S.hud = false; world.locked = true; S.overlay.push(SOLO.layer); input.tapped = null;
+    SOLO.up = e => { if (!SOLO) return; setTimeout(() => { input.tapped = null; }, 0); if (drag && drag.moved) return; let p; try { p = toLogical(e); } catch (er) { return; }
+      if (inR(p.x, p.y, SOLO.close) || !inR(p.x, p.y, [SB.x - 18, SB.y - 46, SB.w + 36, SB.h + 64])) { try { playSnd('ui_click'); } catch (e2) {} return closeSolo(); }
+      tapBook(p); };
+    setTimeout(() => { if (SOLO) cv.addEventListener('pointerup', SOLO.up); }, 120); }
+  window.QSOLO_OPEN = openSolo;
   // 拖动 / 滚轮
   let drag = null;
-  const inBook = () => S.menu && MTABS[S.menu.tab] === '任务';
+  const inBook = () => QB.solo || (S.menu && MTABS[S.menu.tab] === '任务');
   cv.addEventListener('pointerdown', e => { if (!inBook()) return; let p; try { p = toLogical(e); } catch (er) { return; }
     if (inR(p.x, p.y, QB.list)) drag = { y0: p.y, s0: QB.scroll, w: 'l', moved: false }; else if (inR(p.x, p.y, QB.detail)) drag = { y0: p.y, s0: QB.dscroll, w: 'd', moved: false }; else drag = null; });
   cv.addEventListener('pointermove', e => { if (!drag) return; let p; try { p = toLogical(e); } catch (er) { return; } const dy = p.y - drag.y0; if (Math.abs(dy) > 8) drag.moved = true;
@@ -224,9 +250,9 @@
   // ================= 3) 任务榜：据点告示板 / 任务玉璧 / 任务执事 / 天剑宗大殿记功执事 =================
   function hookBoards() {
     const spotTo = (m, name, title) => { const n = TMAPS[m] && (TMAPS[m].npcs || []).find(n => n.name === name); if (!n || n._r287) return; n._r287 = 1;
-      n.talk = async () => { openBook('board', title); }; };
+      n.talk = async () => { openSolo('board', title); }; };
     const npcTo = (m, name, title) => { const n = TMAPS[m] && (TMAPS[m].npcs || []).find(n => n.name === name && !n.hidden); if (!n || n._r287) return; n._r287 = 1; const orig = n.talk;
-      n.talk = async function (a) { const k = await choose(name, ['看看任务榜（接任务）', '交任务 / 问点别的', '没事']); if (k === 0) { openBook('board', title); return; } if (k !== 1) return;
+      n.talk = async function (a) { const k = await choose(name, ['看看任务榜（接任务）', '交任务 / 问点别的', '没事']); if (k === 0) { openSolo('board', title); return; } if (k !== 1) return;
         if (typeof orig === 'function') return orig.call(this, a); const L = Array.isArray(orig) ? orig : [orig || '……']; for (const l of n.random ? [L[Math.floor(Math.random() * L.length)]] : L) await say(name, l); }; };
     spotTo('xt_sect_court', '任务告示板', '任务榜 · 玄天城天剑宗据点');
     spotTo('xt_sect_hall', '任务玉璧', '任务榜 · 据点议事堂玉璧');
@@ -234,5 +260,5 @@
     npcTo('tj_hall', '记功执事', '任务榜 · 天剑宗记功执事');
   }
   hookBoards(); setTimeout(hookBoards, 1500); setTimeout(hookBoards, 5000);   // 有的 NPC 是后面的脚本才加进地图的
-  window.R287 = { all, QB, HUD, openBook };
+  window.R287 = { all, QB, HUD, openBook, openSolo, closeSolo };
 })();

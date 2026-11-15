@@ -63,18 +63,18 @@
     const TB = tabs();
     if (TB.length) for (const [c, r] of TB) { const on = c === ST.cat; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = on ? C.accent : C.disabled; ctx.textAlign = 'center'; ctx.fillText(c, r[0] + r[2] / 2, r[1] + r[3] / 2); if (on) { ctx.fillStyle = C.accent; ctx.fillRect(r[0] + 8, r[1] + r[3] - 4, r[2] - 16, 2); } }
     else { ctx.font = `15px ${FONT}`; ctx.fillStyle = C.disabled; ctx.fillText(SUB[ST.who] || '', ST.tabX, 136); }
-    const g = Math.round(ST.goldShow += (S.hero.gold - ST.goldShow) * .2); ctx.textAlign = 'right'; ctx.font = `16px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('身上灵石', 1086, 134); ctx.font = `700 22px ${FONT}`; ctx.fillStyle = C.price; ctx.fillText(String(g), 1160, 134);
+    const g = Math.round(ST.goldShow += (S.hero.gold - ST.goldShow) * .2); ctx.textAlign = 'right'; ctx.font = `16px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('身上灵石', 1086, 134); ctx.font = `700 22px ${FONT}`; ctx.fillStyle = C.price; ctx.fillText(String(g), 1160, 134); if (items.some(id => ITEM_DB[id] && ITEM_DB[id].xs)) { ctx.font = `16px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('悬赏点', 1086, 108); ctx.font = `700 20px ${FONT}`; ctx.fillStyle = C.price; ctx.fillText(String(S.hero.xs || 0), 1160, 108); }
     if (P.divider) ctx.drawImage(P.divider, 120, 166, 1040, 4);
     // 货格
     const pages = Math.max(1, Math.ceil(items.length / PER)); ST.page = Math.min(ST.page, pages - 1);
-    items.slice(ST.page * PER, ST.page * PER + PER).forEach((id, k) => { const i = ST.page * PER + k, it = ITEM_DB[id], r = cellRect(i), on = id === ST.sel, poor = S.hero.gold < it.price;
+    items.slice(ST.page * PER, ST.page * PER + PER).forEach((id, k) => { const i = ST.page * PER + k, it = ITEM_DB[id], r = cellRect(i), on = id === ST.sel, poor = S.hero.gold < it.price || (it.xs || 0) > (S.hero.xs || 0);
       ns(on ? P.item_selected || P.item_normal : P.item_normal, ...r, on ? I.item_selected : I.item_normal);
       const cx = r[0] + r[2] / 2, cy = r[1] + r[3] / 2 + (on ? Math.sin(t * 3) * 2.5 : 0);
       if (on) { ctx.save(); ctx.globalCompositeOperation = s === '03_jade' || s === '04_astrolabe' ? 'lighter' : 'source-over'; const gg = ctx.createRadialGradient(cx, cy, 6, cx, cy, 54); gg.addColorStop(0, s === '04_astrolabe' || s === '03_jade' ? 'rgba(220,240,255,.28)' : 'rgba(255,236,190,.55)'); gg.addColorStop(1, 'rgba(255,236,190,0)'); ctx.fillStyle = gg; ctx.fillRect(cx - 54, cy - 54, 108, 108); ctx.restore(); }
       ctx.save(); if (poor) ctx.globalAlpha = .55; try { itemIcon(id, cx, cy, 34); } catch (e) {} ctx.restore();
       const c = cnt(id); if (c) { ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'right'; ctx.fillStyle = C.body; ctx.fillText('有' + c, r[0] + r[2] - 8, r[1] + r[3] - 10); }
       ctx.textAlign = 'center'; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = C.title; ctx.fillText(it.name, cx, r[1] + r[3] + 20);
-      ctx.font = `14px ${FONT}`; ctx.fillStyle = poor ? C.disabled : C.price; ctx.fillText(it.price + ' 灵石' + (poor ? ' · 不足' : ''), cx, r[1] + r[3] + 42); });
+      ctx.font = `14px ${FONT}`; ctx.fillStyle = poor ? C.disabled : C.price; ctx.fillText(it.price + ' 灵石' + (it.xs ? ' + ' + it.xs + ' 悬赏点' : '') + (poor ? ' · 不足' : ''), cx, r[1] + r[3] + 42); });
     if (pages > 1) { ctx.textAlign = 'center'; ctx.font = `600 18px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('‹', GRID[0] + GRID[2] / 2 - 50, 560); ctx.fillText((ST.page + 1) + ' / ' + pages, GRID[0] + GRID[2] / 2, 560); ctx.fillText('›', GRID[0] + GRID[2] / 2 + 50, 560); }
     // 竖分隔
     ctx.fillStyle = C.stroke; ctx.globalAlpha *= .45; ctx.fillRect(760, 196, 1, 370); ctx.globalAlpha = e;
@@ -87,14 +87,14 @@
       if (P.divider) ctx.drawImage(P.divider, x, DET[1] + 84, 340, 4);
       ctx.font = `18px ${FONT}`; ctx.fillStyle = C.body; let yy = DET[1] + 114; for (const l of wrap(it.desc || '', 340).slice(0, 4)) { ctx.fillText(l, x, yy); yy += 28; }
       const ef = effectOf(it); if (ef) { yy += 8; ctx.font = `600 18px ${FONT}`; ctx.fillStyle = C.accent; for (const l of wrap(ef, 340).slice(0, 2)) { ctx.fillText(l, x, yy); yy += 26; } }
-      yy = Math.max(yy + 8, DET[1] + 290); ctx.font = `15px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('单价 ' + it.price + ' 灵石', x, yy);
-      const left = S.hero.gold - it.price; ctx.fillStyle = left < 0 ? C.accent : C.disabled; ctx.fillText(left < 0 ? '灵石不足，还差 ' + (-left) : '购后余额 ' + left + ' 灵石', x, yy + 24); }
+      yy = Math.max(yy + 8, DET[1] + 290); ctx.font = `15px ${FONT}`; ctx.fillStyle = C.body; ctx.fillText('单价 ' + it.price + ' 灵石' + (it.xs ? ' + ' + it.xs + ' 悬赏点（做支线得）' : ''), x, yy);
+      const left = S.hero.gold - it.price, xl = (S.hero.xs || 0) - (it.xs || 0); ctx.fillStyle = left < 0 || xl < 0 ? C.accent : C.disabled; ctx.fillText(xl < 0 ? '悬赏点不足，还差 ' + (-xl) + '（去做支线）' : left < 0 ? '灵石不足，还差 ' + (-left) : '购后余额 ' + left + ' 灵石' + (it.xs ? ' · 悬赏点 ' + xl : ''), x, yy + 24); }
     // 按钮
     const btn = (r, label, state, sel) => { const img = state === 'disabled' ? P.button_disabled : state === 'pressed' ? P.button_pressed : sel ? P.button_selected : P.button_normal; ns(img, r[0], r[1] + (state === 'pressed' ? 1 : 0), r[2], r[3], I['button_' + (state === 'disabled' ? 'disabled' : state === 'pressed' ? 'pressed' : sel ? 'selected' : 'normal')]);
       ctx.textAlign = 'center'; ctx.font = `600 18px ${FONT}`; ctx.fillStyle = state === 'disabled' ? C.disabledText : state === 'pressed' ? C.pressedText : C.title; ctx.fillText(label, r[0] + r[2] / 2, r[1] + r[3] / 2 + 1 + (state === 'pressed' ? 1 : 0)); };
     const pr = k => ST.press && ST.press.k === k && t - ST.press.t < .14 ? 'pressed' : '';
     btn(LEAVE, '离开', pr('leave'), false);
-    btn(BUY, it ? (S.hero.gold < it.price ? '灵石不足' : '购买 · ' + it.price) : '购买', it && S.hero.gold >= it.price ? pr('buy') : 'disabled', true);
+    const xsNo = it && (it.xs || 0) > (S.hero.xs || 0); btn(BUY, it ? (xsNo ? '悬赏点不足' : S.hero.gold < it.price ? '灵石不足' : '购买 · ' + it.price) : '购买', it && !xsNo && S.hero.gold >= it.price ? pr('buy') : 'disabled', true);
     const sell = ST.sellable(); if (sell.n) btn(SELL, '卖杂物 · ' + sell.sum, pr('sell'), false); else { ctx.textAlign = 'left'; ctx.font = `14px ${FONT}`; ctx.fillStyle = C.disabled; ctx.fillText('选中商品后，右侧查看详情', 130, 616); }
     // 购买飞光 + 提示
     for (let i = ST.fx.length - 1; i >= 0; i--) { const f = ST.fx[i], u = (t - f.t) / .8; if (u > 1) { ST.fx.splice(i, 1); continue; }
@@ -117,8 +117,8 @@
         await nextFrame(); const tp = consumeTap(); if (!tp) continue; const t = performance.now() / 1000;
         if (hit(tp, LEAVE)) { ST.press = { k: 'leave', t }; playSnd('ui_click'); await sleep(120); return; }
         const it = ITEM_DB[ST.sel];
-        if (hit(tp, BUY) && it) { if (S.hero.gold < it.price) { ST.msg = '灵石不够……'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; }
-          S.hero.gold -= it.price; addItem(ST.sel, 1); ST.press = { k: 'buy', t }; try { playSnd('ui_confirm'); } catch (e) {}
+        if (hit(tp, BUY) && it) { if ((it.xs || 0) > (S.hero.xs || 0)) { ST.msg = '悬赏点不够……去做几件支线'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; } if (S.hero.gold < it.price) { ST.msg = '灵石不够……'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; }
+          S.hero.gold -= it.price; if (it.xs) S.hero.xs = (S.hero.xs || 0) - it.xs; addItem(ST.sel, 1); ST.press = { k: 'buy', t }; try { playSnd('ui_confirm'); } catch (e) {}
           const k = list().indexOf(ST.sel), r = cellRect(k); ST.fx.push({ x: r[0] + r[2] / 2, y: r[1] + r[3] / 2, t }); ST.msg = '买下了 ' + it.name; ST.msgT = t; continue; }
         const sl = sellable(); if (sl.n && hit(tp, SELL)) { const h = S.hero; for (const id of Object.keys(h.bag)) if (ITEM_DB[id] && ITEM_DB[id].sell) delete h.bag[id]; h.gold += sl.sum; ST.press = { k: 'sell', t }; try { playSnd('ui_confirm'); } catch (e) {} ST.msg = '杂物卖了 ' + sl.sum + ' 灵石'; ST.msgT = t; continue; }
         let done = false; for (const [c, r] of tabs()) if (hit(tp, r)) { ST.cat = c; ST.page = 0; const L = list(); if (!L.includes(ST.sel)) ST.sel = L[0]; playSnd('ui_click'); done = true; } if (done) continue;

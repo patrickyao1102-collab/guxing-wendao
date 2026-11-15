@@ -51,13 +51,13 @@
     // 货格
     for (let k = 0; k < 4; k++) {
       const id = items[ST.page * 4 + k]; P(id && id === ST.sel ? 'niche_focus' : 'niche_normal', ...NICHE[k]); if (!id) continue;
-      const it = ITEM_DB[id], [nx, ny] = NICHE[k], poor = ST.mode === 'buy' && S.hero.gold < it.price;
+      const it = ITEM_DB[id], [nx, ny] = NICHE[k], poor = ST.mode === 'buy' && (S.hero.gold < it.price || (it.xs || 0) > (S.hero.xs || 0));
       ctx.save(); if (poor) ctx.globalAlpha *= .55; const cy = ny + 60 + (id === ST.sel ? Math.sin(t * 3) * 2 : 0);
       try { if (window.UI_ICON2 && UI_ICON2.has(id)) UI_ICON2.draw(id, nx + 107, cy, 64); else itemIcon(id, nx + 107, cy, 30); } catch (er) {}
       ctx.restore();
       const c = cnt(id); if (c) T('有' + c, nx + 186, ny + 112, '600 13px ' + BODY, '#6a5540', 'right');
       P('price_ticket', ...TICK[k]); const [tx, ty] = TICK[k];
-      T(it.name, tx + 59, ty + 16, fit(it.name, '#px ' + HEAD, 20, 100, 13), '#42301e'); coin(tx + 99, ty + 16, 7); T(String(priceOf(id)), tx + 125, ty + 16, '18px ' + BODY, poor ? '#a8382b' : '#69441f');
+      T(it.name, tx + 59, ty + 16, fit(it.name, '#px ' + HEAD, 20, 100, 13), '#42301e'); coin(tx + 99, ty + 16, 7); T(String(priceOf(id)), tx + 125, ty + 16, '18px ' + BODY, poor ? '#a8382b' : '#69441f'); if (ST.mode === 'buy' && it.xs) { ctx.save(); ctx.fillStyle = 'rgba(122,38,20,.92)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(nx + 132, ny + 8, 74, 24, 6) : ctx.rect(nx + 132, ny + 8, 74, 24); ctx.fill(); ctx.restore(); T('悬赏 ' + it.xs, nx + 169, ny + 20, '600 14px ' + BODY, '#ffe8c0'); }
     }
     P('page_ledge', 429, 522, 371, 34);
     if (pages > 1) { T('‹', 503, 538, '22px ' + BODY, '#88765c'); T((ST.page + 1) + ' / ' + pages, 607, 538, '21px ' + BODY, '#4b392c'); T('›', 713, 538, '22px ' + BODY, '#48362c'); }
@@ -74,15 +74,16 @@
       T('数量', 911, 409, '22px ' + BODY, '#433528', 'left'); P('quantity_jade', 1053, 394, 39, 30); P('quantity_jade', 1146, 394, 39, 30);
       T('−', 1072, 409, '21px ' + BODY, '#4c392a'); T('+', 1165, 409, '21px ' + BODY, '#4c392a'); T(String(ST.qty), 1118, 409, '26px ' + HEAD, '#443223');
       const total = pr * ST.qty; T('总价', 911, 464, '22px ' + HEAD, '#433528', 'left'); coin(1130, 464, 11); T(String(total), 1181, 464, '32px ' + HEAD, '#93442e', 'right');
-      const left = ST.mode === 'sell' ? S.hero.gold + total : S.hero.gold - total;
-      T(ST.mode === 'sell' ? '卖后有 ' + left + ' 灵石' : left < 0 ? '灵石不足，还差 ' + (-left) : '购后余 ' + left + ' 灵石', 911, 510, '21px ' + BODY, left < 0 ? '#a8382b' : '#79654e', 'left');
+      const left = ST.mode === 'sell' ? S.hero.gold + total : S.hero.gold - total, xsN = ST.mode === 'buy' ? (it.xs || 0) * ST.qty : 0, xl = (S.hero.xs || 0) - xsN;
+      if (xsN) { T('另需悬赏点', 911, 496, '21px ' + BODY, '#7a2614', 'left'); T(String(xsN), 1181, 496, '26px ' + HEAD, '#7a2614', 'right'); }
+      T(ST.mode === 'sell' ? '卖后有 ' + left + ' 灵石' : xl < 0 ? '悬赏点还差 ' + (-xl) + '，去做支线' : left < 0 ? '灵石不足，还差 ' + (-left) : '购后余 ' + left + ' 灵石', 911, xsN ? 528 : 510, '21px ' + BODY, left < 0 || xl < 0 ? '#a8382b' : '#79654e', 'left');
     }
     // 底栏
     P('wallet_plate', 110, 589, 275, 59); P('coin_purse', 58, 563, 127, 98);
-    ST.gs += (S.hero.gold - ST.gs) * .2; T('身上灵石', 233, 617, '20px ' + BODY, '#48382c'); T(String(Math.round(ST.gs)), 321, 617, '27px ' + HEAD, '#704b27');
+    ST.gs += (S.hero.gold - ST.gs) * .2; T('身上灵石', 233, 617, '20px ' + BODY, '#48382c'); T(String(Math.round(ST.gs)), 321, 617, '27px ' + HEAD, '#704b27'); if (items.some(x => ITEM_DB[x] && ITEM_DB[x].xs)) { T('身上悬赏点', 905, 617, '20px ' + BODY, '#f3e2c4', 'right'); T(String(S.hero.xs || 0), 925, 617, '27px ' + HEAD, '#ffd9a0', 'left'); }
     P(ST.mode === 'buy' ? 'trade_tab_focus' : 'trade_tab', ...TB); P(ST.mode === 'sell' ? 'trade_tab_focus' : 'trade_tab', ...TS);
     T('买', 637, 619, '27px ' + HEAD, '#503a24'); T('卖', 733, 619, '27px ' + HEAD, '#503a24');
-    const can = it && (ST.mode === 'sell' ? cnt(id) >= ST.qty : S.hero.gold >= priceOf(id) * ST.qty), pressed = ST.press && ST.press.k === 'buy' && t - ST.press.t < .15;
+    const can = it && (ST.mode === 'sell' ? cnt(id) >= ST.qty : S.hero.gold >= priceOf(id) * ST.qty && (it.xs || 0) * ST.qty <= (S.hero.xs || 0)), pressed = ST.press && ST.press.k === 'buy' && t - ST.press.t < .15;
     P(!can ? 'buy_seal_disabled' : pressed ? 'buy_seal_pressed' : 'buy_seal_normal', ...BUY); T(ST.mode === 'sell' ? '售' : '购', BUY[0] + 39, 617 + (pressed ? 1 : 0), '37px ' + HEAD, can ? '#f8e9cf' : '#d9d0c2');
     { const [lx, ly, lw] = LEAVE, cx = lx + lw / 2, cy = ly + lw / 2, r = lw / 2;   // 右上角关闭叉：深褐底、金边、米白叉
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2; ctx.fillStyle = '#5a3a26'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
@@ -117,8 +118,8 @@
         if (hit(tp, BUY) && ST.sel) {
           const id = ST.sel, it = ITEM_DB[id], n = ST.qty, k = items.indexOf(id) % 4, nx = NICHE[k][0] + 107, ny = NICHE[k][1] + 60;
           if (ST.mode === 'buy') {
-            const cost = it.price * n; if (S.hero.gold < cost) { ST.msg = '灵石不够……'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; }
-            S.hero.gold -= cost; addItem(id, n); ST.press = { k: 'buy', t }; try { playSnd('ui_confirm'); } catch (e) {}
+            const cost = it.price * n, xc = (it.xs || 0) * n; if (xc > (S.hero.xs || 0)) { ST.msg = '悬赏点不够……去做几件支线'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; } if (S.hero.gold < cost) { ST.msg = '灵石不够……'; ST.msgT = t; try { playSnd('ui_cancel'); } catch (e) {} continue; }
+            S.hero.gold -= cost; if (xc) S.hero.xs = (S.hero.xs || 0) - xc; addItem(id, n); ST.press = { k: 'buy', t }; try { playSnd('ui_confirm'); } catch (e) {}
             ST.fx.push({ x: nx, y: ny, t, txt: '+' + n }); ST.msg = '买下了 ' + it.name + (n > 1 ? ' ×' + n : ''); ST.msgT = t;
             // 作者 11-10：买完要有物品获得提示（带音效）
             if (window.itemGet) { const li = S.overlay.indexOf(layer); if (li >= 0) S.overlay.splice(li, 1); try { await itemGet([{ icon: 'item:' + id, id, name: it.name, count: '×' + n, desc: it.desc || '' }], '购入'); } catch (e) {} if (S.overlay.indexOf(layer) < 0) S.overlay.push(layer); input.tapped = null; }   /* 获得框要压在商店上面：先把商店层拿下来，点掉再放回去 */
