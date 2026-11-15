@@ -39,6 +39,6 @@
   // 目的地金圈（画在地面上，1.6 秒淡掉；人走到前就一直在）
   if (typeof drawMapHud === 'function') drawMapHud = (o => function () { o.apply(this, arguments);
     if (!mark || !world.map || world.mapName !== mark.m) { mark = null; return; } const age = (performance.now() - mark.t) / 1000; if (!world.path && age > .6 || age > 30) { mark = null; return; }
-    try { const z = VZ(), sx = (mark.x - cam.x) * z, sy = (mark.y - cam.y) * z, a = Math.max(.35, 1 - age / 1.6), r = 16 + Math.sin(age * 6) * 3;
+    try { const z = VZ(), C = world.cam || { x: 0, y: 0 }, sx = (mark.x - C.x) * z, sy = (mark.y - C.y) * z, a = Math.max(.35, 1 - age / 1.6), r = 16 + Math.sin(age * 6) * 3;
       ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(255,200,80,.9)'; ctx.shadowBlur = 8; ctx.beginPath(); ctx.ellipse(sx, sy, r * z, r * .5 * z, 0, 0, 7); ctx.stroke(); ctx.restore(); } catch (e) {} })(drawMapHud);
 })();
