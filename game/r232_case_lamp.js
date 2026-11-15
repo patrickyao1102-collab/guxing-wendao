@@ -222,6 +222,7 @@
   spot('qy_herb', 128, 340, '素柜里的匣子', async () => { const f = F(); if (!f.hx_box) { await say('', '一只上了年头的素柜。'); return; }
     if (f.hx_page && (f.hx_motive || !fin('qy_ledger'))) { await say('', f.hx_motive ? '匣子空了。那页账在你怀里。' : '那页账还是看不出来路。'); return; }
     await readPage(); await qyDone(); }, { cond: () => shown() && q().n >= 5 });
+  window.R232_PAGE = async () => { await readPage(); await qyDone(); };   // R329：东厢朝南结局一，师弟把匣子带到了玄天城
   const wuScene = async () => { const f = F();
     mood('case_jiushi');
     await L([[YE, '七天前，贺九章临行那盏茶，是你端的。'], [WU, '（手上擦杯子的动作停了一下，又接着擦）是我。'], [WU, '公子是来拿我的？']]);

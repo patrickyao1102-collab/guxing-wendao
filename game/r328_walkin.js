@@ -33,7 +33,7 @@
     for (const [b, o] of came) { if (world.mapName !== o.map) { came.delete(b); continue; } if (quiet) { if (!o.q) o.q = performance.now(); else if (performance.now() - o.q > 1400 && !o.out) { o.out = 1; leave(b, o); } } else o.q = 0; } } catch (e) {} }, 300);
   async function walkIn(who) { const b = base(who);
     if (!b || SELF.test(b) || party().includes(b) || /[（(「]/.test(b) || b.length > 10) return;
-    if (!onMap() || busy() || visible(b) || came.has(b)) return;
+    if (window.R328_OFF || !onMap() || busy() || visible(b) || came.has(b)) return;
     const n = index().get(b) || index().get(who); if (!n) { MISSING.add(b); return; }
     const def = world.map.def || {}, door = def.start ? px(def.start) : [world.player.x, world.player.y + 200];
     const npc = Object.assign({}, n, { talk: async () => {}, cond: null, wander: false, hidden: false, mark: null, _walkin: 1, noLabel: false });
