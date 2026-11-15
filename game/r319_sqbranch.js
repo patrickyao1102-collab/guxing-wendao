@@ -26,7 +26,7 @@
     const f = F(); f.sq = f.sq || {};
     if (lines && lines.length) await L(lines);
     try { playSnd('ui_cancel'); } catch (e) {}
-    try { await showPanel('支线失败', ['!' + title, '真相没有大白。', '这条支线可以从头再来：' + (redo || '找发任务的人重新接取') + '。', '（选错的那一步之前存过档的话，读档就能回去重选。）']); } catch (e) {}
+    try { await showPanel('支线失败', ['!' + title, '这一回，事情没能办成。', '这条支线可以从头再来：' + (redo || '找发任务的人重新接取') + '。', '（选错的那一步之前存过档的话，读档就能回去重选。）']); } catch (e) {}
     try { if (clear) clear(f); } catch (e) {}
     f.sq[id] = { s: 0, n: 0 }; f.sq_fail = f.sq_fail || {}; f.sq_fail[id] = (f.sq_fail[id] || 0) + 1;
     try { toast('支线失败 · 可重做', 2400); } catch (e) {} }
