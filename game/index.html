@@ -10016,6 +10016,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     { const G = window.QUEST_GUIDE; if (G && G.pt && G.map === id && seenAt(G.pt[0], G.pt[1])) { const [a, b] = toM(G.pt[0], G.pt[1]), rr = (big ? 13 : 8) + Math.sin(now * 5) * 2;
       ctx.save(); ctx.strokeStyle = '#ffd36a'; ctx.shadowColor = 'rgba(255,200,80,.95)'; ctx.shadowBlur = 8; ctx.lineWidth = big ? 3 : 2.2; ctx.beginPath(); ctx.arc(a, b, rr, 0, 7); ctx.stroke();
       ctx.fillStyle = 'rgba(255,211,106,.35)'; ctx.beginPath(); ctx.arc(a, b, rr * .55, 0, 7); ctx.fill(); ctx.restore(); } }
+    try { if (window.MM_MARKS) MM_MARKS(id, toM, big, now, seenAt); } catch (e) {}   // R284：支线 / 查案要找的地方，在小地图上标圈
     // 人物
     const labs = [], marks = [];
     for (const a of world.actors || []) { if (a === p) continue; const shown = !a.hidden || (a.npc && a.npc.mapLabel); if (!shown || !seenAt(a.x, a.y)) continue; const [u, v] = toM(a.x, a.y); if (Math.hypot(u - cx, v - cy) > R) continue;
@@ -10055,10 +10056,11 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
     if (name) { ctx.font = `600 ${big ? 22 : 14}px ${FONT}`; const tw = ctx.measureText(name).width + 18, ty = cy + R + (big ? 26 : 16);
       ctx.fillStyle = 'rgba(30,18,8,.82)'; roundRect(cx - tw / 2, ty - 11 * (big ? 1.4 : 1), tw, (big ? 30 : 22), 8); ctx.fill(); ctx.fillStyle = '#f3e3bd'; ctx.fillText(name, cx, ty + (big ? 4 : 0)); }
     if (!big) { ctx.font = `600 12px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(GX_TOUCH ? '点击小地图放大' : '按 M 键或点击即可放大', cx, cy + R + 38, '#f3e3bd', 'rgba(20,10,4,.9)', 3); }
-    if (big) { ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#d9c9a6'; ctx.fillText((GX_TOUCH ? '点任意处关闭' : '点任意处或按 M 键关闭') + '　·　红点是你，红色叹号是主线任务，蓝色叹号 / 问号是支线，菱形是出口，金圈 / 金框是任务方向', W / 2, H - 30); }
+    if (big) { ctx.font = `600 16px ${FONT}`; ctx.fillStyle = '#d9c9a6'; ctx.fillText(window.MM_BIG_HINT ? MM_BIG_HINT() : (GX_TOUCH ? '点任意处关闭' : '点任意处或按 M 键关闭') + '　·　红点是你，红色叹号是主线任务，蓝色叹号 / 问号是支线，菱形是出口，金圈 / 金框是任务方向', W / 2, H - 30); }
     ctx.restore();
   }
   window.R34_MINIMAP = drawMinimap;
+  window.MM_API = { MM, thumb, seen(id, x, y) { const T = world.map && world.map.T; if (!T) return true; const f = TMAPS[id] && TMAPS[id].fog && window.MAZE_FOG_ON ? fogOf(id, thumb(id, T)) : null; return !f || fogSeen(f, x, y); } };   // R284：大地图点哪走哪要用
   // 键盘 M：开 / 关大地图
   window.addEventListener('keydown', e => { if (e.repeat || (e.key !== 'm' && e.key !== 'M')) return;
     if (MM.big) { MM.big = false; playSnd('ui_click'); return; }
@@ -14478,11 +14480,12 @@ function perform(P){if(session)return Promise.reject(new Error('日月轮转正�
       stop('目的地太远，得跟着剧情前往（或找管家传送）'); return; }
     const e = linksOf(here).find(e => e.to === hop), ep = e && exitPoint(T, e);
     if (!ep) { stop('找不到出口'); return; }
-    toast('自动寻路 · 前往' + ((TMAPS[hop] && TMAPS[hop].title) || hop).replace(/^天剑宗 · /, ''), 1600);   // 短一点：20 字以上会变成星旋对话框，挡住走路
+    { let tt = ((TMAPS[hop] && TMAPS[hop].title) || hop).replace(/^天剑宗 · /, ''); if (tt.length > 11) tt = tt.split('·').pop().trim(); toast('自动寻路 · 前往' + tt, 1600); }   // 短一点：20 字以上会变成星旋对话框，挡住走路
     walkTo(ep[0], ep[1], 1, () => { if (!NAV.on) return; goMap(e.to, e.at[0], e.at[1], e.face || 'down'); }, 260);
   }
   NAV.start = () => { if (!S.quest && !window.QNAV_GOAL) return; NAV.on = true; playSnd('ui_click'); step(); };
   NAV.stop = stop;
+  NAV.walkTo = walkTo;   // R284：大地图点哪走哪
   // 作者 11-11：地上方向箭头要知道「现在该往哪走」——和 step() 同一套判断，只算点、不走路
   NAV.target = () => { try {
     if (!world.map || !world.player) return null; const p = world.player, T = world.map.T, here = world.mapName, near = (arr) => arr.sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
@@ -16797,7 +16800,7 @@ window.MarketEffects = (() => {
 </script>
 <script src="itemget_frame.js"></script>
 <script src="eqp10_panel.js"></script>
-<script src="r134_fix.js"></script>
+<script src="r134_fix.js?v=2"></script>
 <script src="nayue_fx.js"></script>
 <script src="nayue_fx3.js"></script>
 <script src="r134_nayue.js"></script>
@@ -16850,6 +16853,6 @@ window.MarketEffects = (() => {
 <script src="r250_room3.js?v=1"></script><script src="r252_sun.js?v=1"></script><script src="r243_front.js?v=3"></script><script src="r246/f2.js?v=1"></script><script src="r246_teahouse2.js?v=4"></script><script src="r253_fixes.js?v=6"></script><script src="r249_market.js?v=2"></script><script src="r256_npc8.js?v=2"></script><script src="r260/court.js?v=1"></script><script src="r260_court.js?v=3"></script><script src="r255/yi1.js?v=1"></script><script src="r255/yi2.js?v=1"></script><script src="r255/bing1.js?v=2"></script><script src="r257_homes.js?v=4"></script><script src="r260_xt_walls.js?v=3"></script><script src="r263_window.js?v=2"></script><script src="r262_front.js?v=3"></script><script src="r271_tidy.js?v=1"></script><script src="r272_stairs.js?v=1"></script><script src="r269_inn.js?v=8"></script><script src="r274_rest.js?v=5"></script><script src="r254f2/f2.js?v=1"></script><script src="r254_2f.js?v=1"></script><script src="r275_rooms.js?v=6"></script><script src="r266_guests.js?v=4"></script><script src="r276_room1.js?v=3"></script>
 <script src="r230_search.js?v=4"></script><script src="r227_music.js?v=10"></script><script src="r227_vo.js?v=5"></script><script src="r211_script.js?v=5"></script>
 <script src="r277_portal_top.js?v=3"></script><script src="r278_chain.js?v=6"></script><script src="r279_seated.js?v=1"></script><script src="r280_stalls.js?v=1"></script><script src="r282_ext.js?v=2"></script>
-<script src="r283/grid.js?v=2"></script><script src="r283_collide.js?v=1"></script>
+<script src="r283/grid.js?v=2"></script><script src="r283_collide.js?v=1"></script><script src="r284_mapnav.js?v=1"></script><script src="r284_sidenav.js?v=1"></script>
 <script src="asset_ready.js"></script>
 </body></html>

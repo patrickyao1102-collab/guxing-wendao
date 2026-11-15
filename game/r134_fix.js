@@ -175,7 +175,7 @@
   const kindOf = title => { for (const [re, k] of KIND) if (re.test(title)) return k; return '途'; };
   goMap = (orig => async function (name, c, r, face) {
     const M = TMAPS[name];
-    if (!stepping || !M || ASK || (typeof battle !== 'undefined' && battle) || name === world.mapName) return orig.apply(this, arguments);
+    if (!stepping || !M || ASK || (typeof battle !== 'undefined' && battle) || name === world.mapName || (window.QUEST_NAV && QUEST_NAV.on)) return orig.apply(this, arguments);   // 11-15：点任务栏自动寻路时，路过的门不再问「是否进入」（是玩家自己点的带路）
     const title = String(M.title || M.name || name).replace(/^.*?·\s*/, s => s), p = world.player;
     world.locked = true; world.path = null; world.walkTarget = null; if (p) p.moving = false;
     ASK = { title, kind: kindOf(title), t0: performance.now() };
