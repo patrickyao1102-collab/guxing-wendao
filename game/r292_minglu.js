@@ -49,7 +49,7 @@
     '回云来客栈大堂，找送热水的杂役小六',
     '拿着牙牌去听雨楼，问问掌柜',
     '入夜了：去城东南城墙边，找花婆家',
-    '后巷尽头有个地窖——下去看看',
+    '花婆家里屋，床边那块石板底下有地窖——下去看看',
     '连夜赶回青阳镇，找林府管事要当初放回来的人的名单',
     '去青阳悦来客栈，问掌柜「王老客」住哪间',
     '上悦来客栈二楼，进最里面的天字三号房',
@@ -468,6 +468,7 @@
   const NAV = (s, f) => { const n = s.n;
     if (n === 0) return { area: ['xt_city', DOOR_YL[0], DOOR_YL[1], 200, '云来客栈门口围着一圈人——城南大街上'] };
     if (n === 3) return { look: ['xt_inn_room2', ...left(f.ml_seen, { tong: '浴桶', gui: '浴室角落的大水柜', ping: '屏风', jiao: '地上的湿脚印', quan: '死者的拳头' })], lookMsg: '天字二号房的浴室：五处，小地图上的金圈是还没看过的' };
+    if (n === 9 && world.mapName !== 'ml_cellar' && TMAPS.ml_huapo) return { to: ['床边的石板'] };
     if (n === 12) return { area: ['qy_inn_s3', null, null, 0, '悦来二楼最里面的天字三号房'] };
     return { to: [[GU, '据点长老', GU, null, FENG, SU, LIU6, TEA, '花婆家', '晃动的人影', '林府管事', '客栈掌柜', null, DU, GU, '卷宗架', SZ, WEN, SZ][n]].filter(Boolean), map: { 11: 'qy_inn' }[n] };
   };
