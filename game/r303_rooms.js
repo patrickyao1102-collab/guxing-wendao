@@ -15,8 +15,10 @@
     return R; };
   const say2 = (who, lines) => async () => { try { SPEAKERS[who] = SPEAKERS[who] || { p: '', color: '#e6dccb' }; } catch (e) {} await say(who, lines[Math.floor(Math.random() * lines.length)]); };
   // ---------------- 醉仙楼 ----------------
+  // 作者 11-16 00:20：新版醉仙楼「大大差评」——伙计不会动、地砖不好看、空间太空、镜头拉太远；认可原来那一版的整体造型，只是桌子形状和摆放不行
+  // → 醉仙楼退回原来那版（等 Codex 在原版上重摆桌席），这段先关掉。
   const TV = TMAPS.qy_tavern;
-  if (TV && TV.baked) {
+  if (false && TV && TV.baked) {
     const R = mk('tavern', TV); const st = P(745, 832);
     TV.start = st; for (const k of Object.keys(TMAPS)) for (const d of (TMAPS[k].doors || []).concat(TMAPS[k].exits || [])) if (d && d.to === 'qy_tavern') d.at = st;
     try { MAP_ZOOM.qy_tavern = .85; } catch (e) {}
