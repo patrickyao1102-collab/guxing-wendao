@@ -14,6 +14,9 @@
 // ⑨ 作者 11-15：听雨楼一楼「绣庄的女掌柜」还是村妇模型 → 换 Codex R304 新做的绣庄女掌柜（藕荷绣花褙子、发髻单簪、手持绣样）。
 //    （二楼五人比例返工：直接替换了 r254f2 里同名的帧条，不用代码。）
 // ⑩ 作者 11-15 23:32：百草轩——打叉的青瓷缸、药碾、麻袋、茶桌凳都删掉；香炉挪到屋子正中；加一个来看病的老先生、一个来抓药的娘子。
+// ⑪ 作者 11-15 23:33：「这种摊位一不能互动，二没有专属 NPC 站在这里，弄起来有什么用」「建议删掉，每张地图都有客栈药店武器铺」
+//    → 玄天城三个没人的摊（灵兽摊、兵器摊、食摊）、苍月城南门八个没人的遮阳摊全部拆掉，挡路格放开；
+//      青阳镇三个摊（灵兽、包子、兵器）是灯会那一夜才有摊主的 → 只在灯会那一夜摆出来，平时拆掉；大黄挪出包子摊屋檐。
 // 只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined') return;
@@ -49,8 +52,23 @@
         (HB.npcs = HB.npcs || []).push({ key: 'none', cx: 'villager_m', w9, c, r, name, h: 116, wander: false, face, random: true, talk: lines }); };
       add('来看病的老先生', 'xiucai', [372, 560], 'right', ['（咳了两声）老毛病了，一到换季就咳。掌柜的方子灵，三帖下去就好。', '年轻人，修行再苦，也别熬夜。老夫年轻时候不信，如今一身病。', '这香炉里点的是安神香，闻着心里就静。']);
       add('抓药的娘子', 'yanzhi', [640, 470], 'up', ['当家的上山采石，跌伤了腿，我来抓两帖跌打的药。', '掌柜的说这药要用黄酒做引子……镇上的酒铺还开着吧？', '最近药价涨得厉害，听说都是黑风寨闹的。']); } }
+  // 拆物件 + 放开它脚下的挡路格（周围别的物件脚下照旧挡）
+  const unblock = (B, gone) => { const cs = B.cs, G = B.blocked.split('');
+    const keep = (x, y) => B.objs.some(o => !gone.includes(o) && o.w * o.h > 1500 && x >= o.x && x < o.x + o.w && y >= (o.sy || o.y + o.h) - Math.min(90, o.h * .4) && y < (o.sy || o.y + o.h) + 6);
+    for (const o of gone) { const sy = o.sy || o.y + o.h, y0 = o.h > 150 ? sy - 150 : o.y;
+      for (let y = y0; y < sy + 10; y += cs) for (let x = o.x; x < o.x + o.w; x += cs) { const c = Math.floor(x / cs), r = Math.floor(y / cs); if (c >= 0 && r >= 0 && c < B.cols && r < B.rows && !keep(c * cs + cs / 2, r * cs + cs / 2)) G[r * B.cols + c] = '0'; } }
+    return G.join(''); };
+  const strip = (m, pred) => { const B = TMAPS[m] && TMAPS[m].baked; if (!B) return; const gone = B.objs.filter(pred); if (!gone.length) return; B.blocked = unblock(B, gone); B.objs = B.objs.filter(o => !gone.includes(o)); };
+  strip('xt_city', o => /spirit_pet_stall|weapon_stall|food_stall_02/.test(o.img || ''));
+  strip('m_cy_gate', o => /prop_awning/.test(o.img || ''));
+  { const M = TMAPS.qy_town, B = M && M.baked; if (B && !B._r302s) { B._r302s = 1;
+      const st = B.objs.filter(o => /spirit_pet_stall|food_stall_01|weapon_stall/.test(o.img || '')); const fullB = B.blocked, fullO = B.objs.slice();
+      const dayB = unblock(B, st), dayO = B.objs.filter(o => !st.includes(o));
+      const night = () => !!(S.flags && S.flags.ch3_night && !S.flags.ch3_city);
+      const apply = () => { const n = night(); B.blocked = n ? fullB : dayB; B.objs = n ? fullO : dayO; };
+      apply(); if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { if (m === 'qy_town') try { apply(); } catch (e) {} return o.apply(this, arguments); })(tileSetMap); } }
   const MOVE = [['m_yy_tiger', '守林老人', null, null, 2040, 3300], ['lin_guest_east', '林府老管事', null, null, 690, 580],
-    ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 760, 1657],
+    ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 630, 1600],
     ['xt_city', '富家公子', null, null, 2785, 2180], ['xt_city', '江湖郎中', null, null, 620, 2296], ['xt_city', '镖师', null, null, 2150, 2940], ['xt_city', '卖炊饼的汉子', null, null, 1579, 2497],
     ['xt_manor_treasury', '宝库守阁人', null, null, 656, 641], ['lin_court', '林府护卫', null, null, 1320, 1961]];
   const put = m => { const M = TMAPS[m]; if (!M) return; MOVE.forEach(([mm, nm, ox, oy, nx, ny], i) => { if (mm !== m) return;
