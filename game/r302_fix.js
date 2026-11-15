@@ -11,6 +11,8 @@
 //    → 凡是没有走路帧的人（小狗小鸡照旧），不再闲逛，原地站着（只留轻微呼吸起伏）。有走路帧的照常走。
 // ⑦ 作者 11-15 23:37：花婆家供桌——神像和香炉浮在桌子后面，不在桌面上，香炉也偏 → 神像放到桌面正中靠后，香炉放在神像正前方。
 // ⑧ 作者 11-15 23:52：玄天城据点门口左边那间空屋和旁边一段竹篱笆「太挡路了」→ 拆掉（这间屋没有门，进不去），脚下的挡路格放开。
+// ⑨ 作者 11-15：听雨楼一楼「绣庄的女掌柜」还是村妇模型 → 换 Codex R304 新做的绣庄女掌柜（藕荷绣花褙子、发髻单簪、手持绣样）。
+//    （二楼五人比例返工：直接替换了 r254f2 里同名的帧条，不用代码。）
 // 只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined') return;
@@ -32,6 +34,7 @@
         for (const o of gone) { const y0 = o.h > 150 ? o.sy - 150 : o.y, y1 = o.sy + 8;
           for (let y = y0; y < y1; y += cs) for (let x = o.x; x < o.x + o.w; x += cs) { const c = Math.floor(x / cs), r = Math.floor(y / cs); if (c >= 0 && r >= 0 && c < XB.cols && r < XB.rows && !keep(c * cs + cs / 2, r * cs + cs / 2)) B[r * XB.cols + c] = '0'; } }
         XB.blocked = B.join(''); } } }
+  { const TH = TMAPS.xt_teahouse; for (const n of (TH && TH.npcs) || []) if (n.name === '绣庄的女掌柜' && !n.hidden) { n.w9 = 'xiuzhuang'; n.cx = n.cx || 'villager_f'; n.h = 116; n.wander = false; } }
   const MOVE = [['m_yy_tiger', '守林老人', null, null, 2040, 3300], ['lin_guest_east', '林府老管事', null, null, 690, 580],
     ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 760, 1657],
     ['xt_city', '富家公子', null, null, 2785, 2180], ['xt_city', '江湖郎中', null, null, 620, 2296], ['xt_city', '镖师', null, null, 2150, 2940], ['xt_city', '卖炊饼的汉子', null, null, 1579, 2497],
