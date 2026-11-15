@@ -52,6 +52,29 @@
   if (AR) { for (const n of byName(AR, '卷宗架')) place(AR, n, [295, 392], true);
     for (const e of (AN && AN.exits) || []) e.at = arrive(AR, 1000, 300); }   // 暗室上来，站在暗门口
   if (AN) for (const n of byName(AN, '温既白')) place(AN, n, [455, 520]);
+  // 暗室书案上的账册：线装、竖排、从右往左读（Codex R294-12 无字底图；名字、红圈、末列都由这里写）
+  load('r297_ledger', 'r297/ledger_ui.webp'); load('r297_ring', 'r297/ledger_ring.webp');
+  const LR = [1262, 1202, 1143, 1083, 1023, 963, 903, 840], LL = [715, 655, 596, 536, 477, 417, 358, 299];
+  const P1R = ['陈三水　散修　孤身', '柳青禾　散修　无师门', '吴大年　外乡人　无家小', '何七郎　散修　孤身', '宋小满　采药人　无亲', '郑秋生　散修　无师门', '马二丫　外乡人　孤身', '罗长贵　散修　无家小'];
+  const P1L = ['孙寒山　散修　孤身', '冯阿九　散修　无师门', '杜春娘　外乡人　无亲', '韩小石　散修　孤身', '钱满仓　行脚　无家小', '鲁大川　散修　无师门', '苏绫'];
+  const P2R = ['西北林中　交割', '正月　送三人', '三月　送五人', '五月　送四人', '七月　送六人', '九月　送四人', '冬月　送五人', '已送西北 · 二十七人'];
+  const ledger = kind => new Promise(res => { const im = IMG.r297_ledger, ring = IMG.r297_ring; if (!im) return res(false);
+    const sc = Math.min(W / 1536, H / 1024), x0 = (W - 1536 * sc) / 2, y0 = (H - 1024 * sc) / 2, t0 = performance.now(); let page = kind === 'last' ? 2 : 1;
+    const col = (t, cx, red, bold) => { ctx.fillStyle = red ? '#9a1c12' : '#2a1a0e'; ctx.font = (bold ? '700 ' : '600 ') + Math.round(34 * sc) + 'px ' + FONT; let y = 285 + 21;
+      for (const ch of t) { if (ch === ' ') { y += 14; continue; } if (ch === '·') { ctx.fillText('・', x0 + cx * sc, y0 + y * sc); y += 30; continue; } ctx.fillText(ch, x0 + cx * sc, y0 + y * sc); y += 42; } };
+    const circ = (cx, n, fresh) => { if (!ring) return; const h = n * 42 + 14; ctx.save(); if (fresh) { ctx.shadowColor = 'rgba(255,40,20,.8)'; ctx.shadowBlur = 10 + 6 * Math.sin(performance.now() / 260); }
+      ctx.drawImage(ring, x0 + (cx - 29) * sc, y0 + 272 * sc, 58 * sc, h * sc); ctx.restore(); };
+    const o = { draw() { try { ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.62)'; ctx.fillRect(0, 0, W, H); ctx.drawImage(im, x0, y0, 1536 * sc, 1024 * sc); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#f3dca6'; ctx.font = '700 ' + Math.round(34 * sc) + 'px ' + FONT; ctx.fillText('账　册', x0 + 768 * sc, y0 + 140 * sc);
+      if (page === 1) { P1R.forEach((t, i) => { col(t, LR[i]); circ(LR[i], 3); }); P1L.forEach((t, i) => { col(t, LL[i]); circ(LL[i], t.split('　')[0].length, t === '苏绫'); }); }
+      else { P2R.forEach((t, i) => col(t, LR[i], i === 7, i === 0 || i === 7)); }
+      ctx.fillStyle = '#f3dca6'; ctx.font = '600 ' + Math.round(26 * sc) + 'px ' + FONT; ctx.fillText(kind === 'both' && page === 1 ? '翻到最后' : '合　上', x0 + 767 * sc, y0 + 914 * sc); ctx.restore(); } catch (e) {} } };
+    S.overlay.push(o); const up = () => { if (performance.now() - t0 < 350) return; try { playSnd('ui_click'); } catch (e) {} if (kind === 'both' && page === 1) { page = 2; return; }
+      cv.removeEventListener('pointerup', up); const i = S.overlay.indexOf(o); if (i >= 0) S.overlay.splice(i, 1); setTimeout(() => { input.tapped = null; }, 0); res(true); };
+    setTimeout(() => cv.addEventListener('pointerup', up), 200); });
+  window.ML_LEDGER = async kind => { const lk = world.locked, h0 = S.hud; world.locked = true; S.hud = false; const ok = await ledger(kind); world.locked = lk; S.hud = h0; return ok; };
+  if (AN) { const [c, r] = P(452, 352); (AN.npcs = AN.npcs || []).push({ key: 'none', c, r, h: 90, name: '书案上的账册', hidden: true, cond: () => st().s === 3 || N() >= 18,
+    talk: async () => { if (!(await window.ML_LEDGER('both'))) await say('', '一本线装账册，一页一页全是名字，一个名字一道红圈。最后一页写着：「已送西北 · 二十七人」。'); } }); }
 
   // ---------------- 花婆家（新） ----------------
   const CITY = TMAPS.xt_city, CE = TMAPS.ml_cellar, R = D.huapo;
@@ -84,7 +107,7 @@
       S.overlay.push(o); const up = () => { if (performance.now() - t0 < 300) return; cv.removeEventListener('pointerup', up); const i = S.overlay.indexOf(o); if (i >= 0) S.overlay.splice(i, 1); setTimeout(() => { input.tapped = null; }, 0); res(true); };
       setTimeout(() => cv.addEventListener('pointerup', up), 200); });
     add([450, 240], { name: '荐工牌墙', hidden: true, talk: async () => {
-      const lk = world.locked; world.locked = true; const ok = await board(); world.locked = lk;
+      const lk = world.locked, h0 = S.hud; world.locked = true; S.hud = false; const ok = await board(); world.locked = lk; S.hud = h0;
       if (!ok) await say('', '一面挂满小木牌的牌墙：王嫂·厨娘、刘三·挑夫、小翠·丫鬟……有几处钉子空着。');
       if (st().s === 1 && N() === 9 && !F().ml_board) { F().ml_board = 1; await say('叶孤星', '（「鱼七 · 挑水 · 云来客栈」……送水的杂役，就是从这儿荐进云来的。）'); } } });
     try { R292.maps.push('ml_huapo'); } catch (e) {}
