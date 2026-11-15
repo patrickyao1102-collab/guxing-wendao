@@ -21,7 +21,7 @@
 
   // ---------------- 数据 ----------------
   function mainItem() {
-    const q = String(S.quest || ''); if (!q) return null;
+    const q = String(S.quest || ''); if (!q || (window.ML_ACTIVE && ML_ACTIVE())) return null;   /* 主线案《名录》办着的时候，它就是主线 */
     const i = q.search(/[：:]/), pre = i > 0 && i <= 12 ? q.slice(0, i).trim() : '', step = pre ? q.slice(i + 1).trim() : q;
     let map = ''; try { const RU = window.QUEST_ROUTE && QUEST_ROUTE.RULES, r = RU && RU.find(([re]) => re.test(q)), g = r && r[1](); if (g && g.map) map = g.map; } catch (e) {}
     return { id: '__main', kind: 'main', name: pre || '主线', status: 'doing', step, map, where: map ? mapTitle(map) : '', region: REG(map), reward: '', desc: typeof CHAP === 'function' ? CHAP() : '', notes: [] };
@@ -43,7 +43,7 @@
       map = (g && g.map) || maps[0] || q.giver[0];
     }
     const where = status === 'doing' && map ? mapTitle(map) : q.where;
-    return { id: q.id, kind: 'side', name: q.name, status, step, map, where: where || q.where || '', region: REG(map || q.giver[0]), reward: Q.RT(q) || '', desc: String(q.desc || '').replace(/\s*【证词本】[\s\S]*$/, ''), notes: (F()[NOTES[q.id]] || []).slice(), giverWhere: q.where };
+    return { id: q.id, kind: q.main ? 'main' : 'side', name: q.name, status, step, map, where: where || q.where || '', region: REG(map || q.giver[0]), reward: Q.RT(q) || '', desc: String(q.desc || '').replace(/\s*【证词本】[\s\S]*$/, ''), notes: (F()[NOTES[q.id] || q.notesKey] || []).slice(), giverWhere: q.where };
   }
   function all() {
     const Q = R(); if (!Q) return { doing: [], avail: [], done: [] };
@@ -65,7 +65,7 @@
       pick = sides.slice().sort((a, b) => (b.id === nav) - (a.id === nav) || (b.status === 'ready') - (a.status === 'ready') || (b.region === here) - (a.region === here)); }
     return pick.slice(0, 2);
   }
-  function go(it) { try { if (it.kind === 'main') R().goMain(); else R().goSide(it.id); } catch (e) {} }
+  function go(it) { try { if (it.id === '__main') R().goMain(); else R().goSide(it.id); } catch (e) {} }
 
   // ---------------- 画字的小工具 ----------------
   const fnt = (sz, w) => `${w || 400} ${sz}px ${FONT}`;
