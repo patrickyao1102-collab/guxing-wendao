@@ -13,6 +13,7 @@
 // ⑧ 作者 11-15 23:52：玄天城据点门口左边那间空屋和旁边一段竹篱笆「太挡路了」→ 拆掉（这间屋没有门，进不去），脚下的挡路格放开。
 // ⑨ 作者 11-15：听雨楼一楼「绣庄的女掌柜」还是村妇模型 → 换 Codex R304 新做的绣庄女掌柜（藕荷绣花褙子、发髻单簪、手持绣样）。
 //    （二楼五人比例返工：直接替换了 r254f2 里同名的帧条，不用代码。）
+// ⑩ 作者 11-15 23:32：百草轩——打叉的青瓷缸、药碾、麻袋、茶桌凳都删掉；香炉挪到屋子正中；加一个来看病的老先生、一个来抓药的娘子。
 // 只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined') return;
@@ -35,6 +36,19 @@
           for (let y = y0; y < y1; y += cs) for (let x = o.x; x < o.x + o.w; x += cs) { const c = Math.floor(x / cs), r = Math.floor(y / cs); if (c >= 0 && r >= 0 && c < XB.cols && r < XB.rows && !keep(c * cs + cs / 2, r * cs + cs / 2)) B[r * XB.cols + c] = '0'; } }
         XB.blocked = B.join(''); } } }
   { const TH = TMAPS.xt_teahouse; for (const n of (TH && TH.npcs) || []) if (n.name === '绣庄的女掌柜' && !n.hidden) { n.w9 = 'xiuzhuang'; n.cx = n.cx || 'villager_f'; n.h = 116; n.wander = false; } }
+  { const HB = TMAPS.qy_herb, B = HB && HB.baked;
+    if (B && !B._r302) { B._r302 = 1; const cs = B.cs, G = B.blocked.split('');
+      const cell = (x, y, v) => { const c = Math.floor(x / cs), r = Math.floor(y / cs); if (c >= 0 && r >= 0 && c < B.cols && r < B.rows) G[r * B.cols + c] = v; };
+      const box = (o, v) => { for (let y = o.sy - Math.min(60, o.h * .5); y < o.sy + 6; y += cs) for (let x = o.x + 4; x < o.x + o.w - 4; x += cs) cell(x, y, v); };
+      const gone = B.objs.filter(o => /water_jar|herb_grinder|tea_table|cargo_sacks/.test(o.img || ''));
+      B.objs = B.objs.filter(o => !gone.includes(o)); for (const o of gone) for (let y = o.y; y < o.sy + 40; y += cs) for (let x = o.x - 20; x < o.x + o.w + 20; x += cs) cell(x, y, '0');
+      for (const o of B.objs) if (/incense_burner/.test(o.img || '')) { box(o, '0'); Object.assign(o, { x: 503, y: 452, sy: 560 }); box(o, '1'); }
+      B.blocked = G.join('');
+      const P2 = (x, y) => [x / 64 - .5, y / 64 - .8];
+      const add = (name, w9, xy, face, lines) => { const [c, r] = P2(xy[0], xy[1]); try { SPEAKERS[name] = SPEAKERS[name] || { p: '', color: '#e6dccb' }; } catch (e) {}
+        (HB.npcs = HB.npcs || []).push({ key: 'none', cx: 'villager_m', w9, c, r, name, h: 116, wander: false, face, random: true, talk: lines }); };
+      add('来看病的老先生', 'xiucai', [372, 560], 'right', ['（咳了两声）老毛病了，一到换季就咳。掌柜的方子灵，三帖下去就好。', '年轻人，修行再苦，也别熬夜。老夫年轻时候不信，如今一身病。', '这香炉里点的是安神香，闻着心里就静。']);
+      add('抓药的娘子', 'yanzhi', [640, 470], 'up', ['当家的上山采石，跌伤了腿，我来抓两帖跌打的药。', '掌柜的说这药要用黄酒做引子……镇上的酒铺还开着吧？', '最近药价涨得厉害，听说都是黑风寨闹的。']); } }
   const MOVE = [['m_yy_tiger', '守林老人', null, null, 2040, 3300], ['lin_guest_east', '林府老管事', null, null, 690, 580],
     ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 760, 1657],
     ['xt_city', '富家公子', null, null, 2785, 2180], ['xt_city', '江湖郎中', null, null, 620, 2296], ['xt_city', '镖师', null, null, 2150, 2940], ['xt_city', '卖炊饼的汉子', null, null, 1579, 2497],
