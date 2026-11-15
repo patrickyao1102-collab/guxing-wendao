@@ -345,14 +345,14 @@
       const k = await choose2('他藏在哪？（每照一处，心跳就响一点）', left); const p = left[Math.max(0, k)];
       if (p === '浴桶') {
         await L([['', '叶孤星盯着那只浴桶。水面太平了——平得不像有人用过。'], [YE, '（鱼七的水柜……）'], ['', '一剑刺下去——水里猛地翻起一个黑影！']]);
-        darkOff(); await fight({ title: '悦来客栈 · 天字三号', bg: 'bg_night', enemies: [Object.assign(heiyi('黑袍刺客', 900), { atk: 50, spd: 15, hp: 640 })], exp: 420, gold: 300 });
+        darkOff(); await fight({ title: '悦来客栈 · 天字三号', bgmLib: 'battle_case', bg: 'bg_night', enemies: [Object.assign(heiyi('黑袍刺客', 900), { atk: 50, spd: 15, hp: 640 })], exp: 420, gold: 300 });
         break; }
       tried.push(p);
       await say('', { 床底: '灯伸到床底下——只有一双落了灰的鞋。', 衣柜: '拉开衣柜——几件挂着的旧衣裳，空的。', 房梁: '灯举起来照房梁——什么也没有。' }[p]);
       if (tried.length >= 2) {
         await L([['', '身后的浴桶里，「哗」的一声——'], ['', '一个黑影破水而出，短刃直取后心！'], [YT, '孤星——！']]);
         darkOff(); S.hero.hp = Math.max(1, Math.round(S.hero.hp * .7));
-        await fight({ title: '悦来客栈 · 天字三号（被偷袭）', bg: 'bg_night', enemies: [Object.assign(heiyi('黑袍刺客', 900), { atk: 54, spd: 16 })], exp: 420, gold: 300 });
+        await fight({ title: '悦来客栈 · 天字三号（被偷袭）', bgmLib: 'battle_case', bg: 'bg_night', enemies: [Object.assign(heiyi('黑袍刺客', 900), { atk: 54, spd: 16 })], exp: 420, gold: 300 });
         break; }
     }
     darkOff();
@@ -437,7 +437,7 @@
     await lock(async () => {
       await L([['', '文书房底下是一间石室。整面墙挂满了名录抄本，一个名字一道红圈。'], ['', '最新的一道圈还没干——圈着的是「苏绫」。'],
         [WEN, '（转过身，眼白发青，手里那卷名录化成了黑色的锁链）三十年。老朽在这衙门里抄了三十年的名字。'], [WEN, '没师门、没家小的散修，死了也没人来找。老朽不过是……替他们找了个去处。'], [YE, '今天有人来找了。']]);
-      await fight({ title: '巡城司 · 暗室', bg: 'bg_hall', boss: true, enemies: [wenBoss()], exp: 900, gold: 600 });
+      await fight({ title: '巡城司 · 暗室', bgmLib: 'battle_case', bg: 'bg_hall', boss: true, enemies: [wenBoss()], exp: 900, gold: 600 });
       await L([['', '温既白倒在名录墙下，黑气一点点散了，又变回那个微胖、和气的老书办。'], [WEN, '……上面的人，你们惹不起。'],
         ['', '架子上一本账，最后一行写着：「已送西北 · 二十七人」。'], [XX, '（西北。账册上也写着「西北林中」。……先记着。）']]);
       note('暗室的账：「已送西北 · 二十七人」'); next(18);

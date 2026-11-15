@@ -47,10 +47,13 @@
     map_yuelai: ['悦来客栈', '小镇客栈，朴实的掌柜，过路的行商，后厨飘来饭香：中阮与扬琴奏朴实温暖的主旋律，竹笛，木鱼和小手鼓，大提琴拨弦', 0.7, 90],
     map_tiejiang: ['铁匠铺', '炉火通红，铁匠一锤一锤打着铁：铁砧似的金属敲击声当作节奏乐器（叮、当、叮叮当），低音鼓，三弦和板胡奏硬朗豪爽的主旋律，大提琴顿弓', 0.7, 90],
     // 第五批（11-15，作者：「听雨楼 B 挺好听，可以接入听雨楼地图」）
+    battle_case: ['探案打斗', '首领战斗 B 的高潮段（作者 11-15：探案里遇到的打斗用，只用一两场；平时战斗仍是武侠快打 + 首领专用曲）', 0.72, 38],
     map_tingyulou: ['听雨楼', '玄天城临河茶楼，一楼大堂、二楼雅座露台，雨天听雨品茶：竹笛主旋律、古筝流水琶音、琵琶轻点、弦乐像细雨铺底，清雅闲适带江南烟雨的惆怅', 0.7, 120],
     map_baicao: ['百草轩', '满屋药香的老药铺，掌柜慢条斯理地称药：洞箫奏温和安宁的主旋律，古筝，碟铃或小磬像戥子轻碰，极轻的弦乐铺底', 0.7, 90],
   };
   const lib = BGM_LIB.tracks; let i = 0;
+  // cfg.bgmLib：这一场战斗点名用某首配乐库里的曲子（底层先按普通 / 首领放，这里马上换掉）
+  if (typeof startBattle === 'function') startBattle = (o => function (cfg) { const r = o.apply(this, arguments); try { const k = cfg && cfg.bgmLib; if (k && AUD.mode && !AUD.muted) setTimeout(() => { try { if (battle) BGM29.audition('lib_r227_' + k); } catch (e) {} }, 60); } catch (e) {} return r; })(startBattle);
   if (BGM_LIB.groups && !BGM_LIB.groups.includes(G)) BGM_LIB.groups.splice(Math.max(0, BGM_LIB.groups.indexOf('戊 · 战斗')), 0, G);
   for (const k in TR) { const [name, desc, vol, dur] = TR[k]; lib['lib_r227_' + k] = { no: '支' + String(++i).padStart(2, '0'), name, group: G, kind: 'bgm', file: 'r227/' + k + '.mp3', vol, desc: '小云雀 Seed Audio 1.0 · ' + desc, dur }; }
   const id = k => 'lib_r227_' + k;
