@@ -48,7 +48,7 @@
 
   async function buy(k) { const s = SIS[k], o = st(k);
     if (gold() < 5) return say(s.who, '一枝五文……呃，五块灵石。公子钱袋好像空了？');
-    S.hero.gold -= 5; o.fav = Math.min(100, (o.fav || 0) + 5); try { playSnd('ui_confirm'); } catch (e) {}
+    S.hero.gold -= 5; o.fav = Math.min(100, (o.fav || 0) + 5); try { if (window.R322_ACT) R322_ACT(k === 'xiaohe' ? 'r313_18_he' : 'r313_18_lian', s.names[0]); } catch (e) {} try { playSnd('ui_confirm'); } catch (e) {}
     try { toast(s.call + '好感 +5（' + o.fav + ' / 100）', 1800); } catch (e) {}
     await say(s.who, ['（她挑了一枝开得最好的递给你）给，今天第一枝最香。', '谢谢公子！花要插在清水里，能开三天。', '你又来啦？我就知道你会再来。'][Math.min(2, Math.floor(o.fav / 30))]);
     for (const t of [30, 60, 100]) if (o.fav >= t && !o.gift[t]) { o.gift[t] = 1; const [id, n, nm] = GIFT[t];

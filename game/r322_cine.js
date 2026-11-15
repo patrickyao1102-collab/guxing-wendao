@@ -50,5 +50,23 @@
   say = (orig => async function (who, text) { const t = String(text || '');
     for (const [re, k, title] of ON) if (re.test(t)) { if (C[k][2] === 'close' && SEEN.has(k)) break; SEEN.add(k); try { await play(k, title); } catch (e) {} break; }
     return orig.apply(this, arguments); })(say);
+  // ---------- 地图上直接演：人物动作帧叠在这个人原来站的位置（作者 11-16：「在地图上就直接演绎」）----------
+  const A = { r313_02: [6, 5, 120, 232, 240, 240], r313_04: [4, 4, 120, 232, 240, 240], r313_06: [4, 4, 120, 232, 240, 240], r313_16: [4, 4, 120, 232, 240, 240],
+    r313_09: [5, 4, 80, 232, 160, 240], r313_15: [6, 6, 80, 232, 160, 240], r313_15_knife: [6, 6, 80, 80, 160, 160], r313_17: [8, 6, 80, 232, 160, 240], r313_18_he: [4, 5, 80, 232, 160, 240], r313_18_lian: [4, 5, 80, 232, 160, 240] };
+  const ACT_ON = [
+    [/^（被两个捕快一左一右架着出了门）/, 'r313_02', '小伍'], [/^秦老被巡城司带走那天/, 'r313_04', '秦老'], [/^他把担子挑起来，一步一步往林府走/, 'r313_06', '货郎'],
+    [/^苏晚把信看了很久/, 'r313_09', '苏晚'], [/^雷大勇的刀飞了出去/, 'r313_15', '雷大勇', 'r313_15_knife'], [/刘独眼突然浑身一抖，指着他叫了起来/, 'r313_16', '刘独眼'], [/^黑袍人翻过屋脊跑了/, 'r313_17', '黑袍人'],
+  ];
+  const acts = [];
+  const actor = n => { try { return (world.actors || []).find(a => a.npc && a.npc.name === n && !a.hidden); } catch (e) { return null; } };
+  const act = (k, name, extra) => { try { const a = actor(name), p = a || world.player; if (!p) return; const [n, fps] = A[k]; for (let i = 0; i < n; i++) img(k, i);
+      const o = { k, x: p.x, y: p.y, t0: performance.now(), a, flip: !!(a && a.npc && a.npc.flip) }; if (a) { o.alpha0 = a.alpha == null ? 1 : a.alpha; a.alpha = 0; } acts.push(o);
+      if (extra) { for (let i = 0; i < A[extra][0]; i++) img(extra, i); acts.push({ k: extra, x: p.x + 110, y: p.y - 60, t0: performance.now() + 300 }); }
+      setTimeout(() => { const i = acts.indexOf(o); if (i >= 0) acts.splice(i, 1); if (a) a.alpha = o.alpha0; }, n / fps * 1000 + 1400); } catch (e) {} };
+  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig.apply(this, arguments); const t = performance.now();
+    for (const o of acts) { const [n, fps, ax, ay, w, h] = A[o.k], dt = t - o.t0; if (dt < 0) continue; const im = img(o.k, Math.min(n - 1, Math.floor(dt / 1000 * fps))); if (!(im.complete && im.naturalWidth)) continue;
+      ctx.save(); ctx.translate(o.x, o.y); if (o.flip) ctx.scale(-1, 1); ctx.drawImage(im, -ax, -ay, w, h); ctx.restore(); } })(tileAmbientHigh);
+  say = (orig => function (who, text) { const t = String(text || ''); for (const [re, k, name, extra] of ACT_ON) if (re.test(t)) { act(k, name, extra); break; } return orig.apply(this, arguments); })(say);
+  window.R322_ACT = act;
   window.R322_PLAY = play;
 })();
