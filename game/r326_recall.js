@@ -9,13 +9,13 @@
 (function () {
   if (typeof say !== 'function' || typeof TMAPS === 'undefined') return;
   // 素材：[帧数, 帧宽, 帧高, 脚底x, 脚底y, 每帧毫秒]
-  const AS = {"01a":[4,160,240,80,232,[220,220,220,650]],"01b":[6,160,240,80,232,[400,350,500,550,550,800]],"01c":[4,160,240,80,232,[220,220,220,650]],"01d":[4,160,240,80,232,[220,220,220,650]],"01e":[4,160,240,80,232,[220,220,220,650]],"01f":[4,400,144,200,136,[350,350,350,650]],"03a":[3,160,240,80,232,[220,220,650]],"03b":[5,192,240,96,232,[220,220,220,220,650]],"03c":[6,160,240,80,232,[250,250,350,350,400,900]],"03d":[6,72,20,36,10,[250,250,350,350,400,900]],"03e":[1,160,240,80,232,[0]],"07a":[4,160,240,80,232,[220,220,220,650]],"07b":[6,160,240,80,232,[220,220,220,220,220,650]],"07c":[2,160,240,80,232,[260,650]],"13a":[6,160,240,80,232,[180,180,180,180,180,180]],"13b":[4,160,240,80,232,[350,450,450,900]],"13c":[6,16,16,8,12,[90,90,90,110,160,0]]};
-  const PROP = { 'r326_case': 1, '01f': 1, '03d': 1, '13c': 1 };   // 不是人：不跟着地图人物放大
+  const AS = {"01a":[4,160,240,80,232,[220,220,220,650]],"01b":[6,160,240,80,232,[400,350,500,550,550,800]],"01c":[4,160,240,80,232,[220,220,220,650]],"01d":[4,160,240,80,232,[220,220,220,650]],"01e":[4,160,240,80,232,[220,220,220,650]],"01f":[4,400,144,200,136,[350,350,350,650]],"03a":[3,160,240,80,232,[220,220,650]],"03b":[5,192,240,96,232,[220,220,220,220,650]],"03c":[6,160,240,80,232,[250,250,350,350,400,900]],"03d":[6,72,20,36,10,[250,250,350,350,400,900]],"03e":[1,160,240,80,232,[0]],"07a":[4,160,240,80,232,[220,220,220,650]],"07b":[6,160,240,80,232,[220,220,220,220,220,650]],"07c":[2,160,240,80,232,[260,650]],"13a":[6,160,240,80,232,[180,180,180,180,180,180]],"13b":[4,160,240,80,232,[350,450,450,900]],"13c":[6,16,16,8,12,[90,90,90,110,160,0]],"08":[6,200,200,100,192,[500,350,500,550,700,1000]],"08p":[8,128,160,64,152,[150,150,150,150,150,150,150,150]],"08g":[1,200,160,100,150,[0]]};
+  const PROP = { '01f': 1, '03d': 1, '13c': 1, '08p': 1, '08g': 1 };   // 不是人：不跟着地图人物放大
   const cache = {}; const sheet = k => { if (!cache[k]) { const im = new Image(); im.src = 'r326/' + k + '.webp'; cache[k] = im; } return cache[k]; };
   const ex = {}; const exImg = (k, src) => { if (!ex[k]) { const im = new Image(); im.src = src; ex[k] = im; } return ex[k]; };
   // 场景：哪张图、广角取景框（世界坐标）
   const SC = { store: { map: 'xt_wanbao_store', view: [0, 170, 1536, 864] }, appraisal: { map: 'xt_wanbao_vip', view: [0, 0, 1536, 864] },
-    hall: { map: 'qy_inn', view: [288, 200, 1440, 810] }, corridor: { map: 'xt_inn_corr', view: [0, 150, 1280, 720] } };
+    hall: { map: 'qy_inn', view: [288, 200, 1440, 810] }, corridor: { map: 'xt_inn_corr', view: [0, 150, 1280, 720] }, hill: { map: 'qy_shelter', view: [560, 0, 1120, 630] } };
   // 一条轨：从 t0 起按 seq 逐帧（[帧号, 毫秒, x, y, 透明度]）；from~to 之间可见（t0 前停在第一帧，播完停在最后一帧）
   const seq = (a, pos, from, to, t0, alphas) => { const [n, , , , , du] = AS[a]; const out = []; for (let i = 0; i < n; i++) { const p = Array.isArray(pos[0]) ? pos[Math.min(i, pos.length - 1)] : pos; out.push([i, du[i], p[0], p[1], alphas ? alphas[i] : 1]); } return { a, t0, seq: out, from, to }; };
   const dur = a => AS[a][5].reduce((s, v) => s + v, 0);
@@ -45,6 +45,9 @@
       const Bt = t; tr.push(seq('13b', [[280, 370], [275, 350], [270, 335], [270, 335]], Bt, Bt + dur('13b'), Bt, [1, 1, .55, .25]));
       const end = Bt + dur('13b') + 800; for (const k of tr) if (k.to === 1e9) k.to = end;
       return [{ sc: 'corridor', t0: 0, t1: end, tracks: tr, hide: ['xt_inn_corr-clue-wet_footprints', 'xt_inn_corr-clue-broken_latch'] }]; }
+    if (id === '08') { const A = 300, end = A + dur('08') + 1200, g = [1150, 330];
+      const pet = { a: '08p', t0: A + 1350, seq: [], from: A + 1350, to: end }; for (let i = 0; i < 40; i++) pet.seq.push([i % 8, 150, g[0] - 30, g[1] - 10, 1]);
+      return [{ sc: 'hill', t0: 0, t1: end, tracks: [{ a: '08g', t0: 0, seq: [[0, 99999, g[0], g[1], 1]], from: 0, to: end }, seq('08', [g[0] - 145, g[1] + 10], 0, end, A), pet] }]; }
     return []; }
   // 阿蘅蹲在活门右手边掀门：脚底落在活门右三分之一、下沿
   function hatchFoot() { try { const o = (TMAPS.qy_inn.baked.objs || []).find(x => x.uid === 'r324_hatch'); if (o) return [Math.round(o.x + o.w * .76), Math.round(o.y + o.h - 2)]; } catch (e) {} return [1399, 674]; }
@@ -62,7 +65,7 @@
     const g = IMG[B.ground]; if (g) ctx.drawImage(g, 0, 0, B.w, B.h);
     const items = []; const FR = sh.front && (() => { const o = (B.objs || []).find(x => (x.uid || x.id) === sh.front.uid); return o ? Object.assign({ o }, sh.front) : null; })();
     for (const o of B.objs || []) { if (sh.hide && sh.hide.includes(o.uid || o.id)) continue; items.push({ y: o.flat ? -1e9 + o.sy : o.sy, o }); }
-    for (const k of sh.tracks) { if (t < k.from || t >= k.to) continue; const f = frameAt(k, t); let y = k.a === '01f' ? caseY(B) : PROP[k.a] ? -1e9 + f[3] : f[3]; if (FR && !PROP[k.a] && f[2] > FR.o.x && f[2] < FR.o.x + FR.o.w && f[3] < FR.o.sy) y = FR.o.sy + 2; items.push({ y, k, f }); }
+    for (const k of sh.tracks) { if (t < k.from || t >= k.to) continue; const f = frameAt(k, t); let y = k.a === '01f' ? caseY(B) : k.a === '08p' ? 1e9 : k.a === '08g' ? f[3] : PROP[k.a] ? -1e9 + f[3] : f[3]; if (FR && !PROP[k.a] && f[2] > FR.o.x && f[2] < FR.o.x + FR.o.w && f[3] < FR.o.sy) y = FR.o.sy + 2; items.push({ y, k, f }); }
     items.sort((p, q) => p.y - q.y);
     for (const it of items) {
       if (it.o) { const o = it.o; let im = IMG[o.img]; const sw = sh.swap && sh.swap[o.uid || o.id] && sh.swap[o.uid || o.id](t);
@@ -88,6 +91,8 @@
     if (cur.title) { ctx.font = `600 26px ${F}`; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(220,232,255,.88)'; ctx.fillText(cur.title, 36, 52); }
     ctx.font = `20px ${F}`; ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(220,232,255,.55)'; ctx.fillText('点一下跳过', W - 30, H - 26); ctx.restore(); } };
   for (const k of Object.keys(AS)) sheet(k);
+  // 几张屋子的底图先解码一遍（第一次切过去不黑屏）
+  setTimeout(() => { for (const k of Object.keys(SC)) { try { const g = IMG[TMAPS[SC[k].map].baked.ground]; if (g && g.decode) g.decode().catch(() => {}); } catch (e) {} } }, 6000);
   exImg('vip_empty', 'r219/c_xt_wanbao_vip_wall_sword_4_empty.webp');
   function play(id, title) { return new Promise(res => { const shots = build(id); if (!shots.length) return res();
     cur = { id, title, shots, t0: performance.now() }; const total = shots[shots.length - 1].t1; let done = false;
@@ -102,9 +107,21 @@
     [/^散场的时候，有位贵客派来的管事上了二楼雅间/, '03', '鉴宝会散场以后'],
     [/^今天是我爹的忌日。那三坛酒，是他这辈子最得意的手艺/, '07', '回忆 · 昨夜的地窖'],
     [/^凶手没进过那间屋子。门闩上的血指印在里面/, '13', '回忆 · 那一夜'],
+    [/倒在我爹坟前了|^我只倒了一坛在他坟前/, '08', '回忆 · 山里的坟'],
   ];
   say = (orig => async function (who, text) { const t = String(text || '');
     for (const [re, id, title] of ON) if (re.test(t)) { try { await play(id, title); } catch (e) {} break; }
     return orig.apply(this, arguments); })(say);
+  // ---------- 九灯拱一枢：三盏被动过手脚的灵灯，灯罩里的火忽明忽暗（Codex R313 第 10 段）----------
+  const LAMPS = [['10a', 1740, 2905, 0], ['10b', 2740, 2905, 470], ['10c', 1856, 2129, 910]], LD = [220, 180, 140, 140, 250, 140, 160, 220], LT = LD.reduce((a, b) => a + b, 0), LS = [1, .85, .6, .4, .12, .3, .55, .75];
+  for (const [k] of LAMPS) sheet(k);
+  const lampOn = () => { try { return world.mapName === 'xt_city' && (((S.flags.sq || {}).xt_lamps || {}).s === 1); } catch (e) { return false; } };
+  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig.apply(this, arguments); if (!lampOn()) return;
+    const t = performance.now();
+    for (const [k, x, y, ph] of LAMPS) { let e = (t + ph) % LT, i = 0; while (e >= LD[i]) { e -= LD[i]; i++; } const im = sheet(k);
+      ctx.save(); const g = ctx.createRadialGradient(x, y, 4, x, y, 40); const d = .62 * (1 - LS[i]); g.addColorStop(0, 'rgba(8,12,24,' + (d + .1) + ')'); g.addColorStop(1, 'rgba(8,12,24,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - 40, y - 40, 80, 80);
+      if (im.complete && im.naturalWidth) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .85; ctx.drawImage(im, i * 96, 0, 96, 128, x - 48 * .5, y + 22 - 120 * .5, 48, 64); }
+      ctx.restore(); } })(tileAmbientHigh);
   window.R326_PLAY = play;
 })();
