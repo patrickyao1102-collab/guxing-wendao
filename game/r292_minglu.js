@@ -113,7 +113,7 @@
     g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.6, 'rgba(4,6,12,.72)'); g.addColorStop(1, 'rgba(2,3,8,.94)'); ctx.save(); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); } catch (e) {} } }; S.overlay.push(dark); };
   const darkOff = () => { if (!dark) return; const i = S.overlay.indexOf(dark); if (i >= 0) S.overlay.splice(i, 1); dark = null; };
   const fight = async cfg => { world.locked = true; await fadeOut(250); const p = startBattle(Object.assign({ cannotLose: true }, cfg)); await fadeIn(300); const r = await p; S.scene = drawMap; world.locked = false; return r; };
-  const heiyi = (n, hp) => ({ name: n || '黑袍人', key: 'e_xiexiu', hp: hp || 520, maxhp: hp || 520, atk: 44, def: 12, spd: 13, h: 255, color: '#2a2030', xie: true });
+  const heiyi = (n, hp) => ({ name: n || '黑袍人', key: /刺客/.test(n || '') ? (has('e_r295_cike') ? 'e_r295_cike' : 'e_xiexiu') : (has('e_r295_heipao') ? 'e_r295_heipao' : 'e_xiexiu'), hp: hp || 520, maxhp: hp || 520, atk: 44, def: 12, spd: 13, h: 255, color: '#2a2030', xie: true });
   const wenBoss = () => ({ name: '温既白', key: has('e_wenjibai') ? 'e_wenjibai' : 'e_xxboss', hp: 3400, maxhp: 3400, atk: 62, def: 18, spd: 13, h: 290, color: '#2a2030', fxColor: '#9a70ff', boss: true, xie: true, slot: [300, 610],
     ai: async (e, b) => { e.turn = (e.turn || 0) + 1;
       if (e.hp < e.maxhp * .5 && !e.p2) { e.p2 = true; await say(WEN, '二十七个名字……再添两个，又何妨。'); floatText(e.x, e.y - e.h - 30, '名录锁魂', '#c09aff', 54, 1.2, BRUSH); e.atk += 10; snd('sfx_ult'); S.shake = 12; await sleep(700); return true; }
