@@ -83,6 +83,7 @@
   const man = (T, cx, xy, name, talk, extra) => { const [c, r] = P(xy[0], xy[1]); return add(T, Object.assign({ key: 'none', cx, c, r, name, h: 116, wander: false, face: 'down', talk }, extra || {})); };
   const spot = (T, xy, name, talk, extra) => { const [c, r] = P(xy[0], xy[1]); return add(T, Object.assign({ key: 'none', c, r, name, hidden: true, h: 110, talk }, extra || {})); };
 
+  try { if (window.R283) for (const m of ['m_cy_council', 'm_cy_guest', 'lin_servants', 'm_cy_study', 'qy_changle_2f', 'xt_dyeyard', 'xt_wanbao_store', 'xt_city']) R283.apply(m); } catch (e) {}   // 借来的图先套上 R283 修好的碰撞
   const YA = clone('ml_yamen', 'm_cy_council', '巡城司 · 大堂'), MO = clone('ml_morgue', 'm_cy_guest', '巡城司 · 停尸房'), JA = clone('ml_jail', 'lin_servants', '巡城司 · 牢房'),
     AR = clone('ml_archive', 'm_cy_study', '巡城司 · 文书房'), AN = clone('ml_secret', 'qy_changle_2f', '巡城司 · 文书房暗室'),
     AL = clone('ml_alley', 'xt_dyeyard', '玄天城 · 黑市后巷'), CE = clone('ml_cellar', 'xt_wanbao_store', '黑市后巷 · 地窖');
@@ -188,6 +189,11 @@
     return say(WEN, '二位辛苦。老朽在文书房候着，要什么卷宗都有。');
   }, { cond: () => st().s === 1 && N() < 16 });
 
+  const HALL = TMAPS.xt_inn_hall;
+  // 拿到协查令以后，云来楼梯口的城卫放行（R217 原来只认「天字三号房」那条支线）
+  const caseUp = () => st().s === 3 || (st().s === 1 && N() >= 3);
+  if (HALL) { for (const e of HALL.exits || []) if (e.to === 'xt_inn_corr') { const c0 = e.cond; e.cond = () => caseUp() || (typeof c0 === 'function' ? c0() : true); }
+    for (const n of HALL.npcs || []) if (n.name === '守楼梯的城卫') { const c0 = n.cond; n.cond = () => !caseUp() && (typeof c0 === 'function' ? c0() : true); } }
   // 三、浴室现场（云来天字二号房，R274 那间双人房的卫浴）
   const R2 = TMAPS.xt_inn_room2;
   const seen = k => { const f = F(); f.ml_seen = f.ml_seen || {}; if (f.ml_seen[k]) return false; f.ml_seen[k] = 1; return true; };
@@ -240,7 +246,6 @@
   }, { cond: () => st().s === 1 });
 
   // 六、杂役小六（云来大堂）
-  const HALL = TMAPS.xt_inn_hall;
   if (HALL) man(HALL, 'kitchen_helper', near(HALL, 640, 760), LIU6, async () => {
     if (!on(6)) return say(LIU6, N() > 6 ? '我、我都说了……' : '客官要热水？我这就去烧。');
     await L([[YE, '天字二号房浴室里那只大水柜，平时锁不锁？'], [LIU6, '锁、锁的！一向锁着，我每天晚上都锁。']]);
