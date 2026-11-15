@@ -56,6 +56,12 @@
       try { addItem(id, n); await showPanel('获得道具', ['!' + nm, s.call + '回送的']); } catch (e) {} } }
 
   async function talk(k, orig, self, a) { const s = SIS[k], o = st(k);
+    // 十年剑穗：碑前的花是谁送的（看过剑碑、还没回去告诉苏晚的时候）
+    { const qc = ((F().sq || {}).qy_tassel || {}); if (k === 'xiaohe' && qc.s === 1 && qc.n === 2 && !F().qc_he) { F().qc_he = 1;
+      await L([[s.who, '（她篮子里的栀子少了一小把）……少侠去过河东的老槐树了？'], ['叶孤星', '碑前的花，是你送的？'], [s.who, '嗯。七年了，隔几天送一回。'],
+        [s.who, '那年黑风寨下山抢粮，我坐在我爹的粮车上，八岁。山贼把刀架在我爹脖子上，是一个穿青衫的大哥哥站到车前面的。'], [s.who, '他回头跟我说：「小丫头，闭上眼睛，数到一百。」……我数到一百，睁开眼，山贼都跑了。'],
+        [s.who, '他靠着车轮坐着，身上全是血，还冲我笑。'], [s.who, '后来我才知道他叫沈舟。'], [s.who, '少侠，倚翠楼那个弹琴的姐姐，是在等他吧？……你替我告诉她，他那边的花，从来没断过。'],
+        ['星旋', '（……小子，这一句，比什么都重。）']]); o.fav = Math.min(100, (o.fav || 0) + 10); try { toast('小荷好感 +10', 1600); } catch (e) {} return; } }
     if (busy(s)) return orig && orig.call(self, a);   // 正在查她身上的案子：先走案子
     if (!o.met) { o.met = 1; await L(s.hello.map(t => [s.who, t])); const c = await choose(s.who, ['「考吧。」', '下次吧']); if (c === 0) return quiz(k); return; }
     const opts = ['买一枝花（5 灵石）', o.done ? null : '「再考我一次。」', '闲聊', '走了'].filter(Boolean);
