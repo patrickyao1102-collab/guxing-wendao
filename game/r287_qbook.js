@@ -43,7 +43,7 @@
       map = (g && g.map) || maps[0] || q.giver[0];
     }
     const where = status === 'doing' && map ? mapTitle(map) : q.where;
-    return { id: q.id, kind: 'side', name: q.name, status, step, map, where: where || q.where || '', region: REG(map || q.giver[0]), reward: Q.RT(q) || '', desc: String(q.desc || ''), notes: (F()[NOTES[q.id]] || []).slice(), giverWhere: q.where };
+    return { id: q.id, kind: 'side', name: q.name, status, step, map, where: where || q.where || '', region: REG(map || q.giver[0]), reward: Q.RT(q) || '', desc: String(q.desc || '').replace(/\s*【证词本】[\s\S]*$/, ''), notes: (F()[NOTES[q.id]] || []).slice(), giverWhere: q.where };
   }
   function all() {
     const Q = R(); if (!Q) return { doing: [], avail: [], done: [] };
@@ -137,8 +137,8 @@
   function openBook(mode, title) {
     if (!S.menu) openMenu(); S.menu.tab = MTABS.indexOf('任务'); QB.mode = mode || 'book'; QB.title = title || ''; QB.filter = mode === 'board' ? 'avail' : 'doing'; QB.sel = null; QB.scroll = 0; QB.dscroll = 0; }
   window.QBOOK_OPEN = openBook;
-  function pal() { const light = !window.BAG_DARK && window.R201_IN; return light
-    ? { card: 'rgba(255,250,238,.9)', cardOn: 'rgba(255,236,190,.95)', line: 'rgba(120,80,30,.35)', gold: '#8a5a12', text: '#2e2316', sub: '#6d6153', box: 'rgba(255,226,160,.45)', btn: 'rgba(120,80,30,.12)' }
+  function pal() { const light = !window.BAG_DARK; /* 行囊默认是白玉宣纸（浅色）*/ return light
+    ? { card: 'rgba(255,252,244,.92)', cardOn: 'rgba(255,238,200,.98)', line: 'rgba(120,80,30,.38)', gold: '#7a4a08', text: '#2a1f12', sub: '#5f5446', box: 'rgba(255,230,170,.55)', btn: 'rgba(120,80,30,.10)' }
     : { card: 'rgba(255,255,255,.05)', cardOn: 'rgba(232,201,138,.16)', line: 'rgba(226,190,112,.35)', gold: '#e8c98a', text: '#f2ead8', sub: '#a9b3bd', box: 'rgba(232,201,138,.10)', btn: 'rgba(255,255,255,.07)' }; }
   function drawBook(B) {
     const P = pal(), A = all(); QB.hits = [];
