@@ -9,6 +9,7 @@
 //   镇上杂货铺：红虫、棉丝线、紫竹竿。
 // 竿和线也是行囊里的物品（钓具），钓具匣里能换的就是行囊里有的。
 (function () {
+  if (window.GX_RELEASE) return;   // 作者 11-16：正式版关掉种地 / 钓鱼（还不够完善），测试版照旧
   const D = window.R193; if (!D || typeof ITEM_DB === 'undefined') return;
   const F = () => (S.flags = S.flags || {}), SHI = () => F().qz_shi || '午', day = () => F().qz_day || 1;
   const bondOf = k => ((F().qz_bond || {})[k] || 0);

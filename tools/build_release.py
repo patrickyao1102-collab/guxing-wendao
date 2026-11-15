@@ -44,7 +44,10 @@ def strip_test_panel(html):
     block = html[i:j]
     assert 'dbgPanel' in block, '匹配到的块不含 dbgPanel，边界可能错了，中止以免误删'
     # 作者 11-12：给别人玩的纯净版 / 安卓包只到女娲秘境之前；测试版（/play/）不带这个标记，后面内容照常能测
-    return html[:i] + '/* 测试面板：正式版已移除 */ window.GX_TRIAL = true;' + html[j + len('\n})();'):]
+    out = html[:i] + '/* 测试面板：正式版已移除 */ window.GX_TRIAL = true;' + html[j + len('\n})();'):]
+    # 作者 11-16：正式版关掉种地 / 钓鱼（r330_lock.js 等看这个标记）；要在所有脚本之前设好
+    assert out.count('<head>') >= 1, '找不到 <head>'
+    return out.replace('<head>', '<head><script>window.GX_RELEASE = true;</script>', 1)
 
 def xor_bytes(data):
     n = len(data)
