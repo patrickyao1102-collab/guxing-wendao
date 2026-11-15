@@ -45,6 +45,7 @@
     n.talk = async function (a) {
       const s = q(), f = F();
       const dflt = async () => { if (typeof orig === 'function') return orig.call(this, a); const A = Array.isArray(orig) ? orig : [orig || '客官里面请！']; for (const l of n.random ? [A[Math.floor(Math.random() * A.length)]] : A) await say(SHUN, l); };
+      { const ql = (f.sq || {}).xt_lamps; if (ql && ql.s === 1 && ql.n === 3) return dflt(); }   // 九灯拱一枢：问伙计夜里谁出门（原来被这里挡住了）
       if (s.s === 3) { await say(SHUN, f.xr_wr === 'shun' ? '客官……巡城司的地，真凉。（搓着十个黑指头，又笑了）不过掌柜的去接我那天，给我娘抓了半个月的药。……对了，书坊那批烫金帖子，怪得很，回头我跟您细说。' : '客官！托您的福，掌柜的没扣我工钱，还许我夜里出去抄书了。……对了，书坊这两天赶印的那批烫金帖子，怪得很，回头我再跟您细说。'); return; }
       if (s.s === 1 && f.xr_wr === 'shun' && s.n < 5) { await say('', '客栈门口空着。阿顺被城卫押走了。'); return; }
       if (s.s === 1 && s.n === 2) {
