@@ -48,7 +48,7 @@
     '去巡城司牢房，提审苏绫',
     '回云来客栈大堂，找送热水的杂役小六',
     '拿着牙牌去听雨楼，问问掌柜',
-    '入夜了：去城东南的黑市后巷，找花婆的牙行',
+    '入夜了：去城东南城墙边，找花婆家',
     '后巷尽头有个地窖——下去看看',
     '连夜赶回青阳镇，找林府管事要当初放回来的人的名单',
     '去青阳悦来客栈，问掌柜「王老客」住哪间',
@@ -86,21 +86,21 @@
   try { if (window.R283) for (const m of ['m_cy_council', 'm_cy_guest', 'lin_servants', 'm_cy_study', 'qy_changle_2f', 'xt_dyeyard', 'xt_wanbao_store', 'xt_city']) R283.apply(m); } catch (e) {}   // 借来的图先套上 R283 修好的碰撞
   const YA = clone('ml_yamen', 'm_cy_council', '巡城司 · 大堂'), MO = clone('ml_morgue', 'm_cy_guest', '巡城司 · 停尸房'), JA = clone('ml_jail', 'lin_servants', '巡城司 · 牢房'),
     AR = clone('ml_archive', 'm_cy_study', '巡城司 · 文书房'), AN = clone('ml_secret', 'qy_changle_2f', '巡城司 · 文书房暗室'),
-    AL = clone('ml_alley', 'xt_dyeyard', '玄天城 · 黑市后巷'), CE = clone('ml_cellar', 'xt_wanbao_store', '黑市后巷 · 地窖');
-  if (!YA || !MO || !JA || !AR || !AN || !AL || !CE) { console.warn('R292：缺借用的室内图'); return; }
+    CE = clone('ml_cellar', 'xt_wanbao_store', '黑市 · 地窖');
+  if (!YA || !MO || !JA || !AR || !AN || !CE) { console.warn('R292：缺借用的室内图'); return; }
   // 玄天城街上：巡城司（城西钱家南边那座空房）、黑市后巷口（城东南那座空房）
   const yaDoor = near(CITY, 557, 1730), alDoor = near(CITY, 3521, 2660);
   CITY.doors = CITY.doors || [];
   CITY.doors.push({ x: yaDoor[0] - 20, y: yaDoor[1] - 14, rw: 40, rh: 22, to: 'ml_yamen', at: startOf(YA), face: 'up', label: '巡城司', cond: () => st().s === 1 && N() >= 2 || st().s === 3, msg: '巡城司衙门。门口的衙役：「无事莫近。」' });
-  CITY.doors.push({ x: alDoor[0] - 20, y: alDoor[1] - 14, rw: 40, rh: 22, to: 'ml_alley', at: startOf(AL), face: 'up', label: '黑市 · 后巷口', cond: () => st().s === 1 && N() >= 8 && N() <= 9, msg: '' });
-  backTo(YA, 'xt_city', yaDoor, '出衙门 · 玄天城'); backTo(AL, 'xt_city', alDoor, '出后巷 · 玄天城');
+  // 作者 11-15：「黑市后巷夜景太难画，玄天城有那么多房子，直接把城里一条街变成夜里就好」——黑市就在城东南这条街上，入夜后街上压暗、挂灯；花婆的牙行是街边那间空房
+  CITY.doors.push({ x: alDoor[0] - 20, y: alDoor[1] - 14, rw: 40, rh: 22, to: 'ml_cellar', at: startOf(CE), face: 'up', label: '地窖', cond: () => st().s === 1 && N() === 9, msg: '花婆家的门板关着。' });
+  backTo(YA, 'xt_city', yaDoor, '出衙门 · 玄天城');
   // 衙门里：左停尸房、右牢房、后面文书房
   const dMo = at(YA, .14, .62), dJa = at(YA, .86, .62), dAr = at(YA, .8, .42);
   door(YA, dMo, 'ml_morgue', '停尸房'); door(YA, dJa, 'ml_jail', '牢房'); door(YA, dAr, 'ml_archive', '文书房', () => N() >= 14 || st().s === 3, '文书房的门锁着：「卷宗重地，闲人免进。」');
   backTo(MO, 'ml_yamen', dMo, '出门 · 巡城司大堂'); backTo(JA, 'ml_yamen', dJa, '出门 · 巡城司大堂'); backTo(AR, 'ml_yamen', dAr, '出门 · 巡城司大堂');
   backTo(AN, 'ml_archive', at(AR, .2, .35), '上石阶 · 文书房');
-  const ceIn = at(AL, .82, .3); door(AL, ceIn, 'ml_cellar', '地窖', () => N() >= 9, '地窖口压着一块石板，花婆那边的事还没了结。');
-  backTo(CE, 'ml_alley', ceIn, '上石阶 · 后巷');
+  backTo(CE, 'xt_city', alDoor, '上石阶 · 玄天城');
 
   // ---------------- 演出小工具 ----------------
   const busy = { v: false };
@@ -267,16 +267,16 @@
     note('听雨楼掌柜：牙牌是黑市花婆的；「白先生」每月初一包雅间见花婆，铜钱用公文纸包'); next(8); return true; });
 
   // 八、夜探黑市（打斗一）
-  spot(AL, at(AL, .4, .45), '花婆的牙行', async () => {
-    if (!on(8)) return say('', N() > 8 ? '牙行的门板钉死了。' : '一间关着门的小铺，门口挂着一块木牌：「荐工」。');
+  spot(CITY, [alDoor[0] + 70, alDoor[1] + 10], '花婆家', async () => {
+    if (!on(8)) return say('', N() > 8 ? '花婆家的门板钉死了。' : '一户关着门的人家，门边挂着一块小木牌：「荐工」。');
     await lock(async () => {
-      await L([['', '铺子门口蹲着个人，看见你们，嘴里一声尖哨。'], ['', '屋顶上一下子落下三个黑袍人，兜帽遮脸，面巾蒙口。'], [XX, '（看不出门派。……身上的气，阴得很。）']]);
-      await fight({ title: '黑市 · 屋顶', bg: 'bg_night', enemies: [heiyi(), heiyi('黑袍人', 600), heiyi()], exp: 360, gold: 260 });
-      await L([['', '黑袍人翻过屋脊跑了。铺子里一个矮胖的老婆子缩在柜台后头，满手镯子叮叮当当地抖。'],
+      await L([['', '花婆家门口蹲着个人，看见你们，嘴里一声尖哨。'], ['', '屋顶上一下子落下三个黑袍人，兜帽遮脸，面巾蒙口。'], [XX, '（看不出门派。……身上的气，阴得很。）']]);
+      await fight({ title: '黑市 · 花婆家门口', bg: 'bg_night', enemies: [heiyi(), heiyi('黑袍人', 600), heiyi()], exp: 360, gold: 260 });
+      await L([['', '黑袍人翻过屋脊跑了。屋里一个矮胖的老婆子缩在方桌后头，满手镯子叮叮当当地抖。'],
         [HUA, '哎哟……老婆子只替人说媒、荐工，别的什么都不知道啊！'], [YE, '（亮出牙牌）你的牙牌，挂在云来客栈的水柜上。'], [HUA, '……'],
         [HUA, '我说，我说。雇那个刺客鱼七的，是一位「白先生」。老婆子从没见过他的脸，只认得他的声音。'],
         [HUA, '还有……黑风寨那个刘独眼，托我给白先生带过话，要一万灵石换一本账册。他人躲在青阳镇的悦来客栈。'],
-        [HUA, '昨天夜里，已经有一个穿黑袍的出城往青阳去了。'], [HUA, '鱼七？他……他在后头地窖里。你们自己去看吧。']]);
+        [HUA, '昨天夜里，已经有一个穿黑袍的出城往青阳去了。'], [HUA, '鱼七？他……他在里屋床边那块石板底下，地窖里。你们自己去看吧。']]);
       note('花婆：雇刺客鱼七的是「白先生」，她只认得声音'); note('花婆：刘独眼要一万灵石换账册，人在青阳悦来；昨夜有黑袍人去了青阳');
       next(9); });
   }, { cond: () => st().s === 1 });
@@ -419,12 +419,19 @@
     });
   }, { cond: () => on(17) });
 
+  // 入夜：查到黑市这两步，玄天城压成夜里（人身边一圈亮，街上暗），第一次出门有一行字
+  const nightOn = () => !battle && world.map && world.map.tile && world.mapName === 'xt_city' && st().s === 1 && (N() === 8 || N() === 9);
+  // 用游戏自己的昼夜（Codex 的夜景灯光层）：这两步时把时辰拨到夜里，办完拨回来
+  updateMap = (o => function (dt) { const r = o.apply(this, arguments); try { const f = F(), want = st().s === 1 && (N() === 8 || N() === 9) && /^(xt_city|ml_cellar)$/.test(world.mapName || '');
+    if (want && f.res_tod !== 'night') { f.ml_tod = 1; f.res_tod = 'night'; } else if (!want && f.ml_tod) { f.ml_tod = 0; f.res_tod = ''; } } catch (e) {} return r; })(updateMap);
+  const nightCap = () => lock(async () => { F().ml_nightcap = 1; await fadeOut(400); try { await caption('入夜 · 玄天城东南 · 黑市', 2000); } catch (e) {} await fadeIn(400); toast('花婆家在城东南城墙边', 2200); });
   // ---------------- 什么时候开始；没结案不出南城门 ----------------
   const eligible = () => { const f = F(); return S.started && f.ch3_report && f.qingxiao && !f.ch3_forest && !f.ch3_forest_done && st().s === 0; };
   const DOOR_YL = [1120, 2160];
   updateMap = (o => function (dt) { const r = o.apply(this, arguments);
     try { if (world.mapName === 'xt_city' && ready()) {
       if (eligible()) { const s = st(); s.s = 1; s.n = 0; F().ml_notes = []; snd('ui_confirm'); toast('主线 · 名录', 2200); }
+      if (on(8) && !F().ml_nightcap && !busy.v) nightCap();
       if (on(0) && !busy.v && Math.hypot(world.player.x - DOOR_YL[0], world.player.y - DOOR_YL[1]) < 340) scene1(); } } catch (e) {}
     return r; })(updateMap);
   { const ex = (CITY.exits || []).find(e => e.to === 'yy_forest'); if (ex) { const oc = ex.cond, om = ex.msg;
@@ -437,10 +444,10 @@
     if (n === 0) return { area: ['xt_city', DOOR_YL[0], DOOR_YL[1], 200, '云来客栈门口围着一圈人——城南大街上'] };
     if (n === 3) return { look: ['xt_inn_room2', ...left(f.ml_seen, { tong: '浴桶', gui: '浴室角落的大水柜', ping: '屏风', jiao: '地上的湿脚印', quan: '死者的拳头' })], lookMsg: '天字二号房的浴室：五处，小地图上的金圈是还没看过的' };
     if (n === 12) return { area: ['qy_inn_s3', null, null, 0, '悦来二楼最里面的天字三号房'] };
-    return { to: [[GU, '据点长老', GU, null, FENG, SU, LIU6, TEA, '花婆的牙行', '晃动的人影', '林府管事', '客栈掌柜', null, DU, GU, '卷宗架', SZ, WEN, SZ][n]].filter(Boolean), map: { 11: 'qy_inn' }[n] };
+    return { to: [[GU, '据点长老', GU, null, FENG, SU, LIU6, TEA, '花婆家', '晃动的人影', '林府管事', '客栈掌柜', null, DU, GU, '卷宗架', SZ, WEN, SZ][n]].filter(Boolean), map: { 11: 'qy_inn' }[n] };
   };
   const install = () => { if (!window.R284S || !window.R140Q || !R140Q.GO) return false; R284S.T[ID] = NAV;
     if (!Object.getOwnPropertyDescriptor(R140Q.GO, ID)) Object.defineProperty(R140Q.GO, ID, { configurable: true, enumerable: true, get() { return R284S.goal(ID) || undefined; } }); return true; };
   applyHooks(); if (!install()) setTimeout(install, 0); setTimeout(applyHooks, 0); setTimeout(applyHooks, 3000);
-  window.R292 = { st, next, GOALS, scene1, maps: ['ml_yamen', 'ml_morgue', 'ml_jail', 'ml_archive', 'ml_secret', 'ml_alley', 'ml_cellar'] };
+  window.R292 = { st, next, GOALS, scene1,  maps: ['ml_yamen', 'ml_morgue', 'ml_jail', 'ml_archive', 'ml_secret', 'ml_cellar'] };
 })();
