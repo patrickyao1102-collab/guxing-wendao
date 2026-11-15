@@ -176,7 +176,7 @@
   cv.addEventListener('wheel', e => { if (!UI.open || !UI.clipR) return; let p; try { p = toLogical(e); } catch (er) { return; } if (inR(p.x, p.y, UI.clipR)) { UI.scroll += e.deltaY * .6; e.preventDefault(); } }, { passive: false });
   updateMap = (o => function (dt) {
     const t = input.tapped;
-    if (t && !t.key && !busy() && UI.panel && inR(t.x, t.y, UI.panel)) {
+    if (t && !t.key && !busy() && UI.panel && !window.R287_HUD && inR(t.x, t.y, UI.panel)) {   // R287 的任务栏自己处理点击（再点一下看全文）
       input.tapped = null;
       if (!(drag && drag.moved)) { const h = hitAt(t.x, t.y), Q = window.R140Q;
         if (h) { try { playSnd('ui_click'); } catch (e) {}

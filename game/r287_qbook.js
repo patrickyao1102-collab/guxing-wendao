@@ -66,6 +66,10 @@
     return pick.slice(0, 2);
   }
   function go(it) { try { if (it.id === '__main') R().goMain(); else R().goSide(it.id); } catch (e) {} }
+  // 作者 11-16：「后面省略号看不见，应该是再次点击这个支线，就会看见完整的提示」
+  const cardKey = it => it.id || it.kind || it.name;
+  function tapCard(it) { const k = cardKey(it); let on = false; try { const nid = R().navId && R().navId(), nav = window.QUEST_NAV && QUEST_NAV.on; on = !!nav && ((it.id === '__main' && !nid) || it.id === nid); } catch (e) {}
+    if (on || HUD.full === k) { HUD.full = HUD.full === k ? null : k; return; } HUD.full = null; go(it); }
 
   // ---------------- 画字的小工具 ----------------
   const fnt = (sz, w) => `${w || 400} ${sz}px ${FONT}`;
@@ -104,7 +108,9 @@
       HUD.rect = [x - 4, y - 4, s + 8, s + 8]; HUD.hits.push({ a: 'max', r: HUD.rect }); return; }
     // 作者 11-15 23:29：「全部」不是开新界面——就在这个任务栏里原地展开，所有任务都列出来，长了按住往下拉；再点收回
     const ALL = !!F().qt_all; if (ALL) rows = A.doing.concat(A.avail);
-    const N = rows.length, C = 84 * N + 8 * (N - 1), maxH = Math.max(176, (H - 12 - 118) / k), H0 = Math.min(92 + C, ALL ? maxH : 1e9), x0 = W - 12 - 340 * k, y0 = 12;
+    ctx.font = fnt(14.5); const EXT = rows.map(it => { if (HUD.full !== cardKey(it)) return null; const a = lines(it.step, 272, 8); ctx.font = fnt(12.5); const R3 = rw(it), lw = 142 + (R3.xs > 0 ? 0 : 82) + (R3.books[0] ? 0 : 28), b = it.where ? lines(it.where, lw, 3) : []; ctx.font = fnt(14.5); return { a, b, h: 84 + (a.length - 1) * 20 + (b.length > 1 ? (b.length - 1) * 17 : 0) + 6 }; });
+    const HH = EXT.map(e => e ? e.h : 84), YY = []; { let y = 0; for (const h of HH) { YY.push(y); y += h + 8; } }
+    const N = rows.length, C = HH.reduce((a, b) => a + b, 0) + 8 * (N - 1), maxH = Math.max(176, (H - 12 - 118) / k), H0 = Math.min(92 + C, ALL ? maxH : 1e9), x0 = W - 12 - 340 * k, y0 = 12;
     HUD.maxS = Math.max(0, 92 + C - H0); HUD.scroll = ALL ? Math.max(0, Math.min(HUD.maxS, HUD.scroll || 0)) : 0;
     HUD.rect = [x0, y0, 340 * k, H0 * k]; const S2 = (lx, ly, lw, lh) => [x0 + lx * k, y0 + ly * k, lw * k, lh * k];
     HUD.body = ALL && HUD.maxS > 0 ? S2(0, 44, 340, H0 - 76) : null;
@@ -115,16 +121,16 @@
     img(pressed('min') ? 'btn_min_p' : 'btn_min', 302, 12, 26, 26); ctx.fillStyle = '#ffe3a3'; ctx.fillRect(309, 24, 12, 2.4); HUD.hits.push({ a: 'min', r: S2(298, 4, 38, 42) });
     const top = 48, bot = H0 - 36, sc = HUD.scroll;
     ctx.save(); ctx.beginPath(); ctx.rect(4, top, 334, bot - top); ctx.clip();
-    rows.forEach((it, i) => { const cy = 52 + i * 92 - sc; if (cy + 84 < top || cy > bot) return; const on = nav && ((it.kind === 'main' && !navId) || it.id === navId), R2 = rw(it);
-      img('card', 10, cy, 320, 84); if (on) { ctx.fillStyle = 'rgba(255,211,106,.09)'; rr(12, cy + 2, 316, 80, 6); ctx.fill(); }
-      img('strip_' + sealK(it), 12, cy + 10, 3, 64); seal(it, 18, cy + 8, 24);
+    rows.forEach((it, i) => { const ch = HH[i], cy = 52 + YY[i] - sc, X = EXT[i], dy = ch - 84; if (cy + ch < top || cy > bot) return; const on = nav && ((it.kind === 'main' && !navId) || it.id === navId), R2 = rw(it);
+      img('card', 10, cy, 320, ch); if (on) { ctx.fillStyle = 'rgba(255,211,106,.09)'; rr(12, cy + 2, 316, ch - 4, 6); ctx.fill(); }
+      img('strip_' + sealK(it), 12, cy + 10, 3, ch - 20); seal(it, 18, cy + 8, 24);
       txt(ell(it.name, 272 - (on ? 52 : 0)), 50, cy + 18, 17, '#ffe3a3', 700); if (on) txt('带路中', 322, cy + 18, 12.5, '#ffd36a', 700, 'right');
-      ctx.font = fnt(14.5); txt(ell(it.step, 272), 50, cy + 43, 14.5, '#f2ead8');
-      const bk = R2.books[0], hasXs = R2.xs > 0, locW = 142 + (hasXs ? 0 : 82) + (bk ? 0 : 28);
-      if (it.where) { img('ic_loc', 50, cy + 59, 16, 16); ctx.font = fnt(12.5); txt(ell(it.where, locW), 68, cy + 68, 12.5, '#a9b9c8'); }
-      if (bk) img(bookIc(bk[0]), hasXs ? 218 : 296, cy + 54, 24, 24);
-      if (hasXs) { img('ic_xs', 246, cy + 54, 24, 24); txt(String(R2.xs), 274, cy + 67, 14, '#f0d596', 700); }
-      const y1 = Math.max(top, cy), y2 = Math.min(bot, cy + 84); if (y2 > y1) HUD.hits.push({ a: 'go', it, r: S2(10, y1, 320, y2 - y1) }); });
+      ctx.font = fnt(14.5); if (X) X.a.forEach((l, j) => txt(l, 50, cy + 43 + j * 20, 14.5, '#f2ead8')); else txt(ell(it.step, 272), 50, cy + 43, 14.5, '#f2ead8');
+      const bk = R2.books[0], hasXs = R2.xs > 0, locW = 142 + (hasXs ? 0 : 82) + (bk ? 0 : 28), ly = cy + dy - (X && X.b.length > 1 ? (X.b.length - 1) * 17 : 0);
+      if (it.where) { img('ic_loc', 50, ly + 59, 16, 16); ctx.font = fnt(12.5); if (X && X.b.length) X.b.forEach((l, j) => txt(l, 68, ly + 68 + j * 17, 12.5, '#a9b9c8')); else txt(ell(it.where, locW), 68, ly + 68, 12.5, '#a9b9c8'); }
+      if (bk) img(bookIc(bk[0]), hasXs ? 218 : 296, cy + dy + 54, 24, 24);
+      if (hasXs) { img('ic_xs', 246, cy + dy + 54, 24, 24); txt(String(R2.xs), 274, cy + dy + 67, 14, '#f0d596', 700); }
+      const y1 = Math.max(top, cy), y2 = Math.min(bot, cy + ch); if (y2 > y1) HUD.hits.push({ a: 'go', it, r: S2(10, y1, 320, y2 - y1) }); });
     ctx.restore();
     if (HUD.maxS > 0) { const th = Math.max(30, (bot - top) * (bot - top) / (C + 8)), ty = top + (sc / HUD.maxS) * (bot - top - th);
       ctx.fillStyle = 'rgba(232,201,138,.18)'; rr(333, top, 3, bot - top, 1.5); ctx.fill(); ctx.fillStyle = 'rgba(232,201,138,.85)'; rr(333, ty, 3, th, 1.5); ctx.fill();
@@ -246,6 +252,7 @@
     if (!R() || S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const A = all(), M = A.doing.find(x => x.kind === 'main'), rows = (M ? [M] : []).concat(hudSides(A));
     const k = PHONE ? 1.2 : 1, W0 = 318, now = performance.now(), nav = !!(window.QUEST_NAV && QUEST_NAV.on), navId = R().navId && R().navId();
+    window.R287_HUD = 1;
     if (artOn()) { drawHudArt(A, rows, k, nav, navId); try { if (window.R165Q && R165Q.UI) R165Q.UI.panel = HUD.rect; } catch (e) {} return; }
     if (F().qt_min || !rows.length) {   // 收起：右上一个小圆标
       const cx = W - 44 * k, cy = 44 * k, r = 26 * k;
@@ -290,10 +297,10 @@
     const t = input.tapped;
     if (t && !t.key && HUD.rect && !busy() && inR(t.x, t.y, HUD.rect)) {
       input.tapped = null; if (HUD.dragT && performance.now() - HUD.dragT < 250) return; const h = HUD.hits.find(h => inR(t.x, t.y, h.r));
-      if (h && h.a === 'go' && HUD.body && inR(t.x, t.y, HUD.body)) { HUD.pending = h; return; }   // 展开后的列表：松手时没拖动才算点（按下就带路会和拖动打架）
+      if (h && h.a === 'go' && HUD.body && inR(t.x, t.y, HUD.body)) { if (!input.down) { try { playSnd('ui_click'); } catch (e) {} tapCard(h.it); } else HUD.pending = h; return; }   // 手指已经抬起（点得很快）就直接算点   // 展开后的列表：松手时没拖动才算点（按下就带路会和拖动打架）
       if (h) { try { playSnd('ui_click'); } catch (e) {}
         press.k = h.a; press.t = performance.now();
-        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') { F().qt_min = 1; F().qt_all = 0; } else if (h.a === 'all') { F().qt_all = F().qt_all ? 0 : 1; HUD.scroll = 0; } else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') go(h.it); }
+        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') { F().qt_min = 1; F().qt_all = 0; } else if (h.a === 'all') { F().qt_all = F().qt_all ? 0 : 1; HUD.scroll = 0; } else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') tapCard(h.it); }
       return; }
     return o.apply(this, arguments);
   })(updateMap);
@@ -303,7 +310,7 @@
     cv.addEventListener('pointerdown', e => { if (!HUD.body) return; let p; try { p = toLogical(e); } catch (er) { return; } if (inR(p.x, p.y, HUD.body)) hd = { y0: p.y, s0: HUD.scroll || 0, moved: false }; });
     cv.addEventListener('pointermove', e => { if (!hd) return; let p; try { p = toLogical(e); } catch (er) { return; } const dy = p.y - hd.y0; if (Math.abs(dy) > 8) hd.moved = true;
       if (hd.moved) { HUD.scroll = Math.max(0, Math.min(HUD.maxS || 0, hd.s0 - dy / (PHONE ? 1.2 : 1))); HUD.dragT = performance.now(); input.down = false; } });
-    window.addEventListener('pointerup', () => { const pend = HUD.pending; HUD.pending = null; if (hd && hd.moved) HUD.dragT = performance.now(); else if (pend) { try { playSnd('ui_click'); } catch (e) {} go(pend.it); } hd = null; });
+    window.addEventListener('pointerup', () => { const pend = HUD.pending; HUD.pending = null; if (hd && hd.moved) HUD.dragT = performance.now(); else if (pend) { try { playSnd('ui_click'); } catch (e) {} tapCard(pend.it); } hd = null; });
     cv.addEventListener('wheel', e => { if (!HUD.body) return; let p; try { p = toLogical(e); } catch (er) { return; } if (!inR(p.x, p.y, HUD.body)) return; HUD.scroll = Math.max(0, Math.min(HUD.maxS || 0, (HUD.scroll || 0) + e.deltaY * .6)); e.preventDefault(); }, { passive: false }); }
 
   // ================= 2) 行囊 · 任务页（也是任务榜） =================
