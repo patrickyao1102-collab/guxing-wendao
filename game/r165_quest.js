@@ -75,6 +75,7 @@
 
   function draw() {
     UI.hits = []; UI.panel = null;
+    if (window.QT287) return;   // R287 新任务栏接手（测试版）
     if (!R165Q.ready() || S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const M = mainModel(), sides = sideModel();
     if (!M && !sides.length) return;
