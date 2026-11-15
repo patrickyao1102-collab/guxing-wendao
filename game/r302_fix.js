@@ -10,6 +10,7 @@
 // ⑥ 作者 11-15 23:34：「这个书生走路是跳着抖的」——没有走路帧的路人一闲逛，游戏就让整张站姿图一蹦一蹦地滑过去。
 //    → 凡是没有走路帧的人（小狗小鸡照旧），不再闲逛，原地站着（只留轻微呼吸起伏）。有走路帧的照常走。
 // ⑦ 作者 11-15 23:37：花婆家供桌——神像和香炉浮在桌子后面，不在桌面上，香炉也偏 → 神像放到桌面正中靠后，香炉放在神像正前方。
+// ⑧ 作者 11-15 23:52：玄天城据点门口左边那间空屋和旁边一段竹篱笆「太挡路了」→ 拆掉（这间屋没有门，进不去），脚下的挡路格放开。
 // 只进测试版。
 (function () {
   if (typeof TMAPS === 'undefined') return;
@@ -24,6 +25,13 @@
   { const HP = TMAPS.ml_huapo, O = HP && HP.baked && HP.baked.objs; if (O) for (const o of O) {
       if (o.img === 'r297_house_deity_36x62') Object.assign(o, { x: 311, y: 211 });      // 供桌 215–443，桌面约 y255–290：神像脚底落在 y273
       if (o.img === 'r297_house_incense_30x40') Object.assign(o, { x: 314, y: 248 }); } }   // 香炉在神像正前方，脚底 y288
+  { const XB = TMAPS.xt_city && TMAPS.xt_city.baked;
+    if (XB) { const kill = o => (o.img === 'cx2_house_02_8ee1c4' && Math.round(o.x) === 165 && Math.round(o.y) === 721) || (o.img === 'cx2_bamboo_fence_c71342' && Math.round(o.x) === 483 && Math.round(o.y) === 1049);
+      const gone = XB.objs.filter(kill); if (gone.length) { XB.objs = XB.objs.filter(o => !kill(o)); const cs = XB.cs, B = XB.blocked.split('');
+        const keep = (x, y) => XB.objs.some(o => o.w * o.h > 1500 && x >= o.x && x < o.x + o.w && y >= (o.sy || o.y + o.h) - Math.min(90, o.h * .4) && y < (o.sy || o.y + o.h) + 6);
+        for (const o of gone) { const y0 = o.h > 150 ? o.sy - 150 : o.y, y1 = o.sy + 8;
+          for (let y = y0; y < y1; y += cs) for (let x = o.x; x < o.x + o.w; x += cs) { const c = Math.floor(x / cs), r = Math.floor(y / cs); if (c >= 0 && r >= 0 && c < XB.cols && r < XB.rows && !keep(c * cs + cs / 2, r * cs + cs / 2)) B[r * XB.cols + c] = '0'; } }
+        XB.blocked = B.join(''); } } }
   const MOVE = [['m_yy_tiger', '守林老人', null, null, 2040, 3300], ['lin_guest_east', '林府老管事', null, null, 690, 580],
     ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 760, 1657],
     ['xt_city', '富家公子', null, null, 2785, 2180], ['xt_city', '江湖郎中', null, null, 620, 2296], ['xt_city', '镖师', null, null, 2150, 2940], ['xt_city', '卖炊饼的汉子', null, null, 1579, 2497],
