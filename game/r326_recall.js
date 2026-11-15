@@ -15,7 +15,7 @@
   const ex = {}; const exImg = (k, src) => { if (!ex[k]) { const im = new Image(); im.src = src; ex[k] = im; } return ex[k]; };
   // 场景：哪张图、广角取景框（世界坐标）
   const SC = { store: { map: 'xt_wanbao_store', view: [0, 170, 1536, 864] }, appraisal: { map: 'xt_wanbao_vip', view: [0, 0, 1536, 864] },
-    hall: { map: 'qy_inn', view: [288, 200, 1440, 810] }, corridor: { map: 'xt_inn_corr', view: [0, 150, 1280, 720] }, hill: { map: 'qy_shelter', view: [560, 0, 1120, 630] } };
+    hall: { map: 'qy_inn', view: [288, 200, 1440, 810] }, corridor: { map: 'xt_inn_corr', view: [0, 150, 1280, 720] }, hill: { map: 'qy_shelter', view: [640, 20, 960, 540] } };
   // 一条轨：从 t0 起按 seq 逐帧（[帧号, 毫秒, x, y, 透明度]）；from~to 之间可见（t0 前停在第一帧，播完停在最后一帧）
   const seq = (a, pos, from, to, t0, alphas) => { const [n, , , , , du] = AS[a]; const out = []; for (let i = 0; i < n; i++) { const p = Array.isArray(pos[0]) ? pos[Math.min(i, pos.length - 1)] : pos; out.push([i, du[i], p[0], p[1], alphas ? alphas[i] : 1]); } return { a, t0, seq: out, from, to }; };
   const dur = a => AS[a][5].reduce((s, v) => s + v, 0);
@@ -47,7 +47,8 @@
       return [{ sc: 'corridor', t0: 0, t1: end, tracks: tr, hide: ['xt_inn_corr-clue-wet_footprints', 'xt_inn_corr-clue-broken_latch'] }]; }
     if (id === '08') { const A = 300, end = A + dur('08') + 1200, g = [1150, 330];
       const pet = { a: '08p', t0: A + 1350, seq: [], from: A + 1350, to: end }; for (let i = 0; i < 40; i++) pet.seq.push([i % 8, 150, g[0] - 30, g[1] - 10, 1]);
-      return [{ sc: 'hill', t0: 0, t1: end, tracks: [{ a: '08g', t0: 0, seq: [[0, 99999, g[0], g[1], 1]], from: 0, to: end }, seq('08', [g[0] - 145, g[1] + 10], 0, end, A), pet] }]; }
+      // 作者 11-16「要合逻辑」：坟在山里，避难营的房子、帐篷、井、水缸、药匾不该出现在这段回忆里
+      return [{ sc: 'hill', t0: 0, t1: end, hide: ['qy_shelter-house_01-4', 'qy_shelter-bandit_tent-5', 'qy_shelter-bandit_tent-6', 'qy_shelter-water_jar-12', 'qy_shelter-well-7', 'qy_shelter-herb_grinder-16', 'qy_shelter-herb_trays-10'], tracks: [{ a: '08g', t0: 0, seq: [[0, 99999, g[0], g[1], 1]], from: 0, to: end }, seq('08', [g[0] - 145, g[1] + 10], 0, end, A), pet] }]; }
     return []; }
   // 阿蘅蹲在活门右手边掀门：脚底落在活门右三分之一、下沿
   function hatchFoot() { try { const o = (TMAPS.qy_inn.baked.objs || []).find(x => x.uid === 'r324_hatch'); if (o) return [Math.round(o.x + o.w * .76), Math.round(o.y + o.h - 2)]; } catch (e) {} return [1399, 674]; }
