@@ -107,7 +107,31 @@
   const ready = () => !busy.v && world.player && !world.locked && !dialog && !choice && !S.menu && !sysPanel && S.fade === 0 && S.scene === drawMap && (!window.LOADING_SHOWN || LOADING_SHOWN() === 0);   // 载入画面还在时别开演（对话会被吞掉）
   const lock = async fn => { if (busy.v) return; busy.v = true; world.locked = true; try { await fn(); } catch (e) { console.warn('R292', e); } busy.v = false; world.locked = false; };
   const choose2 = async (title, opts) => { try { return await choose(title, opts); } catch (e) { return 0; } };
-  const memory = async (cap, lines) => { await fadeOut(500); try { await caption(cap, 1800); } catch (e) {} for (const t of lines) await narrate(t); await fadeIn(500); };
+  // 回忆：Codex R289 的两段动画（浴室那一刀 10 秒、白先生交钱 7 秒，原生 1280×720，压成 mp4）；放不出来就退回字幕
+  const playVid = src => new Promise(res => { let done = false, v = null, o = null, t0 = performance.now();
+    let end = ok => { if (done) return; done = true; try { const i = S.overlay.indexOf(o); if (i >= 0) S.overlay.splice(i, 1); v && v.pause(); } catch (e) {} res(ok); };
+    try { v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
+      o = { draw() { try { ctx.save(); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); if (v.readyState >= 2) { const sc = Math.min(W / 1280, H / 720), w = 1280 * sc, h = 720 * sc; ctx.drawImage(v, (W - w) / 2, (H - h) / 2, w, h); } ctx.restore(); } catch (e) {} } };
+      S.overlay.push(o); v.onended = () => end(true); v.onerror = () => end(false); setTimeout(() => end(v.readyState >= 2), 16000);
+      const p = v.play(); if (p && p.catch) p.catch(() => end(false));
+      const skip = () => { if (performance.now() - t0 > 1500) end(true); }; cv.addEventListener('pointerdown', skip); const e0 = end; end = ok => { cv.removeEventListener('pointerdown', skip); e0(ok); }; } catch (e) { end(false); } });
+  const memory = async (cap, lines, vid) => { await fadeOut(500); try { await caption(cap, 1800); } catch (e) {}
+    let ok = false; if (vid) { const h0 = S.hud; S.hud = false; S.fade = 0; ok = await playVid(vid); S.hud = h0; S.fade = 1; }
+    if (!ok) for (const t of lines) await narrate(t); await fadeIn(500); };
+  // 验尸图：Codex R289 的黑金界面，四处圆点自己点（喉咙、手腕、指甲、发冠）
+  const AUT = { im: null, pts: { guan: [250, 128], hou: [250, 202], wan: [326, 344], jia: [346, 373] } };
+  { const im = new Image(); im.onload = () => { AUT.im = im; }; im.src = 'r296/autopsy.webp'; }
+  const autopsy = (left, seen) => new Promise(res => { if (!AUT.im) return res(undefined);
+    const sc = (H - 60) / 720, w = 500 * sc, x0 = (W - w) / 2, y0 = 30, pos = id => [x0 + AUT.pts[id][0] * sc, y0 + AUT.pts[id][1] * sc];
+    const o = { draw() { try { const t = performance.now() / 1000; ctx.save(); ctx.fillStyle = 'rgba(6,6,10,.72)'; ctx.fillRect(0, 0, W, H); ctx.drawImage(AUT.im, x0, y0, w, 720 * sc);
+      for (const id of Object.keys(AUT.pts)) { const [x, y] = pos(id), on = left.includes(id), r = (on ? 13 + Math.sin(t * 4) * 3 : 10) * sc * 1.4;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = on ? 'rgba(255,205,90,.35)' : 'rgba(150,140,120,.35)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = on ? '#ffd36a' : '#8a806c'; ctx.stroke(); }
+      ctx.font = '600 20px ' + FONT; ctx.textAlign = 'center'; ctx.fillStyle = '#f3e2b8'; ctx.fillText('点身上发亮的地方看一看（' + seen + ' / 4）　·　点框外不看了', W / 2, H - 8); ctx.restore(); } catch (e) {} } };
+    let fin = false; const done = v => { if (fin) return; fin = true; cv.removeEventListener('pointerdown', onDown); const i = S.overlay.indexOf(o); if (i >= 0) S.overlay.splice(i, 1); setTimeout(() => { input.tapped = null; }, 0); res(v); };
+    const onDown = e => { const t = toLogical(e);   // 直接听手指按下（不和别的界面抢 tapped）
+      for (const id of left) { const [x, y] = pos(id); if (Math.hypot(t.x - x, t.y - y) < 30 * sc * 1.4) return done(id); }
+      if (t.x < x0 || t.x > x0 + w) done(null); };
+    S.overlay.push(o); cv.addEventListener('pointerdown', onDown); });
   let dark = null;   // 只剩一盏灯：屏幕压暗，人身边一圈亮
   const darkOn = () => { if (dark) return; dark = { t: 0, draw() { try { const p = world.player, z = VZ(), C = world.cam || { x: 0, y: 0 }, x = (p.x - C.x) * z, y = (p.y - 50 - C.y) * z, g = ctx.createRadialGradient(x, y, 40, x, y, 300);
     g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.6, 'rgba(4,6,12,.72)'); g.addColorStop(1, 'rgba(2,3,8,.94)'); ctx.save(); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); } catch (e) {} } }; S.overlay.push(dark); };
@@ -199,7 +223,7 @@
   const seen = k => { const f = F(); f.ml_seen = f.ml_seen || {}; if (f.ml_seen[k]) return false; f.ml_seen[k] = 1; return true; };
   const count = async () => { const n = Object.keys(F().ml_seen || {}).length; if (!on(3)) return; if (n < 5) { toast('浴室现场　' + n + ' / 5', 1800); return; }
     await memory('回忆 · 三更', ['三更。浴室里全是热气。屏风后，陆砚靠在浴桶里，闭着眼。', '角落那只大水柜——水面动了一下，又静了。', '一根手指，慢慢抬起了柜盖。',
-      '灯芯「啪」地爆了一声。', '黑影破水而出——一刀。', '屏风上溅开一片红。水里的人拼命抬起手，抓下了一页纸。', '……水面慢慢平了下去。']);
+      '灯芯「啪」地爆了一声。', '黑影破水而出——一刀。', '屏风上溅开一片红。水里的人拼命抬起手，抓下了一页纸。', '……水面慢慢平了下去。'], 'r296/ml_bath.mp4');
     await L([[XX, '（凶手在水柜里伏了不知多久，出来的时候连水声都没有。会闭气功夫的刺客——练气境的姑娘可做不到。）'], [YE, '尸身在巡城司。去看看。']]);
     next(4); };
   if (R2) {
@@ -222,8 +246,9 @@
       ['jia', '指甲缝', [[FENG, '（用小镊子夹出一点东西）黑的，薄片儿。……跟你们说的水柜里那片，一样。'], [XX, '（他死前抓过凶手。抓下来的是水靠上的鳞片。）']], '指甲缝里的黑鳞和水柜里的一样'],
       ['guan', '发冠', [[FENG, '发冠里头有东西。（拔出发簪，一本巴掌大的小册子滑了出来）'], ['', '音乐停了。'], ['', '小册子里一页一页，全是名字。三年里失踪的二十七个散修，每个名字后面，都有一个入城登记的日子。'], [YE, '……他不是来客栈避人的。他是在查这个。']], '陆砚发冠里藏着小册子：三年失踪的二十七个散修，名字后面都有入城登记的日子']];
     for (;;) { const left = parts.filter(p => !f.ml_body[p[0]]); if (!left.length) break;
-      const k = await choose2('验尸图　·　点一处看（' + (4 - left.length) + ' / 4）', left.map(p => p[1]).concat(['先不看了']));
-      if (k < 0 || k >= left.length) return; const p = left[k]; f.ml_body[p[0]] = 1; await L(p[2]); note(p[3]); if (p[0] === 'guan' && !hasIt('k_minglu_book')) await give('k_minglu_book'); }
+      let p; const pick = await autopsy(left.map(q => q[0]), 4 - left.length);
+      if (pick === undefined) { const k = await choose2('验尸图　·　点一处看（' + (4 - left.length) + ' / 4）', left.map(q => q[1]).concat(['先不看了'])); if (k < 0 || k >= left.length) return; p = left[k]; }
+      else { if (!pick) return; p = left.find(q => q[0] === pick); } f.ml_body[p[0]] = 1; await L(p[2]); note(p[3]); if (p[0] === 'guan' && !hasIt('k_minglu_book')) await give('k_minglu_book'); }
     await L([[FENG, '（盖上白布）就这些了。剩下的，问活人去。'], [XX, '（苏绫在牢里。她撒没撒谎，一问便知。）']]); next(5);
   });
 
@@ -389,7 +414,7 @@
       }
       await L([[WEN, '……落款写得清清楚楚，「顾长庚」三个字，还要怎样？'], [YE, '大人，把刘独眼带上来。'],
         ['', '刘独眼被护卫押上堂。温既白还在说着什么，刘独眼突然浑身一抖，指着他叫了起来——'], [DU, '就是这个声音！']]);
-      await memory('回忆 · 黑市', ['花婆的小铺里，昏暗。一只手把一包用公文纸包着的铜钱推过桌面。', '这一回，镜头转了过来。', '——是温既白的脸。']);
+      await memory('回忆 · 黑市', ['花婆的小铺里，昏暗。一只手把一包用公文纸包着的铜钱推过桌面。', '这一回，镜头转了过来。', '——是温既白的脸。'], 'r296/ml_money.mp4');
       await L([[WEN, '（笑了一下）可惜，晚了。'], ['', '温既白身上猛地腾起一股黑气，袍子被撑得鼓起来，一把撞开了文书房的暗门！'], [SZ, '拿下他！'], [YE, '追！']]);
       note('大堂对质：刘独眼认出了温既白的声音——他就是「白先生」'); next(17);
       tileSetMap('ml_secret', ...startOf(AN), 'up'); S.scene = drawMap; });
