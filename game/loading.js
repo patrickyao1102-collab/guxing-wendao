@@ -188,6 +188,7 @@
   } };
   S.overlay.push(layer);
   window.LOADING_LAYER = layer;
+  window.LOADING_SHOWN = () => shown;   // 测试程序用：载入画面还盖着没有
   // 黑幕（S.fade）画在所有图层最上面：载入插画还盖着的时候，黑幕上面再把插画画一遍——换图时看到的永远是插画，不是黑屏
   let lastForce, drawnAt = 0; layer.draw = (o => function (force) { lastForce = force; drawnAt = performance.now(); return o.call(this, force); })(layer.draw);
   window.LOADING_ON_TOP = () => { try { if (coverPaint()) return; if (shown > 0) { const s0 = shown, p0 = prog; layer.draw(lastForce); shown = s0; prog = p0; } } catch (e) {} };
