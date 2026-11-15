@@ -3,7 +3,7 @@
 // 「点开以后里面一把大剑，摸了半天也不知道摸个什么东西」「有些东西应该近距离观察，就像牙婆的册子」
 // 「库房上面那个本子我点了很久都没点到，走来走去才点到」。改成：
 //  ① 画面里的东西直接点：点鉴宝案上的剑匣、点墙上的出入簿，人自己走过去（不用再找地上看不见的点）；
-//  ② 还没看过的东西头顶有一个小金圈「查」，看过就没了；
+//  ② 走近了东西上方才冒一只小金手（和别处能翻的东西一样，不是进门就全亮）；
 //  ③ 剑匣是近处细看：整只剑匣放在屏幕中间，上面两个会闪的金圈（「封条」「剑格」）——点哪个看哪个，看完打勾，下面一个「离开」；
 //  ④ 出入簿翻开成一本书（和《名录》账册同一本），竖排从右往左写，看完点「合上」；
 //  ⑤ 库房里多摆了些东西：酒坛、锁着的箱子、文书匣、米斗、柜子，小伍值夜的椅子和灯。只进测试版。
@@ -101,11 +101,12 @@
   if (s2 && !s2._r315) { s2._r315 = 1; ORIG.jian = fixed(s2.talk); s2.talk = caseView; s2.tapRect = CASE_RECT; }
   if (s3 && !s3._r315) { s3._r315 = 1; ORIG.bu = fixed(s3.talk); s3.talk = bookView; s3.tapRect = BOOK_RECT; }
 
-  // ---------- ② 还没看过的东西头顶一个小金圈 ----------
-  const MARK = { draw() { try { if (world.mapName !== 'xt_wanbao_store' || S.scene !== drawMap || dialog || choice || world.locked || !on() || !world.cam) return;
-    const z = VZ(), C = world.cam, sx = x => (x - C.x) * z, sy = y => (y - C.y) * z;
-    if (!seen('xia') || !seen('jian')) ring(sx(766), sy(528), 20, false, '剑匣');
-    if (!seen('bu')) ring(sx(539), sy(586), 18, false, '出入簿'); } catch (e) {} } };
-  try { if (!S.overlay.includes(MARK)) S.overlay.push(MARK); } catch (e) {}
-  if (typeof updateMap === 'function') updateMap = (o => function () { try { if (world.mapName === 'xt_wanbao_store' && !S.overlay.includes(MARK)) S.overlay.unshift(MARK); } catch (e) {} return o.apply(this, arguments); })(updateMap);
+  // ---------- ② 走近了，东西上方冒一只小金手（和别的屋里能翻的东西同一个样子：R230 作者 11-12 定的，不做进门全亮） ----------
+  const HINT = [[s1, 766, 512, 766, 720], [s3, 539, 566, 539, 720]];   // 小手画在哪、量远近的点（鉴宝案前沿）
+  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function () { const r = orig.apply(this, arguments);
+    try { if (world.mapName === 'xt_wanbao_store' && world.player) { const t = performance.now() / 1000, p = world.player;
+      for (const [n, ox, oy, ax, ay] of HINT) { if (!n || Math.hypot(ax - p.x, ay - p.y) > 165) continue;
+        const x = ox, y = oy + Math.sin(t * 3 + ox * .01) * 3; ctx.save(); ctx.fillStyle = 'rgba(40,26,10,.82)'; ctx.strokeStyle = '#e8c878'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 15, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffe9b0'; ctx.fillText('☝', x, y + 1); ctx.restore(); } } } catch (e) {}
+    return r; })(tileAmbientHigh);
 })();
