@@ -6,7 +6,7 @@
   const P = { '万宝楼掌柜': 'wbboss', '卖花姑娘·小荷': 'xiaohe', '卖花姑娘·小莲': 'xiaolian', '司灯老人': 'sideng', '外地刀客': 'daoke', '守林老人': 'shoulin',
     '悦来厨子': 'chuzi', '醉仙楼厨子': 'chuzi', '林府管事': 'guanshi', '王婆婆': 'wangpo', '王铁匠': 'tiejiang', '货郎': 'huolang', '货郎·钱二': 'huolang', '采药老人': 'caiyao',
     '丹霞堂掌柜': 'dxboss', '百草轩掌柜': 'bcboss' };
-  const ALT = new Set(['wbboss', 'xiaohe', 'xiaolian', 'sideng', 'daoke', 'shoulin', 'chuzi', 'guanshi', 'wangpo', 'tiejiang', 'huolang', 'caiyao']);
+  const ALT = new Set(['dxboss', 'bcboss', 'wbboss', 'xiaohe', 'xiaolian', 'sideng', 'daoke', 'shoulin', 'chuzi', 'guanshi', 'wangpo', 'tiejiang', 'huolang', 'caiyao']);
   const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
   for (const k of new Set(Object.values(P))) { load('p_r320_' + k, 'r320/p_' + k + '.webp'); if (ALT.has(k)) load('p_r320_' + k + '_b', 'r320/p_' + k + '_b.webp'); }
   for (const [name, k] of Object.entries(P)) { try { SPEAKERS[name] = Object.assign({ color: '#ffe9b0' }, SPEAKERS[name] || {}, { p: 'p_r320_' + k }); } catch (e) {} }
@@ -25,5 +25,15 @@
     '少侠去玄天城，替我捎句话给丹霞堂的掌柜：师弟这边一切都好，炉子没炸过。……一次都没有。', '师兄小时候炼坏一炉丹，把师父的眉毛烧掉了一半。这事他不让我往外说。']);
   addLines('xt_danxia', '丹霞堂伙计', ['我们掌柜年纪轻轻，炉火的功夫是全城头一份。听说他有个师弟，在青阳镇开药铺，逢年过节总要托人捎两包镇上的桂花糕来。',
     '掌柜的在里头看炉子，丹火不能离人。客官要的方子，我这就去问他。']);
+  // 丹霞堂掌柜：站在店里右边的丹炉旁（Codex R311 定稿：正面站姿四帧呼吸眨眼）
+  { const M = TMAPS.xt_danxia; if (M && !(M.npcs || []).some(n => n.name === '丹霞堂掌柜')) { const T = [1400, 180, 160, 260], tot = T.reduce((a, b) => a + b, 0);
+      const pose = () => { let t = performance.now() % tot, i = 0; while (t >= T[i]) { t -= T[i]; i++; } return 'dx_boss' + i; };
+      M.npcs.push({ key: 'none', cx: 'villager_m', c: 1000 / 64 - .5, r: 560 / 64 - .8, name: '丹霞堂掌柜', h: 116, wander: false, face: 'down', pose295: pose, talk: async function () {
+        const f = S.flags || {}, room = ((f.sq || {}).xt_room3 || {}).s === 3;
+        const A = ['（他守着丹炉，头也不回）火候差一息，一炉丹就是一炉灰。客官要买丹，找我伙计。',
+          '你从青阳镇来？那你见过百草轩那个傻小子了——我师弟。他炼丹手慢，可他配的金疮药，比我的好。……这话别告诉他。',
+          '师父当年收了我们两个。他说我是火，师弟是水——火炼得出好丹，水才养得活人。'];
+        if (room) A.push('钱满仓那批凝露草的事，我听说了。……下回他要是还肯跑这趟货，我先付他一半定金。人走投无路的时候，最怕没人信。');
+        await say('丹霞堂掌柜', A[Math.floor(Math.random() * A.length)]); } }); } }
   window.R320_P = P;
 })();
