@@ -8,7 +8,9 @@
   const Q = id => id === 'acc_zhaodan' ? 3 : /^k_minglu_|^fish_dragon|^rod_ling|^line_jiao|^bait_dragon/.test(id) ? 2 : /^bait_|^r175i_|^line_hemp|^rod_old/.test(id) ? 0 : 1;
   const get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r290i/' + id + '.webp'; } return o.ok ? o.im : null; };
   window.R290_ICON = { has: id => IDS.has(id), get };
+  const ALIAS = { k_ml_letter: 'k_shenxin', k_ml_ling: 'c_token' };   // 《名录》的担保信、协查令：专门的图标到之前先借信、令牌
   itemIcon = (orig => function (id, x, y, r) {
+    if (ALIAS[id]) { arguments[0] = id = ALIAS[id]; }
     const im = IDS.has(id) && get(id); if (!im) return orig.apply(this, arguments);
     const q = Q(id); ctx.save();
     const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
