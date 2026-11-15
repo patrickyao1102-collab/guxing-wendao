@@ -65,7 +65,7 @@
       const st = B.objs.filter(o => /spirit_pet_stall|food_stall_01|weapon_stall/.test(o.img || '')); const fullB = B.blocked, fullO = B.objs.slice();
       const dayB = unblock(B, st), dayO = B.objs.filter(o => !st.includes(o));
       const night = () => !!(S.flags && S.flags.ch3_night && !S.flags.ch3_city);
-      const apply = () => { const n = night(); B.blocked = n ? fullB : dayB; B.objs = n ? fullO : dayO; };
+      const apply = () => { const n = night(); B.blocked = n ? fullB : dayB; B.objs = n ? fullO : dayO; try { if (window.R312Q) R312Q(B); } catch (e) {} };   // R312：城墙根换景每次都补上
       apply(); if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { if (m === 'qy_town') try { apply(); } catch (e) {} return o.apply(this, arguments); })(tileSetMap); } }
   const MOVE = [['m_yy_tiger', '守林老人', null, null, 2040, 3300], ['lin_guest_east', '林府老管事', null, null, 690, 580],
     ['qy_town', '城门护卫', 1428, 2173, 1424, 2345], ['qy_town', '城门护卫', 1580, 2173, 1576, 2345], ['qy_town', '扎辫子的小丫头', null, null, 704, 1657], ['qy_town', '大黄', null, null, 630, 1600],
