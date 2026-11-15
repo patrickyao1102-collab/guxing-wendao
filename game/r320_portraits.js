@@ -8,7 +8,7 @@
     '丹霞堂掌柜': 'dxboss', '百草轩掌柜': 'bcboss' };
   const ALT = new Set(['dxboss', 'bcboss', 'wbboss', 'xiaohe', 'xiaolian', 'sideng', 'daoke', 'shoulin', 'chuzi', 'guanshi', 'wangpo', 'tiejiang', 'huolang', 'caiyao']);
   const load = (key, src) => { const im = new Image(); im.onload = () => { try { IMG[key] = im; } catch (e) {} }; im.src = src; };
-  for (const k of new Set(Object.values(P))) { load('p_r320_' + k, 'r320/p_' + k + '.webp'); if (ALT.has(k)) load('p_r320_' + k + '_b', 'r320/p_' + k + '_b.webp'); }
+  for (const k of new Set(Object.values(P))) { load('p_r320_' + k, 'r320/p_' + k + '.webp?v=2'); if (ALT.has(k)) load('p_r320_' + k + '_b', 'r320/p_' + k + '_b.webp?v=2'); }
   for (const [name, k] of Object.entries(P)) { try { SPEAKERS[name] = Object.assign({ color: '#ffe9b0' }, SPEAKERS[name] || {}, { p: 'p_r320_' + k }); } catch (e) {} }
   // 变脸：台词里写到这些神态
   const FACE = /颤|发抖|在抖|白了|煞白|僵|冒汗|擦汗|汗都|哭|红了|泪|铁青|冷笑|狞|咬牙|愣住|瞪大|变了|叉腰|撅嘴|眯眼|惊|怒|贪|骇|对不住/;
