@@ -37,4 +37,10 @@
     const w = typeof wrongLines === 'function' ? wrongLines(c) : wrongLines; if (w && w.length) await L(w); return false; }
 
   window.SQB = { key, fail, ask, failed: id => ((F().sq_fail || {})[id] || 0) };
+  // 失败过、还没重新接的支线：任务书里名字后面写「失败 · 可重做」；发任务的人头上的「!」换成橙红色
+  const failedNow = id => ((F().sq_fail || {})[id] || 0) && (((F().sq || {})[id] || {}).s || 0) === 0;
+  try { for (const q of window.SQ_DEFS || []) { if (!q || q._r319) continue; q._r319 = 1; let base = q.name;
+    Object.defineProperty(q, 'name', { configurable: true, enumerable: true, get() { return failedNow(q.id) ? base + '（失败 · 可重做）' : base; }, set(v) { base = v; } }); } } catch (e) {}
+  if (typeof window.SQ_MARK === 'function') { const M0 = window.SQ_MARK; window.SQ_MARK = function (n) { const m = M0.apply(this, arguments);
+    try { if (m && m[0] === '!' && (window.SQ_DEFS || []).some(q => q.giver && q.giver[1] === n.name && failedNow(q.id))) return ['!', '#ff8a5a']; } catch (e) {} return m; }; }
 })();
