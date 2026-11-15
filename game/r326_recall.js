@@ -123,5 +123,5 @@
       ctx.fillStyle = g; ctx.fillRect(x - 40, y - 40, 80, 80);
       if (im.complete && im.naturalWidth) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .85; ctx.drawImage(im, i * 96, 0, 96, 128, x - 48 * .5, y + 22 - 120 * .5, 48, 64); }
       ctx.restore(); } })(tileAmbientHigh);
-  window.R326_PLAY = play;
+  window.R326_PLAY = play; window.R326_BUSY = () => !!cur;
 })();

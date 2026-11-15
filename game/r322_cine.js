@@ -68,5 +68,5 @@
       ctx.save(); ctx.translate(o.x, o.y); if (o.flip) ctx.scale(-1, 1); ctx.drawImage(im, -ax, -ay, w, h); ctx.restore(); } })(tileAmbientHigh);
   say = (orig => function (who, text) { const t = String(text || ''); for (const [re, k, name, extra] of ACT_ON) if (re.test(t)) { act(k, name, extra); break; } return orig.apply(this, arguments); })(say);
   window.R322_ACT = act;
-  window.R322_PLAY = play;
+  window.R322_PLAY = play; window.R322_BUSY = () => !!cur;
 })();
