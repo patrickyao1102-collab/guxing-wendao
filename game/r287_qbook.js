@@ -77,6 +77,158 @@
   const tagOf = it => it.kind === 'main' ? ['主', COL.main] : it.status === 'ready' ? ['交', COL.ready] : it.status === 'avail' ? ['接', COL.avail] : it.status === 'done' ? ['完', COL.done] : ['支', COL.side];
   function tag(t, col, x, y, s) { ctx.save(); ctx.fillStyle = col; rr(x, y, s, s, 5); ctx.fill(); ctx.fillStyle = '#10141b'; ctx.font = fnt(Math.round(s * .62), 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, x + s / 2, y + s / 2 + 1); ctx.restore(); }
 
+  // ================= R301 · 任务界面换成 Codex R298 的正式无字单件（字都由游戏写）=================
+  // 作者 11-15：「任务栏不要用代码画，去设计一下，要好看、一目了然」——右上任务栏、独立任务簿、天剑宗悬赏榜三处都换成美术件；
+  // 图没加载完之前还用原来代码画的那套（不会白屏）。行囊里的「任务」页照旧（白玉宣纸那套）。
+  const AK = ['hud_top', 'hud_mid', 'hud_bot', 'card', 'strip_red', 'strip_gold', 'strip_teal', 'seal_red', 'seal_gold', 'seal_teal', 'btn_all', 'btn_all_p', 'btn_min', 'btn_min_p', 'mini', 'mini_new', 'close', 'close_p',
+    'ic_xs', 'ic_jian', 'ic_yu', 'ic_mi', 'ic_loc', 'ic_stone', 'divider', 'page_l', 'page_r', 'spine', 'plaque', 'row', 'row_on', 'tab', 'tab_on', 'nowbox', 'sec', 'cell_xs', 'cell_stone', 'cell_exp', 'cell_book',
+    'go', 'go_p', 'go_x', 'trk', 'trk_p', 'trk_x', 'sb_track', 'sb_thumb', 'eave', 'face', 'pillar', 'beam', 'board_plq', 'sel_outline', 'paper_y', 'paper_r', 'taken', 'seal_e', 'seal_m', 'seal_h', 'scroll', 'dplaque', 'jie', 'jie_p', 'back', 'back_p'];
+  const ART = {}; for (const k of AK) { const im = new Image(); im.src = 'r301/' + k + '.webp'; ART[k] = im; }
+  let artReady = false; const artOn = () => artReady || (artReady = AK.every(k => ART[k].complete && ART[k].naturalWidth > 0));
+  const img = (k, x, y, w, h) => { const im = ART[k]; if (im && im.naturalWidth) ctx.drawImage(im, x, y, w || im.naturalWidth, h || im.naturalHeight); };
+  const txt = (t, x, y, sz, col, wt, al) => { ctx.font = fnt(sz, wt); ctx.fillStyle = col; ctx.textAlign = al || 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, x, y); ctx.textAlign = 'left'; };
+  const sealK = it => it.kind === 'main' ? 'red' : (it.status === 'ready' || it.status === 'avail') ? 'gold' : 'teal';
+  const sealT = it => tagOf(it)[0];
+  const seal = (it, x, y, s) => { img('seal_' + sealK(it), x, y, s, s); txt(sealT(it), x + s / 2, y + s / 2 + 1, Math.round(s * .55), '#fff4dc', 800, 'center'); };
+  const isBook = id => /^juan|^bk_/.test(id || '');
+  const bookIc = id => /^juan[23]/.test(id) ? 'ic_jian' : /^juan[45]/.test(id) ? 'ic_yu' : 'ic_mi';
+  const inm = id => (typeof ITEM_DB !== 'undefined' && ITEM_DB[id] && ITEM_DB[id].name) || id;
+  function rw(it) { const q = it && it.kind !== 'main' && R() && R().SQ.find(x => x.id === it.id); const r = (q && q.reward) || {};
+    const its = (r.items || []).concat(r.bonus || []); const books = its.filter(([id]) => isBook(id)), other = its.filter(([id]) => !isBook(id));
+    return { xs: r.xs || 0, gold: r.gold || 0, exp: r.exp || 0, books, other, diff: (q && q.diff) || '', q }; }
+  const press = { k: '', t: 0 }; const pressed = k => press.k === k && performance.now() - press.t < 180;
+
+  // ---------- 右上任务栏 ----------
+  function drawHudArt(A, rows, k, nav, navId) {
+    if (F().qt_min || !rows.length) { const s = 56 * k, x = W - 12 - s, y = 12; img(A.doing.some(x => x.status === 'ready') ? 'mini_new' : 'mini', x, y, s, s);
+      HUD.rect = [x - 4, y - 4, s + 8, s + 8]; HUD.hits.push({ a: 'max', r: HUD.rect }); return; }
+    const N = rows.length, H0 = 92 + 84 * N + 8 * (N - 1), x0 = W - 12 - 340 * k, y0 = 12;
+    HUD.rect = [x0, y0, 340 * k, H0 * k]; const S2 = (lx, ly, lw, lh) => [x0 + lx * k, y0 + ly * k, lw * k, lh * k];
+    ctx.save(); ctx.translate(x0, y0); ctx.scale(k, k);
+    img('hud_top', 0, 0, 340, 44); const mid = ART.hud_mid; for (let y = 44; y < H0 - 32; y += 32) { const h = Math.min(32, H0 - 32 - y); ctx.drawImage(mid, 0, 0, 340, h, 0, y, 340, h); } img('hud_bot', 0, H0 - 32, 340, 32);
+    txt('任务', 40, 25, 18, '#f0d596', 700); txt('点一条，自动带路', 82, 26, 12.5, '#a9b6c2');
+    img(pressed('book') ? 'btn_all_p' : 'btn_all', 232, 12, 64, 26); txt('全部', 264, 25.5, 14, '#ffe3a3', 700, 'center'); HUD.hits.push({ a: 'book', r: S2(226, 4, 74, 42) });
+    img(pressed('min') ? 'btn_min_p' : 'btn_min', 302, 12, 26, 26); ctx.fillStyle = '#ffe3a3'; ctx.fillRect(309, 24, 12, 2.4); HUD.hits.push({ a: 'min', r: S2(298, 4, 38, 42) });
+    rows.forEach((it, i) => { const cy = 52 + i * 92, on = nav && ((it.kind === 'main' && !navId) || it.id === navId), R2 = rw(it);
+      img('card', 10, cy, 320, 84); if (on) { ctx.fillStyle = 'rgba(255,211,106,.09)'; rr(12, cy + 2, 316, 80, 6); ctx.fill(); }
+      img('strip_' + sealK(it), 12, cy + 10, 3, 64); seal(it, 18, cy + 8, 24);
+      txt(ell(it.name, 272 - (on ? 52 : 0)), 50, cy + 18, 17, '#ffe3a3', 700); if (on) txt('带路中', 322, cy + 18, 12.5, '#ffd36a', 700, 'right');
+      ctx.font = fnt(14.5); txt(ell(it.step, 272), 50, cy + 43, 14.5, '#f2ead8');
+      const bk = R2.books[0], hasXs = R2.xs > 0, locW = 142 + (hasXs ? 0 : 82) + (bk ? 0 : 28) - (hasXs || bk ? 0 : 0);
+      if (it.where) { img('ic_loc', 50, cy + 59, 16, 16); ctx.font = fnt(12.5); txt(ell(it.where, locW), 68, cy + 68, 12.5, '#a9b9c8'); }
+      if (bk) img(bookIc(bk[0]), hasXs ? 218 : 296, cy + 54, 24, 24);
+      if (hasXs) { img('ic_xs', 246, cy + 54, 24, 24); txt(String(R2.xs), 274, cy + 67, 14, '#f0d596', 700); }
+      HUD.hits.push({ a: 'go', it, r: S2(10, cy, 320, 84) }); });
+    if (nav) txt('◆ 自动寻路中 · 走动或点地面取消', 170, H0 - 15, 11.5, '#ffd36a', 400, 'center');
+    ctx.restore();
+  }
+
+  // ---------- 独立任务簿 ----------
+  const SEC = (t, x, y) => { img('sec', x, y, 112, 26); txt(t, x + 56, y + 13.5, 13.5, '#f0d596', 700, 'center'); };
+  function drawBookArt() { const A = all(); QB.hits = [];
+    ctx.save(); ctx.fillStyle = 'rgba(4,6,10,.72)'; ctx.fillRect(0, 0, W, H);
+    img('page_l', 100, 90, 540, 600); img('page_r', 640, 90, 540, 600); img('spine', 620, 90, 40, 600);
+    img('plaque', 500, 24, 280, 60); txt('任 务 簿', 640, 55, 25, '#f6dfa4', 700, 'center');
+    img(pressed('close') ? 'close_p' : 'close', 1144, 48, 32, 32); ctx.strokeStyle = '#f0d596'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(1154, 58); ctx.lineTo(1166, 70); ctx.moveTo(1166, 58); ctx.lineTo(1154, 70); ctx.stroke();
+    QB.hits.push({ a: 'close', r: [1136, 40, 48, 48] }); SOLO.bounds = [100, 24, 1080, 666];
+    // 页签
+    [['doing', '进行中', A.doing.length], ['avail', '可接', A.avail.length], ['done', '已完成', A.done.length]].forEach(([k, n, c], i) => { const x = 156 + i * 120, on = QB.filter === k;
+      img(on ? 'tab_on' : 'tab', x, 124, 112, 32); txt(n + ' ' + c, x + 56, 141, 15, on ? '#ffe3a3' : '#b9b2a2', 700, 'center'); QB.hits.push({ a: 'filter', k, r: [x, 120, 112, 40] }); });
+    // 列表
+    const items = A[QB.filter] || []; if (!QB.sel || !items.find(x => x.id === QB.sel)) QB.sel = items[0] ? items[0].id : null;
+    const LX = 156, LY = 164, LW = 360, LH = 496, ST = 72, total = items.length * ST - 8; QB.maxS = Math.max(0, total - LH); QB.scroll = Math.max(0, Math.min(QB.maxS, QB.scroll)); QB.list = [LX, LY, LW + 40, LH];
+    ctx.save(); ctx.beginPath(); ctx.rect(LX - 4, LY - 2, LW + 8, LH + 4); ctx.clip();
+    if (!items.length) txt(QB.filter === 'avail' ? '这一带暂时没有能接的事。' : QB.filter === 'done' ? '还没有办完的支线。' : '眼下没有在做的任务。', LX + 10, LY + 30, 16, '#b9b2a2');
+    items.forEach((it, i) => { const y = LY + i * ST - QB.scroll; if (y + 64 < LY || y > LY + LH) return; const on = it.id === QB.sel;
+      img(on ? 'row_on' : 'row', LX, y, 360, 64); seal(it, LX + 10, y + 10, 24);
+      ctx.font = fnt(17, 700); txt(ell(it.name, 230), LX + 46, y + 22, 17, on ? '#ffe3a3' : '#f2ead8', 700);
+      txt(it.region || '', LX + 346, y + 22, 12.5, '#a9b3bd', 400, 'right');
+      ctx.font = fnt(13.5); txt(ell(it.step, 296), LX + 46, y + 46, 13.5, '#cfc6b4');
+      QB.hits.push({ a: 'sel', id: it.id, r: [LX, Math.max(LY, y), LW, Math.min(y + 64, LY + LH) - Math.max(LY, y)] }); });
+    ctx.restore();
+    img('sb_track', 548, 164, 6, 496);
+    if (QB.maxS > 0) { const th = Math.max(40, LH * LH / (total + 8)), tY = LY + (QB.scroll / QB.maxS) * (LH - th); img('sb_thumb', 548, tY, 6, th); }
+    // 身上的悬赏点 / 灵石（左页底边）
+    img('ic_xs', 118, 44, 24, 24); txt('悬赏点 ' + ((S.hero && S.hero.xs) || 0), 146, 57, 15, '#f0d596', 700);
+    img('ic_stone', 250, 41, 30, 30); txt('灵石 ' + ((S.hero && S.hero.gold) || 0), 282, 57, 15, '#f0d596', 700);
+    // 右页详情
+    const it = items.find(x => x.id === QB.sel);
+    if (it) { const R2 = rw(it);
+      seal(it, 692, 132, 26); ctx.font = fnt(25, 700); txt(ell(it.name, 300), 728, 146, 25, '#f6dfa4', 700);
+      txt([it.kind === 'main' ? '主线' : '支线', it.region, R2.diff, { doing: '进行中', ready: '可以交了', avail: '可以接', done: '已完成' }[it.status]].filter(Boolean).join(' · '), 1132, 148, 13, '#a9b3bd', 400, 'right');
+      img('divider', 692, 168, 300, 20);
+      const CX = 680, CY = 192, CW = 464, CH = 418; QB.detail = [CX, CY, CW, CH];
+      ctx.save(); ctx.beginPath(); ctx.rect(CX, CY, CW, CH); ctx.clip();
+      let y = 198 - QB.dscroll;
+      img('nowbox', 692, y, 440, 80); txt(it.status === 'done' ? '结果' : '现在该做', 708, y + 17, 13.5, '#e8c98a', 700);
+      ctx.font = fnt(18, 600); const sl = lines(it.step, 410, 2); sl.forEach((l, i) => txt(l, 708, y + (sl.length > 1 ? 41 + i * 23 : 51), 18, '#fff2d6', 600)); y += 96;
+      if (it.where) { SEC('地点', 692, y); y += 34; img('ic_loc', 692, y, 22, 22); ctx.font = fnt(15.5); const wl = lines(it.where, 400); wl.forEach((l, i) => txt(l, 722, y + 12 + i * 22, 15.5, '#efe6d2')); y += wl.length * 22 + 6;
+        if (it.kind === 'side' && it.giverWhere && it.giverWhere !== it.where) { txt('发话人在：' + it.giverWhere, 722, y + 8, 13.5, '#a9b3bd'); y += 26; } y += 6; }
+      const cells = []; if (R2.xs) cells.push(['cell_xs', 'ic_xs', '悬赏点 ' + R2.xs]); if (R2.gold) cells.push(['cell_stone', 'ic_stone', '灵石 ' + R2.gold]); if (R2.exp) cells.push(['cell_exp', '', '经验 +' + R2.exp]);
+      for (const [id, n] of R2.books) cells.push(['cell_book', bookIc(id), inm(id) + (n > 1 ? ' ×' + n : '')]);
+      if (R2.other.length) cells.push(['cell_book', '', R2.other.map(([id, n]) => inm(id) + (n > 1 ? '×' + n : '')).join('、')]);
+      if (cells.length) { SEC('奖励', 692, y); y += 33;
+        cells.forEach(([bg, ic, t], i) => { const x = 692 + (i % 2) * 220, yy = y + Math.floor(i / 2) * 64; img(bg, x, yy, 212, 56);
+          if (ic === 'ic_stone') img(ic, x + 8, yy + 12, 32, 32); else if (ic) img(ic, x + 12, yy + 16, 24, 24);
+          ctx.font = fnt(15.5); txt(ell(t, ic ? 156 : 186), x + (ic ? 46 : 16), yy + 29, 15.5, '#f2ead8'); });
+        y += Math.ceil(cells.length / 2) * 64 + 10; }
+      if (it.desc) { SEC(it.kind === 'main' ? '章节' : '来龙去脉', 692, y); y += 36; ctx.font = fnt(15); lines(it.desc, 436).forEach(l => { txt(l, 692, y, 15, '#e6dccb'); y += 22; }); y += 8; }
+      if (it.notes && it.notes.length) { SEC('证词本', 692, y); txt(it.notes.length + ' 条', 812, y + 13, 13, '#a9b3bd'); y += 36; ctx.font = fnt(14.5);
+        it.notes.forEach((n, i) => { const ls = lines(n, 412); txt((i + 1) + '.', 692, y, 14.5, '#e8c98a', 700); ls.forEach(l => { txt(l, 716, y, 14.5, '#e6dccb'); y += 21; }); y += 5; }); }
+      const full = y + QB.dscroll - 198; QB.maxD = Math.max(0, full - CH + 10); QB.dscroll = Math.max(0, Math.min(QB.maxD, QB.dscroll));
+      ctx.restore();
+      if (QB.maxD > 0 && QB.dscroll < QB.maxD) txt('↓ 按住往上拖看下面', 1132, 612, 12, '#a9b3bd', 400, 'right');
+      // 两个按钮
+      const done = it.status === 'done';
+      img(done ? 'go_x' : pressed('go') ? 'go_p' : 'go', 692, 624, 168, 44); txt(done ? '已办完' : it.status === 'avail' ? '去找发话人' : '带我去', 776, 646.5, 17, done ? '#8f8a80' : '#ffe3a3', 700, 'center');
+      if (!done) QB.hits.push({ a: 'go', it, r: [692, 624, 168, 44] });
+      if (it.kind === 'side') { const can = it.status === 'doing' || it.status === 'ready', onT = track().includes(it.id);
+        img(!can ? 'trk_x' : pressed('track') ? 'trk_p' : 'trk', 880, 624, 204, 44); txt(onT ? '✓ 已在任务栏' : '放进任务栏', 982, 646.5, 17, can ? '#ffe3a3' : '#8f8a80', 700, 'center');
+        if (can) QB.hits.push({ a: 'track', it, r: [880, 624, 204, 44] }); }
+    } else QB.detail = null;
+    ctx.restore(); }
+
+  // ---------- 天剑宗悬赏榜 ----------
+  const SLOTS = [[120, 198, -2], [280, 198, 1], [440, 198, -1], [600, 198, 2], [120, 406, 1], [280, 406, -2], [440, 406, 3], [600, 406, -1]];
+  function drawBoardArt() { const A = all(); QB.hits = []; QB.list = null;
+    ctx.save(); ctx.fillStyle = 'rgba(4,6,10,.72)'; ctx.fillRect(0, 0, W, H);
+    img('pillar', 54, 146, 60, 540); img('pillar', 750, 146, 60, 540); img('face', 104, 170, 660, 460); img('beam', 54, 622, 760, 36); img('eave', 24, 34, 800, 120);
+    img('board_plq', 234, 62, 380, 60); txt('天剑宗 · 悬赏榜', 424, 93, 24, '#f6dfa4', 700, 'center');
+    img(pressed('close') ? 'close_p' : 'close', 1216, 26, 32, 32); ctx.strokeStyle = '#f0d596'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(1226, 36); ctx.lineTo(1238, 48); ctx.moveTo(1238, 36); ctx.lineTo(1226, 48); ctx.stroke();
+    QB.hits.push({ a: 'close', r: [1208, 18, 48, 48] }); SOLO.bounds = [24, 18, 1232, 660];
+    const taken = A.doing.filter(x => x.kind === 'side' && F().qt_board && F().qt_board[x.id]);
+    const list = A.avail.slice(0, 8), rest = taken.slice(0, 8 - list.length);
+    if (!QB.sel || !list.find(x => x.id === QB.sel)) QB.sel = list[0] ? list[0].id : null;
+    if (!list.length) txt('榜上暂时没有新的悬赏——过些日子再来看看。', 434, 300, 18, '#f0e2c0', 600, 'center');
+    list.forEach((it, i) => { const [x, y, deg] = SLOTS[i], R2 = rw(it), hard = R2.diff === '困难', on = it.id === QB.sel;
+      ctx.save(); ctx.translate(x + 75, y + 7); ctx.rotate(deg * Math.PI / 180); ctx.translate(-75, -7);
+      if (on) img('sel_outline', -4, -4, 158, 198);
+      img(hard ? 'paper_r' : 'paper_y', 0, 0, 150, 190);
+      const ink = hard ? '#5a1810' : '#3a2610';
+      ctx.font = fnt(15.5, 700); txt(ell(it.name, 128), 75, 36, 15.5, ink, 700, 'center');
+      const sk = hard ? 'seal_h' : R2.diff === '中等' ? 'seal_m' : 'seal_e'; img(sk, 55, 58, 40, 40); txt(hard ? '难' : R2.diff === '中等' ? '中' : '简', 75, 79, 20, '#fff1e0', 800, 'center');
+      const q = R2.q; ctx.font = fnt(12.5); const gl = lines((q && q.goal) || it.step, 128, 2); gl.forEach((l, j) => txt(l, 75, 118 + j * 17 - (gl.length - 1) * 8, 12.5, ink, 400, 'center'));
+      if (R2.xs) { img('ic_xs', 44, 148, 24, 24); txt(String(R2.xs), 72, 161, 18, ink, 700); }
+      ctx.restore(); QB.hits.push({ a: 'sel', id: it.id, r: [x, y, 150, 190] }); });
+    rest.forEach((it, j) => { const [x, y] = SLOTS[list.length + j]; img('taken', x, y, 150, 190); txt('已揭榜', x + 75, y + 96, 18, '#e8c98a', 700, 'center'); txt(ell(it.name, 130), x + 75, y + 122, 12.5, '#c9b48a', 400, 'center'); });
+    // 榜文详情
+    img('scroll', 864, 104, 352, 560); img('dplaque', 930, 128, 220, 44); txt('榜文详情', 1040, 151, 18, '#f6dfa4', 700, 'center');
+    const it = list.find(x => x.id === QB.sel), DK = '#3a2610', SUB = '#6a5236';
+    const SECL = (t, y) => { img('sec', 892, y, 112, 26); txt(t, 948, y + 13.5, 13.5, '#f0d596', 700, 'center'); };
+    if (it) { const R2 = rw(it), q = R2.q, hard = R2.diff === '困难';
+      ctx.font = fnt(20, 700); txt(ell(it.name, 250), 900, 208, 20, DK, 700);
+      if (R2.diff) { const sk = hard ? 'seal_h' : R2.diff === '中等' ? 'seal_m' : 'seal_e'; img(sk, 1156, 192, 32, 32); txt(hard ? '难' : R2.diff === '中等' ? '中' : '简', 1172, 209, 16, '#fff1e0', 800, 'center'); }
+      SECL('委托', 244); ctx.font = fnt(14.5); const dl = lines(it.desc || (q && q.goal) || it.step, 290, 2); dl.forEach((l, i) => txt(l, 900, 288 + i * 22, 14.5, DK));
+      SECL('地点', 328); ctx.font = fnt(14.5); txt(ell((q && q.where) || it.where || it.giverWhere || '', 290), 900, 372, 14.5, DK);
+      SECL('奖励', 396);
+      const rows = []; if (R2.xs) rows.push(['ic_xs', '悬赏点 ' + R2.xs]); if (R2.gold) rows.push(['ic_stone', '灵石 ' + R2.gold]); for (const [id, n] of R2.books) rows.push([bookIc(id), inm(id) + (n > 1 ? ' ×' + n : '')]);
+      if (rows.length < 3 && R2.exp) rows.push(['', '经验 +' + R2.exp]); if (rows.length < 3 && R2.other.length) rows.push(['', R2.other.map(([id, n]) => inm(id) + (n > 1 ? '×' + n : '')).join('、')]);
+      rows.slice(0, 3).forEach(([ic, t], i) => { const yy = 438 + i * 40; if (ic === 'ic_stone') img(ic, 898, yy - 4, 30, 30); else if (ic) img(ic, 900, yy, 24, 24); ctx.font = fnt(15); txt(ell(t, 230), 938, yy + 12, 15, DK); });
+      img(pressed('go') ? 'jie_p' : 'jie', 890, 590, 168, 44); txt('揭 榜', 974, 612.5, 18, '#ffe3a3', 700, 'center'); QB.hits.push({ a: 'go', it, r: [890, 590, 168, 44] });
+    } else txt(list.length ? '点一张榜文看详情' : '', 1040, 380, 15, SUB, 400, 'center');
+    img(pressed('close2') ? 'back_p' : 'back', 1080, 590, 96, 40); txt('返回', 1128, 610.5, 16, '#ffe3a3', 700, 'center'); QB.hits.push({ a: 'close', k: 2, r: [1080, 590, 96, 40] });
+    ctx.restore(); }
+
   // ================= 1) 右上任务栏 =================
   const HUD = { hits: [], rect: null };
   function drawHud() {
@@ -84,6 +236,7 @@
     if (!R() || S.hud === false || S.menu || !world.map || S.scene !== drawMap) return;
     const A = all(), M = A.doing.find(x => x.kind === 'main'), rows = (M ? [M] : []).concat(hudSides(A));
     const k = PHONE ? 1.2 : 1, W0 = 318, now = performance.now(), nav = !!(window.QUEST_NAV && QUEST_NAV.on), navId = R().navId && R().navId();
+    if (artOn()) { drawHudArt(A, rows, k, nav, navId); try { if (window.R165Q && R165Q.UI) R165Q.UI.panel = HUD.rect; } catch (e) {} return; }
     if (F().qt_min || !rows.length) {   // 收起：右上一个小圆标
       const cx = W - 44 * k, cy = 44 * k, r = 26 * k;
       ctx.save(); ctx.fillStyle = 'rgba(12,14,20,.86)'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = nav ? '#ffd36a' : 'rgba(226,190,112,.85)'; ctx.stroke();
@@ -127,6 +280,7 @@
     const t = input.tapped;
     if (t && !t.key && HUD.rect && !busy() && inR(t.x, t.y, HUD.rect)) {
       input.tapped = null; const h = HUD.hits.find(h => inR(t.x, t.y, h.r)); if (h) { try { playSnd('ui_click'); } catch (e) {}
+        press.k = h.a; press.t = performance.now();
         if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') F().qt_min = 1; else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') go(h.it); }
       return; }
     return o.apply(this, arguments);
@@ -205,6 +359,8 @@
   })(menuUpdate);
   function tapBook(t) { const h = QB.hits.find(h => inR(t.x, t.y, h.r)); if (!h) return false;
     try { playSnd('ui_click'); } catch (e) {}
+    press.k = h.a + (h.k || ''); press.t = performance.now();
+    if (h.a === 'close') { setTimeout(closeSolo, 90); return true; }
     if (h.a === 'filter') { QB.filter = h.k; QB.sel = null; QB.scroll = 0; QB.dscroll = 0; }
     else if (h.a === 'sel') { if (QB.sel !== h.id) QB.dscroll = 0; QB.sel = h.id; }
     else if (h.a === 'track') { const T = track(), i = T.indexOf(h.it.id); if (i >= 0) T.splice(i, 1); else { T.unshift(h.it.id); if (T.length > 2) T.length = 2; } F().qt_min = 0; }
@@ -215,7 +371,7 @@
   // ---------- 独立任务簿（作者 11-15：任务不要和行囊绑在一起；右上「全部」、据点告示板都开这个，不弹整个行囊）----------
   const SB = { x: 100, y: 64, w: 1080, h: 600 };
   let SOLO = null;
-  function drawSolo() { const P = pal(), B = SB;
+  function drawSolo() { if (artOn()) { try { return QB.mode === 'board' ? drawBoardArt() : drawBookArt(); } catch (e) { console.warn('R301 solo', e); } } SOLO.bounds = null; const P = pal(), B = SB;
     ctx.save(); ctx.fillStyle = 'rgba(4,6,10,.74)'; ctx.fillRect(0, 0, W, H);
     const g = ctx.createLinearGradient(0, B.y, 0, B.y + B.h); g.addColorStop(0, '#1b2028'); g.addColorStop(1, '#10141a');
     ctx.fillStyle = g; rr(B.x - 18, B.y - 46, B.w + 36, B.h + 64, 16); ctx.fill();
@@ -232,7 +388,7 @@
     SOLO = { layer: { draw() { try { drawSolo(); } catch (e) { console.warn('R287 solo', e); } } }, hud0: S.hud, lock0: world.locked };
     S.hud = false; world.locked = true; S.overlay.push(SOLO.layer); input.tapped = null;
     SOLO.up = e => { if (!SOLO) return; setTimeout(() => { input.tapped = null; }, 0); if (drag && drag.moved) return; let p; try { p = toLogical(e); } catch (er) { return; }
-      if (inR(p.x, p.y, SOLO.close) || !inR(p.x, p.y, [SB.x - 18, SB.y - 46, SB.w + 36, SB.h + 64])) { try { playSnd('ui_click'); } catch (e2) {} return closeSolo(); }
+      if (inR(p.x, p.y, SOLO.close) || !inR(p.x, p.y, SOLO.bounds || [SB.x - 18, SB.y - 46, SB.w + 36, SB.h + 64])) { try { playSnd('ui_click'); } catch (e2) {} return closeSolo(); }
       tapBook(p); };
     setTimeout(() => { if (SOLO) cv.addEventListener('pointerup', SOLO.up); }, 120); }
   window.QSOLO_OPEN = openSolo;
