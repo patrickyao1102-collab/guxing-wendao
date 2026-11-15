@@ -99,27 +99,37 @@
   const press = { k: '', t: 0 }; const pressed = k => press.k === k && performance.now() - press.t < 180;
 
   // ---------- 右上任务栏 ----------
-  function drawHudArt(A, rows, k, nav, navId) {
+  function drawHudArt(A, rows, k, nav, navId) { HUD.body = null;
     if (F().qt_min || !rows.length) { const s = 56 * k, x = W - 12 - s, y = 12; img(A.doing.some(x => x.status === 'ready') ? 'mini_new' : 'mini', x, y, s, s);
       HUD.rect = [x - 4, y - 4, s + 8, s + 8]; HUD.hits.push({ a: 'max', r: HUD.rect }); return; }
-    const N = rows.length, H0 = 92 + 84 * N + 8 * (N - 1), x0 = W - 12 - 340 * k, y0 = 12;
+    // 作者 11-15 23:29：「全部」不是开新界面——就在这个任务栏里原地展开，所有任务都列出来，长了按住往下拉；再点收回
+    const ALL = !!F().qt_all; if (ALL) rows = A.doing.concat(A.avail);
+    const N = rows.length, C = 84 * N + 8 * (N - 1), maxH = Math.max(176, (H - 12 - 118) / k), H0 = Math.min(92 + C, ALL ? maxH : 1e9), x0 = W - 12 - 340 * k, y0 = 12;
+    HUD.maxS = Math.max(0, 92 + C - H0); HUD.scroll = ALL ? Math.max(0, Math.min(HUD.maxS, HUD.scroll || 0)) : 0;
     HUD.rect = [x0, y0, 340 * k, H0 * k]; const S2 = (lx, ly, lw, lh) => [x0 + lx * k, y0 + ly * k, lw * k, lh * k];
+    HUD.body = ALL && HUD.maxS > 0 ? S2(0, 44, 340, H0 - 76) : null;
     ctx.save(); ctx.translate(x0, y0); ctx.scale(k, k);
     img('hud_top', 0, 0, 340, 44); const mid = ART.hud_mid; for (let y = 44; y < H0 - 32; y += 32) { const h = Math.min(32, H0 - 32 - y); ctx.drawImage(mid, 0, 0, 340, h, 0, y, 340, h); } img('hud_bot', 0, H0 - 32, 340, 32);
-    txt('任务', 40, 25, 18, '#f0d596', 700); txt('点一条，自动带路', 82, 26, 12.5, '#a9b6c2');
-    img(pressed('book') ? 'btn_all_p' : 'btn_all', 232, 12, 64, 26); txt('全部', 264, 25.5, 14, '#ffe3a3', 700, 'center'); HUD.hits.push({ a: 'book', r: S2(226, 4, 74, 42) });
+    txt('任务', 40, 25, 18, '#f0d596', 700); txt(ALL ? '全部 ' + A.doing.length + ' 条 · 可接 ' + A.avail.length : '点一条，自动带路', 82, 26, 12.5, '#a9b6c2');
+    img(pressed('all') ? 'btn_all_p' : 'btn_all', 232, 12, 64, 26); txt(ALL ? '收起' : '全部', 264, 25.5, 14, '#ffe3a3', 700, 'center'); HUD.hits.push({ a: 'all', r: S2(226, 4, 74, 42) });
     img(pressed('min') ? 'btn_min_p' : 'btn_min', 302, 12, 26, 26); ctx.fillStyle = '#ffe3a3'; ctx.fillRect(309, 24, 12, 2.4); HUD.hits.push({ a: 'min', r: S2(298, 4, 38, 42) });
-    rows.forEach((it, i) => { const cy = 52 + i * 92, on = nav && ((it.kind === 'main' && !navId) || it.id === navId), R2 = rw(it);
+    const top = 48, bot = H0 - 36, sc = HUD.scroll;
+    ctx.save(); ctx.beginPath(); ctx.rect(4, top, 334, bot - top); ctx.clip();
+    rows.forEach((it, i) => { const cy = 52 + i * 92 - sc; if (cy + 84 < top || cy > bot) return; const on = nav && ((it.kind === 'main' && !navId) || it.id === navId), R2 = rw(it);
       img('card', 10, cy, 320, 84); if (on) { ctx.fillStyle = 'rgba(255,211,106,.09)'; rr(12, cy + 2, 316, 80, 6); ctx.fill(); }
       img('strip_' + sealK(it), 12, cy + 10, 3, 64); seal(it, 18, cy + 8, 24);
       txt(ell(it.name, 272 - (on ? 52 : 0)), 50, cy + 18, 17, '#ffe3a3', 700); if (on) txt('带路中', 322, cy + 18, 12.5, '#ffd36a', 700, 'right');
       ctx.font = fnt(14.5); txt(ell(it.step, 272), 50, cy + 43, 14.5, '#f2ead8');
-      const bk = R2.books[0], hasXs = R2.xs > 0, locW = 142 + (hasXs ? 0 : 82) + (bk ? 0 : 28) - (hasXs || bk ? 0 : 0);
+      const bk = R2.books[0], hasXs = R2.xs > 0, locW = 142 + (hasXs ? 0 : 82) + (bk ? 0 : 28);
       if (it.where) { img('ic_loc', 50, cy + 59, 16, 16); ctx.font = fnt(12.5); txt(ell(it.where, locW), 68, cy + 68, 12.5, '#a9b9c8'); }
       if (bk) img(bookIc(bk[0]), hasXs ? 218 : 296, cy + 54, 24, 24);
       if (hasXs) { img('ic_xs', 246, cy + 54, 24, 24); txt(String(R2.xs), 274, cy + 67, 14, '#f0d596', 700); }
-      HUD.hits.push({ a: 'go', it, r: S2(10, cy, 320, 84) }); });
-    if (nav) txt('◆ 自动寻路中 · 走动或点地面取消', 170, H0 - 15, 11.5, '#ffd36a', 400, 'center');
+      const y1 = Math.max(top, cy), y2 = Math.min(bot, cy + 84); if (y2 > y1) HUD.hits.push({ a: 'go', it, r: S2(10, y1, 320, y2 - y1) }); });
+    ctx.restore();
+    if (HUD.maxS > 0) { const th = Math.max(30, (bot - top) * (bot - top) / (C + 8)), ty = top + (sc / HUD.maxS) * (bot - top - th);
+      ctx.fillStyle = 'rgba(232,201,138,.18)'; rr(333, top, 3, bot - top, 1.5); ctx.fill(); ctx.fillStyle = 'rgba(232,201,138,.85)'; rr(333, ty, 3, th, 1.5); ctx.fill();
+      if (sc < HUD.maxS - 2) txt('↓ 按住往上拖看下面', 170, H0 - 15, 11.5, '#a9b6c2', 400, 'center'); }
+    else if (nav) txt('◆ 自动寻路中 · 走动或点地面取消', 170, H0 - 15, 11.5, '#ffd36a', 400, 'center');
     ctx.restore();
   }
 
@@ -279,12 +289,22 @@
   updateMap = (o => function (dt) {
     const t = input.tapped;
     if (t && !t.key && HUD.rect && !busy() && inR(t.x, t.y, HUD.rect)) {
-      input.tapped = null; const h = HUD.hits.find(h => inR(t.x, t.y, h.r)); if (h) { try { playSnd('ui_click'); } catch (e) {}
+      input.tapped = null; if (HUD.dragT && performance.now() - HUD.dragT < 250) return; const h = HUD.hits.find(h => inR(t.x, t.y, h.r));
+      if (h && h.a === 'go' && HUD.body && inR(t.x, t.y, HUD.body)) { HUD.pending = h; return; }   // 展开后的列表：松手时没拖动才算点（按下就带路会和拖动打架）
+      if (h) { try { playSnd('ui_click'); } catch (e) {}
         press.k = h.a; press.t = performance.now();
-        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') F().qt_min = 1; else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') go(h.it); }
+        if (h.a === 'max') F().qt_min = 0; else if (h.a === 'min') { F().qt_min = 1; F().qt_all = 0; } else if (h.a === 'all') { F().qt_all = F().qt_all ? 0 : 1; HUD.scroll = 0; } else if (h.a === 'book') openSolo('book'); else if (h.a === 'go') go(h.it); }
       return; }
     return o.apply(this, arguments);
   })(updateMap);
+
+  // 展开后按住拖动 / 滚轮翻任务栏
+  { let hd = null;
+    cv.addEventListener('pointerdown', e => { if (!HUD.body) return; let p; try { p = toLogical(e); } catch (er) { return; } if (inR(p.x, p.y, HUD.body)) hd = { y0: p.y, s0: HUD.scroll || 0, moved: false }; });
+    cv.addEventListener('pointermove', e => { if (!hd) return; let p; try { p = toLogical(e); } catch (er) { return; } const dy = p.y - hd.y0; if (Math.abs(dy) > 8) hd.moved = true;
+      if (hd.moved) { HUD.scroll = Math.max(0, Math.min(HUD.maxS || 0, hd.s0 - dy / (PHONE ? 1.2 : 1))); HUD.dragT = performance.now(); input.down = false; } });
+    window.addEventListener('pointerup', () => { const pend = HUD.pending; HUD.pending = null; if (hd && hd.moved) HUD.dragT = performance.now(); else if (pend) { try { playSnd('ui_click'); } catch (e) {} go(pend.it); } hd = null; });
+    cv.addEventListener('wheel', e => { if (!HUD.body) return; let p; try { p = toLogical(e); } catch (er) { return; } if (!inR(p.x, p.y, HUD.body)) return; HUD.scroll = Math.max(0, Math.min(HUD.maxS || 0, (HUD.scroll || 0) + e.deltaY * .6)); e.preventDefault(); }, { passive: false }); }
 
   // ================= 2) 行囊 · 任务页（也是任务榜） =================
   const QB = { mode: 'book', filter: 'doing', sel: null, scroll: 0, dscroll: 0, hits: [], list: null, detail: null, title: '', maxS: 0, maxD: 0 };
