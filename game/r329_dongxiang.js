@@ -14,7 +14,7 @@
   const ID = 'dx_east', q = () => st(ID), on = () => q().s === 1, N = () => q().n;
   const WANG = '王婶', YE = '叶孤星', XX = '星旋', XI = '丹霞堂掌柜', DI = '百草轩掌柜', HUO = '丹霞堂伙计', HE = '卖花姑娘·小荷', LIAN = '卖花姑娘·小莲', BOSS = '听雨楼掌柜', NIANG = '抓药的娘子';
   const toastT = t => { try { toast(t, 2600); } catch (e) {} };
-  const GOALS = ['把明目丹捎到青阳镇百草轩', '过两天再去百草轩，取桂花糕', '把桂花糕捎回玄天城丹霞堂', '东厢是给谁收拾的？', '回青阳百草轩，跟师弟说', '中秋夜，去丹霞堂', '去青阳后山，找到百草轩掌柜'];
+  const GOALS = ['把明目丹捎到青阳镇百草轩', '过两天再去百草轩，取桂花糕', '把桂花糕捎回玄天城丹霞堂', '东厢是给谁收拾的？', '回青阳百草轩，跟师弟说', '中秋夜，去丹霞堂（伙计说掌柜请你去家里吃饭）', '去青阳后山，找到百草轩掌柜'];
   const Q = { id: ID, name: '东厢朝南', giver: ['xt_danxia', XI], where: '玄天城 · 丹霞堂 · 掌柜', cond: () => !!F().ml_done /* 作者 11-17：凶杀案（名录）结案以后才有 */, type: 'kill', kill: { maps: ['__dx__'], mobs: ['__dx__'] }, n: 6, reward: { exp: 900, gold: 600 } };
   Object.defineProperty(Q, 'goal', { enumerable: true, get() { const g = F().dx_gui; if (N() === 1 && F().dx_away && g === 1) return '去街口卖花的小荷那儿，买一枝金桂'; if (N() === 1 && g === 2) return '把金桂拿回百草轩'; return GOALS[Math.min(GOALS.length - 1, N())]; } });
   Object.defineProperty(Q, 'desc', { enumerable: true, get() { return '丹霞堂掌柜托你给青阳百草轩的师弟捎一盒明目丹。木匣底下，还压着一张折好的字条。'; } });
@@ -78,6 +78,7 @@
       if (c === 1) { await say(XI, '还行。'); return true; } return true; }
     if (pick && pick.indexOf('不来了') > 0) return endCake();
     return true; };
+  { const n = (TMAPS.xt_danxia.npcs || []).find(n => n.name === XI && !n.hidden); if (n) { const c0 = n.cond; n.cond = () => !(on() && N() === 5) && (typeof c0 === 'function' ? c0() : true); } }
   hook('xt_danxia', XI, async () => { const f = F(), s = q();
     if (s.s === 3) { await say(XI, f.dx_end === 'east' ? '师弟在后头碾药。……你别进去吵他。' : '……明年。明年他会来的。'); return true; }
     if (s.s === 1) {
@@ -99,7 +100,12 @@
     s.s = 1; s.n = 0; f.dx_seen = {}; give('k_dx_box'); try { playSnd('ui_confirm'); } catch (e) {}
     await say(XI, '……嗯。路上别磕着那匣子。'); toastT('接取支线：东厢朝南 —— 把明目丹捎到青阳百草轩'); return true; });
   // 伙计：带你进东厢
-  hook('xt_danxia', HUO, async () => { if (!on() || N() < 3 || N() > 4) return false;
+  hook('xt_danxia', HUO, async () => {
+    if (on() && N() === 5) {   // 作者 11-17：中秋不在丹霞堂找他，去他家里
+      await L([[HUO, '少侠来了！掌柜一早就回家去了，临走交代：今儿中秋，请少侠去家里吃顿便饭。'], [HUO, '就在隔壁。……掌柜还多摆了一副碗筷，嘴上没说给谁。']]);
+      const c = await choose(HUO, ['「这就过去。」', '晚点再去']); if (c !== 0) return true;
+      await night(); return true; }
+    if (!on() || N() < 3 || N() > 4) return false;
     await L([[HUO, '少侠，想看看东厢？……趁掌柜在前堂看炉，快看快看，掌柜一会儿就回来。']]);
     const c = await choose(HUO, ['跟他去东厢', '不了']); if (c !== 0) return true;
     try { await fadeOut(250); } catch (e) {} tileSetMap('dx_east', ...P(860, 820), 'up'); S.scene = drawMap; try { await fadeIn(250); } catch (e) {} return true; });
@@ -171,29 +177,54 @@
       if (!back) break; await say(DI, back); miss++; if (miss >= 2) { await say(DI, '少侠是好心，我知道。'); return endCake(); } }
     await L([['', '掌柜低头看着手里的茶盏，很久没有说话。拇指一遍一遍摸过盏沿那个小缺口。'],
       [DI, '这个口子，是师兄十二岁那年磕的。那回炼坏一炉丹，烧了师父半边眉毛，师兄吓得把茶盏都摔了。……后来师兄一直说，要赔我一只新的。'], [DI, '十年了，师兄还留着另一只。'],
-      [DI, '（把茶盏用布包好，包了一层又一层）少侠，玄天城……中秋那天冷不冷？'], [YE, '东厢朝南。'], [DI, '（笑了，眼眶有点红）……那我把围巾带上。']]);
-    q().n = 5; f.dx_shut = 0; toastT('东厢朝南 —— 中秋夜，去丹霞堂'); }
+      [DI, '（把茶盏用布包好，包了一层又一层）少侠，玄天城……中秋那天冷不冷？'], [YE, '东厢朝南。'], [DI, '（笑了，眼眶有点红）……那我把围巾带上。'],
+      [DI, '（又笑了一下）少侠，先别告诉师兄。他要是问起来，就照上回那么说——铺子忙，走不开。'], [YE, '……他会失落的。'], [DI, '就失落一个晚上。'], [XX, '（啧。原来最会使坏的，是这一个。）']]);
+    q().n = 5; f.dx_shut = 0; toastT('东厢朝南 —— 中秋夜，去丹霞堂（先别说漏嘴）'); }
 
-  // ---------- 结局一：中秋夜 ----------
+  // ---------- 结局一：中秋夜（作者 11-17 定）----------
+  // 丹霞堂伙计请少侠去掌柜家里过中秋 → 桂花树下一桌菜、三只茶盏 → 叶孤星照师弟托的话说「铺子忙，走不开」→ 阿焰「……嗯」
+  // → 直接进小时候（R341：师父、小阿焰、小阿澈，头顶冒泡）→ 慢慢变黑 →「咚、咚」→ 院门开了，师弟站在门口 → 黑场放桃花视频（不打字）
+  // → 视频放完还是这一晚的院子：两只茶盏挨在一起；「铺子忙，走不开？」「是他让我这么说的。」→ 领奖励。
+  // 阿焰家的院子（R317 02A）拼好之前，先在东厢（dx_east）里演；DX_HOME_SPOTS 给出院子里各人站的位置。
+  const knock = () => { try { audioInit(); const ac = AC; if (!ac) return; for (const t of [0, .42]) { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, ac.currentTime + t); o.frequency.exponentialRampToValueAtTime(60, ac.currentTime + t + .12); g.gain.setValueAtTime(.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(.55, ac.currentTime + t + .005); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + t + .18); o.connect(g); g.connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + .2); } } catch (e) {} };
+  const actorAs = (name, k, x, y, face) => { const a = addActor('none', x, y, '', '#c9a86a'); a.npc = { name, _r336: k, noLabel: true, talk: async () => {} }; a.h = 116; a.face = face || 'down'; return a; };
+  const girl = (name, x, y) => { let n = null; try { n = window.R328 && R328.index().get(name); } catch (e) {} const a = addActor((n && n.key) || 'n_villager', x, y, '', '#c9a86a'); a.npc = Object.assign({}, n || {}, { name, noLabel: true, talk: async () => {}, wander: false }); a.h = (n && n.h) || 112; a.face = 'down'; return a; };
   async function night() { const f = F(); f.dx_night = 1; window.R328_OFF = true;
-    try { await fadeOut(400); } catch (e) {} tileSetMap('dx_east', ...P(720, 860), 'up'); S.scene = drawMap; world.locked = true; try { await fadeIn(500); } catch (e) {}
-    try { await L([['', '中秋夜。后院挂了一串灯笼，月亮很圆。掌柜在炉边看火，炉里什么也没炼，他就是在那里看着。'], ['', '院门「吱呀」一声。'],
-      ['', '百草轩掌柜站在门口，脖子上绕着那条厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。'], ['', '炉边的人没有回头。'],
-      [XI, '来了？'], [DI, '来了。'], [XI, '屋子没怎么收拾，凑合住。'], [DI, '被褥太厚了。'], [XI, '……玄天城冷。'],
-      ['', '师弟把布包打开，把那只缺口的茶盏放进空着的盏托里。两只桂花纹的茶盏，十年来第一次摆在了一起。'],
-      ['', '师兄从身后拿出一只油纸包，往桌上一推。纸包里是几块桂花糕，歪歪扭扭，有一块还焦了角。'], [XI, '……年年都是你做。今年换我。'], [XI, '跟听雨楼那位学了半个月。……难吃也得吃。'],
-      ['', '师弟拿起那块焦了角的，咬了一口。'], [DI, '……糖放多了。'], [XI, '下回少放。'], ['', '师弟低着头，把那块糕一点一点吃完了。'],
-      ['', '—— 很多年前，师父院里的桂花树下。十二岁的阿焰第一次自己看火，炉盖一烫，手背上起了一串泡。'], ['小阿焰', '不疼。'],
-      ['', '小阿澈拉过他的手，吹了又吹，从怀里摸出一只小瓦罐，挖出一大块黑乎乎的药膏，糊了上去。'], ['小阿澈', '我自己配的。……好像配多了。'], ['', '小阿焰看着自己变成黑色的手，笑出了声。一朵桂花，落在了小阿澈的头发上。 ——'],
-      ['', '一阵风过，桂花落了师弟一肩。师兄伸手，把他肩上的一朵桂花拈掉，在指间捏了一会儿，没有扔。'], [XI, '……阿澈。'], [DI, '嗯？'], [XI, '……没什么。喝茶。'],
-      ['', '两只茶盏挨在一起，冒着热气。院子里很静，只听得见炉子里炭火轻轻一响。']]);
-      // R334（作者 11-16）：最动人的地方就停在这里——黑场，「第二年 · 开春」，直接放桃花树下那段动画；不插别的话，地图配乐先停干净
-      try { if (window.R334_PEACH) await R334_PEACH(); } catch (e) {} }
-    finally { window.R328_OFF = false; world.locked = false; }
-    f.dx_end = 'east'; try { await fadeOut(400); } catch (e) {} tileSetMap('xt_danxia', ...P(900, 700), 'up'); S.scene = drawMap; try { await fadeIn(400); } catch (e) {}
-    await L([['', '开春以后，丹霞堂的东厢再没空过。师弟坐在前堂的矮凳上，低头碾药；师兄在一旁看炉，手背上的疤擦了药。'], [XI, '（把一个小瓷瓶放在柜上）拿着。我们俩一炉炼的。'], [DI, '师兄看火，我下药。师父说过，火和水……'], [XI, '话多。'],
-      ['', '门口，两只花篮的边探进来又缩回去。'], [LIAN, '（小声）我就说，不激一激他，他再等十年也不会来。'], [HE, '（小声）差点激成反的……还好有少侠。'], [LIAN, '嘘——走啦走啦。'], [XX, '（……小子，咱们也走吧。）']]);
-    f.dx_night = 0; await finish(1, 'p_tongxin'); }
+    const HOME = TMAPS.dx_home ? 'dx_home' : 'dx_east';
+    const SP = Object.assign({ ye: [720, 900], yan: [760, 800], che: [680, 800], stove: [560, 800], gate: [720, 1020], peek: [[640, 1000], [800, 1000]] }, (window.DX_HOME_SPOTS || {}));
+    let yan = null, che = null; const hud0 = S.hud; S.hud = false;   // 整场戏不显示血条、任务栏
+    try {
+      try { await fadeOut(500); } catch (e) {}
+      tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true;
+      world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
+      yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down');
+      try { await fadeIn(700); } catch (e) {}
+      await L([['', '中秋夜。桂花树下摆了一桌菜，月亮很圆。桌上三副碗筷，三只茶盏。'], [XI, '来了？坐。……菜是伙计做的，我只管看火。'], ['', '他给你倒了茶，又往院门那边看了一眼。'],
+        [YE, '百草轩那边……他说铺子忙，走不开。'], [XX, '（小子，你嘴角在抖。）'], [XI, '……嗯。'], ['', '他把第三只茶盏拿起来，看了一会儿，又轻轻放回了茶盘里。']]);
+      // 小时候
+      if (window.DX_MEMORY) await DX_MEMORY({ stove: SP.stove, gate: SP.gate });
+      // 黑着，「咚、咚」
+      S.fade = 1; await new Promise(r => setTimeout(r, 700)); knock(); await say('', '「咚、咚。」');
+      che = actorAs(DI, 'ache', SP.gate[0], SP.gate[1], 'up');
+      yan.face = 'down'; world.camFocus = [(SP.yan[0] + SP.gate[0]) / 2, (SP.yan[1] + SP.gate[1]) / 2];
+      try { await fadeIn(900); } catch (e) {}
+      await L([['', '院门「吱呀」一声开了。'], ['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。'], ['', '桌边的人站了起来。']]);
+      // 黑场，放桃花尾声（不打字，地图配乐先停干净）
+      try { if (window.R334_PEACH) await R334_PEACH({ caption: false }); } catch (e) {}
+      // 视频放完：还是这一晚的院子
+      world.camFocus = null;
+      tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true;
+      world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
+      yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); che = actorAs(DI, 'ache', SP.che[0], SP.che[1], 'down');
+      try { await fadeIn(800); } catch (e) {}
+      await L([['', '桌上，两只桂花纹的茶盏挨在一起，冒着热气。一只盏沿缺了个小口。'], [XI, '（瞥了你一眼）……铺子忙，走不开？'], [YE, '是他让我这么说的。'],
+        [DI, '（低头笑）师兄看火，我下药——'], [XI, '话多。吃饭。']]);
+      const g1 = girl(LIAN, SP.peek[0][0], SP.peek[0][1]), g2 = girl(HE, SP.peek[1][0], SP.peek[1][1]);
+      await L([['', '院门外，两只花篮的边探进来又缩回去。'], [LIAN, '（小声）我就说，不激一激他，他再等十年也不会来。'], [HE, '（小声）差点激成反的……还好有少侠。'], [LIAN, '嘘——走啦走啦。']]);
+      world.actors = world.actors.filter(a => a !== g1 && a !== g2);
+      await say(XX, '（……小子，这顿饭，咱们吃慢点。）');
+    } finally { window.R328_OFF = false; world.locked = false; world.camFocus = null; S.hud = hud0; }
+    f.dx_end = 'east'; f.dx_night = 0; await finish(1, 'p_tongxin'); }
   // ---------- 结局二：两包桂花糕 ----------
   async function endCake() { const f = F();
     await L([['', '中秋夜。青阳，百草轩门口，一个人裹着围巾坐在门槛上，手里捧着一只缺口的茶盏。'], ['', '玄天城，丹霞堂东厢，灯亮到半夜。茶盘里一只桂花纹茶盏，旁边的盏托还是空的。'], ['', '那笼桂花糕，他一块一块吃完了。'],
@@ -224,8 +255,9 @@
     if (on() && s.n === 6) {
       await L([['', '后山的林子边上，百草轩掌柜蹲在地上挖药，背篓里没几株。围巾上沾了草籽。'], [DI, '少侠？……你怎么找到这儿来了。'],
         [YE, '你送去的那只茶盏，正好放进他空着的盏托里。那屋子，是给你的。'], ['', '掌柜握着药锄的手，停住了。'], [DI, '……他没给谁用？'], [YE, '他把屋子锁了。'],
-        [DI, '（站起来，拍了拍膝盖上的土，笑了，眼眶有点红）……傻子。'], [DI, '少侠，玄天城中秋冷不冷？'], [YE, '东厢朝南。'], [DI, '……那我把围巾带上。']]);
-      s.n = 5; f.dx_shut = 0; toastT('东厢朝南 —— 中秋夜，去丹霞堂'); return; }
+        [DI, '（站起来，拍了拍膝盖上的土，笑了，眼眶有点红）……傻子。'], [DI, '少侠，玄天城中秋冷不冷？'], [YE, '东厢朝南。'], [DI, '……那我把围巾带上。'],
+        [DI, '（又笑了一下）少侠，先别告诉师兄。他要是问起来，就照上回那么说——铺子忙，走不开。'], [YE, '……他会失落的。'], [DI, '就失落一个晚上。'], [XX, '（啧。原来最会使坏的，是这一个。）']]);
+      s.n = 5; f.dx_shut = 0; toastT('东厢朝南 —— 中秋夜，去丹霞堂（先别说漏嘴）'); return; }
     if (lampKey()) return;
     await say(DI, '后山的药，比镇上的好。……我一个人，挺清静。'); }, () => shut() || (on() && N() === 6), 'down');
   async function finish(rate, item) { const s = q(); s.s = 3; s.n = 6;
@@ -249,6 +281,6 @@
 
   // ---------- 寻路 / 头上的「!」（歪打正着那条不标）----------
   try { if (window.R284S && R284S.T) R284S.T[ID] = (s, f) => s.n === 0 || s.n === 4 ? { to: [DI], map: 'qy_herb' } : s.n === 1 ? { to: f.dx_away ? [DI] : [], map: 'qy_herb' }
-    : s.n === 2 || s.n === 5 ? { to: [XI], map: 'xt_danxia' } : s.n === 3 ? { to: [HUO], map: 'xt_danxia' } : s.n === 6 ? { to: [DI], map: 'qy_shelter' } : null; } catch (e) {}
+    : s.n === 2 ? { to: [XI], map: 'xt_danxia' } : s.n === 3 || s.n === 5 ? { to: [HUO], map: 'xt_danxia' } : s.n === 6 ? { to: [DI], map: 'qy_shelter' } : null; } catch (e) {}
   window.R329 = { Q };
 })();
