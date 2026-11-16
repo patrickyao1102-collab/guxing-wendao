@@ -47,7 +47,7 @@
   const EAST = TMAPS.dx_east = Object.assign({}, SRC, { title: '阿焰家 · 东厢', npcs: [], chests: [], doors: [], onEnter: null,
     exits: (SRC.exits || []).slice(0, 1).map(e => Object.assign({}, e, { to: 'xt_danxia', at: P(930, 640), face: 'down', label: '出门 · 院子', cond: null, msg: '' })) });
   if (ED) { const ld = (k, src) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = src; };
-    ld('r347g_east', 'r347/g_east.webp?v=1');
+    ld('r347g_east', 'r347/g_east.webp?v=2');
     EAST.baked = { ground: 'r347g_east', cs: ED.cs, cols: ED.cols, rows: ED.rows, w: 1000, h: 750, blocked: ED.blocked,
       objs: ED.objs.map((o, i) => { ld('r347_' + o.id, 'r347/' + o.id + '.webp?v=1'); return { id: 'r347_' + o.id, uid: 'r347e' + i, img: 'r347_' + o.id, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; }) };
     ld('r347_tea_pair', 'r347/tea_pair.webp?v=1');
