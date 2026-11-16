@@ -4,7 +4,7 @@
 //       dx_home_old（十几年前的同一个院子：没有对联、灯笼，小号旧丹炉；回忆戏专用，不开门）
 //       dx_kitchen（厨房，1000×750），dx_mainroom（师兄正房，1000×750）
 // 碰撞：Codex 给的脚点掩码（已按家具膨胀过）按 8px 一格取样；院门有关 / 半开 / 开三态，切换时连碰撞一起换（DX_GATE('half')）。
-// 院子在城里的外观（720×540）还没拆件：先只从丹霞堂伙计那里进出，院门出去落在丹霞堂门口。
+// 院子在城里的外观：R348（丹霞堂右边那栋，院门半开能进）；院门出去落在那扇门口。
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.xt_danxia) return;
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
@@ -50,7 +50,7 @@
   };
   let GATE = 'open';
   // 院门：'closed' / 'half' / 'open'（换门扇的图 + 换碰撞）
-  window.DX_GATE = st => { if (!D) return; GATE = st;
+  window.DX_GATE = st => { if (!D) return; GATE = st; window.DX_GATE_ST = st;
     for (const key of ['home', 'home_old']) { const M = TMAPS['dx_' + key]; if (!M || !M.baked) continue;
       for (const o of M.baked.objs) if (o._gate) o.img = 'r344_gate_' + st + '_' + o._gate;
       M.baked.blocked = (key === 'home' ? D.home : D.home_old)['blocked_' + st]; }

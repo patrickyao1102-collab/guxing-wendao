@@ -4,6 +4,7 @@
 // 住的是韩员外一家：三代在青阳卖布。
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.qy_town || !TMAPS.qy_town.baked || !TMAPS.dh_fang || !TMAPS.dh_fang_in) return;
+  try { if (!IMG.r343_none) { const c = document.createElement('canvas'); c.width = c.height = 1; IMG.r343_none = c; } } catch (e) {}
   const T = TMAPS.qy_town, P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const X = 108, Y = 620, W = 400, H = 320, DX = 308, DY = 930;
   { const im = new Image(); im.onload = () => { try { IMG.r343_han = im; } catch (e) {} }; im.src = 'r343/han.webp?v=1'; }
