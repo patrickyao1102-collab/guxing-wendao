@@ -9,18 +9,19 @@
   const X = 3150, Y = 1050, W = 380, H = 300, DX = 3302, DY = 1322;
   for (const st of ['half', 'closed']) { const im = new Image(); im.onload = () => { try { IMG['r348_ayan_' + st] = im; } catch (e) {} }; im.src = 'r348/ayan_' + st + '.webp?v=1'; }
   try { if (!IMG.r348_none) { const c = document.createElement('canvas'); c.width = c.height = 1; IMG.r348_none = c; } } catch (e) {}
+  const NEW_LOOK = false;   // 作者 11-17：两扇大红门太突兀，退回；等 Codex 出「小一号大户人家」外观再开
   const shut = () => window.DX_GATE_ST === 'closed';
   // 换掉旧民居（house_01），旁边那个晒架挪走（它原来在柳家后院，现在会从屋顶后面戳出来）
   const house = B.objs.find(o => o.id === 'house_01' && Math.round(o.x) === 3173 && Math.round(o.y) === 1074);
-  if (house) Object.assign(house, { id: 'r348_ayan', img: 'r348_ayan_half', x: X, y: Y, w: W, h: H, sy: DY, ay: DY, ax: DX });
+  if (house && NEW_LOOK) Object.assign(house, { id: 'r348_ayan', img: 'r348_ayan_half', x: X, y: Y, w: W, h: H, sy: DY, ay: DY, ax: DX });
   const GONE = o => o.id === 'drying_rack' && Math.round(o.x) === 3326 && Math.round(o.y) === 1040;
-  for (const o of B.objs) if (GONE(o)) Object.assign(o, { img: 'r348_none', w: 1, h: 1, noBlock: true });
+  if (NEW_LOOK) for (const o of B.objs) if (GONE(o)) Object.assign(o, { img: 'r348_none', w: 1, h: 1, noBlock: true });
   // 城里的门：柳家 → 阿焰家
   const door = (CITY.doors || []).find(d => d.to === 'xt_home_liu');
-  const D = { x: DX, y: DY + 30, rw: 22, rh: 12, to: 'dx_home', at: P(749, 890), face: 'up', label: '阿焰家', cond: () => !shut(), msg: '院门关着。' };
+  const D = NEW_LOOK ? { x: DX, y: DY + 30, rw: 22, rh: 12, to: 'dx_home', at: P(749, 890), face: 'up', label: '阿焰家', cond: () => !shut(), msg: '院门关着。' } : { x: 3319.6, y: 1352, rw: 36, rh: 18, to: 'dx_home', at: P(749, 890), face: 'up', label: '阿焰家', cond: () => !shut(), msg: '院门关着。' };
   if (door) Object.assign(door, D); else (CITY.doors = CITY.doors || []).push(D);
   // 院子里出院门 → 落在新门口的街上
-  for (const d of TMAPS.dx_home.doors || []) if (d.to === 'xt_city') { d.at = P(DX, DY + 74); d.face = 'down'; }
+  for (const d of TMAPS.dx_home.doors || []) if (d.to === 'xt_city') { d.at = NEW_LOOK ? P(DX, DY + 74) : P(3320, 1400); d.face = 'down'; }
   // 碰撞（R346 脚底多边形，半开态；关门态多一道门槛）
   const WALL = [[0, 120], [302, 120], [302, 286], [230, 286], [230, 220], [74, 220], [74, 286], [0, 286]];
   const STONES = [[[36, 284], [72, 284], [72, 300], [36, 300]], [[232, 284], [268, 284], [268, 300], [232, 300]]];
@@ -28,7 +29,7 @@
   const CLOSED = [[74, 262], [230, 262], [230, 286], [74, 286]];
   const inPoly = (x, y, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
   const nearSeg = (x, y, poly, r) => poly.some(([px, py]) => Math.hypot(px - x, py - y) < r);
-  const patch = () => {
+  const patch = () => { if (!NEW_LOOK) { try { const T = world.map && world.map.T; if (T) for (const d of T.doors || []) if (d.to === 'xt_home_liu' || d.to === 'dx_home') Object.assign(d, D); } catch (e) {} return; }
     const cs = B.cs, cols = B.cols, a = B.blocked.split(''), closed = shut();
     const c0 = Math.floor((X - 30) / cs), c1 = Math.ceil((X + W) / cs), r0 = Math.floor((Y + 100) / cs), r1 = Math.ceil((Y + H + 4) / cs);
     for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) { if (c < 0 || c >= cols || r < 0 || r >= B.rows) continue;
