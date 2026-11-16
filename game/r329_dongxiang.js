@@ -177,6 +177,7 @@
     finally { window.R328_OFF = false; world.locked = false; }
     f.dx_end = 'east'; try { await fadeOut(400); } catch (e) {} tileSetMap('xt_danxia', ...P(900, 700), 'up'); S.scene = drawMap; try { await fadeIn(400); } catch (e) {}
     await L([['', '第二天。师弟坐在前堂的矮凳上，低头碾药；师兄在一旁看炉，手背上的疤擦了药。'], [XI, '（把一个小瓷瓶放在柜上）拿着。我们俩一炉炼的。'], [DI, '师兄看火，我下药。师父说过，火和水……'], [XI, '话多。']]);
+    try { if (window.R334_PEACH) await R334_PEACH(); } catch (e) {}   // R334：第二年开春，桃花树下（作者定稿的 22 秒动画）
     f.dx_night = 0; await finish(1, 'p_tongxin'); }
   // ---------- 结局二：两包桂花糕 ----------
   async function endCake() { const f = F();
