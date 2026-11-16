@@ -42,6 +42,16 @@
     try { window.BGM29 && BGM29.resume(); } catch (e) {}
     try { await fadeIn(600); } catch (e) {}
   };
+  // 测试面板「支线 · 玄天城」多一个按钮：东厢朝南直接跳到最后一步（中秋夜），传送到丹霞堂掌柜旁边，跟他说话就开演 → 第二天 → 尾声动画 → 领奖励
+  // 作者 11-16：「我们点确定的时候突然切画面，我来看看到底是什么样的」
+  if (window.SQ_TEST_LIST && window.SQ_GO) {
+    const L0 = SQ_TEST_LIST, G0 = SQ_GO, FAKE = { id: 'dx_east_end', name: '东厢朝南·直接看结局' };
+    window.SQ_TEST_LIST = () => { const out = L0(); const g = out.find(([n]) => n === '玄天城'); if (g) g[1] = g[1].concat([FAKE]); else out.push(['玄天城', [FAKE]]); return out; };
+    window.SQ_GO = id => { if (id !== FAKE.id) return G0(id);
+      G0('dx_east');   // 先清零、补前提、传送到掌柜旁边
+      try { const f = S.flags; f.sq.dx_east = { s: 1, n: 5 }; f.ch3_report = 1; f.dx_shut = 0; preload(); } catch (e) {}
+      setTimeout(() => { try { toast('东厢朝南：已到最后一步「中秋夜」—— 跟丹霞堂掌柜说话就开演，最后是桃花尾声动画', 4000); } catch (e) {} }, 300); };
+  }
   // 中秋夜开始时预载（F().dx_night 置 1 的时候）；进游戏后每隔一会儿看一眼，便宜
   setInterval(() => { try { if (S && S.flags && S.flags.dx_night) preload(); } catch (e) {} }, 3000);
 })();
