@@ -195,16 +195,22 @@
     let yan = null, che = null; const hud0 = S.hud; S.hud = false;   // 整场戏不显示血条、任务栏
     try {
       try { await fadeOut(500); } catch (e) {}
+      try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {}
       tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true;
       world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
       yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down');
       try { await fadeIn(700); } catch (e) {}
       await L([['', '中秋夜。桂花树下摆了一桌菜，月亮很圆。桌上三副碗筷，三只茶盏。'], [XI, '来了？坐。……菜是伙计做的，我只管看火。'], ['', '他给你倒了茶，又往院门那边看了一眼。'],
         [YE, '百草轩那边……他说铺子忙，走不开。'], [XX, '（小子，你嘴角在抖。）'], [XI, '……嗯。'], ['', '他把第三只茶盏拿起来，看了一会儿，又轻轻放回了茶盘里。']]);
-      // 小时候
-      if (window.DX_MEMORY) await DX_MEMORY({ stove: SP.stove, gate: SP.gate });
+      // 小时候：同一个院子，十几年前（R344 dx_home_old）；没有就在原地演
+      const MEM = SP.mem;
+      if (MEM && TMAPS[MEM.map]) { try { await fadeOut(600); } catch (e) {} tileSetMap(MEM.map, ...P(MEM.stove[0] + 200, MEM.stove[1] + 40), 'up'); S.scene = drawMap; world.locked = true; world.actors = world.actors.filter(a => a === world.player); world.camFocus = [MEM.stove[0] + 60, MEM.stove[1] - 60]; S.fade = 0; }
+      if (window.DX_MEMORY) await DX_MEMORY(MEM && TMAPS[MEM.map] ? { stove: MEM.stove, gate: MEM.che_in, pos: MEM } : { stove: SP.stove, gate: SP.gate });
+      if (MEM && TMAPS[MEM.map]) { tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; S.fade = 1;
+        world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); }
       // 黑着，「咚、咚」
       S.fade = 1; await new Promise(r => setTimeout(r, 700)); knock(); await say('', '「咚、咚。」');
+      try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {}
       che = actorAs(DI, 'ache', SP.gate[0], SP.gate[1], 'up');
       yan.face = 'down'; world.camFocus = [(SP.yan[0] + SP.gate[0]) / 2, (SP.yan[1] + SP.gate[1]) / 2];
       try { await fadeIn(900); } catch (e) {}
@@ -223,7 +229,7 @@
       await L([['', '院门外，两只花篮的边探进来又缩回去。'], [LIAN, '（小声）我就说，不激一激他，他再等十年也不会来。'], [HE, '（小声）差点激成反的……还好有少侠。'], [LIAN, '嘘——走啦走啦。']]);
       world.actors = world.actors.filter(a => a !== g1 && a !== g2);
       await say(XX, '（……小子，这顿饭，咱们吃慢点。）');
-    } finally { window.R328_OFF = false; world.locked = false; world.camFocus = null; S.hud = hud0; }
+    } finally { window.R328_OFF = false; world.locked = false; world.camFocus = null; S.hud = hud0; try { if (window.DX_GATE) DX_GATE('open'); } catch (e) {} }
     f.dx_end = 'east'; f.dx_night = 0; await finish(1, 'p_tongxin'); }
   // ---------- 结局二：两包桂花糕 ----------
   async function endCake() { const f = F();

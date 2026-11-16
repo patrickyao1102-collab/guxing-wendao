@@ -53,13 +53,14 @@
       S.flash = .9; S.flashColor = '#fff4d8';
       for (const a of world.actors) if (a !== world.player) a.hidden = true; world.player.hidden = true;
       MEM = 1;
-      const shifu = mk('shifu', sx - 120, sy - 10, 'right'), yan = mk('yan', sx + 34, sy + 6, 'left');
-      const che = mk('che', gx, gy, 'up');
+      const Q = o.pos || {}; const at = (k, d) => Q[k] || d;
+      const shifu = mk('shifu', ...at('shifu', [sx - 120, sy - 10]), 'down'), yan = mk('yan', ...at('yan', [sx + 34, sy + 6]), 'left');
+      const che = mk('che', ...at('che_in', [gx, gy]), 'up'); const cheAt = at('che', [sx + 130, sy + 30]), cheNear = [cheAt[0] - 34, cheAt[1]];
       world.camFocus = [sx, sy - 40];
       await wait(900);
       // 小阿澈从院门口跑进来
       const run = async (a, x, y, spd) => { await moveActor(a, x, y, spd || 200); };
-      say(che, '师兄——！'); await run(che, sx + 130, sy + 30, 230); che.face = 'left';
+      say(che, '师兄——！'); for (const [px, py] of (Q.che_path || [])) await run(che, px, py, 230); await run(che, cheAt[0], cheAt[1], 230); che.face = 'left';
       await say(che, '师父让我来看你看火！');
       await say(shifu, '火候是熬出来的，急不得。');
       await say(yan, '我不急。');
@@ -68,7 +69,7 @@
       yan.face = 'up'; await wait(500); await hop(yan); yan.face = 'down';
       await say(yan, '……嘶。', 1100);
       await say(yan, '不疼。');
-      await run(che, sx + 70, sy + 18, 160); che.face = 'left';
+      await run(che, cheNear[0], cheNear[1], 160); che.face = 'left';
       await say(che, '我看看！');
       await say(che, '我自己配的药——', 1500);
       await say(che, '……好像配多了。');
