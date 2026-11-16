@@ -58,8 +58,16 @@
       for (let r = 0; r < B.rows; r++) for (let c = 0; c < B.cols; c++) T.block[r][c] = B.blocked.charCodeAt(r * B.cols + c) === 49 ? 1 : 0;
       for (const o of T.objs || []) if (o._gate) o.img = 'r344_gate_' + st + '_' + o._gate; } } catch (e) {} };
   // 剧情站位（院子坐标）：桂花树下石桌一带吃饭；回忆戏的站位照 R339 timeline
-  window.DX_HOME_SPOTS = { ye: [470, 925], yan: [300, 915], che: [356, 918], stove: [462, 891], gate: [749, 903], peek: [[690, 975], [810, 975]],
+  window.DX_HOME_SPOTS = { ye: [1012, 712], yan: [782, 700], che: [898, 712], stove: [462, 891], gate: [749, 903], peek: [[700, 975], [800, 975]], cam: [890, 640],
     mem: { map: 'dx_home_old', shifu: [400, 888], yan: [501, 888], che_in: [773, 994], che_path: [[770, 910], [763, 820], [668, 806], [565, 807]], che: [564, 888], stove: [462, 891] } };
+  try { MAP_ZOOM.dx_home_old = 1.7; } catch (e) {}   // 回忆戏镜头拉近
+  // 中秋夜：把正房的茶桌、两把椅子搬到院子当中（石桌在院子最底下，镜头拉不过去、会被对话框挡住）
+  window.DX_DINNER = on => { const T = world.map && world.map.T; if (!T || !T.objs || world.mapName !== 'dx_home') return;
+    T.objs = T.objs.filter(o => !o._dinner);
+    for (const o of T.objs) if (o.id === '02A_basket_center') { if (on) { o._img0 = o._img0 || o.img; o.img = 'r344_none'; } else if (o._img0) o.img = o._img0; }
+    if (!on) return;
+    const add = (f, x, y, w, h, sy) => T.objs.push({ _dinner: 1, bk: true, id: f, uid: 'dinner_' + f, img: 'r344_' + f, x, y, w, h, sy, noBlock: true });
+    add('04_tea_table', 812, 548, 177, 146, 690); add('04_tea_chair_left', 726, 588, 83, 110, 690); add('04_tea_chair_right', 990, 588, 81, 110, 692); };
   // 数据同步载入（地图得在进图之前就在 TMAPS 里）
   try { const x = new XMLHttpRequest(); x.open('GET', 'r344/data.json?v=1', false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } catch (e) { console.warn('R344', e); }
 })();

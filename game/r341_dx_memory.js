@@ -9,7 +9,7 @@
   const SH = {};
   const load = (k, s) => { const im = new Image(); im.onload = () => { SH[k] = im; }; im.src = s; };
   for (const k of ['yan', 'che', 'shifu']) { load(k + '_walk', 'r341/' + k + '_walk.webp?v=1'); load(k + '_idle', 'r341/' + k + '_idle.webp?v=1'); }
-  const H = { yan: 84, che: 78, shifu: 112 }, ROW = { down: 0, up: 1, left: 2, right: 3 };
+  const HT = { yan: 84, che: 78, shifu: 112 }, ROW = { down: 0, up: 1, left: 2, right: 3 };
   walkFinalDraw = (o => function (a, now) {
     const who = a && a._r341;
     if (who && SH[who + '_walk']) {
@@ -40,10 +40,22 @@
     return r; })(tileDraw);
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const tw = (ms, fn) => new Promise(res => { const t0 = performance.now(); const step = () => { const k = Math.min(1, (performance.now() - t0) / ms); fn(k); if (k < 1) requestAnimationFrame(step); else res(); }; step(); });
-  const mk = (who, x, y, face) => { const a = addActor('none', x, y, '', '#c9a86a'); a._r341 = who; a.h = H[who]; a.face = face || 'down'; a.dir = face === 'left' ? -1 : 1; return a; };
-  const say = (a, t, ms) => (window.BUB ? BUB.say(a, t, { h: H[a._r341] + 4, ms }) : wait(1600));
+  const mk = (who, x, y, face) => { const a = addActor('none', x, y, '', '#c9a86a'); a._r341 = who; a.h = HT[who]; a.face = face || 'down'; a.dir = face === 'left' ? -1 : 1; return a; };
+  const say = (a, t, ms) => (window.BUB ? BUB.say(a, t, { h: HT[a._r341] + 4, ms }) : wait(1600));
   const hop = async a => { await tw(140, k => a.hop = Math.sin(k * Math.PI) * 10); a.hop = 0; };
   const petals = (x, y, n) => { for (let i = 0; i < n; i++) PET.push({ x: x + (Math.random() - .5) * 260, y: y - 260 - Math.random() * 120, vy: .8 + Math.random() * .9, s: Math.random() * 6, life: 220 + Math.random() * 120, c: Math.random() < .7 ? '#f2c94c' : '#e8a93a' }); };
+  // ---------- R345：Codex 正式动作帧（A0 跑进院 / A 看火 / B 烫手 / C 糊药 / D 笑 / E 落桂花 / F 师父）----------
+  // tl.json：每段 frames = [毫秒, [[图, 世界左上x, y, 宽, 高, z], …], 说明]；播的时候把这一帧的图层临时塞进地图物件里（和人一起按 z 排前后）
+  let TL = null; const FIMG = {};
+  try { const x = new XMLHttpRequest(); x.open('GET', 'r345/tl.json?v=1', false); x.send(); if (x.status === 200 || x.status === 0) TL = JSON.parse(x.responseText); } catch (e) {}
+  const pre = () => { if (!TL) return; for (const k in TL) for (const f of TL[k].frames) for (const l of f[1]) if (!FIMG[l[0]]) { const im = new Image(); im.src = 'r345/' + l[0] + '.webp?v=1'; FIMG[l[0]] = im; try { IMG['r345_' + l[0]] = im; } catch (e) {} } };
+  let CUR = [];
+  const show = f => { const T = world.map && world.map.T; if (!T || !T.objs) return; T.objs = T.objs.filter(o => !o._r345); CUR = f[1].map((l, i) => ({ _r345: 1, bk: true, img: 'r345_' + l[0], id: 'r345_' + l[0], uid: 'r345_' + i, x: l[1], y: l[2], w: l[3], h: l[4], sy: l[5], noBlock: true })); T.objs.push(...CUR); };
+  const clearSeg = () => { const T = world.map && world.map.T; if (T && T.objs) T.objs = T.objs.filter(o => !o._r345); };
+  // 播一段：loops 次（单次段 loops=1）；hold=true 时停在最后一帧不清掉
+  const seg = async (k, loops) => { const S0 = TL && TL[k]; if (!S0) return; for (let n = 0; n < (loops || 1); n++) for (const f of S0.frames) { show(f); await wait(f[0]); } };
+  const loopWhile = (k) => { let stop = false; const run = (async () => { while (!stop) await seg(k, 1); })(); return () => { stop = true; return run; }; };
+  window.DX_MEMORY_TL = !!TL;
   window.DX_MEMORY = async function (o) {
     o = o || {}; const [sx, sy] = o.stove || [world.player.x, world.player.y], [gx, gy] = o.gate || [sx + 300, sy + 220];
     const keep = (world.actors || []).slice();
@@ -53,6 +65,26 @@
       S.flash = .9; S.flashColor = '#fff4d8';
       for (const a of world.actors) if (a !== world.player) a.hidden = true; world.player.hidden = true;
       MEM = 1;
+      if (TL && o.pos) { pre(); try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {} await new Promise(r => setTimeout(r, 400));
+        const Q = o.pos, A = { x: Q.yan[0], y: Q.yan[1], _r341: 'yan' }, C = { x: Q.che[0], y: Q.che[1], _r341: 'che' }, M = { x: Q.shifu[0], y: Q.shifu[1] + 18, _r341: 'shifu' };
+        const sb = (a, t, ms, h) => (window.BUB ? BUB.say(a, t, { h: h || 90, ms }) : wait(1600));
+        world.camFocus = [Q.stove[0] + 60, Q.stove[1] - 70];
+        await wait(700);
+        const run0 = seg('A0', 1); await wait(300); sb({ x: Q.che_in[0], y: Q.che_in[1] - 60 }, '师兄——！', 1200, 80); await run0;
+        let stopA = loopWhile('A'); await sb(C, '师父让我来看你看火！', 1900, 82);
+        await sb(M, '火候是熬出来的，急不得。', 2300, 96);
+        await sb(A, '我不急。', 1400, 60);
+        await stopA();
+        await seg('B', 1); await sb(A, '……不疼。', 1500, 84);
+        await seg('C', 1); await sb(C, '我自己配的药……好像配多了。', 2300, 80);
+        let stopD = loopWhile('D'); await sb(A, '哈哈……你看我这手，黑得跟炭一样。', 2400, 84);
+        await sb(M, '你们俩啊，一个看火，一个下药。往后谁也离不了谁。', 3200, 96); await stopD();
+        petals(Q.stove[0] + 40, Q.stove[1], 60);
+        await seg('E', 1); await sb(A, '别动，头上有花。', 1700, 84);
+        await sb(C, '师兄，以后你炼丹，我给你配药。', 2600, 82); await sb(A, '……嗯。', 1500, 84);
+        let stopF = loopWhile('F'); petals(Q.stove[0] + 40, Q.stove[1], 40); await wait(1800);
+        await tw(3200, k => DARK = k); DARK = 1; await stopF(); await wait(400); clearSeg();
+        return; }
       const Q = o.pos || {}; const at = (k, d) => Q[k] || d;
       const shifu = mk('shifu', ...at('shifu', [sx - 120, sy - 10]), 'down'), yan = mk('yan', ...at('yan', [sx + 34, sy + 6]), 'left');
       const che = mk('che', ...at('che_in', [gx, gy]), 'up'); const cheAt = at('che', [sx + 130, sy + 30]), cheNear = [cheAt[0] - 34, cheAt[1]];
@@ -86,7 +118,7 @@
       // 慢慢变黑
       await tw(3200, k => DARK = k); DARK = 1; await wait(500);
     } finally {
-      world.actors = keep; for (const a of world.actors) a.hidden = false; world.player.hidden = false;
+      clearSeg(); world.actors = keep; for (const a of world.actors) a.hidden = false; world.player.hidden = false;
       MEM = 0; PET = []; world.camFocus = null; window.R328_OFF = false; world.locked = false;
       try { if (window.BUB) BUB.clear(); } catch (e) {}
       try { S.fade = 1; } catch (e) {} DARK = 0;   // 画面停在全黑（S.fade=1），由调用方接着放视频 / 切图
