@@ -32,6 +32,10 @@
     if (k === 1) return noAsk(() => orig.apply(this, arguments));
     back();
   })(goMap);
+  // 地图格子（T.doors）可能在本文件之前就建好了，门的条件是拷过去的——每次进玄天城都再改一遍
+  const fixT = () => { try { const T = world.map && world.map.T; if (!T || world.mapName !== 'xt_city') return;
+    for (const d of T.doors || []) if (d.edge && d.to === gate.to) { d.cond = () => true; d.msg = ''; d.label = gate.label; } } catch (e) {} };
+  if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { const r = o.apply(this, arguments); if (m === 'xt_city') fixT(); return r; })(tileSetMap);
   // 落云岭那头的出口名字跟着改清楚
   for (const e of TMAPS.ly_ridge.exits || []) if (e.to === 'xt_city') e.label = '玄天城 · 南城门';
 })();

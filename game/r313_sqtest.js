@@ -12,7 +12,7 @@
   const NEED = { tj_fish: ['ch2_roam'], tj_book: ['ch2_roam'], tj_copy: ['ch2_roam'], tj_beast: ['ch2_roam'], bandit: ['ch2_plan'], horn: ['ch2_plan'],
     qy_wine: ['ch2_plan'], qy_tassel: ['ch2_plan'], qy_dice: ['ch2_plan'], spider: ['ch3'], elite: ['ch3_report'], yy_ghost: ['ch3_report'],
     qy_ledger: ['ch3_report'], xt_story: ['ch3_report'], xt_lamps: ['ch3_report'], xt_room3: ['ch3_report'], xt_fake: ['ch3_report'],
-    xt_thirty: ['ch3_report', 'xw_hint3'], xt_lamp: ['ch3_report'], dx_east: ['ch3_report'], ml_case: ['ch3_report', 'qingxiao'] };
+    xt_thirty: ['ch3_report', 'xw_hint3'], xt_lamp: ['ch3_report'], dx_east: ['ch3_report', 'ml_done'], ml_case: ['ch3_report', 'qingxiao'] };
   const CAT = [['天剑宗', ['tj_fish', 'tj_book', 'tj_copy', 'tj_beast']],
     ['青阳镇', ['kite', 'hide', 'fang', 'bandit', 'horn', 'gold', 'qy_ledger', 'qy_wine', 'qy_tassel', 'qy_dice']],
     ['玄天城', ['spider', 'elite', 'xt_story', 'xt_lamps', 'xt_room3', 'xt_fake', 'xt_thirty', 'xt_lamp', 'dx_east']],

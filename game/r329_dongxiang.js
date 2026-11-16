@@ -15,7 +15,7 @@
   const WANG = '王婶', YE = '叶孤星', XX = '星旋', XI = '丹霞堂掌柜', DI = '百草轩掌柜', HUO = '丹霞堂伙计', HE = '卖花姑娘·小荷', LIAN = '卖花姑娘·小莲', BOSS = '听雨楼掌柜', NIANG = '抓药的娘子';
   const toastT = t => { try { toast(t, 2600); } catch (e) {} };
   const GOALS = ['把明目丹捎到青阳镇百草轩', '过两天再去百草轩，取桂花糕', '把桂花糕捎回玄天城丹霞堂', '东厢是给谁收拾的？', '回青阳百草轩，跟师弟说', '中秋夜，去丹霞堂', '去青阳后山，找到百草轩掌柜'];
-  const Q = { id: ID, name: '东厢朝南', giver: ['xt_danxia', XI], where: '玄天城 · 丹霞堂 · 掌柜', cond: () => !!F().ch3_report, type: 'kill', kill: { maps: ['__dx__'], mobs: ['__dx__'] }, n: 6, reward: { exp: 900, gold: 600 } };
+  const Q = { id: ID, name: '东厢朝南', giver: ['xt_danxia', XI], where: '玄天城 · 丹霞堂 · 掌柜', cond: () => !!F().ml_done /* 作者 11-17：凶杀案（名录）结案以后才有 */, type: 'kill', kill: { maps: ['__dx__'], mobs: ['__dx__'] }, n: 6, reward: { exp: 900, gold: 600 } };
   Object.defineProperty(Q, 'goal', { enumerable: true, get() { const g = F().dx_gui; if (N() === 1 && F().dx_away && g === 1) return '去街口卖花的小荷那儿，买一枝金桂'; if (N() === 1 && g === 2) return '把金桂拿回百草轩'; return GOALS[Math.min(GOALS.length - 1, N())]; } });
   Object.defineProperty(Q, 'desc', { enumerable: true, get() { return '丹霞堂掌柜托你给青阳百草轩的师弟捎一盒明目丹。木匣底下，还压着一张折好的字条。'; } });
   SQ_DEFS.push(Q);
