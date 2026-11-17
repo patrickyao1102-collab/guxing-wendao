@@ -56,6 +56,29 @@
   const seg = async (k, loops) => { const S0 = TL && TL[k]; if (!S0) return; for (let n = 0; n < (loops || 1); n++) for (const f of S0.frames) { show(f); await wait(f[0]); } };
   const loopWhile = (k) => { let stop = false; const run = (async () => { while (!stop) await seg(k, 1); })(); return () => { stop = true; return run; }; };
   window.DX_MEMORY_TL = !!TL;
+  // 11-18 作者：「还是之前的动画帧好看，台词改一改就可以了」——回忆戏放回 R345 这套帧，搬到阿澈家十几年前的老院子（桂花树下），和 11-17 试排视频同一个站位
+  let MOVED = false;
+  window.DX_MEMORY_CHE = async function () {
+    if (!TL || !TMAPS.qy_chehome_old) return false;
+    const DX = 300, DY = -238;
+    if (!MOVED) { MOVED = true; for (const k in TL) for (const f of TL[k].frames) { f[1] = f[1].filter(l => !(k === 'A0' && l[3] === 160 && l[1] >= 480)); for (const l of f[1]) { l[1] += DX; l[2] += DY; l[5] += DY; } } }
+    const z0 = MAP_ZOOM.qy_chehome_old;
+    try { if (window.CHE_GATE) CHE_GATE('half'); } catch (e) {}
+    MAP_ZOOM.qy_chehome_old = 1.35;
+    tileSetMap('qy_chehome_old', 837.5 / 64 - .5, 1000 / 64 - .8, 'up'); S.scene = drawMap; world.locked = true; world.banner = null;
+    world.actors = world.actors.filter(a => a === world.player);
+    const o = (x, y) => [x + DX, y + DY];
+    const Q = { stove: o(462, 891), yan: o(501, 888), che: o(564, 888), shifu: o(400, 888), che_in: [837.5, 1060] };
+    const T = world.map.T; T.objs.push({ id: 'r355_stool', uid: 'r355_stool', img: 'r349_stool_master', x: 375 + DX, y: 843 + DY, w: 40, h: 45, sy: 886 + DY, noBlock: true, bk: true });
+    world.camFocus = [Q.stove[0] + 60, Q.stove[1] - 70]; S.fade = 0;
+    // 小阿澈从院门跑进来（A0 段用行走帧）
+    setTimeout(async () => { try { const a = addActor('none', 837.5, 1060, '', '#c9a86a'); a._r341 = 'che'; a.h = 78; a.face = 'up';
+      await moveActor(a, 837.5, 700, 235); await moveActor(a, Q.che[0], Q.che[1], 200); a.face = 'left';
+      setTimeout(() => { world.actors = world.actors.filter(x => x !== a); }, 150); } catch (e) {} }, 1150);
+    try { await window.DX_MEMORY({ stove: Q.stove, gate: Q.che_in, pos: Q }); }
+    finally { if (z0 === undefined) delete MAP_ZOOM.qy_chehome_old; else MAP_ZOOM.qy_chehome_old = z0; try { if (window.CHE_GATE) CHE_GATE('half'); } catch (e) {} }
+    return true;
+  };
   window.DX_MEMORY = async function (o) {
     o = o || {}; const [sx, sy] = o.stove || [world.player.x, world.player.y], [gx, gy] = o.gate || [sx + 300, sy + 220];
     const keep = (world.actors || []).slice();
@@ -70,18 +93,22 @@
         const sb = (a, t, ms, h) => (window.BUB ? BUB.say(a, t, { h: h || 90, ms }) : wait(1600));
         world.camFocus = [Q.stove[0] + 60, Q.stove[1] - 70];
         await wait(700);
-        const run0 = seg('A0', 1); await wait(300); sb({ x: Q.che_in[0], y: Q.che_in[1] - 60 }, '师兄——！', 1200, 80); await run0;
-        let stopA = loopWhile('A'); await sb(C, '师父让我来看你看火！', 1900, 82);
-        await sb(M, '火候是熬出来的，急不得。', 2300, 96);
-        await sb(A, '我不急。', 1400, 60);
+        const run0 = seg('A0', 1); await wait(300); sb({ x: Q.che_in[0], y: Q.che_in[1] - 60 }, '师兄——！我的药配好了！', 1500, 80); await run0;
+        let stopA = loopWhile('A'); await sb(M, '火小了，再扇。', 1700, 96);
+        await sb(A, '扇着呢。', 1300, 60);
+        await sb(C, '师兄，你这炉今天能成吗？', 1900, 82);
+        await sb(A, '你少说两句就能成。', 1900, 60);
+        await sb(M, '时辰没到，别掀盖。', 1900, 96);
         await stopA();
-        await seg('B', 1); await sb(A, '……不疼。', 1500, 84);
-        await seg('C', 1); await sb(C, '我自己配的药……好像配多了。', 2300, 80);
-        let stopD = loopWhile('D'); await sb(A, '哈哈……你看我这手，黑得跟炭一样。', 2400, 84);
-        await sb(M, '你们俩啊，一个看火，一个下药。往后谁也离不了谁。', 3200, 96); await stopD();
+        await seg('B', 1); await sb(A, '……没事。', 1400, 84);
+        await seg('C', 1); await sb(C, '正好，拿你试试我的新药！', 2100, 80);
+        await sb(C, '……好像抹多了。', 1600, 80);
+        let stopD = loopWhile('D'); await sb(A, '你这是药，还是锅底灰？', 2100, 84);
+        await sb(C, '药！……就是黑了点。', 1800, 82);
+        await sb(M, '一个偷掀炉盖，一个拿师兄试药。今晚都给我抄药方。', 3200, 96); await stopD();
         petals(Q.stove[0] + 40, Q.stove[1], 60);
-        await seg('E', 1); await sb(A, '别动，头上有花。', 1700, 84);
-        await sb(C, '师兄，以后你炼丹，我给你配药。', 2600, 82); await sb(A, '……嗯。', 1500, 84);
+        await seg('E', 1); await sb(A, '别动。……桂花。', 1700, 84);
+        await sb(C, '师兄，这炉成了，分我一颗！', 2200, 82); await sb(A, '先把药方抄完。', 1700, 84);
         let stopF = loopWhile('F'); petals(Q.stove[0] + 40, Q.stove[1], 40); await wait(1800);
         await tw(3200, k => DARK = k); DARK = 1; await stopF(); await wait(400); clearSeg();
         return; }
@@ -92,27 +119,28 @@
       await wait(900);
       // 小阿澈从院门口跑进来
       const run = async (a, x, y, spd) => { await moveActor(a, x, y, spd || 200); };
-      say(che, '师兄——！'); for (const [px, py] of (Q.che_path || [])) await run(che, px, py, 230); await run(che, cheAt[0], cheAt[1], 230); che.face = 'left';
-      await say(che, '师父让我来看你看火！');
-      await say(shifu, '火候是熬出来的，急不得。');
-      await say(yan, '我不急。');
+      say(che, '师兄——！我的药配好了！'); for (const [px, py] of (Q.che_path || [])) await run(che, px, py, 230); await run(che, cheAt[0], cheAt[1], 230); che.face = 'left';
+      await say(shifu, '火小了，再扇。');
+      await say(yan, '扇着呢。');
+      await say(che, '师兄，你这炉今天能成吗？');
+      await say(yan, '你少说两句就能成。');
+      await say(shifu, '时辰没到，别掀盖。');
       await wait(500);
       // 掀炉盖，一烫（动作帧做好之前：跳一下）
       yan.face = 'up'; await wait(500); await hop(yan); yan.face = 'down';
-      await say(yan, '……嘶。', 1100);
-      await say(yan, '不疼。');
+      await say(yan, '……没事。', 1400);
       await run(che, cheNear[0], cheNear[1], 160); che.face = 'left';
-      await say(che, '我看看！');
-      await say(che, '我自己配的药——', 1500);
-      await say(che, '……好像配多了。');
-      await say(yan, '哈哈……你看我这手，黑得跟炭一样。');
-      await say(shifu, '你们俩啊，一个看火，一个下药。往后谁也离不了谁。', 3200);
+      await say(che, '正好，拿你试试我的新药！');
+      await say(che, '……好像抹多了。', 1600);
+      await say(yan, '你这是药，还是锅底灰？');
+      await say(che, '药！……就是黑了点。');
+      await say(shifu, '一个偷掀炉盖，一个拿师兄试药。今晚都给我抄药方。', 3200);
       // 一阵风，桂花落下来
       petals(sx + 20, sy, 60); await wait(1200);
       yan.face = 'right'; await wait(600);
-      await say(yan, '别动，头上有花。', 1800);
-      await say(che, '师兄，以后你炼丹，我给你配药。', 2600);
-      await say(yan, '……嗯。', 1600);
+      await say(yan, '别动。……桂花。', 1700);
+      await say(che, '师兄，这炉成了，分我一颗！', 2200);
+      await say(yan, '先把药方抄完。', 1700);
       petals(sx + 20, sy, 40);
       await say(shifu, '（摇了摇头，笑着捋胡子）', 1800);
       // 慢慢变黑
