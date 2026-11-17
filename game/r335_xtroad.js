@@ -23,13 +23,24 @@
   const B = { ground: 'r335_g_xt_road', w: D.w, h: D.h, cs: D.cs, cols: D.cols, rows: D.rows, blocked: D.blocked, objs: D.objs, npcs: [], exits: [], inter: [], doors: [], zones: [], spawn: [2470, 860], title: '青玄近道 · 听瀑亭', indoor: false };
   TMAPS.xt_road = { title: '青玄近道 · 听瀑亭', name: '青玄近道', baked: B, npcs: [
       { key: 'n_villager', c: 1560 / 64 - .5, r: 930 / 64 - .8, name: '赶路的货郎', random: true, talk: ['往东是玄天城，往西是青阳镇，脚程快的半天就到。', '这条近道是这两年才修通的。从前去玄天城，得翻落云岭那条老山路，绕远不说，山里还闹妖兽。', '亭子里歇歇脚吧，瀑布那边凉快。'] }],
-    chests: [], start: P(2470, 860),
-    exits: [{ x: 0, y: 27, w: 2, h: 11, to: 'qy_town', at: P(70, 1050), face: 'right', label: '西口 · 青阳镇' },
-            { x: D.cols - 2, y: 21, w: 2, h: 11, to: 'xt_city', at: P(120, 1440), face: 'right', label: '玄天城 · 西门' }],
+    chests: [], start: P(2330, 868),
+    // 作者 11-17「阵法画在路中间啊」：两头的法阵都落在土路正中（东头原来在路边灯杆后面的草里）
+    exits: [{ x: 0, y: 27, w: 2, h: 11, to: 'qy_town', at: P(170, 1052), face: 'right', label: '西口 · 青阳镇', spotAt: [72, 962] },
+            { x: 75, y: 26, w: 2, h: 2, to: 'xt_city', at: P(120, 1440), face: 'right', label: '玄天城 · 西门', spotAt: [2432, 866] }],
     mobs: { n: 4, types: ['wolf2', 'wolf', 'monkey'], bg: 'bg_mountain', lv: 0, lvR: [6, 9] } };
   const add = (M, e) => { M.exits = M.exits || []; if (!M.exits.some(o => o._r335)) M.exits.push(Object.assign({ _r335: 1 }, e)); };
   // 玄天城西门：x 0–1 格、y 43–47 格（32px 一格）
-  add(TMAPS.xt_city, { x: 0, y: 43, w: 2, h: 5, to: 'xt_road', at: P(2470, 860), face: 'left', label: '西门 · 青玄近道（往青阳镇的近路）' });
+  add(TMAPS.xt_city, { x: 0, y: 43, w: 2, h: 5, to: 'xt_road', at: P(2330, 868), face: 'left', label: '西门 · 青玄近道（往青阳镇的近路）' });
   // 青阳镇西口：x 0–2 格、y 120–143 格（8px 一格），长乐坊下面那条横街往西到头
-  add(TMAPS.qy_town, { x: 0, y: 120, w: 3, h: 24, to: 'xt_road', at: P(90, 1010), face: 'left', label: '西口 · 青玄近道（往玄天城的近路）' });
+  add(TMAPS.qy_town, { x: 0, y: 120, w: 3, h: 24, to: 'xt_road', at: P(170, 962), face: 'right', label: '西口 · 青玄近道（往玄天城的近路）', spotAt: [70, 1052] });
+  // 作者 11-17「这里把青石板铺过去啊，这样子才像路」：横街的青石板一直铺到西口，法阵落在石板路正中；
+  // 街中间原来有一圈看不见的墙（以前撤掉的小摊留下的碰撞），一起清掉。r302 每次进青阳镇都会重置物件和碰撞，所以在进图之后补。
+  { const im = new Image(); im.onload = () => { try { IMG.r335_qyroad = im; } catch (e) {} }; im.src = 'r335/qy_road_w.webp?v=1'; }
+  const ROAD = { id: 'r335_qyroad', uid: 'r335_qyroad', img: 'r335_qyroad', x: 0, y: 966, w: 190, h: 178, sy: 966, flat: true, noBlock: true, noPre: true, bk: true };
+  if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { const r = o.apply(this, arguments); if (m === 'qy_town') { try {
+    const T = world.map && world.map.T; if (T) { if (IMG.r335_qyroad && !(T.objs || []).some(x => x.uid === 'r335_qyroad')) (T.objs = T.objs || []).push(Object.assign({}, ROAD));
+      const QB = TMAPS.qy_town.baked, cs = QB.cs, bl = QB.blocked.split('');   // 碰撞串也改（后面的脚本会按它重抄这一片）
+      for (let y = 1050; y <= 1124; y += cs) for (let x = 180; x <= 360; x += cs) { const rr = Math.floor(y / cs), cc = Math.floor(x / cs); if (T.block[rr]) T.block[rr][cc] = 0; bl[rr * QB.cols + cc] = '0'; }
+      QB.blocked = bl.join(''); }
+  } catch (e) { console.warn('R335 qy', e); } } return r; })(tileSetMap);
 })();
