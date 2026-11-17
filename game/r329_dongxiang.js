@@ -28,7 +28,7 @@
 
   // ---------- 小工具 ----------
   const hook = (mid, name, fn) => { const M = TMAPS[mid], n = M && (M.npcs || []).find(n => n.name === name && !n.hidden); if (!n) { console.warn('R329：找不到', mid, name); return null; } const orig = n.talk;
-    n.talk = async function (a) { let done = false; try { done = await fn(n); } catch (e) { console.warn('R329', name, e); } if (done) return;
+    n.talk = async function (a) { let done = false; try { done = await fn(n); } catch (e) { console.warn('R329', name, e); } if (done) return true;
       if (typeof orig === 'function') return orig.call(this, a); const A = Array.isArray(orig) ? orig : [orig || '……']; for (const l of n.random ? [A[Math.floor(Math.random() * A.length)]] : A) await say(n.name, l); }; return n; };
   const add = (mid, n) => { (TMAPS[mid].npcs = TMAPS[mid].npcs || []).push(n); return n; };
   const spot = (mid, x, y, name, talk, extra) => { const [c, r] = P(x, y); return add(mid, Object.assign({ key: 'none', c, r, name, hidden: true, h: 110, talk }, extra || {})); };
@@ -89,7 +89,7 @@
       if (s.n === 0 || s.n === 1) { await say(XI, '还没动身？匣子别磕着。'); return true; }
       if (s.n === 2) { take('k_dx_cake');
         await L([[YE, '百草轩掌柜让我捎来的，还有这枝金桂。他说……铺子忙，中秋走不开。'], ['', '掌柜接过桂花糕，没有打开，就那么托在手里。炉子里的火——慢慢小了下去。'], [XI, '……知道了。'],
-          [YE, '还有这个。他说给你擦手。'], ['', '那包金疮药，他看了很久，揣进了怀里。'], [XI, '他配的金疮药，比我的好。……这话别告诉他。'], [XI, '行了，多谢。你去吧。'],
+          [YE, '还有这个。他说给你擦手。'], ['', '那包金疮药，他看了很久，揣进了怀里。'], [XI, '他配的金疮药，比我的好。'], [XI, '行了，多谢。你去吧。'],
           [HUO, '（追到门口，压低声音）少侠少侠——青阳那位，是不是不来了？'], [HUO, '哎。那东厢白收拾了。……也不对，掌柜从没说过是收拾给谁的。……不过街上都在传，是给听雨楼老板娘的。']]);
         s.n = 3; toastT('东厢朝南 —— 东厢是给谁收拾的？'); return true; }
       if (s.n === 5) { await night(); return true; }
@@ -257,7 +257,7 @@
   visitor('qy_town', HE, async () => { const f = F();
     if (on() && N() === 1 && f.dx_gui === 1) {
       await L([[HE, '少侠要花？——金桂？百草轩掌柜让你来的吧，他每年这时候都要一枝。'], ['', '小荷从篮底挑出一枝金桂，枝上的花开了七八分，香气一下子就散开了。'],
-        [HE, '给玄天城那位师兄的？（一边拿草绳扎花枝，一边笑）巧了，我姐姐小莲刚来信，就说起丹霞堂。'],
+        [HE, '给玄天城丹霞堂掌柜的？（一边拿草绳扎花枝，一边笑）巧了，我姐姐小莲刚来信，正说起他。'],
         [HE, '她说那位掌柜在收拾后院的东厢，还在她那儿订了一整年的桂花。（压低声音）……像是要办喜事呢。'],
         [HE, '（捂了一下嘴）哎呀，我又多嘴了。喏，开得正好，路上别颠着。替我问掌柜好。']]);
       f.dx_gui = 2; toastT('东厢朝南 —— 金桂买好了，回百草轩'); return true; }

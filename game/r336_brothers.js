@@ -41,9 +41,11 @@
 //   支线剧情那几段（东厢朝南等）说完不弹（支线那层会把 shop 暂时拿掉，这里就不会被调用）
 (function () {
   if (typeof openShop !== 'function' || typeof choose !== 'function') return;
-  const ASK = { '百草轩掌柜': '看看药材' };
+  // 11-18 作者：丹霞堂伙计也是一说完话就弹商店——所有开店的人都一样，说完先问一句
+  const ASK = { '百草轩掌柜': '看看药材', '丹霞堂伙计': '看看丹药' };
+  const ask = who => ASK[who] || (/丹|药/.test(who || '') ? '看看丹药' : '看看货');
   openShop = (o => async function (ids, who) {
-    if (ASK[who] && !window.__r336ShopOk) { const opts = [ASK[who], '离开']; const c = await choose(who, opts); if (opts[c] !== ASK[who]) return; }
+    if (!window.__r336ShopOk) { const opts = [ask(who), '离开']; const c = await choose(who, opts); if (c !== 0) return; }
     return o.apply(this, arguments);
   })(openShop);
 })();

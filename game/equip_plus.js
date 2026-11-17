@@ -75,7 +75,7 @@
       const opts = n.shop ? ['看看兵器', '强化装备', '离开'] : ['强化装备', '离开'];
       const c = await choose(n.name, opts); const pick = opts[c];
       if (pick === '强化装备') { await say(n.name, n.name === '铸剑师' ? '剑要常磨。把家伙拿来，我给你淬一淬。' : '要强化？拿来我看看。'); await refineUI(n.name); }
-      else if (pick === '看看兵器') { await openShop(n.shop, n.name); }
+      else if (pick === '看看兵器') { window.__r336ShopOk = 1; try { await openShop(n.shop, n.name); } finally { window.__r336ShopOk = 0; } }
     } finally { world.locked = false; }
   })(doInteract);
 

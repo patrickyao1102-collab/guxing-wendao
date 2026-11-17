@@ -126,5 +126,5 @@
   })(typeof tileAmbientLow === 'function' ? tileAmbientLow : null);
   drawBaked = (orig => function (o, now) { if (o.r60) return drawActor(o.pose); return orig.apply(this, arguments); })(drawBaked);
   window.R60_MARKET = { M, actors, L, atIn, ID,
-    shop: async id => { const sh = SHOP[id], nm = NAME[id]; if (sh) await openShop(sh.items(), nm); } };
+    shop: async id => { const sh = SHOP[id], nm = NAME[id]; if (sh) { window.__r336ShopOk = 1; try { await openShop(sh.items(), nm); } finally { window.__r336ShopOk = 0; } } } };
 })();

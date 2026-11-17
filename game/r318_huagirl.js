@@ -78,10 +78,11 @@
   // 作者 11-17 21:54：「地图上老是找不到卖花的，点自动寻路也不给寻，还老走到林府门口」
   //   原来青阳镇的小荷是进图时随机撒在街上、到处溜达的路人（不在地图名单里，寻路找不到她）；玄天城还多出一个溜达的「小莲」，跟城南写死的那位重了。
   //   → 青阳镇：小荷固定站在林府南边那条石板街口（大樟树旁），不乱走，地图名单里有她，寻路、小地图都找得到；玄天城：只留城南那位，溜达的那个拿掉。
+  // 11-18 作者：小荷可以走，就在这一块晃来晃去（引擎的 wander 以站位为家，只在四五十到一百来像素内走动）
   { const Q = TMAPS.qy_town; if (Q && !(Q.npcs || []).some(n => n.name === '卖花姑娘·小荷' && n._r318fix)) (Q.npcs = Q.npcs || []).push({ key: 'n_villager', r66: 'visitor_xiaohe', name: '卖花姑娘·小荷', _r318fix: 1,
-      talk: ['新摘的栀子花，三文一枝～', '买一枝送心上人吧，少侠。'], random: true, wander: false, h: 118, face: 'down', c: 1180 / 64 - .5, r: 1640 / 64 - .8 }); }
+      talk: ['新摘的栀子花，三文一枝～', '买一枝送心上人吧，少侠。'], random: true, wander: true, h: 118, face: 'down', c: 1185 / 64 - .5, r: 1685 / 64 - .8 }); }
   const dropWander = () => { try { if (!/^(qy_town|xt_city)$/.test(world.mapName)) return;
-      for (let i = world.actors.length - 1; i >= 0; i--) { const a = world.actors[i]; if (a && a.npc && a.npc.r66 === 'visitor_xiaohe' && a.npc.wander) world.actors.splice(i, 1); } } catch (e) {} };
+      for (let i = world.actors.length - 1; i >= 0; i--) { const a = world.actors[i]; if (a && a.npc && a.npc.r66 === 'visitor_xiaohe' && a.npc.wander && !a.npc._r318fix) world.actors.splice(i, 1); } } catch (e) {} };
   const hook = () => { dropWander(); rename(); for (const m of Object.keys(TMAPS)) for (const n of TMAPS[m].npcs || []) wrapN(n, m); try { for (const a of world.actors || []) wrapN(a.npc, world.mapName); } catch (e) {} };
   hook();
   if (typeof tileSetMap === 'function') tileSetMap = (o => function () { const r = o.apply(this, arguments); try { hook(); } catch (e) {} return r; })(tileSetMap);
