@@ -105,11 +105,11 @@
         await sb(C, '……好像抹多了。', 1600, 80);
         let stopD = loopWhile('D'); await sb(A, '你这是药，还是锅底灰？', 2100, 84);
         await sb(C, '药！……就是黑了点。', 1800, 82);
-        await sb(M, '一个偷掀炉盖，一个拿师兄试药。今晚都给我抄药方。', 3200, 96); await stopD();
+        await sb(M, '哈哈……丹还没出炉，倒先炼出一只黑爪子。', 3200, 96); await stopD();
         petals(Q.stove[0] + 40, Q.stove[1], 60);
-        await seg('E', 1); await sb(A, '别动。……桂花。', 1700, 84);
-        await sb(C, '师兄，这炉成了，分我一颗！', 2200, 82); await sb(A, '先把药方抄完。', 1700, 84);
-        let stopF = loopWhile('F'); petals(Q.stove[0] + 40, Q.stove[1], 40); await wait(1800);
+        await seg('E', 1); await sb(A, '别动，你头上落花了。', 1700, 84);
+        await sb(C, '……师兄，你自己头上也有。', 2200, 82); await sb(A, '……', 1700, 84);
+        let stopF = loopWhile('F'); petals(Q.stove[0] + 40, Q.stove[1], 40); await sb(M, '这两个小家伙……', 2200, 96); await wait(600);
         await tw(3200, k => DARK = k); DARK = 1; await stopF(); await wait(400); clearSeg();
         return; }
       const Q = o.pos || {}; const at = (k, d) => Q[k] || d;
@@ -134,15 +134,15 @@
       await say(che, '……好像抹多了。', 1600);
       await say(yan, '你这是药，还是锅底灰？');
       await say(che, '药！……就是黑了点。');
-      await say(shifu, '一个偷掀炉盖，一个拿师兄试药。今晚都给我抄药方。', 3200);
+      await say(shifu, '哈哈……丹还没出炉，倒先炼出一只黑爪子。', 3200);
       // 一阵风，桂花落下来
       petals(sx + 20, sy, 60); await wait(1200);
       yan.face = 'right'; await wait(600);
-      await say(yan, '别动。……桂花。', 1700);
-      await say(che, '师兄，这炉成了，分我一颗！', 2200);
-      await say(yan, '先把药方抄完。', 1700);
+      await say(yan, '别动，你头上落花了。', 1700);
+      await say(che, '……师兄，你自己头上也有。', 2200);
+      await say(yan, '……', 1700);
       petals(sx + 20, sy, 40);
-      await say(shifu, '（摇了摇头，笑着捋胡子）', 1800);
+      await say(shifu, '这两个小家伙……', 2200);
       // 慢慢变黑
       await tw(3200, k => DARK = k); DARK = 1; await wait(500);
     } finally {
