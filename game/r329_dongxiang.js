@@ -210,9 +210,13 @@
       await L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。'], [XI, '来了？坐。……菜是伙计做的，我只管看火。'], ['', '他给你倒了茶，又往院门那边看了一眼。'],
         [YE, '百草轩那边……他说铺子忙，走不开。'], [XX, '（小子，撒个谎脸都僵了。）'], [XI, '……嗯。'], ['', '他把第三只茶盏拿起来，看了一会儿，又轻轻放回了茶盘里。']]);
       // 小时候：同一个院子，十几年前（R344 dx_home_old）；没有就在原地演
-      const MEM = SP.mem;
+      // 11-18：回忆戏换成 R357「摇桂花、埋酒」，在阿澈家老院子（十几年前）的桂花树下演；没有就照旧
+      const M357 = !!(window.R357_MEMORY && TMAPS.qy_chehome_old);
+      const MEM = M357 ? null : SP.mem;
+      if (M357) { try { await fadeOut(600); } catch (e) {} await R357_MEMORY(); tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; S.fade = 1;
+        world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} }
       if (MEM && TMAPS[MEM.map]) { try { await fadeOut(600); } catch (e) {} tileSetMap(MEM.map, ...P(MEM.stove[0] + 200, MEM.stove[1] + 40), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; world.actors = world.actors.filter(a => a === world.player); world.camFocus = [MEM.stove[0] + 60, MEM.stove[1] - 60]; S.fade = 0; }
-      if (window.DX_MEMORY) await DX_MEMORY(MEM && TMAPS[MEM.map] ? { stove: MEM.stove, gate: MEM.che_in, pos: MEM } : { stove: SP.stove, gate: SP.gate });
+      if (!M357 && window.DX_MEMORY) await DX_MEMORY(MEM && TMAPS[MEM.map] ? { stove: MEM.stove, gate: MEM.che_in, pos: MEM } : { stove: SP.stove, gate: SP.gate });
       if (MEM && TMAPS[MEM.map]) { tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; S.fade = 1;
         world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} }
       // 黑着，「咚、咚」
