@@ -1,0 +1,11 @@
+// ================= R355 · 屋里人物放大（作者 11-17 定 1.2 倍；11-18 让以阿焰家几间房 / 叶孤星居室为准，一张一张查）=================
+// 11-18 夜里逐张截图看过：屋里原来都是 1.0，人比门、床、柜子小一截，屋子显得空。照青竹小院西院那几间（1.2）统一放大：
+//   · 一般的屋子 1.2；
+//   · 大户人家（郑 / 宋 / 方 / 谢 / 唐 / 韩府）正厅、内室家具本来就做得大（太师椅快到人肩膀），1.3；
+//   · 有「坐着吃饭喝茶的人」画在桌椅素材里的大堂（客栈大堂、醉仙楼、听雨楼），只放到 1.1——站着的人放太多，会比坐着的人大一截；
+//   · 院子（阿焰家、阿澈家）、地下迷宫、岩洞照室外的比例，不动；本来就设过的（青竹西院 1.2、阿焰家三间 1.15）不动。
+(function () {
+  if (typeof CHAR_SCALE === 'undefined') return;
+  const S = {"qy_inn": 1.1, "qy_herb": 1.2, "qy_smith": 1.2, "qy_tea": 1.2, "qy_house": 1.2, "lin_manor": 1.2, "qy_tavern": 1.1, "qy_grocery": 1.2, "qy_treasure": 1.2, "tj_library": 1.2, "tj_forbidden": 1.2, "tj_room": 1.2, "qingzhu_steward_room": 1.2, "tj_hall": 1.2, "xt_manor_hall": 1.2, "xt_manor_recovery": 1.2, "xt_manor_treasury": 1.2, "xt_auction": 1.2, "xt_auction_vip": 1.2, "xt_wanbao": 1.2, "lin_guest_west": 1.2, "lin_guest_east": 1.2, "lin_guest_xue": 1.2, "lin_study": 1.2, "lin_yi_room": 1.2, "lin_service": 1.2, "lin_teahouse": 1.2, "lin_servants": 1.2, "m_cy_council": 1.2, "m_cy_study": 1.2, "m_cy_bedroom": 1.2, "m_cy_kitchen": 1.2, "m_cy_guest": 1.2, "m_cy_guiying": 1.2, "qingzhu_servant_room": 1.2, "qingzhu_garden2_watch_room": 1.2, "qy_yicui": 1.2, "qy_changle": 1.2, "qy_yicui_2f": 1.2, "qy_changle_2f": 1.2, "xt_inn_hall": 1.1, "xt_inn_room3": 1.2, "xt_wanbao_vip": 1.2, "xt_wanbao_store": 1.2, "xt_inn_corr": 1.2, "xt_teahouse": 1.1, "xt_inn_room1": 1.2, "xt_sect_hall": 1.2, "xt_sect_rest": 1.2, "xt_teahouse_2f": 1.1, "xt_home_zhou": 1.2, "xt_home_shen": 1.2, "xt_home_xu": 1.2, "xt_home_luo": 1.2, "xt_home_liang": 1.2, "qy_home_li": 1.2, "xt_home_liu": 1.2, "xt_home_feng": 1.2, "xt_home_qian": 1.2, "xt_home_he": 1.2, "qy_home_wang": 1.2, "xt_home_zheng": 1.2, "xt_home_song": 1.2, "qy_inn_room_a": 1.2, "qy_inn_room_b": 1.2, "qy_home_chen": 1.2, "qy_home_sun": 1.2, "qy_inn_s1": 1.2, "qy_inn_s2": 1.2, "qy_inn_s3": 1.2, "xt_inn_room2": 1.2, "xt_inn_room4": 1.2, "ml_yamen": 1.2, "ml_morgue": 1.2, "ml_jail": 1.2, "ml_archive": 1.2, "ml_secret": 1.2, "ml_cellar": 1.2, "ml_huapo": 1.2, "xt_danxia": 1.2, "dh_zheng": 1.3, "dh_zheng_in": 1.3, "dh_song": 1.3, "dh_song_in": 1.3, "dh_fang": 1.3, "dh_fang_in": 1.3, "dh_xie": 1.3, "dh_xie_in": 1.3, "dh_tang": 1.3, "dh_tang_in": 1.3, "dh_han": 1.3, "dh_han_in": 1.3};
+  for (const k in S) if (!CHAR_SCALE[k]) CHAR_SCALE[k] = S[k];
+})();
