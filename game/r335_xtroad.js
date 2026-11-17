@@ -19,6 +19,13 @@
       const top = x > 905 && x < 1195 && y > 300 && y < 560, pool = ((x - 1048) / 165) ** 2 + ((y - 560) / 125) ** 2 < 1;
       if (top || pool) a[r * D.cols + c] = '1'; }
     D.blocked = a.join(''); }
+  // 作者 11-17「旁边弄个石碑，上面写着要去的地方」：Codex R353 两块路碑（照近道「山界」碑画，76×117，脚底 (38,111)）
+  for (const [k, s] of [['r335_stone_xt', 'stone_xt'], ['r335_stone_qy', 'stone_qy']]) { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = 'r335/' + s + '.webp?v=1'; }
+  const STONE = (img, fx, fy, uid) => ({ id: 'r335_roadstone', uid, img, x: fx - 38, y: fy - 111, w: 76, h: 117, sy: fy, flat: false, flip: false, noPre: true });
+  { const cs = D.cs, a = D.blocked.split('');
+    for (const [img, fx, fy, uid] of [['r335_stone_xt', 2352, 796, 'r335_st_e'], ['r335_stone_qy', 232, 910, 'r335_st_w']]) { D.objs.push(STONE(img, fx, fy, uid));
+      const r = Math.floor((fy - 8) / cs); for (let c = Math.floor((fx - 24) / cs); c <= Math.floor((fx + 24) / cs); c++) if (r >= 0 && c >= 0 && r < D.rows && c < D.cols) a[r * D.cols + c] = '1'; }
+    D.blocked = a.join(''); }
   { const im = new Image(); im.onload = () => { try { IMG.r335_g_xt_road = im; } catch (e) {} }; im.src = 'r335/g_xt_road.webp?v=1'; }
   const B = { ground: 'r335_g_xt_road', w: D.w, h: D.h, cs: D.cs, cols: D.cols, rows: D.rows, blocked: D.blocked, objs: D.objs, npcs: [], exits: [], inter: [], doors: [], zones: [], spawn: [2470, 860], title: '青玄近道 · 听瀑亭', indoor: false };
   TMAPS.xt_road = { title: '青玄近道 · 听瀑亭', name: '青玄近道', baked: B, npcs: [
@@ -39,8 +46,10 @@
   const ROAD = { id: 'r335_qyroad', uid: 'r335_qyroad', img: 'r335_qyroad', x: 0, y: 966, w: 190, h: 178, sy: 966, flat: true, noBlock: true, noPre: true, bk: true };
   if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { const r = o.apply(this, arguments); if (m === 'qy_town') { try {
     const T = world.map && world.map.T; if (T) { if (IMG.r335_qyroad && !(T.objs || []).some(x => x.uid === 'r335_qyroad')) (T.objs = T.objs || []).push(Object.assign({}, ROAD));
+      if (!(T.objs || []).some(x => x.uid === 'r335_st_qy')) T.objs.push(Object.assign(STONE('r335_stone_xt', 150, 970, 'r335_st_qy'), { bk: true }));
       const QB = TMAPS.qy_town.baked, cs = QB.cs, bl = QB.blocked.split('');   // 碰撞串也改（后面的脚本会按它重抄这一片）
       for (let y = 1050; y <= 1124; y += cs) for (let x = 180; x <= 360; x += cs) { const rr = Math.floor(y / cs), cc = Math.floor(x / cs); if (T.block[rr]) T.block[rr][cc] = 0; bl[rr * QB.cols + cc] = '0'; }
+      for (let y = 958; y <= 970; y += cs) for (let x = 128; x <= 172; x += cs) { const rr = Math.floor(y / cs), cc = Math.floor(x / cs); if (T.block[rr]) T.block[rr][cc] = 1; bl[rr * QB.cols + cc] = '1'; }   // 路碑脚下
       QB.blocked = bl.join(''); }
   } catch (e) { console.warn('R335 qy', e); } } return r; })(tileSetMap);
 })();
