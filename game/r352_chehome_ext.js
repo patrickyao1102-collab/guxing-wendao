@@ -8,7 +8,7 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   { const im = new Image(); im.onload = () => { try { IMG.r352_che = im; } catch (e) {} }; im.src = 'r352/che_closed.webp?v=1'; }
   const OBJ = { id: 'r352_che', uid: 'r352_che', img: 'r352_che', x: 0, y: 0, w: 500, h: 333, sy: 311, flip: false, noBlock: true, noPre: true, bk: true };
-  const DOOR = { x: 241, y: 325, rw: 24, rh: 12, rect: [241, 325, 24, 12], upOnly: true, to: 'qy_chehome', at: P(1005, 1150), face: 'up', label: '阿澈家' };
+  const DOOR = { x: 241, y: 325, rw: 24, rh: 12, rect: [241, 325, 24, 12], upOnly: true, to: 'qy_chehome', at: P(837.5, 965), face: 'up', label: '阿澈家' };
   const BODY = [[29, 92], [478, 92], [497, 214], [497, 333], [298, 333], [298, 312], [193, 312], [193, 333], [29, 333]];
   const inPoly = (x, y, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
   const isOld = o => o && ((o.id === 'house_01' && Math.round(o.x) === 197 && Math.round(o.y) === 63) || (o.id === 'water_jar' && Math.round(o.x) === 250 && Math.round(o.y) === 293));
