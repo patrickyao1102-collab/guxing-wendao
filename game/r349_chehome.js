@@ -7,7 +7,7 @@
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.qy_herb) return;
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
-  const V = '?v=6';
+  const V = '?v=7';
   let D = null, GATE = 'half';
   const load = (k, s) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; };
   const base = TMAPS.xt_inn_room3 || TMAPS.xt_inn_room1 || TMAPS.qy_herb;
@@ -15,8 +15,8 @@
   // 走近能看的东西：[物件 id, 站位 x, y, 现在的话, 十几年前的话]
   const LOOK = [
     ['alchemy_furnace', 1056, 640, '三足铜丹炉，炉膛是冷的。炉身却擦得锃亮——有人常来擦，就是不生火。', '炉火正旺，青烟一缕一缕往桂花树上飘。'],
-    ['height_marks', 728, 842, '树干上一道一道刻痕，旁边刻着小字：「焰」「澈」。最上面两道，隔了好几年。', '树干上四道刻痕，刻得歪歪扭扭。'],
-    ['low_table', 636, 690, '一张矮桌，三只板凳——一只大的，两只小的。', '矮桌上三只茶盏。'],
+    ['height_marks', 604, 624, '树干上一道一道刻痕，旁边刻着小字：「焰」「澈」。最上面两道，隔了好几年。', '树干上四道刻痕，刻得歪歪扭扭。'],
+    ['low_table', 507, 470, '一张矮桌，三只板凳——一只大的，两只小的。', '矮桌上三只茶盏。'],
     ['well', 236, 320, '一口老井。辘轳的绳子新换过，井沿还是旧的。', '一口老井。'],
     ['toys', 1307, 311, '一把木剑、一只竹蜻蜓。木剑的刃口，早磨圆了。', '一把新削的木剑、一只竹蜻蜓。'],
     ['tag_yan', 316, 655, '门楣下挂着一块小木牌，刻着一个「焰」字。门窗关得严严的。', ''],
@@ -56,7 +56,8 @@
       for (const o of T.objs || []) if (o._gate) o.img = 'r349_gate_' + st + '_' + o._gate; } } catch (e) {} };
   // 剧情站位（院子坐标，Codex 给的）：回忆戏三人在丹炉前、树荫边上；小阿澈从院门跑进来（要开门）
   // 11-17 第六步重拆：画布 1500×1080，比例照青竹小院 / 林府花庭；回忆戏站位照 Codex 给的
-  window.CHE_HOME_SPOTS = { gate_in: [837.5, 965], gate_out: [837.5, 1074], furnace: [1053, 594],
-    mem: { map: 'qy_chehome_old', shifu: [960, 760], yan: [1065, 760], che: [1140, 775], che_path: [[837.5, 1074], [837.5, 965], [837.5, 860], [1065, 860], [1140, 775]], gate: 'open' } };
+  // 11-17 第六步重拆：画布 1500×1080，比例照青竹小院。21:21 作者：桂树挪到后面左边那块草地，回忆戏三个人站在树前（根脚 (600,575)），丹炉在路东
+  window.CHE_HOME_SPOTS = { gate_in: [837.5, 965], gate_out: [837.5, 1074], furnace: [1053, 594], tree: [600, 575],
+    mem: { map: 'qy_chehome_old', shifu: [700, 650], yan: [785, 662], che: [870, 650], che_path: [[837.5, 1074], [837.5, 965], [837.5, 700], [870, 650]], gate: 'open' } };
   try { const G = (window.GXD || {})['r349/data.json']; if (G) build(G); else { const x = new XMLHttpRequest(); x.open('GET', 'r349/data.json' + V, false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } } catch (e) { console.warn('R349', e); }
 })();
