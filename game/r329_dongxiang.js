@@ -48,10 +48,10 @@
   { const ld = (k, src) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = src; };
     if (!ED) console.warn('R329：东厢 r347/data.json 没读到');
     const E = ED || { cs: 8, cols: 125, rows: 94, blocked: '0'.repeat(125 * 94), objs: [], exit: [440, 700, 120, 50], spawn: [500, 640] };
-    ld('r347g_east', 'r347/g_east.webp?v=2');
+    ld('r347g_east', 'r347/g_east.webp?v=3');
     EAST.baked = { ground: 'r347g_east', cs: E.cs, cols: E.cols, rows: E.rows, w: 1000, h: 750, blocked: E.blocked,
-      objs: E.objs.map((o, i) => { ld('r347_' + o.id, 'r347/' + o.id + '.webp?v=1'); return { id: 'r347_' + o.id, uid: 'r347e' + i, img: 'r347_' + o.id, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; }) };
-    ld('r347_tea_pair', 'r347/tea_pair.webp?v=1');
+      objs: E.objs.map((o, i) => { ld('r347_' + o.id, 'r347/' + o.id + '.webp?v=2'); return { id: 'r347_' + o.id, uid: 'r347e' + i, img: 'r347_' + o.id, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; }) };
+    ld('r347_tea_pair', 'r347/tea_pair.webp?v=2');
     const [ex, ey, ew] = E.exit; EAST.exits = [{ x: Math.floor(ex / E.cs), y: Math.floor(ey / E.cs), w: Math.ceil(ew / E.cs), h: E.rows - Math.floor(ey / E.cs), to: 'dx_home', at: P(1252, 790), face: 'down', label: '出门 · 院子' }];
     EAST.start = P(E.spawn[0], E.spawn[1]);
     try { delete MAP_ZOOM.dx_east; } catch (e) {} }

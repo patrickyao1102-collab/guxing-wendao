@@ -23,8 +23,8 @@
     keepsake_jar: '枕边一只小瓦罐，罐底结着一层干掉的黑药膏。……像是很多年前的东西了。', tree_drawing: '墙上一幅画：桂花树下，两个小孩蹲在炉子边。画得很笨，落款是「阿焰，十二岁」。',
     tea_set: '茶桌上一壶两盏，都还没用过。', curio: '博古架上没什么值钱东西：一把小木剑、一只竹蜻蜓、一只缺了口的旧炉盖。' };
   const mk = (key, title, e, extra) => {
-    load('r344g_' + key, 'r344/g_' + key + '.webp?v=1');
-    const objs = e.objs.map((o, i) => { load('r344_' + o.f, 'r344/s/' + o.f + '.webp?v=1'); return { id: o.f, uid: 'r344' + key + i, img: 'r344_' + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; });
+    load('r344g_' + key, 'r344/g_' + key + '.webp?v=2');
+    const objs = e.objs.map((o, i) => { load('r344_' + o.f, 'r344/s/' + o.f + '.webp?v=2'); return { id: o.f, uid: 'r344' + key + i, img: 'r344_' + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; });
     const M = TMAPS['dx_' + key] = Object.assign({}, base, { title, npcs: [], chests: [], doors: [], exits: [], onEnter: null, fog: false, petals: false, indoor: true }, extra || {});
     M.baked = { ground: 'r344g_' + key, cs: e.cs, cols: e.cols, rows: e.rows, w: e.w, h: e.h, blocked: e.blocked || e.blocked_open, objs };
     M.start = P(e.spawn[0], e.spawn[1]);
@@ -44,9 +44,9 @@
     R.doors.push(door(d.mainroom.doors[0].trigger_rect, 'dx_home', [745, 480], '回院子'));
     // 院门两扇
     for (const key of ['home', 'home_old']) { const M = TMAPS['dx_' + key], st = d.home.gate.states;
-      for (const lf of st.open.leaves) { const k = 'gate_open_' + lf.side; load('r344_' + k, 'r344/s/' + k + '.webp?v=1');
+      for (const lf of st.open.leaves) { const k = 'gate_open_' + lf.side; load('r344_' + k, 'r344/s/' + k + '.webp?v=2');
         M.baked.objs.push({ id: 'gate_' + lf.side, uid: 'r344gate' + key + lf.side, img: 'r344_' + k, x: lf.rect[0], y: lf.rect[1], w: lf.rect[2], h: lf.rect[3], sy: 992, flip: false, noBlock: true, noPre: true, _gate: lf.side }); } }
-    for (const st of ['closed', 'half', 'open']) for (const s of ['left', 'right']) load('r344_gate_' + st + '_' + s, 'r344/s/gate_' + st + '_' + s + '.webp?v=1');
+    for (const st of ['closed', 'half', 'open']) for (const s of ['left', 'right']) load('r344_gate_' + st + '_' + s, 'r344/s/gate_' + st + '_' + s + '.webp?v=2');
   };
   let GATE = 'open';
   // 院门：'closed' / 'half' / 'open'（换门扇的图 + 换碰撞）
