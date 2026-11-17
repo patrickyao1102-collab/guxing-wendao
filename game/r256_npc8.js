@@ -12,7 +12,10 @@
   for (const k of KEYS) { const im = new Image(); im.onload = () => { if (im.width < 2016 || im.height < 1200) return;
       // 新图站立帧的人有多高 → 缩到和旧图画出来一样高（旧图：160×240 的格子按 0.5 画，脚底 232）
       let want = 103; try { const old = R66_NPC.img('visitor_' + k); if (old && old.width) want = (232 - top(old, 0, 0, 160, 240)) * .5; } catch (e) {}
-      const h = 232 - top(im, 0, 0, 224, 240); SC[k] = h > 40 ? want / h : .46; IM[k] = im; };
+      // 作者 11-17 21:52「人物明显比 NPC 矮很多」：叶孤星画出来约 99 高，路人照着他定身高（男 ≈ 他，女、老人略矮）
+      const CAP = { xiaohe: 90, zhaopopo: 90, daniu: 101, afu: 93, laoqiaofu: 96, laozhou: 99, xuyan: 99, liuniang: 93, suling: 93, ashi: 93, qingfeng: 87, qinxiaowan: 93, man: 99, woman: 93 };
+      if (CAP[k]) want = Math.min(want, CAP[k]);
+      const h = 232 - top(im, 0, 0, 224, 240); SC[k] = h > 40 ? want / h : .46; IM[k] = im; (window.R256_H = window.R256_H || {})[k] = [want, h]; };
     im.onerror = () => {}; im.src = 'r253w/' + k + '.webp'; }
   const keyOf = t => { const k = String(t || '').replace(/^visitor_/, ''); return IM[k] ? k : null; };
   // st：这个人自己的步态状态；(x,y) 脚底；moving：这一帧是不是在走；face：停下时朝哪

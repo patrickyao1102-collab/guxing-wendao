@@ -18,7 +18,7 @@
       Q: [['叶孤星生来是什么命格？', ['天煞孤星', '七杀破军', '紫微帝星', '天乙贵人'], 0],
         ['星旋这个器灵，平时待在叶孤星身上哪件东西里？', ['星痕剑', '那块黑色的玉佩', '九曜剑典', '发冠上的青玉扣'], 1],
         ['九曜剑典的残本，原本藏在天剑宗哪里？', ['宗主居所的书房', '藏经阁最深处的禁阁', '后山的锁灵阵里', '演武场的测灵碑底下'], 1]] },
-    xiaolian: { names: ['卖花姑娘·小莲'], maps: ['xt_city'], who: '卖花姑娘·小莲', call: '小莲', book: 'bk_hero_juling',
+    xiaolian: { names: ['卖花姑娘·小莲', '卖花姑娘'], maps: ['xt_city'], who: '卖花姑娘·小莲', call: '小莲', book: 'bk_hero_juling',
       hello: ['（她把一枝白茶花插回篮里，上上下下看了你两遍）……公子，你见过一个扎两个小辫儿、嗓门特别大的卖花丫头没有？', '那是我妹妹小荷！我叫小莲。——荷就是莲，莲就是荷，我爹给闺女起名字，向来偷懒。', '小荷爱考人，我也爱。不过我的题，可没她那么好答。'],
       chat: ['我们家姐妹多，一个城里放一个，像撒花籽似的。你往后走得远了，总会碰上的——她们都比我凶。', '你见过小荷了？她是不是又说她最会卖花？哼。', '玄天城的人买花，不问香不香，只问贵不贵。'],
       right: ['（她愣了一下，慢慢笑了）……这些可不是街上听来的。公子，你是真把那本书读进心里去了。', '书里写的那些事，比我说的细多了，也疼多了。——说好的，这个给你。'],
@@ -75,7 +75,14 @@
     n.talk = async function (a) { return talk(k, orig, this, a); }; };
   // 地图里写死的（玄天城的小莲）+ 进图时随机撒在街上的（R66 访客里的小荷）
   const rename = () => { try { if (world.mapName !== 'xt_city') return; for (const a of world.actors || []) if (a.npc && a.npc.name === '卖花姑娘·小荷') { a.npc.name = '卖花姑娘·小莲'; a.name = '卖花姑娘·小莲'; a.npc._r318 = 0; } } catch (e) {} };
-  const hook = () => { rename(); for (const m of Object.keys(TMAPS)) for (const n of TMAPS[m].npcs || []) wrapN(n, m); try { for (const a of world.actors || []) wrapN(a.npc, world.mapName); } catch (e) {} };
+  // 作者 11-17 21:54：「地图上老是找不到卖花的，点自动寻路也不给寻，还老走到林府门口」
+  //   原来青阳镇的小荷是进图时随机撒在街上、到处溜达的路人（不在地图名单里，寻路找不到她）；玄天城还多出一个溜达的「小莲」，跟城南写死的那位重了。
+  //   → 青阳镇：小荷固定站在林府南边那条石板街口（大樟树旁），不乱走，地图名单里有她，寻路、小地图都找得到；玄天城：只留城南那位，溜达的那个拿掉。
+  { const Q = TMAPS.qy_town; if (Q && !(Q.npcs || []).some(n => n.name === '卖花姑娘·小荷' && n._r318fix)) (Q.npcs = Q.npcs || []).push({ key: 'n_villager', r66: 'visitor_xiaohe', name: '卖花姑娘·小荷', _r318fix: 1,
+      talk: ['新摘的栀子花，三文一枝～', '买一枝送心上人吧，少侠。'], random: true, wander: false, h: 118, face: 'down', c: 1180 / 64 - .5, r: 1640 / 64 - .8 }); }
+  const dropWander = () => { try { if (!/^(qy_town|xt_city)$/.test(world.mapName)) return;
+      for (let i = world.actors.length - 1; i >= 0; i--) { const a = world.actors[i]; if (a && a.npc && a.npc.r66 === 'visitor_xiaohe' && a.npc.wander) world.actors.splice(i, 1); } } catch (e) {} };
+  const hook = () => { dropWander(); rename(); for (const m of Object.keys(TMAPS)) for (const n of TMAPS[m].npcs || []) wrapN(n, m); try { for (const a of world.actors || []) wrapN(a.npc, world.mapName); } catch (e) {} };
   hook();
   if (typeof tileSetMap === 'function') tileSetMap = (o => function () { const r = o.apply(this, arguments); try { hook(); } catch (e) {} return r; })(tileSetMap);
   window.R318_HUA = { SIS, st };

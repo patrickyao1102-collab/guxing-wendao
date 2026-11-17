@@ -37,3 +37,18 @@
   // 11-17：百草轩掌柜身上挂着 cx:'apothecary'（通用掌柜图集），图集那一层先画、根本走不到上面这段 —— 在图集的 NPC_WALK 钩子里先让他走定稿
   if (typeof window.NPC_WALK === 'function') window.NPC_WALK = (o => function (a, now) { try { if (a && a.npc && a.npc._r336 && walkFinalDraw(a, now)) return true; } catch (e) {} return o.apply(this, arguments); })(window.NPC_WALK);
 })();
+// 作者 11-17 21:50：「每次跟百草轩掌柜对话完之后，都会自动切进买药的界面」→ 说完话先问一句「看看药材 / 离开」，选了才开店；
+//   支线剧情那几段（东厢朝南等）说完不弹（支线那层会把 shop 暂时拿掉，这里就不会被调用）
+(function () {
+  if (typeof openShop !== 'function' || typeof choose !== 'function') return;
+  const ASK = { '百草轩掌柜': '看看药材' };
+  openShop = (o => async function (ids, who) {
+    if (ASK[who] && !window.__r336ShopOk) { const opts = [ASK[who], '离开']; const c = await choose(who, opts); if (opts[c] !== ASK[who]) return; }
+    return o.apply(this, arguments);
+  })(openShop);
+})();
+// 作者 11-17 21:51：「（百草轩掌柜）距离柜台太远」→ 掌柜往前站到柜台后面紧贴着（脚底 307 → 334），柜台挡住他下半身；站在柜台前就能跟他说话
+(function () { const H = typeof TMAPS !== 'undefined' && TMAPS.qy_herb; if (!H) return;
+  for (const n of H.npcs || []) if (n.name === '百草轩掌柜') n.r = 334 / 64 - .8;
+  if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { const r = o.apply(this, arguments); if (m === 'qy_herb') try { for (const a of world.actors || []) if (a.npc && a.npc.name === '百草轩掌柜') { a.y = 334; if (a.home) a.home[1] = 334; } } catch (e) {} return r; })(tileSetMap);
+})();
