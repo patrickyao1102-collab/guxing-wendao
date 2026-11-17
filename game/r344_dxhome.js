@@ -32,7 +32,30 @@
     try { if (typeof WIDE_OK === 'object') WIDE_OK['dx_' + key] = 1; } catch (e2) {}
     return M; };
   const door = (r, to, at, label, face) => ({ x: r[0] + r[2] / 2, y: r[1] + r[3] / 2, rw: r[2] / 2, rh: r[3] / 2, to, at: P(at[0], at[1]), face: face || 'down', label });
-  const build = d => { D = d;
+  // 作者 11-17 19:39：「房子太大了……尽量再缩小缩小一点，让比例更协调。不然一进院子就看到三栋大房子」
+  //   → 正房、西厢（厨房）、东厢三栋都以底边中点为准缩到 0.74；门楣上的对联、匾、灯笼跟着正房一起缩。
+  //   碰撞：把三栋原来的占地格清掉，再按同样的缩放把占地格搬到新位置（别的物件脚下的格子不动）；三扇门的触发框也跟着挪。
+  const SHRINK = 0.74, HOUSES = ['02A_north_house', '02A_west_house', '02A_east_house'], ON_NORTH = /^02A_(couplet_|plaque|lantern)/;
+  const shrink = e => { if (!e || e._r344s) return; e._r344s = 1;
+    const cs = e.cs, cols = e.cols, rows = e.rows, keys = Object.keys(e).filter(k => /^blocked/.test(k) && typeof e[k] === 'string');
+    const north = e.objs.find(o => o.f === HOUSES[0]);
+    for (const hf of HOUSES) { const h = e.objs.find(o => o.f === hf); if (!h) continue;
+      const ax = h.x + h.w / 2, ay = h.y + h.h, X0 = h.x, Y0 = h.y, X1 = h.x + h.w, Y1 = h.y + h.h;
+      const T = (x, y) => [ax + (x - ax) * SHRINK, ay + (y - ay) * SHRINK];
+      const att = e.objs.filter(o => o === h || (hf === HOUSES[0] && ON_NORTH.test(o.f)));
+      // 别的物件脚下（不跟着缩的），清格子时绕开
+      const keep = e.objs.filter(o => !att.includes(o) && !HOUSES.includes(o.f)).map(o => [o.x, o.sy - 52, o.x + o.w, o.sy + 6]);
+      const inner = (x, y) => x > 44 && x < e.w - 44 && y > 192;   // 四面院墙的格子不动
+      const kept = (x, y) => keep.some(([a, b, c, dd]) => x >= a && x <= c && y >= b && y <= dd);
+      for (const k of keys) { const a = e[k].split(''), moved = [];
+        for (let r = Math.floor(Y0 / cs); r <= Math.min(rows - 1, Math.floor(Y1 / cs)); r++) for (let c = Math.max(0, Math.floor(X0 / cs)); c <= Math.min(cols - 1, Math.floor(X1 / cs)); c++) {
+          const x = (c + .5) * cs, y = (r + .5) * cs; if (a[r * cols + c] !== '1' || kept(x, y) || !inner(x, y)) continue; a[r * cols + c] = '0'; moved.push([x, y]); }
+        for (const [x, y] of moved) { const [nx, ny] = T(x, y); for (const [ox, oy] of [[0, 0], [-cs * .5, 0], [cs * .5, 0], [0, -cs * .5], [0, cs * .5]]) { const c = Math.floor((nx + ox) / cs), r = Math.floor((ny + oy) / cs); if (r >= 0 && c >= 0 && r < rows && c < cols) a[r * cols + c] = '1'; } }
+        e[k] = a.join(''); }
+      for (const o of att) { const [nx, ny] = T(o.x, o.y); o.x = nx; o.y = ny; o.w *= SHRINK; o.h *= SHRINK; o.sy = ay + (o.sy - ay) * SHRINK; }
+      for (const dr of e.doors || []) { const t = dr.trigger_rect; if (!t) continue; const cx = t[0] + t[2] / 2, cy = t[1] + t[3] / 2; if (cx < X0 || cx > X1 || cy < Y0 || cy > Y1 + 10) continue;
+        const [nx, ny] = T(cx, cy); dr.trigger_rect = [nx - t[2] / 2, ny - t[3] / 2, t[2], t[3]]; } } };
+  const build = d => { D = d; shrink(d.home); shrink(d.home_old);
     const H = mk('home', '阿焰家 · 院子', d.home), O = mk('home_old', '十几年前 · 师父的院子', d.home_old), K = mk('kitchen', '阿焰家 · 厨房', d.kitchen), R = mk('mainroom', '阿焰家 · 正房', d.mainroom);
     const dd = id => d.home.doors.find(x => x.id === id);
     H.doors.push(door(dd('main_room').trigger_rect, 'dx_mainroom', [500, 680], '正房', 'up'), door(dd('kitchen').trigger_rect, 'dx_kitchen', [500, 680], '厨房', 'up'));
