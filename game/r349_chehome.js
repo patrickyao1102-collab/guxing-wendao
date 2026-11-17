@@ -7,7 +7,7 @@
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.qy_herb) return;
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
-  const V = '?v=5';
+  const V = '?v=6';
   let D = null, GATE = 'half';
   const load = (k, s) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; };
   const base = TMAPS.xt_inn_room3 || TMAPS.xt_inn_room1 || TMAPS.qy_herb;
