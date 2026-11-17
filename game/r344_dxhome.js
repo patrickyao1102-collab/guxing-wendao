@@ -23,7 +23,7 @@
     keepsake_jar: '枕边一只小瓦罐，罐底结着一层干掉的黑药膏。……像是很多年前的东西了。', tree_drawing: '墙上一幅画：桂花树下，两个小孩蹲在炉子边。画得很笨，落款是「阿焰，十二岁」。',
     tea_set: '茶桌上一壶两盏，都还没用过。', curio: '博古架上没什么值钱东西：一把小木剑、一只竹蜻蜓、一只缺了口的旧炉盖。' };
   const mk = (key, title, e, extra) => {
-    load('r344g_' + key, 'r344/g_' + key + '.webp?v=2');
+    load('r344g_' + key, 'r344/g_' + key + '.webp?v=3');
     const objs = e.objs.map((o, i) => { load('r344_' + o.f, 'r344/s/' + o.f + '.webp?v=2'); return { id: o.f, uid: 'r344' + key + i, img: 'r344_' + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; });
     const M = TMAPS['dx_' + key] = Object.assign({}, base, { title, npcs: [], chests: [], doors: [], exits: [], onEnter: null, fog: false, petals: false, indoor: true }, extra || {});
     M.baked = { ground: 'r344g_' + key, cs: e.cs, cols: e.cols, rows: e.rows, w: e.w, h: e.h, blocked: e.blocked || e.blocked_open, objs };
@@ -38,12 +38,14 @@
   const SHRINK = 0.74, HOUSES = ['02A_north_house', '02A_west_house', '02A_east_house'], ON_NORTH = /^02A_(couplet_|plaque|lantern)/;
   // 作者 11-17 19:51：「左边那个房子稍微往右边挪一点点」→ 西边厨房再往右挪 45；门口那摞柴挪到它前面画（不被墙盖住）
   const SHIFT = { '02A_west_house': 45 };
+  // 作者 11-17 20:13：「圈出来这两个房子往后挪一点点……尽量把路给留出来」→ 两边厢房往北挪 46，房前那条横廊整条露出来
+  const LIFT = { '02A_west_house': 46, '02A_east_house': 46 };
   const shrink = e => { if (!e || e._r344s) return; e._r344s = 1;
     const cs = e.cs, cols = e.cols, rows = e.rows, keys = Object.keys(e).filter(k => /^blocked/.test(k) && typeof e[k] === 'string');
     const north = e.objs.find(o => o.f === HOUSES[0]);
     for (const hf of HOUSES) { const h = e.objs.find(o => o.f === hf); if (!h) continue;
       const ax = h.x + h.w / 2, ay = h.y + h.h, X0 = h.x, Y0 = h.y, X1 = h.x + h.w, Y1 = h.y + h.h;
-      const dx = SHIFT[hf] || 0, T = (x, y) => [ax + (x - ax) * SHRINK + dx, ay + (y - ay) * SHRINK];
+      const dx = SHIFT[hf] || 0, dy = -(LIFT[hf] || 0), T = (x, y) => [ax + (x - ax) * SHRINK + dx, ay + (y - ay) * SHRINK + dy];
       const att = e.objs.filter(o => o === h || (hf === HOUSES[0] && ON_NORTH.test(o.f)));
       // 别的物件脚下（不跟着缩的），清格子时绕开
       const keep = e.objs.filter(o => !att.includes(o) && !HOUSES.includes(o.f)).map(o => [o.x, o.sy - 52, o.x + o.w, o.sy + 6]);
@@ -54,7 +56,7 @@
           const x = (c + .5) * cs, y = (r + .5) * cs; if (a[r * cols + c] !== '1' || kept(x, y) || !inner(x, y)) continue; a[r * cols + c] = '0'; moved.push([x, y]); }
         for (const [x, y] of moved) { const [nx, ny] = T(x, y); for (const [ox, oy] of [[0, 0], [-cs * .5, 0], [cs * .5, 0], [0, -cs * .5], [0, cs * .5]]) { const c = Math.floor((nx + ox) / cs), r = Math.floor((ny + oy) / cs); if (r >= 0 && c >= 0 && r < rows && c < cols) a[r * cols + c] = '1'; } }
         e[k] = a.join(''); }
-      for (const o of att) { const [nx, ny] = T(o.x, o.y); o.x = nx; o.y = ny; o.w *= SHRINK; o.h *= SHRINK; o.sy = ay + (o.sy - ay) * SHRINK; }
+      for (const o of att) { const [nx, ny] = T(o.x, o.y); o.x = nx; o.y = ny; o.w *= SHRINK; o.h *= SHRINK; o.sy = ay + (o.sy - ay) * SHRINK + dy; }
       if (dx) for (const o of e.objs) if (o.f === '02A_firewood_kitchen') o.sy = Math.max(o.sy, ay + 6);
       for (const dr of e.doors || []) { const t = dr.trigger_rect; if (!t) continue; const cx = t[0] + t[2] / 2, cy = t[1] + t[3] / 2; if (cx < X0 || cx > X1 || cy < Y0 || cy > Y1 + 10) continue;
         const [nx, ny] = T(cx, cy); dr.trigger_rect = [nx - t[2] / 2, ny - t[3] / 2, t[2], t[3]]; } } };
@@ -63,14 +65,13 @@
     const dd = id => d.home.doors.find(x => x.id === id);
     H.doors.push(door(dd('main_room').trigger_rect, 'dx_mainroom', [500, 680], '正房', 'up'), door(dd('kitchen').trigger_rect, 'dx_kitchen', [500, 680], '厨房', 'up'));
     if (TMAPS.dx_east) { H.doors.push(Object.assign(door(dd('east_room').trigger_rect, 'dx_east', [500, 600], '东厢', 'up'), TMAPS.dx_east.start ? { at: TMAPS.dx_east.start } : {}));
-      for (const e of TMAPS.dx_east.exits || []) Object.assign(e, { to: 'dx_home', at: P(1252, 790), face: 'down', label: '出门 · 院子' }); }
+      for (const e of TMAPS.dx_east.exits || []) Object.assign(e, { to: 'dx_home', at: P(1252, 790 - LIFT['02A_east_house']), face: 'down', label: '出门 · 院子' }); }
     const gx = d.home.gate.transition_rect; H.exits = [];
     H.doors.push(Object.assign(door([gx[0], gx[1] - 14, gx[2], 24], 'xt_city', [3060, 1440], '出院门 · 玄天城'), { gate: 1, cond: () => GATE !== 'closed' }));
-    K.doors.push(door(d.kitchen.doors[0].trigger_rect, 'dx_home', [250 + SHIFT['02A_west_house'], 790], '回院子'));
+    K.doors.push(door(d.kitchen.doors[0].trigger_rect, 'dx_home', [250 + SHIFT['02A_west_house'], 790 - LIFT['02A_west_house']], '回院子'));
     // 作者 11-17 19:52「我们有现成的草地，你可以把草地给铺一下」：房子缩小后空出来的砖地铺几块草（林府花庭那种草，调成院子这套颜色），走廊和直路不铺
-    const GRASS = [['grass_1', 1052, 248, 100, 144], ['grass_2', 1150, 316, 295, 78], ['grass_3', 50, 232, 360, 160], ['grass_4', 415, 765, 280, 140], ['grass_5', 805, 778, 190, 127]];   // 绕开地上画好的两块花圃
-    for (const key of ['home', 'home_old']) { const M = TMAPS['dx_' + key]; for (const [f, x, y, w, h] of GRASS) { load('r344_' + f, 'r344/s/' + f + '.webp?v=2');
-      M.baked.objs.push({ id: f, uid: 'r344' + key + f, img: 'r344_' + f, x, y, w, h, sy: y, flat: true, flip: false, noBlock: true, noPre: true }); } }
+    // 草地块直接画进地面底图（r344/g_home*.webp）：照青竹小院的草，边沿着砖缝走——像砖缺了几块、露出底下的草，不是贴上去一块
+    // 11-17 20:21：草地块照青竹小院的草地块（那块作者认可）
     R.doors.push(door(d.mainroom.doors[0].trigger_rect, 'dx_home', [745, 480], '回院子'));
     // 院门两扇
     for (const key of ['home', 'home_old']) { const M = TMAPS['dx_' + key], st = d.home.gate.states;
