@@ -23,7 +23,7 @@
     keepsake_jar: '枕边一只小瓦罐，罐底结着一层干掉的黑药膏。……像是很多年前的东西了。', tree_drawing: '墙上一幅画：桂花树下，两个小孩蹲在炉子边。画得很笨，落款是「阿焰，十二岁」。',
     tea_set: '茶桌上一壶两盏，都还没用过。', curio: '博古架上没什么值钱东西：一把小木剑、一只竹蜻蜓、一只缺了口的旧炉盖。' };
   const mk = (key, title, e, extra) => {
-    load('r344g_' + key, 'r344/g_' + key + '.webp?v=3');
+    load('r344g_' + key, 'r344/g_' + key + '.webp?v=4');
     const objs = e.objs.map((o, i) => { load('r344_' + o.f, 'r344/s/' + o.f + '.webp?v=2'); return { id: o.f, uid: 'r344' + key + i, img: 'r344_' + o.f, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; });
     const M = TMAPS['dx_' + key] = Object.assign({}, base, { title, npcs: [], chests: [], doors: [], exits: [], onEnter: null, fog: false, petals: false, indoor: true }, extra || {});
     M.baked = { ground: 'r344g_' + key, cs: e.cs, cols: e.cols, rows: e.rows, w: e.w, h: e.h, blocked: e.blocked || e.blocked_open, objs };
@@ -70,7 +70,8 @@
     H.doors.push(Object.assign(door([gx[0], gx[1] - 14, gx[2], 24], 'xt_city', [3060, 1440], '出院门 · 玄天城'), { gate: 1, cond: () => GATE !== 'closed' }));
     K.doors.push(door(d.kitchen.doors[0].trigger_rect, 'dx_home', [250 + SHIFT['02A_west_house'], 790 - LIFT['02A_west_house']], '回院子'));
     // 作者 11-17 19:52「我们有现成的草地，你可以把草地给铺一下」：房子缩小后空出来的砖地铺几块草（林府花庭那种草，调成院子这套颜色），走廊和直路不铺
-    // 草地块直接画进地面底图（r344/g_home*.webp）：照青竹小院的草，边沿着砖缝走——像砖缺了几块、露出底下的草，不是贴上去一块
+    // 11-18 地面重铺（同阿澈家院子的做法）：石板只铺走路的地方（南北一条 + 中段东西一条通两边厢房门口），路两边一圈黃土，其余是青竹小院的草；花圃、花丛原样留着，树荫屋檐影从原图量出来压回去
+    // （旧） 草地块直接画进地面底图（r344/g_home*.webp）：照青竹小院的草，边沿着砖缝走——像砖缺了几块、露出底下的草，不是贴上去一块
     // 11-17 20:21：草地块照青竹小院的草地块（那块作者认可）
     R.doors.push(door(d.mainroom.doors[0].trigger_rect, 'dx_home', [745, 480], '回院子'));
     // 院门两扇
