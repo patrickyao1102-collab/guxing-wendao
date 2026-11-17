@@ -34,4 +34,6 @@
     } catch (e) { console.warn('R336', e); }
     return o.apply(this, arguments);
   })(walkFinalDraw);
+  // 11-17：百草轩掌柜身上挂着 cx:'apothecary'（通用掌柜图集），图集那一层先画、根本走不到上面这段 —— 在图集的 NPC_WALK 钩子里先让他走定稿
+  if (typeof window.NPC_WALK === 'function') window.NPC_WALK = (o => function (a, now) { try { if (a && a.npc && a.npc._r336 && walkFinalDraw(a, now)) return true; } catch (e) {} return o.apply(this, arguments); })(window.NPC_WALK);
 })();

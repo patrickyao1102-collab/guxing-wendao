@@ -50,7 +50,7 @@
       const P2 = (x, y) => [x / 64 - .5, y / 64 - .8];
       const add = (name, w9, xy, face, lines) => { const [c, r] = P2(xy[0], xy[1]); try { SPEAKERS[name] = SPEAKERS[name] || { p: '', color: '#e6dccb' }; } catch (e) {}
         (HB.npcs = HB.npcs || []).push({ key: 'none', cx: 'villager_m', w9, c, r, name, h: 116, wander: false, face, random: true, talk: lines }); };
-      add('来看病的老先生', 'xiucai', [372, 560], 'right', ['（咳了两声）老毛病了，一到换季就咳。掌柜的方子灵，三帖下去就好。', '年轻人，修行再苦，也别熬夜。老夫年轻时候不信，如今一身病。', '这香炉里点的是安神香，闻着心里就静。']);
+      add('来看病的老先生', 'xiucai', [372, 560], 'right', ['（咳了两声）老毛病了，一到换季就咳。掌柜的方子灵，三帖下去就好。', '这香炉里点的是安神香，闻着心里就静。']);
       add('抓药的娘子', 'yanzhi', [640, 470], 'up', ['当家的上山采石，跌伤了腿，我来抓两帖跌打的药。', '掌柜的说这药要用黄酒做引子……镇上的酒铺还开着吧？', '最近药价涨得厉害，听说都是黑风寨闹的。']); } }
   // 拆物件 + 放开它脚下的挡路格（周围别的物件脚下照旧挡）
   const unblock = (B, gone) => { const cs = B.cs, G = B.blocked.split('');
