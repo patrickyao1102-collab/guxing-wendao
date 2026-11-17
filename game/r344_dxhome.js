@@ -69,5 +69,5 @@
     const add = (f, x, y, w, h, sy) => T.objs.push({ _dinner: 1, bk: true, id: f, uid: 'dinner_' + f, img: 'r344_' + f, x, y, w, h, sy, noBlock: true });
     add('04_tea_table', 812, 548, 177, 146, 690); add('04_tea_chair_left', 726, 588, 83, 110, 690); add('04_tea_chair_right', 990, 588, 81, 110, 692); };
   // 数据同步载入（地图得在进图之前就在 TMAPS 里）
-  try { const x = new XMLHttpRequest(); x.open('GET', 'r344/data.json?v=1', false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } catch (e) { console.warn('R344', e); }
+  try { const G = (window.GXD || {})['r344/data.json']; if (G) build(G); else { const x = new XMLHttpRequest(); x.open('GET', 'r344/data.json', false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } } catch (e) { console.warn('R344', e); }
 })();

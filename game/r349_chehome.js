@@ -57,5 +57,5 @@
   // 剧情站位（院子坐标，Codex 给的）：回忆戏三人在丹炉前、树荫边上；小阿澈从院门跑进来（要开门）
   window.CHE_HOME_SPOTS = { gate_in: [1005, 1160], gate_out: [1005, 1292], furnace: [1300, 715],
     mem: { map: 'qy_chehome_old', shifu: [1145, 940], yan: [1255, 940], che: [1340, 940], che_path: [[1005, 1292], [1005, 1160], [1005, 940], [1340, 940]], gate: 'open' } };
-  try { const x = new XMLHttpRequest(); x.open('GET', 'r349/data.json' + V, false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } catch (e) { console.warn('R349', e); }
+  try { const G = (window.GXD || {})['r349/data.json']; if (G) build(G); else { const x = new XMLHttpRequest(); x.open('GET', 'r349/data.json' + V, false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } } catch (e) { console.warn('R349', e); }
 })();

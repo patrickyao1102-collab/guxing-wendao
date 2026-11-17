@@ -47,7 +47,7 @@
   // ---------- R345：Codex 正式动作帧（A0 跑进院 / A 看火 / B 烫手 / C 糊药 / D 笑 / E 落桂花 / F 师父）----------
   // tl.json：每段 frames = [毫秒, [[图, 世界左上x, y, 宽, 高, z], …], 说明]；播的时候把这一帧的图层临时塞进地图物件里（和人一起按 z 排前后）
   let TL = null; const FIMG = {};
-  try { const x = new XMLHttpRequest(); x.open('GET', 'r345/tl.json?v=1', false); x.send(); if (x.status === 200 || x.status === 0) TL = JSON.parse(x.responseText); } catch (e) {}
+  try { TL = (window.GXD || {})['r345/tl.json'] || null; if (!TL) { const x = new XMLHttpRequest(); x.open('GET', 'r345/tl.json?v=1', false); x.send(); if (x.status === 200 || x.status === 0) TL = JSON.parse(x.responseText); } } catch (e) {}
   const pre = () => { if (!TL) return; for (const k in TL) for (const f of TL[k].frames) for (const l of f[1]) if (!FIMG[l[0]]) { const im = new Image(); im.src = 'r345/' + l[0] + '.webp?v=1'; FIMG[l[0]] = im; try { IMG['r345_' + l[0]] = im; } catch (e) {} } };
   let CUR = [];
   const show = f => { const T = world.map && world.map.T; if (!T || !T.objs) return; T.objs = T.objs.filter(o => !o._r345); CUR = f[1].map((l, i) => ({ _r345: 1, bk: true, img: 'r345_' + l[0], id: 'r345_' + l[0], uid: 'r345_' + i, x: l[1], y: l[2], w: l[3], h: l[4], sy: l[5], noBlock: true })); T.objs.push(...CUR); };

@@ -42,7 +42,7 @@
     return r; })(tileSetMap); };
 
   // ---------- 东厢（作者 11-17：不再借云来客栈的客房——换成 Codex R316 已通过的「东厢小屋」，R347）----------
-  let ED = null; try { const x = new XMLHttpRequest(); x.open('GET', 'r347/data.json?v=2', false); x.send(); if (x.status === 200 || x.status === 0) ED = JSON.parse(x.responseText); } catch (e) {}
+  let ED = null; try { ED = (window.GXD || {})['r347/data.json'] || null; if (!ED) { const x = new XMLHttpRequest(); x.open('GET', 'r347/data.json?v=2', false); x.send(); if (x.status === 200 || x.status === 0) ED = JSON.parse(x.responseText); } } catch (e) {}
   // 作者 11-17：「之前的旧版本东厢删除」——不再拿云来客栈的客房当底子，也不再有画小图标代替的旧摆设；东厢只有 R347 这一版
   const EAST = TMAPS.dx_east = { title: '阿焰家 · 东厢', indoor: true, npcs: [], chests: [], doors: [], exits: [], onEnter: null };
   { const ld = (k, src) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = src; };
