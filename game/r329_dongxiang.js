@@ -43,43 +43,34 @@
 
   // ---------- 东厢（作者 11-17：不再借云来客栈的客房——换成 Codex R316 已通过的「东厢小屋」，R347）----------
   let ED = null; try { const x = new XMLHttpRequest(); x.open('GET', 'r347/data.json?v=2', false); x.send(); if (x.status === 200 || x.status === 0) ED = JSON.parse(x.responseText); } catch (e) {}
-  const SRC = TMAPS.xt_inn_room4 || TMAPS.xt_inn_room1;
-  const EAST = TMAPS.dx_east = Object.assign({}, SRC, { title: '阿焰家 · 东厢', npcs: [], chests: [], doors: [], onEnter: null,
-    exits: (SRC.exits || []).slice(0, 1).map(e => Object.assign({}, e, { to: 'xt_danxia', at: P(930, 640), face: 'down', label: '出门 · 院子', cond: null, msg: '' })) });
-  if (ED) { const ld = (k, src) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = src; };
+  // 作者 11-17：「之前的旧版本东厢删除」——不再拿云来客栈的客房当底子，也不再有画小图标代替的旧摆设；东厢只有 R347 这一版
+  const EAST = TMAPS.dx_east = { title: '阿焰家 · 东厢', indoor: true, npcs: [], chests: [], doors: [], exits: [], onEnter: null };
+  { const ld = (k, src) => { if (IMG[k]) return; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = src; };
+    if (!ED) console.warn('R329：东厢 r347/data.json 没读到');
+    const E = ED || { cs: 8, cols: 125, rows: 94, blocked: '0'.repeat(125 * 94), objs: [], exit: [440, 700, 120, 50], spawn: [500, 640] };
     ld('r347g_east', 'r347/g_east.webp?v=2');
-    EAST.baked = { ground: 'r347g_east', cs: ED.cs, cols: ED.cols, rows: ED.rows, w: 1000, h: 750, blocked: ED.blocked,
-      objs: ED.objs.map((o, i) => { ld('r347_' + o.id, 'r347/' + o.id + '.webp?v=1'); return { id: 'r347_' + o.id, uid: 'r347e' + i, img: 'r347_' + o.id, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; }) };
+    EAST.baked = { ground: 'r347g_east', cs: E.cs, cols: E.cols, rows: E.rows, w: 1000, h: 750, blocked: E.blocked,
+      objs: E.objs.map((o, i) => { ld('r347_' + o.id, 'r347/' + o.id + '.webp?v=1'); return { id: 'r347_' + o.id, uid: 'r347e' + i, img: 'r347_' + o.id, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.sy, flip: false, noBlock: true, noPre: true }; }) };
     ld('r347_tea_pair', 'r347/tea_pair.webp?v=1');
-    const [ex, ey, ew, eh] = ED.exit; EAST.exits = [{ x: Math.floor(ex / ED.cs), y: Math.floor(ey / ED.cs), w: Math.ceil(ew / ED.cs), h: ED.rows - Math.floor(ey / ED.cs), to: 'xt_danxia', at: P(930, 640), face: 'down', label: '出门 · 院子' }];
-    EAST.start = P(ED.spawn[0], ED.spawn[1]);
+    const [ex, ey, ew] = E.exit; EAST.exits = [{ x: Math.floor(ex / E.cs), y: Math.floor(ey / E.cs), w: Math.ceil(ew / E.cs), h: E.rows - Math.floor(ey / E.cs), to: 'dx_home', at: P(1252, 790), face: 'down', label: '出门 · 院子' }];
+    EAST.start = P(E.spawn[0], E.spawn[1]);
     try { delete MAP_ZOOM.dx_east; } catch (e) {} }
-  else { try { if (MAP_ZOOM[SRC === TMAPS.xt_inn_room4 ? 'xt_inn_room4' : 'xt_inn_room1']) MAP_ZOOM.dx_east = MAP_ZOOM.xt_inn_room4 || MAP_ZOOM.xt_inn_room1; } catch (e) {} }
   try { if (typeof WIDE_OK === 'object') WIDE_OK.dx_east = 1; } catch (e) {}
   // 支线做完（师弟搬来了）：书桌上换成两只茶盏
   if (ED && typeof tileSetMap === 'function') tileSetMap = (o => function (m) { try { if (m === 'dx_east') { const done = q().s === 3 && F().dx_end === 'east'; for (const ob of EAST.baked.objs) if (ob.id === 'r347_tea_single' || ob.id === 'r347_tea_pair') { ob.img = done ? 'r347_tea_pair' : 'r347_tea_single'; } } } catch (e) {} return o.apply(this, arguments); })(tileSetMap);
-  const EP = ED ? { lamp: [470, 340], bed: [262, 430], flower: [330, 336], mill: [660, 380], tray: [800, 400] } : null;   // 新屋子里各处线索的站位（R316 互动点）
-  const ICON = [];   // 代替素材的小图标：[x, y, 字, 名字]
+  const EP = { lamp: [470, 340], bed: [262, 430], flower: [330, 336], mill: [660, 380], tray: [800, 400] };   // 东厢里各处线索的站位（R316 互动点）
   const seen = k => { const f = F(); f.dx_seen = f.dx_seen || {}; const first = !f.dx_seen[k]; f.dx_seen[k] = (f.dx_seen[k] || 0) + 1; return first; };
   const allSeen = () => { const s = F().dx_seen || {}; return ['lamp', 'bed', 'flower', 'mill', 'tray'].every(k => s[k]); };
   const checkAll = () => { if (on() && N() === 3 && allSeen()) { q().n = 4; toastT('东厢朝南 —— 回青阳百草轩，跟师弟说'); } };
-  const look = (k, x, y, icon, name, lines, again) => { if (EP && EP[k]) [x, y] = [EP[k][0], EP[k][1] - 30]; else ICON.push([x, y, icon, name]);
+  const look = (k, x, y, icon, name, lines, again) => { if (EP[k]) [x, y] = [EP[k][0], EP[k][1] - 30];
     spot('dx_east', x, y + 30, name, async () => { const first = seen(k); await L(first || !again ? lines : again); checkAll(); }); };
   look('lamp', 470, 440, '🏮', '窗边的灯', [['', '窗边一盏灯。灯罩外面又蒙了一层薄纱，光变得很柔。'], [HUO, '掌柜自己蒙的，说晚上看字不刺眼。']]);
   look('bed', 630, 560, '🛏', '床', [['', '新的丝绵被褥，厚得能堆个小山。屋子朝南，午后太阳正好照在床上。'], [HUO, '听雨楼买的丝绵。……听说听雨楼的老板娘最怕冷……']]);
   look('flower', 360, 600, '🌼', '窗台上的桂花', [['', '一只瓷瓶插满了桂花，开得正好，满屋都是香味。'], [HUO, '听雨楼的招牌，就是桂花茶。']]);
   look('mill', 770, 620, '🪨', '墙边的矮凳和石碾', [['', '墙边一张矮凳，一只旧石碾。凳面磨得发亮。'], [HUO, '听说听雨楼的茶都是现碾的。掌柜说是碾茶用的。']],
     [['', '你凑近又看了一眼。碾槽的缝里卡着一点褐色的渣，闻着发苦。'], ['', '……不像茶。']]);
-  look('tray', 478, 790, '🍵', ED ? '书桌上的茶盏' : '茶盘', [['', (ED ? '书桌上' : '茶盘里') + '摆着一只旧茶盏，窑里烧出来的桂花纹。旁边放着一只空盏托，什么也没有。'], [HUO, '那只旧的，是掌柜自己用了十年的。我说给配只新的，掌柜不让，说「另一只，得等人带来」。'],
+  look('tray', 478, 790, '🍵', '书桌上的茶盏', [['', '书桌上' + '摆着一只旧茶盏，窑里烧出来的桂花纹。旁边放着一只空盏托，什么也没有。'], [HUO, '那只旧的，是掌柜自己用了十年的。我说给配只新的，掌柜不让，说「另一只，得等人带来」。'],
     [HUO, '难不成，是等听雨楼的老板娘带一只来？']]);
-  // 中秋夜：师兄弟都在东厢
-  clone('dx_east', XI, 560, 700, async () => say(XI, '……屋子没怎么收拾。'), () => N() === 5 && F().dx_night, 'down');
-  clone('dx_east', DI, 640, 700, async () => say(DI, '被褥太厚了。'), () => N() === 5 && F().dx_night, 'down');
-  if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (o => function (T, cam, now) { o && o.apply(this, arguments);
-    try { if (world.mapName !== 'dx_east') return; ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      for (const [x, y, ic] of ICON) { ctx.fillStyle = 'rgba(255,248,230,.85)'; ctx.strokeStyle = 'rgba(120,80,40,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 26, 0, 7); ctx.fill(); ctx.stroke(); ctx.font = '30px sans-serif'; ctx.fillStyle = '#000'; ctx.fillText(ic, x, y + 1); }
-      ctx.restore(); } catch (e) {} })(tileAmbientHigh);
-
   // ---------- 第一幕：丹霞堂（接取）----------
   const shopTalk = async () => { const f = F(), s = q();
     const opts = []; if (s.n >= 2 && s.n <= 4) opts.push('「师弟中秋……不来了。」（就此交差）'); if (f.dx_rumor && s.n >= 2 && s.n <= 4) opts.push('闲聊两句'); opts.push('走了');
@@ -121,7 +112,7 @@
     if (!on() || N() < 3 || N() > 4) return false;
     await L([[HUO, '少侠，想看看东厢？……趁掌柜在前堂看炉，快看快看，掌柜一会儿就回来。']]);
     const c = await choose(HUO, ['跟他去东厢', '不了']); if (c !== 0) return true;
-    try { await fadeOut(250); } catch (e) {} tileSetMap('dx_east', ...(ED ? P(ED.spawn[0], ED.spawn[1]) : P(860, 820)), 'up'); S.scene = drawMap; try { await fadeIn(250); } catch (e) {} return true; });
+    try { await fadeOut(250); } catch (e) {} tileSetMap('dx_east', ...EAST.start, 'up'); S.scene = drawMap; try { await fadeIn(250); } catch (e) {} return true; });
 
   // ---------- 第二幕 / 第三幕：青阳百草轩 ----------
   if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { try { if (on() && N() === 1 && m !== 'qy_herb') F().dx_away = 1; } catch (e) {} return o.apply(this, arguments); })(tileSetMap);

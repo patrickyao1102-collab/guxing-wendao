@@ -36,7 +36,7 @@
     const H = mk('home', '阿焰家 · 院子', d.home), O = mk('home_old', '十几年前 · 师父的院子', d.home_old), K = mk('kitchen', '阿焰家 · 厨房', d.kitchen), R = mk('mainroom', '阿焰家 · 正房', d.mainroom);
     const dd = id => d.home.doors.find(x => x.id === id);
     H.doors.push(door(dd('main_room').trigger_rect, 'dx_mainroom', [500, 680], '正房', 'up'), door(dd('kitchen').trigger_rect, 'dx_kitchen', [500, 680], '厨房', 'up'));
-    if (TMAPS.dx_east) { H.doors.push(door(dd('east_room').trigger_rect, 'dx_east', [720, 860], '东厢', 'up'));
+    if (TMAPS.dx_east) { H.doors.push(Object.assign(door(dd('east_room').trigger_rect, 'dx_east', [500, 600], '东厢', 'up'), TMAPS.dx_east.start ? { at: TMAPS.dx_east.start } : {}));
       for (const e of TMAPS.dx_east.exits || []) Object.assign(e, { to: 'dx_home', at: P(1252, 790), face: 'down', label: '出门 · 院子' }); }
     const gx = d.home.gate.transition_rect; H.exits = [];
     H.doors.push(Object.assign(door([gx[0], gx[1] - 14, gx[2], 24], 'xt_city', [3060, 1440], '出院门 · 玄天城'), { gate: 1, cond: () => GATE !== 'closed' }));
