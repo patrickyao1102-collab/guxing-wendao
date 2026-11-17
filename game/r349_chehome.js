@@ -42,9 +42,9 @@
     mk('old', 'qy_chehome_old', '十几年前 · 师父的院子', d.old);
     // 南院门 → 百草轩后门
     const g = d.now.gate.transition_rect;
-    H.doors.push({ x: g[0] + g[2] / 2, y: g[1] - 2, rw: g[2] / 2, rh: 14, to: 'qy_herb', at: P(970, 330), face: 'down', label: '出院门 · 百草轩', cond: () => GATE !== 'closed', msg: '院门关着。' });
+    H.doors.push({ x: g[0] + g[2] / 2, y: g[1] - 2, rw: g[2] / 2, rh: 14, to: 'qy_town', at: P(241, 392), face: 'down', label: '出院门 · 青阳镇', cond: () => GATE !== 'closed', msg: '院门关着。' });
     // 百草轩右后角的后门 → 院门里
-    const HB = TMAPS.qy_herb; (HB.doors = HB.doors || []).push({ x: 970, y: 300, rw: 26, rh: 12, upOnly: true, to: 'qy_chehome', at: P(1005, 1150), face: 'up', label: '后门 · 阿澈家' });
+    // 11-17：阿澈家在青阳镇西北角有了自己的门面（R352，见 r352_chehome_ext.js），百草轩后门不再通这里
   };
   // 院门：'closed' / 'half' / 'open'（换门扇的图 + 换碰撞）
   window.CHE_GATE = st => { if (!D) return; GATE = st;
