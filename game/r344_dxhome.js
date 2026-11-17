@@ -118,5 +118,8 @@
     for (const n of M.npcs || []) if (n.hidden && n.key === 'none') { const x = (n.c + .5) * 64, y = (n.r + .8) * 64; let best = null, bd = 1e9;
       for (const o of objs) { const d = Math.hypot(o.x + o.w / 2 - x, o.sy - y); if (d < bd) { bd = d; best = o; } }
       if (best && bd < 160) { const ax = best.x + best.w / 2, ay = best.sy; n.c = (ax + (x - ax) * ROOM_K) / 64 - .5; n.r = (ay + (y - ay) * ROOM_K) / 64 - .8; } } };
-  for (const n of ['dx_mainroom', 'dx_kitchen', 'dx_east']) { try { shrinkRoom(n); } catch (e) { console.warn('R344 room', n, e); } }
+  // 作者 11-17 22:10：家具单缩会空、墙上的东西也一样大——改成屋里的人放大（青竹小院几间偏房也是这么做的，1.2），家具墙饰原样；
+  //   作者觉得叶孤星居室的比例「再降一点点」合适：那间人物 1，这里 1.15。想换大小可以在测试面板「人物大小」里试。
+  if (window.R344_SHRINK_FURNITURE) for (const n of ['dx_mainroom', 'dx_kitchen', 'dx_east']) { try { shrinkRoom(n); } catch (e) { console.warn('R344 room', n, e); } }
+  try { for (const n of ['dx_mainroom', 'dx_kitchen', 'dx_east']) CHAR_SCALE[n] = 1.15; } catch (e) {}
 })();
