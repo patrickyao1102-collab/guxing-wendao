@@ -101,4 +101,22 @@
     add('04_tea_table', 812, 548, 177, 146, 690); add('04_tea_chair_left', 726, 588, 83, 110, 690); add('04_tea_chair_right', 990, 588, 81, 110, 692); };
   // 数据同步载入（地图得在进图之前就在 TMAPS 里）
   try { const G = (window.GXD || {})['r344/data.json']; if (G) build(G); else { const x = new XMLHttpRequest(); x.open('GET', 'r344/data.json', false); x.send(); if (x.status === 200 || x.status === 0) build(JSON.parse(x.responseText)); } } catch (e) { console.warn('R344', e); }
+  // 作者 11-17 21:45：「阿焰家正房人物跟家具不匹配，人太小，家具太大」→ 正房、厨房、东厢三间屋里的家具都以脚底中点为准缩到 0.8（地板、墙、窗不动）；
+  //   家具底下的碰撞跟着缩（先清掉原来的占地格，再按同样缩放挡回去），墙脚那几行不动；看物的站位跟着往家具挪一点。
+  const ROOM_K = 0.8;
+  const shrinkRoom = name => { const M = TMAPS[name], B = M && M.baked; if (!B || B._r344k) return; B._r344k = 1;
+    const cs = B.cs, cols = B.cols, rows = B.rows, a = B.blocked.split('');
+    let top = 0; for (let r = 0; r < rows; r++) { let w = 0; for (let c = Math.floor(cols * .2); c < Math.floor(cols * .8); c++) if (a[r * cols + c] === '0') w++; if (w > cols * .3) { top = r; break; } }
+    const objs = (B.objs || []).filter(o => o.img && !/entry_mat|gate_|_mat$/.test(o.id || '') && o.w > 20);
+    const moved = [];
+    for (const o of objs) { const ax = o.x + o.w / 2, ay = o.sy;
+      for (let r = Math.max(top + 1, Math.floor(o.y / cs)); r <= Math.min(rows - 1, Math.floor((o.sy + 4) / cs)); r++) for (let c = Math.max(0, Math.floor(o.x / cs)); c <= Math.min(cols - 1, Math.floor((o.x + o.w) / cs)); c++) {
+        if (a[r * cols + c] !== '1') continue; a[r * cols + c] = '0'; moved.push([(c + .5) * cs, (r + .5) * cs, ax, ay]); }
+      o.x = ax + (o.x - ax) * ROOM_K; o.y = ay + (o.y - ay) * ROOM_K; o.w *= ROOM_K; o.h *= ROOM_K; }
+    for (const [x, y, ax, ay] of moved) { const nx = ax + (x - ax) * ROOM_K, ny = ay + (y - ay) * ROOM_K, c = Math.floor(nx / cs), r = Math.floor(ny / cs); if (r > top && r < rows && c >= 0 && c < cols) a[r * cols + c] = '1'; }
+    B.blocked = a.join('');
+    for (const n of M.npcs || []) if (n.hidden && n.key === 'none') { const x = (n.c + .5) * 64, y = (n.r + .8) * 64; let best = null, bd = 1e9;
+      for (const o of objs) { const d = Math.hypot(o.x + o.w / 2 - x, o.sy - y); if (d < bd) { bd = d; best = o; } }
+      if (best && bd < 160) { const ax = best.x + best.w / 2, ay = best.sy; n.c = (ax + (x - ax) * ROOM_K) / 64 - .5; n.r = (ay + (y - ay) * ROOM_K) / 64 - .8; } } };
+  for (const n of ['dx_mainroom', 'dx_kitchen', 'dx_east']) { try { shrinkRoom(n); } catch (e) { console.warn('R344 room', n, e); } }
 })();
