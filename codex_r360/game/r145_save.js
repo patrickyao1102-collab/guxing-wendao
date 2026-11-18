@@ -1,0 +1,206 @@
+// ================= R145 · 存档 / 读档（作者 11-07：给读者朋友试玩的正式版，要能存能读）=================
+// 存的是游戏进度本身：S.flags（全部剧情进度）+ S.hero（属性 / 背包 / 装备 / 灵石 / 技能）+ 队伍 + 技能重数 + 当前地图和位置。
+// 只在「地图上自由走动」这种安全点存档；读档就带着这份状态重新进地图——和测试面板跳转同一条路径，彻底避开「存在过场里读不出来」的 bug。
+// 界面全部用游戏自带的 choose() 弹窗画，不另造渲染 / 输入，稳。四个档：自动 + 手动 1/2/3。
+(function () {
+  if (typeof choose !== 'function' || typeof tileSetMap !== 'function' || typeof world === 'undefined') return;
+  const KEY_PREFIX = 'gx_r360_';
+  const slotKey = s => KEY_PREFIX + 'save_' + s;
+  const SLOTS = ['auto', '1', '2', '3'];
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+  };
+  const T = () => (typeof toast === 'function' ? toast : () => {});
+
+  // 只有在地图上自由走动时才是安全存档点
+  function safeNow() {
+    try {
+      // 作者 11-11：「开放所有地图都可以存档」—— 只要在地图上、不在打斗 / 对话 / 选项 / 过场里就能存（行囊、存档页自己会锁地图，不再算作不能存）
+      return !!(S.started && world.map && world.player && TMAPS[world.mapName]
+        && !(typeof battle !== 'undefined' && battle) && !dialog && !choice && !window.CINE_PAUSE);
+    } catch (e) { return false; }
+  }
+  const clone = o => { try { return JSON.parse(JSON.stringify(o)); } catch (e) { return null; } };
+  function snapshot() {
+    const p = world.player;
+    return {
+      v: 2, t: Date.now(),
+      houshanGoal: (world.triggers || []).find(t => t.houshanGoal && !t.done)?.houshanGoal || null,
+      map: world.mapName, x: p ? Math.round(p.x) : 0, y: p ? Math.round(p.y) : 0, face: p ? p.face : 'down',
+      hero: heroSnap(), flags: clone(S.flags || {}), party: clone(S.party || []),
+      allies: clone(S.allies || {}), allyEq: clone(S.allyEq || {}),
+      lineup: Array.isArray(S.lineup) ? S.lineup.slice() : null,
+      shards: S.shards || 0, bond: S.bond || 0,
+      sk4: clone(S.sk4 || {}), skillLv: clone(S.skillLv || {}),
+      quest: S.quest || '', uiTheme: S.uiTheme || 'paper',
+      title: (TMAPS[world.mapName] && TMAPS[world.mapName].title) || world.mapName || '',
+    };
+  }
+  // 作者 11-10 跑 bug：S.hero 的 lv / realm 是 rpgInit 装上的「取值器」，JSON 存不下来 → 读档后等级丢了（存档里显示「Lv?」、头像旁边写 undefined）。
+  // 存：把等级另记一份；读：重新装上取值器。老存档没有等级的，按气血估一个（去掉装备加的气血）。
+  function heroSnap() { const h = clone(S.hero); if (h) { try { h.lv = S.hero.lv; h.realm = S.hero.realm; } catch (e) {} } return h; }
+  function fixHero(h) {
+    try {
+      let lv = +h.lv || 0;
+      if (!lv && typeof lvOfRealm === 'function' && h.realm) lv = lvOfRealm(h.realm);
+      if (!lv) { let eq = 0; try { for (const k in (h.equip || {})) { const it = h.equip[k] && ITEM_DB[h.equip[k]]; if (it && it.maxhp) eq += it.maxhp; } } catch (e) {} lv = Math.max(6, Math.round(6 + ((h.maxhp || 280) - eq - 280) / ((typeof GROW !== 'undefined' && GROW.maxhp) || 24))); }
+      delete h.lv; delete h.realm;
+      Object.defineProperty(h, 'lv', { get: () => lv, set: v => { const old = lv; lv = v; if (v > old && typeof onLevelUp === 'function') onLevelUp(old, v); }, configurable: true });
+      Object.defineProperty(h, 'realm', { get: () => realmOf(lv), set: r => { const v = lvOfRealm(r); if (v > lv) h.lv = v; }, configurable: true });
+      h._rpg = true;
+    } catch (e) {}
+    return h;
+  }
+  function readSlot(s) { const raw = ls.get(slotKey(s)); if (!raw) return null; try { const d = JSON.parse(raw); return d && d.hero ? d : null; } catch (e) { return null; } }
+  // 各个存档入口共用同一套键。与原版放在同一个本地服务器上也能分别游玩。
+  window.GX_SAVE = {
+    readSlot,
+    returnHome() {
+      window.GX_GOING_HOME = true;
+      S.started = false;
+      try {
+        sessionStorage.removeItem(KEY_PREFIX + 'alive');
+        sessionStorage.setItem(KEY_PREFIX + 'home', '1');
+      } catch (e) {}
+      location.href = location.pathname;
+    },
+  };
+  const anySave = () => SLOTS.some(s => readSlot(s));
+  window.GX_HAS_SAVE = anySave;
+
+  function writeSlot(s) {
+    if (!safeNow()) { T()('打斗或剧情里不能存档，回到地图上走动时再存', 2200); return false; }
+    const snap = snapshot(); if (!snap.hero) { T()('这一刻不能存档', 1800); return false; }
+    const ok = ls.set(slotKey(s), JSON.stringify(snap));
+    T()(ok ? (s === 'auto' ? '已自动存档' : '已存到存档 ' + s) : '存档失败（手机存储空间可能不足）', 1800);
+    return ok;
+  }
+  // 自动存档：原来各处 saveGame() 的调用现在生效；只在有世界时写、安全点才覆盖
+  window.saveGame = function (slot) {
+    if (slot && slot !== 'auto') return writeSlot(slot);
+    // 战斗奖励、技能教学和剧情也会请求自动存档。只在能安全恢复的地图上提交。
+    if (!safeNow() || window.GX_GOING_HOME || S.scene !== drawMap || world.hold || (world.locked && !S.menu) ||
+        sysPanel || window.R207_BOOK_BUSY?.() || window.R160_PENDING?.() || window.ITEMGET_ACTIVE?.()) return false;
+    const snap = snapshot();
+    return !!snap.hero && ls.set(slotKey('auto'), JSON.stringify(snap));
+  };
+
+  const META = s => {
+    const d = readSlot(s); const head = s === 'auto' ? '自动存档' : '存档 ' + s;
+    if (!d) return head + ' · 空';
+    const h = d.hero || {}, t = new Date(d.t || 0);
+    const two = n => String(n).padStart(2, '0');
+    const when = (t.getMonth() + 1) + '月' + t.getDate() + '日 ' + two(t.getHours()) + ':' + two(t.getMinutes());
+    return head + ' · ' + (d.title || '') + ' · ' + (h.realm || ('Lv' + (h.lv || '?'))) + ' · ' + when;
+  };
+
+  // 开机时各模块挂进 S.overlay 的都是常驻层（自己判断画不画），标成 _keep；之后临时推进来的弹层读档时照旧清掉
+  // 11-10 跑 bug：原来只在 window load（要等所有图下完，手机上几十秒）才标——标题画面上很快点「前尘再续」读档，会把封阵、任务光效、弹窗这些常驻层全清掉
+  //   （之后某个临时层收尾时又按 indexOf=-1 删掉了别人，弹窗看不见、剧情锁死）。现在：还没开局之前挂上的都算常驻，脚本跑完就标、之后几秒再补标几次
+  { const tag = () => { try { if (S.started) return; for (const o of S.overlay) if (o) o._keep = 1; } catch (e) {} };
+    const go = () => { tag(); for (const ms of [500, 1500, 3000, 6000, 12000]) setTimeout(tag, ms); };
+    if (document.readyState !== 'loading') setTimeout(go, 0); else document.addEventListener('DOMContentLoaded', () => setTimeout(go, 0));
+    window.addEventListener('load', () => setTimeout(tag, 0)); }
+  function applyLoad(d) {
+    try { if (typeof battle !== 'undefined' && battle) { try { endBattle(true); } catch (e) {} battle = null; } } catch (e) {}
+    try { dialog = null; } catch (e) {} try { choice = null; } catch (e) {} try { sysPanel = null; } catch (e) {}
+    S.hero = fixHero(d.hero); S.flags = d.flags || {}; S.party = d.party || []; S.sk4 = d.sk4 || {}; S.skillLv = d.skillLv || {};
+    // 读另一个槽时也要重建队友状态，防止装备、血量和出战阵容串档。
+    S.allyEq = d.allyEq || {}; S.allies = d.allies || {};
+    S.lineup = Array.isArray(d.lineup) ? d.lineup : null;
+    S.shards = d.shards || 0; S.bond = d.bond || 0;
+    S.quest = d.quest || ''; if (d.uiTheme) S.uiTheme = d.uiTheme; S.started = true; S.menu = null;
+    S.fade = 0; S.flash = 0; S.hud = true; for (let i = S.overlay.length - 1; i >= 0; i--) if (!(S.overlay[i] && S.overlay[i]._keep)) S.overlay.splice(i, 1);   // 11-10：模块开机时挂上的常驻层（钓鱼、菜园布置、竹牌、厨房……）读档后要留着，只清临时弹层
+    world.hold = false; world.locked = false; world.path = null; world.walkTarget = null; world.pending = null;
+    try { (S.party || []).forEach(k => { if (typeof allyState === 'function') allyState(k); }); } catch (e) {}
+    const name = d.map && TMAPS[d.map] ? d.map : 'qingzhu_court';
+    tileSetMap(name, d.x / 64 - .5, d.y / 64 - .8, d.face || 'down');
+    if (d.houshanGoal && window.HS_RESTORE_GOAL) HS_RESTORE_GOAL(d.houshanGoal);
+    S.scene = drawMap;
+    const pl = world.player; if (pl) { pl.x = d.x; pl.y = d.y; pl.moving = false; pl.face = d.face || 'down'; }
+    world.cam = null;
+    setTimeout(() => { try { const p = world.player; if (p) { p.x = d.x; p.y = d.y; } world.cam = null; } catch (e) {} }, 60);
+    T()('读取存档：' + (d.title || name), 1800);
+  }
+  window.loadGame = function (s) { const d = readSlot(s); if (!d) { T()('这个存档是空的', 1600); return false; } applyLoad(d); return true; };
+
+  // ---------------- 菜单里：存档 / 读档 ----------------
+  async function slotMenu() {
+    if (S.menu) { try { closeMenu(); } catch (e) { S.menu = null; world.locked = false; } }
+    while (true) {
+      const i = await choose('存档 / 读档', SLOTS.map(META).concat(['返回']));
+      if (i == null || i >= SLOTS.length) return;
+      const s = SLOTS[i], has = !!readSlot(s);
+      const acts = [], keys = [];
+      if (s !== 'auto') { acts.push('存到这里'); keys.push('save'); }
+      if (has) { acts.push('读取这个存档'); keys.push('load'); }
+      if (has && s !== 'auto') { acts.push('删除这个存档'); keys.push('del'); }
+      acts.push('返回'); keys.push('back');
+      const j = await choose(META(s), acts); const a = keys[j];
+      if (a === 'save') writeSlot(s);
+      else if (a === 'load') { if (loadGame(s)) return; }
+      else if (a === 'del') { ls.del(slotKey(s)); T()('已删除存档 ' + s, 1400); }
+    }
+  }
+  window.GX_SLOTMENU = slotMenu;
+
+  // 菜单右上角加一个「存档」按钮（在「换肤」左边）
+  if (typeof menuLayout === 'function') {
+    // 作者 11-11：「把存档功能放进行囊的单独列表」—— 行囊左侧分页最后加一页「存档」，点它直接打开存档页（右上角那个小按钮去掉）
+    menuUpdate = (orig => function () { try { if (!MTABS.includes('存档')) MTABS.push('存档'); } catch (e) {} const r = orig.apply(this, arguments); try { const m = S.menu; if (m && MTABS[m.tab] === '存档') { m.tab = m._lastTab || 0; const f = window.GX_SLOTMENU || slotMenu; Promise.resolve(f()).then(v => { if (v === undefined && f !== slotMenu) {} }); } else if (m) m._lastTab = m.tab; } catch (e) {} return r; })(menuUpdate);
+    /* 右上角「存档」小按钮已挪进左侧分页 */
+    /* 右上角存档按钮不再画 */
+  }
+
+  // ---------------- 标题画面：有存档就先问「继续 / 重新开始」 ----------------
+  // main() 在 index.html 内联脚本里早于本文件就跑了，直接包装 titleScreen 来不及；
+  // 所以标题里留了 GX_CONTINUE 钩子，由这里实现：返回 true = 已读档（标题挂起），false = 重新开始（照常进章节选择）。
+  const titleBg = () => {
+    const now = performance.now() / 1000;
+    if (typeof has === 'function' && has('title_art')) { const z = 1.04 + Math.sin(now * .15) * .02; ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(z, z); drawImageFit(IMG.title_art, -W / 2, -H / 2, W, H); ctx.restore(); }
+    else { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#060a1e'); g.addColorStop(1, '#1b2a4a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+    const gg = ctx.createLinearGradient(0, 0, W * .6, 0); gg.addColorStop(0, 'rgba(5,8,25,.55)'); gg.addColorStop(1, 'rgba(5,8,25,0)'); ctx.fillStyle = gg; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.textAlign = 'center'; ctx.font = `150px ${BRUSH}`; textOutline('孤星问道', W * .3, 250, '#ffe08a', '#2a0f00', 10);
+    ctx.font = `600 30px ${FONT}`; ctx.fillStyle = '#e8dcc0'; ctx.fillText('卷一 · 九曜剑典', W * .3, 320); ctx.restore();
+  };
+  window.GX_CONTINUE = async function () {
+    if (!anySave()) return false;
+    S.scene = titleBg;
+    const i = await choose('孤星问道 · 卷一', ['继续游戏', '重新开始']);
+    if (i !== 0) return false;
+    const ne = SLOTS.filter(readSlot); let s = ne[0];
+    if (ne.length > 1) { const j = await choose('读取哪个存档？', ne.map(META).concat(['返回'])); if (j == null || j >= ne.length) return window.GX_CONTINUE(); s = ne[j]; }
+    try { await fadeOut(400); } catch (e) {}
+    loadGame(s); return true;
+  };
+
+  // R168 标题「前尘再续」：列出有内容的存档（地点 · 修为 · 时间）挑一个读；返回 true = 已读档
+  window.GX_PICKLOAD = async function () {
+    const ne = SLOTS.filter(readSlot); if (!ne.length) return false;
+    const j = await choose('前尘再续 · 选择存档', ne.map(META).concat(['返回']));
+    if (j == null || j >= ne.length) return false;
+    try { playSnd('ui_confirm'); } catch (e) {}
+    try { await fadeOut(400); } catch (e) {}
+    loadGame(ne[j]); return true;
+  };
+
+  // 作者 11-11：「有时候玩着玩着就突然回到主界面」—— 多半是手机浏览器内存吃紧、把页面整个重新载入了（不是游戏自己跳的）。
+  //   补救：开局后在本标签页记一个「正在玩」标记；页面被意外重载、回到主界面时，直接从最近的自动存档接着玩（自动存档每 20 秒滚动一次），不用玩家自己去「前尘再续」。
+  setInterval(() => { try { if (S.started && !window.GX_GOING_HOME) sessionStorage.setItem(KEY_PREFIX + 'alive', '1'); } catch (e) {} }, 3000);
+  window.GX_RESUME = async function () {
+    let alive = null; try { alive = sessionStorage.getItem(KEY_PREFIX + 'alive'); sessionStorage.removeItem(KEY_PREFIX + 'alive'); } catch (e) {}
+    try { if (sessionStorage.getItem(KEY_PREFIX + 'home')) { sessionStorage.removeItem(KEY_PREFIX + 'home'); return false; } } catch (e) {}   /* 玩家自己点了「返回主界面」：不自动接档 */
+    if (alive !== '1' || !readSlot('auto')) return false;
+    try { await fadeOut(300); } catch (e) {}
+    if (!loadGame('auto')) return false;
+    setTimeout(() => T()('刚才画面意外中断了，已从最近的进度接着玩', 2600), 900); return true;
+  };
+  // 自由走动时每 20 秒滚动自动存档（最近进度），外加原有的升级 / 领悟后 saveGame()
+  setInterval(() => window.saveGame(), 20000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') window.saveGame();
+  });
+  window.addEventListener('pagehide', () => window.saveGame());
+})();

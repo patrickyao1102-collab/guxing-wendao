@@ -1,0 +1,44 @@
+#dbgBtn {
+  left: auto; bottom: auto; right: max(8px, env(safe-area-inset-right));
+  top: max(7px, env(safe-area-inset-top)); min-width: 44px; min-height: 34px;
+  background: #132a27e8; color: #faf1d9; border-color: #bda678;
+}
+#dbgBtn[aria-expanded="true"] { visibility: hidden; }
+#testShelf {
+  --edge: #607069;
+  position: fixed; z-index: 9999; display: flex; flex-direction: column;
+  right: max(8px, env(safe-area-inset-right)); top: max(7px, env(safe-area-inset-top));
+  width: min(508px, calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  max-height: calc(100% - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  box-sizing: border-box; overflow: hidden; border: 1px solid #a38d60; border-radius: 10px;
+  background: #132622fa; color: #f4ecda; box-shadow: 0 6px 28px #07100fb3;
+  font: 14px/1.4 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+#testShelf[hidden], #testShelf [hidden], #dbgPanel .testFiltered { display: none !important; }
+#testShelf header { display: flex; align-items: center; gap: 12px; padding: 12px 14px 6px; }
+#testShelf h2 { flex: none; margin: 0; font: 600 21px/1.3 "Songti SC", serif; color: #f5e6c5; }
+#testShelf input { flex: 1; min-width: 0; height: 34px; padding: 0 9px; border: 1px solid var(--edge); border-radius: 5px; background: #0d1e1b; color: #fff8ea; font: inherit; touch-action: manipulation; }
+#testShelf input::placeholder { color: #b7c7bf; }
+#testShelf button { cursor: pointer; }
+#testShelf header button { padding: 6px; min-height: 34px; color: #d3e1d7; border: 0; background: transparent; font: inherit; }
+#testShelf nav { display: flex; padding: 0 12px; border-bottom: 1px solid #597067; }
+#testShelf nav button { flex: 1; padding: 9px 2px 7px; color: #bbcbc2; font: inherit; background: transparent; border: 0; border-bottom: 2px solid transparent; }
+#testShelf nav button[aria-pressed="true"] { color: #ffe3a7; border-color: #dab778; font-weight: 650; }
+#testShelf #dbgPanel {
+  position: static; box-sizing: border-box; width: 100%; max-height: none; min-height: 0;
+  padding: 10px 14px 16px; overflow: auto; overscroll-behavior: contain; touch-action: pan-y;
+  border: 0; border-radius: 0; box-shadow: none; background: transparent; color: inherit; font: inherit;
+}
+#testShelf #dbgPanel h4 { margin: 14px 0 7px; font-size: 15px; color: #eed5a1; }
+#testShelf #dbgPanel .cur { color: #c5d6cd; line-height: 1.45; }
+#testShelf #dbgPanel .tag { color: #b7c8bf; }
+#testShelf #dbgPanel .row { gap: 6px; align-items: center; }
+#testShelf #dbgPanel .row button { min-height: 36px; padding: 6px 10px; font: inherit; line-height: 1.3; border: 1px solid #546960; background: #273e35; color: #f6f0df; touch-action: pan-y; }
+#testShelf #dbgPanel .row button.on { border-color: #d0b47b; color: #ffdfa0; }
+#testShelf button:focus-visible, #testShelf input:focus-visible { outline: 2px solid #debf80; outline-offset: -2px; }
+#testShelf .emptyTest { margin: 18px 14px 0; }
+@media (hover: hover) { #testShelf #dbgPanel button:hover { background: #375447; } }
+@media (pointer: coarse) {
+  #dbgBtn { min-height: 42px; }
+  #testShelf nav button, #testShelf #dbgPanel .row button, #testShelf header button { min-height: 42px; }
+}
