@@ -15,7 +15,7 @@
   for (const o of B.objs) { const sy = o.sy != null ? o.sy : o.y + o.h; if (sy > Y1) { o.y -= DY; if (o.sy != null) o.sy -= DY; } }
   if (typeof B0.blocked === 'string' && B0.cols) { const cs = B0.cs, r0 = Math.round(Y0 / cs), r1 = Math.round(Y1 / cs);
     B.blocked = B0.blocked.slice(0, r0 * B0.cols) + B0.blocked.slice(r1 * B0.cols); B.rows = B0.rows - (r1 - r0); }
-  const g = new Image(); g.onload = () => { try { IMG.r366g_tavern = g; } catch (e) {} try { if (window.MM_CLEAR) MM_CLEAR('qy_tavern'); } catch (e) {} }; g.src = 'r366/tavern_ground.webp?v=1';
+  const g = new Image(); g.onload = () => { try { IMG.r366g_tavern = g; } catch (e) {} try { if (window.MM_CLEAR) MM_CLEAR('qy_tavern'); } catch (e) {} }; g.src = 'r366/tavern_ground.webp?v=2';
   // 进门落脚点、出口跟着往上挪
   const cellDY = DY / 8;
   for (const e of M.exits || []) if (e.y > Y1 / 8) e.y -= cellDY;

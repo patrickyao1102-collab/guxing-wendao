@@ -16,12 +16,7 @@
   // ---------- 玄天城 · 两间新铺面 ----------
   const XB = TMAPS.xt_city && TMAPS.xt_city.baked;
   if (XB && XB.objs) {
-    const SHOP = { house_03_145: ['r364_chengyi', 'r364/shop_chengyi.webp'], house_02_144: ['r364_yanzhi', 'r364/shop_yanzhi.webp'] };
-    // 新图到了以后：底表里换成新图；如果玩家此刻就站在玄天城，当前地图里那一份也换掉，小地图重画
-    const swapIn = (uid, key) => { try { for (const o of XB.objs) if (o.uid === uid) o.img = key;
-      const T = world && world.map && world.map.T; if (world.mapName === 'xt_city' && T && T.objs) for (const o of T.objs) if (o.uid === uid) o.img = key;
-      if (window.MM_CLEAR) MM_CLEAR('xt_city'); } catch (e) {} };
-    for (const uid in SHOP) { const [k, src] = SHOP[uid]; const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} swapIn(uid, k); }; im.src = src; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }   // 两张小图，不排队
+    // 11-22：两间铺面改由 R367（r367_shops.js）放，这里不再换图
     const GONE = { maple_sunlit_203: [1560, 2010, 1670, 2062], cargo_sacks_168: [570, 1700, 705, 1764], crate_stack_167: [570, 1700, 705, 1764] };
     XB.objs = XB.objs.filter(o => !GONE[o.uid]);
     for (const k in GONE) clear(XB, ...GONE[k]);
