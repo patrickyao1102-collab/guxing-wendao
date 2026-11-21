@@ -197,44 +197,93 @@
     const HOME = TMAPS.dx_home ? 'dx_home' : 'dx_east';
     const SP = Object.assign({ ye: [720, 900], yan: [760, 800], che: [680, 800], stove: [560, 800], gate: [720, 1020], peek: [[640, 1000], [800, 1000]] }, (window.DX_HOME_SPOTS || {}));
     let yan = null, che = null; const hud0 = S.hud; S.hud = false;   // 整场戏不显示血条、任务栏
+    // R365（作者 11-21）：饭桌换成 Codex R358 家常方桌三椅 + 三人坐姿；说话改头顶冒泡、一句配一个动作；阿焰听见敲门起身走去院门迎；视频后三人坐着吃饭
+    const D = HOME === 'dx_home' && window.DXD ? window.DXD : null, pHid = !!(world.player && world.player.hidden);
+    if (D) { SP.cam = [800, 612]; try { D.load(); } catch (e) {} }
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const sb = (who, name, text, ms) => D.say(who, text, { name, ms });
+    const go = async (a, x, y, spd) => { a.tx = x; a.ty = y; try { await moveActor(a, x, y, spd); } finally { a.tx = null; a.ty = null; } };
+    const sitDown = cups => { world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
+      if (D) { yan = null; world.player.hidden = true; D.on(cups); D.poses({ yan: 'sit', ye: 'sit', che: cups === 'after' ? 'sit' : null }); }
+      else { yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} } };
+    let eatLoop = null;
     try {
       try { await fadeOut(500); } catch (e) {}
       try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {}
       if (TMAPS[HOME]) TMAPS[HOME].night = true;   // 中秋夜
       try { if (HOME === 'dx_home') MAP_ZOOM.dx_home = 1.35; } catch (e) {}   // 吃饭这场镜头拉近一点
       tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null;
-      world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
-      yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down');
-      try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} if (SP.cam) world.camFocus = SP.cam;
+      sitDown('before'); if (SP.cam) world.camFocus = SP.cam;
       try { await fadeIn(700); } catch (e) {}
-      await L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。'], [XI, '来了？坐。……菜是伙计做的，我只管看火。'], ['', '他给你倒了茶，又往院门那边看了一眼。'],
+      if (D) {
+        await L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。']]);
+        await sb('yan', XI, '来了？坐。……菜是伙计做的，我只管看火。');
+        D.pose('yan', 'pour'); await wait(1500); D.pose('yan', 'sit'); await wait(400);
+        D.pose('yan', 'look'); await wait(1300); D.pose('yan', 'sit'); await wait(500);
+        await sb('ye', YE, '百草轩那边……他说铺子忙，走不开。');
+        await L([[XX, '（小子，撒个谎脸都僵了。）']]);
+        await sb('yan', XI, '……嗯。', 1500);
+        D.hold(true); D.pose('yan', 'cup'); await wait(2400); D.pose('yan', 'cupdown'); await wait(700); D.hold(false); D.pose('yan', 'sit'); await wait(700);
+      } else await L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。'], [XI, '来了？坐。……菜是伙计做的，我只管看火。'], ['', '他给你倒了茶，又往院门那边看了一眼。'],
         [YE, '百草轩那边……他说铺子忙，走不开。'], [XX, '（小子，撒个谎脸都僵了。）'], [XI, '……嗯。'], ['', '他把第三只茶盏拿起来，看了一会儿，又轻轻放回了茶盘里。']]);
       // 小时候：同一个院子，十几年前（R344 dx_home_old）；没有就在原地演
       // 11-18：回忆戏换成 R357「摇桂花、埋酒」，在阿澈家老院子（十几年前）的桂花树下演；没有就照旧
       const M357 = !!(window.R357_ON && window.R357_MEMORY && TMAPS.qy_chehome_old);   // 11-18 作者：还是用之前（R345）的动画帧，只改台词；R357 留着不用
       const CHE = !M357 && !!(window.DX_MEMORY_CHE && window.DX_MEMORY_TL && TMAPS.qy_chehome_old);
       if (CHE) { try { await fadeOut(600); } catch (e) {} await DX_MEMORY_CHE(); tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; S.fade = 1;
-        world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} }
+        sitDown('before'); }
       const MEM = (M357 || CHE) ? null : SP.mem;
       if (M357) { try { await fadeOut(600); } catch (e) {} await R357_MEMORY(); tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; S.fade = 1;
-        world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} }
+        sitDown('before'); }
       if (MEM && TMAPS[MEM.map]) { try { await fadeOut(600); } catch (e) {} tileSetMap(MEM.map, ...P(MEM.stove[0] + 200, MEM.stove[1] + 40), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; world.actors = world.actors.filter(a => a === world.player); world.camFocus = [MEM.stove[0] + 60, MEM.stove[1] - 60]; S.fade = 0; }
       if (!M357 && !CHE && window.DX_MEMORY) await DX_MEMORY(MEM && TMAPS[MEM.map] ? { stove: MEM.stove, gate: MEM.che_in, pos: MEM } : { stove: SP.stove, gate: SP.gate });
       if (MEM && TMAPS[MEM.map]) { tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null; S.fade = 1;
-        world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI))); yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} }
+        sitDown('before'); }
       // 黑着，「咚、咚」
       S.fade = 1; await new Promise(r => setTimeout(r, 700)); knock(); await say('', '「咚、咚。」');
       try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {}
       che = actorAs(DI, 'ache', SP.gate[0], SP.gate[1], 'up');
+      if (D) { che._r365scarf = true;   // 厚围巾、提着笼屉那一身（R316）
+        D.poses({ yan: 'look', ye: 'sit' }); world.camFocus = [780, 770];
+        try { await fadeIn(900); } catch (e) {}
+        await L([['', '院门「吱呀」一声开了。'], ['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。']]);
+        D.pose('yan', 'rise'); await wait(450); D.pose('yan', 'stand'); await wait(550);
+        D.pose('yan', null); yan = actorAs(XI, 'ayan', D.SEAT.yan[0], D.SEAT.yan[1], 'down');
+        await go(yan, 749, 692, 110); await go(yan, 749, 800, 150); yan.face = 'down';
+        await go(che, SP.gate[0], SP.gate[1] - 12, 60); che.face = 'up';
+        await wait(1600);
+      } else {
       yan.face = 'down'; world.camFocus = [(SP.yan[0] + SP.gate[0]) / 2, (SP.yan[1] + SP.gate[1]) / 2 - 60];
       try { await fadeIn(900); } catch (e) {}
-      await L([['', '院门「吱呀」一声开了。'], ['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。'], ['', '桌边的人站了起来。']]);
+      await L([['', '院门「吱呀」一声开了。'], ['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。'], ['', '桌边的人站了起来。']]); }
       // 黑场，放桃花尾声（不打字，地图配乐先停干净）
       try { if (window.R334_PEACH) await R334_PEACH({ caption: false }); } catch (e) {}
       // 视频放完：还是这一晚的院子（院门关上了）
       world.camFocus = null; try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {}
       tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null;
       world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
+      if (D) {
+        world.player.hidden = true; D.on('after'); D.poses({ yan: 'sit', ye: 'sit', che: 'sit' }); world.camFocus = SP.cam;
+        try { await fadeIn(800); } catch (e) {}
+        await L([['', '桌上，两只桂花纹的茶盏挨在一起，冒着热气。一只盏沿缺了个小口。']]);
+        D.pose('yan', 'glance'); await wait(500); await sb('yan', XI, '……铺子忙，走不开？');
+        D.pose('ye', 'drink'); await sb('ye', YE, '是他让我这么说的。'); D.pose('ye', 'sit');
+        D.pose('che', 'smile'); await sb('che', DI, '师兄看火，我下药——'); 
+        D.pose('yan', 'eat'); await sb('yan', XI, '话多。吃饭。'); D.pose('yan', 'sit'); D.pose('che', 'eat'); await wait(600);
+        // 院门外：小莲、小荷探头偷看
+        world.camFocus = [790, 800]; try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {}
+        const g1 = girl(LIAN, SP.peek[0][0], SP.peek[0][1] - 4), g2 = girl(HE, SP.peek[1][0], SP.peek[1][1] - 4); g1.face = g2.face = 'up';
+        await D.say(g1, '我就说，不激一激他，他再等十年也不会来。', { name: LIAN, h: 112 });
+        await D.say(g2, '差点激成反的……还好有少侠。', { name: HE, h: 112 });
+        await D.say(g1, '嘘——走啦走啦。', { name: LIAN, h: 112 });
+        g1.face = g2.face = 'down'; await Promise.all([go(g1, g1.x, 1040, 120), go(g2, g2.x, 1040, 120)]);
+        world.actors = world.actors.filter(a => a !== g1 && a !== g2); try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {} world.camFocus = SP.cam;
+        // 三人吃饭（坐姿和吃饭两张轮着换，Codex 逐帧来了换成循环）
+        let n = 0; eatLoop = setInterval(() => { n++; try { D.poses({ ye: n % 3 === 0 ? 'eat' : 'sit', che: n % 2 ? 'eat' : 'sit', yan: n % 4 === 1 ? 'eat' : 'sit' }); } catch (e) {} }, 650);
+        await wait(1200);
+        await say(XX, '（……小子，这顿饭，咱们吃慢点。）');
+        clearInterval(eatLoop); eatLoop = null;
+      } else {
       yan = actorAs(XI, 'ayan', SP.yan[0], SP.yan[1], 'down'); che = actorAs(DI, 'ache', SP.che[0], SP.che[1], 'down');
       try { if (window.DX_DINNER) DX_DINNER(true); } catch (e) {} if (SP.cam) world.camFocus = SP.cam;
       try { await fadeIn(800); } catch (e) {}
@@ -243,8 +292,12 @@
       const g1 = girl(LIAN, SP.peek[0][0], SP.peek[0][1]), g2 = girl(HE, SP.peek[1][0], SP.peek[1][1]);
       await L([['', '院门外，两只花篮的边探进来又缩回去。'], [LIAN, '（小声）我就说，不激一激他，他再等十年也不会来。'], [HE, '（小声）差点激成反的……还好有少侠。'], [LIAN, '嘘——走啦走啦。']]);
       world.actors = world.actors.filter(a => a !== g1 && a !== g2);
-      await say(XX, '（……小子，这顿饭，咱们吃慢点。）');
-    } finally { try { if (window.DX_DINNER) DX_DINNER(false); } catch (e) {} window.R328_OFF = false; world.locked = false; world.camFocus = null; S.hud = hud0; try { if (window.DX_GATE) DX_GATE('open'); } catch (e) {} try { if (TMAPS[HOME]) TMAPS[HOME].night = false; delete MAP_ZOOM.dx_home; } catch (e) {} }
+      await say(XX, '（……小子，这顿饭，咱们吃慢点。）'); }
+    } finally { if (eatLoop) clearInterval(eatLoop); try { if (window.DX_DINNER) DX_DINNER(false); } catch (e) {}
+      if (D) { try { world.player.hidden = pHid; world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
+        // 作者 11-21：「结束完两个人面向一点都不对，两个都不是面对面的」——散席后师兄弟在院子当中面对面站着说话
+        actorAs(XI, 'ayan', 752, 742, 'right'); actorAs(DI, 'ache', 848, 742, 'left'); } catch (e) {} }
+      window.R328_OFF = false; world.locked = false; world.camFocus = null; S.hud = hud0; try { if (window.DX_GATE) DX_GATE('open'); } catch (e) {} try { if (TMAPS[HOME]) TMAPS[HOME].night = false; delete MAP_ZOOM.dx_home; } catch (e) {} }
     f.dx_end = 'east'; f.dx_night = 0; await finish(1, 'p_tongxin'); }
   // ---------- 结局二：两包桂花糕 ----------
   async function endCake() { const f = F();
@@ -303,5 +356,5 @@
   // ---------- 寻路 / 头上的「!」（歪打正着那条不标）----------
   try { if (window.R284S && R284S.T) R284S.T[ID] = (s, f) => s.n === 0 || s.n === 4 ? { to: [DI], map: 'qy_herb' } : s.n === 1 ? { to: f.dx_away ? [DI] : [], map: 'qy_herb' }
     : s.n === 2 ? { to: [XI], map: 'xt_danxia' } : s.n === 3 || s.n === 5 ? { to: [HUO], map: 'xt_danxia' } : s.n === 6 ? { to: [DI], map: 'qy_shelter' } : null; } catch (e) {}
-  window.R329 = { Q };
+  window.R329 = { Q, night: () => night() };
 })();
