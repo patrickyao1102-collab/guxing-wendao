@@ -59,3 +59,39 @@
   // 中秋夜一开始就预载（F().dx_night 置 1 的时候）
   setInterval(() => { try { if (S && S.flags && S.flags.dx_night) load(); } catch (e) {} }, 2500);
 })();
+// ================= R365 第二步：中秋夜整场逐帧（Codex R365，19 拍、394 个画面）=================
+// timeline 照 R345 的格式：每拍 frames = [毫秒, [[图, 世界左上x, y, 宽, 高, 排序y], …], 说明]；每个画面是整张绘制表（桌椅、桌上东西、人），换帧整表替换。
+// 图打成 r365tl/aNN.webp 图集（@2x 画、按 1x 世界矩形画），院子底图、夜色、院门不在表里（游戏本来就有）。
+// 用法（r329 中秋夜那场）：DXD.tlReady() → DXD.play('03') / DXD.loopWhile('01', 某个 Promise) / DXD.show('09', 0) / DXD.clearTL()
+(function () {
+  const D = window.DXD; if (!D || typeof drawBaked !== 'function') return;
+  let TL = null, ATL = [], want = false;
+  const load = () => { if (want) return; want = true;
+    try { const x = new XMLHttpRequest(); x.open('GET', 'r365tl/tl.json?v=1'); x.onload = () => { try { const j = JSON.parse(x.responseText); TL = j.tl;
+      for (let i = 0; i < j.n; i++) { const im = new Image(); im.src = 'r365tl/a' + String(i).padStart(2, '0') + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} ATL.push(im); } } catch (e) { console.warn('R365 tl', e); } }; x.send(); } catch (e) {} };
+  try { IMG.r365tl = IMG.r365tl || document.createElement('canvas'); } catch (e) {}
+  drawBaked = (o => function (ob, now) { const a = ob && ob._atl; if (!a) return o.apply(this, arguments);
+    const im = ATL[a[0]]; if (!im || !im.complete || !im.naturalWidth) return;
+    try { ctx.drawImage(im, a[1], a[2], a[3], a[4], ob.x, ob.y, ob.w, ob.h); } catch (e) {} })(drawBaked);
+  const T = () => (world.map && world.map.T) || null;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const show = f => { const t = T(); if (!t || !t.objs || !f) return; t.objs = t.objs.filter(q => !q._tl);
+    f[1].forEach(([a, x, y, w, h, s], i) => t.objs.push({ _tl: 1, bk: true, id: 'r365tl', uid: 'r365tl_' + i, img: 'r365tl', _atl: a, x, y, w, h, sy: s, noBlock: true })); };
+  Object.assign(D, {
+    loadTL: load,
+    tlReady: () => { load(); return !!(TL && ATL.length && ATL.every(im => im.complete && im.naturalWidth)); },
+    show(k, i) { const s = TL && TL[k]; if (s) show(s.frames[Math.min(i || 0, s.frames.length - 1)]); },
+    clearTL() { const t = T(); if (t && t.objs) t.objs = t.objs.filter(q => !q._tl); },
+    // 播一拍；o.hold：停在 loop_range 那段的毫秒数；o.until：停在 loop_range 直到这个 Promise 结束；o.onFrame(i)
+    async play(k, o) { o = o || {}; const s = TL && TL[k]; if (!s) return; const F = s.frames, R = s.loop_range;
+      for (let i = 0; i < F.length; i++) { show(F[i]); try { if (o.onFrame) o.onFrame(i); } catch (e) {} await wait(F[i][0]);
+        if (R && i === R.last && (o.hold || o.until)) { let done = false; if (o.until) o.until.then(() => done = true, () => done = true); const t0 = performance.now();
+          const over = () => done || (!o.until && performance.now() - t0 >= o.hold);
+          while (!over()) for (let j = R.first; j <= R.last && !over(); j++) { show(F[j]); await wait(F[j][0]); } } } },
+    // 循环一拍，直到 p 结束（旁白、星旋心里话这种）
+    async loopWhile(k, p) { const s = TL && TL[k]; if (!s) return p; let done = false; p.then(() => done = true, () => done = true);
+      while (!done) for (const f of s.frames) { if (done) break; show(f); await wait(f[0]); } return p; },
+    frameMs(k, a, b) { const s = TL && TL[k]; if (!s) return 1500; let t = 0; for (let i = a; i <= Math.min(b, s.frames.length - 1); i++) t += s.frames[i][0]; return t; },
+  });
+  setInterval(() => { try { if (S && S.flags && S.flags.dx_night) load(); } catch (e) {} }, 2500);
+})();

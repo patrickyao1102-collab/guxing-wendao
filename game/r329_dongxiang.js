@@ -199,7 +199,9 @@
     let yan = null, che = null; const hud0 = S.hud; S.hud = false;   // 整场戏不显示血条、任务栏
     // R365（作者 11-21）：饭桌换成 Codex R358 家常方桌三椅 + 三人坐姿；说话改头顶冒泡、一句配一个动作；阿焰听见敲门起身走去院门迎；视频后三人坐着吃饭
     const D = HOME === 'dx_home' && window.DXD ? window.DXD : null, pHid = !!(world.player && world.player.hidden);
-    if (D) { SP.cam = [800, 612]; try { D.load(); } catch (e) {} }
+    if (D) { SP.cam = [800, 612]; try { D.load(); if (D.loadTL) D.loadTL(); } catch (e) {} }
+    // R365 第二步：Codex 整场逐帧到了就按帧演（每一拍台词配动作），没到就用上面那套坐姿
+    let TLX = false; const tlx = () => (TLX = !!(D && D.tlReady && D.tlReady()));
     const wait = ms => new Promise(r => setTimeout(r, ms));
     const sb = (who, name, text, ms) => D.say(who, text, { name, ms });
     const go = async (a, x, y, spd) => { a.tx = x; a.ty = y; try { await moveActor(a, x, y, spd); } finally { a.tx = null; a.ty = null; } };
@@ -214,8 +216,18 @@
       try { if (HOME === 'dx_home') MAP_ZOOM.dx_home = 1.35; } catch (e) {}   // 吃饭这场镜头拉近一点
       tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null;
       sitDown('before'); if (SP.cam) world.camFocus = SP.cam;
+      for (let i = 0; i < 20 && D && !tlx(); i++) await wait(200);   // 逐帧图集还在路上就等一会儿（最多 4 秒）
+      if (TLX) { D.off(); world.player.hidden = true; D.show('01', 0); }
       try { await fadeIn(700); } catch (e) {}
-      if (D) {
+      if (TLX) {
+        await D.loopWhile('01', L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。']]));
+        await Promise.all([D.play('02'), sb('yan', XI, '来了？坐。……菜是伙计做的，我只管看火。')]);
+        await D.play('03'); await D.play('04');
+        await Promise.all([D.play('05'), sb('ye', YE, '百草轩那边……他说铺子忙，走不开。')]);
+        await D.loopWhile('06', L([[XX, '（小子，撒个谎脸都僵了。）']]));
+        await Promise.all([D.play('07'), sb('yan', XI, '……嗯。', 1500)]);
+        await D.play('08', { hold: 2600 }); await wait(500);
+      } else if (D) {
         await L([['', '中秋夜。院子当中摆了一张小桌，三副碗筷，三只茶盏。桂花开着，月亮很圆。']]);
         await sb('yan', XI, '来了？坐。……菜是伙计做的，我只管看火。');
         D.pose('yan', 'pour'); await wait(1500); D.pose('yan', 'sit'); await wait(400);
@@ -243,7 +255,14 @@
       S.fade = 1; await new Promise(r => setTimeout(r, 700)); knock(); await say('', '「咚、咚。」');
       try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {}
       che = actorAs(DI, 'ache', SP.gate[0], SP.gate[1], 'up');
-      if (D) { che._r365scarf = true;   // 厚围巾、提着笼屉那一身（R316）
+      if (TLX) { world.actors = world.actors.filter(a => a !== che); che = null; D.off(); world.player.hidden = true; D.show('09', 0); world.camFocus = [780, 740];
+        try { await fadeIn(900); } catch (e) {}
+        await D.play('09'); world.camFocus = [770, 800]; await D.play('10');
+        await L([['', '院门「吱呀」一声开了。']]);
+        await D.play('11');
+        await L([['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。']]);
+        await D.play('12'); await wait(800);
+      } else if (D) { che._r365scarf = true;   // 厚围巾、提着笼屉那一身（R316）
         D.poses({ yan: 'look', ye: 'sit' }); world.camFocus = [780, 770];
         try { await fadeIn(900); } catch (e) {}
         await L([['', '院门「吱呀」一声开了。'], ['', '门口站着一个人。脖子上绕着厚围巾，一手提着一笼桂花糕，一手按着怀里的布包。']]);
@@ -262,7 +281,21 @@
       world.camFocus = null; try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {}
       tileSetMap(HOME, ...P(SP.ye[0], SP.ye[1]), 'up'); S.scene = drawMap; world.locked = true; world.banner = null;
       world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
-      if (D) {
+      if (TLX) {
+        D.off(); world.player.hidden = true; D.show('13', 0); world.camFocus = SP.cam;
+        try { await fadeIn(800); } catch (e) {}
+        await D.loopWhile('13', L([['', '桌上，两只桂花纹的茶盏挨在一起，冒着热气。一只盏沿缺了个小口。']]));
+        await Promise.all([D.play('14'), (async () => { await wait(D.frameMs('14', 0, 1)); await sb('yan', XI, '……铺子忙，走不开？'); })()]);
+        await Promise.all([D.play('15'), sb('ye', YE, '是他让我这么说的。')]);
+        await D.play('16', { until: sb('che', DI, '师兄看火，我下药——') });
+        await Promise.all([D.play('17'), sb('yan', XI, '话多。吃饭。')]);
+        // 院门外：小莲、小荷在门扇后探头、捂嘴笑、缩回（气泡跟着 Codex 标的帧号出）
+        world.camFocus = [770, 800]; try { if (window.DX_GATE) DX_GATE('half'); } catch (e) {}
+        const Lp = { x: 705, y: 936 }, Hp = { x: 792, y: 938 }, B18 = [[3, 16, Lp, LIAN, '我就说，不激一激他，他再等十年也不会来。'], [17, 28, Hp, HE, '差点激成反的……还好有少侠。'], [29, 34, Lp, LIAN, '嘘——走啦走啦。']];
+        await D.play('18', { onFrame: i => { for (const [a, b, at, who, t] of B18) if (i === a) D.say(at, t, { name: who, h: 112, ms: D.frameMs('18', a, b) }); } });
+        try { if (window.DX_GATE) DX_GATE('closed'); } catch (e) {} world.camFocus = SP.cam;
+        await D.loopWhile('19', say(XX, '（……小子，这顿饭，咱们吃慢点。）'));
+      } else if (D) {
         world.player.hidden = true; D.on('after'); D.poses({ yan: 'sit', ye: 'sit', che: 'sit' }); world.camFocus = SP.cam;
         try { await fadeIn(800); } catch (e) {}
         await L([['', '桌上，两只桂花纹的茶盏挨在一起，冒着热气。一只盏沿缺了个小口。']]);
@@ -293,7 +326,7 @@
       await L([['', '院门外，两只花篮的边探进来又缩回去。'], [LIAN, '（小声）我就说，不激一激他，他再等十年也不会来。'], [HE, '（小声）差点激成反的……还好有少侠。'], [LIAN, '嘘——走啦走啦。']]);
       world.actors = world.actors.filter(a => a !== g1 && a !== g2);
       await say(XX, '（……小子，这顿饭，咱们吃慢点。）'); }
-    } finally { if (eatLoop) clearInterval(eatLoop); try { if (window.DX_DINNER) DX_DINNER(false); } catch (e) {}
+    } finally { if (eatLoop) clearInterval(eatLoop); try { if (D && D.clearTL) D.clearTL(); } catch (e) {} try { if (window.DX_DINNER) DX_DINNER(false); } catch (e) {}
       if (D) { try { world.player.hidden = pHid; world.actors = world.actors.filter(a => !(a.npc && (a.npc.name === XI || a.npc.name === DI)));
         // 作者 11-21：「结束完两个人面向一点都不对，两个都不是面对面的」——散席后师兄弟在院子当中面对面站着说话
         actorAs(XI, 'ayan', 752, 742, 'right'); actorAs(DI, 'ache', 848, 742, 'left'); } catch (e) {} }
