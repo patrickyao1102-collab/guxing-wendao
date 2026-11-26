@@ -29,11 +29,11 @@ def bbox_union(ims):
         if not a: continue
         b = a if b is None else (min(b[0], a[0]), min(b[1], a[1]), max(b[2], a[2]), max(b[3], a[3]))
     return b
-def sheet(ims, cols, path, q=86):
+def sheet(ims, cols, path, q=82):
     fw, fh = ims[0].size; rows = (len(ims) + cols - 1) // cols
     S = Image.new('RGBA', (fw * cols, fh * rows), (0, 0, 0, 0))
     for i, im in enumerate(ims): S.paste(im, ((i % cols) * fw, (i // cols) * fh))
-    S.save(path, 'WEBP', quality=q, method=4); return os.path.getsize(path)
+    S.save(path, 'WEBP', quality=q, method=4, alpha_quality=80); return os.path.getsize(path)   # 透明通道压一点（看不出来，省两成）
 meta = {}
 if os.path.exists(META_JS):
     try: meta = json.loads(open(META_JS, encoding='utf8').read().split('=', 1)[1].rsplit(';', 1)[0])

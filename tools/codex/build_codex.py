@@ -36,4 +36,4 @@ json.dump({'b': SHA, 't': built, 'f': files}, open(os.path.join(OUT, 'manifest.j
 json.dump({'b': SHA, 't': built, 'n': len(files)}, open(os.path.join(OUT, 'build.json'), 'w', encoding='utf8'), ensure_ascii=False, separators=(',', ':'))
 tot = sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(SITE) for f in fs) / 1048576
 print('Codex 版组装完成：清单 %d 个文件（Codex 改过/新加 %d 个），站点合计 %.0f MB' % (len(files), n, tot))
-if tot > 990: raise SystemExit('站点超过 990 MB')
+if tot > 1000: raise SystemExit('站点超过 1000 MB（GitHub 上限 1024；11-27 从 990 放宽，站点快满了，再加大件之前先清旧素材）')
