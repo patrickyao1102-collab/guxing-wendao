@@ -89,7 +89,7 @@
         const n = wrap(NEWDESC(it), BX + 662, BY + 268, 266, 25, `16px ${FONT}`, '#4a3420', 3); const n2 = wrap(it.eff, BX + 662, BY + 268 + n * 25 + 10, 266, 25, `700 16px ${FONT}`, INK, 4); const hy = BY + 268 + (n + n2) * 25 + 22, nd = itemCount('m_neidan'); ND = null;
         if (rk.next && nd > 0) { const by = Math.min(hy + 16, BY + 407); if (by - hy >= 14) tx('再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '；或者——', BX + 662, hy, `14px ${FONT}`, '#7a5a34');
           ND = { x: BX + 662, y: by, w: 266, h: 38, id }; const b2 = art('btn_star'), arm = NDARM && NDARM.id === id && performance.now() - NDARM.t < 3500; if (b2) ctx.drawImage(b2, ND.x, ND.y, ND.w, ND.h);
-          tx(arm ? '再点一次：用掉 1 颗内丹' : '用妖王内丹祭炼' + (rk.r ? '大成' : '小成') + '（有 ' + nd + ' 颗）', ND.x + ND.w / 2, ND.y + ND.h / 2 + 1, `700 15px ${FONT}`, arm ? RED : '#4a3418', 'center'); }
+          tx(arm ? '再点一次：用掉 1 颗内丹' : '用内丹祭炼' + (rk.r ? '大成' : '小成') + '（有 ' + nd + ' 颗）', ND.x + ND.w / 2, ND.y + ND.h / 2 + 1, `700 15px ${FONT}`, arm ? RED : '#4a3418', 'center'); }
         else tx(rk.next ? '再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '（效果更强）' : '已祭炼大成', BX + 662, hy, `14px ${FONT}`, '#7a5a34');
         if (NDFX && performance.now() - NDFX.t < 1600 && NDFX.id === id) { const k = (performance.now() - NDFX.t) / 1600; ctx.save(); ctx.globalAlpha = Math.min(1, (1 - k) * 2.2); tx('祭炼' + NDFX.name + '！', cx, BY + 132 - k * 16, `34px ${BRUSH}`, RED, 'center'); ctx.restore(); }
         const b = art('btn_star'); if (b) ctx.drawImage(b, BX + 695, BY + 451, 200, 60); tx(on ? '收回法宝' : '带上出战', cx, BY + 481, `700 20px ${FONT}`, '#4a3418', 'center'); }
