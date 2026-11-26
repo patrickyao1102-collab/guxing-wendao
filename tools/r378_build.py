@@ -63,22 +63,25 @@ for d in sorted(glob.glob(os.path.join(SRC, '*'))):
     fw, fh = round((ub[2] - ub[0]) * q), round((ub[3] - ub[1]) * q)
     footX = fw - (foot_x - ub[0]) * q; footY = (foot_y - ub[1]) * q
     H = fh / OVER
-    I = [prep(f) for f in idle]; seq = []
-    for f in I: seq += [f] * IDLE_HOLD
-    idleEnd = len(seq) - 1; impact = idleEnd + 1
+    # 图集里每张画只存一份；「这一帧连放几拍」写在 map 里（第几拍 → 图集里第几格）。原来是把同一张画重复存好几遍，图集大了三倍。
+    I = [prep(f) for f in idle]; phys = list(I); fmap = []
+    for i in range(len(I)): fmap += [i] * IDLE_HOLD
+    idleEnd = len(fmap) - 1; impact = idleEnd + 1
     if atk:
         A = [prep(f) for f in atk]; hold = ATK_HOLD[:len(A)] + [3] * max(0, len(A) - len(ATK_HOLD))
         hit = min(2, len(A) - 1); impact = idleEnd + 1 + sum(hold[:hit])
-        for f, n in zip(A, hold): seq += [f] * n
-    m = {'idleEnd': idleEnd, 'impact': impact, 'n': len(seq), 'cols': 6, 'fw': fw, 'fh': fh, 'footX': round(footX, 1), 'footY': round(footY, 1), 'fps': 12}
-    sz = sheet(seq, 6, os.path.join(OUT, bid + '.webp'))
+        for j, n in enumerate(hold): fmap += [len(I) + j] * n
+        phys += A
+    cols = 3 if len(phys) > 4 else len(phys)
+    m = {'idleEnd': idleEnd, 'impact': impact, 'n': len(fmap), 'cols': cols, 'fw': fw, 'fh': fh, 'footX': round(footX, 1), 'footY': round(footY, 1), 'fps': 12, 'map': fmap}
+    sz = sheet(phys, cols, os.path.join(OUT, bid + '.webp'))
     e = {'main': m, 'h': round(H, 1), 'bodyH': BODY[bid], 'atk': bool(atk)}
     for nm, fs in (('charge', chg), ('break', brk)):
         if not fs: continue
-        P = [prep(f) for f in fs]; s2 = []
-        for f in P: s2 += [f] * 2
-        sheet(s2, 6, os.path.join(OUT, f'{bid}_{nm}.webp'))
-        e[nm] = dict(m, idleEnd=len(s2) - 1, impact=len(s2), n=len(s2))
+        P = [prep(f) for f in fs]; m2 = []
+        for i in range(len(P)): m2 += [i] * 2
+        sheet(P, len(P), os.path.join(OUT, f'{bid}_{nm}.webp'))
+        e[nm] = dict(m, idleEnd=len(m2) - 1, impact=len(m2), n=len(m2), cols=len(P), map=m2)
     # 图鉴 / 备用：平时第一帧，朝右，按身体 512 高
     pic = idle[0].crop(bbox_union(idle[:1])); k2 = 512 / pic.height; pic = pic.resize((round(pic.width * k2), 512), Image.LANCZOS); pic.save(os.path.join(OUT, bid + '_pic.webp'), 'WEBP', quality=88, method=6)
     for pn in ('poster.webp', 'poster.png'):

@@ -20,7 +20,7 @@ import build_release as R
 sys.argv = _argv
 
 SRC, PLAY = 'game', os.path.join(SITE, 'play')
-LIMIT_MB = 960   # GitHub Pages 单站点上限 1GB，留一点余量；超了发布会失败，这里提前报清楚
+LIMIT_MB = 990   # GitHub Pages 单站点上限 1GB（1024 MB），留一点余量；超了发布会失败，这里提前报清楚。11-27：原来卡 960，一夜新美术后到了 968，放宽到 990——站点快满了，再加大件之前得先清旧素材
 
 def sha16(data):
     return hashlib.sha256(data).hexdigest()[:16]

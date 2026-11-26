@@ -243,7 +243,7 @@
   function lairSprite(m, x, yy, H, faceRight, t) {
     const V = window.VSPRITES && VSPRITES[m.key];
     if (V) { let im = LIM[V.id]; if (!im) { im = LIM[V.id] = new Image(); im.src = 'rig/' + V.id + '.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} } if (!im.complete || !im.naturalWidth) return false;
-      const mt = V.meta, L = mt.idleEnd + 1, k = Math.floor(t * 8) % (L * 2 - 2 || 1), f = k < L ? k : L * 2 - 2 - k, sc = H / mt.fh, sx = (f % mt.cols) * mt.fw, sy = Math.floor(f / mt.cols) * mt.fh;
+      const mt = V.meta, L = mt.idleEnd + 1, k = Math.floor(t * 8) % (L * 2 - 2 || 1), f0 = k < L ? k : L * 2 - 2 - k, f = mt.map ? mt.map[f0] : f0, sc = H / mt.fh, sx = (f % mt.cols) * mt.fw, sy = Math.floor(f / mt.cols) * mt.fh;
       ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, yy, H * .34, H * .07, 0, 0, 7); ctx.fill(); ctx.translate(x, yy); if (faceRight) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(im, sx, sy, mt.fw, mt.fh, -mt.footX * sc, -mt.footY * sc, mt.fw * sc, mt.fh * sc); ctx.restore(); return true; }
     if (typeof IMG !== 'undefined' && !IMG[m.key] && !(window.RIG_MAP && RIG_MAP[m.key])) return false;

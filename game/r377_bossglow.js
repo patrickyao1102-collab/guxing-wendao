@@ -21,7 +21,7 @@
     if (!im) { im = SIM[V.id] = new Image(); im.src = 'rig/' + V.id + '.webp'; } if (!im.complete || !im.naturalWidth) return null;
     const m = V.meta; let f = -1; if (u._va != null) { f = m.idleEnd + 1 + Math.floor((now - u._va) * 20); if (f >= m.n) f = -1; }
     if (f < 0) { const L = m.idleEnd + 1, k = Math.floor((now + (u.x % 3)) * 8) % (L * 2 - 2 || 1); f = k < L ? k : L * 2 - 2 - k; }
-    const H = V.h * ((window.VS_SCALE || {})[u.key] || 1); return { im, m, f, H, S: H / m.fh }; }
+    if (m.map) f = m.map[f]; const H = V.h * ((window.VS_SCALE || {})[u.key] || 1); return { im, m, f, H, S: H / m.fh }; }
   function silhouette(fr, c) { const m = fr.m, w = Math.ceil(m.fw / 2), h = Math.ceil(m.fh / 2); if (SIL.width !== w || SIL.height !== h) { SIL.width = w; SIL.height = h; } else sg.clearRect(0, 0, w, h);
     sg.globalCompositeOperation = 'source-over'; sg.drawImage(fr.im, (fr.f % m.cols) * m.fw, Math.floor(fr.f / m.cols) * m.fh, m.fw, m.fh, 0, 0, w, h);
     sg.globalCompositeOperation = 'source-in'; sg.fillStyle = rgba(c, 1); sg.fillRect(0, 0, w, h); sg.globalCompositeOperation = 'source-over'; return SIL; }
