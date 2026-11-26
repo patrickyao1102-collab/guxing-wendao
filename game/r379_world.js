@@ -181,7 +181,7 @@
       let lastT = 0, lockT = 0; S.overlay.push({ draw() { try { const now = performance.now(), dt = Math.min(.1, (now - (lastT || now)) / 1000); lastT = now; let staged = !!(world && world.camFocus) || !!(typeof battle !== 'undefined' && battle);
           // 没定焦点、但锁着玩家在演的剧情（不是自己找人搭话、不是开着行囊）：锁满半秒也退回远景
           try { const talking = (world.actors || []).some(a => a.talking), scripted = world.locked && !talking && !S.menu && S.scene === drawMap; if (!scripted) lockT = 0; else if (!lockT) lockT = now; if (scripted && now - lockT > 500) staged = true; } catch (e) {}
-          let want = CLEAN ? 1.3 : NEAR ? 1.2 : 1;
+          let want = CLEAN ? 1.15 : NEAR ? 1.2 : 1;   /* 作者 11-27 晨：我们是手游，比例对照手游，别照端游拉太近。1.15 就是手机上作者真机调过的那一档——手机上等于不变，电脑上跟手机同一个比例 */
           // 一屏就装得下的小屋子（铺子、客房）：只近一点点，别一进门就把柜台后面的掌柜切到画面外
           try { const T0 = world.map && world.map.T; if (want > 1.15 && T0 && T0.mh && S.scene === drawMap) { const vz0 = VZ() / KZ / MZ; if (T0.mh * vz0 <= H * 1.08) want = 1.15; } } catch (e) {}
           const tg = staged ? 1 : Math.max(1, want / MZ); if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
@@ -197,6 +197,19 @@
       ctx.strokeStyle = k < .3 ? '#ff5a4a' : '#7fe08a'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k); ctx.stroke(); ctx.restore(); return x + r * 2 + 12; })(drawHudCard); } catch (e) {}
   // 任务：右上那张卡收成一行「主线 · 现在该做什么」，点一下自动带路；旁边的小圆标点开任务册
   let QR = null, QI = null;
+  // 清爽模式下第一次有任务：原来那套三步教学（R200）讲的是任务栏的「展开 / 收起 / 缩成小标记」，清爽模式里没有这些，而且它会锁住人、压暗全屏。
+  // 这里换成任务那一行旁边的一句短提示：不锁人、不压暗，点一下或者过几秒自己收。
+  let tipT = 0, freeT = 0;
+  try { S.overlay.push({ draw() { try { if (!CLEAN || !S.started || !S.quest) return; const f = F(); if (!f.tut_quest) { f.tut_quest = 1; f.r380_qtip = 1; } } catch (e) {} } }); } catch (e) {}
+  try { cv.addEventListener('pointerdown', () => { if (tipT > 0 && performance.now() - tipT > 2500) tipT = -1; }, true); } catch (e) {}
+  function qtip() { const f = F(); if (!CLEAN || !QR || f.r380_qtip !== 1 && !(tipT > 0)) return; const now = performance.now();
+    if (f.r380_qtip === 1) { if (world.locked || (typeof dialog !== 'undefined' && dialog)) { freeT = 0; return; } if (!freeT) freeT = now; if (now - freeT < 1200) return;   /* 剧情中间偶尔松一下手不算，连着闲下来一会儿才提示 */ f.r380_qtip = 2; tipT = now; try { playSnd('ui_open', .5); } catch (e) {} }
+    const dt = (now - tipT) / 1000; if (dt > 10) { tipT = -1; return; } const al = Math.min(1, dt * 3) * Math.min(1, (10 - dt) * 2), pu = .55 + .45 * Math.sin(now / 190);
+    ctx.save(); ctx.globalAlpha = al; ctx.strokeStyle = `rgba(255,224,138,${pu})`; ctx.lineWidth = 2.5; ctx.shadowColor = '#ffd36a'; ctx.shadowBlur = 14; ctx.beginPath(); ctx.roundRect(QR.x - 2, QR.y - 3, QR.w + 6, QR.h + 6, 10); ctx.stroke(); ctx.shadowBlur = 0;
+    const lines = ['这一行是眼下要做的事。', '点它，叶孤星会自己走过去；右边的卷轴是任务册。']; ctx.font = `600 17px ${FONT}`; const bw = Math.max(...lines.map(l => ctx.measureText(l).width)) + 36, bh = 74, bx = Math.min(W - bw - 14, QR.x + QR.w - bw + 60), by = QR.y + QR.h + 16;
+    ctx.fillStyle = 'rgba(24,17,10,.92)'; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 10); ctx.fill(); ctx.strokeStyle = 'rgba(214,176,96,.85)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx + bw - 120, by + 1); ctx.lineTo(bx + bw - 108, by - 11); ctx.lineTo(bx + bw - 96, by + 1); ctx.closePath(); ctx.fillStyle = 'rgba(24,17,10,.92)'; ctx.fill();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f5e8cc'; lines.forEach((l, i) => ctx.fillText(l, bx + 18, by + 24 + i * 27)); ctx.restore(); }
   if (typeof drawMapHud === 'function') drawMapHud = (o => function () { if (!CLEAN) { QR = QI = null; return o.apply(this, arguments); }
     const f = F(), keep = f.qt_min; f.qt_min = 1; let r; try { r = o.apply(this, arguments); } finally { if (keep === undefined) delete f.qt_min; else f.qt_min = keep; }
     try { QR = null; QI = (window.R287 && R287.HUD && R287.HUD.rect) || null; if (S.hud === false || S.menu || !world.map || S.scene !== drawMap || !window.R287) return r;
@@ -204,7 +217,7 @@
       const head = it.kind === 'main' ? '主线' : '支线', txt = (it.step || it.name || '').replace(/（[^）]*）/g, ''); ctx.save(); ctx.font = `600 18px ${FONT}`; let t = txt; while (t.length > 4 && ctx.measureText(t).width > 380) t = t.slice(0, -2) + '…';
       const tw = ctx.measureText(t).width, w = tw + 78, x1 = W - 84, x0 = x1 - w, y = 22, h = 40, g = ctx.createLinearGradient(x0 - 40, 0, x1, 0); g.addColorStop(0, 'rgba(14,10,6,0)'); g.addColorStop(.18, 'rgba(14,10,6,.62)'); g.addColorStop(1, 'rgba(14,10,6,.62)'); ctx.fillStyle = g; ctx.fillRect(x0 - 40, y, w + 40, h);
       ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.font = `700 14px ${FONT}`; ctx.fillStyle = it.kind === 'main' ? '#ff9a7a' : '#8fc8ff'; ctx.fillText(head, x0 + 6, y + h / 2 + 1); ctx.font = `600 18px ${FONT}`; ctx.fillStyle = (window.QUEST_NAV && QUEST_NAV.on) ? '#ffe27a' : '#f5ead0'; ctx.fillText(t, x0 + 46, y + h / 2 + 1); ctx.restore();
-      QR = { x: x0 - 10, y, w: w + 10, h, it }; } catch (e) {}
+      QR = { x: x0 - 10, y, w: w + 10, h, it }; qtip(); } catch (e) {}
     return r; })(drawMapHud);
   try { cv.addEventListener('pointerdown', e => { if (!CLEAN || (!QR && !QI) || S.menu || world.locked || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice)) return; const p = toLogical(e);
       const inq = QR && p.x >= QR.x && p.x <= QR.x + QR.w && p.y >= QR.y && p.y <= QR.y + QR.h, ini = QI && p.x >= QI[0] && p.x <= QI[0] + QI[2] && p.y >= QI[1] && p.y <= QI[1] + QI[3]; if (!inq && !ini) return;

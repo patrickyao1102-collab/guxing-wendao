@@ -82,7 +82,10 @@
 
   // ---- 妖王登场：开打头一两秒，一道墨带横过屏幕，名号用它自己的颜色亮出来 ----
   try { S.overlay.push({ draw() { try { const b = typeof battle !== 'undefined' && battle, e = b && b._yw; if (!e || !e.alive || b.state === 'end') return; if (b.__warm || (window.FXW_BLOCKING && FXW_BLOCKING())) return;
-      const now = performance.now() / 1000; if (!b._r377t) { b._r377t = now; try { S.flash = .5; S.flashColor = rgba(colOf(e), 1); S.shake = 10; playSnd('sfx_ult', .45); } catch (er) {} }
+      const now = performance.now() / 1000; if (!b._r377t) { b._r377t = now; try { S.flash = .5; S.flashColor = rgba(colOf(e), 1); S.shake = 10; playSnd('sfx_ult', .45); } catch (er) {}
+        // 登场镜头：先贴在妖王身上，再拉开到全景（作者 11-27 晨：妖王不靠画得大来撑场面，「想想有没有把人物跟远景拉开的效果」）。
+        // 用的是技能镜头那个现成的口子（只推战场、不推界面），一秒半后自己交还。
+        try { if (!window.__R83ZOOM) { const t0 = performance.now(), ex = e.x + 30, ey = e.y - (e.h || 300) * .5; const zf = () => { const t = (performance.now() - t0) / 1000, D = 1.6; if (t > D || battle !== b) { if (window.__R83ZOOM === zf) window.__R83ZOOM = null; return null; } const k = Math.min(1, Math.max(0, (t - .25) / (D - .25))), ez = 1 - Math.pow(1 - k, 3); return { s: 1.34 - .34 * ez, px: ex, py: ey }; }; window.__R83ZOOM = zf; } } catch (er) {} }
       const dt = now - b._r377t, D = 1.9; if (dt > D) return; const c = colOf(e), a = Math.min(1, dt / .18) * Math.min(1, (D - dt) / .45), sl = (1 - Math.min(1, dt / .22)) * 260, sc = 1 + Math.max(0, .22 - dt) * 1.8;
       ctx.save(); ctx.globalAlpha = a; const g = ctx.createLinearGradient(0, 250, 0, 470); g.addColorStop(0, 'rgba(6,4,3,0)'); g.addColorStop(.22, 'rgba(6,4,3,.86)'); g.addColorStop(.78, 'rgba(6,4,3,.86)'); g.addColorStop(1, 'rgba(6,4,3,0)'); ctx.fillStyle = g; ctx.fillRect(0, 250, W, 220);
       ctx.fillStyle = rgba(c, .75); ctx.fillRect(sl, 296, W, 2); ctx.fillRect(-sl, 424, W, 2);
