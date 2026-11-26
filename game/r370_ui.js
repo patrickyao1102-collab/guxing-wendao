@@ -27,7 +27,7 @@
   const BX = 120, BY = 50, PX = [56, 244, 432, 620, 808], PY = 89;
   for (const n of ['board_bg', 'poster', 'poster_02', 'poster_03', 'poster_locked', 'poster_sel', 'stamp_zhu', 'btn', 'btn_down', 'btn_close', 'yw_boar', 'yw_wolf', 'yw_leopard', 'yw_spider', 'yw_treant']) setTimeout(() => art(n), 12000);
   async function openBoard() {
-    let sel = YW.findIndex(y => !done(y) && shown(y)); if (sel < 0) sel = 0; let press = 0;
+    let sel = YW.findIndex(y => !done(y) && shown(y)); if (sel < 0) sel = 0; let press = 0; let go = null;
     await modal(() => { ctx.save(); const a = dim(); ctx.globalAlpha = a; ctx.translate(0, (1 - a) * 14);
       const bg = art('board_bg'); if (bg) ctx.drawImage(bg, BX, BY, 1040, 620);
       YW.forEach((y, i) => { const x = BX + PX[i], yy = BY + PY, ok = shown(y), po = art(ok ? ['poster', 'poster_02', 'poster_03'][i % 3] : 'poster_locked'); if (po) ctx.drawImage(po, x, yy, 176, 250);
@@ -42,15 +42,17 @@
       if (ok) { tx(y.ep + ' · ' + y.name, dx, dy + 42, `38px ${BRUSH}`, INK);
         if (done(y)) tx('已讨伐', dx + ctx.measureText(y.ep + ' · ' + y.name).width + 26, dy + 46, `700 20px ${FONT}`, RED);
         tx('出没之地', dx, dy + 88, `700 18px ${FONT}`, '#6a4a2a'); tx(y.where, dx + 92, dy + 88, `18px ${FONT}`, INK);
-        tx('荐战等级', dx + 430, dy + 88, `700 18px ${FONT}`, '#6a4a2a'); tx(CN(y.lv) + ' 级（你 ' + CN(S.hero.lv) + ' 级）', dx + 522, dy + 88, `18px ${FONT}`, S.hero.lv + 2 < y.lv ? RED : INK);
+        tx('荐战等级', dx + 392, dy + 88, `700 18px ${FONT}`, '#6a4a2a'); tx(CN(y.lv) + ' 级（你 ' + CN(S.hero.lv) + ' 级）', dx + 484, dy + 88, `18px ${FONT}`, S.hero.lv + 2 < y.lv ? RED : INK);
         const fb = ITEM_DB[y.fabao]; tx('讨伐所得', dx, dy + 120, `700 18px ${FONT}`, '#6a4a2a'); const ic = window.R370_ICON && R370_ICON(y.fabao); if (ic) ctx.drawImage(ic, dx + 88, dy + 102, 36, 36);
         tx('法宝「' + fb.name + '」· ' + fb.grade + '　妖王内丹', dx + 130, dy + 120, `18px ${FONT}`, INK);
         wrap(y.tip, dx, dy + 152, 600, 24, `17px ${FONT}`, '#5a4028', 2); }
       else { tx('？？？', dx, dy + 42, `38px ${BRUSH}`, INK); wrap('这只妖王还没有露面。等你修为到 ' + CN(y.lv - 4) + ' 级前后，榜上自会贴出它的悬赏。', dx, dy + 96, 640, 28, `18px ${FONT}`, '#5a4028', 3); }
       const b = art(press ? 'btn_down' : 'btn'); if (b) ctx.drawImage(b, BX + 760, BY + 478, 200, 60); tx('合上榜单', BX + 860, BY + 508 + (press ? 2 : 0), `700 20px ${FONT}`, '#f3dfae', 'center');
+      if (ok && !done(y) && window.QUEST_NAV) { const b3 = art('btn'); if (b3) ctx.drawImage(b3, BX + 760, BY + 410, 200, 60); tx('带我去', BX + 860, BY + 440, `700 20px ${FONT}`, '#f3dfae', 'center'); }   // 自动寻路到妖王跟前（走不通的地方会照原来的规矩提示）
       const c = art('btn_close'); if (c) ctx.drawImage(c, BX + 978, BY + 14, 56, 56);
       ctx.restore(); },
     tp => { for (let i = 0; i < 5; i++) if (inR(tp, BX + PX[i], BY + PY, 176, 250)) { sel = i; try { playSnd('ui_click'); } catch (e) {} return; }
+      if (inR(tp, BX + 760, BY + 410, 200, 60) && shown(YW[sel]) && !done(YW[sel]) && window.QUEST_NAV) { go = YW[sel]; try { playSnd('ui_confirm'); } catch (e) {} return true; }
       if (inR(tp, BX + 760, BY + 478, 200, 60) || inR(tp, BX + 970, BY + 6, 72, 72) || !inR(tp, BX, BY, 1040, 620)) return true; });
     // 第一次看榜：星旋借一面护心镜，顺带教一下法宝怎么用
     if (!F().r370_fb0) { F().r370_fb0 = 1; world.locked = true; try {
@@ -58,6 +60,7 @@
       await say('星旋', '本姑娘的宝库角落里有面护心镜，先借你使着。打架时点左下角的法宝，一场只能祭一回，挑要命的时候再用。');
       FB.give('fb_huxin'); if (window.itemGet) await itemGet([{ icon: 'item:fb_huxin', name: ITEM_DB.fb_huxin.name, count: '×1', desc: ITEM_DB.fb_huxin.desc }], '星旋借出一件法宝');
       toast('地图右下角多了一个「法宝」钮：点开可以换带哪一件', 3200); } finally { world.locked = false; } }
+    if (go) { const y = go; try { window.QNAV_GOAL = () => ({ map: y.map, pt: [y.pos[0], y.pos[1] + 40] }); QUEST_NAV.start(); } catch (e) { console.warn('R370 nav', e); } }
   }
   window.R370_BOARD = openBoard;
 
