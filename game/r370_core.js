@@ -102,7 +102,7 @@
   const ywDone = y => !!F()['yw_' + y.id];
   const allFive = () => YW.filter(y => !y.hidden).every(ywDone);
   const HP = lv => 2700 + (lv - 10) * 650, ATK = lv => 66 + Math.round((lv - 10) * 6.5), DEF = lv => 14 + Math.round((lv - 10) * 1.5);
-  const SPD = { boar: 9, wolf: 14, leopard: 19, spider: 15, treant: 9, rhino: 8 };
+  const SPD = { boar: 9, wolf: 14, leopard: 19, spider: 15, treant: 9, rhino: 8, xingwolf: 12 };
   const heroes = b => (b.heroes || [b.P]).filter(u => u.alive);
   const big = (t, c = '#ff6a4a', s = 62) => floatText(W / 2, 300, t, c, s, 1.5, BRUSH);
   const guard = P => { if (P.buffs.def) { delete P.buffs.def; floatText(P.x, P.y - P.h - 10, '格挡', '#9fd3ff', 36); return .4; } if (P.buffs.shield) { P.buffs.shield--; if (!P.buffs.shield) delete P.buffs.shield; return .5; } return 1; };
@@ -165,11 +165,17 @@
     if (t === 3) return charge(e, '它人立而起——「镇岳踏」，防御！');
     if (t === 0 && e._charge) { const r = await aoe(e, b, '镇岳踏', 'fx3_burst_earth', 1.6, '#cfd6e0'); e._armor = 0; e.def = e._def0; floatText(e.x, e.y - e.h - 110, '铁甲尽碎', '#ffe27a', 40, 1.4, BRUSH); return r; }
     return false; };
+  // R388 落星坡的头目「衔星 · 赤焰狼王」（开局第一只头目，不上榜）：三手一嚎，嚎完那一扑要防御；扑完力竭
+  AI.xingwolf = async (e, b) => { const t = e.turn % 4;
+    if (!e._rage && e.hp < e.maxhp * .4) { e._rage = 1; e.atk = Math.round(e.atk * 1.15); big('狂怒', '#ff4a2a', 60); await sleep(700); }
+    if (t === 3) return charge(e, '它仰头长嚎，浑身的火往上窜——这一扑要防御！');
+    if (t === 0 && e._charge) { e._charge = null; const hs = heroes(b), P = hs.slice().sort((a, c) => c.hp - a.hp)[0]; await strike(e, b, P, '赤焰扑', 2.3, 'fx3_burst_red'); S.shake = 18; await tired(e); return true; }
+    return false; };
   function makeYW(y) {
     const m = MOB_DB[y.type], lv = y.lv;
-    const hp0 = Math.round(HP(lv) * (y.adds ? .78 : 1));
-    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: y.vkey || m.key /* R378：重画过本体的妖王用自己的形象 */, hp: hp0, maxhp: hp0, atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: y.vh || m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
-      _yw: y, _id: y.id, _ep: y.ep, _atk0: ATK(lv), _def0: DEF(lv), turn: 0, _type: y.type };
+    const hp0 = y.hp || Math.round(HP(lv) * (y.adds ? .78 : 1)), atk0 = y.atk || ATK(lv), def0 = y.def != null ? y.def : DEF(lv);
+    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: y.vkey || m.key /* R378：重画过本体的妖王用自己的形象 */, hp: hp0, maxhp: hp0, atk: atk0, def: def0, spd: y.spd || SPD[y.id], h: y.vh || m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: y.fxColor || m.fxColor, boss: true, lv, slot: [330, 590],
+      _yw: y, _id: y.id, _ep: y.ep, _atk0: atk0, _def0: def0, turn: 0, _type: y.type };
     e.ai = async (en, b) => { en.turn++;
       if (en._break) { en._break--; if (en._break >= 1) { floatText(en.x, en.y - en.h - 40, '喘息……', '#ffe27a', 38); await sleep(700); return true; } }
       try { return await AI[y.id](en, b); } catch (err) { console.warn('R370 ai', err); return false; } };
@@ -182,12 +188,13 @@
   async function fight(y) {
     const boss = makeYW(y), ens = [boss];
     for (const [i, t] of (y.adds || []).entries()) { const m = makeEnemy(t, Math.max(0, y.lv - 8) * .5); if (y.addName) { m.name = y.addName; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + (y.lv - 2); m.lv = y.lv - 2; m._add = y.id; m._type = t; m.slot = [[560, 690], [540, 440]][i]; ens.push(m); }
-    const exp = Math.round(expNeed(y.lv) * .55), gold = 300 + (y.lv - 10) * 120;
+    const exp = y.exp || Math.round(expNeed(y.lv) * .55), gold = y.gold != null ? y.gold : 300 + (y.lv - 10) * 120;
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
-    if (!F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左上角的法宝，每场能祭出一次。']); } catch (e) {} }
-    const pr = startBattle({ title: '妖王讨伐 · ' + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
+    if (y.mini && !F().r370_tut0) { F().r370_tut0 = 1; S.fade = 0; try { await showPanel('头目 · 打法', ['它蓄力时，屏幕下方会出红色警示——那一回合选「防御」。', '!它放完大招会力竭喘息：这时打它，伤害多五成。']); } catch (e) {} }
+    else if (!y.mini && !F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左上角的法宝，每场能祭出一次。']); } catch (e) {} }
+    const pr = startBattle({ title: (y.mini ? '头目 · ' : '妖王讨伐 · ') + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
     try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = (y.bpos || [290, 610])[0]; u.y = (y.bpos || [290, 610])[1]; } else { const sl = (y.apos || [[570, 665], [545, 470], [440, 560]])[ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
     await fadeIn(240); const win = await pr; FIGHT = null;
     S.scene = drawMap;
@@ -195,6 +202,9 @@
     else { partyRevive(.3); const p = world.player, M = TMAPS[y.map]; if (p) { p.y += 150; } toast('败下阵来……' + y.ep + '没有追。养好伤、备足丹药再来', 3000); }
     world.locked = false; return win === true; }
   async function reward(y) {
+    if (y.mini) { await sleep(300); try { playSnd('jingle_win', .6); } catch (e) {} const cnt0 = {}; for (const id of y.extra || []) if (ITEM_DB[id]) cnt0[id] = (cnt0[id] || 0) + 1; const g0 = Object.entries(cnt0); for (const [id, n] of g0) addItem(id, n);
+      if (window.itemGet && g0.length) await itemGet(g0.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })), '打倒 ' + y.ep + ' · ' + y.name);
+      if (y.after) { try { await y.after(); } catch (e) { console.warn('R370 mini', e); } } return; }
     await sleep(300); banner('妖王伏诛'); try { playSnd('jingle_win', .6); } catch (e) {} await sleep(1700);
     const give = (y.fabao ? [[y.fabao, 1]] : []).concat([['m_neidan', 1]]); const cnt = {}; for (const id of y.extra || []) cnt[id] = (cnt[id] || 0) + 1; for (const id in cnt) give.push([id, cnt[id]]);
     for (const [id, n] of give) { if (ITEM_DB[id].fabao) fbOwn()[id] = 1; else addItem(id, n); }
@@ -249,7 +259,7 @@
     if (typeof IMG !== 'undefined' && !IMG[m.key] && !(window.RIG_MAP && RIG_MAP[m.key])) return false;
     drawSprite(m.key, x, yy, H, faceRight, 1, '#a33', ''); return true; }
   // 妖王现身的条件：① 看过据点的讨伐榜（没看过榜的玩家，这些图和原来一模一样，主线剧情画面里不会多出一只妖王）；② 主角等级 ≥ 妖王等级 − 4（和榜上贴出悬赏的条件一样）
-  const hereYW = () => F().r370_fb0 ? YW.find(y => y.map === world.mapName && !ywDone(y) && (!y.hidden || allFive()) && ((S.hero && S.hero.lv) || 1) >= y.lv - 4) : undefined;
+  const hereYW = () => YW.find(y => y.map === world.mapName && !ywDone(y) && (y.mini ? (!y.cond || y.cond()) : (F().r370_fb0 && (!y.hidden || allFive()))) && ((S.hero && S.hero.lv) || 1) >= y.lv - 4);   /* y.mini：不上榜的头目（R388 落星坡的狼王），不用先看榜 */
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig(T, cam, now);
     try { const y = hereYW(); if (!y || battle) return; const [x, yy] = y.pos, m = MOB_DB[y.type], t = performance.now() / 1000;
       ctx.save(); let g = ctx.createRadialGradient(x, yy, 6, x, yy, 150); g.addColorStop(0, 'rgba(255,60,30,.42)'); g.addColorStop(.6, 'rgba(255,60,30,.14)'); g.addColorStop(1, 'rgba(255,60,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, yy, 150, 52, 0, 0, 7); ctx.fill();
@@ -259,7 +269,7 @@
       const mk = art('yw_mark'), np = art('yw_nameplate'), top = yy - y.mh - 34 + Math.sin(t * 2) * 3;
       ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (np) ctx.drawImage(np, x - 110, top - 22, 220, 44); if (mk) ctx.drawImage(mk, x - 32, top - 78, 64, 64);
-      ctx.font = `700 19px ${FONT}`; textOutline('妖王 · ' + y.ep + '　Lv' + y.lv, x, top, '#ffd9a0', '#3a0800', 5); ctx.restore();
+      ctx.font = `700 19px ${FONT}`; textOutline((y.mini ? '头目 · ' : '妖王 · ') + y.ep + '　Lv' + y.lv, x, top, '#ffd9a0', '#3a0800', 5); ctx.restore();
     } catch (e) {} })(tileAmbientHigh);
   // 走近妖王：先问打不打
   let ASK = 0;
@@ -270,7 +280,7 @@
       if (d > 230) ASK = 0;
       if (free && !world.locked && !dialog && !choice && d < 120 && !ASK) { ASK = 1; world.locked = true; world.path = null; p.moving = false;
         (async () => { try { const lv = S.hero.lv, hint = lv + 2 < y.lv ? '（它比你高 ' + (y.lv - lv) + ' 级，很险）' : lv >= y.lv + 3 ? '（你已高它不少）' : '';
-          const c = await choose('妖王 · ' + y.ep + ' ' + y.name + '　Lv' + y.lv + hint, ['讨伐', '先不打']); if (c === 0) { if (y.cry) await say(y.ep + ' · ' + y.name, y.cry); await fight(y); } } finally { world.locked = false; } })(); }
+          const c = await choose((y.mini ? '头目 · ' : '妖王 · ') + y.ep + ' ' + y.name + '　Lv' + y.lv + hint, [y.mini ? '打' : '讨伐', '先不打']); if (c === 0) { if (y.cry) await say(y.ep + ' · ' + y.name, y.cry); await fight(y); } } finally { world.locked = false; } })(); }
     } catch (e) {} return r; })(tileMobs);
   window.R370_HERE = hereYW;
   // 野外多几只宝箱（仙剑的老规矩：岔路走到头总有点东西）——放在各图离入口远的角落，里面是新装备和材料

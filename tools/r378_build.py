@@ -6,10 +6,13 @@
 import os, sys, json, glob
 from PIL import Image
 SRC = sys.argv[1]; ONLY = sys.argv[2:]
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'game', 'r378'); os.makedirs(OUT, exist_ok=True)
-META_JS = os.path.join(OUT, '..', 'r378_meta.js')
+# 别的批次（比如 R388 落星坡的狼王）也用这个脚本：环境变量 R378_OUT=r388 R378_META=R388_META R378_BODY='{"xingwolf":300}'
+ODIR = os.environ.get('R378_OUT', 'r378'); MNAME = os.environ.get('R378_META', 'R378_META')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'game', ODIR); os.makedirs(OUT, exist_ok=True)
+META_JS = os.path.join(OUT, '..', ODIR + '_meta.js')
 # 战斗里「平时那一帧」身体显示多高（逻辑像素，1280×720 画面）、站位
 BODY = {'boar': 430, 'leopard': 400, 'rhino': 450, 'treant': 470, 'wolf': 480, 'spider': 460}
+if os.environ.get('R378_BODY'): BODY = json.loads(os.environ['R378_BODY'])
 OVER = 1.25          # 图集比显示尺寸大多少（留一点清晰度）
 IDLE_HOLD = 2        # 平时每帧连放几拍（8 拍 / 秒，来回播）
 ATK_HOLD = [4, 3, 5, 3, 3]   # 出手五帧各放几拍（20 拍 / 秒）；第三帧是命中帧
@@ -92,5 +95,5 @@ for d in sorted(glob.glob(os.path.join(SRC, '*'))):
             po.save(os.path.join(OUT, 'yw_' + bid + '.webp'), 'WEBP', quality=90, method=6); e['poster'] = 1; break
     meta[bid] = e
     print(bid, 'idle', len(idle), 'charge', len(chg), 'atk', len(atk), 'break', len(brk), '| frame', fw, 'x', fh, 'H', round(H), 'foot', round(footX), round(footY), '| sheet', sz // 1024, 'KB')
-open(META_JS, 'w', encoding='utf8').write('// R378 · 妖王本体图集的尺寸表（tools/r378_build.py 生成，别手改）\nwindow.R378_META = ' + json.dumps(meta, ensure_ascii=False) + ';\n')
+open(META_JS, 'w', encoding='utf8').write('// ' + ODIR.upper() + ' · 首领本体图集的尺寸表（tools/r378_build.py 生成，别手改）\nwindow.' + MNAME + ' = ' + json.dumps(meta, ensure_ascii=False) + ';\n')
 print('meta →', META_JS, list(meta))
