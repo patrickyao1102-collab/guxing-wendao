@@ -36,6 +36,11 @@
     const s = r * 1.9; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s / 2, y - s / 2, s, s); ctx.restore(); })(itemIcon);
   setTimeout(() => { for (const el in EL) get(el); }, 6000);
   window.WXJ = { EL, ID, count: el => { try { return (S.hero.bag[ID(el)] || 0); } catch (e) { return 0; } } };
+  // 开场那场借力战（星旋借力、星落一剑清场）不掉精：这时玩家还没见过「克」，先别提五行
+  if (typeof endBattle === 'function' && typeof DROPS !== 'undefined') endBattle = (orig => async function (win) { const b = battle;
+    if (!(win && b && b.cfg && b.cfg.sunKill)) return orig.apply(this, arguments);
+    const keep = {}; try { for (const e of b.enemies || []) if (DROPS[e.key] && !keep[e.key]) { keep[e.key] = DROPS[e.key]; DROPS[e.key] = DROPS[e.key].filter(d => !/^m_wx_/.test(d[0])); } } catch (e) {}
+    try { return await orig.apply(this, arguments); } finally { for (const k in keep) DROPS[k] = keep[k]; } })(endBattle);
   // 头一回拿到：星旋交代一句（只说一回）
   let queued = false;
   if (typeof addItem === 'function') addItem = (orig => function (id, n) { const r = orig.apply(this, arguments);
