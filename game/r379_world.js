@@ -33,8 +33,9 @@
     let g = ctx.createRadialGradient(x, y, 2, x, y, H * .62); g.addColorStop(0, rgba(c, .5)); g.addColorStop(1, rgba(c, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, H * .62, H * .2, 0, 0, 7); ctx.fill();
     // 身后的火
     ctx.globalCompositeOperation = 'lighter';
-    const fr = fireFrame(ghost ? 'ghost' : 'beast', f.tier, Math.floor(t * 9) % 6), fs = H * 1.55;
-    if (fr) { ctx.globalAlpha = .9; ctx.drawImage(fr, x - fs / 2, y - fs * .84, fs, fs); ctx.globalAlpha = 1; }
+    const fr = CLEAN ? null : fireFrame(ghost ? 'ghost' : 'beast', f.tier, Math.floor(t * 9) % 6), fs = H * 1.55;
+    if (CLEAN) { ctx.lineWidth = 2.5; ctx.strokeStyle = rgba(c, .7 + Math.sin(t * 4) * .2); ctx.beginPath(); ctx.ellipse(x, y, H * .42, H * .13, 0, 0, 7); ctx.stroke(); }
+    else if (fr) { ctx.globalAlpha = .9; ctx.drawImage(fr, x - fs / 2, y - fs * .84, fs, fs); ctx.globalAlpha = 1; }
     else { const pulse = 1 + Math.sin(t * 6) * .06; g = ctx.createRadialGradient(x, y - H * .42, 3, x, y - H * .42, H * .72 * pulse); g.addColorStop(0, rgba(c, .6)); g.addColorStop(.55, rgba(c, .22)); g.addColorStop(1, rgba(c, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y - H * .42, H * .72 * pulse, 0, 7); ctx.fill();
       for (let i = 0; i < 6; i++) { const ox = (i - 2.5) * H * .17, ph = t * (ghost ? 3 : 7) + i * 1.9, hh = H * (.55 + (i % 2) * .22) * (1 + Math.sin(ph * 1.6) * .14), sw = Math.sin(ph) * 7, w = H * .11;
         g = ctx.createLinearGradient(x, y, x, y - hh); g.addColorStop(0, rgba(c, 0)); g.addColorStop(.25, rgba(c, .6)); g.addColorStop(1, rgba(c, 0)); ctx.fillStyle = g;
@@ -46,7 +47,7 @@
     drawSprite(k, x, y - bob, H, a.dir < 0, ghost ? .94 : 1, '#a55', '');
     // 身前几点火星；金灵多一圈碎光
     ctx.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < (f.tier === 'gold' ? 10 : 5); i++) { const kk = ((t * .6 + i / 5) % 1), sx = x + Math.sin(i * 7.3 + t * 1.4) * H * .34, sy = y - 6 - kk * H * .95; ctx.fillStyle = rgba(c, (1 - kk) * .9); ctx.beginPath(); ctx.arc(sx, sy, 2.4 * (1 - kk) + .6, 0, 7); ctx.fill(); }
+    for (let i = 0; i < (CLEAN ? (f.tier === 'gold' || f.tier === 'purple' || f.tier === 'red' ? 5 : 0) : f.tier === 'gold' ? 10 : 5); i++) { const kk = ((t * .6 + i / 5) % 1), sx = x + Math.sin(i * 7.3 + t * 1.4) * H * .34, sy = y - 6 - kk * H * .95; ctx.fillStyle = rgba(c, (1 - kk) * .9); ctx.beginPath(); ctx.arc(sx, sy, 2.4 * (1 - kk) + .6, 0, 7); ctx.fill(); }
     ctx.globalCompositeOperation = 'source-over';
     // 发现主角：头顶冒一下叹号（之后就扑过来了）
     try { const p = world.player, R = { green: 0, blue: 230, purple: 260, red: 320, gold: 0 }[f.tier] || 0, near = !!p && R > 0 && Math.hypot(p.x - x, p.y - y) < R; if (near && !a._seen) a._alertT = now; a._seen = near;
@@ -137,6 +138,8 @@
   if (typeof textOutline === 'function') textOutline = (orig => function (t) { try { if (SHOW && typeof t === 'string' && /即可放大$|^点击小地图放大$/.test(t)) { const now = performance.now(); if (hintMap !== world.mapName) { hintMap = world.mapName; hintT = now; } const dt = (now - hintT) / 1000; if (dt > 7) return; if (dt > 6) { ctx.save(); ctx.globalAlpha *= 7 - dt; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
   if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col, oc) { try { if (SHOW && NAMES && oc === '#1a0c00' && (col === '#fff4d8' || col === '#ffe08a') && /600 18px/.test(ctx.font) && world.player && S.scene === drawMap && !(typeof battle !== 'undefined' && battle)) {
         if (typeof dialog !== 'undefined' && dialog) return;   /* 说话的时候场景里的名字都收起来（对话框上已经写了是谁） */
+        if (CLEAN) { const me = world.player; let best = null, bd = 1e9; for (const ac of world.actors || []) { if (!ac.npc || ac.hidden || ac.npc.noLabel) continue; const dd = Math.hypot(ac.x - me.x, ac.y - me.y); if (dd < bd) { bd = dd; best = ac; } }
+          if (!best || bd > 230 || best.npc.name !== t || Math.abs(best.x - x) > 4) return; arguments[0] = t + ' · ' + (best.npc.shop ? '买卖' : '交谈'); return orig.apply(this, arguments); }
         const p = world.player, d = Math.hypot(p.x - x, (p.y - 60) - (y + 70)), a = Math.max(0, Math.min(1, (330 - d) / 90)); if (a <= 0) return; if (a < 1) { ctx.save(); ctx.globalAlpha *= a; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {}
     return orig.apply(this, arguments); })(textOutline);
 
@@ -169,11 +172,43 @@
 
   // ---------- ⑦ 镜头近一档（默认关，测试面板里开）：地图和人物一起放大 20%，和手机上那套（R 手机放大 15%）同一个做法 ----------
   let NEAR = LS('r379_cam') === 'near';
-  try { if (typeof VZ === 'function' && typeof CZ === 'function' && !window.MOBILE_ZOOM) { VZ = (o => function () { const z = o.apply(this, arguments); return NEAR ? z * 1.2 : z; })(VZ); CZ = (o => function () { const z = o.apply(this, arguments); return NEAR ? z * 1.2 : z; })(CZ); } } catch (e) {}
+  let KZ = 1;
+  let CLEAN = LS('r380_clean') === 'on';   // 清爽模式（Codex R380 效果图 B / C 的方向）：镜头近、队伍只留小头像、任务收成一行、只给身边那个人写名字、野怪不带火
+  try { if (typeof VZ === 'function' && typeof CZ === 'function' && !window.MOBILE_ZOOM) { VZ = (o => function () { return o.apply(this, arguments) * KZ; })(VZ); CZ = (o => function () { return o.apply(this, arguments) * KZ; })(CZ);
+      // 镜头倍数慢慢过渡；剧情演出（定了镜头焦点的那种）自动退回原来的远景，免得把说话的人切到画面外
+      let lastT = 0, lockT = 0; S.overlay.push({ draw() { try { const now = performance.now(), dt = Math.min(.1, (now - (lastT || now)) / 1000); lastT = now; let staged = !!(world && world.camFocus) || !!(typeof battle !== 'undefined' && battle);
+          // 没定焦点、但锁着玩家在演的剧情（不是自己找人搭话、不是开着行囊）：锁满半秒也退回远景
+          try { const talking = (world.actors || []).some(a => a.talking), scripted = world.locked && !talking && !S.menu && S.scene === drawMap; if (!scripted) lockT = 0; else if (!lockT) lockT = now; if (scripted && now - lockT > 500) staged = true; } catch (e) {}
+          const tg = staged ? 1 : CLEAN ? 1.3 : NEAR ? 1.2 : 1; if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
+          // 倍数在变的这几帧，镜头自己对准主角（对话 / 上锁时引擎不一定在挪镜头，不管的话人会滑出画面）
+          try { const T = world.map && world.map.T, pl = world.player; if (T && pl && world.cam && !world.camFocus && S.scene === drawMap) { const vz = VZ(), VWd = W / vz, VHd = H / vz;
+              world.cam.x = T.mw <= VWd ? (T.mw - VWd) / 2 : Math.max(T.x0 || 0, Math.min(T.mw - VWd, pl.x - VWd / 2)); world.cam.y = T.mh <= VHd ? (T.mh - VHd) / 2 : Math.max(0, Math.min(T.mh - VHd, pl.y - VHd * .55)); } } catch (e) {} } catch (e) {} } }); } } catch (e) {}
+
+  // ---------- ⑧ 清爽模式的界面 ----------
+  // 队伍：顶上三条长卡收成小头像（外圈一道弧是气血）
+  try { if (typeof drawHudCard === 'function' && typeof medallion === 'function') drawHudCard = (o => function (m, i, x) { if (!CLEAN) return o.apply(this, arguments);
+      const r = 23, cx = x + r + 12, cy = 42, k = Math.max(0, Math.min(1, m.hp / (m.maxhp || 1))); ctx.save(); ctx.fillStyle = 'rgba(10,8,6,.45)'; ctx.beginPath(); ctx.arc(cx, cy + 2, r + 5, 0, 7); ctx.fill();
+      medallion(m.p, cx, cy, r, { name: m.name, color: m.color }); ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, 7); ctx.stroke();
+      ctx.strokeStyle = k < .3 ? '#ff5a4a' : '#7fe08a'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k); ctx.stroke(); ctx.restore(); return x + r * 2 + 12; })(drawHudCard); } catch (e) {}
+  // 任务：右上那张卡收成一行「主线 · 现在该做什么」，点一下自动带路；旁边的小圆标点开任务册
+  let QR = null, QI = null;
+  if (typeof drawMapHud === 'function') drawMapHud = (o => function () { if (!CLEAN) { QR = QI = null; return o.apply(this, arguments); }
+    const f = F(), keep = f.qt_min; f.qt_min = 1; let r; try { r = o.apply(this, arguments); } finally { if (keep === undefined) delete f.qt_min; else f.qt_min = keep; }
+    try { QR = null; QI = (window.R287 && R287.HUD && R287.HUD.rect) || null; if (S.hud === false || S.menu || !world.map || S.scene !== drawMap || !window.R287) return r;
+      const A = R287.all(), it = A.doing.find(x => x.kind === 'main') || A.doing[0]; if (!it) return r;
+      const head = it.kind === 'main' ? '主线' : '支线', txt = (it.step || it.name || '').replace(/（[^）]*）/g, ''); ctx.save(); ctx.font = `600 18px ${FONT}`; let t = txt; while (t.length > 4 && ctx.measureText(t).width > 380) t = t.slice(0, -2) + '…';
+      const tw = ctx.measureText(t).width, w = tw + 78, x1 = W - 84, x0 = x1 - w, y = 22, h = 40, g = ctx.createLinearGradient(x0 - 40, 0, x1, 0); g.addColorStop(0, 'rgba(14,10,6,0)'); g.addColorStop(.18, 'rgba(14,10,6,.62)'); g.addColorStop(1, 'rgba(14,10,6,.62)'); ctx.fillStyle = g; ctx.fillRect(x0 - 40, y, w + 40, h);
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.font = `700 14px ${FONT}`; ctx.fillStyle = it.kind === 'main' ? '#ff9a7a' : '#8fc8ff'; ctx.fillText(head, x0 + 6, y + h / 2 + 1); ctx.font = `600 18px ${FONT}`; ctx.fillStyle = (window.QUEST_NAV && QUEST_NAV.on) ? '#ffe27a' : '#f5ead0'; ctx.fillText(t, x0 + 46, y + h / 2 + 1); ctx.restore();
+      QR = { x: x0 - 10, y, w: w + 10, h, it }; } catch (e) {}
+    return r; })(drawMapHud);
+  try { cv.addEventListener('pointerdown', e => { if (!CLEAN || (!QR && !QI) || S.menu || world.locked || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice)) return; const p = toLogical(e);
+      const inq = QR && p.x >= QR.x && p.x <= QR.x + QR.w && p.y >= QR.y && p.y <= QR.y + QR.h, ini = QI && p.x >= QI[0] && p.x <= QI[0] + QI[2] && p.y >= QI[1] && p.y <= QI[1] + QI[3]; if (!inq && !ini) return;
+      e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; playSnd('ui_click'); } catch (er) {}
+      try { if (ini) { if (window.QBOOK_OPEN) QBOOK_OPEN(); } else if (QR.it.id === '__main') R140Q.goMain(); else R140Q.goSide(QR.it.id); } catch (er) { console.warn('R380 quest', er); } }, true); } catch (e) {}
 
   // 测试面板：切回原来的火
-  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get near() { return NEAR; }, setNear(v) { NEAR = !!v; try { localStorage.setItem('r379_cam', NEAR ? 'near' : 'far'); world.cam = null; } catch (e) {} }, get ff() { return FF; }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
+  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get near() { return NEAR; }, setNear(v) { NEAR = !!v; try { localStorage.setItem('r379_cam', NEAR ? 'near' : 'far'); } catch (e) {} }, get ff() { return FF; }, get clean() { return CLEAN; }, setClean(v) { CLEAN = !!v; try { localStorage.setItem('r380_clean', CLEAN ? 'on' : 'off'); } catch (e) {} }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
   try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 野怪显形 / 灵光点 / 名字 / 镜头（R379）'; h.setAttribute('data-r379', '1');
-      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); const b3 = document.createElement('button'); const lab3 = () => { b3.textContent = '镜头：' + (NEAR ? '近一档（点一下改回原来）' : '原来（点一下拉近一档，人物大两成）'); }; lab3(); b3.onclick = () => { R379.setNear(!NEAR); lab3(); }; row.appendChild(b3); p.prepend(h, row); };
+      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); const b3 = document.createElement('button'); const lab3 = () => { b3.textContent = '镜头：' + (NEAR ? '近一档（点一下改回原来）' : '原来（点一下拉近一档，人物大两成）'); }; lab3(); b3.onclick = () => { R379.setNear(!NEAR); lab3(); }; row.appendChild(b3); const b4 = document.createElement('button'); const lab4 = () => { b4.textContent = '★ 清爽模式：' + (CLEAN ? '开着（点一下关）' : '关着（点一下开：镜头近、界面精简、野怪不带火）'); }; lab4(); b4.onclick = () => { R379.setClean(!CLEAN); lab4(); p.hidden = true; }; row.prepend(b4); p.prepend(h, row); };
     if (pan) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
 })();
