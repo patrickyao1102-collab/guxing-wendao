@@ -53,6 +53,7 @@
       if (a._alertT != null && now - a._alertT < .9) { const dt = now - a._alertT, pop = Math.min(1, dt / .12), yy = y - H - 44 - Math.sin(Math.min(1, dt / .25) * Math.PI) * 8; ctx.save(); ctx.globalAlpha = Math.min(1, (.9 - dt) / .25); ctx.translate(x, yy); ctx.scale(pop, pop); ctx.font = `900 34px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('！', 0, 0, '#ff5a3a', '#fff4e0', 5); ctx.restore(); } } catch (e) {}
     // 头顶：名字 + 等级（颜色 = 强弱）
     const md = Object.values(MOB_DB).find(m => m.key === k) || MOB_DB[a.mob] || {}, nm = (T.tag ? T.tag + '·' : '') + (md.name || '') + ' Lv' + f.lv;
+    { const p = world.player, dd = p ? Math.hypot(p.x - x, p.y - y) : 0, na = NAMES ? Math.max(0, Math.min(1, (460 - dd) / 110)) : 1; if (na <= 0) { ctx.restore(); return; } ctx.globalAlpha = na; }   // 名字等级走近才显（远处只看火的颜色）
     ctx.font = `700 15px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(nm, x, y - H - 14, rgba([Math.min(255, c[0] + 70), Math.min(255, c[1] + 70), Math.min(255, c[2] + 70)], 1), 'rgba(0,0,0,.85)', 4);
     ctx.restore(); }
 
@@ -131,7 +132,11 @@
     ctx.fillText = function (t, x, y) { if (t === '!' && SHOW && big() && mark('mark_story', x, y - 14, 46)) return; return ft.apply(this, arguments); };
     ctx.strokeText = function (t, x, y) { if (t === '!' && SHOW && big() && art('mark_story')) return; return st.apply(this, arguments); }; } catch (e) {}
   // ---------- ⑤ NPC 的名字：走近了才显出来（原来一屏十几个名字常年挂着，像地图标注）；头顶的任务 / 主线令符照旧远远就看得见 ----------
+  // 小地图底下那行「按 M 键或点击即可放大」：只在进图头几秒提示，之后收掉（常驻的操作说明像网页）
+  let hintMap = '', hintT = 0;
+  if (typeof textOutline === 'function') textOutline = (orig => function (t) { try { if (SHOW && typeof t === 'string' && /即可放大$|^点击小地图放大$/.test(t)) { const now = performance.now(); if (hintMap !== world.mapName) { hintMap = world.mapName; hintT = now; } const dt = (now - hintT) / 1000; if (dt > 7) return; if (dt > 6) { ctx.save(); ctx.globalAlpha *= 7 - dt; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
   if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col, oc) { try { if (SHOW && NAMES && oc === '#1a0c00' && (col === '#fff4d8' || col === '#ffe08a') && /600 18px/.test(ctx.font) && world.player && S.scene === drawMap && !(typeof battle !== 'undefined' && battle)) {
+        if (typeof dialog !== 'undefined' && dialog) return;   /* 说话的时候场景里的名字都收起来（对话框上已经写了是谁） */
         const p = world.player, d = Math.hypot(p.x - x, (p.y - 60) - (y + 70)), a = Math.max(0, Math.min(1, (330 - d) / 90)); if (a <= 0) return; if (a < 1) { ctx.save(); ctx.globalAlpha *= a; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {}
     return orig.apply(this, arguments); })(textOutline);
 
