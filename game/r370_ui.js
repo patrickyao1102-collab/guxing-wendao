@@ -60,7 +60,14 @@
       await say('星旋', '本姑娘的宝库角落里有面护心镜，先借你使着。打架时点左下角的法宝，一场只能祭一回，挑要命的时候再用。');
       FB.give('fb_huxin'); if (window.itemGet) await itemGet([{ icon: 'item:fb_huxin', name: ITEM_DB.fb_huxin.name, count: '×1', desc: ITEM_DB.fb_huxin.desc }], '星旋借出一件法宝');
       toast('地图右下角多了一个「法宝」钮：点开可以换带哪一件', 3200); } finally { world.locked = false; } }
-    if (go) { const y = go; try { window.QNAV_GOAL = () => ({ map: y.map, pt: [y.pos[0], y.pos[1] + 40] }); QUEST_NAV.start(); } catch (e) { console.warn('R370 nav', e); } }
+    if (go) { const y = go; try { const R = window.QUEST_ROUTE, here = world.mapName, can = m => here === m || !!(R && R.nextHop && R.nextHop(here, m) !== undefined);
+        if (can(y.map)) { window.QNAV_GOAL = () => ({ map: y.map, pt: [y.pos[0], y.pos[1] + 40] }); QUEST_NAV.start(); }
+        else if (/^m_yy_/.test(y.map) && can('xt_city')) {   // 幽影林：路网里连不过去（要在南城门自己选往哪走），先带到南城门口
+          const C = TMAPS.xt_city, g = (C.exits || []).find(e => e.to === 'yy_forest' || e.to === 'm_yy_tiger'), cs = C.baked && C.baked.cs;
+          await say('', '（幽影林在玄天城南城门外。先带你到南城门——出了城门，选「幽影林」。）');
+          if (g && cs) { const pt = [(g.x + (g.w || 1) / 2) * cs, g.y * cs - 130]; window.QNAV_GOAL = () => ({ map: 'xt_city', pt }); QUEST_NAV.start(); } }
+        else await say('', { hf_valley: '（黑风谷离这里很远。回青竹小院找松伯用传送玉符最快。）', tj_xiashan: '（松风林道在天剑山下。回宗门从山门下山，或者用松伯的传送玉符。）', lin_forest: '（山外树林在青阳镇外。用松伯的传送玉符最快。）' }[y.map] || '（从这里走不过去，得用松伯的传送玉符。）');
+      } catch (e) { console.warn('R370 nav', e); } }
   }
   window.R370_BOARD = openBoard;
 
@@ -111,7 +118,7 @@
   if (typeof tileSetMap === 'function') tileSetMap = (orig => function (name, c, r, face) { const res = orig.apply(this, arguments);
     try { const M = TMAPS[name]; if (M && M.mobs) { const R = M.mobs.lvR || [Math.max(1, S.hero.lv - 1), S.hero.lv + 2], y = YW.find(q => q.map === name && !done(q));
       if (art('banner_area') && art('banner_area_danger')) { try { world.banner = null; } catch (e) {} }
-      setTimeout(() => { if (world.mapName === name) { if (art('banner_area')) { try { world.banner = null; } catch (e) {} } BN = { name: (M.title || M.name || '野外').replace(/^.* · /, m => m), lv: lvText(R[0], R[1]) + (y ? '　·　妖王盘踞' : ''), danger: R[0] > S.hero.lv + 1 || !!y && y.lv > S.hero.lv + 2, t0: performance.now() }; } }, 500); } } catch (e) {}
+      setTimeout(() => { if (world.mapName === name) { if (art('banner_area')) { try { world.banner = null; } catch (e) {} } BN = { name: (M.title || M.name || '野外').replace(/^.* · /, m => m), lv: lvText(R[0], R[1]) + (() => { try { const cs = M.chests || [], op = cs.filter(ch => S.flags && S.flags['chest_' + name + '_' + ch.c + '_' + ch.r]).length; return cs.length ? '　·　宝箱 ' + op + '/' + cs.length : ''; } catch (e) { return ''; } })() + (y ? '　·　妖王盘踞' : ''),   /* 这张图的宝箱开了几只（仙剑的迷宫：岔路走到头总有点东西） */ danger: R[0] > S.hero.lv + 1 || !!y && y.lv > S.hero.lv + 2, t0: performance.now() }; } }, 500); } } catch (e) {}
     return res; })(tileSetMap);
   if (typeof toast === 'function') toast = (orig => function (t) { if (typeof t === 'string' && /妖物等级 Lv/.test(t) && art('banner_area')) return; return orig.apply(this, arguments); })(toast);
 
@@ -139,7 +146,13 @@
     for (const [ex, ey] of ents) { const s = spotNear(B, ex, ey, taken); if (!s) continue; taken.push(s); if (!n++) signImg(key, danger ? 'sign_danger' : 'sign_normal', 96, 130, lines, danger ? [[19, 29, 59, 13], [19, 43, 59, 13]] : [[14, 26, 72, 15], [14, 42, 72, 15]], '#f3e2b4');
       B.objs.push({ id: key, uid: key + '_' + n, img: key, x: s[0] - 48, y: s[1] - 129, w: 96, h: 130, sy: s[1], flat: false, noPre: true, noBlock: true }); if (n >= 3) break; }
     const y = YW.find(q => q.map === name); if (y) { const k2 = 'r372_king_' + y.id, sx = y.pos[0] - 190, sy = y.pos[1] + 40; signImg(k2, 'sign_king', 130, 180, ['妖王领地', y.ep], [[31, 72, 65, 23], [31, 101, 65, 21]], '#e9dcc0');
-      B.objs.push({ id: k2, uid: k2, img: k2, x: sx - 65, y: sy - 179, w: 130, h: 180, sy, flat: false, noPre: true, noBlock: true }); } }
+      B.objs.push({ id: k2, uid: k2, img: k2, x: sx - 65, y: sy - 179, w: 130, h: 180, sy, flat: false, noPre: true, noBlock: true });
+      // 碑可以点：没看过榜的，告诉他榜在哪；等级不够的，告诉他几级再来
+      try { const [c, r] = [(sx) / 64 - .5, (sy + 26) / 64 - .8]; (M.npcs = M.npcs || []).push({ key: 'none', c, r, name: '妖王领地碑', hidden: true, h: 150, talk: async () => { const head = '（石碑上刻着「妖王领地 · ' + y.ep + '」。';
+        if (done(y)) await say('', head + y.ep + '已经伏诛。）');
+        else if (!F().r370_fb0) await say('', head + '玄天城天剑宗据点前院的讨伐榜上，有它的悬赏。）');
+        else if (S.hero.lv < y.lv - 4) await say('', head + '妖王不在近处——修为到 ' + CN(y.lv - 4) + ' 级前后再来。）');
+        else await say('', head + '它就在附近。）'); } }); } catch (e) {} } }
   // 据点前院：讨伐榜实物 + 可以点的「妖王讨伐榜」
   try { const M = TMAPS.xt_sect_court, B = M && M.baked; if (B && typeof B.blocked === 'string') { const fx = 1644, fy = 1419, w = 221, h = 260;
       const im = new Image(); im.onload = () => { try { IMG.r372_board = im; } catch (e) {} try { if (window.MM_CLEAR) MM_CLEAR('xt_sect_court'); } catch (e) {} }; im.src = 'r372/board_obj.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {}
