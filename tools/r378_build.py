@@ -9,7 +9,7 @@ SRC = sys.argv[1]; ONLY = sys.argv[2:]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'game', 'r378'); os.makedirs(OUT, exist_ok=True)
 META_JS = os.path.join(OUT, '..', 'r378_meta.js')
 # 战斗里「平时那一帧」身体显示多高（逻辑像素，1280×720 画面）、站位
-BODY = {'boar': 430, 'leopard': 400, 'rhino': 450, 'treant': 540, 'wolf': 520, 'spider': 500}
+BODY = {'boar': 430, 'leopard': 400, 'rhino': 450, 'treant': 470, 'wolf': 480, 'spider': 460}
 OVER = 1.25          # 图集比显示尺寸大多少（留一点清晰度）
 IDLE_HOLD = 2        # 平时每帧连放几拍（8 拍 / 秒，来回播）
 ATK_HOLD = [4, 3, 5, 3, 3]   # 出手五帧各放几拍（20 拍 / 秒）；第三帧是命中帧
