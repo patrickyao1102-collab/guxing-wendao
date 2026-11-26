@@ -7,12 +7,13 @@
 //   · 三只宝箱（潭后暗台 / 试剑台 / 观云台）装的是灵草和五行之精，不是装备；
 //   · 坑里坑外散着十粒星屑，走过去玉佩就吸走，每粒 3 点星辰点；
 //   · 小潭东岸能歇脚：走过去气血灵力回满，打累了回来喝一口再去打。
+// 底图 11-27 上午返修过一次（R387B：草甸镜像纹、白玉台厚度和落影、陨坑的坑沿和裂纹、石径、崖边一圈收边），位置坐标没变。
 // 地图数据在 r392_data.js（tools/r392_build.py 从 Codex 的成品生成：底图、遮挡件、碰撞格、各点坐标，比例和后山崖顶一样是 0.74）。
 (function () {
   if (typeof TMAPS === 'undefined' || !TMAPS.tj_houshan || !window.R392_DATA || typeof IMG === 'undefined' || typeof tileSetMap !== 'function') return;
   const D = window.R392_DATA, ID = 'tj_luoxing', F = () => (S.flags = S.flags || {}), HS = TMAPS.tj_houshan;
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
-  const V = '?v=1';
+  const V = '?v=2';   // v2 = Codex R387B 返修后的底图
 
   // ---------- 碰撞：星核脚下挡一小块（成品通行图里那一块太小，缩到游戏比例后被抹掉了）----------
   const B = D.blocked.split('');

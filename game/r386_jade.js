@@ -35,6 +35,7 @@
     let [l, t, r, b] = e; const sw = im.width, sh = im.height, sl = l * 2, st2 = t * 2, sr = r * 2, sb = b * 2; if (l + r > w) { const k = w / (l + r); l *= k; r *= k; } if (t + b > h) { const k = h / (t + b); t *= k; b *= k; }
     const SX = [0, sl, sw - sr, sw], SY = [0, st2, sh - sb, sh], DX = [x, x + l, x + w - r, x + w], DY = [y, y + t, y + h - b, y + h];
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
+  window.R386_KIT = { KIT, D, T, C, BR, KAI, NUM, fit, wrap, kitLoad, kitReady, inR };   // 今天别的面板（装备、剑炉）也用这一套件
   // Codex R383 的图标（到了就用）
   const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.src = 'r383/' + n + '.webp?v=1'; } return a.ok ? a.im : null; }
   function icon(it, cx, cy, size) { if (it.wx) { const d = KIT.item_disc_n; if (d) ctx.drawImage(d, cx - size / 2, cy - size / 2, size, size); const r = size * .2; [['mu', -1, -1], ['shui', 1, -1], ['huo', -1, 1], ['tu', 1, 1]].forEach(([el, dx, dy]) => WX5.emblem(el, cx + dx * r * .98, cy + dy * r * .98, r * .9, WX5.XH().own[el] ? 1 : .38)); return; }
