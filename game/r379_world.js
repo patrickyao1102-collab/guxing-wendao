@@ -11,7 +11,9 @@
   if (typeof TMAPS === 'undefined' || typeof tileAmbientHigh !== 'function' || typeof MOB_DB === 'undefined') return;
   const F = () => (S.flags = S.flags || {});
   const LS = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  let SHOW = LS('r379_show') !== 'off';
+  const SHOW = true;   // 令符、宝箱三档、名字走近才显这些一直开着
+  // 作者 11-27 晨：「不要把鬼火变成动物——地图就那么大，动物也不可能做多帧，这样很难看。BOSS 单独做一个物体可以，小怪没必要。」野怪一律用回原来的鬼火 / 兽火。
+  const MOBS = false;
   let NAMES = LS('r379_names') !== 'off';
   const ART = {}; const art = n => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r379/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
@@ -150,7 +152,7 @@
   // ---------- 接进地图 ----------
   tileAmbientHigh = (orig => function (T, cam, now) {
     const hid = []; let mine = [];
-    try { if (SHOW) { mine = (world.mobs || []).filter(a => a.fire && !a.hidden && has(keyOf(a))); for (const a of mine) { a.hidden = true; hid.push(a); } } } catch (e) {}
+    try { if (MOBS) { mine = (world.mobs || []).filter(a => a.fire && !a.hidden && has(keyOf(a))); for (const a of mine) { a.hidden = true; hid.push(a); } } } catch (e) {}
     let r; try { r = orig && orig.apply(this, arguments); } finally { for (const a of hid) a.hidden = false; }
     try { const name = world.mapName, t = performance.now() / 1000; if (!(typeof battle !== 'undefined' && battle)) { for (const p of gen(name)) if (!taken(name, p)) drawPick(p, t); drawPops(t); }
       mine.sort((p, q) => p.y - q.y); for (const a of mine) drawMob(a, now); } catch (e) {}
@@ -225,8 +227,8 @@
       try { if (ini) { if (window.QBOOK_OPEN) QBOOK_OPEN(); } else if (QR.it.id === '__main') R140Q.goMain(); else R140Q.goSide(QR.it.id); } catch (er) { console.warn('R380 quest', er); } }, true); } catch (e) {}
 
   // 测试面板：切回原来的火
-  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get near() { return NEAR; }, setNear(v) { NEAR = !!v; try { localStorage.setItem('r379_cam', NEAR ? 'near' : 'far'); } catch (e) {} }, get ff() { return FF; }, get clean() { return CLEAN; }, setClean(v) { CLEAN = !!v; try { localStorage.setItem('r380_clean', CLEAN ? 'on' : 'off'); } catch (e) {} }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
-  try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 野怪显形 / 灵光点 / 名字 / 镜头（R379）'; h.setAttribute('data-r379', '1');
-      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); const b3 = document.createElement('button'); const lab3 = () => { b3.textContent = '镜头：' + (NEAR ? '近一档（点一下改回原来）' : '原来（点一下拉近一档，人物大两成）'); }; lab3(); b3.onclick = () => { R379.setNear(!NEAR); lab3(); }; row.appendChild(b3); const b4 = document.createElement('button'); const lab4 = () => { b4.textContent = '★ 清爽模式：' + (CLEAN ? '开着（点一下关）' : '关着（点一下开：镜头近、界面精简、野怪不带火）'); }; lab4(); b4.onclick = () => { R379.setClean(!CLEAN); lab4(); p.hidden = true; }; row.prepend(b4); p.prepend(h, row); };
+  window.R379 = { get show() { return SHOW; }, set() {}, get near() { return NEAR; }, setNear(v) { NEAR = !!v; try { localStorage.setItem('r379_cam', NEAR ? 'near' : 'far'); } catch (e) {} }, get ff() { return FF; }, get clean() { return CLEAN; }, setClean(v) { CLEAN = !!v; try { localStorage.setItem('r380_clean', CLEAN ? 'on' : 'off'); } catch (e) {} }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
+  try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 界面收起 / 名字 / 镜头（R379）'; h.setAttribute('data-r379', '1');
+      const row = document.createElement('div'); row.className = 'row'; const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); const b3 = document.createElement('button'); const lab3 = () => { b3.textContent = '镜头：' + (NEAR ? '近一档（点一下改回原来）' : '原来（点一下拉近一档，人物大两成）'); }; lab3(); b3.onclick = () => { R379.setNear(!NEAR); lab3(); }; row.appendChild(b3); const b4 = document.createElement('button'); const lab4 = () => { b4.textContent = '★ 清爽模式：' + (CLEAN ? '开着（点一下关）' : '关着（点一下开：界面收起来）'); }; lab4(); b4.onclick = () => { R379.setClean(!CLEAN); lab4(); p.hidden = true; }; row.prepend(b4); p.prepend(h, row); };
     if (pan) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
 })();

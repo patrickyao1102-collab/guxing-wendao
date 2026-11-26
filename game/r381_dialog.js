@@ -2,11 +2,11 @@
 // 作者 11-26 夜：「各种框，感觉游戏感也不足」；11-27 凌晨点名要看的方向里有「对话框」。
 // 原来的对话框是代码画的：一块深色圆角矩形、一圈细金线、一个红色圆角矩形当名牌。能用，但没有材质。
 // Codex 做了两个方向：A「乌木描金」（乌木板、嵌金线、四角回纹、靛蓝织物名签，浅色字）；B「展卷」（宣纸卷、两端木轴、墨色字）。
-// 默认用 A（Codex 和我都推荐：浅色铺地上压得住，和选项卷轴同屏时分得清）。测试面板里可以换成 B 或者切回原来的。
+// 默认用 A。B「展卷」作者看过否了（太书卷气、和字体不搭），已撤；测试面板里可以切回原来代码画的那套（作者说那套也挺好看）。
 // 只换画法：立绘、台词、名字、每行多少字、点哪里继续，全都和原来一样。
 (function () {
   if (typeof drawDialog !== 'function' || typeof ease !== 'function' || typeof wrapText !== 'function') return;
-  const KEY = 'r381_dlg'; let MODE = 'a'; try { const v = localStorage.getItem(KEY); if (v === 'a' || v === 'b' || v === 'off') MODE = v; } catch (e) {}
+  const KEY = 'r381_dlg'; let MODE = 'a'; try { const v = localStorage.getItem(KEY); if (v === 'a' || v === 'off') MODE = v; } catch (e) {}   // 作者 11-27 晨：「展卷」那套白黄色的太书卷气、和字体也不搭，不像游戏——撤掉。原来代码画的和「乌木描金」都可以。
   const N = ['dlg_box', 'dlg_name', 'dlg_ff', 'dlg_ff_on', 'dlg_next_1', 'dlg_next_2', 'dlg_next_3', 'dlg_next_4'], A = { a: {}, b: {} }, started = {};
   // 开机头几秒游戏在排队载大图，这时候要的小图有时会石沉大海——所以没到齐就隔几秒再要一次
   function load(v) { const now = performance.now(); if (started[v] && now - started[v] < 12000) return; started[v] = now; for (const n of N) { if (A[v][n]) continue; const im = new Image(); im.onload = () => { A[v][n] = im; }; im.src = 'r381/' + v + '_' + n + '.webp?v=1'; } }
@@ -40,10 +40,10 @@
     ctx.save(); ctx.globalAlpha = on ? .86 + Math.sin(now / 170) * .14 : .94; ctx.drawImage(on ? V.dlg_ff_on : V.dlg_ff, FFR.x, FFR.y, FFR.w, FFR.h);
     ctx.font = `600 17px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = on ? C.ffOn : C.ff; ctx.fillText(on ? '快进中 · 点一下停' : '快进 ▶▶', FFR.x + FFR.w / 2 + (MODE === 'b' ? 4 : 0), FFR.y + FFR.h / 2 + 1); ctx.restore(); }
   Object.defineProperty(window, 'R381_FF', { get() { return MODE !== 'off' && ok(MODE); } });
-  window.R381 = { get mode() { return MODE; }, set(v) { MODE = v === 'b' ? 'b' : v === 'off' ? 'off' : 'a'; try { localStorage.setItem(KEY, MODE); } catch (e) {} if (MODE !== 'off') load(MODE); }, ready: () => MODE === 'off' || ok(MODE) };
+  window.R381 = { get mode() { return MODE; }, set(v) { MODE = v === 'off' ? 'off' : 'a'; try { localStorage.setItem(KEY, MODE); } catch (e) {} if (MODE !== 'off') load(MODE); }, ready: () => MODE === 'off' || ok(MODE) };
   // 测试面板
   try { const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r381]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 对话框（R381）'; h.setAttribute('data-r381', '1');
-      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const NAME = { a: '乌木描金', b: '展卷（宣纸）', off: '原来的' }, NEXT = { a: 'b', b: 'off', off: 'a' };
+      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const NAME = { a: '乌木描金', off: '原来的' }, NEXT = { a: 'off', off: 'a' };
       const lab = () => { b.textContent = '对话框：' + NAME[MODE] + '（点一下换成「' + NAME[NEXT[MODE]] + '」）'; }; lab(); b.onclick = () => { R381.set(NEXT[MODE]); lab(); }; row.appendChild(b);
       const anchor = p.querySelector('[data-r379]'); if (anchor) { p.insertBefore(row, anchor); p.insertBefore(h, row); } else { p.appendChild(h); p.appendChild(row); } };
     if (document.getElementById('dbgPanel')) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
