@@ -140,8 +140,10 @@
       for (const r of targetRows()) { const mi = memberInfo(r.k), sel = m.who === r.k, f = full(mi), cy = r.y + r.h / 2;
         ctx.beginPath(); ctx.roundRect(r.x, r.y, r.w, r.h, 8); ctx.fillStyle = sel ? 'rgba(150,52,30,.13)' : 'rgba(255,255,255,.18)'; ctx.fill(); ctx.lineWidth = sel ? 2 : 1; ctx.strokeStyle = sel ? '#9A4A22' : 'rgba(70,50,30,.28)'; ctx.stroke();
         try { medallion(mi.p, r.x + 24, cy, r.h / 2 - 4, { name: mi.name }); } catch (e) {}
-        ctx.textAlign = 'left'; ctx.font = `600 18px ${KAI()}`; ctx.fillStyle = '#30241C'; ctx.fillText(mi.name, r.x + 50, cy + 1);
-        ctx.font = `500 15px ${SONG()}`; ctx.fillStyle = f ? '#7C6B55' : '#8C2F22'; ctx.textAlign = 'right'; ctx.fillText(f ? '气血灵力皆满' : '气血 ' + mi.hp + '/' + mi.maxhp + '　灵力 ' + mi.mp + '/' + mi.maxmp, r.x + r.w - 12, cy + 1); }
+        ctx.textAlign = 'left'; ctx.font = `600 18px ${KAI()}`; ctx.fillStyle = '#30241C'; ctx.fillText(mi.name, r.x + 50, cy + 1); const nameW = ctx.measureText(mi.name).width;
+        ctx.font = `500 15px ${SONG()}`; ctx.fillStyle = f ? '#7C6B55' : '#8C2F22'; ctx.textAlign = 'right'; let stt = f ? '气血灵力皆满' : '气血 ' + mi.hp + '/' + mi.maxhp + '　灵力 ' + mi.mp + '/' + mi.maxmp;
+        if (!f && ctx.measureText(stt).width > r.w - 50 - nameW - 26) stt = mi.hp < mi.maxhp ? '气血 ' + mi.hp + '/' + mi.maxhp : '灵力 ' + mi.mp + '/' + mi.maxmp;   /* 手机上小字会被放大，两段写不下就只写缺的那一样 */
+        ctx.fillText(stt, r.x + r.w - 12, cy + 1); }
       const cur = memberInfo(m.who); btn(full(cur) ? '不必服用' : '给' + cur.name + '服用', !full(cur)); }
     else if (ub) btn('使 用', true);
     else if (it.slot) btn('去换上', true);
@@ -151,6 +153,8 @@
   const INK = /^#3e2d18$/i, GOLDC = /^#9a671f$/i, BLUEC = /^#315e90$/i;
   drawMenu = (o => function () {
     try { stash(); if (R373_SKIN.on) { load(); if (ready() && !built && R201_BAG.ready() && IM.bg_full && IM.bg_full.getContext) build(); } } catch (e) { console.warn('R380 build', e); }
+    // 玄青那套右上角的小签原来写「换白玉」，可下一套其实是线装册——照实写
+    if (!R373_SKIN.on && S.menu && window.BDK && BDK.on) { const f0 = ctx.fillText; ctx.fillText = function (t) { if (t === '换白玉') arguments[0] = '换线装册'; return f0.apply(this, arguments); }; try { return o.apply(this, arguments); } finally { ctx.fillText = f0; } }
     if (!on() || !S.menu) return o.apply(this, arguments);
     // 册子外面是深色木案：头像下的名字、灵石数目原来是深墨色，换成浅色
     const ft = ctx.fillText, who = S.menu.who || 'hero', names = {}; try { for (const k of partyList()) names[memberInfo(k).name] = k; } catch (e) {}
