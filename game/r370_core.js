@@ -118,7 +118,7 @@
     if (name) big(name, '#ffb04a', 64); e.pose = 'atk'; await dashTo(e, P.x - 150, P.y, 200); try { playSnd('sfx_claw'); fx(fxName || 'fx3_claw_red', { x: P.x - 10, y: P.y - P.h * .5, scale: .9, rot: -.25 }); } catch (e2) {}
     let { d, crit } = dmgCalc(e, P, mult, .08); d = Math.round(d * guard(P)); applyDamage(P, d, crit); await sleep(260); await dashBack(e, 240); e.pose = null; return d; }
   function summon(b, e, types, name) {
-    const slots = [[570, 665], [545, 470], [440, 560], [620, 565], [470, 690]], used = b.enemies.filter(x => x.alive).map(x => [x.x, x.y]); let n = 0;
+    const slots = (e && e._yw && e._yw.sslots) || [[570, 665], [545, 470], [440, 560], [620, 565], [470, 690]], used = b.enemies.filter(x => x.alive).map(x => [x.x, x.y]); let n = 0;
     for (const t of types) { const s = slots.find(s => used.every(u => Math.hypot(u[0] - s[0], u[1] - s[1]) > 110)); if (!s) break; used.push(s);
       const m = makeEnemy(t, Math.max(0, e.lv - 8) * .5); if (name) { m.name = name; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + Math.max(1, e.lv - 2); m.lv = e.lv - 2; m._add = e._id;
       const u = unit(Object.assign({ side: 'enemy' }, m)); u.x = s[0]; u.y = s[1]; u.gauge = ri(0, 30);
@@ -168,7 +168,7 @@
   function makeYW(y) {
     const m = MOB_DB[y.type], lv = y.lv;
     const hp0 = Math.round(HP(lv) * (y.adds ? .78 : 1));
-    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: m.key, hp: hp0, maxhp: hp0, atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
+    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: y.vkey || m.key /* R378：重画过本体的妖王用自己的形象 */, hp: hp0, maxhp: hp0, atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: y.vh || m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
       _yw: y, _id: y.id, _ep: y.ep, _atk0: ATK(lv), _def0: DEF(lv), turn: 0, _type: y.type };
     e.ai = async (en, b) => { en.turn++;
       if (en._break) { en._break--; if (en._break >= 1) { floatText(en.x, en.y - en.h - 40, '喘息……', '#ffe27a', 38); await sleep(700); return true; } }
@@ -186,9 +186,9 @@
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
-    if (!F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左下角的法宝，每场能祭出一次。']); } catch (e) {} }
+    if (!F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左上角的法宝，每场能祭出一次。']); } catch (e) {} }
     const pr = startBattle({ title: '妖王讨伐 · ' + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
-    try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = 290; u.y = 610; } else { const sl = [[570, 665], [545, 470], [440, 560]][ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
+    try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = (y.bpos || [290, 610])[0]; u.y = (y.bpos || [290, 610])[1]; } else { const sl = (y.apos || [[570, 665], [545, 470], [440, 560]])[ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
     await fadeIn(240); const win = await pr; FIGHT = null;
     S.scene = drawMap;
     if (win === true) { F()['yw_' + y.id] = 1; await reward(y); }
@@ -201,7 +201,7 @@
     const xs = 40 + (y.lv - 10) * 6; S.hero.xs = (S.hero.xs || 0) + xs;   // 悬赏点（R298 那套：去典籍阁换剑谱、玉简）
     if (!fb().on && y.fabao) fb().on = y.fabao;
     if (window.itemGet) await itemGet(give.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })).concat(ITEM_DB.k_xs ? [{ icon: 'item:k_xs', name: '悬赏点', count: '+' + xs, desc: '讨伐榜的赏格。去天剑集市 · 典籍阁换剑谱、玉简' }] : []), '讨伐 ' + y.ep + ' · ' + y.name);
-    if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本姑娘祭炼了。打架的时候点左下角的法宝，一场能用一回。');
+    if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本姑娘祭炼了。打架的时候点左上角的法宝，一场能用一回。');
     else { await say('星旋', '榜上的、榜外的，都清干净了。……行吧，本姑娘承认，你有点本事。'); toast('讨伐榜内外，再无妖王', 3200); return; }
     const left = YW.filter(q => !q.hidden && !ywDone(q)).length;
     if (left) toast('讨伐榜上还剩 ' + left + ' 只妖王', 3200);
@@ -255,7 +255,7 @@
       ctx.save(); let g = ctx.createRadialGradient(x, yy, 6, x, yy, 150); g.addColorStop(0, 'rgba(255,60,30,.42)'); g.addColorStop(.6, 'rgba(255,60,30,.14)'); g.addColorStop(1, 'rgba(255,60,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, yy, 150, 52, 0, 0, 7); ctx.fill();
       ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 9; i++) { const k = (t * .5 + i / 9) % 1, sx = x + Math.sin(i * 5.1 + t) * (40 + k * 60), sy = yy - 10 - k * 190; ctx.fillStyle = `rgba(255,${120 + i * 8},60,${(1 - k) * .8})`; ctx.beginPath(); ctx.arc(sx, sy, 3.2 * (1 - k) + .6, 0, 7); ctx.fill(); } ctx.restore();
       const p = world.player, flip = p ? p.x > x : false;
-      lairSprite(m, x, yy, y.mh, flip, t);
+      lairSprite(y.vkey ? { key: y.vkey } : m, x, yy, y.mh, flip, t);
       const mk = art('yw_mark'), np = art('yw_nameplate'), top = yy - y.mh - 34 + Math.sin(t * 2) * 3;
       ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (np) ctx.drawImage(np, x - 110, top - 22, 220, 44); if (mk) ctx.drawImage(mk, x - 32, top - 78, 64, 64);
@@ -284,7 +284,7 @@
   if (typeof drawUnit === 'function') drawUnit = (orig => function (u) { if (u && u._scale && u.alive) { const ax = u.x + (u.ox || 0), ay = u.y + (u.oy || 0), nm = u.name; ctx.save(); ctx.translate(ax, ay); ctx.scale(u._scale, u._scale); ctx.translate(-ax, -ay); u.name = ''; u._noBar = 1; try { return orig.apply(this, arguments); } finally { u.name = nm; u._noBar = 0; ctx.restore(); } } return orig.apply(this, arguments); })(drawUnit);
   // 妖王头顶不画小血条（顶上有长血条）
   { const H0 = window.R169_HPBAR; window.R169_HPBAR = function (u) { if (u && u._noBar) return true; return H0 ? H0.apply(this, arguments) : false; }; }
-  const FBR = { x: 44, y: 520, w: 110, h: 110 };
+  const FBR = { x: 22, y: 58, w: 110, h: 110 };   // 11-27：从左下挪到左上（新画的妖王本体大，左下角是它的前腿）
   const fbReady = b => b && b.state === 'menu' && !b._fbUsed && fb().on && !dialog && !sysPanel && !(b.menu && b.menu.sub);
   const layer = { t: 0, draw() { try {
     const b = typeof battle !== 'undefined' && battle, now = performance.now() / 1000;

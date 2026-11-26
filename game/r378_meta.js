@@ -1,0 +1,2 @@
+// R378 · 妖王本体图集的尺寸表（tools/r378_build.py 生成，别手改）
+window.R378_META = {"boar": {"main": {"idleEnd": 7, "impact": 8, "n": 8, "cols": 6, "fw": 747, "fh": 550, "footX": 375.7, "footY": 546.0, "fps": 12}, "h": 440.0, "bodyH": 430, "atk": false, "charge": {"idleEnd": 5, "impact": 6, "n": 6, "cols": 6, "fw": 747, "fh": 550, "footX": 375.7, "footY": 546.0, "fps": 12}, "break": {"idleEnd": 3, "impact": 4, "n": 4, "cols": 6, "fw": 747, "fh": 550, "footX": 375.7, "footY": 546.0, "fps": 12}}};
