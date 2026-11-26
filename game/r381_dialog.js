@@ -10,7 +10,7 @@
   const N = ['dlg_box', 'dlg_name', 'dlg_ff', 'dlg_ff_on', 'dlg_next_1', 'dlg_next_2', 'dlg_next_3', 'dlg_next_4'], A = { a: {}, b: {} }, started = {};
   // 开机头几秒游戏在排队载大图，这时候要的小图有时会石沉大海——所以没到齐就隔几秒再要一次
   function load(v) { const now = performance.now(); if (started[v] && now - started[v] < 12000) return; started[v] = now; for (const n of N) { if (A[v][n]) continue; const im = new Image(); im.onload = () => { A[v][n] = im; }; im.src = 'r381/' + v + '_' + n + '.webp?v=1'; } }
-  const ok = v => N.every(n => A[v][n]);
+  const ok = v => !!A[v] && N.every(n => A[v][n]);
   const CFG = { a: { text: '#F4E9D3', narr: '#E6D9BE', name: '#F5E7BF', ff: '#EBDDBC', ffOn: '#FFE9A8' }, b: { text: '#2E2218', narr: '#4A3A2A', name: '#35261A', ff: '#3A2A1C', ffOn: '#8C2F22' } };
   if (MODE !== 'off') { let n = 0; const iv = setInterval(() => { if (ok(MODE) || MODE === 'off' || ++n > 30) return clearInterval(iv); load(MODE); }, 3000); }
   // 九宫（只横向拉：名签）
