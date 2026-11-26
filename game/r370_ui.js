@@ -18,9 +18,9 @@
   // ---------- 弹出界面：点按都收在这里，不漏到地图上 ----------
   const UI = { cur: null, taps: [] };
   try { cv.addEventListener('pointerdown', e => { if (!UI.cur) return; UI.taps.push(toLogical(e)); e.stopImmediatePropagation(); e.preventDefault(); }, true); } catch (e) {}
-  async function modal(draw, onTap) { if (UI.cur) return; const lock0 = world.locked; UI.cur = { draw, t0: performance.now() }; UI.taps.length = 0; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
+  async function modal(draw, onTap) { if (UI.cur) return; const lock0 = world.locked, hud0 = S.hud; S.hud = false; /* 榜 / 法宝开着时收起小地图、队伍条、任务栏（原来任务栏会压在界面右上角） */ UI.cur = { draw, t0: performance.now() }; UI.taps.length = 0; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('ui_confirm', .5); } catch (e) {}
-    try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; const r = onTap(tp); if (r !== undefined) return r; } } finally { UI.cur = null; world.locked = lock0; try { input.tapped = null; } catch (e) {} } }
+    try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; const r = onTap(tp); if (r !== undefined) return r; } } finally { UI.cur = null; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} } }
   const dim = () => { const a = Math.min(1, (performance.now() - UI.cur.t0) / 160); ctx.fillStyle = `rgba(8,5,3,${.58 * a})`; ctx.fillRect(0, 0, W, H); return a; };
 
   // ---------- 妖王讨伐榜 ----------
@@ -64,6 +64,7 @@
   // ---------- 法宝界面 ----------
   const SX = [58, 238, 418], SY = [139, 349];
   for (const n of ['fabao_bg', 'fabao_seat_empty', 'fabao_seat_have', 'fabao_seat_on', 'btn_star', 'btn_star_down', 'fabao_btn_ready', 'fabao_btn_used', 'boss_plate', 'boss_bar_fill', 'boss_bar_fill_break', 'warn_strip', 'fuzhu', 'yw_mark', 'yw_nameplate', 'banner_area', 'banner_area_danger']) setTimeout(() => art(n), 10000);
+  let ND = null, NDARM = null, NDFX = null;   // 妖王内丹祭炼：一颗内丹直接升一阶（和「多祭出几回自己升」二选一；内丹还能留着做妖王战袍）
   async function openFabao() {
     const ids = FB.list(), st = FB.state(); let sel = Math.max(0, ids.indexOf(st.on)); if (!st.own[ids[sel]]) sel = Math.max(0, ids.findIndex(id => st.own[id]));
     await modal(() => { ctx.save(); const a = dim(); ctx.globalAlpha = a; ctx.translate(0, (1 - a) * 14);
@@ -75,13 +76,22 @@
         if (on) tx('出战', x + 75, y + 188, `700 14px ${FONT}`, '#ffd76a', 'center'); });
       const id = ids[sel], it = ITEM_DB[id], own = !!st.own[id], on = st.on === id, cx = BX + 795;
       if (own) { tx(it.name, cx, BY + 174, `40px ${BRUSH}`, INK, 'center'); const rk = R370_FB_RANK(id); tx(it.grade + '　·　' + rk.name + (on ? '　·　出战' : ''), cx, BY + 223, `700 17px ${FONT}`, RED, 'center');
-        const n = wrap(NEWDESC(it), BX + 662, BY + 268, 266, 25, `16px ${FONT}`, '#4a3420', 3); const n2 = wrap(it.eff, BX + 662, BY + 268 + n * 25 + 10, 266, 25, `700 16px ${FONT}`, INK, 4); tx(rk.next ? '再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '（效果更强）' : '已祭炼大成', BX + 662, BY + 268 + (n + n2) * 25 + 22, `14px ${FONT}`, '#7a5a34');
+        const n = wrap(NEWDESC(it), BX + 662, BY + 268, 266, 25, `16px ${FONT}`, '#4a3420', 3); const n2 = wrap(it.eff, BX + 662, BY + 268 + n * 25 + 10, 266, 25, `700 16px ${FONT}`, INK, 4); const hy = BY + 268 + (n + n2) * 25 + 22, nd = itemCount('m_neidan'); ND = null;
+        if (rk.next && nd > 0) { const by = Math.min(hy + 16, BY + 407); if (by - hy >= 14) tx('再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '；或者——', BX + 662, hy, `14px ${FONT}`, '#7a5a34');
+          ND = { x: BX + 662, y: by, w: 266, h: 38, id }; const b2 = art('btn_star'), arm = NDARM && NDARM.id === id && performance.now() - NDARM.t < 3500; if (b2) ctx.drawImage(b2, ND.x, ND.y, ND.w, ND.h);
+          tx(arm ? '再点一次：用掉 1 颗内丹' : '用妖王内丹祭炼' + (rk.r ? '大成' : '小成') + '（有 ' + nd + ' 颗）', ND.x + ND.w / 2, ND.y + ND.h / 2 + 1, `700 15px ${FONT}`, arm ? RED : '#4a3418', 'center'); }
+        else tx(rk.next ? '再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '（效果更强）' : '已祭炼大成', BX + 662, hy, `14px ${FONT}`, '#7a5a34');
+        if (NDFX && performance.now() - NDFX.t < 1600 && NDFX.id === id) { const k = (performance.now() - NDFX.t) / 1600; ctx.save(); ctx.globalAlpha = Math.min(1, (1 - k) * 2.2); tx('祭炼' + NDFX.name + '！', cx, BY + 132 - k * 16, `34px ${BRUSH}`, RED, 'center'); ctx.restore(); }
         const b = art('btn_star'); if (b) ctx.drawImage(b, BX + 695, BY + 451, 200, 60); tx(on ? '收回法宝' : '带上出战', cx, BY + 481, `700 20px ${FONT}`, '#4a3418', 'center'); }
       else { tx('？？？', cx, BY + 174, `40px ${BRUSH}`, INK, 'center'); const y = YW.find(q => q.fabao === id); wrap(y ? '讨伐「' + y.ep + ' · ' + y.name + '」所得。妖王的悬赏贴在天剑宗玄天据点前院的讨伐榜上。' : '还没有得到。', BX + 662, BY + 268, 266, 26, `16px ${FONT}`, '#4a3420', 5); }
       const c = art('btn_close'); if (c) ctx.drawImage(c, BX + 986, BY + 30, 50, 50);
       ctx.restore(); },
     tp => { for (let i = 0; i < ids.length; i++) if (inR(tp, BX + SX[i % 3], BY + SY[Math.floor(i / 3)], 150, 190)) { sel = i; try { playSnd('ui_click'); } catch (e) {} return; }
-      const id = ids[sel]; if (st.own[id] && inR(tp, BX + 695, BY + 451, 200, 60)) { st.on = st.on === id ? null : id; try { playSnd('ui_confirm'); } catch (e) {} return; }
+      const id = ids[sel];
+      if (ND && ND.id === id && st.own[id] && inR(tp, ND.x, ND.y, ND.w, ND.h)) { const rk = R370_FB_RANK(id);
+        if (!(NDARM && NDARM.id === id && performance.now() - NDARM.t < 3500)) { NDARM = { id, t: performance.now() }; try { playSnd('ui_click'); } catch (e) {} return; }
+        NDARM = null; if (rk.next && itemCount('m_neidan') > 0) { const h = S.hero; h.bag.m_neidan--; if (h.bag.m_neidan <= 0) delete h.bag.m_neidan; st.use = st.use || {}; st.use[id] = rk.r ? 10 : 4; NDFX = { id, t: performance.now(), name: rk.r ? '大成' : '小成' }; try { playSnd('jingle_levelup', .6); } catch (e) {} } return; }
+      if (st.own[id] && inR(tp, BX + 695, BY + 451, 200, 60)) { st.on = st.on === id ? null : id; try { playSnd('ui_confirm'); } catch (e) {} return; }
       if (inR(tp, BX + 978, BY + 22, 66, 66) || !inR(tp, BX, BY, 1040, 620)) return true; });
   }
   const NEWDESC = it => (it.desc || '').replace(' ' + it.eff, '');

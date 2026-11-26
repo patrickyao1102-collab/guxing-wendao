@@ -7,6 +7,7 @@
 //    （台词：Claude 初稿，Gemini 11-27 润色定稿；秦师傅「会剥」一句保留初稿）
 //    裁月记 · 秦师傅「头一单」：幽影狼皮 ×3 → 影步靴；锦云坊 · 云娘「赶工的法衣」：影蛛丝 ×4 → 云锦长衫 + 灵石；点绛铺 · 老板娘「烘笼里的火」：烈焰晶 ×2 → 凝神香囊 + 安息香。
 // 4）六只妖王打赢后收进妖兽图鉴（类别「妖王」）。
+// 6）主线首领的战利品变成真东西：打退铁鳞魔虎的「铁鳞 ×3」是真材料（裁月记能定做铁鳞护心甲）、炼魂谷头目的「魂葫芦」进行囊；旧存档补发一次。
 // 5）柜台里选中一件装备时，左下角列出队里每个人换上它各项是涨是跌（境界不够、已经穿着也写明）。
 (function () {
   if (typeof TMAPS === 'undefined' || typeof S === 'undefined' || typeof startBattle !== 'function') return;
@@ -118,6 +119,19 @@
     S.overlay.push(cmp);
     for (const id in ITEM_DB) if (ITEM_DB[id] && ITEM_DB[id].slot === 'shoe' && !ITEM_DB[id].cat) ITEM_DB[id].cat = '鞋履';   // 货单上鞋子原来写成「杂物」
   } } catch (e) { console.warn('R375 柜台', e); }
+
+  // ---------- 6）主线首领的战利品变成真东西（R376）：原来胜利卷轴上写「获得：铁鳞 ×3」「魂葫芦 ×1」，其实什么也没进行囊、格子也是空白 ----------
+  try { if (ITEM_DB.m_tielin && ITEM_DB.k_hunhulu) {
+    const LOOT = [[/铁鳞\s*[×x]\s*3/, 'm_tielin', 3, 'r376_tielin', 'ch3_tiger'], [/魂葫芦/, 'k_hunhulu', 1, 'r376_hulu', 'ch3_forest_done']];
+    startBattle = (orig => function (cfg) { const loot = cfg && typeof cfg.loot === 'string' ? cfg.loot : '', p = orig.apply(this, arguments);
+      if (!loot || !p || !p.then) return p;
+      return p.then(win => { try { if (win) for (const [re, id, n, fl] of LOOT) if (re.test(loot) && !F()[fl]) { F()[fl] = 1; addItem(id, n); } } catch (e) {} return win; }); })(startBattle);
+    // 旧存档：早就打过的，补发一次
+    let told = 0; const layer = { draw() { try { if (told > performance.now() || !S.started || !world.map || S.scene !== drawMap || world.locked || dialog || choice || (typeof battle !== 'undefined' && battle)) return; told = performance.now() + 4000;
+      const got = []; for (const [, id, n, fl, done] of LOOT) if (F()[done] && !F()[fl]) { F()[fl] = 1; addItem(id, n); got.push(ITEM_DB[id].name + (n > 1 ? ' ×' + n : '')); }
+      if (got.length) toast('行囊里多了：' + got.join('、'), 3200);   /* 20 字以上会变成星旋开口说话，这句是系统提示，写短 */ } catch (e) {} } };
+    S.overlay.push(layer);
+  } } catch (e) { console.warn('R375 战利品', e); }
 
   // ---------- 4）妖王进图鉴 ----------
   try { if (window.BESTIARY && BESTIARY.NAME && window.R370_YW) { const D = {
