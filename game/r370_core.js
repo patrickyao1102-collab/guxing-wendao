@@ -84,19 +84,19 @@
 
   // ---------- ③ 妖王 ----------
   const YW = window.R370_YW = [
-    { id: 'boar', cry: '敢闯本王山头？看我不撞碎你们！', ep: '撼山', name: '铁背獠牙猪王', type: 'boar', map: 'xt_road', pos: [1088, 800], lv: 10, fabao: 'fb_hanshan', bg: 'bg_mountain', scale: 1.9, mh: 150,
+    { id: 'boar', cry: '敢闯本王山头？看我不撞碎你们！', ep: '撼山', name: '铁背獠牙猪王', type: 'boar', map: 'xt_road', pos: [1088, 800], lv: 10, fabao: 'fb_hanshan', bg: 'bg_mountain', scale: 1.9, mh: 200,
       where: '青玄近道 · 道旁野地', tip: '它蓄力冲撞之前会刨地——那一下要防御。撞完它会力竭，那是出手的时候。', extra: ['c_tusk', 'm_hide', 'm_hide'] },
-    { id: 'wolf', cry: '踏入本将领地，便把命留下吧！', ep: '啸月', name: '苍狼妖将', type: 'wolfking', map: 'lin_forest', pos: [288, 608], lv: 12, fabao: 'fb_xiaoyue', bg: 'bg_mountain', scale: 1.25, mh: 150, adds: ['wolf2', 'wolf2'],
+    { id: 'wolf', cry: '踏入本将领地，便把命留下吧！', ep: '啸月', name: '苍狼妖将', type: 'wolfking', map: 'lin_forest', pos: [288, 608], lv: 12, fabao: 'fb_xiaoyue', bg: 'bg_mountain', scale: 1.25, mh: 250, adds: ['wolf2', 'wolf2'],
       where: '云霄山脉 · 山外树林 · 西北溪边', tip: '身边的狼活着，它就越打越凶——先清狼。它举刀蓄势时防御。', extra: ['m_gupian', 'm_yingpi', 'm_yingpi'] },
-    { id: 'leopard', cry: '磨磨蹭蹭的，先把你们烧成灰！', ep: '离火', name: '烈焰妖豹', type: 'leopard', map: 'hf_valley', pos: [1280, 448], lv: 14, fabao: 'fb_lihuo', bg: 'bg_mountain', scale: 1.8, mh: 150,
+    { id: 'leopard', cry: '磨磨蹭蹭的，先把你们烧成灰！', ep: '离火', name: '烈焰妖豹', type: 'leopard', map: 'hf_valley', pos: [1280, 448], lv: 14, fabao: 'fb_lihuo', bg: 'bg_mountain', scale: 1.8, mh: 190,
       where: '黑风谷 · 北坡石阶上', tip: '它快，一轮能扑两回。浑身火光大盛就是要放「离火燎原」——不防御会被烧上好几轮。', extra: ['m_yanjing', 'm_yanjing', 'm_yanjing'] },
-    { id: 'spider', cry: '细皮嫩肉的，正好留着裹进茧里。', ep: '千丝', name: '金丝蛛后', type: 'spiderq', map: 'm_yy_tiger', pos: [608, 1184], lv: 16, fabao: 'fb_fuyao', bg: 'bg_youying', scale: 1.3, mh: 150,
+    { id: 'spider', cry: '细皮嫩肉的，正好留着裹进茧里。', ep: '千丝', name: '金丝蛛后', type: 'spiderq', map: 'm_yy_tiger', pos: [608, 1184], lv: 16, fabao: 'fb_fuyao', bg: 'bg_youying', scale: 1.3, mh: 240,
       where: '幽影林 · 追虎迷径 · 西边林隙', tip: '被它的丝缠住的人要歇一轮。它张网蓄势时全队防御，不然一个都动不了。血少了它会唤小蛛。', extra: ['m_jinsi', 'm_jinsi', 'm_silk', 'm_silk'] },
-    { id: 'treant', cry: '来得正好，我的花正缺人血浇呢。', ep: '回春', name: '荆棘妖姬', type: 'treant', map: 'm_yy_verge', pos: [2752, 1472], lv: 18, fabao: 'fb_huichun', bg: 'bg_youying', scale: 1.3, mh: 170, adds: ['tree', 'tree'], addName: '荆棘花',
+    { id: 'treant', cry: '来得正好，我的花正缺人血浇呢。', ep: '回春', name: '荆棘妖姬', type: 'treant', map: 'm_yy_verge', pos: [2752, 1472], lv: 18, fabao: 'fb_huichun', bg: 'bg_youying', scale: 1.3, mh: 220, adds: ['tree', 'tree'], addName: '荆棘花',
       where: '幽影林 · 林尽闻声 · 兽骨空地', tip: '两朵荆棘花会一直给它回血——花不除，它打不死。', extra: ['m_thorn', 'm_thorn', 'm_thorn', 'p_revive'] },
   ];
   // 榜外第六只（Gemini 的主意）：五张悬赏全盖了「诛」之后才露面，不上榜
-  YW.push({ id: 'rhino', hidden: true, cry: '……多少年了，还有人敢走这条山路。', ep: '镇岳', name: '黑甲犀王', type: 'rhino', map: 'tj_xiashan', pos: [912, 2048], lv: 20, fabao: null, bg: 'bg_mountain', scale: 1.8, mh: 160,
+  YW.push({ id: 'rhino', hidden: true, cry: '……多少年了，还有人敢走这条山路。', ep: '镇岳', name: '黑甲犀王', type: 'rhino', map: 'tj_xiashan', pos: [912, 2048], lv: 20, fabao: null, bg: 'bg_mountain', scale: 1.8, mh: 200,
     where: '天剑山 · 下山路深处', tip: '它每动一回，身上的铁甲就厚一层。只有逼它使出「镇岳踏」、力竭之后，铁甲才会碎。', extra: ['m_neidan', 'm_neidan', 'm_horn', 'm_horn', 'p_revive', 'p_revive'] });
   const ywDone = y => !!F()['yw_' + y.id];
   const allFive = () => YW.filter(y => !y.hidden).every(ywDone);
@@ -185,6 +185,7 @@
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
+    if (!F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左下角的法宝，每场能祭出一次。']); } catch (e) {} }
     const pr = startBattle({ title: '妖王讨伐 · ' + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
     try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = 290; u.y = 610; } else { const sl = [[570, 665], [545, 470], [440, 560]][ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
     await fadeIn(240); const win = await pr; FIGHT = null;
@@ -236,13 +237,23 @@
   const ART = {}; const art = (n, dir = 'r372') => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = dir + '/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
   window.R370_ART = art;
   let BAN = null; const banner = t => { BAN = { t, t0: performance.now() }; };
+  // 地图上的妖王本体：有即梦序列帧的（猪王、狼将、妖豹、蛛后）直接放待机那几帧；别的走原来的立绘 / 骨骼。图没到就先只画红光和名牌，不画占位人形
+  const LIM = {};
+  function lairSprite(m, x, yy, H, faceRight, t) {
+    const V = window.VSPRITES && VSPRITES[m.key];
+    if (V) { let im = LIM[V.id]; if (!im) { im = LIM[V.id] = new Image(); im.src = 'rig/' + V.id + '.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} } if (!im.complete || !im.naturalWidth) return false;
+      const mt = V.meta, L = mt.idleEnd + 1, k = Math.floor(t * 8) % (L * 2 - 2 || 1), f = k < L ? k : L * 2 - 2 - k, sc = H / mt.fh, sx = (f % mt.cols) * mt.fw, sy = Math.floor(f / mt.cols) * mt.fh;
+      ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, yy, H * .34, H * .07, 0, 0, 7); ctx.fill(); ctx.translate(x, yy); if (faceRight) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(im, sx, sy, mt.fw, mt.fh, -mt.footX * sc, -mt.footY * sc, mt.fw * sc, mt.fh * sc); ctx.restore(); return true; }
+    if (typeof IMG !== 'undefined' && !IMG[m.key] && !(window.RIG_MAP && RIG_MAP[m.key])) return false;
+    drawSprite(m.key, x, yy, H, faceRight, 1, '#a33', ''); return true; }
   const hereYW = () => YW.find(y => y.map === world.mapName && !ywDone(y) && (!y.hidden || allFive()));
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig(T, cam, now);
     try { const y = hereYW(); if (!y || battle) return; const [x, yy] = y.pos, m = MOB_DB[y.type], t = performance.now() / 1000;
       ctx.save(); let g = ctx.createRadialGradient(x, yy, 6, x, yy, 150); g.addColorStop(0, 'rgba(255,60,30,.42)'); g.addColorStop(.6, 'rgba(255,60,30,.14)'); g.addColorStop(1, 'rgba(255,60,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, yy, 150, 52, 0, 0, 7); ctx.fill();
       ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 9; i++) { const k = (t * .5 + i / 9) % 1, sx = x + Math.sin(i * 5.1 + t) * (40 + k * 60), sy = yy - 10 - k * 190; ctx.fillStyle = `rgba(255,${120 + i * 8},60,${(1 - k) * .8})`; ctx.beginPath(); ctx.arc(sx, sy, 3.2 * (1 - k) + .6, 0, 7); ctx.fill(); } ctx.restore();
       const p = world.player, flip = p ? p.x > x : false;
-      drawSprite(m.key, x, yy, y.mh, flip, 1, '#a33', '');
+      lairSprite(m, x, yy, y.mh, flip, t);
       const mk = art('yw_mark'), np = art('yw_nameplate'), top = yy - y.mh - 34 + Math.sin(t * 2) * 3;
       ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (np) ctx.drawImage(np, x - 110, top - 22, 220, 44); if (mk) ctx.drawImage(mk, x - 32, top - 78, 64, 64);

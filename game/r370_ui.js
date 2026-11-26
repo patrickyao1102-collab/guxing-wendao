@@ -91,6 +91,7 @@
   const hudOn = () => world.map && S.scene === drawMap && S.hud && !world.locked && !dialog && !choice && !sysPanel && !S.menu && !(typeof battle !== 'undefined' && battle) && !UI.cur && Object.keys(FB.state().own).length > 0;
   try { cv.addEventListener('pointerdown', e => { if (UI.cur || !hudOn()) return; const p = toLogical(e); if (!inR(p, HB.x, HB.y, HB.w, HB.h)) return; e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (e2) {} openFabao(); }, true); } catch (e) {}
 
+  setTimeout(() => { art('banner_area'); art('banner_area_danger'); }, 1500);
   // ---------- 进图横幅 ----------
   let BN = null;
   const lvText = (lo, hi) => '妖兽　' + CN(lo) + '至' + CN(hi) + '级';
@@ -132,6 +133,12 @@
       B.objs.push({ id: 'r372_board', uid: 'r372_board', img: 'r372_board', x: fx - w / 2, y: fy - h + 1, w, h, sy: fy, flat: false, noPre: true });
       const a = B.blocked.split(''), cs = B.cs; for (let r = Math.floor((fy - 26) / cs); r <= Math.floor(fy / cs); r++) for (let c = Math.floor((fx - 96) / cs); c <= Math.floor((fx + 96) / cs); c++) if (r >= 0 && c >= 0 && r < B.rows && c < B.cols) a[r * B.cols + c] = '1'; B.blocked = a.join('');
       const [c, r] = P(fx, fy + 44); (M.npcs = M.npcs || []).push({ key: 'none', c, r, name: '妖王讨伐榜', hidden: true, h: 170, talk: async () => { await openBoard(); } }); } } catch (e) { console.warn('R370 board', e); }
+
+  // ---------- 第一次回玄天城：告诉玩家城里多了什么（只说一次；正在演剧情就下回再说） ----------
+  if (typeof tileSetMap === 'function') tileSetMap = (orig => function (name) { const res = orig.apply(this, arguments);
+    try { if (name === 'xt_city' && !F().r370_news) for (const ms of [3500, 6500, 10000, 15000]) setTimeout(async () => { try { if (F().r370_news || world.mapName !== 'xt_city' || world.locked || dialog || choice || sysPanel || S.scene !== drawMap || (typeof battle !== 'undefined' && battle) || (window.MAP_READY && !MAP_READY())) return;
+          F().r370_news = 1; world.locked = true; await showPanel('玄天城近况', ['天剑宗据点前院立起一块「妖王讨伐榜」——五只妖王，各有悬赏。', '城西南新开了成衣铺「锦云坊」和胭脂铺「点绛铺」；云来客栈东边是裁缝铺「裁月记」，收妖兽材料定做。', '!玄兵阁掌柜的柜上也添了新剑、新甲。']); world.locked = false; } catch (e) { world.locked = false; } }, ms); } catch (e) {}
+    return res; })(tileSetMap);
 
   // ---------- 升级之后：告诉玩家这一级解锁了什么 ----------
   if (typeof levelUpShow === 'function') levelUpShow = (orig => async function (lv0) { const r = await orig.apply(this, arguments);
