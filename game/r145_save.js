@@ -82,6 +82,7 @@
     if (document.readyState !== 'loading') setTimeout(go, 0); else document.addEventListener('DOMContentLoaded', () => setTimeout(go, 0));
     window.addEventListener('load', () => setTimeout(tag, 0)); }
   function applyLoad(d) {
+    try { if (!S.started) for (const o of S.overlay) if (o) o._keep = 1; } catch (e) {}   // 11-27：还没开局就读档（意外重载后自动接档）——这时候挂着的都是各模块的常驻层，先标上再清
     try { if (typeof battle !== 'undefined' && battle) { try { endBattle(true); } catch (e) {} battle = null; } } catch (e) {}
     try { dialog = null; } catch (e) {} try { choice = null; } catch (e) {} try { sysPanel = null; } catch (e) {}
     S.hero = fixHero(d.hero); S.flags = d.flags || {}; S.party = d.party || []; S.sk4 = d.sk4 || {}; S.skillLv = d.skillLv || {};
@@ -166,6 +167,12 @@
     let alive = null; try { alive = sessionStorage.getItem('gx_alive'); sessionStorage.removeItem('gx_alive'); } catch (e) {}
     try { if (sessionStorage.getItem('gx_home')) { sessionStorage.removeItem('gx_home'); return false; } } catch (e) {}   /* 玩家自己点了「返回主界面」：不自动接档 */
     if (alive !== '1' || !readSlot('auto')) return false;
+    // 11-27：意外重载后的自动接档原来跑得太早——后面的脚本还没载完就读档：
+    //   ① 那一刻各模块挂在 S.overlay 的常驻层还没标 _keep，读档时被当成临时弹层全清掉（升级面板、传送阵、任务页、厨房 / 菜园界面……之后都画不出来）；
+    //   ② 存档所在的地图如果是后面脚本才登记的（各处室内），会被当成「没有这张图」扔回青竹小院。
+    //   现在等整页脚本都跑完（DOMContentLoaded 之后再让一拍，常驻层都标好）才读档。
+    for (let i = 0; i < 1200 && document.readyState === 'loading'; i++) await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 30));
     try { await fadeOut(300); } catch (e) {}
     if (!loadGame('auto')) return false;
     setTimeout(() => T()('刚才画面意外中断了，已从最近的进度接着玩', 2600), 900); return true;
