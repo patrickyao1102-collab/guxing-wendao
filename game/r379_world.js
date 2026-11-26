@@ -48,40 +48,47 @@
     ctx.globalCompositeOperation = 'lighter';
     for (let i = 0; i < (f.tier === 'gold' ? 10 : 5); i++) { const kk = ((t * .6 + i / 5) % 1), sx = x + Math.sin(i * 7.3 + t * 1.4) * H * .34, sy = y - 6 - kk * H * .95; ctx.fillStyle = rgba(c, (1 - kk) * .9); ctx.beginPath(); ctx.arc(sx, sy, 2.4 * (1 - kk) + .6, 0, 7); ctx.fill(); }
     ctx.globalCompositeOperation = 'source-over';
+    // 发现主角：头顶冒一下叹号（之后就扑过来了）
+    try { const p = world.player, R = { green: 0, blue: 230, purple: 260, red: 320, gold: 0 }[f.tier] || 0, near = !!p && R > 0 && Math.hypot(p.x - x, p.y - y) < R; if (near && !a._seen) a._alertT = now; a._seen = near;
+      if (a._alertT != null && now - a._alertT < .9) { const dt = now - a._alertT, pop = Math.min(1, dt / .12), yy = y - H - 44 - Math.sin(Math.min(1, dt / .25) * Math.PI) * 8; ctx.save(); ctx.globalAlpha = Math.min(1, (.9 - dt) / .25); ctx.translate(x, yy); ctx.scale(pop, pop); ctx.font = `900 34px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('！', 0, 0, '#ff5a3a', '#fff4e0', 5); ctx.restore(); } } catch (e) {}
     // 头顶：名字 + 等级（颜色 = 强弱）
     const md = Object.values(MOB_DB).find(m => m.key === k) || MOB_DB[a.mob] || {}, nm = (T.tag ? T.tag + '·' : '') + (md.name || '') + ' Lv' + f.lv;
     ctx.font = `700 15px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(nm, x, y - H - 14, rgba([Math.min(255, c[0] + 70), Math.min(255, c[1] + 70), Math.min(255, c[2] + 70)], 1), 'rgba(0,0,0,.85)', 4);
     ctx.restore(); }
 
   // ---------- ② 灵光点 ----------
-  const KINDS = { herb: { c: [120, 240, 190], name: '灵草' }, ore: { c: [150, 200, 255], name: '灵矿' }, relic: { c: [255, 214, 110], name: '遗落之物' } };
+  const TOWN = ['xt_city', 'qy_town', 'tj_market', 'tj_front', 'tj_shanmen'];   // 城里、宗门：墙根路边偶尔有人掉的东西在闪（只闪光，不画东西）
+  const KINDS = { coin: { c: [255, 226, 150], name: '遗落的东西' }, herb: { c: [120, 240, 190], name: '灵草' }, ore: { c: [150, 200, 255], name: '灵矿' }, relic: { c: [255, 214, 110], name: '遗落之物' } };
   const RELIC = { xt_road: [['x_anxi', 2]], lin_forest: [['p_big', 2]], hf_valley: [['m_yanjing', 1], ['gold', 120]], m_yy_tiger: [['m_silk', 2], ['p_mp', 1]], m_yy_verge: [['m_thorn', 2], ['p_mp', 2]], tj_xiashan: [['p_big', 1], ['gold', 80]], m_xx_b1: [['m_shike', 2], ['p_big', 1]] };
   const PK = {};   // 地图 → [{x,y,kind,i}]
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function rng(seed) { let s = seed || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
   function gen(name) { if (PK[name]) return PK[name]; const M = TMAPS[name], B = M && M.baked; const out = PK[name] = [];
-    if (!M || !M.mobs || !B || typeof B.blocked !== 'string' || !B.cols) return out;
+    const town = TOWN.includes(name);
+    if (!M || (!M.mobs && !town) || !B || typeof B.blocked !== 'string' || !B.cols) return out;
     try { const cs = B.cs, cols = B.cols, rows = B.rows, free = (c, r) => c >= 0 && r >= 0 && c < cols && r < rows && B.blocked[r * cols + c] === '0';
       // 从入口灌水：只在走得到的地方放
       const seen = new Uint8Array(cols * rows), q = [], ents = [];
       if (M.start) ents.push([(M.start[0] + .5) * 64, (M.start[1] + .8) * 64]); for (const e of M.exits || []) ents.push([(e.x + (e.w || 1) / 2) * cs, (e.y + (e.h || 1) / 2) * cs]);
       for (const [ex, ey] of ents) { const c0 = Math.floor(ex / cs), r0 = Math.floor(ey / cs); for (let d = 0; d < 12 && !q.length; d++) for (let dy = -d; dy <= d && !q.length; dy++) for (let dx = -d; dx <= d; dx++) if (free(c0 + dx, r0 + dy)) { q.push(c0 + dx, r0 + dy); seen[(r0 + dy) * cols + c0 + dx] = 1; break; } if (q.length) break; }
       for (let i = 0; i < q.length; i += 2) { const c = q[i], r = q[i + 1]; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nc = c + dx, nr = r + dy; if (free(nc, nr) && !seen[nr * cols + nc]) { seen[nr * cols + nc] = 1; q.push(nc, nr); } } }
-      const R = rng(hash('r379' + name)), n = Math.max(3, Math.min(7, Math.round(B.w * B.h / 2200000))), avoid = ents.map(e => [e[0], e[1], 300]);
+      const R = rng(hash('r379' + name)), n = town ? Math.max(2, Math.min(5, Math.round(B.w * B.h / 3600000))) : Math.max(3, Math.min(7, Math.round(B.w * B.h / 2200000))), avoid = ents.map(e => [e[0], e[1], 300]);
+      for (const np of M.npcs || []) if (np.c != null) avoid.push([(np.c + .5) * 64, (np.r + .8) * 64, 150]); for (const d of M.doors || []) if (d.x != null) avoid.push([d.x, d.y, 170]);
       for (const ch of M.chests || []) avoid.push([(ch.c + .5) * 64, (ch.r + .8) * 64, 220]);
       const yw = (window.R370_YW || []).find(y => y.map === name); if (yw) avoid.push([yw.pos[0], yw.pos[1], 340]);
       const room = (c, r) => { const k = Math.ceil(26 / cs); for (let dy = -k; dy <= k; dy++) for (let dx = -k; dx <= k; dx++) if (!free(c + dx, r + dy) || !seen[(r + dy) * cols + c + dx]) return false; return true; };
       for (let tries = 0; tries < 4000 && out.length < n; tries++) { const c = Math.floor(R() * cols), r = Math.floor(R() * rows); if (!room(c, r)) continue; const x = (c + .5) * cs, y = (r + .5) * cs;
         if (x < 80 || y < 160 || x > B.w - 80 || y > B.h - 60) continue; if (avoid.some(([ax, ay, d]) => Math.hypot(ax - x, ay - y) < d)) continue; if (out.some(p => Math.hypot(p.x - x, p.y - y) < 430)) continue;
-        out.push({ x, y, i: out.length, kind: R() < .56 ? 'herb' : 'ore' }); }
+        out.push({ x, y, i: out.length, kind: town ? 'coin' : R() < .56 ? 'herb' : 'ore' }); }
       // 离入口最远的那一处是「遗落之物」
-      if (out.length >= 3 && ents.length) { let best = null, bd = -1; for (const p of out) { const d = Math.min(...ents.map(e => Math.hypot(e[0] - p.x, e[1] - p.y))); if (d > bd) { bd = d; best = p; } } if (best) best.kind = 'relic'; }
+      if (!town && out.length >= 3 && ents.length) { let best = null, bd = -1; for (const p of out) { const d = Math.min(...ents.map(e => Math.hypot(e[0] - p.x, e[1] - p.y))); if (d > bd) { bd = d; best = p; } } if (best) best.kind = 'relic'; }
     } catch (e) { console.warn('R379 gen', e); }
     return out; }
   const taken = (name, p) => !!F()['pk_' + name + '_' + p.i];
   window.R379_COUNT = name => { const a = gen(name); return [a.filter(p => taken(name, p)).length, a.length]; };
   function rewardOf(name, p) { const lv = (S.hero && S.hero.lv) || 1, R = rng(hash(name + p.i + 'rw'));
     if (p.kind === 'relic') return RELIC[name] || [['p_big', 1]];
+    if (p.kind === 'coin') { const r0 = R(); return r0 < .6 ? [['gold', 12 + Math.floor(R() * 24)]] : r0 < .85 ? [['p_small', 1]] : [['x_xingshen', 1]]; }
     if (p.kind === 'ore') return [['gold', 30 + lv * 5 + Math.floor(R() * 30)]];
     const mats = []; try { for (const t of TMAPS[name].mobs.types) for (const [id] of (typeof DROPS !== 'undefined' && DROPS[(MOB_DB[t] || {}).key]) || []) if (ITEM_DB[id] && ITEM_DB[id].mat && !mats.includes(id)) mats.push(id); } catch (e) {}
     const r = R(); return r < .4 ? [['p_small', 1]] : r < .62 ? [['p_mp', 1]] : mats.length && r < .86 ? [[mats[Math.floor(R() * mats.length)], 1]] : [['x_xingshen', 1]]; }
@@ -91,9 +98,10 @@
     try { playSnd(p.kind === 'relic' ? 'jingle_win' : 'ui_confirm', p.kind === 'relic' ? .5 : .8); } catch (e) {}
     POP.push({ x: p.x, y: p.y, t0: performance.now() / 1000, text: got.join('、'), c: KINDS[p.kind].c, big: p.kind === 'relic' });
     if (p.kind === 'relic') { const [a, b] = R379_COUNT(name); setTimeout(() => toast('拾得遗落之物：' + got.join('、').slice(0, 9), 2200), 200); } }
-  function drawPick(p, now) { const K = KINDS[p.kind], c = K.c, im = art('pick_' + p.kind), t = now + p.i * 1.7, x = p.x, y = p.y; ctx.save();
+  function drawPick(p, now) { const K = KINDS[p.kind], c = K.c, im = p.kind === 'coin' ? null : art('pick_' + p.kind), t = now + p.i * 1.7, x = p.x, y = p.y; ctx.save();
     let g = ctx.createRadialGradient(x, y - 6, 2, x, y - 6, 44); g.addColorStop(0, rgba(c, .4 + Math.sin(t * 3) * .12)); g.addColorStop(1, rgba(c, 0)); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y - 4, 44, 26, 0, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over';
     if (im) { const w = p.kind === 'relic' ? 62 : 54, h = w * im.height / im.width; ctx.drawImage(im, x - w / 2, y - h + 8, w, h); }
+    else if (p.kind === 'coin') { /* 只闪光 */ }
     else { ctx.fillStyle = rgba(c, .95); ctx.strokeStyle = 'rgba(20,30,30,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y - 26); ctx.lineTo(x + 9, y - 12); ctx.lineTo(x, y + 2); ctx.lineTo(x - 9, y - 12); ctx.closePath(); ctx.fill(); ctx.stroke(); }
     // 闪光：隔一会儿「叮」一下
     const ph = (t * .7) % 1, sp = art('sparkle_' + (1 + Math.min(3, Math.floor(ph * 8)))); ctx.globalCompositeOperation = 'lighter';
@@ -141,9 +149,26 @@
     try { if (free && !world.locked && !(typeof battle !== 'undefined' && battle)) { const p = world.player, name = world.mapName; for (const q of gen(name)) if (!taken(name, q) && Math.hypot(p.x - q.x, p.y - q.y) < 46) { pick(name, q); break; } } } catch (e) {}
     return r; })(tileMobs);
   setTimeout(() => { for (const n of ['pick_herb', 'pick_ore', 'pick_relic', 'sparkle_1', 'sparkle_2', 'sparkle_3', 'sparkle_4', 'fire_beast_1', 'fire_beast_2', 'fire_beast_3', 'fire_beast_4', 'fire_beast_5', 'fire_beast_6', 'fire_ghost_1', 'fire_ghost_2', 'fire_ghost_3', 'fire_ghost_4', 'fire_ghost_5', 'fire_ghost_6']) art(n); }, 9000);
+  // ---------- ⑥ 对话快进：对话框右上角「快进 ▶▶」，点一下自动往下翻，遇到要选的地方 / 开打 / 再点一下就停 ----------
+  let FF = false, ffT = 0, ffIdle = 0; const FFR = { x: 1086, y: 482, w: 150, h: 40 };
+  const ffShow = () => typeof dialog !== 'undefined' && dialog && !(typeof choice !== 'undefined' && choice) && !(typeof sysPanel !== 'undefined' && sysPanel);
+  try { cv.addEventListener('pointerdown', e => { if (!ffShow() && !FF) return; const p = toLogical(e), hit = p.x >= FFR.x && p.x <= FFR.x + FFR.w && p.y >= FFR.y && p.y <= FFR.y + FFR.h;
+      if (FF) { FF = false; e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (er) {} return; }
+      if (hit) { FF = true; ffT = 0; ffIdle = performance.now(); e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; playSnd('ui_click', .6); } catch (er) {} } }, true); } catch (e) {}
+  try { S.overlay.push({ draw() { try { const now = performance.now();
+      if (FF) { if ((typeof choice !== 'undefined' && choice) || (typeof sysPanel !== 'undefined' && sysPanel) || (typeof battle !== 'undefined' && battle && battle.state === 'menu')) FF = false;
+        else if (typeof dialog !== 'undefined' && dialog) { ffIdle = now; if (now - ffT > 170) { ffT = now; const d = dialog, total = [...String(d.text || '')].length; if (d.shown < total) d.shown = total; else { dialog = null; try { d.res(); } catch (er) {} } } }
+        else if (now - ffIdle > 2500) FF = false; }
+      if (!ffShow() && !FF) return; ctx.save(); ctx.font = `700 17px ${FONT}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.globalAlpha = FF ? .75 + Math.sin(now / 160) * .25 : .82;
+      textOutline(FF ? '快进中 ▶▶（点一下停）' : '快进 ▶▶', FFR.x + FFR.w - 8, FFR.y + FFR.h / 2, FF ? '#ffe27a' : '#f2e6c8', 'rgba(20,10,0,.88)', 4); ctx.restore(); } catch (e) {} } }); } catch (e) {}
+
+  // ---------- ⑦ 镜头近一档（默认关，测试面板里开）：地图和人物一起放大 20%，和手机上那套（R 手机放大 15%）同一个做法 ----------
+  let NEAR = LS('r379_cam') === 'near';
+  try { if (typeof VZ === 'function' && typeof CZ === 'function' && !window.MOBILE_ZOOM) { VZ = (o => function () { const z = o.apply(this, arguments); return NEAR ? z * 1.2 : z; })(VZ); CZ = (o => function () { const z = o.apply(this, arguments); return NEAR ? z * 1.2 : z; })(CZ); } } catch (e) {}
+
   // 测试面板：切回原来的火
-  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
-  try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 野怪显形 / 灵光点（R379）'; h.setAttribute('data-r379', '1');
-      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); p.prepend(h, row); };
+  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get near() { return NEAR; }, setNear(v) { NEAR = !!v; try { localStorage.setItem('r379_cam', NEAR ? 'near' : 'far'); world.cam = null; } catch (e) {} }, get ff() { return FF; }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
+  try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 野怪显形 / 灵光点 / 名字 / 镜头（R379）'; h.setAttribute('data-r379', '1');
+      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); const b3 = document.createElement('button'); const lab3 = () => { b3.textContent = '镜头：' + (NEAR ? '近一档（点一下改回原来）' : '原来（点一下拉近一档，人物大两成）'); }; lab3(); b3.onclick = () => { R379.setNear(!NEAR); lab3(); }; row.appendChild(b3); p.prepend(h, row); };
     if (pan) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
 })();
