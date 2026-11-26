@@ -115,7 +115,7 @@
     return r; })(doHeroAction);
 
   // ---------- 五、图标：新装备用 Codex R389 的图（到了才有）；凡是分五行的装备，图标右下角挂一枚小徽记 ----------
-  const ART_READY = false;   // Codex R389 的图标放进 r389i/ 之后改成 true（没到之前不去请求，免得一串找不到文件）
+  const ART_READY = true;   // Codex R389 的图标 11-27 上午到了（r389i/，用的是 192 的那一份，手机高清屏上不糊）
   const IM = {}; const get = id => { if (!ART_READY) return null; let o = IM[id]; if (!o) { o = IM[id] = { ok: false, bad: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = 'r389i/' + id + '.webp?v=1'; } return o.ok ? o.im : null; };
   const QC = ['#9a8a70', '#5fbf73', '#5f9cf0', '#f0b43a'];
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id];
