@@ -33,7 +33,7 @@ def sheet(ims, cols, path, q=86):
     fw, fh = ims[0].size; rows = (len(ims) + cols - 1) // cols
     S = Image.new('RGBA', (fw * cols, fh * rows), (0, 0, 0, 0))
     for i, im in enumerate(ims): S.paste(im, ((i % cols) * fw, (i // cols) * fh))
-    S.save(path, 'WEBP', quality=q, method=6); return os.path.getsize(path)
+    S.save(path, 'WEBP', quality=q, method=4); return os.path.getsize(path)
 meta = {}
 if os.path.exists(META_JS):
     try: meta = json.loads(open(META_JS, encoding='utf8').read().split('=', 1)[1].rsplit(';', 1)[0])
