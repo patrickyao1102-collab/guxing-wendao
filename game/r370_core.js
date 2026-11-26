@@ -247,8 +247,8 @@
       ctx.drawImage(im, sx, sy, mt.fw, mt.fh, -mt.footX * sc, -mt.footY * sc, mt.fw * sc, mt.fh * sc); ctx.restore(); return true; }
     if (typeof IMG !== 'undefined' && !IMG[m.key] && !(window.RIG_MAP && RIG_MAP[m.key])) return false;
     drawSprite(m.key, x, yy, H, faceRight, 1, '#a33', ''); return true; }
-  // 妖王只在主角够得着的时候现身（等级 ≥ 妖王等级 − 4，和讨伐榜上揭榜的条件一样）：前几章路过这些图时主角才几级，不让一只十几级的妖王杵在剧情画面里
-  const hereYW = () => YW.find(y => y.map === world.mapName && !ywDone(y) && (!y.hidden || allFive()) && ((S.hero && S.hero.lv) || 1) >= y.lv - 4);
+  // 妖王现身的条件：① 看过据点的讨伐榜（没看过榜的玩家，这些图和原来一模一样，主线剧情画面里不会多出一只妖王）；② 主角等级 ≥ 妖王等级 − 4（和榜上贴出悬赏的条件一样）
+  const hereYW = () => F().r370_fb0 ? YW.find(y => y.map === world.mapName && !ywDone(y) && (!y.hidden || allFive()) && ((S.hero && S.hero.lv) || 1) >= y.lv - 4) : undefined;
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig(T, cam, now);
     try { const y = hereYW(); if (!y || battle) return; const [x, yy] = y.pos, m = MOB_DB[y.type], t = performance.now() / 1000;
       ctx.save(); let g = ctx.createRadialGradient(x, yy, 6, x, yy, 150); g.addColorStop(0, 'rgba(255,60,30,.42)'); g.addColorStop(.6, 'rgba(255,60,30,.14)'); g.addColorStop(1, 'rgba(255,60,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, yy, 150, 52, 0, 0, 7); ctx.fill();
