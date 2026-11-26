@@ -201,8 +201,8 @@
     const xs = 40 + (y.lv - 10) * 6; S.hero.xs = (S.hero.xs || 0) + xs;   // 悬赏点（R298 那套：去典籍阁换剑谱、玉简）
     if (!fb().on && y.fabao) fb().on = y.fabao;
     if (window.itemGet) await itemGet(give.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })).concat(ITEM_DB.k_xs ? [{ icon: 'item:k_xs', name: '悬赏点', count: '+' + xs, desc: '讨伐榜的赏格。去天剑集市 · 典籍阁换剑谱、玉简' }] : []), '讨伐 ' + y.ep + ' · ' + y.name);
-    if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本姑娘祭炼了。打架的时候点左上角的法宝，一场能用一回。');
-    else { await say('星旋', '榜上的、榜外的，都清干净了。……行吧，本姑娘承认，你有点本事。'); toast('讨伐榜内外，再无妖王', 3200); return; }
+    if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本神仙祭炼了。打架的时候点左上角的法宝，一场能用一回。');
+    else { await say('星旋', '榜上的、榜外的，都清干净了。……行吧，本神仙承认，你有点本事。'); toast('讨伐榜内外，再无妖王', 3200); return; }
     const left = YW.filter(q => !q.hidden && !ywDone(q)).length;
     if (left) toast('讨伐榜上还剩 ' + left + ' 只妖王', 3200);
     else { await say('星旋', '五颗内丹凑在一处，玉佩在发烫……天剑山下山的那条路上，还压着一只老东西。榜上没有它。'); toast('讨伐榜上的五只妖王，全数伏诛。——天剑山 · 下山路深处，似乎还有动静', 4200); } }

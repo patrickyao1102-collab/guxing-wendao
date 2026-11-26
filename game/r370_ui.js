@@ -57,7 +57,7 @@
     // 第一次看榜：星旋借一面护心镜，顺带教一下法宝怎么用
     if (!F().r370_fb0) { F().r370_fb0 = 1; world.locked = true; try {
       await say('星旋', '讨伐妖王？就你这点微末道行……算了，总比天天在城里闲晃强。');
-      await say('星旋', '本姑娘的宝库角落里有面护心镜，先借你使着。打架时点左上角的法宝，一场只能祭一回，挑要命的时候再用。');
+      await say('星旋', '本神仙的宝库角落里有面护心镜，先借你使着。打架时点左上角的法宝，一场只能祭一回，挑要命的时候再用。');
       FB.give('fb_huxin'); if (window.itemGet) await itemGet([{ icon: 'item:fb_huxin', name: ITEM_DB.fb_huxin.name, count: '×1', desc: ITEM_DB.fb_huxin.desc }], '星旋借出一件法宝');
       toast('地图右下角多了一个「法宝」钮：点开可以换带哪一件', 3200); } finally { world.locked = false; } }
     if (go) { const y = go; try { const R = window.QUEST_ROUTE, here = world.mapName, can = m => here === m || !!(R && R.nextHop && R.nextHop(here, m) !== undefined);
