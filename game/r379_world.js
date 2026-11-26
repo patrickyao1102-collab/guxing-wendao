@@ -192,8 +192,8 @@
   // ---------- ⑧ 清爽模式的界面 ----------
   // 队伍：顶上三条长卡收成小头像（外圈一道弧是气血）
   try { if (typeof drawHudCard === 'function' && typeof medallion === 'function') drawHudCard = (o => function (m, i, x) { if (!CLEAN) return o.apply(this, arguments);
-      const r = 23, cx = x + r + 12, cy = 42, k = Math.max(0, Math.min(1, m.hp / (m.maxhp || 1))); ctx.save(); ctx.fillStyle = 'rgba(10,8,6,.45)'; ctx.beginPath(); ctx.arc(cx, cy + 2, r + 5, 0, 7); ctx.fill();
-      medallion(m.p, cx, cy, r, { name: m.name, color: m.color }); ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, 7); ctx.stroke();
+      const PH = !!window.MOBILE_ZOOM, r = PH ? 29 : 23 /* 手机屏小，头像和气血圈大一号才看得清 */, cx = x + r + 12, cy = PH ? 46 : 42, k = Math.max(0, Math.min(1, m.hp / (m.maxhp || 1))); ctx.save(); ctx.fillStyle = 'rgba(10,8,6,.45)'; ctx.beginPath(); ctx.arc(cx, cy + 2, r + 5, 0, 7); ctx.fill();
+      medallion(m.p, cx, cy, r, { name: m.name, color: m.color }); ctx.lineWidth = PH ? 5 : 4; ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, 7); ctx.stroke();
       ctx.strokeStyle = k < .3 ? '#ff5a4a' : '#7fe08a'; ctx.beginPath(); ctx.arc(cx, cy, r + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k); ctx.stroke(); ctx.restore(); return x + r * 2 + 12; })(drawHudCard); } catch (e) {}
   // 任务：右上那张卡收成一行「主线 · 现在该做什么」，点一下自动带路；旁边的小圆标点开任务册
   let QR = null, QI = null;
