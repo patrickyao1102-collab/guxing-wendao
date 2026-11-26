@@ -12,6 +12,7 @@
   const F = () => (S.flags = S.flags || {});
   const LS = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   let SHOW = LS('r379_show') !== 'off';
+  let NAMES = LS('r379_names') !== 'off';
   const ART = {}; const art = n => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r379/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
   const TIER = () => window.FIRE_TIER || {};
@@ -121,6 +122,11 @@
   try { const ft = ctx.fillText, st = ctx.strokeText; const big = () => /900 52px/.test(ctx.font);
     ctx.fillText = function (t, x, y) { if (t === '!' && SHOW && big() && mark('mark_story', x, y - 14, 46)) return; return ft.apply(this, arguments); };
     ctx.strokeText = function (t, x, y) { if (t === '!' && SHOW && big() && art('mark_story')) return; return st.apply(this, arguments); }; } catch (e) {}
+  // ---------- ⑤ NPC 的名字：走近了才显出来（原来一屏十几个名字常年挂着，像地图标注）；头顶的任务 / 主线令符照旧远远就看得见 ----------
+  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col, oc) { try { if (SHOW && NAMES && oc === '#1a0c00' && (col === '#fff4d8' || col === '#ffe08a') && /600 18px/.test(ctx.font) && world.player && S.scene === drawMap && !(typeof battle !== 'undefined' && battle)) {
+        const p = world.player, d = Math.hypot(p.x - x, (p.y - 60) - (y + 70)), a = Math.max(0, Math.min(1, (330 - d) / 90)); if (a <= 0) return; if (a < 1) { ctx.save(); ctx.globalAlpha *= a; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {}
+    return orig.apply(this, arguments); })(textOutline);
+
   setTimeout(() => { for (const n of ['chest_wood', 'chest_wood_open', 'chest_bronze', 'chest_bronze_open', 'chest_gold', 'chest_gold_open', 'mark_quest', 'mark_done', 'mark_story', 'mark_wait']) art(n); }, 5000);
 
   // ---------- 接进地图 ----------
@@ -136,8 +142,8 @@
     return r; })(tileMobs);
   setTimeout(() => { for (const n of ['pick_herb', 'pick_ore', 'pick_relic', 'sparkle_1', 'sparkle_2', 'sparkle_3', 'sparkle_4', 'fire_beast_1', 'fire_beast_2', 'fire_beast_3', 'fire_beast_4', 'fire_beast_5', 'fire_beast_6', 'fire_ghost_1', 'fire_ghost_2', 'fire_ghost_3', 'fire_ghost_4', 'fire_ghost_5', 'fire_ghost_6']) art(n); }, 9000);
   // 测试面板：切回原来的火
-  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, gen, art };
+  window.R379 = { get show() { return SHOW; }, set(v) { SHOW = !!v; try { localStorage.setItem('r379_show', SHOW ? 'on' : 'off'); } catch (e) {} }, get names() { return NAMES; }, setNames(v) { NAMES = !!v; try { localStorage.setItem('r379_names', NAMES ? 'on' : 'off'); } catch (e) {} }, gen, art };
   try { const pan = document.getElementById('dbgPanel'); const add = () => { const p = document.getElementById('dbgPanel'); if (!p || p.querySelector('[data-r379]')) return; const h = document.createElement('h4'); h.textContent = '11-27 新加 · 野怪显形 / 灵光点（R379）'; h.setAttribute('data-r379', '1');
-      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); p.prepend(h, row); };
+      const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); const lab = () => { b.textContent = '野怪：' + (SHOW ? '显出本体（点一下切回原来的火）' : '原来的火（点一下显出本体）'); }; lab(); b.onclick = () => { R379.set(!SHOW); lab(); }; row.appendChild(b); const b2 = document.createElement('button'); const lab2 = () => { b2.textContent = 'NPC 名字：' + (NAMES ? '走近才显示（点一下改回一直显示）' : '一直显示（点一下改成走近才显示）'); }; lab2(); b2.onclick = () => { R379.setNames(!NAMES); lab2(); }; row.appendChild(b2); p.prepend(h, row); };
     if (pan) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
 })();
