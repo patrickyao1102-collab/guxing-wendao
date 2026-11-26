@@ -167,7 +167,7 @@
       if (FF) { if ((typeof choice !== 'undefined' && choice) || (typeof sysPanel !== 'undefined' && sysPanel) || (typeof battle !== 'undefined' && battle && battle.state === 'menu')) FF = false;
         else if (typeof dialog !== 'undefined' && dialog) { ffIdle = now; if (now - ffT > 170) { ffT = now; const d = dialog, total = [...String(d.text || '')].length; if (d.shown < total) d.shown = total; else { dialog = null; try { d.res(); } catch (er) {} } } }
         else if (now - ffIdle > 2500) FF = false; }
-      if (!ffShow() && !FF) return; ctx.save(); ctx.font = `700 17px ${FONT}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.globalAlpha = FF ? .75 + Math.sin(now / 160) * .25 : .82;
+      if (!ffShow() && !FF) return; if (window.R381_FF && typeof dialog !== 'undefined' && dialog) return;   /* R381 对话框自己画快进签 */ ctx.save(); ctx.font = `700 17px ${FONT}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.globalAlpha = FF ? .75 + Math.sin(now / 160) * .25 : .82;
       textOutline(FF ? '快进中 ▶▶（点一下停）' : '快进 ▶▶', FFR.x + FFR.w - 8, FFR.y + FFR.h / 2, FF ? '#ffe27a' : '#f2e6c8', 'rgba(20,10,0,.88)', 4); ctx.restore(); } catch (e) {} } }); } catch (e) {}
 
   // ---------- ⑦ 镜头近一档（默认关，测试面板里开）：地图和人物一起放大 20%，和手机上那套（R 手机放大 15%）同一个做法 ----------
