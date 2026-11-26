@@ -162,7 +162,7 @@
   // ---------- ⑥ 对话快进：对话框右上角「快进 ▶▶」，点一下自动往下翻，遇到要选的地方 / 开打 / 再点一下就停 ----------
   let FF = false, ffT = 0, ffIdle = 0; const FFR = { x: 1086, y: 482, w: 150, h: 40 };
   const ffShow = () => typeof dialog !== 'undefined' && dialog && !(typeof choice !== 'undefined' && choice) && !(typeof sysPanel !== 'undefined' && sysPanel);
-  try { cv.addEventListener('pointerdown', e => { if (!ffShow() && !FF) return; const p = toLogical(e), hit = p.x >= FFR.x && p.x <= FFR.x + FFR.w && p.y >= FFR.y && p.y <= FFR.y + FFR.h;
+  try { cv.addEventListener('pointerdown', e => { if (!ffShow() && !FF) return; const p = toLogical(e), pad = 14 /* 手机上这枚小签只有二十来像素高，点击范围放宽一圈 */, hit = p.x >= FFR.x - pad && p.x <= FFR.x + FFR.w + pad && p.y >= FFR.y - pad && p.y <= FFR.y + FFR.h + 6;
       if (FF) { FF = false; e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (er) {} return; }
       if (hit) { FF = true; ffT = 0; ffIdle = performance.now(); e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; playSnd('ui_click', .6); } catch (er) {} } }, true); } catch (e) {}
   try { S.overlay.push({ draw() { try { const now = performance.now();
@@ -220,7 +220,7 @@
       QR = { x: x0 - 10, y, w: w + 10, h, it }; qtip(); } catch (e) {}
     return r; })(drawMapHud);
   try { cv.addEventListener('pointerdown', e => { if (!CLEAN || (!QR && !QI) || S.menu || world.locked || (typeof dialog !== 'undefined' && dialog) || (typeof choice !== 'undefined' && choice)) return; const p = toLogical(e);
-      const inq = QR && p.x >= QR.x && p.x <= QR.x + QR.w && p.y >= QR.y && p.y <= QR.y + QR.h, ini = QI && p.x >= QI[0] && p.x <= QI[0] + QI[2] && p.y >= QI[1] && p.y <= QI[1] + QI[3]; if (!inq && !ini) return;
+      const inq = QR && p.x >= QR.x && p.x <= QR.x + QR.w && p.y >= QR.y - 12 && p.y <= QR.y + QR.h + 14, ini = QI && p.x >= QI[0] && p.x <= QI[0] + QI[2] && p.y >= QI[1] && p.y <= QI[1] + QI[3]; if (!inq && !ini) return;
       e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; playSnd('ui_click'); } catch (er) {}
       try { if (ini) { if (window.QBOOK_OPEN) QBOOK_OPEN(); } else if (QR.it.id === '__main') R140Q.goMain(); else R140Q.goSide(QR.it.id); } catch (er) { console.warn('R380 quest', er); } }, true); } catch (e) {}
 
