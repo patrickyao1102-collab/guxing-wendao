@@ -103,6 +103,26 @@
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 10; k++) { const an = k * .628 + o.t0, r = dt * 90; ctx.fillStyle = rgba(o.c, a * .8); ctx.beginPath(); ctx.arc(o.x + Math.cos(an) * r, o.y - 14 + Math.sin(an) * r * .6 - dt * 30, 3 * a + .5, 0, 7); ctx.fill(); }
       ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a; ctx.font = `700 ${o.big ? 19 : 16}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('拾得 ' + o.text, o.x, o.y - 44 - dt * 34, '#fff6d8', 'rgba(20,10,0,.9)', 4); ctx.restore(); } }
 
+  // ---------- ③ 宝箱三档 ----------
+  const tierOfChest = ch => { try { let v = 0; for (const [id, n] of ch.items || []) { if (id === 'gold') v += n; else { const it = ITEM_DB[id] || {}; v += (it.slot || it.fabao ? 600 : it.book || /^juan/.test(id) ? 400 : (it.price || it.sell * 4 || 60)) * n; } } return v >= 600 ? 'gold' : v >= 240 ? 'bronze' : 'wood'; } catch (e) { return 'wood'; } };
+  if (typeof drawObj === 'function' && typeof OBJDEF !== 'undefined') drawObj = (orig => function (o) {
+    try { if (SHOW && o && o.d && (o.d === OBJDEF.chest || o.d === OBJDEF.chest_open)) { const open = o.d === OBJDEF.chest_open, ch = (world.chests || []).find(c => c.c === o.c && c.r === o.r), tier = ch ? (ch._tier || (ch._tier = tierOfChest(ch))) : 'wood', im = art('chest_' + tier + (open ? '_open' : ''));
+        if (im) { const x = (o.c + .5) * TS, y = (o.r + 1) * TS, w = { wood: 92, bronze: 102, gold: 112 }[tier], h = w * im.height / im.width, now = performance.now() / 1000, c = { wood: [255, 214, 140], bronze: [120, 235, 220], gold: [255, 220, 110] }[tier];
+          ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.24)'; ctx.beginPath(); ctx.ellipse(x, y - 6, w * .44, 12, 0, 0, 7); ctx.fill();
+          if (!open) { ctx.globalCompositeOperation = 'lighter'; const k = tier === 'gold' ? 1 : tier === 'bronze' ? .7 : .45, g = ctx.createRadialGradient(x, y - h * .4, 2, x, y - h * .4, w * .95); g.addColorStop(0, rgba(c, (.34 + Math.sin(now * 3) * .12) * k)); g.addColorStop(1, rgba(c, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y - h * .4, w * .95, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
+          ctx.drawImage(im, x - w / 2, y - h + 4, w, h);
+          if (!open) { const ph = (now * .8 + o.c) % 1, sp = art('sparkle_' + (1 + Math.min(3, Math.floor(ph * 8)))); if (ph < .5 && sp) { ctx.globalCompositeOperation = 'lighter'; const s = tier === 'gold' ? 40 : 30; ctx.drawImage(sp, x + Math.sin(Math.floor(now * .8) * 2.1 + o.r) * w * .3 - s / 2, y - h * .62 - s / 2, s, s); } }
+          ctx.restore(); return; } } } catch (e) {}
+    return orig.apply(this, arguments); })(drawObj);
+
+  // ---------- ④ 头顶的任务标记：字体的「!」「?」换成画的令符 ----------
+  function mark(n, x, y, w) { const im = art(n); if (!im) return false; const h = w * im.height / im.width; ctx.save(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.drawImage(im, x - w / 2, y - h / 2 - 4, w, h); ctx.restore(); return true; }
+  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col) { try { if (SHOW && (t === '!' || t === '?')) { const f = ctx.font; if (/900 68px/.test(f)) { const grey = /b8b0a0/i.test(col || ''); if (mark(t === '!' ? 'mark_quest' : grey ? 'mark_wait' : 'mark_done', x, y, 54)) return; } else if (/900 56px/.test(f) && t === '!') { if (mark('mark_story', x, y, 50)) return; } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
+  try { const ft = ctx.fillText, st = ctx.strokeText; const big = () => /900 52px/.test(ctx.font);
+    ctx.fillText = function (t, x, y) { if (t === '!' && SHOW && big() && mark('mark_story', x, y - 14, 46)) return; return ft.apply(this, arguments); };
+    ctx.strokeText = function (t, x, y) { if (t === '!' && SHOW && big() && art('mark_story')) return; return st.apply(this, arguments); }; } catch (e) {}
+  setTimeout(() => { for (const n of ['chest_wood', 'chest_wood_open', 'chest_bronze', 'chest_bronze_open', 'chest_gold', 'chest_gold_open', 'mark_quest', 'mark_done', 'mark_story', 'mark_wait']) art(n); }, 5000);
+
   // ---------- 接进地图 ----------
   tileAmbientHigh = (orig => function (T, cam, now) {
     const hid = []; let mine = [];
