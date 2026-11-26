@@ -228,7 +228,7 @@
         const tab2 = J().tab; if (tab2 === 0) tapTasks(tp); else if (tab2 === 1) tapShop(tp); else if (tab2 === 2 && window.R384_TAP) { const r = R384_TAP(tp, BODY, { speak, snd }); if (r) { res = r; break; } } } }
     finally { UI.open = false; closing = null; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} snd('ui_click'); if (UI.heldToast) { const t = UI.heldToast; UI.heldToast = null; try { if (!/^(晌午|清晨|黄昏|入夜|午时|子时|天亮|夜深)/.test(t.text || '')) toast(t.text, t.ms); } catch (e) {} } }
     return res; }
-  window.R386 = { open, has, TASKS, SHOP, J, claimable: () => TASKS.filter(tClaimable).length, close(r) { closing = r || 'close'; } };
+  window.R386 = { open, has, TASKS, SHOP, J, claimable: () => TASKS.filter(tClaimable).length, close(r) { closing = r || 'close'; }, isOpen: () => !!UI.open };
 
   // ---------- 地图上的玉佩钮 ----------
   const HB = { x: 1066, y: 614, w: 88, h: 88 };
@@ -237,10 +237,14 @@
   try { cv.addEventListener('pointerdown', e => { if (UI.open || !hudOn()) return; const p = toLogical(e); if (!inR(p, HB)) return; e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (e2) {} open(); }, true); } catch (e) {}
   let lastN = -1, nudgeT = 0;
   function hud() { if (!hudOn()) return; kitLoad(); const now = performance.now(), cx = HB.x + 44, cy = HB.y + 40, nc = TASKS.filter(tClaimable).length, pu = .5 + .5 * Math.sin(now / 300);
-    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy + 2, 40, 0, 7); ctx.fillStyle = 'rgba(8,10,12,.5)'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); const g = ctx.createRadialGradient(cx - 10, cy - 12, 3, cx, cy, 36); g.addColorStop(0, '#2c4a58'); g.addColorStop(.55, '#12242c'); g.addColorStop(1, '#070f14'); ctx.fillStyle = g; ctx.fill();
-    if (KIT.relic_disc) { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 33, 0, 7); ctx.clip(); ctx.globalAlpha = .9; ctx.translate(cx, cy); ctx.rotate(now / 9000); ctx.drawImage(KIT.relic_disc, -36, -36, 72, 72); ctx.restore(); }
-    if (KIT.skill_ring_s && nc) { ctx.globalAlpha = .6 + pu * .4; ctx.drawImage(KIT.skill_ring_s, cx - 44, cy - 44, 88, 88); ctx.globalAlpha = 1; } else if (KIT.skill_ring_n) ctx.drawImage(KIT.skill_ring_n, cx - 44, cy - 44, 88, 88);
+    ctx.save();
+    // 11-27：钮面直接用游戏里那枚玉佩的原画（合一动画里的那一枚，assets3/jade_full），不再是一个黑圆
+    const jim = (typeof IMG !== 'undefined') && IMG.jade_full;
+    if (jim && jim.width) { { const dg = ctx.createRadialGradient(cx + 2, cy + 4, 20, cx + 2, cy + 4, 56); dg.addColorStop(0, 'rgba(4,8,14,.62)'); dg.addColorStop(.72, 'rgba(4,8,14,.42)'); dg.addColorStop(1, 'rgba(4,8,14,0)'); ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(cx + 2, cy + 4, 56, 0, 7); ctx.fill(); }   // 玉色浅，垫一团暗影才压得住亮草地
+      { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const a = nc ? .34 + pu * .3 : .16, gg = ctx.createRadialGradient(cx + 2, cy + 3, 8, cx + 2, cy + 3, 52); gg.addColorStop(0, `rgba(255,236,170,${a})`); gg.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(cx + 2, cy + 3, 52, 0, 7); ctx.fill(); ctx.restore(); }
+      const s = 90, bob = nc ? Math.sin(now / 420) * 1.5 : 0; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(jim, cx - s / 2, cy - s / 2 - 4 + bob, s, s); }
+    else { ctx.beginPath(); ctx.arc(cx, cy + 2, 40, 0, 7); ctx.fillStyle = 'rgba(8,10,12,.5)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); const g = ctx.createRadialGradient(cx - 10, cy - 12, 3, cx, cy, 36); g.addColorStop(0, '#2c4a58'); g.addColorStop(.55, '#12242c'); g.addColorStop(1, '#070f14'); ctx.fillStyle = g; ctx.fill(); }
     ctx.font = `700 15px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline('玉佩', cx, HB.y + 90, '#ffe9a0', '#2a1000', 4);
     if (nc) { ctx.beginPath(); ctx.arc(HB.x + 74, HB.y + 12, 11, 0, 7); ctx.fillStyle = '#d9483a'; ctx.fill(); ctx.strokeStyle = '#fff2d0'; ctx.lineWidth = 2; ctx.stroke(); T(String(nc), HB.x + 74, HB.y + 13, 14, '#fff', NUM(), 700, 'center'); }
     ctx.restore();

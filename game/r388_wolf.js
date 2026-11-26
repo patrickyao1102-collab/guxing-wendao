@@ -5,8 +5,8 @@
 // 本体是 Codex R388 画的十四帧（平时 / 蓄力 / 出手 / 力竭），打法走妖王那一套（三手一嚎，嚎完那一扑要防御，扑完力竭）。不上讨伐榜。
 (function () {
   const META = window.R388_META; if (!META || !META.xingwolf || !window.R370_YW || typeof VSPRITE_ADD !== 'function' || typeof IMG === 'undefined') return;
-  const M = META.xingwolf, key = 'yw_xingwolf', K = .8, MAPK = .62, F = () => (S.flags = S.flags || {});
-  const y = { id: 'xingwolf', mini: true, hidden: true, ep: '衔星', name: '赤焰狼王', type: 'wolf', map: 'tj_luoxing', pos: [1400, 760], lv: 7, hp: 640, atk: 36, def: 8, spd: 12, exp: 280, gold: 120, fabao: null, bg: 'bg_night', scale: 1, fxColor: '#ff8a3a',
+  const M = META.xingwolf, key = 'yw_xingwolf', K = .8, MAPK = .54, F = () => (S.flags = S.flags || {});
+  const y = { id: 'xingwolf', mini: true, hidden: true, ep: '衔星', name: '赤焰狼王', type: 'wolf', map: 'tj_luoxing', pos: [1400, 760], lv: 7, hp: 780, atk: 36, def: 8, spd: 12, exp: 280, gold: 120, fabao: null, bg: 'bg_night', scale: 1, fxColor: '#ff8a3a',
     where: '天剑宗后山 · 落星坡 · 陨星坑', tip: '它仰头长嚎就是要扑了——那一下防御。扑完它会趴下喘，那是出手的时候。', extra: ['p_small', 'p_small', 'p_mp'],
     cond: () => { try { const w = S.hero.equip && S.hero.equip.weapon; return !!w && w !== 'w_wood'; } catch (e) { return false; } },   // 手里有了真剑才露面
     after: async () => { await say('星旋', '头一只头目。记住这个滋味——往后的，只会更凶。'); await say('星旋', '它肩上那块星晶，星力散得差不多了。剩下这点本神仙替你收着，算你一桩事迹，回头到玉佩里来交。'); } };

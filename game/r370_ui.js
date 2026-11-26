@@ -176,7 +176,7 @@
     for (const y of R370_YW) mk('到「' + y.ep + '」跟前', () => { if (y.hidden && !y.mini) for (const q of R370_YW) if (!q.hidden) F()['yw_' + q.id] = 1; delete F()['yw_' + y.id]; if (!F().r370_fb0) { F().r370_fb0 = 1; try { R370_FB.give('fb_huxin'); } catch (e) {} } let g = 0; const lv0 = S.hero.lv; while (S.hero.lv < y.lv - 2 && g++ < 400) gainExp(expNeed(S.hero.lv)); if (S.hero.lv > lv0) { S.hero.learnQ = []; S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('测试：主角先升到 ' + S.hero.lv + ' 级（妖王要看过讨伐榜、等级也够了才现身）', 2600); } jump(y.map, y.pos[0] + 20, y.pos[1] + 230); });
     mk('六件法宝全给', () => { for (const id of FB.list()) FB.give(id); toast('六件法宝都有了：点地图右下角「法宝」钮', 2400); });
     mk('给一批材料和 5000 灵石', () => { for (const [id, k] of [['m_fang', 6], ['m_hide', 8], ['m_horn', 4], ['m_tooth', 3], ['m_yingpi', 6], ['m_silk', 8], ['m_shike', 3], ['m_jinsi', 3], ['m_gupian', 2], ['m_neidan', 3]]) addItem(id, k); S.hero.gold += 5000; toast('材料和灵石到手：去裁月记找秦师傅定做', 2400); });
-    mk('主角升到 12 级（试打用）', () => { let g = 0; while (S.hero.lv < 12 && g++ < 400) gainExp(expNeed(S.hero.lv)); S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('叶孤星 ' + S.hero.lv + ' 级', 1800); });
+    mk('主角升到 12 级（试打用）', () => { let g = 0; window.R395_SKIP = 1; try { while (S.hero.lv < 12 && g++ < 400) gainExp(expNeed(S.hero.lv)); } finally { window.R395_SKIP = 0; } S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('叶孤星 ' + S.hero.lv + ' 级', 1800); });
     const put = () => { if (!pan.contains(row)) pan.prepend(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true }); })();
 
   // ---------- 升级之后：告诉玩家这一级解锁了什么 ----------
