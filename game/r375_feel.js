@@ -4,8 +4,10 @@
 //    只换显示，不动任何首领的数值和打法。
 // 2）铁背獠牙猪、烈焰妖豹原来只在剧情战里出现，野外一只都碰不到 → 青玄近道、松风林道多了铁背獠牙猪，黑风谷多了烈焰妖豹（都是本来就有兽火的图）。
 // 3）三间新铺子各有一桩委托（走原来的支线那一套：头上蓝 !、任务页、任务榜都认）：
+//    （台词：Claude 初稿，Gemini 11-27 润色定稿；秦师傅「会剥」一句保留初稿）
 //    裁月记 · 秦师傅「头一单」：幽影狼皮 ×3 → 影步靴；锦云坊 · 云娘「赶工的法衣」：影蛛丝 ×4 → 云锦长衫 + 灵石；点绛铺 · 老板娘「烘笼里的火」：烈焰晶 ×2 → 凝神香囊 + 安息香。
 // 4）六只妖王打赢后收进妖兽图鉴（类别「妖王」）。
+// 5）柜台里选中一件装备时，左下角列出队里每个人换上它各项是涨是跌（境界不够、已经穿着也写明）。
 (function () {
   if (typeof TMAPS === 'undefined' || typeof S === 'undefined' || typeof startBattle !== 'function') return;
   const F = () => (S.flags = S.flags || {});
@@ -53,20 +55,20 @@
       { id: 'r375_qin', name: '裁月记的头一单', giver: ['xt_caifeng', '秦师傅'], where: '玄天城 · 裁月记 · 秦师傅', cond: lvOK(8),
         desc: '裁月记的秦师傅只接定做。他说头一单不收工钱——只要带得回三张整的幽影狼皮。', goal: '打幽影林的幽影狼，收集幽影狼皮',
         type: 'item', item: 'm_yingpi', n: 3, drop: { maps: ['m_yy_tiger', 'm_yy_verge'], mobs: ['ywolf'], p: 0 },
-        accept: [['秦师傅', '你腰上那柄剑磨得勤，脚上这双鞋倒快磨穿了。'], ['秦师傅', '幽影林的幽影狼，皮子对着光看不见毛色。带三张整的来，我给你做双靴——头一单，不收工钱。']],
-        done: [['秦师傅', '（他把皮子拎到窗口，对着光一张张看过）……没伤着里层，会剥。'], ['秦师傅', '坐着等。'], ['', '一盏茶的工夫，一双软靴搁到了你脚边。'], ['秦师傅', '往后要做别的，料和工钱一并带来。']],
+        accept: [['秦师傅', '剑磨得勤，脚上这双鞋倒快磨穿了。'], ['秦师傅', '幽影林的狼皮，迎光看不见毛色。带三张整的来，我给你做双靴——头一单免工钱。']],
+        done: [['秦师傅', '（他拎起皮子迎光一张张看过）……没伤着皮里，会剥。'], ['秦师傅', '坐着等。'], ['', '一盏茶工夫，一双软靴搁到了你脚边。'], ['秦师傅', '往后要做别的，料子和工钱一并带来。']],
         reward: { exp: 260, items: [['s_yingbu', 1]] } },
       { id: 'r375_yun', name: '赶工的法衣', giver: ['xt_chengyi', '云娘'], where: '玄天城 · 锦云坊 · 云娘', cond: lvOK(8),
         desc: '城主府在锦云坊订了一件法衣，后日就要，铺子里偏偏断了影蛛丝。', goal: '打幽影林的影纹蛛姬，收集影蛛丝',
         type: 'item', item: 'm_silk', n: 4, drop: { maps: ['m_yy_tiger', 'm_yy_verge'], mobs: ['spider'], p: 0 },
-        accept: [['云娘', '客官来得巧，也来得不巧——城主府订了一件法衣，后日就要，我这儿偏偏断了影蛛丝。'], ['云娘', '您是走山路的人，替我带四束回来？我按市价双倍算，再饶您一件云锦长衫。']],
-        done: [['云娘', '哎哟，这丝真齐整，一根没断！'], ['云娘', '说好的，灵石您点一点。长衫我照您的身量改过了，回去就能穿。']],
+        accept: [['云娘', '客官来得巧，也不巧——城主府订的法衣后日就要，我这儿偏断了影蛛丝。'], ['云娘', '您常走山路，替我带四束回来成不成？市价双倍算，再白饶您一件云锦长衫。']],
+        done: [['云娘', '哎哟，这丝真齐整，半根没断！'], ['云娘', '说好的，灵石您点点。长衫照您的身量改好了，回去就能上身。']],
         reward: { exp: 220, gold: 400, items: [['a_yunjin', 1]] } },
       { id: 'r375_yan', name: '烘笼里的火', giver: ['xt_yanzhi', '胭脂铺老板娘'], where: '玄天城 · 点绛铺 · 老板娘', cond: lvOK(8),
         desc: '入了秋花瓣晒不干，点绛铺的香囊总带潮气。老板娘想找两块握着发烫的晶石搁在烘笼底下。', goal: '打黑风谷的烈焰妖豹，收集烈焰晶',
         type: 'item', item: 'm_yanjing', n: 2, drop: { maps: ['hf_valley'], mobs: ['leopard'], p: 0 },
-        accept: [['胭脂铺老板娘', '小哥，问你个事——你们修士打妖兽，可见过一种握着发烫的晶石？'], ['胭脂铺老板娘', '入了秋花瓣晒不干，配出来的香囊总带潮气。拿那晶石搁在烘笼底下，一冬的花都保得住。'], ['胭脂铺老板娘', '帮我寻两块来，新配的香囊头一只归你。']],
-        done: [['胭脂铺老板娘', '（她隔着帕子接过去）真烫手……这下烘笼不愁了。'], ['胭脂铺老板娘', '喏，凝神的。里头多放了一味安神草，夜里打坐不容易走神。']],
+        accept: [['胭脂铺老板娘', '小哥，打听个事——你们修士猎妖，可见过一种握在手里发烫的晶石？'], ['胭脂铺老板娘', '入秋花瓣晒不透，配出的香囊总发潮。那晶石搁烘笼底下，一冬的花都保得住。'], ['胭脂铺老板娘', '替我寻两块来吧，新配的香囊头一只就归你。']],
+        done: [['胭脂铺老板娘', '（隔着帕子接过去）哎哟，真烫手……这下烘笼有指望了。'], ['胭脂铺老板娘', '喏，凝神香囊。里头多添了味安神草，夜里打坐不容易走神。']],
         reward: { exp: 200, items: [['c_ningshen', 1], ['x_anxi', 3]] } },
     ];
     window.R375_QS = QS;
@@ -95,6 +97,27 @@
           if (typeof orig === 'function') return orig.call(this, a);
           const L = Array.isArray(orig) ? orig : [orig || '……'], pick = n.random ? [L[Math.floor(Math.random() * L.length)]] : L; for (const l of pick) await say(n.name, l); }; } }
   } } catch (e) { console.warn('R375 委托', e); }
+
+  // ---------- 5）柜台里选中一件装备：左下角列出队里每个人换上它是涨是跌（仙剑买装备的老规矩） ----------
+  try { if (window.R169 && window.R169_SHOP && typeof PARTY_DB !== 'undefined' && typeof STATS !== 'undefined') {
+    const AB = { atk: '攻', def: '防', maxhp: '血', maxmp: '灵', spd: '速' };
+    const members = () => [['hero', '叶孤星', S.hero.equip || {}]].concat((S.party || []).filter(k => PARTY_DB[k]).map(k => [k, PARTY_DB[k].name, (window.allyEqOf ? allyEqOf(k) : {}) || {}]));
+    const cmp = { draw() { try { const ST = R169_SHOP.st; if (!ST) return;
+      if (S.overlay[S.overlay.length - 1] !== cmp) { const i = S.overlay.indexOf(cmp); if (i >= 0) { S.overlay.splice(i, 1); S.overlay.push(cmp); } return; }   // 排到柜台那层后面再画
+      const t = performance.now() / 1000; if (t - ST.t0 < .26 || ST.mode !== 'buy') return; const id = ST.sel, it = id && ITEM_DB[id]; if (!it || !it.slot || !R169.ok('price_ticket')) return;
+      const ms = members().slice(0, 4), rh = 31, x = 97, w = 238, y0 = 487 - ms.length * rh, low = it.lvReq && (S.hero.lv || 1) < it.lvReq;
+      ctx.save(); ctx.textBaseline = 'middle';
+      ms.forEach(([k, name, eq], i) => { const y = y0 + i * rh; R169.part('price_ticket', x, y, w, rh - 2);
+        ctx.font = `600 16px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = '#42301e'; ctx.fillText(name, x + 16, y + 15);
+        const old = ITEM_DB[eq[it.slot]] || {}, parts = [];
+        if (low) parts.push(['境界不足', '#a8382b']); else if (eq[it.slot] === id) parts.push(['已穿着', '#7a6a55']);
+        else { for (const s of STATS) { const d = (it[s] || 0) - (old[s] || 0); if (d) parts.push([AB[s] + (d > 0 ? '+' : '−') + Math.abs(d), d > 0 ? '#2f7a3a' : '#a8382b']); } if (!parts.length) parts.push(['一样', '#7a6a55']); }
+        let fs = 15; const width = () => { ctx.font = `700 ${fs}px ${FONT}`; return parts.reduce((a, [s]) => a + ctx.measureText(s).width + 7, -7); }; while (fs > 11 && width() > w - 86) fs--;
+        let px = x + w - 14; ctx.textAlign = 'right'; ctx.font = `700 ${fs}px ${FONT}`; for (let j = parts.length - 1; j >= 0; j--) { ctx.fillStyle = parts[j][1]; ctx.fillText(parts[j][0], px, y + 15); px -= ctx.measureText(parts[j][0]).width + 7; } });
+      ctx.restore(); } catch (e) {} } };
+    S.overlay.push(cmp);
+    for (const id in ITEM_DB) if (ITEM_DB[id] && ITEM_DB[id].slot === 'shoe' && !ITEM_DB[id].cat) ITEM_DB[id].cat = '鞋履';   // 货单上鞋子原来写成「杂物」
+  } } catch (e) { console.warn('R375 柜台', e); }
 
   // ---------- 4）妖王进图鉴 ----------
   try { if (window.BESTIARY && BESTIARY.NAME && window.R370_YW) { const D = {
