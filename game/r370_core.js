@@ -149,7 +149,7 @@
       if (t === 4) return charge(e, '它张开金网——「千丝天罗」，防御！');
       if (t === 0 && e._charge) return aoe(e, b, '千丝天罗', 'fx3_slash_gold', 1.15, '#ffd34a', (P, guarded) => { if (!guarded) { P.gauge = -70; floatText(P.x, P.y - P.h - 30, '缚丝', '#ffe27a', 36); } });
       if (t === 1 || t === 3) { const hs = heroes(b), P = hs[ri(0, hs.length - 1)]; const d = await strike(e, b, P, '缚丝吸髓', .7, 'fx3_slash_gold'); if (P.alive) { P.gauge = Math.min(P.gauge, -80); floatText(P.x, P.y - P.h - 30, '缚丝', '#ffe27a', 36); }
-        const heal = Math.min(e.maxhp - e.hp, d * 2); if (heal > 0) { e.hp += heal; floatText(e.x, e.y - e.h * .8, '+' + heal, '#7dff8a', 40); } return true; }
+        const heal = Math.min(e.maxhp - e.hp, Math.round(d * 1.5)); if (heal > 0) { e.hp += heal; floatText(e.x, e.y - e.h * .8, '+' + heal, '#7dff8a', 40); } return true; }
       return false; },
     treant: async (e, b) => { const fl = addsAlive(b, e), t = e.turn % 4;
       if (fl.length && e.hp < e.maxhp) { const heal = Math.round(e.maxhp * .035 * fl.length); e.hp = Math.min(e.maxhp, e.hp + heal); floatText(e.x, e.y - e.h * .8, '回春 +' + heal, '#7dff8a', 40); try { fx('fx3_burst_green', { x: e.x, y: e.y - e.h * .5, scale: .9 }); } catch (e2) {} await sleep(450); }
@@ -166,7 +166,7 @@
     return false; };
   function makeYW(y) {
     const m = MOB_DB[y.type], lv = y.lv;
-    const hp0 = Math.round(HP(lv) * (y.adds ? .85 : 1));
+    const hp0 = Math.round(HP(lv) * (y.adds ? .78 : 1));
     const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: m.key, hp: hp0, maxhp: hp0, atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
       _yw: y, _id: y.id, _ep: y.ep, _atk0: ATK(lv), _def0: DEF(lv), turn: 0, _type: y.type };
     e.ai = async (en, b) => { en.turn++;

@@ -140,6 +140,19 @@
           F().r370_news = 1; world.locked = true; await showPanel('玄天城近况', ['天剑宗据点前院立起一块「妖王讨伐榜」——五只妖王，各有悬赏。', '城西南新开了成衣铺「锦云坊」和胭脂铺「点绛铺」；云来客栈东边是裁缝铺「裁月记」，收妖兽材料定做。', '!玄兵阁掌柜的柜上也添了新剑、新甲。']); world.locked = false; } catch (e) { world.locked = false; } }, ms); } catch (e) {}
     return res; })(tileSetMap);
 
+  // ---------- 测试面板：今晚新加的东西各给一个直达按钮 ----------
+  (function addBtn(n) { const pan = document.getElementById('dbgPanel'); if (!pan) { if ((n || 0) < 40) setTimeout(() => addBtn((n || 0) + 1), 500); return; }
+    const P2 = (x, y) => [x / 64 - .5, y / 64 - .8], h = document.createElement('h4'); h.textContent = '11-26 夜新加 · 妖王讨伐 / 法宝 / 衣饰三铺（R370–R373）'; const row = document.createElement('div'); row.className = 'row';
+    const jump = (m, x, y, face) => { try { dialog = null; choice = null; sysPanel = null; } catch (e) {} const [c, r] = P2(x, y); tileSetMap(m, c, r, face || 'up'); S.scene = drawMap; S.started = true; S.hud = true; S.fade = 0; world.locked = false; };
+    const mk = (t, fn) => { const b = document.createElement('button'); b.textContent = t; b.onclick = () => { pan.hidden = true; try { fn(); } catch (e) { console.warn('R370 test', e); } }; row.appendChild(b); };
+    mk('去讨伐榜（据点前院）', () => jump('xt_sect_court', 1644, 1500));
+    mk('去锦云坊', () => jump('xt_chengyi', 672, 620)); mk('去裁月记', () => jump('xt_caifeng', 576, 520)); mk('去点绛铺', () => jump('xt_yanzhi', 576, 560)); mk('去玄兵阁门口', () => jump('xt_city', 1424, 1540));
+    for (const y of R370_YW) mk('到「' + y.ep + '」跟前', () => { if (y.hidden) for (const q of R370_YW) if (!q.hidden) F()['yw_' + q.id] = 1; delete F()['yw_' + y.id]; jump(y.map, y.pos[0] + 20, y.pos[1] + 230); });
+    mk('六件法宝全给', () => { for (const id of FB.list()) FB.give(id); toast('六件法宝都有了：点地图右下角「法宝」钮', 2400); });
+    mk('给一批材料和 5000 灵石', () => { for (const [id, k] of [['m_fang', 6], ['m_hide', 8], ['m_horn', 4], ['m_tooth', 3], ['m_yingpi', 6], ['m_silk', 8], ['m_shike', 3], ['m_jinsi', 3], ['m_gupian', 2], ['m_neidan', 3]]) addItem(id, k); S.hero.gold += 5000; toast('材料和灵石到手：去裁月记找秦师傅定做', 2400); });
+    mk('主角升到 12 级（试打用）', () => { let g = 0; while (S.hero.lv < 12 && g++ < 400) gainExp(expNeed(S.hero.lv)); S.hero.hp = S.hero.maxhp; S.hero.mp = S.hero.maxmp; toast('叶孤星 ' + S.hero.lv + ' 级', 1800); });
+    const put = () => { if (!pan.contains(row)) pan.prepend(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true }); })();
+
   // ---------- 升级之后：告诉玩家这一级解锁了什么 ----------
   if (typeof levelUpShow === 'function') levelUpShow = (orig => async function (lv0) { const r = await orig.apply(this, arguments);
     try { const lv = S.hero.lv, tips = []; const wear = (window.R370_ITEMS || []).filter(id => { const it = ITEM_DB[id]; return it.slot && it.lvReq > lv0 && it.lvReq <= lv && it.price > 0; }).map(id => ITEM_DB[id].name);
