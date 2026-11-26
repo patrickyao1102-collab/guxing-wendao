@@ -37,21 +37,24 @@
     try { if (typeof MAP_ZOOM === 'object' && MAP_ZOOM.xt_danxia && !MAP_ZOOM[s.id]) MAP_ZOOM[s.id] = MAP_ZOOM.xt_danxia; if (typeof CHAR_SCALE === 'object' && CHAR_SCALE.xt_danxia && !CHAR_SCALE[s.id]) CHAR_SCALE[s.id] = CHAR_SCALE.xt_danxia; } catch (e) {}
     (CITY.doors = CITY.doors || []).push({ x: s.door[0], y: s.door[1] + 8, rw: 46, rh: 26, to: s.id, at: P(D.spawn[0], D.spawn[1]), face: 'up', label: s.label });
     MAPS[s.k] = M; }
+  // 11-27：掌柜原来站在柜台正后面，柜台高、台面上还摆着东西，人只露出一个头（Codex 体检第 7 条「人在家具面前失去分量」）。
+  // 挪到柜台右端外侧站着：整个人看得见，手边就是自己的活计。
+  const KEEP = { cy: [944, 458], cf: [826, 412], yz: [795, 436] };
   const add = (M, x, y, o) => { const [c, r] = P(x, y); const n = Object.assign({ key: 'none', cx: 'villager_f', c, r, h: 116, wander: false, face: 'down', random: true }, o); M.npcs.push(n); return n; };
   const takeFromCity = name => { const i = (CITY.npcs || []).findIndex(n => n.name === name && !n.hidden); return i >= 0 ? CITY.npcs.splice(i, 1)[0] : null; };
   // 锦云坊 · 云娘
-  add(MAPS.cy, DATA.cy.keeper[0], DATA.cy.keeper[1], { name: '云娘', r371: 'yun', shop: R370_STOCK.chengyi,
+  add(MAPS.cy, KEEP.cy[0], KEEP.cy[1], { name: '云娘', r371: 'yun', shop: R370_STOCK.chengyi,
     talk: ['客官里边请！锦云坊的料子与针脚，满玄天城找不出第二家。', '鞋要合脚，衣要合身。您先看，看中了哪件我给您量。', '客官好眼力，这霞光羽衣可是镇店之宝。价是高了些，上身您就知道值不值。'] });
   add(MAPS.cy, 300, 720, { name: '霞光羽衣', key: 'none', cx: null, hidden: true, h: 170, talk: ['（衣上的翎羽随着人走动缓缓变色，日光照到的地方流出七种颜色。）', '（木牌上写着：镇店之衣，概不赊欠。）'] });
   // 裁月记 · 秦师傅：定做
-  add(MAPS.cf, DATA.cf.keeper[0], DATA.cf.keeper[1], { name: '秦师傅', r371: 'qin', cx: 'villager_m',
+  add(MAPS.cf, KEEP.cf[0], KEEP.cf[1], { name: '秦师傅', r371: 'qin', cx: 'villager_m', face: 'left',
     talk: async () => { if (!S.flags.r371_qin) { S.flags.r371_qin = 1; await say('秦师傅', '（他从眼镜上头看了你一眼）买现成的，出门左转锦云坊。'); await say('秦师傅', '我这儿只接定做——兽皮、蛛丝、兽牙拿来，量了身量再裁。'); }
       else await say('秦师傅', ['料子带来了？摊开我看看。', '皮要整张的，丝要没断的。', '做一件是一件，急不得。'][Math.floor(Math.random() * 3)]);
       await R370_CRAFT_OPEN('秦师傅'); } });
   { const n = takeFromCity('绣坊小学徒'); if (n) { const [c, r] = P(905, 588); Object.assign(n, { c, r, wander: false, face: 'left' }); if (Array.isArray(n.talk)) n.talk = n.talk.concat(['师傅说，蛛丝要顺着纹理走针，逆着走，一扯就断。', '我给师傅打了三年下手，才许我碰剪刀。']); MAPS.cf.npcs.push(n); } }
   // 点绛铺 · 老板娘从街上搬进来（街上不再站人）
-  { let n = takeFromCity('胭脂铺老板娘'); const [c, r] = P(DATA.yz.keeper[0], DATA.yz.keeper[1]);
+  { let n = takeFromCity('胭脂铺老板娘'); const [c, r] = P(KEEP.yz[0], KEEP.yz[1]);
     if (n) { Object.assign(n, { c, r, wander: false, face: 'down', shop: R370_STOCK.yanzhi }); if (Array.isArray(n.talk)) n.talk = n.talk.concat(['香囊是我自己配的方子。凝神的给修士，百花的给姑娘——小仙长要哪一种？']); MAPS.yz.npcs.push(n); }
-    else add(MAPS.yz, DATA.yz.keeper[0], DATA.yz.keeper[1], { name: '胭脂铺老板娘', shop: R370_STOCK.yanzhi, talk: ['姑娘家的胭脂，城东就数我家颜色正。', '香囊是我自己配的方子。凝神的给修士，百花的给姑娘。'] }); }
+    else add(MAPS.yz, KEEP.yz[0], KEEP.yz[1], { name: '胭脂铺老板娘', shop: R370_STOCK.yanzhi, talk: ['姑娘家的胭脂，城东就数我家颜色正。', '香囊是我自己配的方子。凝神的给修士，百花的给姑娘。'] }); }
   try { if (window.MM_CLEAR) MM_CLEAR('xt_city'); } catch (e) {}
 })();

@@ -127,8 +127,10 @@
     return orig.apply(this, arguments); })(drawObj);
 
   // ---------- ④ 头顶的任务标记：字体的「!」「?」换成画的令符 ----------
-  function mark(n, x, y, w) { const im = art(n); if (!im) return false; const h = w * im.height / im.width; ctx.save(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.drawImage(im, x - w / 2, y - h / 2 - 4, w, h); ctx.restore(); return true; }
-  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col) { try { if (SHOW && (t === '!' || t === '?')) { const f = ctx.font; if (/900 68px/.test(f)) { const grey = /b8b0a0/i.test(col || ''); if (mark(t === '!' ? 'mark_quest' : grey ? 'mark_wait' : 'mark_done', x, y, 54)) return; } else if (/900 56px/.test(f) && t === '!') { if (mark('mark_story', x, y, 50)) return; } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
+  // 蓝色的「去找这个人」（支线进行中要找的人，R317）：同一块令符，换成青蓝色，和金色的「可接」分得开
+  const BLUE = {}; function blueOf(n) { if (BLUE[n]) return BLUE[n]; const im = art(n); if (!im) return null; try { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const g = c.getContext('2d'); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height), a = d.data; for (let i = 0; i < a.length; i += 4) { const r = a[i]; a[i] = Math.round(a[i + 2] * .9); a[i + 1] = Math.min(255, Math.round(a[i + 1] * 1.05)); a[i + 2] = Math.min(255, Math.round(r * 1.08)); } g.putImageData(d, 0, 0); return BLUE[n] = c; } catch (e) { return BLUE[n] = im; } }
+  function mark(n, x, y, w, blue) { const im = blue ? blueOf(n) : art(n); if (!im) return false; const h = w * im.height / im.width; ctx.save(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.drawImage(im, x - w / 2, y - h / 2 - 4, w, h); ctx.restore(); return true; }
+  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col) { try { if (SHOW && (t === '!' || t === '?')) { const f = ctx.font; if (/900 68px/.test(f)) { const grey = /b8b0a0/i.test(col || ''), blue = /5fb8ff/i.test(col || ''); if (mark(t === '!' ? 'mark_quest' : grey ? 'mark_wait' : 'mark_done', x, y, 54, blue)) return; } else if (/900 56px/.test(f) && t === '!') { if (mark('mark_story', x, y, 50)) return; } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
   try { const ft = ctx.fillText, st = ctx.strokeText; const big = () => /900 52px/.test(ctx.font);
     ctx.fillText = function (t, x, y) { if (t === '!' && SHOW && big() && mark('mark_story', x, y - 14, 46)) return; return ft.apply(this, arguments); };
     ctx.strokeText = function (t, x, y) { if (t === '!' && SHOW && big() && art('mark_story')) return; return st.apply(this, arguments); }; } catch (e) {}
@@ -136,7 +138,7 @@
   // 小地图底下那行「按 M 键或点击即可放大」：只在进图头几秒提示，之后收掉（常驻的操作说明像网页）
   let hintMap = '', hintT = 0;
   if (typeof textOutline === 'function') textOutline = (orig => function (t) { try { if (SHOW && typeof t === 'string' && /即可放大$|^点击小地图放大$/.test(t)) { const now = performance.now(); if (hintMap !== world.mapName) { hintMap = world.mapName; hintT = now; } const dt = (now - hintT) / 1000; if (dt > 7) return; if (dt > 6) { ctx.save(); ctx.globalAlpha *= 7 - dt; try { return orig.apply(this, arguments); } finally { ctx.restore(); } } } } catch (e) {} return orig.apply(this, arguments); })(textOutline);
-  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col, oc) { try { if (SHOW && NAMES && oc === '#1a0c00' && (col === '#fff4d8' || col === '#ffe08a') && /600 18px/.test(ctx.font) && world.player && S.scene === drawMap && !(typeof battle !== 'undefined' && battle)) {
+  if (typeof textOutline === 'function') textOutline = (orig => function (t, x, y, col, oc) { try { if (SHOW && NAMES && oc === '#1a0c00' && (col === '#fff4d8' || col === '#ffe08a') && /600 (18|19|20)(\.\d+)?px/.test(ctx.font) && world.player && S.scene === drawMap && !(typeof battle !== 'undefined' && battle)) {
         if (typeof dialog !== 'undefined' && dialog) return;   /* 说话的时候场景里的名字都收起来（对话框上已经写了是谁） */
         if (CLEAN) { const me = world.player; let best = null, bd = 1e9; for (const ac of world.actors || []) { if (!ac.npc || ac.hidden || ac.npc.noLabel) continue; const dd = Math.hypot(ac.x - me.x, ac.y - me.y); if (dd < bd) { bd = dd; best = ac; } }
           if (!best || bd > 230 || best.npc.name !== t || Math.abs(best.x - x) > 4) return; arguments[0] = t + ' · ' + (best.npc.shop ? '买卖' : '交谈'); return orig.apply(this, arguments); }
@@ -173,13 +175,16 @@
   // ---------- ⑦ 镜头近一档（默认关，测试面板里开）：地图和人物一起放大 20%，和手机上那套（R 手机放大 15%）同一个做法 ----------
   let NEAR = LS('r379_cam') === 'near';
   let KZ = 1;
-  let CLEAN = LS('r380_clean') === 'on';   // 清爽模式（Codex R380 效果图 B / C 的方向）：镜头近、队伍只留小头像、任务收成一行、只给身边那个人写名字、野怪不带火
-  try { if (typeof VZ === 'function' && typeof CZ === 'function' && !window.MOBILE_ZOOM) { VZ = (o => function () { return o.apply(this, arguments) * KZ; })(VZ); CZ = (o => function () { return o.apply(this, arguments) * KZ; })(CZ);
+  let CLEAN = LS('r380_clean') !== 'off';   // 清爽模式（Codex R380 效果图 B / C 的方向）：镜头近、队伍只留小头像、任务收成一行、只给身边那个人写名字、野怪不带火
+  try { if (typeof VZ === 'function' && typeof CZ === 'function') { const MZ = window.MOBILE_ZOOM || 1;   /* 手机上本来就放大了 15%（R 手机放大）：这里只补到同一个目标倍数 */ VZ = (o => function () { return o.apply(this, arguments) * KZ; })(VZ); CZ = (o => function () { return o.apply(this, arguments) * KZ; })(CZ);
       // 镜头倍数慢慢过渡；剧情演出（定了镜头焦点的那种）自动退回原来的远景，免得把说话的人切到画面外
       let lastT = 0, lockT = 0; S.overlay.push({ draw() { try { const now = performance.now(), dt = Math.min(.1, (now - (lastT || now)) / 1000); lastT = now; let staged = !!(world && world.camFocus) || !!(typeof battle !== 'undefined' && battle);
           // 没定焦点、但锁着玩家在演的剧情（不是自己找人搭话、不是开着行囊）：锁满半秒也退回远景
           try { const talking = (world.actors || []).some(a => a.talking), scripted = world.locked && !talking && !S.menu && S.scene === drawMap; if (!scripted) lockT = 0; else if (!lockT) lockT = now; if (scripted && now - lockT > 500) staged = true; } catch (e) {}
-          const tg = staged ? 1 : CLEAN ? 1.3 : NEAR ? 1.2 : 1; if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
+          let want = CLEAN ? 1.3 : NEAR ? 1.2 : 1;
+          // 一屏就装得下的小屋子（铺子、客房）：只近一点点，别一进门就把柜台后面的掌柜切到画面外
+          try { const T0 = world.map && world.map.T; if (want > 1.15 && T0 && T0.mh && S.scene === drawMap) { const vz0 = VZ() / KZ / MZ; if (T0.mh * vz0 <= H * 1.08) want = 1.15; } } catch (e) {}
+          const tg = staged ? 1 : Math.max(1, want / MZ); if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
           // 倍数在变的这几帧，镜头自己对准主角（对话 / 上锁时引擎不一定在挪镜头，不管的话人会滑出画面）
           try { const T = world.map && world.map.T, pl = world.player; if (T && pl && world.cam && !world.camFocus && S.scene === drawMap) { const vz = VZ(), VWd = W / vz, VHd = H / vz;
               world.cam.x = T.mw <= VWd ? (T.mw - VWd) / 2 : Math.max(T.x0 || 0, Math.min(T.mw - VWd, pl.x - VWd / 2)); world.cam.y = T.mh <= VHd ? (T.mh - VHd) / 2 : Math.max(0, Math.min(T.mh - VHd, pl.y - VHd * .55)); } } catch (e) {} } catch (e) {} } }); } } catch (e) {}
