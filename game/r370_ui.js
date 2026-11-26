@@ -5,7 +5,7 @@
 //   · 野外：进图时屏幕上方出水墨横幅写地名和妖兽等级（R372-C），入口立木牌；妖王跟前立界碑。
 (function () {
   if (!window.R370_YW || typeof S === 'undefined' || typeof TMAPS === 'undefined' || typeof cv === 'undefined') return;
-  const YW = R370_YW, FB = R370_FB, art = R370_ART, F = () => (S.flags = S.flags || {});
+  const YW = R370_YW.filter(y => !y.hidden), FB = R370_FB, art = R370_ART, F = () => (S.flags = S.flags || {});
   const inR = (p, x, y, w, h) => p.x >= x && p.x <= x + w && p.y >= y && p.y <= y + h;
   const DIG = '零一二三四五六七八九';
   const CN = n => n < 10 ? DIG[n] : n < 20 ? '十' + (n % 10 ? DIG[n % 10] : '') : DIG[Math.floor(n / 10)] + '十' + (n % 10 ? DIG[n % 10] : '');
@@ -54,8 +54,8 @@
       if (inR(tp, BX + 760, BY + 478, 200, 60) || inR(tp, BX + 970, BY + 6, 72, 72) || !inR(tp, BX, BY, 1040, 620)) return true; });
     // 第一次看榜：星旋借一面护心镜，顺带教一下法宝怎么用
     if (!F().r370_fb0) { F().r370_fb0 = 1; world.locked = true; try {
-      await say('星旋', '讨伐妖王？就你现在这点修为……算了，总比天天在城里闲逛强。');
-      await say('星旋', '本姑娘的宝库角落里有面护心镜，先借你使着。打架时点左下角的法宝，一场只能祭一回，挑要紧的时候用。');
+      await say('星旋', '讨伐妖王？就你这点微末道行……算了，总比天天在城里闲晃强。');
+      await say('星旋', '本姑娘的宝库角落里有面护心镜，先借你使着。打架时点左下角的法宝，一场只能祭一回，挑要命的时候再用。');
       FB.give('fb_huxin'); if (window.itemGet) await itemGet([{ icon: 'item:fb_huxin', name: ITEM_DB.fb_huxin.name, count: '×1', desc: ITEM_DB.fb_huxin.desc }], '星旋借出一件法宝');
       toast('地图右下角多了一个「法宝」钮：点开可以换带哪一件', 3200); } finally { world.locked = false; } }
   }
@@ -74,8 +74,8 @@
         tx(own ? ITEM_DB[id].name : '尚未获得', x + 75, y + 166, `${own ? 700 : 400} 18px ${FONT}`, own ? '#f4e6c0' : '#8f95ad', 'center');
         if (on) tx('出战', x + 75, y + 188, `700 14px ${FONT}`, '#ffd76a', 'center'); });
       const id = ids[sel], it = ITEM_DB[id], own = !!st.own[id], on = st.on === id, cx = BX + 795;
-      if (own) { tx(it.name, cx, BY + 174, `40px ${BRUSH}`, INK, 'center'); tx(it.grade + (on ? '　·　已出战' : ''), cx, BY + 223, `700 18px ${FONT}`, RED, 'center');
-        const n = wrap(NEWDESC(it), BX + 662, BY + 268, 266, 25, `16px ${FONT}`, '#4a3420', 3); wrap(it.eff, BX + 662, BY + 268 + n * 25 + 12, 266, 25, `700 16px ${FONT}`, INK, 4);
+      if (own) { tx(it.name, cx, BY + 174, `40px ${BRUSH}`, INK, 'center'); const rk = R370_FB_RANK(id); tx(it.grade + '　·　' + rk.name + (on ? '　·　出战' : ''), cx, BY + 223, `700 17px ${FONT}`, RED, 'center');
+        const n = wrap(NEWDESC(it), BX + 662, BY + 268, 266, 25, `16px ${FONT}`, '#4a3420', 3); const n2 = wrap(it.eff, BX + 662, BY + 268 + n * 25 + 10, 266, 25, `700 16px ${FONT}`, INK, 4); tx(rk.next ? '再祭出 ' + rk.next + ' 回，祭炼' + (rk.r ? '大成' : '小成') + '（效果更强）' : '已祭炼大成', BX + 662, BY + 268 + (n + n2) * 25 + 22, `14px ${FONT}`, '#7a5a34');
         const b = art('btn_star'); if (b) ctx.drawImage(b, BX + 695, BY + 451, 200, 60); tx(on ? '收回法宝' : '带上出战', cx, BY + 481, `700 20px ${FONT}`, '#4a3418', 'center'); }
       else { tx('？？？', cx, BY + 174, `40px ${BRUSH}`, INK, 'center'); const y = YW.find(q => q.fabao === id); wrap(y ? '讨伐「' + y.ep + ' · ' + y.name + '」所得。妖王的悬赏贴在天剑宗玄天据点前院的讨伐榜上。' : '还没有得到。', BX + 662, BY + 268, 266, 26, `16px ${FONT}`, '#4a3420', 5); }
       const c = art('btn_close'); if (c) ctx.drawImage(c, BX + 986, BY + 30, 50, 50);

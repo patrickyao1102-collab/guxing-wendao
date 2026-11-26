@@ -67,7 +67,7 @@
   window.R370_CRAFT_OPEN = async function (who) {
     who = who || '秦师傅';
     for (;;) {
-      const opts = CRAFT.map(c => (canCraft(c) ? '【可做】' : '') + ITEM_DB[c.id].name + '　' + matLine(c) + '　工钱 ' + c.fee).concat(['离开']);
+      const opts = CRAFT.map(c => ITEM_DB[c.id].name + (canCraft(c) ? '　·　料齐，可做' : Object.entries(c.mats).every(([m, n]) => itemCount(m) >= n) ? '　·　工钱不够' : '　·　缺料')).concat(['离开']);
       const i = await choose('裁月记 · 拿材料定做', opts); if (i == null || i < 0 || i >= CRAFT.length) return;
       const c = CRAFT[i], it = ITEM_DB[c.id];
       await showPanel(it.name, [it.desc, '!' + ['atk', 'def', 'maxhp', 'maxmp', 'spd'].filter(k => it[k]).map(k => STAT_CN[k] + ' +' + it[k]).join('　'), '材料：' + matLine(c), '工钱：' + c.fee + ' 灵石（身上 ' + S.hero.gold + '）']);
@@ -75,7 +75,7 @@
       const j = await choose('定做 ' + it.name + '？', ['做', '再想想']); if (j !== 0) continue;
       for (const [m, n] of Object.entries(c.mats)) takeItem(m, n); S.hero.gold -= c.fee; addItem(c.id, 1);
       try { playSnd('ui_confirm'); } catch (e) {}
-      await say(who, '（他把料子一样样摊开，量、裁、缝，一盏茶的工夫）……好了。穿穿看合不合身。');
+      await say(who, '（他把料子一样样摊开，量、裁、缝，一盏茶的工夫）……成了。穿上试试，不合身再改。');
       if (window.itemGet) await itemGet([{ icon: 'item:' + c.id, name: it.name, count: '×1', desc: it.desc }], '定做完成');
     }
   };
@@ -84,20 +84,24 @@
 
   // ---------- ③ 妖王 ----------
   const YW = window.R370_YW = [
-    { id: 'boar', ep: '撼山', name: '铁背獠牙猪王', type: 'boar', map: 'xt_road', pos: [1088, 800], lv: 10, fabao: 'fb_hanshan', bg: 'bg_mountain', scale: 1.9, mh: 150,
+    { id: 'boar', cry: '敢闯本王山头？看我不撞碎你们！', ep: '撼山', name: '铁背獠牙猪王', type: 'boar', map: 'xt_road', pos: [1088, 800], lv: 10, fabao: 'fb_hanshan', bg: 'bg_mountain', scale: 1.9, mh: 150,
       where: '青玄近道 · 道旁野地', tip: '它蓄力冲撞之前会刨地——那一下要防御。撞完它会力竭，那是出手的时候。', extra: ['c_tusk', 'm_hide', 'm_hide'] },
-    { id: 'wolf', ep: '啸月', name: '苍狼妖将', type: 'wolfking', map: 'lin_forest', pos: [288, 608], lv: 12, fabao: 'fb_xiaoyue', bg: 'bg_mountain', scale: 1.25, mh: 150, adds: ['wolf2', 'wolf2'],
+    { id: 'wolf', cry: '踏入本将领地，便把命留下吧！', ep: '啸月', name: '苍狼妖将', type: 'wolfking', map: 'lin_forest', pos: [288, 608], lv: 12, fabao: 'fb_xiaoyue', bg: 'bg_mountain', scale: 1.25, mh: 150, adds: ['wolf2', 'wolf2'],
       where: '云霄山脉 · 山外树林 · 西北溪边', tip: '身边的狼活着，它就越打越凶——先清狼。它举刀蓄势时防御。', extra: ['m_gupian', 'm_yingpi', 'm_yingpi'] },
-    { id: 'leopard', ep: '离火', name: '烈焰妖豹', type: 'leopard', map: 'hf_valley', pos: [1280, 448], lv: 14, fabao: 'fb_lihuo', bg: 'bg_mountain', scale: 1.8, mh: 150,
+    { id: 'leopard', cry: '磨磨蹭蹭的，先把你们烧成灰！', ep: '离火', name: '烈焰妖豹', type: 'leopard', map: 'hf_valley', pos: [1280, 448], lv: 14, fabao: 'fb_lihuo', bg: 'bg_mountain', scale: 1.8, mh: 150,
       where: '黑风谷 · 北坡石阶上', tip: '它快，一轮能扑两回。浑身火光大盛就是要放「离火燎原」——不防御会被烧上好几轮。', extra: ['m_yanjing', 'm_yanjing', 'm_yanjing'] },
-    { id: 'spider', ep: '千丝', name: '金丝蛛后', type: 'spiderq', map: 'm_yy_tiger', pos: [608, 1184], lv: 16, fabao: 'fb_fuyao', bg: 'bg_youying', scale: 1.3, mh: 150,
+    { id: 'spider', cry: '细皮嫩肉的，正好留着裹进茧里。', ep: '千丝', name: '金丝蛛后', type: 'spiderq', map: 'm_yy_tiger', pos: [608, 1184], lv: 16, fabao: 'fb_fuyao', bg: 'bg_youying', scale: 1.3, mh: 150,
       where: '幽影林 · 追虎迷径 · 西边林隙', tip: '被它的丝缠住的人要歇一轮。它张网蓄势时全队防御，不然一个都动不了。血少了它会唤小蛛。', extra: ['m_jinsi', 'm_jinsi', 'm_silk', 'm_silk'] },
-    { id: 'treant', ep: '回春', name: '荆棘妖姬', type: 'treant', map: 'm_yy_verge', pos: [2752, 1472], lv: 18, fabao: 'fb_huichun', bg: 'bg_youying', scale: 1.3, mh: 170, adds: ['tree', 'tree'], addName: '荆棘花',
+    { id: 'treant', cry: '来得正好，我的花正缺人血浇呢。', ep: '回春', name: '荆棘妖姬', type: 'treant', map: 'm_yy_verge', pos: [2752, 1472], lv: 18, fabao: 'fb_huichun', bg: 'bg_youying', scale: 1.3, mh: 170, adds: ['tree', 'tree'], addName: '荆棘花',
       where: '幽影林 · 林尽闻声 · 兽骨空地', tip: '两朵荆棘花会一直给它回血——花不除，它打不死。', extra: ['m_thorn', 'm_thorn', 'm_thorn', 'p_revive'] },
   ];
+  // 榜外第六只（Gemini 的主意）：五张悬赏全盖了「诛」之后才露面，不上榜
+  YW.push({ id: 'rhino', hidden: true, cry: '……多少年了，还有人敢走这条山路。', ep: '镇岳', name: '黑甲犀王', type: 'rhino', map: 'tj_xiashan', pos: [912, 2048], lv: 20, fabao: null, bg: 'bg_mountain', scale: 1.8, mh: 160,
+    where: '天剑山 · 下山路深处', tip: '它每动一回，身上的铁甲就厚一层。只有逼它使出「镇岳踏」、力竭之后，铁甲才会碎。', extra: ['m_neidan', 'm_neidan', 'm_horn', 'm_horn', 'p_revive', 'p_revive'] });
   const ywDone = y => !!F()['yw_' + y.id];
-  const HP = lv => 2700 + (lv - 10) * 650, ATK = lv => 72 + (lv - 10) * 7, DEF = lv => 14 + Math.round((lv - 10) * 1.5);
-  const SPD = { boar: 9, wolf: 14, leopard: 19, spider: 15, treant: 9 };
+  const allFive = () => YW.filter(y => !y.hidden).every(ywDone);
+  const HP = lv => 2700 + (lv - 10) * 650, ATK = lv => 66 + Math.round((lv - 10) * 6.5), DEF = lv => 14 + Math.round((lv - 10) * 1.5);
+  const SPD = { boar: 9, wolf: 14, leopard: 19, spider: 15, treant: 9, rhino: 8 };
   const heroes = b => (b.heroes || [b.P]).filter(u => u.alive);
   const big = (t, c = '#ff6a4a', s = 62) => floatText(W / 2, 300, t, c, s, 1.5, BRUSH);
   const guard = P => { if (P.buffs.def) { delete P.buffs.def; floatText(P.x, P.y - P.h - 10, '格挡', '#9fd3ff', 36); return .4; } if (P.buffs.shield) { P.buffs.shield--; if (!P.buffs.shield) delete P.buffs.shield; return .5; } return 1; };
@@ -113,9 +117,9 @@
     if (name) big(name, '#ffb04a', 64); e.pose = 'atk'; await dashTo(e, P.x - 150, P.y, 200); try { playSnd('sfx_claw'); fx(fxName || 'fx3_claw_red', { x: P.x - 10, y: P.y - P.h * .5, scale: .9, rot: -.25 }); } catch (e2) {}
     let { d, crit } = dmgCalc(e, P, mult, .08); d = Math.round(d * guard(P)); applyDamage(P, d, crit); await sleep(260); await dashBack(e, 240); e.pose = null; return d; }
   function summon(b, e, types, name) {
-    const slots = [[560, 640], [540, 480], [370, 570], [210, 470], [190, 670], [420, 690], [400, 440]], used = b.enemies.filter(x => x.alive).map(x => [x.x, x.y]); let n = 0;
+    const slots = [[570, 665], [545, 470], [440, 560], [620, 565], [470, 690]], used = b.enemies.filter(x => x.alive).map(x => [x.x, x.y]); let n = 0;
     for (const t of types) { const s = slots.find(s => used.every(u => Math.hypot(u[0] - s[0], u[1] - s[1]) > 110)); if (!s) break; used.push(s);
-      const m = makeEnemy(t, Math.max(0, e.lv - 8) * .8); if (name) { m.name = name; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + Math.max(1, e.lv - 2); m.lv = e.lv - 2; m._add = e._id;
+      const m = makeEnemy(t, Math.max(0, e.lv - 8) * .5); if (name) { m.name = name; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + Math.max(1, e.lv - 2); m.lv = e.lv - 2; m._add = e._id;
       const u = unit(Object.assign({ side: 'enemy' }, m)); u.x = s[0]; u.y = s[1]; u.gauge = ri(0, 30);
       try { const hh = window.BATTLE_SIZE && BATTLE_SIZE[u.key]; if (hh) u.h = hh; } catch (e2) {}
       b.enemies.push(u); b.units.push(u); n++; try { particleBurst(u.x, u.y - u.h / 2, 30, ['#b48cff', '#fff'], 300, .8, 6); } catch (e2) {} }
@@ -129,7 +133,7 @@
       if (t === 0 && e._charge) { e._charge = null; const hs = heroes(b), P = hs.slice().sort((a, c) => c.hp - a.hp)[0]; await strike(e, b, P, '撼山冲撞', 2.6, 'fx3_burst_earth');
         for (const Q of heroes(b)) if (Q !== P) { let { d } = dmgCalc(e, Q, .6, 0); applyDamage(Q, Math.round(d * guard(Q)), false); } S.shake = 20; await tired(e); return true; }
       return false; },
-    wolf: async (e, b) => { const n = addsAlive(b, e).length; e.atk = Math.round(e._atk0 * (1 + .15 * n)); const t = e.turn % 4;
+    wolf: async (e, b) => { const n = addsAlive(b, e).length; e.atk = Math.round(e._atk0 * (1 + .1 * n)); const t = e.turn % 4;
       if (!e._howl && e.hp < e.maxhp * .55 && n < 2) { e._howl = 1; big('啸月', '#8fd8ff', 70); try { playSnd('sfx_charge'); } catch (e2) {} await sleep(600); summon(b, e, ['wolf2', 'wolf2'].slice(0, 2 - n)); await sleep(500); return true; }
       if (t === 3) return charge(e, '它举刀蓄势——「骨刃月斩」，防御！');
       if (t === 0 && e._charge) return aoe(e, b, '骨刃月斩', 'fx3_slash_blue', 1.5, '#8fd8ff');
@@ -148,17 +152,23 @@
         const heal = Math.min(e.maxhp - e.hp, d * 2); if (heal > 0) { e.hp += heal; floatText(e.x, e.y - e.h * .8, '+' + heal, '#7dff8a', 40); } return true; }
       return false; },
     treant: async (e, b) => { const fl = addsAlive(b, e), t = e.turn % 4;
-      if (fl.length && e.hp < e.maxhp) { const heal = Math.round(e.maxhp * .045 * fl.length); e.hp = Math.min(e.maxhp, e.hp + heal); floatText(e.x, e.y - e.h * .8, '回春 +' + heal, '#7dff8a', 40); try { fx('fx3_burst_green', { x: e.x, y: e.y - e.h * .5, scale: .9 }); } catch (e2) {} await sleep(450); }
+      if (fl.length && e.hp < e.maxhp) { const heal = Math.round(e.maxhp * .035 * fl.length); e.hp = Math.min(e.maxhp, e.hp + heal); floatText(e.x, e.y - e.h * .8, '回春 +' + heal, '#7dff8a', 40); try { fx('fx3_burst_green', { x: e.x, y: e.y - e.h * .5, scale: .9 }); } catch (e2) {} await sleep(450); }
       const need = !fl.length && ((!e._s1 && e.hp < e.maxhp * .6) || (!e._s2 && e.hp < e.maxhp * .3));
       if (need) { if (!e._s1) e._s1 = 1; else e._s2 = 1; big('荆棘花开', '#8fe07a', 64); await sleep(600); summon(b, e, ['tree', 'tree'], '荆棘花'); await sleep(500); return true; }
       if (t === 3) return charge(e, '藤条从地里拱起——「万棘穿心」，防御！');
       if (t === 0 && e._charge) return aoe(e, b, '万棘穿心', 'fx3_burst_green', 1.5, '#8fe07a');
       return false; },
   };
+  AI.rhino = async (e, b) => { const t = e.turn % 4;
+    if (!(e._break > 0) && (e._armor || 0) < 5) { e._armor = (e._armor || 0) + 1; e.def = e._def0 + e._armor * 7; floatText(e.x, e.y - e.h - 40, '铁甲 ×' + e._armor, '#cfd6e0', 34); await sleep(350); }
+    if (t === 3) return charge(e, '它人立而起——「镇岳踏」，防御！');
+    if (t === 0 && e._charge) { const r = await aoe(e, b, '镇岳踏', 'fx3_burst_earth', 1.6, '#cfd6e0'); e._armor = 0; e.def = e._def0; floatText(e.x, e.y - e.h - 110, '铁甲尽碎', '#ffe27a', 40, 1.4, BRUSH); return r; }
+    return false; };
   function makeYW(y) {
     const m = MOB_DB[y.type], lv = y.lv;
-    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: m.key, hp: HP(lv), maxhp: HP(lv), atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
-      _yw: y, _id: y.id, _ep: y.ep, _atk0: ATK(lv), turn: 0, _type: y.type };
+    const hp0 = Math.round(HP(lv) * (y.adds ? .85 : 1));
+    const e = { name: y.ep + ' · ' + y.name + ' Lv' + lv, key: m.key, hp: hp0, maxhp: hp0, atk: ATK(lv), def: DEF(lv), spd: SPD[y.id], h: m.h, atkType: m.atkType === 'charge' || m.atkType === 'arrow' ? 'claw' : m.atkType /* 「冲撞 / 射箭」那层出手不走妖王的打法，换成爪击 */, color: '#a33', fxColor: m.fxColor, boss: true, lv, slot: [330, 590],
+      _yw: y, _id: y.id, _ep: y.ep, _atk0: ATK(lv), _def0: DEF(lv), turn: 0, _type: y.type };
     e.ai = async (en, b) => { en.turn++;
       if (en._break) { en._break--; if (en._break >= 1) { floatText(en.x, en.y - en.h - 40, '喘息……', '#ffe27a', 38); await sleep(700); return true; } }
       try { return await AI[y.id](en, b); } catch (err) { console.warn('R370 ai', err); return false; } };
@@ -170,13 +180,13 @@
   let FIGHT = null;
   async function fight(y) {
     const boss = makeYW(y), ens = [boss];
-    for (const [i, t] of (y.adds || []).entries()) { const m = makeEnemy(t, Math.max(0, y.lv - 8) * .8); if (y.addName) { m.name = y.addName; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + (y.lv - 2); m.lv = y.lv - 2; m._add = y.id; m._type = t; m.slot = [[560, 690], [540, 440]][i]; ens.push(m); }
+    for (const [i, t] of (y.adds || []).entries()) { const m = makeEnemy(t, Math.max(0, y.lv - 8) * .5); if (y.addName) { m.name = y.addName; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + (y.lv - 2); m.lv = y.lv - 2; m._add = y.id; m._type = t; m.slot = [[560, 690], [540, 440]][i]; ens.push(m); }
     const exp = Math.round(expNeed(y.lv) * .55), gold = 300 + (y.lv - 10) * 120;
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
     const pr = startBattle({ title: '妖王讨伐 · ' + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
-    try { if (battle) { for (const u of battle.enemies) if (u._yw) { u._scale = y.scale; battle._yw = u; } } } catch (e) {}
+    try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = 290; u.y = 610; } else { const sl = [[570, 665], [545, 470], [440, 560]][ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
     await fadeIn(240); const win = await pr; FIGHT = null;
     S.scene = drawMap;
     if (win === true) { F()['yw_' + y.id] = 1; await reward(y); }
@@ -184,39 +194,49 @@
     world.locked = false; return win === true; }
   async function reward(y) {
     await sleep(300); banner('妖王伏诛'); try { playSnd('jingle_win', .6); } catch (e) {} await sleep(1700);
-    const give = [[y.fabao, 1], ['m_neidan', 1]]; const cnt = {}; for (const id of y.extra || []) cnt[id] = (cnt[id] || 0) + 1; for (const id in cnt) give.push([id, cnt[id]]);
+    const give = (y.fabao ? [[y.fabao, 1]] : []).concat([['m_neidan', 1]]); const cnt = {}; for (const id of y.extra || []) cnt[id] = (cnt[id] || 0) + 1; for (const id in cnt) give.push([id, cnt[id]]);
     for (const [id, n] of give) { if (ITEM_DB[id].fabao) fbOwn()[id] = 1; else addItem(id, n); }
-    if (!fb().on) fb().on = y.fabao;
-    if (window.itemGet) await itemGet(give.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })), '讨伐 ' + y.ep + ' · ' + y.name);
-    await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本姑娘祭炼了。打架的时候点左下角的法宝，一场能用一回。');
-    const left = YW.filter(q => !ywDone(q)).length; toast(left ? '讨伐榜上还剩 ' + left + ' 只妖王' : '讨伐榜上的五只妖王，全数伏诛', 3200); }
+    const xs = 40 + (y.lv - 10) * 6; S.hero.xs = (S.hero.xs || 0) + xs;   // 悬赏点（R298 那套：去典籍阁换剑谱、玉简）
+    if (!fb().on && y.fabao) fb().on = y.fabao;
+    if (window.itemGet) await itemGet(give.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })).concat(ITEM_DB.k_xs ? [{ icon: 'item:k_xs', name: '悬赏点', count: '+' + xs, desc: '讨伐榜的赏格。去天剑集市 · 典籍阁换剑谱、玉简' }] : []), '讨伐 ' + y.ep + ' · ' + y.name);
+    if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本姑娘祭炼了。打架的时候点左下角的法宝，一场能用一回。');
+    else { await say('星旋', '榜上的、榜外的，都清干净了。……行吧，本姑娘承认，你有点本事。'); toast('讨伐榜内外，再无妖王', 3200); return; }
+    const left = YW.filter(q => !q.hidden && !ywDone(q)).length;
+    if (left) toast('讨伐榜上还剩 ' + left + ' 只妖王', 3200);
+    else { await say('星旋', '五颗内丹凑在一处，玉佩在发烫……天剑山下山的那条路上，还压着一只老东西。榜上没有它。'); toast('讨伐榜上的五只妖王，全数伏诛。——天剑山 · 下山路深处，似乎还有动静', 4200); } }
   window.R370_FIGHT = id => fight(YW.find(y => y.id === id));
 
   // ---------- ④ 法宝 ----------
   const fb = () => { const h = S.hero; return h.fabao || (h.fabao = { own: {}, on: null }); };
   const fbOwn = () => fb().own;
+  // 法宝越用越顺手（Gemini 的主意，照仙剑三仙术练级）：祭出满 4 回「小成」、满 10 回「大成」，效果各涨一档
+  const fbRank = id => { const n = (fb().use || {})[id] || 0; return n >= 10 ? 2 : n >= 4 ? 1 : 0; };
+  const RANK_CN = ['初炼', '小成', '大成'];
+  window.R370_FB_RANK = id => { const n = (fb().use || {})[id] || 0, r = fbRank(id); return { n, r, name: RANK_CN[r], next: r === 0 ? 4 - n : r === 1 ? 10 - n : 0 }; };
   window.R370_FB = { state: fb, give: id => { fbOwn()[id] = 1; if (!fb().on) fb().on = id; }, list: () => Object.keys(NEW).filter(id => NEW[id].fabao) };
   async function useFabao(b) {
     const id = fb().on, it = ITEM_DB[id]; if (!id || !it || b._fbUsed) return;
     const act = b.active && b.active.side === 'hero' ? b.active : b.P; b._fbUsed = 1; b.state = 'act'; b.menu = null;
+    const rk0 = fbRank(id); fb().use = fb().use || {}; fb().use[id] = (fb().use[id] || 0) + 1; const rk = fbRank(id), K = [1, 1.2, 1.4][rk0];
     big(it.name, '#ffe9a0', 72); try { playSnd('sfx_charge'); } catch (e) {} await dimTo(.5, 220);
     try { fx('fx3_orb_violet', { life: .8, layer: 2, x: act.x, y: act.y - act.h * .9, scale: k => .3 + k * .8, alpha: 1.3 }); } catch (e) {} await sleep(650);
     const es = aliveEnemies(), hs = heroes(b), tgt = es.find(e => e._charge) || es.find(e => e._yw) || es.slice().sort((a, c) => c.hp - a.hp)[0];
-    if (id === 'fb_huxin') { for (const P of hs) { P.buffs.shield = Math.max(P.buffs.shield || 0, 2); floatText(P.x, P.y - P.h - 20, '护心', '#ffe9a0', 36); } }
-    else if (id === 'fb_hanshan' && tgt) { try { fx('fx3_burst_earth', { x: tgt.x, y: tgt.y - tgt.h * .5, scale: 1.3 }); } catch (e) {} const { d, crit } = dmgCalc(act, tgt, 2.4, 0); applyDamage(tgt, d, crit); S.shake = 18;
+    if (id === 'fb_huxin') { for (const P of hs) { P.buffs.shield = Math.max(P.buffs.shield || 0, 2 + rk0); floatText(P.x, P.y - P.h - 20, '护心', '#ffe9a0', 36); } }
+    else if (id === 'fb_hanshan' && tgt) { try { fx('fx3_burst_earth', { x: tgt.x, y: tgt.y - tgt.h * .5, scale: 1.3 }); } catch (e) {} const { d, crit } = dmgCalc(act, tgt, 2.4 * K, 0); applyDamage(tgt, d, crit); S.shake = 18;
       if (tgt.alive && tgt._charge) { tgt._charge = null; tgt._break = 2; tgt._pojiT = performance.now() / 1000; floatText(tgt.x, tgt.y - tgt.h - 130, '打断！', '#ffe27a', 46, 1.6, BRUSH); } }
-    else if (id === 'fb_xiaoyue') { for (const P of hs) { P.gauge = 100; floatText(P.x, P.y - P.h - 20, '疾', '#8fd8ff', 40); } }
-    else if (id === 'fb_lihuo') { for (const e of es) { try { fx('fx3_burst_red', { x: e.x, y: e.y - e.h * .5, scale: 1.2 }); } catch (e2) {} const { d, crit } = dmgCalc(act, e, 1.4, 0); applyDamage(e, d, crit); if (e.alive) { e.buffs = e.buffs || {}; e.buffs.burn = 3; } } S.shake = 14; }
-    else if (id === 'fb_fuyao' && tgt) { tgt.gauge = tgt._yw || tgt.boss ? -110 : -260; if (tgt._charge) { tgt._charge = null; } floatText(tgt.x, tgt.y - tgt.h - 40, '缚！', '#ffe27a', 50, 1.4, BRUSH); try { fx('fx3_slash_gold', { x: tgt.x, y: tgt.y - tgt.h * .5, scale: 1.1 }); } catch (e) {} }
-    else if (id === 'fb_huichun') { for (const P of hs) { const h = Math.round(P.maxhp * .4); P.hp = Math.min(P.maxhp, P.hp + h); P._burn = 0; if (P.gauge < 0) P.gauge = 0; floatText(P.x, P.y - P.h * .7, '+' + h, '#7dff8a', 46); try { fx('fx3_burst_green', { x: P.x, y: P.y - P.h * .5, scale: .9 }); } catch (e) {} } try { playSnd('sfx_heal'); } catch (e) {} }
+    else if (id === 'fb_xiaoyue') { for (const P of hs) { P.gauge = 100; if (rk0) P.mp = Math.min(P.maxmp, P.mp + 12 * rk0); floatText(P.x, P.y - P.h - 20, '疾', '#8fd8ff', 40); } }
+    else if (id === 'fb_lihuo') { for (const e of es) { try { fx('fx3_burst_red', { x: e.x, y: e.y - e.h * .5, scale: 1.2 }); } catch (e2) {} const { d, crit } = dmgCalc(act, e, 1.4 * K, 0); applyDamage(e, d, crit); if (e.alive) { e.buffs = e.buffs || {}; e.buffs.burn = 3 + rk0; } } S.shake = 14; }
+    else if (id === 'fb_fuyao' && tgt) { tgt.gauge = (tgt._yw || tgt.boss ? -110 : -260) * K; if (tgt._charge) { tgt._charge = null; } floatText(tgt.x, tgt.y - tgt.h - 40, '缚！', '#ffe27a', 50, 1.4, BRUSH); try { fx('fx3_slash_gold', { x: tgt.x, y: tgt.y - tgt.h * .5, scale: 1.1 }); } catch (e) {} }
+    else if (id === 'fb_huichun') { for (const P of hs) { const h = Math.round(P.maxhp * (.4 + .1 * rk0)); P.hp = Math.min(P.maxhp, P.hp + h); P._burn = 0; if (P.gauge < 0) P.gauge = 0; floatText(P.x, P.y - P.h * .7, '+' + h, '#7dff8a', 46); try { fx('fx3_burst_green', { x: P.x, y: P.y - P.h * .5, scale: .9 }); } catch (e) {} } try { playSnd('sfx_heal'); } catch (e) {} }
     await sleep(600); await dimTo(0, 220); if (act !== b.P || true) act.gauge = Math.max(act.gauge, id === 'fb_xiaoyue' ? 100 : 0);
+    if (rk > rk0) setTimeout(() => toast('「' + it.name + '」祭炼' + RANK_CN[rk] + '——往后祭出，效果更强', 3000), 800);
     await afterAct(); }
 
   // ---------- 画：地图上的妖王、战斗里的名牌 / 警示 / 法宝钮、横幅 ----------
   const ART = {}; const art = (n, dir = 'r372') => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = dir + '/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
   window.R370_ART = art;
   let BAN = null; const banner = t => { BAN = { t, t0: performance.now() }; };
-  const hereYW = () => YW.find(y => y.map === world.mapName && !ywDone(y));
+  const hereYW = () => YW.find(y => y.map === world.mapName && !ywDone(y) && (!y.hidden || allFive()));
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { orig && orig(T, cam, now);
     try { const y = hereYW(); if (!y || battle) return; const [x, yy] = y.pos, m = MOB_DB[y.type], t = performance.now() / 1000;
       ctx.save(); let g = ctx.createRadialGradient(x, yy, 6, x, yy, 150); g.addColorStop(0, 'rgba(255,60,30,.42)'); g.addColorStop(.6, 'rgba(255,60,30,.14)'); g.addColorStop(1, 'rgba(255,60,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, yy, 150, 52, 0, 0, 7); ctx.fill();
@@ -237,9 +257,13 @@
       if (d > 230) ASK = 0;
       if (free && !world.locked && !dialog && !choice && d < 120 && !ASK) { ASK = 1; world.locked = true; world.path = null; p.moving = false;
         (async () => { try { const lv = S.hero.lv, hint = lv + 2 < y.lv ? '（它比你高 ' + (y.lv - lv) + ' 级，很险）' : lv >= y.lv + 3 ? '（你已高它不少）' : '';
-          const c = await choose('妖王 · ' + y.ep + ' ' + y.name + '　Lv' + y.lv + hint, ['讨伐', '先不打']); if (c === 0) await fight(y); } finally { world.locked = false; } })(); }
+          const c = await choose('妖王 · ' + y.ep + ' ' + y.name + '　Lv' + y.lv + hint, ['讨伐', '先不打']); if (c === 0) { if (y.cry) await say(y.ep + ' · ' + y.name, y.cry); await fight(y); } } finally { world.locked = false; } })(); }
     } catch (e) {} return r; })(tileMobs);
   window.R370_HERE = hereYW;
+  // 野外多几只宝箱（仙剑的老规矩：岔路走到头总有点东西）——放在各图离入口远的角落，里面是新装备和材料
+  try { const P2 = (x, y) => [x / 64 - .5, y / 64 - .8]; const BOX = { xt_road: [[1728, 1536, [['c_ningshen', 1], ['gold', 150]]]], lin_forest: [[2496, 704, [['s_buyun', 1], ['m_hide', 2]]]], hf_valley: [[1728, 1536, [['m_yanjing', 2], ['x_anxi', 2]]]],
+      m_yy_tiger: [[256, 1600, [['s_zhuifeng', 1], ['m_silk', 2]]]], m_yy_verge: [[2336, 1152, [['a_tiancan', 1], ['gold', 300]]]] };
+    for (const m in BOX) { const M = TMAPS[m]; if (!M) continue; M.chests = M.chests || []; for (const [x, y, items] of BOX[m]) { const [c, r] = P2(x, y); if (!M.chests.some(q => q._r370 && q.c === c && q.r === r)) M.chests.push({ c, r, items, _r370: 1 }); } } } catch (e) {}
   // 图鉴：每种妖兽的介绍后面写上会掉什么
   try { if (window.BESTIARY) { for (const c of BESTIARY.CAT) { const d = DROPS[c[2]]; if (d && d.length && !/掉落：/.test(c[4])) c[4] += '　掉落：' + d.map(([id]) => ITEM_DB[id].name).join('、') + '。'; } } } catch (e) {}
 
@@ -253,7 +277,7 @@
     const b = typeof battle !== 'undefined' && battle, now = performance.now() / 1000;
     if (b && b.state !== 'end') {
       const e = b._yw;
-      if (e && e.alive) { const pl = art('boss_plate'), sc = .8, x0 = 640 - 340 * sc, y0 = 138; ctx.save();
+      if (e && e.alive) { const pl = art('boss_plate'), sc = .78, x0 = 452, y0 = 148; ctx.save();
         const k = Math.max(0, e.hp / e.maxhp), brk = e._break > 0; e._hpShow = e._hpShow == null ? k : e._hpShow + (k - e._hpShow) * .12;
         if (pl) { ctx.translate(x0, y0); ctx.scale(sc, sc); const f = art(brk ? 'boss_bar_fill_break' : 'boss_bar_fill');
           ctx.fillStyle = 'rgba(20,6,4,.78)'; ctx.fillRect(124, 60, 520, 22);

@@ -41,11 +41,11 @@
   const takeFromCity = name => { const i = (CITY.npcs || []).findIndex(n => n.name === name && !n.hidden); return i >= 0 ? CITY.npcs.splice(i, 1)[0] : null; };
   // 锦云坊 · 云娘
   add(MAPS.cy, DATA.cy.keeper[0], DATA.cy.keeper[1], { name: '云娘', r371: 'yun', shop: R370_STOCK.chengyi,
-    talk: ['客官里边请——锦云坊的料子，玄天城里找不出第二家。', '鞋要合脚，衣要合身。您先看，看中了哪件我给您量。', '那件霞光羽衣是镇店的。贵是贵了些，穿上身您就知道值不值。'] });
+    talk: ['客官里边请！锦云坊的料子与针脚，满玄天城找不出第二家。', '鞋要合脚，衣要合身。您先看，看中了哪件我给您量。', '客官好眼力，这霞光羽衣可是镇店之宝。价是高了些，上身您就知道值不值。'] });
   add(MAPS.cy, 300, 720, { name: '霞光羽衣', key: 'none', cx: null, hidden: true, h: 170, talk: ['（衣上的翎羽随着人走动缓缓变色，日光照到的地方流出七种颜色。）', '（木牌上写着：镇店之衣，概不赊欠。）'] });
   // 裁月记 · 秦师傅：定做
   add(MAPS.cf, DATA.cf.keeper[0], DATA.cf.keeper[1], { name: '秦师傅', r371: 'qin', cx: 'villager_m',
-    talk: async () => { if (!S.flags.r371_qin) { S.flags.r371_qin = 1; await say('秦师傅', '（他从眼镜上头看了你一眼）买现成的，出门左转找锦云坊。'); await say('秦师傅', '我这儿只做一样：你把山里打来的兽皮、蛛丝、兽牙拿来，我照着你的身量做。'); }
+    talk: async () => { if (!S.flags.r371_qin) { S.flags.r371_qin = 1; await say('秦师傅', '（他从眼镜上头看了你一眼）买现成的，出门左转锦云坊。'); await say('秦师傅', '我这儿只接定做——兽皮、蛛丝、兽牙拿来，量了身量再裁。'); }
       else await say('秦师傅', ['料子带来了？摊开我看看。', '皮要整张的，丝要没断的。', '做一件是一件，急不得。'][Math.floor(Math.random() * 3)]);
       await R370_CRAFT_OPEN('秦师傅'); } });
   { const n = takeFromCity('绣坊小学徒'); if (n) { const [c, r] = P(905, 588); Object.assign(n, { c, r, wander: false, face: 'left' }); if (Array.isArray(n.talk)) n.talk = n.talk.concat(['师傅说，蛛丝要顺着纹理走针，逆着走，一扯就断。', '我给师傅打了三年下手，才许我碰剪刀。']); MAPS.cf.npcs.push(n); } }
