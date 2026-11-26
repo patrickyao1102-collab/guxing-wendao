@@ -184,7 +184,7 @@
           let want = CLEAN ? 1.15 : NEAR ? 1.2 : 1;   /* 作者 11-27 晨：我们是手游，比例对照手游，别照端游拉太近。1.15 就是手机上作者真机调过的那一档——手机上等于不变，电脑上跟手机同一个比例 */
           // 一屏就装得下的小屋子（铺子、客房）：只近一点点，别一进门就把柜台后面的掌柜切到画面外
           try { const T0 = world.map && world.map.T; if (want > 1.15 && T0 && T0.mh && S.scene === drawMap) { const vz0 = VZ() / KZ / MZ; if (T0.mh * vz0 <= H * 1.08) want = 1.15; } } catch (e) {}
-          const tg = staged ? 1 : Math.max(1, want / MZ); if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
+          const tg = (NEAR && !CLEAN && staged) ? 1 : Math.max(1, want / MZ);   /* 清爽模式现在只到手机那一档（1.15），手机上剧情一直就是这个比例在演，所以剧情时不用再退回远景——镜头不来回动；只有测试用的「近一档」还保留退回 */ if (Math.abs(tg - KZ) < .002) { KZ = tg; return; } KZ += (tg - KZ) * Math.min(1, dt * 3.5);
           // 倍数在变的这几帧，镜头自己对准主角（对话 / 上锁时引擎不一定在挪镜头，不管的话人会滑出画面）
           try { const T = world.map && world.map.T, pl = world.player; if (T && pl && world.cam && !world.camFocus && S.scene === drawMap) { const vz = VZ(), VWd = W / vz, VHd = H / vz;
               world.cam.x = T.mw <= VWd ? (T.mw - VWd) / 2 : Math.max(T.x0 || 0, Math.min(T.mw - VWd, pl.x - VWd / 2)); world.cam.y = T.mh <= VHd ? (T.mh - VHd) / 2 : Math.max(0, Math.min(T.mh - VHd, pl.y - VHd * .55)); } } catch (e) {} } catch (e) {} } }); } } catch (e) {}
