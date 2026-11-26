@@ -234,7 +234,7 @@
     await afterAct(); }
 
   // ---------- 画：地图上的妖王、战斗里的名牌 / 警示 / 法宝钮、横幅 ----------
-  const ART = {}; const art = (n, dir = 'r372') => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = dir + '/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
+  const ART = {}; const art = (n, dir = 'r372') => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = dir + '/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   window.R370_ART = art;
   let BAN = null; const banner = t => { BAN = { t, t0: performance.now() }; };
   // 地图上的妖王本体：有即梦序列帧的（猪王、狼将、妖豹、蛛后）直接放待机那几帧；别的走原来的立绘 / 骨骼。图没到就先只画红光和名牌，不画占位人形
