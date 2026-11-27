@@ -401,7 +401,7 @@
 (function () {
   const MAP = 'qingzhu_upper_pavilion'; if (typeof TMAPS === 'undefined' || !TMAPS[MAP] || !TMAPS[MAP].baked || !window.R394 || typeof IMG === 'undefined') return;
   const M = TMAPS[MAP], B = M.baked, F = () => (S.flags = S.flags || {});
-  const CW = 660, CH = 460, K = 383 / CW, GX = 420, GY = 640, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
+  const CW = 660, CH = 460, K = 383 / CW, GX = -300, GY = 560, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
   const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [-200, 548], SMITH = '铸剑师';   // 11-27 夜作者：铸剑师站在亭前的路口老挡路；11-28 作者：「铸剑师挪到潭水旁边，点铸剑师进入副本」——站到后庭潭边、竹钓台东边的草地上，万妖塔从他这里进
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const IMS = [], load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; IMS.push(im); };
