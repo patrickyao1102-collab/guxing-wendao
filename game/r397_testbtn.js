@@ -24,5 +24,12 @@
   mk('直接打铁鳞穿山甲', () => { duo(11); if (!world.map) go('tj_luoxing'); ready(); setTimeout(() => R370_FIGHT('chuanshanjia'), 300); });
   }
   mk('去锦云坊（新内景）', () => go('xt_chengyi')); mk('去裁月记（新内景）', () => go('xt_caifeng')); mk('去点绛铺（新内景）', () => go('xt_yanzhi'));
+  // R402 新商店：直接开几家店看；切回旧的青瓷窗柜比着看
+  const shopOf = name => { for (const k in TMAPS) for (const n of (TMAPS[k].npcs || [])) if (n && n.shop && n.name === name) return n.shop; return null; };
+  const openS = (ids, who) => { if (!world.map) go('tj_luoxing'); ready(); setTimeout(async () => { window.__r336ShopOk = 1; try { await openShop(ids, who); } finally { window.__r336ShopOk = 0; } }, 300); };
+  mk('开店：玄兵阁（新商店界面）', () => { S.hero.gold = Math.max(S.hero.gold || 0, 2000); openS(R370_STOCK.xuanbing, '玄兵阁掌柜'); });
+  mk('开店：丹霞堂', () => { S.hero.gold = Math.max(S.hero.gold || 0, 2000); openS(shopOf('丹霞堂伙计') || ['p_small', 'p_big', 'p_mp'], '丹霞堂伙计'); });
+  mk('开店：锦云坊', () => { S.hero.gold = Math.max(S.hero.gold || 0, 2000); openS(R370_STOCK.chengyi, '云娘'); });
+  mk('商店界面：新版 ↔ 旧版（青瓷窗柜）', () => { const f = F(); f.r402_old = f.r402_old ? 0 : 1; toast(f.r402_old ? '商店换回旧版（青瓷窗柜）' : '商店用新版', 2000); });
   const put = () => { if (!pan.contains(row)) pan.prepend(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true });
 })();

@@ -99,6 +99,7 @@
   const prev = openShop;
   openShop = async function (ids, who) {
     ids = (ids || []).filter(id => ITEM_DB[id]); if (!ids.length) return;
+    try { if (window.R402_SHOP && R402_SHOP.on()) return await R402_SHOP.open(ids, who); } catch (e) { console.warn('R402 shop', e); }   // 作者 11-27：换成像商店的商店（r402_shop.js，只在测试版里有）；出了岔子就还走下面旧的
     if (!ok()) return prev.apply(this, arguments);
     const dec = window.R178_SHOP_DECOR ? R178_SHOP_DECOR(who || '') : null;   // R178：每家店的镇店之物 + 店名招牌
     const cfg = dec ? Object.assign({}, cfgOf(who || ''), { keeper: dec.keeper }) : cfgOf(who || ''); if (cfg.keeper) keeper(cfg.keeper);
