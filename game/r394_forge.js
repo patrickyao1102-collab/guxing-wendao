@@ -9,7 +9,7 @@
   const K = window.R386_KIT, G = window.GEAR5, J = window.WXJ; if (!K || !G || !J || !window.WX5 || typeof cv === 'undefined') return;
   const { KIT, D, T, C, BR, KAI, NUM, fit: fitW, wrap, kitLoad, kitReady, inR } = K, WX = WX5.WX, ORDER = WX5.ORDER;
   const F = () => (S.flags = S.flags || {});
-  const SMITH = '铸剑师';   // 名字等作者定
+  const SMITH = '铸剑师';
   // 价钱：[精, 灵石]
   const COST = { 1: { weapon: [4, 180], armor: [3, 150], shoe: [2, 100] }, 2: { weapon: [8, 900], armor: [6, 700], shoe: [4, 500] } }, RUNE = [6, 300];
   const SLOTN = { weapon: '剑', armor: '衣甲', shoe: '靴' }, STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' };
@@ -62,7 +62,7 @@
 
   function tapGear(tp, tier) { const g = grid(tier); for (let i = 0; i < g.length; i++) for (let j = 0; j < 3; j++) { const id = g[i].parts[j]; if (id && inR(tp, cellR(i, j))) { UI.sel = id; UI.arm = null; UI.say = ''; snd('ui_click'); return; } }
     const id = UI.sel && ITEM_DB[UI.sel] ? UI.sel : null; if (!id || !inR(tp, BTN) || ELSE[id]) return; const it = ITEM_DB[id], el = WX5.GEAR[id], [q, gold] = COST[tier][it.slot];
-    if (!tierOpen(tier)) { speak('这块料老夫的炉子烧得动，你的修为还压不住。凝了丹再来。'); snd('ui_cancel'); return; }
+    if (!tierOpen(tier)) { speak('这块料我的炉子烧得动，你的修为还压不住。凝了丹再来。'); snd('ui_cancel'); return; }
     if (J.count(el) < q) { speak(WX[el].n + '精不够。' + WX[el].n + '性的妖兽身上凝得出来，去打。'); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < gold) { speak('炭火钱不够。'); snd('ui_cancel'); return; }
     if (!armed(id)) { UI.arm = { k: id, t: performance.now() }; snd('ui_click'); return; }
     UI.arm = null; S.hero.bag[J.ID(el)] -= q; if (S.hero.bag[J.ID(el)] <= 0) delete S.hero.bag[J.ID(el)]; S.hero.gold -= gold; addItem(id, 1); F().forged = (F().forged || 0) + 1; snd('ui_confirm'); try { playSnd('jingle_levelup', .5); } catch (e) {}
@@ -72,7 +72,7 @@
       if (!has) { speak('星痕剑？没见着。等你拿到了再来。'); snd('ui_cancel'); return; } if (J.count(el) < RUNE[0]) { speak(WX[el].n + '精不够，要 ' + RUNE[0] + ' 枚。'); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < RUNE[1]) { speak('炭火钱不够。'); snd('ui_cancel'); return; }
       if (!armed(k)) { UI.arm = { k, t: performance.now() }; snd('ui_click'); return; }
       UI.arm = null; S.hero.bag[J.ID(el)] -= RUNE[0]; if (S.hero.bag[J.ID(el)] <= 0) delete S.hero.bag[J.ID(el)]; S.hero.gold -= RUNE[1]; o.own[el] = 1; o.cur = el; snd('ui_confirm'); try { playSnd('jingle_levelup', .6); } catch (e) {}
-      speak(WX[el].n + '纹亮了。这剑认主，老夫只是替它添了把火。'); return; } }
+      speak(WX[el].n + '纹亮了。这剑认主，我只是替它添了把火。'); return; } }
 
   function draw() { if (!UI.open) return; kitLoad(); const now = performance.now(), a = Math.min(1, (now - UI.t0) / 180);
     ctx.save(); ctx.fillStyle = `rgba(5,13,19,${.9 * a})`; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = a;
@@ -94,10 +94,47 @@
     if (forged && !F().forge_tip && window.SAY_LATER) { F().forge_tip = 1; SAY_LATER(async () => { await say('星旋', '新打的东西在行囊里。点左上角的头像，看看穿在谁身上合适——各人灵根不同，合的十成，不合的八折。'); }); } }
   try { cv.addEventListener('pointerdown', e => { if (!UI.open) return; e.stopImmediatePropagation(); e.preventDefault(); UI.taps.push(toLogical(e)); try { input.tapped = null; } catch (e2) {} }, true); } catch (e) {}
 
-  // 和铸剑师说话：头一回交代两句，再开炉
+  // 和铸剑师说话：头一回交代两句；之后问要打造还是强化（强化是原来就有的那一套：狼牙、兽皮 + 灵石，最高 +5）
   async function talk() { const f = F();
-    if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '老夫只管这座炉子。带五行之精来，剑、甲、靴都能打——精是什么性，打出来就是什么性。'); await say('星旋', '听见没有？想要哪一行的兵器，就去打哪一行的妖兽。'); }
-    else await say(SMITH, ['料带来了？', '炉子烧着呢。', '要打什么，自己看。'][Math.floor(Math.random() * 3)]);
-    await open(); }
+    if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就守着这座炉子。带五行之精来，剑、甲、靴都能打——精是什么性，打出来就是什么性。'); await say('星旋', '听见没有？想要哪一行的兵器，就去打哪一行的妖兽。'); }
+    const opts = ['打造装备 · 点星纹', '强化装备', '离开'], c = await choose(SMITH, opts);
+    if (c === 0) await open(); else if (c === 1) { await say(SMITH, '剑要常磨。把家伙拿来，我给你淬一淬。'); try { if (window.REFINE_UI) await REFINE_UI(SMITH); } catch (e) { console.warn('R394 refine', e); } } }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, COST, RUNE };
+})();
+
+// ================= 剑炉和铸剑师摆进云海大亭（Codex R389 的画）=================
+// 位置照 Codex 的概念图：亭子西边的石板地上，青铜三足炉靠后，剑架在右后，淬火石槽在左前，铁砧在前，铸剑师站在砧右。
+// 作者 11-27 08:30：「把铸剑师搬到青竹小院后面的云海大亭，旁边弄一个炉子」——所以人还是原来那位铸剑师，只是换了地方。
+(function () {
+  const MAP = 'qingzhu_upper_pavilion'; if (typeof TMAPS === 'undefined' || !TMAPS[MAP] || !TMAPS[MAP].baked || !window.R394 || typeof IMG === 'undefined') return;
+  const M = TMAPS[MAP], B = M.baked, F = () => (S.flags = S.flags || {});
+  const CW = 660, CH = 460, K = 383 / CW, GX = 420, GY = 640, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
+  const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [762, 902], SMITH = '铸剑师';
+  const P = (x, y) => [x / 64 - .5, y / 64 - .8];
+  const load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; };
+  load('r394_forge', 'r394/forge.webp?v=1'); load('r394_fire', 'r394/fire.webp?v=1');
+  // 画：整组一张，按铁砧脚下那条线排前后；炉口的火四帧来回，上面叠一团暖光
+  if (!B.objs.some(o => o.id === 'r394_forge')) B.objs.push({ id: 'r394_forge', uid: 'r394_forge', img: 'r394_forge', x: GX, y: GY, w: GW, h: GH, sy: SY, ax: GX + GW / 2, ay: SY, flat: false, flip: false, noBlock: true, noPre: true });
+  drawBaked = (orig => function (o, now) { if (!o || o.id !== 'r394_forge') return orig.apply(this, arguments);
+    const im = IMG.r394_forge; if (!im) return; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, o.x, o.y, o.w, o.h);
+    const fi = IMG.r394_fire; if (fi) { const f = Math.floor(performance.now() / FIRE.ms) % FIRE.n; ctx.drawImage(fi, f * FIRE.w, 0, FIRE.w, FIRE.h, o.x + FIRE.x * K, o.y + FIRE.y * K, FIRE.w * K, FIRE.h * K); }
+    const cx = o.x + (FIRE.x + FIRE.w / 2) * K, cy = o.y + (FIRE.y + FIRE.h * .7) * K, k = .5 + .5 * Math.sin(now * 5.3) * Math.sin(now * 2.1); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 86); g.addColorStop(0, `rgba(255,190,90,${.3 + .12 * k})`); g.addColorStop(1, 'rgba(255,170,60,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 86, 0, 7); ctx.fill();
+    for (let i = 0; i < 6; i++) { const life = 1.5 + i * .19, t = ((now + i * .43) % life) / life, x = cx + Math.sin(i * 2.3 + now * .7) * 26 * (1 - t * .4), y = cy - 6 - t * 70, a = Math.sin(t * Math.PI) * .85; ctx.fillStyle = `rgba(255,${200 - i * 12},110,${a})`; ctx.beginPath(); ctx.arc(x, y, 1.3 + (i % 2) * .7, 0, 7); ctx.fill(); }   // 火星
+    ctx.restore(); })(drawBaked);
+  // 挡路：炉脚、剑架底座、石槽、砧墩各挡脚下一块（图上的像素 → 地图格子）
+  const RECTS = [[130, 318, 405, 412], [445, 345, 630, 400], [38, 392, 266, 446], [42, 344, 84, 400], [356, 408, 514, 446]];
+  function block() { if (B._r394 === B.blocked) return; const cs = B.cs, cols = B.cols, rows = B.rows, b = B.blocked.split('');
+    for (const [x0, y0, x1, y1] of RECTS) for (let r = Math.floor((GY + y0 * K) / cs); r <= Math.floor((GY + y1 * K) / cs); r++) for (let c = Math.floor((GX + x0 * K) / cs); c <= Math.floor((GX + x1 * K) / cs); c++) if (c >= 0 && r >= 0 && c < cols && r < rows) b[r * cols + c] = '1';
+    B.blocked = b.join(''); B._r394 = B.blocked; try { if (window.R283 && R283.done) R283.done[MAP] = B.blocked; } catch (e) {} }
+  tileSetMap = (orig => function (m) { if (m === MAP) { try { if (window.R283) R283.apply(MAP); block(); } catch (e) { console.warn('R394 block', e); } } return orig.apply(this, arguments); })(tileSetMap);
+  // 铸剑师：就是原来站在演武广场上的那一位（Codex R156 的造型，提锤御剑）——照作者说的，把他搬到云海大亭的剑炉旁。广场上不再站人。
+  try { const TF = TMAPS.tj_front; if (TF && Array.isArray(TF.npcs)) TF.npcs = TF.npcs.filter(n => n.name !== SMITH); } catch (e) {}
+  M.npcs = M.npcs || []; if (!M.npcs.some(n => n.forge)) { const [c, r] = P(NPC_AT[0], NPC_AT[1]); M.npcs.push({ key: 'c_a2', cx: 'spirit_swordsmith', c, r, wander: false, face: 'down', name: SMITH, forge: 1, talk: () => R394.talk() }); }
+  // 点他：走这里的菜单（打造 / 强化），不走原来只有「强化装备」的那一层
+  if (typeof doInteract === 'function') doInteract = (orig => async function (h) { if (!(h && h.type === 'npc' && h.a && h.a.npc && h.a.npc.forge)) return orig.apply(this, arguments);
+    world.locked = true; try { await R394.talk(); } catch (e) { console.warn('R394 talk', e); } finally { world.locked = false; } })(doInteract);
+  // 玉佩里多一桩事迹：开炉
+  try { const R = window.R386; if (R && Array.isArray(R.TASKS) && !R.TASKS.some(t => t.id === 'lq1')) { const i = R.TASKS.findIndex(t => t.id === 'x4');
+      R.TASKS.splice(i < 0 ? R.TASKS.length : i, 0, { id: 'lq1', cat: '修行', name: '开炉', desc: '带五行之精去云海大亭的剑炉，打一件装备', n: () => [Math.min(1, F().forged || 0), 1], pts: 30, show: () => !!(F().forged || F().wxj_said), quip: '自己攒料、自己开炉，这才像个修士。往后缺什么性的兵器，就去打什么性的妖。' }); } } catch (e) {}
+  window.R394.place = { GX, GY, GW, GH, SY, NPC_AT };
 })();

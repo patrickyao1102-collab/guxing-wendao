@@ -8,7 +8,8 @@
   mk('去落星坡（没剑的话先给寒星剑）', () => { F().hs_explored = 1; F().hs_chest = 1; sword(); go('tj_luoxing'); });
   mk('去后山崖顶东口（看去落星坡的传送阵）', () => { F().hs_explored = 1; F().hs_chest = 1; sword(); tileSetMap('tj_houshan', 1470 / 64 - .5, 990 / 64 - .8, 'right'); ready(); });
   mk('打开装备面板（平时点左上角头像）', () => { if (!world.map) go('tj_luoxing'); setTimeout(() => R389.open('hero'), 300); });
-  mk('打开剑炉（铸剑师的画到了再摆进云海大亭）', () => { if (!world.map) go('tj_luoxing'); setTimeout(() => R394.open(), 300); });
+  mk('去云海大亭找铸剑师（剑炉）', () => { const [c, r] = [700 / 64 - .5, 1010 / 64 - .8]; tileSetMap('qingzhu_upper_pavilion', c, r, 'up'); ready(); });
+  mk('直接打开剑炉', () => { if (!world.map) go('tj_luoxing'); setTimeout(() => R394.open(), 300); });
   mk('五行之精各 8 枚 + 2000 灵石（试炉用）', () => { for (const el of WX5.ORDER) addItem('m_wx_' + el, 8); S.hero.gold = (S.hero.gold || 0) + 2000; toast('五行之精和灵石到手', 1800); });
   mk('打开玉佩（任务 / 宝库）', () => { if (!world.map) go('tj_luoxing'); F().xlw_seen = 1; setTimeout(() => R386.open(), 300); });
   mk('星辰点 +200（试宝库用）', () => { S.hero.points = (S.hero.points || 0) + 200; toast('星辰点 ' + S.hero.points, 1600); });
