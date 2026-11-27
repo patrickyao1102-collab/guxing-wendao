@@ -184,5 +184,5 @@
       for (const z of ZS) { const b = document.createElement('button'); b.textContent = '进一层' + ZNAME[z]; b.onclick = () => { try { const pnl = document.getElementById('dbgPanel'); if (pnl) pnl.style.display = 'none'; } catch (e) {} goZone(z); }; row2.appendChild(b); }
       p.appendChild(h); p.appendChild(row1); p.appendChild(row2); mark(); };
     if (document.getElementById('dbgPanel')) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
-  window.R443 = { PADS, START, setVer, goZone, tp, ver: () => V, FX, MUST, buildAll, curZ };
+  window.R443 = { PADS, START, setVer, goZone, tp, ver: () => V, FX, MUST, buildAll, curZ, STEP };
 })();
