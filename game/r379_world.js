@@ -88,19 +88,24 @@
       if (!town && out.length >= 3 && ents.length) { let best = null, bd = -1; for (const p of out) { const d = Math.min(...ents.map(e => Math.hypot(e[0] - p.x, e[1] - p.y))); if (d > bd) { bd = d; best = p; } } if (best) best.kind = 'relic'; }
     } catch (e) { console.warn('R379 gen', e); }
     return out; }
-  const taken = (name, p) => !!F()['pk_' + name + '_' + p.i];
+  // 11-27 夜（作者 21:02「鼓励他们平时多去收集材料……摸一摸、探索一下，可能都会掉落一些材料」）：灵光点不再是一次性的——摸过以后过一阵（现实里二十分钟）又会亮。
+  //   「遗落之物」还是只有一回。记的是摸的时刻；老存档里记的是 1，当作很久以前摸的，进图就又亮了。
+  const REGROW = 20 * 60 * 1000;
+  const taken = (name, p) => { const v = F()['pk_' + name + '_' + p.i]; if (!v) return false; if (p.kind === 'relic') return true; return Date.now() - v < REGROW; };
   window.R379_COUNT = name => { const a = gen(name); return [a.filter(p => taken(name, p)).length, a.length]; };
-  function rewardOf(name, p) { const lv = (S.hero && S.hero.lv) || 1, R = rng(hash(name + p.i + 'rw'));
+  function rewardOf(name, p) { const lv = (S.hero && S.hero.lv) || 1, R = rng(hash(name + p.i + 'rw')), R2 = Math.random;   // 会再长出来以后，每回摸到的不一样（R2）；遗落之物、城里的东西照旧按点位定
     if (p.kind === 'relic') return RELIC[name] || [['p_big', 1]];
     if (p.kind === 'coin') { const r0 = R(); return r0 < .6 ? [['gold', 12 + Math.floor(R() * 24)]] : r0 < .85 ? [['p_small', 1]] : [['x_xingshen', 1]]; }
     if (p.kind === 'ore') {   // 11-27：灵矿多半出五行之精——这张图上的妖兽是哪几行，矿里就凝哪几行的精
-      try { const els = [...new Set(((TMAPS[name].mobs || {}).types || []).map(t => window.WX5 && WX5.ENEMY[(MOB_DB[t] || {}).key]).filter(Boolean))]; if (els.length && window.WXJ && R() < .65) return [[WXJ.ID(els[Math.floor(R() * els.length)]), 1]]; } catch (e) {}
-      return [['gold', 30 + lv * 5 + Math.floor(R() * 30)]]; }
-    const mats = []; try { for (const t of TMAPS[name].mobs.types) for (const [id] of (typeof DROPS !== 'undefined' && DROPS[(MOB_DB[t] || {}).key]) || []) if (ITEM_DB[id] && ITEM_DB[id].mat && !mats.includes(id)) mats.push(id); } catch (e) {}
+      try { const els = [...new Set(((TMAPS[name].mobs || {}).types || []).map(t => window.WX5 && WX5.ENEMY[(MOB_DB[t] || {}).key]).filter(Boolean))]; if (els.length && window.WXJ && R2() < .45) return [[WXJ.ID(els[Math.floor(R2() * els.length)]), 1]]; } catch (e) {}
+      const wm = mapMats(name).filter(id => window.CRAFT && CRAFT.MAT[id] && CRAFT.MAT[id].c === 'W'); if (wm.length && R2() < .6) return [[wm[Math.floor(R2() * wm.length)], 1]];   // 11-27 夜：矿里也敲得出兵饰料（这张图上妖物掉的那几样）
+      return [['gold', 30 + lv * 5 + Math.floor(R2() * 30)]]; }
+    const mats = mapMats(name);
     for (const id of ['m_shetui', 'm_yugu']) if (ITEM_DB[id] && !mats.includes(id)) mats.push(id);   // 11-27 傍晚：溪边草丛里的青蛇蜕、银鱼骨（练气档的水性料，妖物身上没有）
-    const r = R(); return r < .4 ? [['p_small', 1]] : r < .62 ? [['p_mp', 1]] : mats.length && r < .86 ? [[mats[Math.floor(R() * mats.length)], 1]] : [['x_xingshen', 1]]; }
+    const r = R2(); return r < .22 ? [['p_small', 1]] : r < .34 ? [['p_mp', 1]] : mats.length && r < .86 ? [[mats[Math.floor(R2() * mats.length)], 1]] : [['x_xingshen', 1]]; }   // 11-27 夜：灵草丛里多半摸得到料（原来四成丹药、两成多料）
+  function mapMats(name) { const mats = []; try { for (const t of TMAPS[name].mobs.types) for (const [id] of (typeof DROPS !== 'undefined' && DROPS[(MOB_DB[t] || {}).key]) || []) if (ITEM_DB[id] && ITEM_DB[id].mat && !mats.includes(id)) mats.push(id); } catch (e) {} return mats; }
   const POP = [];
-  function pick(name, p) { F()['pk_' + name + '_' + p.i] = 1; const got = [];
+  function pick(name, p) { F()['pk_' + name + '_' + p.i] = p.kind === 'relic' ? 1 : Date.now(); const got = [];
     for (const [id, n] of rewardOf(name, p)) { if (id === 'gold') { S.hero.gold += n; got.push('灵石 ' + n); } else if (ITEM_DB[id]) { addItem(id, n); got.push(ITEM_DB[id].name + (n > 1 ? ' ×' + n : '')); } }
     try { playSnd(p.kind === 'relic' ? 'jingle_win' : 'ui_confirm', p.kind === 'relic' ? .5 : .8); } catch (e) {}
     POP.push({ x: p.x, y: p.y, t0: performance.now() / 1000, text: got.join('、'), c: KINDS[p.kind].c, big: p.kind === 'relic' });

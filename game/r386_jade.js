@@ -6,7 +6,7 @@
 //   · 地图右下角多一枚「玉佩」钮（开场借力那一仗打完就有；有事可做时亮红点）。
 //   · 任务：星旋发的事迹（斩妖 / 探索 / 修行），都是一次性的——做成了来领星辰点，星旋损你一句。
 //   · 宝库：按境界分层。买得起的、买不起的都摆着——让人知道攒点数是为了什么、练到凝丹能换到什么。
-//   · 幻境：星旋在玉佩里开的试炼（以后另一个文件接进来；没接之前这一页不显示）。
+//   · 试炼：星旋在玉佩里开的九曜试炼（r411_trial.js 接进来；没接之前这一页不显示）。
 // 界面用作者选定的行囊「玄青星图」那套件（Codex R206 A 拆件，r209/），字由代码写，和行囊是一家。
 // 星辰点就是原来的 S.hero.points：剧情里的加减照旧（它们本来就带兜底，不会因为玩家把点数花了而卡住）。
 (function () {
@@ -116,7 +116,7 @@
   const QUIPS = ['有事说事。本神仙很忙的。', '盯着本神仙看什么？任务做了吗。', '点数是拿来花的，攒着又不下崽。', '想变强？榜上的事迹挨个做，别挑三拣四。', '宝库里的东西都是好东西——就看你够不够格。'];
   const speak = s => { UI.say = s; UI.sayT = performance.now(); };
   const P = { x: 124, y: 104, w: 1128, h: 596 }, LEFT = { x: 148, y: 128, w: 252, h: 548 }, BODY = { x: 418, y: 128, w: 812, h: 548 };
-  const TABS = window.R384_OPEN ? ['任务', '宝库', '幻境'] : ['任务', '宝库'], tabR = i => ({ x: 30, y: 124 + i * 114, w: 76, h: 104 }), CLOSE = { x: 1136, y: 30, w: 118, h: 46 };
+  const TABS_ = () => window.R384_OPEN ? ['任务', '宝库', '试炼'] : ['任务', '宝库'], tabR = i => ({ x: 30, y: 124 + i * 114, w: 76, h: 104 }), CLOSE = { x: 1136, y: 30, w: 118, h: 46 };
   const tabOn = i => i < 2 || !!window.R384_OPEN;
   let page = 0, cat = '全部', tier = 1, sel = null, arm = null, flash = null;
 
@@ -211,7 +211,7 @@
     if (!kitReady()) { T('玉佩微微发烫……', W / 2, H / 2, 22, C.gold2, KAI(), 500, 'center'); ctx.restore(); return; }
     D('curtain_9', 0, 0, W, H); if (KIT.skill_star_base) { ctx.save(); ctx.globalAlpha = a * .5; ctx.drawImage(KIT.skill_star_base, 300, 40, 900, 738); ctx.restore(); }
     ctx.font = `400 66px ${BR()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; textOutline('玉佩', 26, 62, C.gold2, 'rgba(6,16,24,.85)', 6);
-    TABS.forEach((t, i) => { const r = tabR(i), on = J().tab === i, ok = tabOn(i); ctx.save(); if (!ok) ctx.globalAlpha = a * .45; ctx.drawImage(on ? KIT.tab_s : KIT.tab_n, r.x, r.y, r.w, r.h); [...t].forEach((c, k) => T(c, r.x + r.w / 2, r.y + 36 + k * 32, 26, on ? '#2a2114' : C.gold2, BR(), 400, 'center'));
+    TABS_().forEach((t, i) => { const r = tabR(i), on = J().tab === i, ok = tabOn(i); ctx.save(); if (!ok) ctx.globalAlpha = a * .45; ctx.drawImage(on ? KIT.tab_s : KIT.tab_n, r.x, r.y, r.w, r.h); [...t].forEach((c, k) => T(c, r.x + r.w / 2, r.y + 36 + k * 32, 26, on ? '#2a2114' : C.gold2, BR(), 400, 'center'));
       const dot = i === 0 ? TASKS.some(tClaimable) : false; if (dot) { ctx.beginPath(); ctx.arc(r.x + r.w - 8, r.y + 10, 7, 0, 7); ctx.fillStyle = '#d9483a'; ctx.fill(); ctx.strokeStyle = '#fff2d0'; ctx.lineWidth = 1.5; ctx.stroke(); } ctx.restore(); });
     D('close_n', CLOSE.x, CLOSE.y, CLOSE.w, CLOSE.h); T('关　闭', CLOSE.x + CLOSE.w / 2, CLOSE.y + CLOSE.h / 2 + 1, 19, C.gold2, KAI(), 600, 'center');
     D('panel_main_9', P.x, P.y, P.w, P.h); drawLeft(now);
@@ -227,7 +227,7 @@
     // 开场那段戏的前提是「正版剑典要一百点，叶孤星只有十点，所以去藏经阁拿残本抵九成」。现在拿剑典之前也攒得到点数了，星旋把这笔账说一句，免得对不上
     try { if (!F().jiuyao_full && !F().res_fixed && !F().ch1_free && !F().ch2_roam && (S.hero.points || 0) >= 70 && !F().r386_jy) { F().r386_jy = 1; speak('点数攒起来了？别打歪主意——正版剑典一百点，拿残本来抵只收十点。省下的九十点够你在宝库换好几样。老老实实去藏经阁。'); } } catch (e) {}
     let res; try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) { if (closing) { res = closing; break; } continue; } if (!kitReady()) continue;
-        if (inR(tp, CLOSE)) break; let hitTab = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hitTab = true; if (!tabOn(i)) { speak('幻境还没开。等本神仙收拾好了叫你。'); snd('ui_click'); } else if (J().tab !== i) { J().tab = i; sel = null; arm = null; page = 0; snd('ui_click'); } } if (hitTab) continue;
+        if (inR(tp, CLOSE)) break; let hitTab = false; for (let i = 0; i < TABS_().length; i++) if (inR(tp, tabR(i))) { hitTab = true; if (!tabOn(i)) { speak('试炼还没开。等本神仙收拾好了叫你。'); snd('ui_click'); } else if (J().tab !== i) { J().tab = i; sel = null; arm = null; page = 0; snd('ui_click'); } } if (hitTab) continue;
         const tab2 = J().tab; if (tab2 === 0) tapTasks(tp); else if (tab2 === 1) tapShop(tp); else if (tab2 === 2 && window.R384_TAP) { const r = R384_TAP(tp, BODY, { speak, snd }); if (r) { res = r; break; } } } }
     finally { UI.open = false; closing = null; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} snd('ui_click'); if (UI.heldToast) { const t = UI.heldToast; UI.heldToast = null; try { if (!/^(晌午|清晨|黄昏|入夜|午时|子时|天亮|夜深)/.test(t.text || '')) toast(t.text, t.ms); } catch (e) {} } }
     return res; }

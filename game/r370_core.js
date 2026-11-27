@@ -192,6 +192,7 @@
   window.R370_MAKE = makeYW;
   // 破绽：妖王力竭时受到的伤害 +50%
   dmgCalc = (orig => function (att, def, mult = 1, critRate) { try { if (def && def._yw && def._break > 0 && att && att.side !== 'enemy') mult *= 1.5; } catch (e) {} return orig.call(this, att, def, mult, critRate); })(dmgCalc);
+  window.R370_MAKE = makeYW;   // R411 九曜试炼照着妖王捏「星影」用
   // 妖王战里登记一下，方便画名牌；小怪出场的尺寸沿用 battle_scale
   let FIGHT = null;
   async function fight(y) {
