@@ -11,17 +11,19 @@ def r420b(P):
     out['over_rows'] = [{'row': o['row'], 'file': o['file'], 'x': o['x'], 'y': o['y']} for o in P['overlays']]
     objs = []; mech_of = {}
     for o in P['objects']:
-        if len(o['states']) > 1 and o['id'].split('_')[0] in ('lamp', 'winch'): mech_of[o.get('group') or o['id']] = o['id']
+        if len(o.get('states') or {}) > 1 and o['id'].split('_')[0] in ('lamp', 'winch'): mech_of[o.get('group') or o['id']] = o['id']
     for o in P['objects']:
         e = {'name': o['id'], 'x': o['bottom_center'][0], 'y': o['bottom_center'][1]}
-        st = o['states']
-        if len(st) == 1: e['asset'] = list(st.values())[0]
+        st = o.get('states') or {}
+        if o.get('frames'): e['frames'] = o['frames']; e['frame_ms'] = o.get('frame_ms', 160)
+        elif len(st) == 1: e['asset'] = list(st.values())[0]
         else:
             e['states'] = st; e['initial'] = o.get('default_state')
             if o['id'] == 'gate': e['opens_when'] = 'all'
             elif o['id'].startswith('chain'): e['follows'] = mech_of.get(o.get('group'))
             if o['id'].startswith('lamp'): e['initial'] = 'off'
         if o['id'] in ('flower_tree', 'gatehouse'): e['foreground'] = 1
+        if o.get('blocks_px'): e['blocks'] = o['blocks_px']
         objs.append(e)
     out['objects'] = objs
     cen = lambda c, r: [int((c + .5) * TS), int((r + .5) * TS)]
@@ -64,7 +66,7 @@ for lname, n in LAYERS.items():
         im.save(os.path.join(od, name + '.webp'), 'WEBP', quality=90, method=6, alpha_quality=90); assets[rel] = [name, im.width, im.height]; return assets[rel]
     objs = []
     for o in P['objects']:
-        e = {k: o[k] for k in ('name', 'x', 'y', 'layer', 'motion', 'max_offset_px', 'frame_ms', 'foreground') if k in o}
+        e = {k: o[k] for k in ('name', 'x', 'y', 'layer', 'motion', 'max_offset_px', 'frame_ms', 'foreground', 'blocks') if k in o}
         if 'grid' in o: e['grid'] = o['grid']
         if 'asset' in o: e['img'] = put(o['asset'])
         if 'states' in o: e['states'] = {k: put(v) for k, v in o['states'].items()}; e['initial'] = o.get('initial')

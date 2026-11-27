@@ -31,7 +31,7 @@
       meet: [['', '（城楼垛口前，银甲白发的将军拄着一杆断戟，背对二人。）'], ['玄锋', '（头也不回）回去。'], ['叶孤星', '我们是来闯塔的。'], ['玄锋', '关外的东西，一个也不许进来。'], ['叶孤星', '关外……早就没有妖潮了。已经过去三百年了。'], ['玄锋', '（缓缓转过身，金色竖瞳里没有半点温度）那你们，便是关外来的。']],
       boss: '玄锋', pic: 'r415/baihu_f1_pic.webp?v=1', picH: 220, chest: [[['q_jing', 2], ['g_jin2', 1]], [['juan4', 1], ['q_jing', 1]]], chestTxt: '（雪堆里半埋着一口军中的铁皮箱，锁早叫冻裂了。）', prize: [['q_yu', 1], ['g_jin2', 1], ['juan4', 1]] } };
   // ---------- 图 ----------
-  const MECH = n => META['f' + n].objs.filter(o => o.states && !o.opens_when && !o.follows);
+  const MECH = n => META['f' + n].objs.filter(o => o.states && !o.opens_when && !o.follows && /^(lamp|winch)/.test(o.name));
   const GATE = n => META['f' + n].objs.find(o => o.opens_when);
   const key = (n, name) => 'r424_f' + n + '_' + name;
   const want = {}, got = {};
@@ -46,6 +46,7 @@
     const bl = new Array(cols * rows).fill('0'); const blk = (x0, y0, x1, y1) => { for (let r = Math.floor(y0 / CS); r <= Math.floor((y1 - 1) / CS); r++) for (let c = Math.floor(x0 / CS); c <= Math.floor((x1 - 1) / CS); c++) if (r >= 0 && c >= 0 && r < rows && c < cols) bl[r * cols + c] = '1'; };
     g.forEach((row, R) => [...row].forEach((ch, C) => { if (ch === '#') blk(C * ts, R * ts, (C + 1) * ts, (R + 1) * ts); }));
     for (const o of MECH(n)) blk(o.x - 34, o.y - 30, o.x + 34, o.y + 4);
+    for (const o of M.objs) if (o.blocks) blk(...o.blocks);
     const dais = M.objs.find(o => o.name === 'boss_dais'); if (dais) blk(dais.x - dais.img[1] / 2 + 20, dais.y - dais.img[2] + 20, dais.x + dais.img[1] / 2 - 20, dais.y - 50);
     for (const o of M.objs) if (/stele|halberd|tree|gatehouse/.test(o.name) && o.img) blk(o.x - o.img[1] * .3, o.y - 24, o.x + o.img[1] * .3, o.y + 2);
     const objs = [];
@@ -71,6 +72,7 @@
   function applyGate(n) { try { if (world.mapName !== 'wyt_f' + n) return; const T = world.map.T, gc = gateCells(n); if (!gc) return; const [c0, r0, k] = gc, v = ST(n).gate ? 0 : 1; for (let r = r0; r < r0 + k; r++) for (let c = c0; c < c0 + k; c++) if (T.block[r]) T.block[r][c] = v; } catch (e) {} }
   tileSetMap = (orig => function (m) { const mm = /^wyt_f(\d)$/.exec(m || ''); if (mm) loadAll(+mm[1]); const res = orig.apply(this, arguments); if (mm) { applyGate(+mm[1]); STEP.d = 0; STEP.next = 700 + Math.random() * 500; } return res; })(tileSetMap);
   const stateOf = (n, o) => { const S2 = ST(n), ms = MECH(n), name = o.follows || o.name, i = ms.findIndex(x => x.name === name);
+    if (window.R427_STATE) { const s3 = R427_STATE(n, o); if (s3) return s3; }
     if (o.opens_when) return S2.gate ? 'open' : 'closed'; if (i >= 0) { const on = !!S2.mech[i]; return on ? (o.states.on ? 'on' : 'turned') : (o.states.off ? 'off' : 'idle'); } return o.initial; };
   drawBaked = (orig => function (o, now) { if (!o || (o.id !== 'r424_obj' && o.id !== 'r424_ov')) return orig.apply(this, arguments);
     if (o.id === 'r424_ov') return orig.apply(this, arguments);
@@ -97,7 +99,7 @@
       ctx.restore(); } catch (e) {} })(typeof tileAmbientHigh === 'function' ? tileAmbientHigh : null);
   // ---------- 互动 ----------
   const lines = async L => { for (const [who, text] of L) await say(who, text); };
-  async function mech(n, i) { const S2 = ST(n), X = TXT[n]; if (S2.mech[i]) { await narrate(X.mech + '已经' + X.mechVerb + '了。'); return; }
+  async function mech(n, i) { const S2 = ST(n), X = TXT[n]; if (!S2.mech[i] && window.R427_MECH) { try { if (await R427_MECH(n, MECH(n)[i])) return; } catch (e) { console.warn('R427 mech', e); } } if (S2.mech[i]) { await narrate(X.mech + '已经' + X.mechVerb + '了。'); return; }
     S2.mech[i] = 1; try { playSnd(n === 1 ? 'sfx_buff' : 'sfx_boom', .6); } catch (e) {} S.shake = n === 2 ? 8 : 0; const k = S2.mech.filter(Boolean).length;
     await narrate(X.mechLines[Math.min(k, 3) - 1]);
     if (k >= MECH(n).length && !S2.gate) { S2.gate = 1; applyGate(n); try { playSnd('sfx_charge', .6); } catch (e) {} S.shake = 10; toast((n === 1 ? '花墙' : '铁闸') + '开了', 1800); }
@@ -136,5 +138,5 @@
     if (!F().tw_told) { F().tw_told = 1; await say('铸剑师', '潭底下压着一座塔，九层，层层镇着上古的凶物。我守这潭，也守这道门。'); await say('铸剑师', '进去了，生死自理。打不过就往回跑——入口那块地方，它们不敢靠近。'); }
     const M = META['f' + n], E = M.entrance.center; await goMap('wyt_f' + n, ...P(E[0], E[1] - 70), 'up');
     if (!ST(n).seen) { ST(n).seen = 1; world.locked = true; try { await lines(TXT[n].intro); } finally { world.locked = false; } } }
-  TOWER.enter = enter; TOWER.MAZE = { ST, TXT, META, build };
+  TOWER.enter = enter; TOWER.MAZE = { ST, TXT, META, build, MECH, key, ld, lines, curN, P };
 })();
