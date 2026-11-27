@@ -14,7 +14,7 @@
   VSPRITE_ADD(key, '../r388/xingwolf', M.main, M.h, false, false);
   if (M.charge) VSPRITE_ADD(key + '_c', '../r388/xingwolf_charge', M.charge, M.h, false, false);
   if (M.break) VSPRITE_ADD(key + '_b', '../r388/xingwolf_break', M.break, M.h, false, false);
-  try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r388/xingwolf_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
+  try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r388/xingwolf_pic.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(pic); } catch (e) {} } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
   (window.VS_SCALE = window.VS_SCALE || {})[key] = K;
   y.vkey = key; y.vh = Math.round(M.bodyH * .92 * K); y.mh = Math.round(M.h * .56 * MAPK); y.bpos = [300, 632]; y.apos = [[572, 652], [668, 606], [455, 680]]; y.sslots = y.apos;
   try { const m = MOB_DB.wolf; if (m && typeof DROPS !== 'undefined' && DROPS[m.key] && !DROPS[key]) DROPS[key] = DROPS[m.key]; } catch (e) {}

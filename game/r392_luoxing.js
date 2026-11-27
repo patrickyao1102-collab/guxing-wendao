@@ -23,7 +23,8 @@
   const near = (x, y) => { if (free(x, y)) return [x, y]; for (let d = 6; d < 160; d += 6) for (let a = 0; a < 6.28; a += .4) { const nx = x + Math.cos(a) * d, ny = y + Math.sin(a) * d; if (free(nx, ny)) return [Math.round(nx), Math.round(ny)]; } return [x, y]; };
 
   // ---------- 图 ----------
-  const load = (k, s, cb) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; if (cb) cb(im); } catch (e) {} }; im.src = s; return im; };
+  const IMS = [];   // 开局阶段要的图会被 img_guard 排到队尾慢慢下；真进这张图时让它们插队（见最下面）
+  const load = (k, s, cb) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; if (cb) cb(im); } catch (e) {} }; im.src = s; IMS.push(im); return im; };
   load('r392g', 'r392/g.webp' + V); load('r392core', 'r392/core.webp' + V);
   const objs = D.occ.map(([x, y, w, h, sy, ax, ay], i) => ({ id: 'r392_occ', uid: 'r392_' + i, img: 'r392o_' + i, x, y, w, h, sy: Math.max(sy, y + h * .5), ax: x + w / 2, ay: sy, flat: false, flip: false, noBlock: true, noPre: true, _a: [ax, ay] }));
   load('r392occ', 'r392/occ.webp' + V, im => { for (const o of objs) { if (!o._a) continue; const c = document.createElement('canvas'); c.width = o.w; c.height = o.h; c.getContext('2d').drawImage(im, o._a[0], o._a[1], o.w, o.h, 0, 0, o.w, o.h); IMG[o.img] = c; } });
@@ -118,6 +119,8 @@
     if (!f.lx_xp_said && window.SAY_LATER) { f.lx_xp_said = 1; SAY_LATER(async () => { await say('星旋', '星屑。里头还剩一点星力，玉佩替你吸了——三点星辰点，蚊子腿也是肉。'); }); }
     if (n === XP.length && !f.lx_xp_all) { f.lx_xp_all = 1; setTimeout(() => { try { toast('落星坡的星屑拾尽了'); } catch (e) {} }, 900); } }
   window.R392 = { ID, D, XP, count: () => [XP.filter(q => xpTaken(q.i)).length, XP.length], near };
+  // 进落星坡（或者站到崖顶、马上可能要进）时：这张图的底图 / 遮挡 / 星核不排队，马上下
+  if (typeof tileSetMap === 'function') tileSetMap = (orig => function (name) { try { if ((name === ID || name === 'tj_houshan') && window.IMG_GUARD && IMG_GUARD.bump) for (const im of IMS) IMG_GUARD.bump(im); } catch (e) {} return orig.apply(this, arguments); })(tileSetMap);
   S.overlay.push({ draw() { try {
     if (S.scene !== drawMap || world.mapName !== ID || !world.player) { POP.length = 0; return; }
     const p = world.player, now = performance.now() / 1000;

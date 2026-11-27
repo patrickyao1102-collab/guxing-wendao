@@ -111,8 +111,10 @@
   const CW = 660, CH = 460, K = 383 / CW, GX = 420, GY = 640, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
   const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [762, 902], SMITH = '铸剑师';
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
-  const load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; };
+  const IMS = [], load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; IMS.push(im); };
   load('r394_forge', 'r394/forge.webp?v=1'); load('r394_fire', 'r394/fire.webp?v=1');
+  // 开局阶段要的图会被 img_guard 排到队尾；进云海大亭（或它隔壁的青竹小院、后山崖顶）时让剑炉这两张插队
+  if (typeof tileSetMap === 'function') tileSetMap = (orig => function (name) { try { if (/^(qingzhu_upper_pavilion|qingzhu_court|qingzhu_stairs|tj_houshan)$/.test(name) && window.IMG_GUARD && IMG_GUARD.bump) for (const im of IMS) IMG_GUARD.bump(im); } catch (e) {} return orig.apply(this, arguments); })(tileSetMap);
   // 画：整组一张，按铁砧脚下那条线排前后；炉口的火四帧来回，上面叠一团暖光
   if (!B.objs.some(o => o.id === 'r394_forge')) B.objs.push({ id: 'r394_forge', uid: 'r394_forge', img: 'r394_forge', x: GX, y: GY, w: GW, h: GH, sy: SY, ax: GX + GW / 2, ay: SY, flat: false, flip: false, noBlock: true, noPre: true });
   drawBaked = (orig => function (o, now) { if (!o || o.id !== 'r394_forge') return orig.apply(this, arguments);

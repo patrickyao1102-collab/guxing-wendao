@@ -30,7 +30,7 @@
   try { for (const y of window.R370_YW || []) { const el = (WX5.YW || {})[y.id]; if (!EL[el]) continue; y.extra = y.extra || []; if (!y.extra.includes(ID(el))) y.extra.push(ID(el), ID(el)); } } catch (e) {}
   // 图标：Codex R389 画的五枚（r389i/m_wx_*.webp）；画法同别的材料：深色圆底 + 一圈五行色的细边
   const RING = { jin: '#d8dde4', mu: '#6fc98a', shui: '#6fb6ee', huo: '#f08a4a', tu: '#d0a860' };
-  const IM = {}; const get = el => { let o = IM[el]; if (!o) { o = IM[el] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r389i/m_wx_' + el + '.webp?v=1'; } return o.ok ? o.im : null; };
+  const IM = {}; const get = el => { let o = IM[el]; if (!o) { o = IM[el] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r389i/m_wx_' + el + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id], im = it && it.wx && /^m_wx_/.test(id) && get(it.wx); if (!im) return orig.apply(this, arguments);
     ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)'); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = RING[it.wx] || '#9a8a70'; ctx.stroke();
     const s = r * 1.9; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s / 2, y - s / 2, s, s); ctx.restore(); })(itemIcon);

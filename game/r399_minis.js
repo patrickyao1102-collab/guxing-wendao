@@ -42,7 +42,7 @@
     if (M.charge) VSPRITE_ADD(key + '_c', '../r399/' + y.id + '_charge', M.charge, M.h, false, false);
     if (M.break) VSPRITE_ADD(key + '_b', '../r399/' + y.id + '_break', M.break, M.h, false, false);
     // 图鉴 / 图集还没载完时：先用一张小的立绘（用到才载）
-    try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r399/' + y.id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
+    try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r399/' + y.id + '_pic.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(pic); } catch (e) {} } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
     (window.VS_SCALE = window.VS_SCALE || {})[key] = K;
     // 战斗里身体高 bodyH × K；地图上身体高 mapBody（图集一格里身体只占一部分，给出手留了余量）
     const bodyInFrame = M.bodyH * 1.25 / M.main.fh;

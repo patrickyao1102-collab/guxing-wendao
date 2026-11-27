@@ -45,7 +45,7 @@
   const ST = () => { const f = F(); const s = f.xs || (f.xs = { wins: 0, kills: {}, ke: 0, hi: 0 }); if (!s.kills) s.kills = {}; return s; };
 
   // ---------- 徽记 / 字样（Codex R386 到了就用图，没到先用字）----------
-  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.onerror = () => { a.bad = true; }; a.im.src = 'r386/' + n + '.webp?v=1'; } return a.ok ? a.im : null; }
+  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.onerror = () => { a.bad = true; }; a.im.src = 'r386/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(a.im); } catch (e) {} } return a.ok ? a.im : null; }
   setTimeout(() => { for (const n of ['wx_jin', 'wx_mu', 'wx_shui', 'wx_huo', 'wx_tu', 'txt_ke', 'txt_sheng', 'mk_up', 'mk_down']) art(n); }, 9000);
   function emblem(el, x, y, r, a) { if (!el || !WX[el]) return; const im = art('wx_' + el); ctx.save(); if (a != null) ctx.globalAlpha *= a;
     if (im) ctx.drawImage(im, x - r, y - r, r * 2, r * 2);

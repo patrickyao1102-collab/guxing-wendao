@@ -29,7 +29,7 @@
   const NINE = { curtain_9: [32, 32, 32, 32], panel_main_9: [18, 18, 18, 18], panel_detail_9: [18, 18, 18, 18], panel_well_9: [14, 14, 14, 14], card_n_9: [18, 18, 18, 18], card_s_9: [18, 18, 18, 18], card_d_9: [18, 18, 18, 18], button_n: [24, 14, 24, 14], button_p: [24, 14, 24, 14], button_d: [24, 14, 24, 14],
     category_n: [14, 10, 14, 10], category_s: [14, 10, 14, 10], currency_bar_9: [24, 14, 24, 14], close_n: [20, 12, 20, 12], close_p: [20, 12, 20, 12], item_slot_n: [14, 14, 14, 14], item_slot_s: [14, 14, 14, 14], bar_track_9: [10, 6, 10, 6], bar_exp_9: [10, 6, 10, 6], divider_h_3: [8, 0, 8, 0], label_blank_9: [16, 9, 16, 9] };
   let kitStarted = 0, kitOk = 0;
-  function kitLoad() { const now = performance.now(); if (kitStarted && now - kitStarted < 12000) return; kitStarted = now; for (const n of NEED) { if (KIT[n]) continue; const im = new Image(); im.onload = () => { if (!KIT[n]) { KIT[n] = im; kitOk++; } }; im.src = 'r209/' + n + '.webp'; } }
+  function kitLoad() { const now = performance.now(); if (kitStarted && now - kitStarted < 12000) return; kitStarted = now; for (const n of NEED) { if (KIT[n]) continue; const im = new Image(); im.onload = () => { if (!KIT[n]) { KIT[n] = im; kitOk++; } }; im.src = 'r209/' + n + '.webp'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} } }
   const kitReady = () => kitOk >= NEED.length;
   function D(n, x, y, w, h) { const im = KIT[n]; if (!im) return; const e = NINE[n]; if (!e) { ctx.drawImage(im, x, y, w, h); return; }
     let [l, t, r, b] = e; const sw = im.width, sh = im.height, sl = l * 2, st2 = t * 2, sr = r * 2, sb = b * 2; if (l + r > w) { const k = w / (l + r); l *= k; r *= k; } if (t + b > h) { const k = h / (t + b); t *= k; b *= k; }
@@ -37,7 +37,7 @@
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const a = SX[i + 1] - SX[i], bb = SY[j + 1] - SY[j], c = DX[i + 1] - DX[i], d = DY[j + 1] - DY[j]; if (a > 0 && bb > 0 && c > 0 && d > 0) ctx.drawImage(im, SX[i], SY[j], a, bb, DX[i], DY[j], c, d); } }
   window.R386_KIT = { KIT, D, T, C, BR, KAI, NUM, fit, wrap, kitLoad, kitReady, inR };   // 今天别的面板（装备、剑炉）也用这一套件
   // Codex R383 的图标（到了就用）
-  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.src = 'r383/' + n + '.webp?v=1'; } return a.ok ? a.im : null; }
+  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.src = 'r383/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(a.im); } catch (e) {} } return a.ok ? a.im : null; }
   function icon(it, cx, cy, size) { if (it.wx) { const d = KIT.item_disc_n; if (d) ctx.drawImage(d, cx - size / 2, cy - size / 2, size, size); const r = size * .2; [['mu', -1, -1], ['shui', 1, -1], ['huo', -1, 1], ['tu', 1, 1]].forEach(([el, dx, dy]) => WX5.emblem(el, cx + dx * r * .98, cy + dy * r * .98, r * .9, WX5.XH().own[el] ? 1 : .38)); return; }
     const im = it.art && art(it.art); if (im) { ctx.drawImage(im, cx - size / 2, cy - size / 2, size, size); return; }
     try { const ic = it.item && window.R370_ICON && R370_ICON(it.item); if (ic) { ctx.drawImage(ic, cx - size / 2, cy - size / 2, size, size); return; } } catch (e) {}
@@ -238,7 +238,7 @@
   const unlocked = () => !!(F().xlw_seen || F().r386_intro || F().hs_explored);
   const hudOn = () => world.map && S.scene === drawMap && S.hud && !world.locked && !dialog && !choice && !sysPanel && !S.menu && !(typeof battle !== 'undefined' && battle) && !UI.open && unlocked();
   try { cv.addEventListener('pointerdown', e => { if (UI.open || !hudOn()) return; const p = toLogical(e); if (!inR(p, HB)) return; e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (e2) {} open(); }, true); } catch (e) {}
-  const JB = {}; const jbtn = n => { let o = JB[n]; if (!o) { o = JB[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r389i/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
+  const JB = {}; const jbtn = n => { let o = JB[n]; if (!o) { o = JB[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r389i/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   let lastN = -1, nudgeT = 0;
   function hud() { if (!hudOn()) return; kitLoad(); const now = performance.now(), cx = HB.x + 44, cy = HB.y + 40, nc = TASKS.filter(tClaimable).length, pu = .5 + .5 * Math.sin(now / 300);
     ctx.save();
