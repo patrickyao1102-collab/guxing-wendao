@@ -6,6 +6,8 @@
 // 入口：云海后庭淬剑潭边的铸剑师（r394：点他选「进万妖塔」）。塔下荒原（Codex R412）到了以后改成先到荒原、再从塔门选层。
 (function () {
   const META = window.R424_META; if (!META || !window.TOWER || typeof TMAPS === 'undefined' || typeof IMG === 'undefined') return;
+  // 作者 11-28 手机上玩：「地上的香炉、椅子不知道为什么放在那里」——一层这几样随手摆的小摆件先撤掉（一层整个在按 R436 / R439 重做）
+  try { if (META.f1) META.f1.objs = META.f1.objs.filter(o => !/^r424_(incense|table|fallen_screen)/.test(o.name)); } catch (e) {}
   const F = () => (S.flags = S.flags || {}), TS64 = 64, CS = 40, P = (x, y) => [x / TS64 - .5, y / TS64 - .8];
   const ST = n => { const t = F().tw || (F().tw = {}); return t['f' + n] || (t['f' + n] = { mech: [], relic: [], gate: 0, seen: 0, chest: 0 }); };
   const BACK = ['qingzhu_upper_pavilion', ...P(-200, 640)];   // 出塔回到铸剑师身边
