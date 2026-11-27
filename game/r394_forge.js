@@ -2,7 +2,8 @@
 // 作者 11-27 08:30：「炼器系统你单独详细的设置一个……铸剑师搬到青竹小院后面不有个云海大亭吗？旁边可以弄一个炉子。」
 // 作者 11-27 中午：照《秦殇前传：复活》那样做——「打造系统里面有强化、镶嵌、合成」「动画不要特别多」「要有合成那一下的特效，
 //   但不是放一个完整的合成动画，那样太拖时间」。合成的规矩（玩家看不到的那张表）在 r400_craft.js，这里只是界面：
-//   · 合成：左边是身上的材料，点一下放进阵盘的五个角；放满五样点「合成」，盘心出东西。不告诉玩家会出什么。
+//   · 合成：左边是身上的材料，点一下放上阵盘；五样围成一圈，放满点「合成」，盘心出东西。不告诉玩家会出什么。
+//           相邻两样相生，那条边亮绿，成色高；相克亮红，成色低（14:25 作者说不要「走火」）。材料自己带的副属性有机会留进成品（14:35：要靠运气）。
 //           右边是「合成秘籍」，只记各人的专属套装。
 //   · 强化：原来就有的那套（最高 +5，+4 七成、+5 五成，失败只损材料），换成带图标的界面；兵器饰品吃兵饰料，衣甲鞋吃防具料。
 //   · 镶嵌：五行灵珠镶到装备上（星痕剑不镶珠，它点星纹）。  · 精炼：把用不上的材料炼成五行之精。  · 星纹：上午做的，没动。
@@ -40,73 +41,94 @@
       const fr = Math.floor((now - f.t0) / 1000 * m.fps * .8); if (fr >= m.n) return false; const sz = m.w * f.s; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(im, fr * m.w, 0, m.w, m.h, f.x - sz / 2, f.y - sz / 2, sz, sz); ctx.restore(); return true; }); }
 
   // =====================================================================================================
-  // 材料栏（合成、精炼两页共用）
+  // 材料栏（合成、精炼两页共用）。合成页里同一种材料按「带的是哪一条副属性」分开摆：带得好的在前，不带的在后。
   // =====================================================================================================
   const ML = { x: 52, y: 124, w: 372, h: 548 }, MCOLS = 4, MROWS = 4, MCW = 88, MCH = 100, MFIL = ['全部', '兵饰', '防具', '百搭'];
   const mfR = i => ({ x: ML.x + 12 + i * 88, y: ML.y + 44, w: 82, h: 34 }), mcR = i => ({ x: ML.x + 10 + (i % MCOLS) * MCW, y: ML.y + 90 + Math.floor(i / MCOLS) * MCH, w: MCW - 4, h: MCH - 4 });
   const MPG = { prev: { x: ML.x + 12, y: ML.y + ML.h - 46, w: 110, h: 36 }, next: { x: ML.x + ML.w - 122, y: ML.y + ML.h - 46, w: 110, h: 36 } };
-  const used = id => UI.tab === 0 ? UI.slots.filter(s => s === id).length : 0;
-  function matList(only) { const ord = { W: 0, A: 1, null: 2 }; return Object.keys(MAT).filter(id => have(id) > 0 && (!only || only(id)) && (UI.mf === 0 || (UI.mf === 1 && MAT[id].c === 'W') || (UI.mf === 2 && MAT[id].c === 'A') || (UI.mf === 3 && !MAT[id].c)))
-      .sort((a, b) => ord[MAT[a].c] - ord[MAT[b].c] || MAT[a].g - MAT[b].g || (a < b ? -1 : 1)); }
-  function drawMats(title, only, selId) { D('panel_well_9', ML.x, ML.y, ML.w, ML.h); T(title, ML.x + 16, ML.y + 24, 20, C.gold2, BR(), 400);
+  const sameU = (u, c) => !!u && u.id === c.id && (u.ln || '') === (c.ln || '');
+  const used = c => UI.tab === 0 ? UI.slots.filter(u => sameU(u, c)).length : 0;
+  const LINE_COL = k => /^el_/.test(k) ? (GLOWS[k.slice(3)] || '#9FC98F') : k === 'crit' || k === 'ke' ? '#f0c86a' : '#9CC3E8';
+  const GLOWS = { jin: '#dfe4ea', mu: '#8fd69a', shui: '#8cc4f2', huo: '#f59a6a', tu: '#e0b46a' };
+  function matList(only, byLine) { const ord = { W: 0, A: 1, null: 2 }, out = [];
+    const ids = Object.keys(MAT).filter(id => have(id) > 0 && (!only || only(id)) && (UI.mf === 0 || (UI.mf === 1 && MAT[id].c === 'W') || (UI.mf === 2 && MAT[id].c === 'A') || (UI.mf === 3 && !MAT[id].c)))
+      .sort((a, b) => ord[MAT[a].c] - ord[MAT[b].c] || MAT[a].g - MAT[b].g || (a < b ? -1 : 1));
+    for (const id of ids) { if (byLine) for (const s of CR.stacks(id)) out.push(s); else out.push({ id, n: have(id) }); } return out; }
+  function drawMats(title, only, selId, byLine) { D('panel_well_9', ML.x, ML.y, ML.w, ML.h); T(title, ML.x + 16, ML.y + 24, 20, C.gold2, BR(), 400);
     MFIL.forEach((t, i) => { const r = mfR(i), on = UI.mf === i, mk = i === 1 ? art('mark_bing') : i === 2 ? art('mark_fang') : null; D(on ? 'category_s' : 'category_n', r.x, r.y, r.w, r.h);
       if (mk) { ctx.save(); if (!on) ctx.globalAlpha *= .7; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(mk, r.x + 5, r.y + 3, 28, 28); ctx.restore(); }
       T(t, r.x + r.w / 2 + (mk ? 13 : 0), r.y + r.h / 2 + 1, 16, on ? C.gold2 : C.text, KAI(), 600, 'center'); });
-    const list = matList(only), per = MCOLS * MROWS, np = Math.max(1, Math.ceil(list.length / per)); UI.mp = Math.min(UI.mp, np - 1);
+    const list = matList(only, byLine), per = MCOLS * MROWS, np = Math.max(1, Math.ceil(list.length / per)); UI.mp = Math.min(UI.mp, np - 1);
     if (!list.length) { ctx.font = `500 16px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap(UI.mf ? '这一类的材料，身上一样都没有。' : '身上还没有材料。打妖兽、开宝箱、采灵矿都能得。', ML.x + 20, ML.y + 130, ML.w - 40, 24, 3); }
-    list.slice(UI.mp * per, UI.mp * per + per).forEach((id, i) => { const r = mcR(i), m = MAT[id], n = have(id) - used(id), on = selId === id; ctx.save(); if (n <= 0) ctx.globalAlpha *= .35;
-      D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(id, r.x + r.w / 2, r.y + 38, 27); } catch (e) {}
+    list.slice(UI.mp * per, UI.mp * per + per).forEach((c, i) => { const r = mcR(i), id = c.id, m = MAT[id], n = c.n - used(c), on = selId === id; ctx.save(); if (n <= 0) ctx.globalAlpha *= .35;
+      D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(id, r.x + r.w / 2, r.y + 34, 25); } catch (e) {}
       if (m.wx) { try { WX5.emblem(m.wx, r.x + 15, r.y + 15, 10, 1); } catch (e) {} }
       if (m.c) T(m.c === 'W' ? '兵' : '防', r.x + r.w - 15, r.y + 15, 13, C.sub, KAI(), 600, 'center');
-      T(String(Math.max(0, n)), r.x + r.w - 10, r.y + 58, 16, C.gold2, NUM(), 700, 'right');
-      ctx.font = `500 14px ${KAI()}`; T(fitW(ITEM_DB[id].name, r.w - 8), r.x + r.w / 2, r.y + r.h - 14, 14, C.text, KAI(), 500, 'center'); ctx.restore(); });
+      T(String(Math.max(0, n)), r.x + r.w - 10, r.y + 52, 16, C.gold2, NUM(), 700, 'right');
+      ctx.font = `500 13px ${KAI()}`; T(fitW(ITEM_DB[id].name, r.w - 8), r.x + r.w / 2, r.y + (byLine ? 69 : 78), 13, C.text, KAI(), 500, 'center');
+      if (byLine && c.ln) { const k = CR.parse(c.ln)[0]; T(CR.lineText(c.ln, true), r.x + r.w / 2, r.y + 85, 12.5, LINE_COL(k), KAI(), 700, 'center'); }
+      ctx.restore(); });
     if (np > 1) { btn(MPG.prev, '上一页', UI.mp > 0 ? 'n' : 'd', 15); btn(MPG.next, '下一页', UI.mp < np - 1 ? 'n' : 'd', 15); T((UI.mp + 1) + ' / ' + np, ML.x + ML.w / 2, MPG.prev.y + 18, 15, C.sub, NUM(), 600, 'center'); } }
-  // 点材料栏：返回 { id } / true（点了别的控件）/ null
-  function tapMats(tp, only) { for (let i = 0; i < MFIL.length; i++) if (inR(tp, mfR(i))) { if (UI.mf !== i) { UI.mf = i; UI.mp = 0; snd('ui_click'); } return true; }
-    const list = matList(only), per = MCOLS * MROWS, np = Math.max(1, Math.ceil(list.length / per));
+  // 点材料栏：返回那一格 { id, ln, n } / true（点了别的控件）/ null
+  function tapMats(tp, only, byLine) { for (let i = 0; i < MFIL.length; i++) if (inR(tp, mfR(i))) { if (UI.mf !== i) { UI.mf = i; UI.mp = 0; snd('ui_click'); } return true; }
+    const list = matList(only, byLine), per = MCOLS * MROWS, np = Math.max(1, Math.ceil(list.length / per));
     if (np > 1 && inR(tp, MPG.prev)) { if (UI.mp > 0) { UI.mp--; snd('ui_click'); } return true; } if (np > 1 && inR(tp, MPG.next)) { if (UI.mp < np - 1) { UI.mp++; snd('ui_click'); } return true; }
-    const page = list.slice(UI.mp * per, UI.mp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, mcR(i))) return { id: page[i] }; return null; }
+    const page = list.slice(UI.mp * per, UI.mp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, mcR(i))) return page[i]; return null; }
 
   // =====================================================================================================
   // 一、合成
   // =====================================================================================================
-  // 阵盘：Codex 的 array 图是 720 见方，五个凹座离盘心 252、凹座直径 130、炉心直径 190；这里按 DISC 的大小缩着画
-  const CX = 652, CY = 356, DISC = 404, DK = DISC / 720, SR = 252 * DK, SLOT_R = 30, CORE_R = 95 * DK;
+  // 阵盘：Codex 的 array 图是 720 见方，五个凹座离盘心 252、凹座直径 130、炉心直径 190；这里按 DISC 的大小缩着画。
+  // 五样料围成一圈：最上面那格是头一格，顺时针数。相邻两格之间那条边——相生亮绿，相克亮红，同一行淡金。
+  const CX = 652, CY = 356, DISC = 404, DK = DISC / 720, SR = 252 * DK, SLOT_R = 30, CORE_R = 95 * DK, SEAT = 65 * DK;
   const slotXY = i => { const a = (-90 + i * 72) * Math.PI / 180; return [CX + Math.cos(a) * SR, CY + Math.sin(a) * SR]; };
   const B_CLEAR = { x: 462, y: 628, w: 120, h: 46 }, B_GO = { x: 596, y: 628, w: 246, h: 46 };
   const RB = { x: 880, y: 124, w: 348, h: 548 }, rcR = i => ({ x: RB.x + 10, y: RB.y + 76 + i * 106, w: RB.w - 20, h: 100 });
-  const REL_COL = { same: [233, 217, 168], sheng: [150, 215, 140], wild: [150, 215, 140], ke: [226, 120, 100], none: [130, 142, 146] };
-  const hintOf = a => !a.n ? ['点左边的材料，放到阵盘的五个角上。', C.sub] : a.n < 5 ? ['还差 ' + (5 - a.n) + ' 样。', C.sub] : a.why === 'noclass' ? ['光有精气，没有料——至少放一样牙、角、皮、丝之类的东西。', C.red]
-    : a.kind === 'recipe' ? (owned(a.recipe.id) ? ['「' + ITEM_DB[a.recipe.id].name.replace(/ \+\d$/, '') + '」已经有一件了，不用再打。', C.sub] : ['对上了秘籍：「' + ITEM_DB[a.recipe.id].name + '」', C.gold2]) : a.s >= 2 ? ['五行相生，火候正旺。', C.green] : a.s === 1 ? ['略有相生，火候不差。', C.green] : a.s < 0 ? ['五行相克，怕是要走火。', C.red] : a.rel.every(r => r === 'same') ? ['五行纯一。', C.text] : ['五行平和。', C.text];
+  const REL_COL = { same: [214, 196, 140], sheng: [130, 224, 140], ke: [240, 110, 90] };
   const GLOW = { jin: [226, 230, 240], mu: [110, 210, 130], shui: [110, 180, 240], huo: [255, 130, 70], tu: [224, 172, 92] };
-  function drawDisc(now, a) { const ar = art('array'), R = DISC / 2, seat = 65 * DK;
+  const pct = v => Math.round(v * 100) + '%';
+  const edgeText = a => a.ns === 5 ? '五行流转，一圈全相生' : a.ns || a.nk ? [a.ns ? '相生 ' + a.ns + ' 处' : '', a.nk ? '相克 ' + a.nk + ' 处' : ''].filter(Boolean).join(' · ') : '五行平和';
+  // 阵盘下面那两行字：火候怎样、主属性会落在哪一段、有几条副属性在炉里。出哪一件不说。
+  function hints(a) { const col = a.H > 0 ? C.green : a.H < 0 ? C.red : C.text;
+    if (!a.n) return [['点左边的材料放上阵盘：从最上面那格起，顺时针围成一圈。', C.sub], ['相邻两样相生，成色高；相克，成色低。', C.sub]];
+    if (a.n < 5) return [[edgeText(a), col], ['还差 ' + (5 - a.n) + ' 样。', C.sub]];
+    if (a.why === 'noclass') return [['光有精气，没有料。', C.red], ['至少放一样牙、角、皮、丝之类的东西。', C.sub]];
+    if (a.kind === 'recipe') return owned(a.recipe.id) ? [['「' + ITEM_DB[a.recipe.id].name.replace(/ \+\d$/, '') + '」已经有一件了，不用再打。', C.sub], ['', C.sub]] : [['对上了秘籍：「' + ITEM_DB[a.recipe.id].name + '」', C.gold2], ['专属的东西属性是定死的，不看摆法。', C.sub]];
+    if (a.kind === 'fixed') return a.gem ? [['五枚同一行的精：炼成一颗灵珠。', C.text], ['', C.sub]] : [['五样同出一源：主属性整十成，不浮动。', C.text], [a.keep ? '只带头一样料上的那一条：' + CR.lineText(a.keep) : '这五样都没带副属性。', a.keep ? C.green : C.sub]];
+    return [[edgeText(a) + '　主属性 ' + pct(a.lo) + ' – ' + pct(a.hi), col], [a.lined ? '炉里有 ' + a.lined + ' 种副属性，每种约 ' + pct(a.p) + ' 的机会留下。' : '这几样料都没带副属性。', C.sub]]; }
+  function drawDisc(now, a) { const ar = art('array'), R = DISC / 2;
     ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     if (ar) ctx.drawImage(ar, CX - R, CY - R, DISC, DISC);
     else { const g = ctx.createRadialGradient(CX, CY, 20, CX, CY, R); g.addColorStop(0, 'rgba(34,52,60,.95)'); g.addColorStop(1, 'rgba(12,24,31,.95)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CX, CY, R - 2, 0, 7); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(194,173,120,.55)'; ctx.stroke();
-      for (let i = 0; i < 5; i++) { const [x, y] = slotXY(i); ctx.fillStyle = 'rgba(6,14,19,.9)'; ctx.beginPath(); ctx.arc(x, y, seat, 0, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(194,173,120,.45)'; ctx.stroke(); }
+      for (let i = 0; i < 5; i++) { const [x, y] = slotXY(i); ctx.fillStyle = 'rgba(6,14,19,.9)'; ctx.beginPath(); ctx.arc(x, y, SEAT, 0, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(194,173,120,.45)'; ctx.stroke(); }
       ctx.fillStyle = 'rgba(30,16,12,.95)'; ctx.beginPath(); ctx.arc(CX, CY, CORE_R, 0, 7); ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(194,173,120,.6)'; ctx.stroke(); }
     ctx.restore();
     // 炉心的火气：空着的时候是暗的；放一样料亮一分，颜色跟着这一炉的主行走
     if (a.n && !UI.res) { const c = GLOW[a.el] || [255, 170, 90], k = (a.n / 5) * (.34 + .08 * Math.sin(now / 300)); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(CX, CY, 2, CX, CY, CORE_R); g.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${k})`); g.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CX, CY, CORE_R, 0, 7); ctx.fill(); ctx.restore(); }
-    // 每样料到炉心一道光：同性金、相生绿、相克红、不相干的只有淡淡一线；对上秘籍的五道全金
-    ctx.save(); ctx.lineCap = 'round'; UI.slots.forEach((id, i) => { if (!id || !a.rel[i]) return; const rl = a.kind === 'recipe' ? 'same' : a.rel[i], [x, y] = slotXY(i), c = REL_COL[rl], k = .62 + .22 * Math.sin(now / 260 + i);
-      const dx = CX - x, dy = CY - y, L = Math.hypot(dx, dy), x0 = x + dx / L * (seat + 3), y0 = y + dy / L * (seat + 3), x1 = CX - dx / L * (CORE_R + 2), y1 = CY - dy / L * (CORE_R + 2);
-      if (rl === 'none') { ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},.3)`; ctx.lineWidth = 2; }
-      else { ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},.9)`; ctx.shadowBlur = 10; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${k})`; ctx.lineWidth = 3.5; }
-      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); }); ctx.restore();
-    const on = art('slot_on'), os = seat * 2 * 1.13;
-    UI.slots.forEach((id, i) => { const [x, y] = slotXY(i); if (!id) { if (!ar) T(String(i + 1), x, y + 1, 18, 'rgba(194,173,120,.35)', NUM(), 600, 'center'); return; }
-      if (on) ctx.drawImage(on, x - os / 2, y - os / 2, os, os); try { itemIcon(id, x, y, SLOT_R); } catch (e) {}
-      const m = MAT[id]; if (m && m.wx) { try { WX5.emblem(m.wx, x + SLOT_R * .8, y - SLOT_R * .8, 11, 1); } catch (e) {} } });
+    // 相邻两格之间的那条边：相生绿、相克红、同一行淡金；对上秘籍的五条全金
+    ctx.save(); ctx.lineCap = 'round'; for (let i = 0; i < 5; i++) { let rl = a.edges && a.edges[i]; if (!rl) continue; if (a.kind === 'recipe') rl = 'same'; const [x, y] = slotXY(i), [x2, y2] = slotXY((i + 1) % 5), c = REL_COL[rl], k = .7 + .25 * Math.sin(now / 240 + i);
+      const dx = x2 - x, dy = y2 - y, L = Math.hypot(dx, dy), x0 = x + dx / L * (SEAT + 2), y0 = y + dy / L * (SEAT + 2), x1 = x2 - dx / L * (SEAT + 2), y1 = y2 - dy / L * (SEAT + 2);
+      if (rl === 'same' && a.kind !== 'recipe') { ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},.45)`; ctx.lineWidth = 2.5; }
+      else { ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},.95)`; ctx.shadowBlur = 12; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${k})`; ctx.lineWidth = 4.5; }
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); } ctx.restore();
+    const on = art('slot_on'), os = SEAT * 2 * 1.13, NUMS = '一二三四五';
+    UI.slots.forEach((u, i) => { const [x, y] = slotXY(i), ox = (x - CX) / SR, oy = (y - CY) / SR;
+      T(NUMS[i], x + ox * (SEAT + 13), y + oy * (SEAT + 13) + 1, 13, i === 0 ? 'rgba(233,217,168,.9)' : 'rgba(194,173,120,.5)', KAI(), 700, 'center');   // 第几格（头一格颜色亮些）
+      if (!u) return; if (on) ctx.drawImage(on, x - os / 2, y - os / 2, os, os); try { itemIcon(u.id, x, y, SLOT_R); } catch (e) {}
+      const m = MAT[u.id]; if (m && m.wx) { try { WX5.emblem(m.wx, x + SLOT_R * .8, y - SLOT_R * .8, 11, 1); } catch (e) {} }
+      if (u.ln) { const k = CR.parse(u.ln)[0]; ctx.font = `700 12.5px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(CR.lineText(u.ln, true), x, y + SLOT_R - 3, LINE_COL(k), 'rgba(6,14,19,.95)', 4); } });
     // 炉心：刚出炉的那一件；没有的话，看得出主行就淡淡亮一枚那一行的徽记
     const res = UI.res; if (res) { const k = Math.min(1, (now - res.t) / 220), sc = 1 + (1 - k) * .5; ctx.save(); try { ctx.globalAlpha *= k; itemIcon(res.id, CX, CY, (CORE_R - 7) * sc); } catch (e) {} ctx.restore(); }
     else if (a.el && a.n) { try { WX5.emblem(a.el, CX, CY, 22, .32 + .1 * Math.sin(now / 400)); } catch (e) {} } }
+  const GRADE_COL = ['#aab3b6', '#E9D9A8', '#8cc4f2', '#f6c65a', '#ff9a6a'];
   function drawSynth(now) { const a = CR.analyze(UI.slots);
-    drawMats('材料', null, null);
+    drawMats('材料', null, null, true);
     drawDisc(now, a);
-    const res = UI.res;
-    if (res) { T('出　炉', CX, CY - DISC / 2 - 14, 16, C.sub, KAI(), 600, 'center'); ctx.font = `400 25px ${BR()}`; T(fitW(ITEM_DB[res.id].name + (res.bonus && !/\+\d$/.test(ITEM_DB[res.id].name) ? '　+' + res.bonus : ''), 400), CX, CY + DISC / 2 + 22, 25, C.gold2, BR(), 400, 'center'); }
-    const [ht, hc] = saying(now) ? [SMITH + '：' + UI.say, C.gold2] : hintOf(a); ctx.font = `500 16px ${KAI()}`; T(fitW(ht, 430), CX, res ? 609 : 598, 16, hc, KAI(), 500, 'center');
+    const res = UI.res, topY = CY - DISC / 2 - 15;
+    if (saying(now)) { ctx.font = `500 15px ${KAI()}`; T(fitW(SMITH + '：' + UI.say, 440), CX, topY, 15, C.gold2, KAI(), 500, 'center'); } else if (res) T('出　炉', CX, topY, 16, C.sub, KAI(), 600, 'center');
+    if (res) { const it = ITEM_DB[res.id]; ctx.font = `400 25px ${BR()}`; T(fitW(it.name, 420), CX, 581, 25, it.fg ? GRADE_COL[it.grade] : C.gold2, BR(), 400, 'center');
+      const sub = it.fg ? '主属性 ' + pct(it.mult) + (it.subs.length ? '　' + it.subs.join('　') : '　没带出副属性') : it.slot ? statText(res.id) : ''; ctx.font = `500 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
+    else { const h = hints(a); ctx.font = `600 16px ${KAI()}`; T(fitW(h[0][0], 440), CX, 583, 16, h[0][1], KAI(), 600, 'center'); ctx.font = `500 15px ${KAI()}`; T(fitW(h[1][0], 440), CX, 607, 15, h[1][1], KAI(), 500, 'center'); }
     btn(B_CLEAR, '清　空', a.n ? 'n' : 'd', 17);
     const ng = S.hero.gold || 0;
     if (a.n < 5) btn(B_GO, '放满五样', 'd', 18); else if (!a.ok) btn(B_GO, '这一炉开不了', 'd', 18); else if (a.kind === 'recipe' && owned(a.recipe.id)) btn(B_GO, '已经有一件了', 'd', 18); else if (ng < a.fee) btn(B_GO, '灵石不够（要 ' + a.fee + '）', 'd', 17);
@@ -124,24 +146,30 @@
       T(own ? '已有' : okAll ? '料齐' : '', r.x + 40, r.y + 84, 13, own ? C.gold : C.green, KAI(), 600, 'center'); });
     if (!rs.length) T('秘籍上还是空的。', RB.x + 16, RB.y + 110, 16, C.sub);
     ctx.font = `500 14px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('别的东西没有方子。五样料放进去，开了炉才知道出什么。', RB.x + 16, RB.y + RB.h - 44, RB.w - 32, 20, 2); }
-  function tapSynth(tp) { const m = tapMats(tp, null);
-    if (m && m.id) { const i = UI.slots.indexOf(null); if (i < 0) { speak('五个角都放满了。点阵盘上的料可以拿下来。'); snd('ui_cancel'); return; } if (have(m.id) - used(m.id) <= 0) { snd('ui_cancel'); return; } UI.slots[i] = m.id; UI.res = null; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
+  // 照秘籍自己摆料：专属的属性是定死的，所以先用不带副属性的，带得好的留着
+  function fillRecipe(rc) { const need = {}, out = []; rc.mats.forEach(q => need[q] = (need[q] || 0) + 1);
+    for (const id of Object.keys(need)) { const st = CR.stacks(id).slice().sort((x, y) => CR.score(x.ln) - CR.score(y.ln)); let left = need[id]; for (const s of st) { const t = Math.min(left, s.n); for (let k = 0; k < t; k++) out.push({ id, ln: s.ln || null }); left -= t; if (left <= 0) break; } }
+    return out.concat([null, null, null, null, null]).slice(0, 5); }
+  function tapSynth(tp) { const m = tapMats(tp, null, true);
+    if (m && m.id) { const i = UI.slots.indexOf(null); if (i < 0) { speak('五格都放满了。点阵盘上的料可以拿下来。'); snd('ui_cancel'); return; } if (m.n - used(m) <= 0) { snd('ui_cancel'); return; } UI.slots[i] = { id: m.id, ln: m.ln || null }; UI.res = null; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
     if (m) return;
-    for (let i = 0; i < 5; i++) { const [x, y] = slotXY(i); if (Math.hypot(tp.x - x, tp.y - y) <= 65 * DK + 6) { if (UI.slots[i]) { UI.slots[i] = null; UI.arm = null; snd('ui_click'); } return; } }
+    for (let i = 0; i < 5; i++) { const [x, y] = slotXY(i); if (Math.hypot(tp.x - x, tp.y - y) <= SEAT + 6) { if (UI.slots[i]) { UI.slots[i] = null; UI.arm = null; snd('ui_click'); } return; } }
     if (inR(tp, B_CLEAR)) { if (UI.slots.some(Boolean)) { UI.slots.fill(null); UI.arm = null; snd('ui_click'); } return; }
     const rs = CR.RECIPES.filter(CR.recipeShown).slice(0, 4); for (let i = 0; i < rs.length; i++) if (inR(tp, rcR(i))) { const rc = rs[i], need = {}; rc.mats.forEach(q => need[q] = (need[q] || 0) + 1); const lack = Object.keys(need).filter(q => have(q) < need[q]);
         if (owned(rc.id)) { speak('「' + ITEM_DB[rc.id].name.replace(/ \+\d$/, '') + '」已经有一件了，不用再打。'); snd('ui_cancel'); return; }
         if (lack.length) { speak('「' + ITEM_DB[rc.id].name + '」还差：' + lack.map(q => ITEM_DB[q].name + ' ' + (need[q] - have(q))).join('、') + '。'); snd('ui_cancel'); return; }
-        UI.slots = rc.mats.slice(); UI.res = null; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
+        UI.slots = fillRecipe(rc); UI.res = null; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
     if (!inR(tp, B_GO)) return; const a = CR.analyze(UI.slots);
-    if (a.n < 5) { speak('五个角放满了才开得了炉。'); snd('ui_cancel'); return; } if (!a.ok) { speak('光有精气不成器。至少放一样牙、角、皮、丝之类的料。'); snd('ui_cancel'); return; }
+    if (a.n < 5) { speak('五格放满了才开得了炉。'); snd('ui_cancel'); return; } if (!a.ok) { speak('光有精气不成器。至少放一样牙、角、皮、丝之类的料。'); snd('ui_cancel'); return; }
     if (a.kind === 'recipe' && owned(a.recipe.id)) { speak('这一件已经有了，不用再打。珍稀的料留着打别的。'); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < a.fee) { speak('炭火钱不够。'); snd('ui_cancel'); return; }
     if (!armed('go')) { UI.arm = { k: 'go', t: performance.now() }; snd('ui_click'); return; }
     UI.arm = null; const r = CR.craft(UI.slots); if (r.err) { speak(r.err === 'gold' ? '炭火钱不够。' : '料不够了。'); snd('ui_cancel'); return; }
-    const it = ITEM_DB[r.id], el = (it.gem || WX5.GEAR[r.id] || a.el || 'jin'); UI.slots.fill(null); UI.res = { id: r.id, bonus: r.bonus, t: performance.now() };
-    burst(CX, CY, el, 1.15); try { S.flash = .22; S.flashColor = '#ffe9b8'; } catch (e) {} snd('sfx_sword_ring', .6); try { playSnd('jingle_levelup', .45); } catch (e) {}
+    const it = ITEM_DB[r.id], el = (it.gem || WX5.GEAR[r.id] || a.el || 'jin'); UI.slots.fill(null); UI.res = { id: r.id, t: performance.now() };
+    burst(CX, CY, el, r.grade >= 3 ? 1.4 : 1.15); if (r.grade >= 4) setTimeout(() => { if (UI.open) burst(CX, CY, 'jin', 1.7); }, 160);
+    try { S.flash = r.grade >= 3 ? .3 : .22; S.flashColor = '#ffe9b8'; } catch (e) {} snd('sfx_sword_ring', .6); try { playSnd('jingle_levelup', .45); } catch (e) {}
     speak(it.gem ? '五枚精炼成一颗「' + it.name + '」。到镶嵌那一页，镶到装备上去。' : a.kind === 'recipe' ? '成了。「' + it.name + '」——这一件只认它的主人。'
-      : r.bonus ? '五行相生，这一炉出了彩。「' + it.name + '」，出炉就是 +' + r.bonus + '。' : a.kind === 'mix' && r.id === a.upId ? '火候好，出了上品——「' + it.name + '」。' : a.kind === 'mix' && r.id === a.dudId ? (a.s < 0 ? '相克的料搁一炉，走了火。只成了件「' : '火候差了点，只成了件「') + it.name + '」。' : '成了。「' + it.name + '」。');
+      : a.kind === 'fixed' ? (r.lines.length ? '五样同出一源，稳当。头一样料上的那一条，带进去了。' : '五样同出一源，稳当。')
+      : r.grade >= 4 ? '五行流转，五条全留——这样的东西，我打了一辈子铁也没见过几回。绝品。' : r.grade === 3 ? '成色极好。极品。' : r.grade === 2 ? '成色不错，上品。' : r.grade === 0 ? (a.H < 0 ? '五行相克，成色差了些。下回把相生的两样挨着摆。' : '这一炉手气差了点。') : '成了。中规中矩。');
     return 'forged'; }
 
   // =====================================================================================================
@@ -155,16 +183,17 @@
     const list = gearList(), per = GCOLS * GROWS, np = Math.max(1, Math.ceil(list.length / per)); UI.gp = Math.min(UI.gp, np - 1);
     if (!list.length) T('身上、行囊里都没有装备。', GL.x + 20, GL.y + 90, 16, C.sub);
     list.slice(UI.gp * per, UI.gp * per + per).forEach((g, i) => { const r = gcR(i), on = UI.gsel === g.id; D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(g.id, r.x + r.w / 2, r.y + 38, 27); } catch (e) {}
-      if (g.who) { ctx.font = `700 14px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(g.who === 'hero' ? '叶' : CR.whoName(g.who).slice(0, 1), r.x + 15, r.y + 16, C.green, 'rgba(6,14,19,.92)', 4); }
+      if (g.who) { ctx.font = `700 14px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(g.who === 'hero' ? '叶' : CR.whoName(g.who).slice(0, 1), r.x + 14, r.y + 62, C.green, 'rgba(6,14,19,.92)', 4); }
       const bd = badge(g.id); if (bd) T(bd, r.x + r.w - 8, r.y + 14, 14, C.gold2, NUM(), 700, 'right');
-      ctx.font = `500 13px ${KAI()}`; T(fitW(ITEM_DB[g.id].name.replace(/ \+\d$/, ''), r.w - 6), r.x + r.w / 2, r.y + r.h - 14, 13, C.text, KAI(), 500, 'center'); });
+      ctx.font = `500 13px ${KAI()}`; T(fitW(ITEM_DB[g.id].name.replace(/ \+\d$/, '').replace(/（[^）]*）$/, ''), r.w - 6), r.x + r.w / 2, r.y + r.h - 14, 13, C.text, KAI(), 500, 'center'); });
     if (np > 1) { btn(GPG.prev, '上一页', UI.gp > 0 ? 'n' : 'd', 15); btn(GPG.next, '下一页', UI.gp < np - 1 ? 'n' : 'd', 15); T((UI.gp + 1) + ' / ' + np, GL.x + GL.w / 2, GPG.prev.y + 18, 15, C.sub, NUM(), 600, 'center'); } }
   function tapGears(tp) { const list = gearList(), per = GCOLS * GROWS, np = Math.max(1, Math.ceil(list.length / per));
     if (np > 1 && inR(tp, GPG.prev)) { if (UI.gp > 0) { UI.gp--; snd('ui_click'); } return true; } if (np > 1 && inR(tp, GPG.next)) { if (UI.gp < np - 1) { UI.gp++; snd('ui_click'); } return true; }
     const page = list.slice(UI.gp * per, UI.gp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, gcR(i))) { if (UI.gsel !== page[i].id) { UI.gsel = page[i].id; UI.arm = null; UI.say = ''; UI.sock = 0; snd('ui_click'); } return true; } return false; }
   const GD = { x: 516, y: 124, w: 712, h: 548 };
   function gearHead(id) { const it = ITEM_DB[id], g = WX5.GEAR[id]; try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} T(it.name, GD.x + 130, GD.y + 46, 28, C.gold2, BR(), 400);
-    T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text); }
+    T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text);
+    if (it.fg) { ctx.font = `500 15px ${KAI()}`; T(fitW('主属性 ' + pct(it.mult) + '　' + (it.subs.length ? '副属性：' + it.subs.join('　') : '没有副属性'), GD.w - 160), GD.x + 130, GD.y + 110, 15, it.subs.length ? C.green : C.sub, KAI(), 500); } }
 
   // =====================================================================================================
   // 二、强化（规矩照旧：equip_plus 那一套）
@@ -246,7 +275,7 @@
   const B_M1 = { x: MD.x + MD.w / 2 - 180, y: MD.y + 300, w: 170, h: 54 }, B_MA = { x: MD.x + MD.w / 2 + 10, y: MD.y + 300, w: 170, h: 54 };
   function drawMelt(now) { drawMats('炼哪一样', canMelt, UI.msel); D('panel_well_9', MD.x, MD.y, MD.w, MD.h);
     const id = UI.msel && MAT[UI.msel] && have(UI.msel) > 0 ? UI.msel : null;
-    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一样材料，把它炼成那一行的五行之精。寻常的料三样炼一枚，上等的两样炼一枚。头目、妖王身上的珍稀料不在这儿炼——留着照秘籍打专属套装。', MD.x + 26, MD.y + 44, MD.w - 52, 28, 5); if (saying(now)) T(SMITH + '：' + UI.say, MD.x + 26, MD.y + MD.h - 48, 16, C.gold2); return; }
+    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一样材料，把它炼成那一行的五行之精。寻常的料三样炼一枚，上等的两样炼一枚。头目、妖王身上的珍稀料不在这儿炼——留着照秘籍打专属套装。带着副属性的料会留到最后才炼。', MD.x + 26, MD.y + 44, MD.w - 52, 28, 6); if (saying(now)) T(SMITH + '：' + UI.say, MD.x + 26, MD.y + MD.h - 48, 16, C.gold2); return; }
     const m = MAT[id], k = meltN(id), n = have(id), out = 'm_wx_' + m.wx, cx = MD.x + MD.w / 2;
     try { itemIcon(id, cx - 150, MD.y + 150, 46); itemIcon(out, cx + 150, MD.y + 150, 46); } catch (e) {}
     T(ITEM_DB[id].name + ' ×' + k, cx - 150, MD.y + 216, 19, C.gold2, KAI(), 600, 'center'); T(ITEM_DB[out].name + ' ×1', cx + 150, MD.y + 216, 19, C.gold2, KAI(), 600, 'center'); T('→', cx, MD.y + 150, 40, C.gold, KAI(), 500, 'center');
@@ -295,7 +324,7 @@
   try { S.overlay.push({ draw() { try { draw(); } catch (e) { console.warn('R394', e); try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
 
   async function open(tab) { if (UI.open || (typeof battle !== 'undefined' && battle)) return; kitLoad(); artAll(); try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {} try { if (window.IMG_GUARD && IMG_GUARD.bumpMatch) IMG_GUARD.bumpMatch(['fx/fx3_burst_']); } catch (e) {} const lock0 = world.locked, hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
-    UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots.fill(null); UI.mp = 0; UI.gp = 0; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
+    UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots = [null, null, null, null, null]; UI.mp = 0; UI.gp = 0; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
     try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; if (!kitReady()) continue; if (inR(tp, CLOSE)) break;
         let hit = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hit = true; if (UI.tab !== i) { UI.tab = i; UI.arm = null; UI.say = ''; UI.mf = 0; UI.mp = 0; UI.gp = 0; snd('ui_click'); } } if (hit) continue;
         if (TAP[UI.tab](tp) === 'forged') forged++; } }
@@ -306,10 +335,11 @@
   // 和铸剑师说话：头一回交代炉子的规矩（只说大路数，不说出什么），之后直接开炉
   async function talk() { const f = F();
     if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就守着这座炉子。'); }
-    if (!f.forge2_met) { f.forge2_met = 1;
-      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉。');
-      await say(SMITH, '五行相生，火候就好；相克，多半走火。出什么——开了炉才知道。只有各人的专属套装，我这本秘籍上记着方子。');
-      await say('星旋', '听见没有？料越杂，越要讲究五行。乱炖一锅，出什么本神仙可不管。'); }
+    if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
+      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
+      await say(SMITH, '相邻两样相生，成色就高；相克，成色就低。料上若带着灵性，有几分能留进成品里——留几条，看手气。');
+      await say(SMITH, '出什么，开了炉才知道。只有各人的专属套装，我这本秘籍上记着方子。');
+      await say('星旋', '金生水，水生木，木生火，火生土，土生金。照这个顺序摆一圈试试——本神仙只说这一回。'); }
     await open(0); }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, RUNE, ARTN, art, sockN, gemsOf, setGem };
 })();

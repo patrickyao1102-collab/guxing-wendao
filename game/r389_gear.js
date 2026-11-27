@@ -90,7 +90,12 @@
     const on = n >= s.parts.length && !why, ex = !!(s.extra && SLOTS.some(sl => eq[sl] === s.extra.id));   // ex：第四件（饰品）也戴上了
     return { n, need: s.parts.length, have, on, why, ex, on4: on && ex }; }
   const setsOf = who => SETS.map(s => [s, setState(who, s)]).filter(([, st]) => st.n > 0);
-  const activeFx = who => { const fx = {}; for (const [s, st] of setsOf(who)) if (st.on) { for (const k in s.fx) fx[k] = (fx[k] || 0) + s.fx[k]; if (st.on4) for (const k in s.extra.fx) fx[k] = (fx[k] || 0) + s.extra.fx[k]; } return fx; };
+  // 这个人身上现在生效的效果：激活了的套装 + 身上每件装备自己的副属性（剑炉合成时从材料上带来的：某系攻击 el_金木水火土、暴击、克制增伤、减伤、回灵、回血）
+  const activeFx = who => { const fx = {}; for (const [s, st] of setsOf(who)) if (st.on) { for (const k in s.fx) fx[k] = (fx[k] || 0) + s.fx[k]; if (st.on4) for (const k in s.extra.fx) fx[k] = (fx[k] || 0) + s.extra.fx[k]; }
+    try { const eq = eqOf(who), sub = {}; for (const sl of SLOTS) { const it = ITEM_DB[eq[sl]], f = it && it.fx5; if (f) for (const k in f) sub[k] = (sub[k] || 0) + f[k]; }
+      for (const k in sub) fx[k] = (fx[k] || 0) + Math.min(sub[k], SUB_CAP[k] || (/^el_/.test(k) ? .3 : 9)); } catch (e) {}   // 四件装备的副属性加起来有个顶，免得叠出格
+    return fx; };
+  const SUB_CAP = { crit: .2, ke: .3, guard: .2, regen: .05, mpRegen: 8 };
 
   // 队友：不合灵根的装备打折（在 r101 把装备属性加上去之后，把差额减回来）
   allyStats = (orig => function (k) { const o = orig.apply(this, arguments);
@@ -107,6 +112,7 @@
     try { const b = battle, att = b && b.active; if (b && t && t.alive && !(b.cfg && b.cfg.sunKill)) {
         if (t.side === 'enemy' && att && att.side === 'hero' && !(opts && opts.noWx)) { const fx = fxOf(att); let k = 1;
           if (fx.ke && WX5.rel(WX5.unitWx(att), WX5.unitWx(t)) > 0) k *= 1 + fx.ke;
+          const ex = fx['el_' + WX5.unitWx(att)]; if (ex) k *= 1 + ex;   // 副属性「某系攻击」：这一手是那一行的，就加
           if (fx.rune && !att.ally && b._wxSw === (b._actNo || 0) && b._wxSw != null) k *= 1 + fx.rune;
           if (k !== 1) arguments[1] = Math.max(1, Math.round(d * k)); }
         else if (t.side === 'hero') { const g = fxOf(t).guard; if (g) arguments[1] = Math.max(1, Math.round(d * (1 - g))); } } } catch (e) {}
