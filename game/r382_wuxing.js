@@ -47,8 +47,8 @@
   const ST = () => { const f = F(); const s = f.xs || (f.xs = { wins: 0, kills: {}, ke: 0, hi: 0 }); if (!s.kills) s.kills = {}; return s; };
 
   // ---------- 徽记 / 字样（Codex R386 到了就用图，没到先用字）----------
-  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.onerror = () => { a.bad = true; }; a.im.src = 'r386/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(a.im); } catch (e) {} } return a.ok ? a.im : null; }
-  setTimeout(() => { for (const n of ['wx_jin', 'wx_mu', 'wx_shui', 'wx_huo', 'wx_tu', 'txt_ke', 'txt_sheng', 'mk_up', 'mk_down']) art(n); }, 9000);
+  const ART = {}; function art(n) { let a = ART[n]; if (!a) { a = ART[n] = { im: new Image(), ok: false }; a.im.onload = () => { a.ok = true; }; a.im.onerror = () => { a.bad = true; }; a.im.src = (n.indexOf('/') > 0 ? n : 'r386/' + n) + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(a.im); } catch (e) {} } return a.ok ? a.im : null; }
+  setTimeout(() => { for (const n of ['wx_jin', 'wx_mu', 'wx_shui', 'wx_huo', 'wx_tu', 'txt_ke', 'txt_sheng', 'mk_up', 'mk_down', 'r413/txt_cike']) art(n); }, 9000);
   function emblem(el, x, y, r, a) { if (!el || !WX[el]) return; const im = art('wx_' + el); ctx.save(); if (a != null) ctx.globalAlpha *= a;
     if (im) ctx.drawImage(im, x - r, y - r, r * 2, r * 2);
     else { const w = WX[el]; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); const g = ctx.createRadialGradient(x - r * .3, y - r * .35, r * .1, x, y, r); g.addColorStop(0, '#2b2a26'); g.addColorStop(1, '#0d0c0b'); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.4, r * .12); ctx.strokeStyle = w.k; ctx.stroke();
@@ -67,7 +67,7 @@
         if (r) { arguments[1] = d = Math.max(1, Math.round(d * (r >= 1 ? KE_MULT : r > 0 ? CIKE_MULT : SHENG_MULT))); mark(b, att, t, r, a, e); } } } catch (e) { console.warn('R382', e); }
     return orig.apply(this, arguments); })(applyDamage);
   function mark(b, att, t, r, a, e) { const an = b._actNo || 0, st = ST(), f = F();
-    if (t._wxAct !== an) { t._wxAct = an; const x = t.x + (t.ox || 0) + 8, y = t.y - Math.min(t.h || 200, 340) - 62; if (r >= 1) { pop('txt_ke', '克', x, y, '#ffe9a0', 116); try { sfx('crit'); } catch (e2) {} } else if (r > 0) pop('txt_cike', '次克', x, y + 6, '#ffd9a0', 92); else pop('txt_sheng', '生', x, y + 10, '#b9d8bf', 84); }
+    if (t._wxAct !== an) { t._wxAct = an; const x = t.x + (t.ox || 0) + 8, y = t.y - Math.min(t.h || 200, 340) - 62; if (r >= 1) { pop('txt_ke', '克', x, y, '#ffe9a0', 116); try { sfx('crit'); } catch (e2) {} } else if (r > 0) pop('r413/txt_cike', '次克', x, y + 6, '#ffd9a0', 150); else pop('txt_sheng', '生', x, y + 10, '#b9d8bf', 84); }
     if (r > 0 && r < 1) { if (!f.wx_tip3) { f.wx_tip3 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '次克' + WX[e].n + ' —— ' + WX[e].n + '生' + WX[a].n + '，被生的反过来耗它，伤害多一成半' }; } return; }
     if (r > 0) { if (b._wxKeAct !== an) { b._wxKeAct = an; st.ke = (st.ke || 0) + 1; b._keN = (b._keN || 0) + 1; } t._keHit = an; f.wx_last = [a, e, att.name, String(t.name || '').replace(/\s*Lv\s*\d+$/, ''), att.ally ? 0 : 1]; if (!f.wx_tip1) { f.wx_tip1 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '克' + WX[e].n + ' —— 用克它的属性去打，伤害多三成' }; } }
     else if (!f.wx_tip2) { f.wx_tip2 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '生' + WX[e].n + ' —— 这一下等于给它添了力气，伤害少三成' }; } }
