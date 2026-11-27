@@ -384,7 +384,8 @@
 
   // 和铸剑师说话：头一回交代炉子的规矩（只说大路数，不说出什么），之后直接开炉
   async function talk() { const f = F();
-    if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就守着这座炉子。'); }
+    if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就在这后庭潭边待着，炉子在亭子那头。'); }
+    if (!f.forge_pond) { f.forge_pond = 1; await say(SMITH, '这潭水是崖顶雪水落下来的，寒得透骨。剑出了炉，在这里淬一回，锋口不卷。'); await say(SMITH, '往后它就叫淬剑潭。钓竿收了吧，鱼都叫我惊走了。'); }
     if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
       await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器、护腕和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
       await say(SMITH, '相邻两样相生，成色就高；相克，成色就低。料上若带着灵性，有几分能留进成品里——留几条，看手气。');
@@ -401,7 +402,7 @@
   const MAP = 'qingzhu_upper_pavilion'; if (typeof TMAPS === 'undefined' || !TMAPS[MAP] || !TMAPS[MAP].baked || !window.R394 || typeof IMG === 'undefined') return;
   const M = TMAPS[MAP], B = M.baked, F = () => (S.flags = S.flags || {});
   const CW = 660, CH = 460, K = 383 / CW, GX = 420, GY = 640, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
-  const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [800, 812], SMITH = '铸剑师';   // 11-27 夜作者：铸剑师站在亭前的路口老挡路——挪到剑架右边、亭子左前角，让开南边上来的那条路
+  const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [-200, 548], SMITH = '铸剑师';   // 11-27 夜作者：铸剑师站在亭前的路口老挡路；11-28 作者：「铸剑师挪到潭水旁边，点铸剑师进入副本」——站到后庭潭边、竹钓台东边的草地上，万妖塔从他这里进
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const IMS = [], load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; IMS.push(im); };
   load('r394_forge', 'r394/forge.webp?v=1'); load('r394_fire', 'r394/fire.webp?v=1');
@@ -429,7 +430,7 @@
   M.npcs = M.npcs || []; if (!M.npcs.some(n => n.forge)) { const [c, r] = P(NPC_AT[0], NPC_AT[1]); M.npcs.push({ key: 'c_a2', cx: 'spirit_swordsmith', c, r, wander: false, face: 'down', name: SMITH, forge: 1, talk: () => R394.talk() }); }
   // 点他：直接开剑炉的界面（合成 / 强化 / 镶嵌 / 精炼 / 星纹），不走原来只有「强化装备」的那一层
   if (typeof doInteract === 'function') doInteract = (orig => async function (h) { if (!(h && h.type === 'npc' && h.a && h.a.npc && h.a.npc.forge)) return orig.apply(this, arguments);
-    world.locked = true; try { await R394.talk(); } catch (e) { console.warn('R394 talk', e); } finally { world.locked = false; } })(doInteract);
+    world.locked = true; try { if (window.TOWER && typeof TOWER.enter === 'function') { const i = await choose(SMITH, ['开炉（合成 · 强化 · 镶嵌）', '进万妖塔', '告辞']); if (i === 0) await R394.talk(); else if (i === 1) await TOWER.enter(); } else await R394.talk(); } catch (e) { console.warn('R394 talk', e); } finally { world.locked = false; } })(doInteract);
   // 玉佩里多一桩事迹：开炉
   try { const R = window.R386; if (R && Array.isArray(R.TASKS) && !R.TASKS.some(t => t.id === 'lq1')) { const i = R.TASKS.findIndex(t => t.id === 'x4');
       R.TASKS.splice(i < 0 ? R.TASKS.length : i, 0, { id: 'lq1', cat: '修行', name: '开炉', desc: '带五样材料去云海大亭的剑炉，合成一件东西', n: () => [Math.min(1, F().forged || 0), 1], pts: 30, show: () => !!(F().forged || F().wxj_said), quip: '自己攒料、自己开炉，这才像个修士。料怎么配、五行怎么搭，多试几炉就摸出门道了。' }); } } catch (e) {}

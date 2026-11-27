@@ -8,21 +8,22 @@
 //   ④ 厨房里要用菜园 / 潭里收来的食材的新菜，正式版不列出来
 //   ⑤ 过图小提示里讲钓鱼、菜园的几条不抽
 (function () {
-  if (!window.GX_RELEASE) return;
+  // 11-28 作者：「那个潭咱就不钓鱼了」——钓鱼测试版也关：钓台、烤鱼支线、讲钓鱼的小提示两边都收；菜园、菜谱只在正式版收（测试版照旧）
+  const REL = !!window.GX_RELEASE;
   const SOON_G = '青竹菜园 · 尚在开发中，敬请期待', SOON_F = '潭边垂钓 · 尚在开发中，敬请期待';
   const isGarden = m => /^qingzhu_garden/.test(m || '');
   const say1 = t => { try { toast(t, 2200); } catch (e) {} };
   // ① 菜园的门
-  if (typeof buildTileMap === 'function') buildTileMap = (o => function (def) {
+  if (REL && typeof buildTileMap === 'function') buildTileMap = (o => function (def) {
     const T = o.apply(this, arguments);
     try { if (T && T.doors) for (const d of T.doors) if (isGarden(d.to)) { d.cond = () => false; d.msg = SOON_G; } } catch (e) {}
     return T; })(buildTileMap);
-  if (typeof goMap === 'function') goMap = (o => function (m) { if (isGarden(m)) { say1(SOON_G); return Promise.resolve(); } return o.apply(this, arguments); })(goMap);
+  if (REL && typeof goMap === 'function') goMap = (o => function (m) { if (isGarden(m)) { say1(SOON_G); return Promise.resolve(); } return o.apply(this, arguments); })(goMap);
   // 存档停在菜园里（以前的正式版能进）：读档时送回西院月门口
   const back = () => { const e = [].concat((TMAPS.qingzhu_garden2 || {}).exits || [], (TMAPS.qingzhu_garden || {}).exits || []).find(e => e.to === 'qingzhu_court' && e.at); return e ? e.at : (TMAPS.qingzhu_court && TMAPS.qingzhu_court.start) || null; };
-  if (typeof tileSetMap === 'function') tileSetMap = (o => function (m) { if (isGarden(m) && TMAPS.qingzhu_court) { const b = back(); say1(SOON_G); if (b) return o.call(this, 'qingzhu_court', b[0], b[1], 'right'); } return o.apply(this, arguments); })(tileSetMap);
+  if (REL && typeof tileSetMap === 'function') tileSetMap = (o => function (m) { if (isGarden(m) && TMAPS.qingzhu_court) { const b = back(); say1(SOON_G); if (b) return o.call(this, 'qingzhu_court', b[0], b[1], 'right'); } return o.apply(this, arguments); })(tileSetMap);
   // ② 钓台、小池
-  const dock = () => { for (const m of ['qingzhu_upper_pavilion']) for (const n of ((TMAPS[m] || {}).npcs || [])) if (n.name === '竹钓台') n.talk = async () => { await narrate('竹钓台伸进潭里，矮凳边放着一只鱼篓，竹笠挂在柱子上。'); say1(SOON_F); }; };
+  const dock = () => { for (const m of ['qingzhu_upper_pavilion']) for (const n of ((TMAPS[m] || {}).npcs || [])) if (n.name === '竹钓台') n.talk = REL ? async () => { await narrate('竹钓台伸进潭里，矮凳边放着一只鱼篓，竹笠挂在柱子上。'); say1(SOON_F); } : async () => { await narrate('竹钓台伸进潭里，矮凳边的鱼篓空着。这潭如今叫淬剑潭——铸剑师在潭边淬剑，鱼早惊走了。'); }; };
   const pond = () => { const n = ((TMAPS.qingzhu_court || {}).npcs || []).find(x => x.name === '小池'); if (n) n.talk = async () => { await narrate('池水映着日影，几尾红鲤懒洋洋地游着。'); }; };
   // ③ 胖师兄的烤鱼
   const quest = () => { const Q = window.SQ_DEFS; if (!Q) return; for (let i = Q.length - 1; i >= 0; i--) if (Q[i] && Q[i].id === 'tj_fish') Q.splice(i, 1); };
@@ -30,8 +31,8 @@
   const recipes = () => { const RS = window.R139_RECIPES, W = window.R139_WHERE; if (!RS || !W) return;
     for (let i = RS.length - 1; i >= 0; i--) if ((RS[i].ing || []).some(n => W(n))) RS.splice(i, 1); };
   // ⑤ 小提示
-  const tips = () => { const G = window.GX_TIPS; if (!G) return; const bad = s => /钓|菜园|种地|园簿|锦鲤|浮漂|咬钩|烤鱼/.test(Array.isArray(s) ? s[0] : s);
+  const tips = () => { const G = window.GX_TIPS; if (!G) return; const bad = s => (REL ? /钓|菜园|种地|园簿|锦鲤|浮漂|咬钩|烤鱼/ : /钓|锦鲤|浮漂|咬钩|烤鱼/).test(Array.isArray(s) ? s[0] : s);
     for (const k of ['gameplay', 'story', 'story_hook']) if (Array.isArray(G[k])) G[k] = G[k].filter(s => !bad(s)); };
-  const all = () => { for (const f of [dock, pond, quest, recipes, tips]) try { f(); } catch (e) { console.warn('R330', e); } };
+  const all = () => { for (const f of REL ? [dock, pond, quest, recipes, tips] : [dock, pond, quest, tips]) try { f(); } catch (e) { console.warn('R330', e); } };
   all(); setTimeout(all, 0); setTimeout(all, 1500);
 })();

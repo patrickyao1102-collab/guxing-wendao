@@ -116,7 +116,7 @@
   const QUIPS = ['有事说事。本神仙很忙的。', '盯着本神仙看什么？任务做了吗。', '点数是拿来花的，攒着又不下崽。', '想变强？榜上的事迹挨个做，别挑三拣四。', '宝库里的东西都是好东西——就看你够不够格。'];
   const speak = s => { UI.say = s; UI.sayT = performance.now(); };
   const P = { x: 124, y: 104, w: 1128, h: 596 }, LEFT = { x: 148, y: 128, w: 252, h: 548 }, BODY = { x: 418, y: 128, w: 812, h: 548 };
-  const TABS_ = () => window.R384_OPEN ? ['任务', '宝库', '试炼'] : ['任务', '宝库'], tabR = i => ({ x: 30, y: 124 + i * 114, w: 76, h: 104 }), CLOSE = { x: 1136, y: 30, w: 118, h: 46 };
+  const TABS_ = () => window.R384_OPEN ? ['任务', '宝库', window.R384_TAB_NAME || '试炼'] : ['任务', '宝库'], tabR = i => ({ x: 30, y: 124 + i * 114, w: 76, h: 104 }), CLOSE = { x: 1136, y: 30, w: 118, h: 46 };
   const tabOn = i => i < 2 || !!window.R384_OPEN;
   let page = 0, cat = '全部', tier = 1, sel = null, arm = null, flash = null;
 
