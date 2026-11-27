@@ -7,7 +7,13 @@
 (function () {
   if (typeof drawUnit !== 'function' || typeof ctx === 'undefined') return;
   const COL = { boar: [240, 190, 84], wolf: [140, 205, 255], leopard: [255, 140, 60], spider: [255, 214, 90], treant: [130, 230, 140], rhino: [226, 186, 104], boss: [255, 96, 96] };
-  const art = n => (window.R370_ART ? R370_ART(n, 'r377') : null);
+  const art0 = n => (window.R370_ART ? R370_ART(n, 'r377') : null);
+  // 借别家的光轮 / 妖阵（头目不单画一套）：R377_ALIAS[id] = '借谁的' 或 ['借谁的', 'silver']（去色成银白，金属性用）。COL 也交出去，头目自己登记颜色。
+  const ALIAS = window.R377_ALIAS = window.R377_ALIAS || {}; window.R377_COL = COL; ALIAS.xingwolf = ALIAS.xingwolf || 'leopard';
+  const TINT = {};
+  function silver(im, key) { if (TINT[key]) return TINT[key]; try { const cv2 = document.createElement('canvas'); cv2.width = im.naturalWidth || im.width; cv2.height = im.naturalHeight || im.height; const g = cv2.getContext('2d'); g.drawImage(im, 0, 0);
+      const d = g.getImageData(0, 0, cv2.width, cv2.height), a = d.data; for (let i = 0; i < a.length; i += 4) { if (!a[i + 3]) continue; const l = Math.min(255, (a[i] * .5 + a[i + 1] * .4 + a[i + 2] * .1) * 1.12 + 8); a[i] = l * .93; a[i + 1] = l * .97; a[i + 2] = Math.min(255, l * 1.04); } g.putImageData(d, 0, 0); return (TINT[key] = cv2); } catch (e) { return im; } }
+  const art = n => { const m = /^(halo|seal)_(.+)$/.exec(n), al = m && ALIAS[m[2]]; if (!al) return art0(n); const [src, tint] = Array.isArray(al) ? al : [al, null], im = art0(m[1] + '_' + src); return im && tint === 'silver' ? silver(im, n) : im; };
   const hex = h => { const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(h || ''); return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : null; };
   const lift = c => { const mx = Math.max(c[0], c[1], c[2], 1), k = Math.max(1, 235 / mx); return c.map(v => Math.min(255, Math.round(v * k * .92 + 20))); };   // 太暗的招式色提亮一点
   const idOf = u => (u._yw && u._id) || 'boss';
@@ -92,14 +98,14 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.translate(640 - sl * .4, 350); ctx.scale(sc, sc);
       ctx.shadowColor = rgba(c, .95); ctx.shadowBlur = 34; ctx.font = `92px ${BRUSH}`; ctx.fillStyle = rgba(c, 1); ctx.fillText(e._ep || '', 0, -6); ctx.shadowBlur = 0;
       ctx.font = `92px ${BRUSH}`; ctx.fillStyle = 'rgba(255,250,236,.92)'; ctx.fillText(e._ep || '', 0, -6);
-      ctx.font = `700 24px ${FONT}`; ctx.fillStyle = rgba(c, 1); ctx.fillText('妖王　·　' + ((e._yw && e._yw.name) || '') + '　Lv' + e.lv, 0, 56); ctx.restore(); } catch (er) { try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
+      ctx.font = `700 24px ${FONT}`; ctx.fillStyle = rgba(c, 1); ctx.fillText((e._yw && e._yw.mini ? '头目' : '妖王') + '　·　' + ((e._yw && e._yw.name) || '') + '　Lv' + e.lv, 0, 56); ctx.restore(); } catch (er) { try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
 
   // ---- 地图上的妖王巢穴：垫在本体后面 ----
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) {
-    let y = null; try { y = window.R370_HERE && R370_HERE(); if (y && typeof battle !== 'undefined' && battle) y = null; } catch (e) {}
-    const t = performance.now() / 1000, c = y && (COL[y.id] || COL.boss);
-    if (y) { try { back(y.id, c, y.pos[0], y.pos[1], y.mh * .92, t, .7, 1.3); } catch (e) {} }
+    let ys = []; try { ys = (typeof battle !== 'undefined' && battle) ? [] : window.R370_HERE_ALL ? R370_HERE_ALL() : (window.R370_HERE && R370_HERE()) ? [R370_HERE()] : []; } catch (e) {}
+    const t = performance.now() / 1000, gh = y => (y.gh || y.mh * .92);   /* y.gh：身体在地图上的高度（图集给出手留了余量的头目用，光按身体算） */
+    for (const y of ys) { try { back(y.id, COL[y.id] || COL.boss, y.pos[0], y.pos[1], gh(y), t, .7, 1.3); } catch (e) {} }
     const r = orig && orig.apply(this, arguments);
-    if (y) { try { motes(c, y.pos[0], y.pos[1], y.mh * .92, t, .6, 1.3); } catch (e) {} }
+    for (const y of ys) { try { motes(COL[y.id] || COL.boss, y.pos[0], y.pos[1], gh(y), t, .6, 1.3); } catch (e) {} }
     return r; })(tileAmbientHigh);
 })();

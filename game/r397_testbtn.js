@@ -1,6 +1,6 @@
 // ================= R397 · 测试面板：11-27 白天新加的东西各给一个直达按钮（只进测试版）=================
-(function addBtn(n) { const pan = document.getElementById('dbgPanel'); if (!pan || !window.R389 || !window.R394 || !window.R392) { if ((n || 0) < 60) setTimeout(() => addBtn((n || 0) + 1), 500); return; }
-  const F = () => (S.flags = S.flags || {}), h = document.createElement('h4'); h.textContent = '11-27 白天新加 · 五行 / 落星坡 / 装备面板 / 剑炉 / 三铺新内景'; const row = document.createElement('div'); row.className = 'row';
+(function addBtn(n) { const pan = document.getElementById('dbgPanel'); if (!pan || !window.R389 || !window.R394 || !window.R392 || (!window.R399 && (n || 0) < 16)) { if ((n || 0) < 60) setTimeout(() => addBtn((n || 0) + 1), 500); return; }
+  const F = () => (S.flags = S.flags || {}), h = document.createElement('h4'); h.textContent = '11-27 白天新加 · 五行 / 落星坡 / 装备面板 / 剑炉 / 三铺新内景 / 两只头目'; const row = document.createElement('div'); row.className = 'row';
   const ready = () => { try { dialog = null; choice = null; sysPanel = null; } catch (e) {} S.scene = drawMap; S.started = true; S.hud = true; S.fade = 0; world.locked = false; };
   const go = m => { const st = TMAPS[m].start; tileSetMap(m, st[0], st[1], 'up'); ready(); };
   const sword = () => { try { const w = S.hero.equip && S.hero.equip.weapon; if (!w || w === 'w_wood') { addItem('w_hanxing', 1); equipItem('w_hanxing'); try { if (sysPanel && sysPanel.eqp) sysPanel = null; } catch (e) {} } } catch (e) {} };
@@ -14,6 +14,14 @@
   mk('打开玉佩（任务 / 宝库）', () => { if (!world.map) go('tj_luoxing'); F().xlw_seen = 1; setTimeout(() => R386.open(), 300); });
   mk('星辰点 +200（试宝库用）', () => { S.hero.points = (S.hero.points || 0) + 200; toast('星辰点 ' + S.hero.points, 1600); });
   mk('云霆、林雪入队（看八折和套装）', () => { joinParty('yunting'); joinParty('linxue'); toast('云霆、林雪入队：点左上角头像看各人的装备', 2400); });
+  // R399 两只头目：十级、带云霆和星痕剑去看 / 直接打
+  const duo = lv => { window.R395_SKIP = 1; try { let g = 0; while (S.hero.lv < lv && g++ < 400) gainExp(expNeed(S.hero.lv)); S.hero.learnQ = []; } catch (e) {} window.R395_SKIP = 0; joinParty('yunting'); try { if (!S.hero.bag.w_xinghen && S.hero.equip.weapon !== 'w_xinghen' && S.hero.equip.weapon !== 'w_xinghen2') { addItem('w_xinghen', 1); equipItem('w_xinghen'); } const o = WX5.XH(); o.pick = 1; } catch (e) {} try { partyRest(); } catch (e) {} Object.assign(F(), { hs_explored: 1, hs_chest: 1, xlw_seen: 1, r370_tut0: 1 }); try { dialog = null; choice = null; sysPanel = null; } catch (e) {} };
+  if (window.R399) {
+  mk('去松风林道看头目「老松魈」（十级 · 带云霆）', () => { duo(10); F().ch2_depart = 1; const y = R399.BY.songxiao; tileSetMap(y.map, (y.pos[0] - 10) / 64 - .5, (y.pos[1] - 330) / 64 - .8, 'down'); ready(); });
+  mk('去山外树林看头目「铁鳞穿山甲」（十一级 · 带云霆）', () => { duo(11); Object.assign(F(), { ch2_depart: 1, ch2_forest: 1, ch2_linyi: 1, r399_csj: 1 }); const y = R399.BY.chuanshanjia; tileSetMap(y.map, (y.pos[0] + 330) / 64 - .5, (y.pos[1] + 20) / 64 - .8, 'left'); ready(); });
+  mk('直接打老松魈', () => { duo(10); if (!world.map) go('tj_luoxing'); ready(); setTimeout(() => R370_FIGHT('songxiao'), 300); });
+  mk('直接打铁鳞穿山甲', () => { duo(11); if (!world.map) go('tj_luoxing'); ready(); setTimeout(() => R370_FIGHT('chuanshanjia'), 300); });
+  }
   mk('去锦云坊（新内景）', () => go('xt_chengyi')); mk('去裁月记（新内景）', () => go('xt_caifeng')); mk('去点绛铺（新内景）', () => go('xt_yanzhi'));
   const put = () => { if (!pan.contains(row)) pan.prepend(h, row); }; put(); new MutationObserver(put).observe(pan, { childList: true });
 })();
