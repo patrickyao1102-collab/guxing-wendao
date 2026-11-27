@@ -4,7 +4,7 @@
 // 美术是 Codex R193F（r193_art.js 画）；图没读好时先画占位。
 (function () {
   if (typeof S === 'undefined' || typeof ctx === 'undefined' || !window.R193) return;
-  if (window.R193_ON === undefined) window.R193_ON = 1;   // 作者 11-11 认可方案，素材到齐后正式换上
+  if (window.R193_ON === undefined) window.R193_ON = 0;   // 作者 11-11 认可方案；11-28「那个潭咱就不钓鱼了」——垂钓整个停了，进后庭也不再载钓鱼的画
   const SX = (k, v) => { try { return window.R193_SFX ? R193_SFX.play(k, v) : null; } catch (e) { return null; } }, SL = (k, v) => { try { return window.R193_SFX ? R193_SFX.loop(k, v) : null; } catch (e) { return null; } };
   const D = window.R193, now = () => performance.now() / 1000, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), rnd = (a, b) => a + Math.random() * (b - a);
   const WY0 = 285, NEAR = 640, FAR = 335;   // 照 R193F 背景：水面从 y≈285 往下；抛近落在 640，抛满落在 335

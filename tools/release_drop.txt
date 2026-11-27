@@ -443,3 +443,23 @@ bgm29/xyq_dy_nighta.mp3
 gm_rt.js
 r79d.js
 walk_test.js
+# 11-28：潭边垂钓停了，钓鱼用的 r193g（只留钓具图标 gear_icons，r193_gear 还在用）
+r193g/all_depart.webp
+r193g/bamboo_leaf.webp
+r193g/bee.webp
+r193g/butterfly.webp
+r193g/card_golden_carp.webp
+r193g/card_jade_dragon_carp.webp
+r193g/card_weed.webp
+r193g/card_yellow_catfish.webp
+r193g/dragonfly.webp
+r193g/egret.webp
+r193g/fireflies.webp
+r193g/fish_book.webp
+r193g/fish_lift.webp
+r193g/frog.webp
+r193g/kingfisher.webp
+r193g/peach_petals.webp
+r193g/rarity.webp
+r193g/sheet.json
+r193g/unknown_fish.webp
