@@ -15,13 +15,15 @@
 //      自己站点实在取不到，再去仓库取原文件顶上；还是不行就告诉页面，页面上会明说「有文件没加载出来」。
 //   ④ 清单里没有的文件（正式版剔掉的旧配乐、旧图，测试面板里试听旧版本用）照旧去仓库取，取到的也存着，7 天内不再去仓库。
 // 这个文件本身很少改；改了取文件的办法就把 SWV 加一（加载页和游戏页靠它认出浏览器里装的是不是旧的）。
-const SWV = 3;
+const SWV = 4;
 const RAW = 'https://raw.githubusercontent.com/patrickyao1102-collab/guxing-wendao/main/game/';
 const KEY = new Uint8Array([154,60,81,231,34,184,109,20,240,123,41,197,136,62,161,95,210,12,151,70,187,113,29,228,88,51,166,207,98,9,141,75,247,37,176,110,18,169,92,213,55,224,122,30,147,72,189,102,10,143,65,242,40,180,107,23,204,84,217]);
 const TYPES = { webp: 'image/webp', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8', css: 'text/css; charset=utf-8', html: 'text/html; charset=utf-8',
   mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', wav: 'audio/wav', mp4: 'video/mp4', webm: 'video/webm', woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf', txt: 'text/plain; charset=utf-8' };
 const BASE = location.pathname.replace(/sw\.js$/, '');   // …/play/
 const ROOT = BASE.replace(/codex\/$/, '');                // 站点根目录
+// 11-28：测试版素材分仓库（见 tools/play/sw.js、tools/play/ext.json）
+const EXT = { a: '/guxing-audio/t/', i: '/guxing-art/t/', g: '/guxing-scenes/t/' };
 const STORE = 'gx-codex-files-v1', META = 'gx-codex-meta-v1';
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -102,7 +104,7 @@ const fileKey = (rel, hash) => new Request(BASE + '__f/' + encPath(rel) + '?h=' 
 const pending = new Map(), MISS = new Set(), FAILED = new Set();
 async function openStore() { try { return await caches.open(STORE); } catch (e) { return null; } }
 async function download(rel, where, hash, store, key, urgent) {
-  const enc = encPath(rel), type = typeOf(rel), url = (where === 'r' ? ROOT : where === 't' ? ROOT + 'play/t/' : where === 'c' ? BASE + 'c/' : BASE) + enc + '?h=' + hash;
+  const enc = encPath(rel), type = typeOf(rel), url = (EXT[where] ? location.origin + EXT[where] : where === 'r' ? ROOT : where === 't' ? ROOT + 'play/t/' : where === 'c' ? BASE + 'c/' : BASE) + enc + '?h=' + hash;
   if (!urgent) await G.s.enter();
   try {
     let g = await net(url, { cache: 'no-store' }, urgent ? { tries: 3, urgent: true } : null);
@@ -126,7 +128,7 @@ async function download(rel, where, hash, store, key, urgent) {
 async function legacy(rel, haveMan) {
   const enc = encPath(rel), type = typeOf(rel);
   if (MISS.has(rel)) return { fail: 404 };
-  if (!haveMan) for (const url of [BASE + 'c/' + enc, ROOT + enc, ROOT + 'play/t/' + enc]) { const r = await net(url, { cache: 'no-cache' }, { tries: 2 }); if (r.ok) return { bytes: xor(r.buf), type }; }
+  if (!haveMan) for (const url of [BASE + 'c/' + enc, ROOT + enc, ROOT + 'play/t/' + enc, ...Object.values(EXT).map(b => location.origin + b + enc)]) { const r = await net(url, { cache: 'no-cache' }, { tries: 2 }); if (r.ok) return { bytes: xor(r.buf), type }; }
   const key = fileKey(rel, 'raw'), store = haveMan ? await openStore() : null;
   if (store) { const hit = await store.match(key).catch(() => null); if (hit) return { hit }; }
   let p = pending.get(key.url);

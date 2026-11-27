@@ -1,0 +1,6 @@
+{
+  "_说明": "测试版的素材分到另外几个仓库的站点（GitHub 每个站点上限 1GB）。作者 11-28 定：配乐配音一个、小图一个、大图一个。live 里列出的那几类，主站点 /play/t/ 不再放，浏览器去对应仓库的站点取（tools/play/sw.js）；那几个仓库自己的发布流程会从本仓库取出这一类、加扰后发布（tools/ext_site/pages.yml）。",
+  "repos": { "a": "guxing-audio", "i": "guxing-art", "g": "guxing-scenes" },
+  "big_image_kb": 400,
+  "live": []
+}

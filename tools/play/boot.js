@@ -5,7 +5,7 @@
 //   ③ 开着游戏的时候每分钟问一句有没有新版本，有就在顶上出一行「有新版本 · 点这里更新」；
 //   ④ 真有文件没取到（网络不稳），顶上明说「有 N 个文件没加载出来 · 点这里重新加载」，不再悄悄拿旧样子顶上。
 (function () {
-  var B = { b: '__GX_SHA__', t: '__GX_TIME__' }, NEED = 3, sw = navigator.serviceWorker, q = '';
+  var B = { b: '__GX_SHA__', t: '__GX_TIME__' }, NEED = 4, sw = navigator.serviceWorker, q = '';
   try { q = location.search || ''; } catch (e) {}
   window.GX_PLAY = B;
   // 给 Claude 在作者电脑上验收用：网址带 qa_mute=1 时全程不出声。不存任何设置，去掉这个参数就恢复。

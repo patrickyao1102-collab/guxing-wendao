@@ -1,0 +1,61 @@
+# 《孤星问道》素材站：从 guxing-wendao 取出属于本仓库的那一类测试版素材，加扰后发布成本仓库的 GitHub Pages。
+# 作者 11-28：GitHub 每个站点上限 1GB，测试版的素材分到几个仓库放（配乐配音 / 小图 / 大图）。这个文件是 guxing-wendao/tools/ext_site/pages.yml 的副本，CODE 换成本仓库那一类。
+# 什么时候发布：每 10 分钟自己去 guxing-wendao 看一眼，这一类素材有变化才发布（没变化就跳过，不占发布次数）；也可以手动点 Run workflow。
+# 主站点的测试版取不到这里的新文件时（还没发布到），会自己去 guxing-wendao 仓库取原文件顶上，所以中间这几分钟不会缺图。
+name: 发布素材站
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      CODE: __CODE__
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickyao1102-collab/guxing-wendao
+          path: src
+      - name: 装 numpy（加扰用）
+        run: pip install numpy
+      - name: 取出这一类素材、加扰
+        run: |
+          cd src && python3 tools/build_play.py --ext "$CODE" "$GITHUB_WORKSPACE/_site"
+      - name: 这一类素材有没有变化
+        id: chk
+        run: |
+          H=$(cd _site && find t -type f | sort | xargs -d '\n' sha1sum | sha1sum | cut -c1-40)
+          echo "$H" > _site/build.txt
+          OLD=$(curl -fsS "https://patrickyao1102-collab.github.io/${GITHUB_REPOSITORY#*/}/build.txt?t=$(date +%s)" || echo none)
+          if [ "$OLD" = "$H" ] && [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then echo "没变化，跳过"; echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/configure-pages@v5
+        if: steps.chk.outputs.skip != '1'
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.chk.outputs.skip != '1'
+        with:
+          path: _site
+      - id: deployment
+        if: steps.chk.outputs.skip != '1'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: 发布失败 → 等 30 秒
+        if: steps.chk.outputs.skip != '1' && steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: 发布失败 → 再试一次
+        if: steps.chk.outputs.skip != '1' && steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4

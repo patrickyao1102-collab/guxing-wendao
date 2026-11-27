@@ -12,7 +12,7 @@ sys.argv = _argv
 SRC = os.path.join(REPO, 'codex_r360', 'game'); OUT = os.path.join(SITE, 'codex')
 sha16 = lambda b: hashlib.sha256(b).hexdigest()[:16]
 play = json.load(open(os.path.join(SITE, 'play', 'manifest.json'), encoding='utf8'))['f']
-files = {k: v for k, v in play.items() if k != 'game.html' and v[0] in 'rt'}
+files = {k: v for k, v in play.items() if k != 'game.html' and v[0] in 'rtaig'}
 cdir = os.path.join(OUT, 'c'); shutil.rmtree(cdir, ignore_errors=True)
 n = 0
 for d, _, fs in os.walk(SRC):

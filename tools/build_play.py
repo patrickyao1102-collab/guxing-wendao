@@ -10,6 +10,10 @@
 #   python3 tools/build_play.py <站点目录> <提交号>
 import os, sys, json, hashlib, shutil, time
 
+# 11-28：素材分仓库。python3 tools/build_play.py --ext <a|i|g> <输出目录>：只取出这一类（配乐配音 a / 小图 i / 大图 g），加扰后放到 <输出目录>/t/——给那几个素材仓库自己的发布流程用。
+EXT_ONLY = None
+if len(sys.argv) >= 4 and sys.argv[1] == '--ext':
+    EXT_ONLY = sys.argv[2]; sys.argv = [sys.argv[0], sys.argv[3], 'ext']
 if len(sys.argv) < 3:
     raise SystemExit('用法：python3 tools/build_play.py <站点目录> <提交号>')
 SITE, SHA = sys.argv[1], sys.argv[2]
@@ -25,6 +29,29 @@ LIMIT_MB = 990   # GitHub Pages 单站点上限 1GB（1024 MB），留一点余�
 def sha16(data):
     return hashlib.sha256(data).hexdigest()[:16]
 
+EXT = json.load(open(os.path.join(HERE, 'play', 'ext.json'), encoding='utf8'))
+AUDIO = {'mp3', 'm4a', 'ogg', 'wav', 'mp4', 'webm'}; IMAGE = {'webp', 'png', 'jpg', 'jpeg', 'gif'}
+def kind(rel):   # 只进测试版的文件归哪一类：a 配乐配音视频 / g 大图（地图、背景、插画）/ i 小图 / t 其余（脚本、数据，留在主站点）
+    e = rel.rsplit('.', 1)[-1].lower()
+    if e in AUDIO: return 'a'
+    if e in IMAGE: return 'g' if os.path.getsize(os.path.join(SRC, rel)) >= EXT['big_image_kb'] * 1024 else 'i'
+    return 't'
+
+def ext_only(code):   # 素材仓库那边：只把这一类加扰写出来
+    out = os.path.join(SITE, 't'); shutil.rmtree(out, ignore_errors=True); n = b = 0
+    for name in sorted(os.listdir(SRC)):
+        p = os.path.join(SRC, name)
+        rels = []
+        if name in R.TEST_ONLY_DIRS and os.path.isdir(p):
+            for d, _, fs in os.walk(p): rels += [os.path.relpath(os.path.join(d, f), SRC) for f in sorted(fs) if not f.startswith('.')]
+        elif name in R.TEST_ONLY_JS and os.path.isfile(p): rels.append(name)
+        for rel in rels:
+            if kind(rel) != code: continue
+            data = R.xor_bytes(open(os.path.join(SRC, rel), 'rb').read()); o = os.path.join(out, rel); os.makedirs(os.path.dirname(o), exist_ok=True); open(o, 'wb').write(data); n += 1; b += len(data)
+    open(os.path.join(SITE, 'index.html'), 'w', encoding='utf8').write('<!doctype html><meta charset=utf-8><title>孤星问道 · 素材</title><p>《孤星问道》测试版的素材站（%s），由 guxing-wendao 自动发布。</p>' % EXT['repos'].get(code, code))
+    open(os.path.join(SITE, '.nojekyll'), 'w').write('')
+    print('素材站 %s：%d 个文件，%.0f MB' % (code, n, b / 1048576))
+
 def main():
     ver_path = os.path.join(SITE, 'version.json')
     if not os.path.isfile(ver_path):
@@ -38,9 +65,11 @@ def main():
     # ② 只进测试版的目录 / 脚本：加扰后放到 play/t/
     tdir = os.path.join(PLAY, 't'); shutil.rmtree(tdir, ignore_errors=True)
     tn = tb = 0
+    live = set(EXT.get('live') or [])
     def put(rel):
         nonlocal tn, tb
-        data = R.xor_bytes(open(os.path.join(SRC, rel), 'rb').read())
+        data = R.xor_bytes(open(os.path.join(SRC, rel), 'rb').read()); k = kind(rel)
+        if k in live: files[rel.replace(os.sep, '/')] = k + sha16(data); return   # 这一类放在别的仓库的站点上，主站点只记指纹
         out = os.path.join(tdir, rel); os.makedirs(os.path.dirname(out), exist_ok=True)
         open(out, 'wb').write(data)
         files[rel.replace(os.sep, '/')] = 't' + sha16(data); tn += 1; tb += len(data)
@@ -82,4 +111,5 @@ def main():
         raise SystemExit('站点超过 %d MB，GitHub Pages 会发布失败：需要清掉一些用不到的旧素材（见 tools/release_drop.txt）' % LIMIT_MB)
 
 if __name__ == '__main__':
-    main()
+    if EXT_ONLY: ext_only(EXT_ONLY)
+    else: main()

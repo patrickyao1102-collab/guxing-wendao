@@ -7,7 +7,7 @@
 // 作者 11-13：测试版经常加载不出来更新后的版本——这里每次进来都查一遍，浏览器里装的要是旧的加载程序，就卸掉重装。
 (async () => {
   const m = document.getElementById('m'), v = document.getElementById('v'), say = t => { m.textContent = t; };
-  const NEED = 3, sleep = ms => new Promise(r => setTimeout(r, ms)), pad = n => String(n).padStart(2, '0');
+  const NEED = 4, sleep = ms => new Promise(r => setTimeout(r, ms)), pad = n => String(n).padStart(2, '0');
   const fmt = t => { const d = new Date(t); return isNaN(d) ? '' : (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   if (!('serviceWorker' in navigator)) { say('这个浏览器不支持试玩（需要 Service Worker），请换 Chrome / Safari 最新版'); return; }
   const ping = async () => { try { const r = await fetch('__sw', { cache: 'no-store' }); return r.ok ? await r.json() : null; } catch (e) { return null; } };
