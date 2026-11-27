@@ -128,7 +128,7 @@
       if (STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 800 + Math.random() * 600; encounter(n); } } catch (e) {} return r; })(updateMap);
   async function encounter(n) { STEP.busy = true; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { const X = TXT[n], set = X.mobs[Math.floor(Math.random() * X.mobs.length)]; S.flash = .5; S.flashColor = n === 1 ? '#ff3a4a' : '#cfe8ff'; try { playSnd('sfx_claw', .6); } catch (e) {} await sleep(150); await fadeOut(200);
-      const win = await TOWER.fightMobs(n, set); S.scene = drawMap;
+      const pr = TOWER.fightMobs(n, set); await fadeIn(260); const win = await pr; S.scene = drawMap;
       if (!win) { partyRevive(.3); const p = world.player, E = META['f' + n].entrance.center; p.x = E[0]; p.y = E[1] - 70; toast('败下阵来……回到入口', 2600); }
       await fadeIn(240); } catch (e) { console.warn('R424 enc', e); } finally { STEP.busy = false; world.locked = false; } }
   // ---------- 进塔：铸剑师那里选层 ----------

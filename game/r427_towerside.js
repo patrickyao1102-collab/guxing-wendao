@@ -100,7 +100,7 @@
     const i = await choose('温行舟', ['入梦', '先不管']); if (i !== 0) return;
     world.locked = true;
     try { await fadeOut(300); let win = false;
-      await inDream(async () => { await fadeIn(300); await L(TXT.dream); await fadeOut(240); win = await fightElite('xinmo', 1); });
+      await inDream(async () => { await fadeIn(300); await L(TXT.dream); await fadeOut(240); const pr = fightElite('xinmo', 1); await fadeIn(260); win = await pr; });
       if (!win) { partyRevive(.3); await fadeIn(260); await L(TXT.dreamLose); return; }
       T.wen = 1; await fadeIn(300); S.flash = .6; S.flashColor = '#ffd0d8'; try { playSnd('sfx_heal', .7); } catch (e) {}
       await L(TXT.wenWake); await give('温行舟', [['w_zhaoxue', 1]]); await L(TXT.wenAfter);
@@ -112,11 +112,11 @@
     const i = await choose('十九尊虎卫冰像', ['向冰像行一礼', '走开']); if (i !== 0) return;
     RUN.f2.nuo = 1; try { playSnd('sfx_wind', .6); } catch (e) {} await L(TXT.bow); toast('虎卫之诺：这一回打玄锋，全队受的伤少一成', 3200); }
   async function lu() { const T = T7(); if (T.lu) return; world.locked = true;
-    try { await L(TXT.luMeet); await fadeOut(220); const win = await TOWER.fightMobs(2, ['tw_bingjia', 'tw_bingjia', 'tw_bingjia']); await fadeIn(240);
+    try { await L(TXT.luMeet); await fadeOut(220); const pr = TOWER.fightMobs(2, ['tw_bingjia', 'tw_bingjia', 'tw_bingjia']); await fadeIn(260); const win = await pr; await fadeIn(240);
       if (!win) { partyRevive(.3); await L(TXT.luLose); return; }
       T.lu = 1; await L(TXT.luAfter); await give('陆不归', [['m_qnhantie', 1]]); await L(TXT.luAfter2); T.luGone = performance.now(); } finally { world.locked = false; } }
   async function hu() { const T = T7(); if (T.hu) return false; world.locked = true;
-    try { await L(TXT.huMeet); await fadeOut(220); const win = await fightElite('huwei19', 2); await fadeIn(240);
+    try { await L(TXT.huMeet); await fadeOut(220); const pr = fightElite('huwei19', 2); await fadeIn(260); const win = await pr; await fadeIn(240);
       if (!win) { partyRevive(.3); await L(TXT.huLose); return true; }
       T.hu = 1; S.flash = .6; S.flashColor = '#e8f4ff'; await L(TXT.huAfter); await give('虎卫十九', [['r_shuangwen', 1]]); return true; } finally { world.locked = false; } }
   // 东边那个绞盘：虎卫十九没打过，不让转

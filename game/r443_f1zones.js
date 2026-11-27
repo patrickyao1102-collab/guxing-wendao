@@ -157,7 +157,7 @@
       if (STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 850 + Math.random() * 650; encounter(z); } } catch (e) {} return r; })(updateMap);
   async function encounter(z) { BUSY = true; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { const set = TXT.mobs[Math.floor(Math.random() * TXT.mobs.length)]; S.flash = .5; S.flashColor = '#ff3a4a'; try { playSnd('sfx_claw', .6); } catch (e) {} await sleep(150); await fadeOut(200);
-      const win = await TOWER.fightMobs(1, set); S.scene = drawMap;
+      const pr = TOWER.fightMobs(1, set); await fadeIn(260); const win = await pr; S.scene = drawMap;
       if (!win) { partyRevive(.3); const p = world.player, [x, y] = ctr(...START[z]); p.x = x; p.y = y; MUST.on = true; MUST.x = x; MUST.y = y; toast('败下阵来……回到' + ZNAME[z] + '起点', 2600); }
       await fadeIn(240); } catch (e) { console.warn('R443 enc', e); } finally { BUSY = false; world.locked = false; } }
   // ---------- 照魂灯、花墙、遗物、首领 ----------
