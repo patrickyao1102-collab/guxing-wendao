@@ -13,24 +13,34 @@
   const ok = v => !!A[v] && N.every(n => A[v][n]);
   const CFG = { a: { text: '#F4E9D3', narr: '#E6D9BE', name: '#F5E7BF', ff: '#EBDDBC', ffOn: '#FFE9A8' }, b: { text: '#2E2218', narr: '#4A3A2A', name: '#35261A', ff: '#3A2A1C', ffOn: '#8C2F22' } };
   if (MODE !== 'off') { let n = 0; const iv = setInterval(() => { if (ok(MODE) || MODE === 'off' || ++n > 30) return clearInterval(iv); load(MODE); }, 3000); }
+  // 立绘真正有画的左右范围（透明边不算）；跨域读不了像素就当整张都有画
+  const BB = new WeakMap();
+  function bbox(im) { let r = BB.get(im); if (r) return r; r = { l: 0, r: 1 };
+    try { const w = 64, h = Math.max(1, Math.round(64 * im.height / im.width)), c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.drawImage(im, 0, 0, w, h); const px = g.getImageData(0, 0, w, h).data; let mn = w, mx = -1;
+      for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) if (px[(y * w + x) * 4 + 3] > 40) { if (x < mn) mn = x; mx = x; break; }
+      r = mx >= 0 ? { l: mn / w, r: (mx + 1) / w } : { l: 0, r: 0 }; } catch (e) {}
+    if (im.complete && im.naturalWidth) BB.set(im, r); return r; }
   // 九宫（只横向拉：名签）
   function nineH(im, x, y, w, h, cap) { const sw = im.width, sh = im.height, sc = cap * 2; ctx.drawImage(im, 0, 0, sc, sh, x, y, cap, h); ctx.drawImage(im, sc, 0, sw - sc * 2, sh, x + cap, y, w - cap * 2, h); ctx.drawImage(im, sw - sc, 0, sc, sh, x + w - cap, y, cap, h); }
   // 让原来那套「画了等于没画」，顺便知道它这一帧到底要不要画对话框（回忆演出时它不画）
   let reached = false; const SENT = { get slide() { reached = true; return 0; }, text: '', shown: 0, who: '', p: null };
   function draw(d) { const V = A[MODE], C = CFG[MODE], k = ease(d.slide), bx = 36, bw = W - 72, bh = 176, by = H - bh - 18 + (1 - k) * 40, now = performance.now();
-    const cgOn = !!(window.CG_ON && CG_ON()), hasP = !cgOn && d.p && has(d.p);
-    if (hasP) { const im = IMG[d.p], ph = 540, pw = ph * im.width / im.height; ctx.save(); ctx.globalAlpha = k; ctx.drawImage(im, lerp(-pw, -10, k), H - ph + 6, pw, ph); ctx.restore(); }
+    const cgOn = !!(window.CG_ON && CG_ON()), pim = !cgOn && d.p && has(d.p) ? IMG[d.p] : null, pbb = pim && bbox(pim), hasP = !!(pbb && pbb.r - pbb.l > .08);
+    let tx = 84;
+    if (hasP) { const im = pim, ph = 540, pw = ph * im.width / im.height; ctx.save(); ctx.globalAlpha = k; ctx.drawImage(im, lerp(-pw, -10, k), H - ph + 6, pw, ph); ctx.restore();
+      tx = Math.round(Math.max(84, Math.min(400, -10 + pw * pbb.r + 22))); }   // 作者 11-28：有的人说话，字跑到右边、左边空一大块——字从立绘实际画到的地方右边开始，不再一律从 400 起
     ctx.save(); ctx.globalAlpha = Math.min(1, k * 1.5); ctx.drawImage(V.dlg_box, bx, by, bw, bh);
-    const tx = hasP ? 400 : 84;
     if (d.who) { ctx.font = `34px ${BRUSH}`; const tw = ctx.measureText(d.who).width, nw = Math.max(140, Math.round(tw + 64)), nx = tx - 20; nineH(V.dlg_name, nx, by - 25, nw, 48, 26);
       ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; if (MODE === 'a') { ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1; } ctx.fillStyle = C.name; ctx.fillText(d.who, nx + nw / 2 + (MODE === 'b' ? 4 : 0), by + 1); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
     ctx.font = `600 29px ${FONT}`; ctx.fillStyle = d.who ? C.text : C.narr; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
     const all = [...d.text], shown = all.slice(0, Math.floor(d.shown)).join(''); wrapText(shown, bw - (tx - bx) - 60).slice(0, 3).forEach((l, i) => ctx.fillText(l, tx, by + 40 + i * 42));
     if (d.shown >= all.length) { const f = V['dlg_next_' + (1 + Math.floor(now / 160) % 4)], b = Math.sin(now / 180) * 3; ctx.drawImage(f, bx + bw - 86, by + bh - 62 + b, 44, 44); }
     ctx.restore(); }
+  // 原来那套：立绘还没下好时它会画个色块小人、字从 380 起——立绘没到就当没有立绘，字从左边起
+  function plain(o, self, args) { const d = dialog, p0 = d.p; if (p0 && !has(p0)) d.p = null; try { return o.apply(self, args); } finally { d.p = p0; } }
   drawDialog = (o => function () {
-    const d = dialog; if (!d || d === SENT || MODE === 'off') return o.apply(this, arguments);
-    if (!ok(MODE)) { load(MODE); return o.apply(this, arguments); }
+    const d = dialog; if (!d || d === SENT) return o.apply(this, arguments); if (MODE === 'off') return plain(o, this, arguments);
+    if (!ok(MODE)) { load(MODE); return plain(o, this, arguments); }
     const g0 = UI.grainA; reached = false; dialog = SENT; UI.grainA = 0; try { o.apply(this, arguments); } finally { dialog = d; UI.grainA = g0; }
     if (!reached) return;
     try { draw(d); ffChip(); } catch (e) { console.warn('R381', e); } })(drawDialog);
