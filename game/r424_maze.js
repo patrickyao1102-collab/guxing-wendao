@@ -16,11 +16,11 @@
       intro: [['', '（身后的石门沉沉合拢。眼前是望不到头的血红花海，青石板路全被落花盖住了，花丛深处隐约躺着几道一动不动的人影。）'], ['星旋', '小子，少吸两口。这花香不对劲，闻多了会做梦。'], ['叶孤星', '做梦又怎样？'], ['星旋', '做了，就不想醒了。'], ['云霆', '……路在动。'], ['星旋', '不是路在动，是花香迷了你的眼。瞧见那三盏石灯没？全点亮，花墙才会让路。']],
       mechLines: ['（魂火「噗」地燃起，近处的红花齐齐垂下了头。）', '（风里隐约传来笑声，转眼又化作哭声，风一吹，全散了。）', '（花墙枯萎退开，露出一条小径。花海深处，有人正背对着这边。）'],
       relics: [[['', '（死胡同的石凳上，搁着一本薄册子，纸页被花汁洇成了淡红。每页只写一个名字，底下缀着一行小字。）'], ['', '「陈三娘，梦见她从军的儿子回来了。」「赵守义，梦见他还没出嫁的闺女。」「无名，梦见她自己。」……'], ['叶孤星', '每一页，都是一个睡在这儿的人。'], ['云霆', '她记着他们。']],
-        [['', '（一只孩童的绣鞋，鞋面歪歪扭扭绣着只兔子，鞋底干净得几乎没沾过泥。）'], ['叶孤星', '这么小的鞋……孩子没穿过几回。'], ['星旋', '是她娘揣进来的。带着鞋入梦，就为再给孩子穿一回。']],
+        [['', '（花根下压着一把褪了色的木梳，梳齿间还缠着几根白发。）'], ['叶孤星', '……梳头用的。'], ['星旋', '躺进这片花海的人，最舍不得的，往往就是这些零碎。']],
         [['', '（花墙前躺着一截斩断的老根，断口还在往外渗红汁，上面留着一道极深的剑痕。）'], ['星旋', '好利落的一剑……不过，出剑的人当年也没下得去第二剑。']]],
       gateShut: '（一堵长满巨大血色花苞的花墙，严严实实堵住了去路。）',
       meet: [['', '（一株巨大的血色花树下，女子正俯身替花丛里熟睡的老人掖好衣角。）'], ['绛蘅', '嘘——轻点声。他正梦见老伴呢，在给她梳头，别吵醒他。'], ['叶孤星', '他再也醒不过来了。'], ['绛蘅', '（缓缓回过头，笑得温温柔柔）醒来做什么呢？外头又没有等他的人。（目光落在叶孤星身上）你心里也藏着个想见的人吧？很淡，很远……我送你去见一面，好不好？'], ['云霆', '（一声不吭，横剑一步跨到叶孤星身前。）'], ['绛蘅', '真是位冷脸的哥哥。那就——两个一起留下来睡吧。']],
-      boss: '绛蘅', pic: 'r415/bianhua_f1_pic.webp?v=1', picH: 210, chest: [['q_jing', 2], ['juan4', 1], ['g_mu2', 1]], prize: [['q_jing', 2], ['g_mu2', 1]] },
+      boss: '绛蘅', pic: 'r415/bianhua_f1_pic.webp?v=1', picH: 210, chest: [[['q_jing', 2], ['g_mu2', 1]], [['juan4', 1], ['q_jing', 1]]], chestTxt: '（花丛根下埋着一只朽了一半的木匣。）', prize: [['q_jing', 2], ['g_mu2', 1]] },
     2: { title: '万妖塔 · 第二层 · 北关雪城', mech: '绞盘', mechVerb: '转开', mobs: [['tw_xuewei', 'tw_bingjia'], ['tw_xuewei', 'tw_xuewei'], ['tw_bingjia', 'tw_bingjia', 'tw_xuewei']],
       intro: [['', '（刺骨的风雪扑面而来。眼前是一段被积雪掩埋的古城墙，城垛上斜插着一面残破军旗。）'], ['星旋', '冷吧？这地方的雪，三百年没化过了。'], ['叶孤星', '这么高的城墙……是用来守关的。'], ['星旋', '守什么关，墙里头早就空了。看见那三道铁闸没？转开三个绞盘，才见得着守关的那位。']],
       mechLines: ['（铁链「哗啦」绞紧，远处第一道铁闸吱呀着抬起一截。）', '（风雪深处传来一声低沉虎啸，城墙上的积雪簌簌震落。）', '（最后一道铁闸轰然升起。城楼之上，一道银甲身影立在风雪里，背对着这边，死死望着北方。）'],
@@ -29,7 +29,7 @@
         [['', '（一块生着暗红锈的铜腰牌，正面刻着「虎卫十九」，背面用刀尖歪歪扭扭刻了两个字：「阿满」。）'], ['叶孤星', '阿满……像是个孩子的乳名。'], ['星旋', '守边关的兵，十个里头有九个，腰牌背面都刻着家里人的名字。']]],
       gateShut: '（铁闸落着，粗铁栅一根根插进雪里，纹丝不动。）',
       meet: [['', '（城楼垛口前，银甲白发的将军拄着一杆断戟，背对二人。）'], ['玄锋', '（头也不回）回去。'], ['叶孤星', '我们是来闯塔的。'], ['玄锋', '关外的东西，一个也不许进来。'], ['叶孤星', '关外……早就没有妖潮了。已经过去三百年了。'], ['玄锋', '（缓缓转过身，金色竖瞳里没有半点温度）那你们，便是关外来的。']],
-      boss: '玄锋', pic: 'r415/baihu_f1_pic.webp?v=1', picH: 220, chest: null, prize: [['q_yu', 1], ['g_jin2', 1], ['juan4', 1]] } };
+      boss: '玄锋', pic: 'r415/baihu_f1_pic.webp?v=1', picH: 220, chest: [[['q_jing', 2], ['g_jin2', 1]], [['juan4', 1], ['q_jing', 1]]], chestTxt: '（雪堆里半埋着一口军中的铁皮箱，锁早叫冻裂了。）', prize: [['q_yu', 1], ['g_jin2', 1], ['juan4', 1]] } };
   // ---------- 图 ----------
   const MECH = n => META['f' + n].objs.filter(o => o.states && !o.opens_when && !o.follows);
   const GATE = n => META['f' + n].objs.find(o => o.opens_when);
@@ -50,14 +50,16 @@
     for (const o of M.objs) if (/stele|halberd|tree|gatehouse/.test(o.name) && o.img) blk(o.x - o.img[1] * .3, o.y - 24, o.x + o.img[1] * .3, o.y + 2);
     const objs = [];
     for (const [r, x, y, w, h] of M.strips) objs.push({ id: 'r424_ov', uid: key(n, 'ov_' + r), img: key(n, 'ov_' + r), x, y, w, h, sy: r * ts + ts * .62, flat: false, flip: false, noBlock: true, noPre: true });   // 第 r 行墙的前景：人在这行墙北边（脚在它上面）就被挡住
-    for (const o of M.objs) { if (o.layer === 'atmosphere') continue; const im = o.img || (o.frames && o.frames[0]); if (!im) continue;
+    for (const o of M.objs) { if (o.layer === 'atmosphere') continue; const im = o.img || (o.frames && o.frames[0]) || (o.states && (o.states[o.initial] || Object.values(o.states)[0])); if (!im) continue;
       objs.push({ id: 'r424_obj', uid: key(n, o.name), img: key(n, im[0]), r424: { n, o }, x: o.x - im[1] / 2, y: o.y - im[2], w: im[1], h: im[2], sy: o.foreground ? o.y - 60 : o.y, flat: /dais/.test(o.name), flip: !!o.flip, noBlock: true, noPre: true }); }
+    if (dais) objs.push({ id: 'r424_obj', uid: key(n, 'boss_pic'), img: key(n, 'base'), r424: { n, o: { name: 'boss_pic', x: dais.x, y: dais.y } }, x: dais.x - 200, y: dais.y - 420, w: 400, h: 420, sy: dais.y - 40, flat: false, flip: false, noBlock: true, noPre: true });
     const E = M.entrance ? M.entrance.center : [M.w / 2, M.h - 100];
     const npcs = [];
     const spot = (name, x, y, talk, h = 120, extra) => { const [c, r] = P(x, y); npcs.push(Object.assign({ key: 'none', c, r, name, hidden: true, h, wander: false, r424: n, talk }, extra || {})); };
     MECH(n).forEach((o, i) => spot(TXT[n].mech, o.x, o.y + 30, () => mech(n, i), 120));
     const gate = GATE(n); if (gate) spot(n === 1 ? '花墙' : '铁闸', gate.x, gate.y + 20, () => shut(n), 150, { cond: () => !ST(n).gate });
-    (M.relics || []).forEach((rl, i) => { if (i < RELIC_N(n)) spot('遗物', rl.center[0], rl.center[1] + 30, () => relic(n, i), 60); else if (TXT[n].chest) spot('残匣', rl.center[0], rl.center[1] + 30, () => chest(n), 70); });
+    (M.relics || []).forEach((rl, i) => { if (i < RELIC_N(n)) spot('遗物', rl.center[0], rl.center[1] + 30, () => relic(n, i), 60); });
+    (M.chests || []).forEach((c, j) => { if (TXT[n].chest && TXT[n].chest[j]) spot('残匣', c[0], c[1] + 30, () => chest(n, j), 70); });
     if (dais) spot(TXT[n].boss, dais.x, dais.y - 40, () => boss(n), 200);
     TMAPS['wyt_f' + n] = { title: TXT[n].title, name: 'wyt_f' + n, indoor: false, leaves: false, chests: [], npcs, start: P(E[0], E[1] - 70),
       baked: { ground: key(n, 'base'), w: M.w, h: M.h, cs: CS, cols, rows, blocked: bl.join(''), objs },
@@ -73,19 +75,21 @@
   drawBaked = (orig => function (o, now) { if (!o || (o.id !== 'r424_obj' && o.id !== 'r424_ov')) return orig.apply(this, arguments);
     if (o.id === 'r424_ov') return orig.apply(this, arguments);
     const { n, o: d } = o.r424; let k = o.img;
+    if (d.name === 'boss_pic') { if (TOWER_STORY.cleared(n) || n !== curN()) return; const p = pic(n); if (!p) return; const h = TXT[n].picH, w = p.width * h / p.height, fy = d.y - (n === 1 ? 72 : 60);
+      ctx.save(); ctx.globalAlpha = .97; ctx.translate(d.x, 0); ctx.scale(-1, 1); ctx.drawImage(p, -w / 2, fy - h, w, h); ctx.restore(); return; }
     if (d.states) { const s = d.states[stateOf(n, d)]; if (s) k = key(n, s[0]); }
     else if (d.frames) { const ms = d.frame_ms || 180, i = Math.floor(now * 1000 / ms + d.x * .01) % (d.frames.length * 2 - 2), j = i < d.frames.length ? i : d.frames.length * 2 - 2 - i; k = key(n, d.frames[j][0]); }
     const im = IMG[k]; if (!im) return; ctx.save(); if (o.flip) { ctx.translate(o.x + o.w / 2, 0); ctx.scale(-1, 1); ctx.translate(-(o.x + o.w / 2), 0); }
     ctx.drawImage(im, o.x, o.y, o.w, o.h);
     if (d.states && d.states.on && stateOf(n, d) === 'on') { const t = performance.now() / 1000, f = .7 + .3 * Math.sin(t * 5 + d.x); ctx.globalCompositeOperation = 'lighter'; const cx = o.x + o.w / 2, cy = o.y + o.h * .35, g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 70); g.addColorStop(0, `rgba(255,240,200,${.45 * f})`); g.addColorStop(1, 'rgba(255,220,160,0)'); ctx.fillStyle = g; ctx.fillRect(cx - 70, cy - 70, 140, 140); }
-    if (/dais/.test(d.name) && !TOWER_STORY.cleared(n) && n === curN()) { const p = pic(n); if (p) { const h = TXT[n].picH, w = p.width * h / p.height, bx = d.x - w / 2 + 10, by = d.y - 70 - h; ctx.globalAlpha = .96; ctx.scale(1, 1); ctx.translate(d.x, 0); ctx.scale(-1, 1); ctx.translate(-d.x, 0); ctx.drawImage(p, bx, by, w, h); } }
     ctx.restore(); })(drawBaked);
   const curN = () => { const mm = /^wyt_f(\d)$/.exec(world.mapName || ''); return mm ? +mm[1] : 0; };
   // 遗物的一点闪光、氛围（雾 / 雪）
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) { if (orig) orig.apply(this, arguments); const n = curN(); if (!n) return;
     try { const M = META['f' + n], t = performance.now() / 1000, S2 = ST(n); ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      (M.relics || []).forEach((rl, i) => { const done = i < RELIC_N(n) ? S2.relic[i] : S2.chest; if (done || (i >= RELIC_N(n) && !TXT[n].chest)) return; const [x, y] = rl.center, f = .5 + .5 * Math.sin(t * 3 + i), g = ctx.createRadialGradient(x, y, 1, x, y, 26); g.addColorStop(0, `rgba(255,236,180,${.55 + .35 * f})`); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.fillRect(x - 26, y - 26, 52, 52);
+      [...(M.relics || []).map((rl, i) => [rl.center, i < RELIC_N(n) ? S2.relic[i] : 1]), ...(M.chests || []).map((c, j) => [c, (S2.ch || [])[j] || !(TXT[n].chest || [])[j]])].forEach(([ctr, done], i) => { if (done) return; const [x, y] = ctr, f = .5 + .5 * Math.sin(t * 3 + i), g = ctx.createRadialGradient(x, y, 1, x, y, 26); g.addColorStop(0, `rgba(255,236,180,${.55 + .35 * f})`); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.fillRect(x - 26, y - 26, 52, 52);
         for (let j = 0; j < 3; j++) { const a = t * 1.3 + j * 2.1, rr = 12 + 6 * Math.sin(t * 2 + j); ctx.fillStyle = `rgba(255,246,210,${.6 * f})`; ctx.fillRect(x + Math.cos(a) * rr - 1, y - 8 + Math.sin(a) * rr * .5 - 1, 2, 2); } });
+      MECH(n).forEach((o, i) => { if (S2.mech[i]) return; const f = .5 + .5 * Math.sin(t * 2.2 + i * 1.7), x = o.x, y = o.y - 30, g = ctx.createRadialGradient(x, y, 2, x, y, 58); g.addColorStop(0, `rgba(${n === 1 ? '255,214,170' : '200,230,255'},${.22 + .2 * f})`); g.addColorStop(1, 'rgba(255,220,180,0)'); ctx.fillStyle = g; ctx.fillRect(x - 60, y - 60, 120, 120); });
       ctx.globalCompositeOperation = 'source-over';
       for (const o of M.objs) { if (o.layer !== 'atmosphere' || !o.img) continue; const im = IMG[key(n, o.img[0])]; if (!im) continue; const dx = o.motion === 'horizontal_drift' ? Math.sin(t * .4 + o.y) * (o.max_offset_px || 10) : 0;
         if (o.motion === 'fall') { const ph = (t * 30 + o.x) % o.img[2]; ctx.globalAlpha = .8; ctx.drawImage(im, o.x - o.img[1] / 2, o.y - o.img[2] + ph - o.img[2]); ctx.drawImage(im, o.x - o.img[1] / 2, o.y - o.img[2] + ph); ctx.globalAlpha = 1; }
@@ -100,9 +104,9 @@
     else if (k < MECH(n).length) toast(X.mech + ' ' + k + ' / ' + MECH(n).length, 1600); }
   async function shut(n) { await narrate(TXT[n].gateShut); await say('星旋', '三处' + TXT[n].mech + '都' + TXT[n].mechVerb + '了才开。迷宫里找找。'); }
   async function relic(n, i) { const S2 = ST(n); if (S2.relic[i]) { await narrate('这件东西已经看过了。'); return; } S2.relic[i] = 1; await lines(TXT[n].relics[i]); }
-  async function chest(n) { const S2 = ST(n); if (S2.chest) { await narrate('残匣已经空了。'); return; } S2.chest = 1; const got2 = [];
-    for (const [id, c] of TXT[n].chest || []) if (ITEM_DB[id]) { addItem(id, c); got2.push(ITEM_DB[id].name + (c > 1 ? ' ×' + c : '')); }
-    await narrate('（花丛根下埋着一只朽了一半的木匣。）'); if (got2.length) await showPanel('残匣', ['!获得：' + got2.join('、')]); }
+  async function chest(n, j) { const S2 = ST(n), ch = S2.ch || (S2.ch = []); if (ch[j]) { await narrate('匣子已经空了。'); return; } ch[j] = 1; const got2 = [];
+    for (const [id, c] of TXT[n].chest[j] || []) if (ITEM_DB[id]) { addItem(id, c); got2.push(ITEM_DB[id].name + (c > 1 ? ' ×' + c : '')); }
+    try { playSnd('ui_open', .7); } catch (e) {} await narrate(TXT[n].chestTxt); if (got2.length) await showPanel('残匣', ['!获得：' + got2.join('、')]); }
   async function boss(n) { if (TOWER_STORY.cleared(n)) { await narrate(n === 1 ? '花树下空荡荡的，只有落花。' : '城楼上只剩一杆断戟插在雪里。'); return; }
     if (!ST(n).gate) return shut(n);
     await lines(TXT[n].meet); world.locked = true; await fadeOut(240);

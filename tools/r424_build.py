@@ -5,6 +5,32 @@
 import os, sys, json
 from PIL import Image
 SRC = sys.argv[1]; ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'game'); OUT = os.path.join(ROOT, 'r424')
+
+def r420b(P):
+    TS = P['tile_size']; g = P['grid']; out = {'map_size': [P['width'], P['height']], 'tile_size': [TS, TS], 'grid': g, 'grid_index_base': 1}
+    out['over_rows'] = [{'row': o['row'], 'file': o['file'], 'x': o['x'], 'y': o['y']} for o in P['overlays']]
+    objs = []; mech_of = {}
+    for o in P['objects']:
+        if len(o['states']) > 1 and o['id'].split('_')[0] in ('lamp', 'winch'): mech_of[o.get('group') or o['id']] = o['id']
+    for o in P['objects']:
+        e = {'name': o['id'], 'x': o['bottom_center'][0], 'y': o['bottom_center'][1]}
+        st = o['states']
+        if len(st) == 1: e['asset'] = list(st.values())[0]
+        else:
+            e['states'] = st; e['initial'] = o.get('default_state')
+            if o['id'] == 'gate': e['opens_when'] = 'all'
+            elif o['id'].startswith('chain'): e['follows'] = mech_of.get(o.get('group'))
+            if o['id'].startswith('lamp'): e['initial'] = 'off'
+        if o['id'] in ('flower_tree', 'gatehouse'): e['foreground'] = 1
+        objs.append(e)
+    out['objects'] = objs
+    cen = lambda c, r: [int((c + .5) * TS), int((r + .5) * TS)]
+    rel = [cen(c, r) for r, row in enumerate(g) for c, ch in enumerate(row) if ch == 'R']
+    che = [cen(c, r) for r, row in enumerate(g) for c, ch in enumerate(row) if ch == 'C']
+    ent = [cen(c, r) for r, row in enumerate(g) for c, ch in enumerate(row) if ch == 'E']
+    out['relic_reserves'] = [{'center': x} for x in rel]; out['chests'] = che
+    out['entrance'] = {'center': ent[0] if ent else [P['width'] // 2, P['height'] - TS // 2]}
+    return out
 LAYERS = {'第一层': 1, '第二层': 2}
 meta = {}
 mp = os.path.join(ROOT, 'r424_meta.js')
@@ -16,6 +42,8 @@ for lname, n in LAYERS.items():
     if not os.path.isdir(d): continue
     od = os.path.join(OUT, 'f%d' % n); os.makedirs(od, exist_ok=True)
     P = json.load(open(os.path.join(d, 'placement.json'), encoding='utf8'))
+    if 'overlays' in P:   # R420b 的格式：overlays（每行墙一张前景）+ objects（底边中点 + 各状态）+ grid 里 R 遗物 / C 宝匣 / E 入口
+        P = r420b(P)
     W, H = P['map_size']; TS = P['tile_size'][1]
     Image.open(os.path.join(d, 'map_base.png')).convert('RGB').save(os.path.join(od, 'base.webp'), 'WEBP', quality=88, method=6)
     strips = []
@@ -45,7 +73,7 @@ for lname, n in LAYERS.items():
         if 'follows' in o: e['follows'] = o['follows']
         if o.get('flip_x'): e['flip'] = 1
         objs.append(e)
-    meta['f%d' % n] = {'w': W, 'h': H, 'ts': TS, 'grid': P['grid'], 'strips': strips, 'objs': objs, 'entrance': P.get('entrance'), 'relics': P.get('relic_reserves', [])}
+    meta['f%d' % n] = {'w': W, 'h': H, 'ts': TS, 'grid': P['grid'], 'strips': strips, 'objs': objs, 'entrance': P.get('entrance'), 'relics': P.get('relic_reserves', []), 'chests': P.get('chests', [])}
     print(lname, 'strips', strips, 'objs', len(objs), 'assets', len(assets))
 open(mp, 'w', encoding='utf8').write('// R424 · 万妖塔迷宫的尺寸表（tools/r424_build.py 生成，别手改）\nwindow.R424_META = ' + json.dumps(meta, ensure_ascii=False) + ';\n')
 print('meta →', mp)
