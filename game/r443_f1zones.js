@@ -144,7 +144,10 @@
     } catch (e) { console.warn('R443 tp', e); } finally { try { world.player.hidden = false; } catch (e) {} BUSY = false; world.locked = false; } }
   // ---------- 暗雷 ----------
   const STEP = { d: 0, next: 900, lx: 0, ly: 0 };
-  updateMap = (orig => function (dt) { const r = orig.apply(this, arguments);
+  updateMap = (orig => function (dt) {
+    // 塔里的 M 地图点了不自动寻路（路要自己找），点哪儿都只是关上
+    try { if (curZ() && input.tapped && window.MM_API && MM_API.MM.big) { input.tapped = null; MM_API.MM.big = false; try { playSnd('ui_click'); } catch (e) {} } } catch (e) {}
+    const r = orig.apply(this, arguments);
     try { const z = curZ(), p = world.player; if (!z || !p) return r;
       if (world.locked || BUSY || dialog || choice || sysPanel || (typeof battle !== 'undefined' && battle)) { STEP.lx = p.x; STEP.ly = p.y; return r; }
       if (MUST.on) { if (Math.hypot(p.x - MUST.x, p.y - MUST.y) > 110) MUST.on = false; }
@@ -173,6 +176,29 @@
       if (got2.length) await showPanel('万妖塔 · 第一层', ['镇妖图卷又展开了一幅。', '!获得：' + got2.join('、')]); }
     else { partyRevive(.3); const p = world.player, [x, y] = ctr(...START.c); p.x = x; p.y = y; MUST.on = true; MUST.x = x; MUST.y = y; await fadeIn(240); toast('败下阵来……养好伤、备足丹药再来', 3000); }
     world.locked = false; }
+  // ---------- M 键地图（作者 11-28 09:17）：「其他地方全是黑的，只有中间 BOSS 那里是亮的……黑暗中有个红点代表玩家，但玩家不知道具体的路」 ----------
+  // 三苑当成一整张大图：外苑在下、中苑居中、内苑在上；路一律不画，只亮首领台，红点是自己。小地图（左上角圆盘）也全黑，边上一团红光指着首领的方向。
+  const BOSS_AT = (() => { const d = META.b && META.b.c && META.b.c.objs.find(o => o.id === 'boss_dais'); return d ? [d.bx, d.by - 80] : [2520, 700]; })();
+  const ZY = { a: 2, b: 1, c: 0 };
+  function drawTowerMap() { const MA = window.MM_API, z = curZ(), p = world.player; if (!MA || !z || !p) return; const MM = MA.MM, now = performance.now() / 1000;
+    const big = MM.big, R = big ? 250 : MM.r, cx = big ? W / 2 : MM.cx, cy = big ? H / 2 + 10 : MM.cy;
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.clip(); ctx.fillStyle = 'rgba(7,4,8,.985)'; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+    const glow = (x, y, r, a) => { const g = ctx.createRadialGradient(x, y, 1, x, y, r); g.addColorStop(0, `rgba(255,70,80,${a})`); g.addColorStop(.4, `rgba(200,20,40,${a * .5})`); g.addColorStop(1, 'rgba(120,0,20,0)'); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); };
+    const pulse = .75 + .25 * Math.sin(now * 2.4);
+    if (big) { // 三苑叠成一张：每苑 5040×3600，竖着摞
+      const MW = 5040, MH = 3600 * 3, k = (R * 1.7) / MH, ox = cx - MW * k / 2, oy = cy - MH * k / 2, toB = (zz, x, y) => [ox + x * k, oy + (ZY[zz] * 3600 + y) * k];
+      ctx.strokeStyle = 'rgba(150,40,50,.35)'; ctx.lineWidth = 1; for (const zz of ZS) { const [a, b] = toB(zz, 0, 0); ctx.strokeRect(a, b, MW * k, 3600 * k);
+        ctx.font = `600 13px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = zz === z ? 'rgba(255,210,200,.8)' : 'rgba(200,150,150,.35)'; ctx.fillText(ZNAME[zz], a + 6, b + 5); }
+      const [bx, by] = toB('c', BOSS_AT[0], BOSS_AT[1]); ctx.globalCompositeOperation = 'lighter'; glow(bx, by, 46 * pulse, .9); glow(bx, by, 16, 1); ctx.globalCompositeOperation = 'source-over';
+      const [u, v] = toB(z, p.x, p.y); ctx.fillStyle = '#ff4b3a'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(u, v, 5 + Math.sin(now * 5) * .7, 0, 7); ctx.fill(); ctx.stroke(); }
+    else { // 小圆盘：自己在中间；首领在这一苑就照实画，不在就在圆边上朝北亮一团
+      const k = R / MM.view; let bx, by; if (z === 'c') { bx = cx + (BOSS_AT[0] - p.x) * k; by = cy + (BOSS_AT[1] - p.y) * k; } else { bx = cx + (BOSS_AT[0] - p.x) * k; by = cy - R; }
+      const d = Math.hypot(bx - cx, by - cy); if (d > R - 8) { bx = cx + (bx - cx) / d * (R - 8); by = cy + (by - cy) / d * (R - 8); }
+      ctx.globalCompositeOperation = 'lighter'; glow(bx, by, 22 * pulse, .9); ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#ff4b3a'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 4.5 + Math.sin(now * 5) * .6, 0, 7); ctx.fill(); ctx.stroke(); }
+    ctx.restore();
+    if (big) { ctx.save(); ctx.font = `600 16px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#0a0606'; ctx.fillRect(0, cy + R + 46, W, 44); ctx.fillStyle = '#e8c9c0'; ctx.fillText('红点是你，红光处是首领。路，要自己找。' + (GX_TOUCH ? '　点任意处关闭' : '　点任意处或按 M 键关闭'), cx, cy + R + 66); ctx.restore(); } }
+  drawMapHud = (orig => function () { orig.apply(this, arguments); try { if (curZ() && S.hud !== false && !S.menu && !dialog && !choice) drawTowerMap(); } catch (e) {} })(drawMapHud);
   // ---------- 测试面板：切画风、直接进某一苑 ----------
   function setVer(v) { if (!META[v]) return; V = v; try { localStorage.setItem('gx_r443_ver', v); } catch (e) {} buildAll(); const z = curZ(); if (z && world.player) { const p = world.player; tileSetMap(MAPN(z), ...P(p.x, p.y), 'down'); } toast('万妖塔一层画风：' + VNAME[v], 2000); mark(); }
   function goZone(z) { const s = ctr(...START[z]); goMap(MAPN(z), ...P(s[0], s[1]), 'up'); }
