@@ -35,7 +35,7 @@
   const GATE = n => META['f' + n].objs.find(o => o.opens_when);
   const key = (n, name) => 'r424_f' + n + '_' + name;
   const want = {}, got = {};
-  function ld(n, name) { const k = key(n, name); if (k in want) return; want[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; got[k] = 1; }; im.onerror = () => { got[k] = 1; }; im.src = 'r424/f' + n + '/' + name + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
+  function ld(n, name) { const k = key(n, name); if (k in want) return; want[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; got[k] = 1; }; im.onerror = () => { got[k] = 1; }; im.src = 'r424/f' + n + '/' + name + '.webp?v=2'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
   const PIC = {}; const pic = n => { const s = TXT[n].pic; let a = PIC[s]; if (!a) { a = PIC[s] = new Image(); a.src = s; } return a.complete && a.naturalWidth ? a : null; };
   function loadAll(n) { const M = META['f' + n]; ld(n, 'base'); for (const [r] of M.strips) ld(n, 'ov_' + r);
     for (const o of M.objs) { if (o.img) ld(n, o.img[0]); for (const s of Object.values(o.states || {})) ld(n, s[0]); for (const f of o.frames || []) ld(n, f[0]); } pic(n); }
