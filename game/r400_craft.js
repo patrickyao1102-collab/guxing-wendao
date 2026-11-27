@@ -37,17 +37,18 @@
   // c：W = 兵器 / 饰品料（牙、角、骨、晶、铁、木芯）；A = 防具 / 鞋料（皮、丝、翼、壳、鳞）；null = 百搭（五行之精、内丹、星辰砂）
   // g：1 寻常（练气料）、2 上等（凝丹料）、3 珍稀。五行跟着它的出处走（打什么性的妖兽，掉什么性的料）。
   // sig：这种料多半带哪一条副属性（作者 11-27 18:02 点头的「什么料出什么」）——牙带暴击，骨带克制增伤，晶、铁、木芯带那一行的攻击；
-  //      皮、鳞、甲片带减伤，藤皮、蝠翼带回血，蛇蜕、蛛丝带回灵。（角螯的破甲、鳞的五行抗性、甲片的反震、金蛛丝的定心，等那几种副属性做出来再换。）
+  //   11-27 夜里七种新副属性进来以后：角、螯带破甲，陨铁、烈焰晶带暴伤，鳞带那一行的抗性，甲片、壳带反震，金蛛丝带定心；
+  //      皮带减伤，藤皮、蝠翼带回血，蛇蜕、蛛丝带回灵。
   const MAT = {
-    m_fang: { c: 'W', wx: 'huo', g: 1, sig: 'crit' }, m_tooth: { c: 'W', wx: 'jin', g: 2, sig: 'crit' }, m_horn: { c: 'W', wx: 'jin', g: 2, sig: 'ke' }, m_thorn: { c: 'W', wx: 'mu', g: 2, sig: 'el' }, m_yanjing: { c: 'W', wx: 'huo', g: 2, sig: 'el' },
-    m_gupian: { c: 'W', wx: 'shui', g: 3, sig: 'ke' }, m_yuntie: { c: 'W', wx: 'jin', g: 3, sig: 'el' }, m_xingjing: { c: 'W', wx: 'huo', g: 3, sig: 'el' }, m_songxin: { c: 'W', wx: 'mu', g: 3, sig: 'el' },
-    m_hide: { c: 'A', wx: 'tu', g: 1, sig: 'guard' }, m_yingpi: { c: 'A', wx: 'shui', g: 2, sig: 'guard' }, m_silk: { c: 'A', wx: 'mu', g: 2, sig: 'mpRegen' }, m_wing: { c: 'A', wx: 'huo', g: 2, sig: 'regen' }, m_shike: { c: 'A', wx: 'tu', g: 2, sig: 'guard' }, m_tielin: { c: 'A', wx: 'jin', g: 2, sig: 'guard' },
-    m_jinsi: { c: 'A', wx: 'jin', g: 3, sig: 'mpRegen' }, m_tiejia: { c: 'A', wx: 'jin', g: 3, sig: 'guard' },
+    m_fang: { c: 'W', wx: 'huo', g: 1, sig: 'crit' }, m_tooth: { c: 'W', wx: 'jin', g: 2, sig: 'crit' }, m_horn: { c: 'W', wx: 'jin', g: 2, sig: 'pj' }, m_thorn: { c: 'W', wx: 'mu', g: 2, sig: 'el' }, m_yanjing: { c: 'W', wx: 'huo', g: 2, sig: 'cd' },
+    m_gupian: { c: 'W', wx: 'shui', g: 3, sig: 'ke' }, m_yuntie: { c: 'W', wx: 'jin', g: 3, sig: 'cd' }, m_xingjing: { c: 'W', wx: 'huo', g: 3, sig: 'el' }, m_songxin: { c: 'W', wx: 'mu', g: 3, sig: 'el' },
+    m_hide: { c: 'A', wx: 'tu', g: 1, sig: 'guard' }, m_yingpi: { c: 'A', wx: 'shui', g: 2, sig: 'guard' }, m_silk: { c: 'A', wx: 'mu', g: 2, sig: 'mpRegen' }, m_wing: { c: 'A', wx: 'huo', g: 2, sig: 'regen' }, m_shike: { c: 'A', wx: 'tu', g: 2, sig: 'fz' }, m_tielin: { c: 'A', wx: 'jin', g: 2, sig: 'res' },
+    m_jinsi: { c: 'A', wx: 'jin', g: 3, sig: 'dx' }, m_tiejia: { c: 'A', wx: 'jin', g: 3, sig: 'guard' },
     m_neidan: { c: null, wx: null, g: 3 }, m_xcsha: { c: null, wx: null, g: 3 },
     // 11-27 傍晚补的十种（东西在 r406_items.js 里登记）：练气料每个五行两类都有了；凝丹料补上水的兵饰料、土的兵饰料
     m_duanren: { c: 'W', wx: 'jin', g: 1, sig: 'el' }, m_yaomu: { c: 'W', wx: 'mu', g: 1, sig: 'el' }, m_yugu: { c: 'W', wx: 'shui', g: 1, sig: 'ke' }, m_shougu: { c: 'W', wx: 'tu', g: 1, sig: 'ke' },
-    m_jiapian: { c: 'A', wx: 'jin', g: 1, sig: 'guard' }, m_tengpi: { c: 'A', wx: 'mu', g: 1, sig: 'regen' }, m_shetui: { c: 'A', wx: 'shui', g: 1, sig: 'mpRegen' }, m_langpi: { c: 'A', wx: 'huo', g: 1, sig: 'guard' },
-    m_yingya: { c: 'W', wx: 'shui', g: 2, sig: 'crit' }, m_zhuao: { c: 'W', wx: 'tu', g: 2, sig: 'ke' },
+    m_jiapian: { c: 'A', wx: 'jin', g: 1, sig: 'fz' }, m_tengpi: { c: 'A', wx: 'mu', g: 1, sig: 'regen' }, m_shetui: { c: 'A', wx: 'shui', g: 1, sig: 'mpRegen' }, m_langpi: { c: 'A', wx: 'huo', g: 1, sig: 'guard' },
+    m_yingya: { c: 'W', wx: 'shui', g: 2, sig: 'crit' }, m_zhuao: { c: 'W', wx: 'tu', g: 2, sig: 'pj' },
   };
   for (const el of ORDER) MAT['m_wx_' + el] = { c: null, wx: el, g: 0 };
   for (const id of Object.keys(MAT)) if (!ITEM_DB[id]) delete MAT[id];
@@ -115,23 +116,30 @@
   // 记法：S.hero.mq[材料] = ['el_huo:4', 'crit:2', …]，一件一条；没记的那几件就是不带的。别处扣材料（强化、精炼、任务、卖店）时先扣不带的，再从数值最低的扣起。
   const SUB = { el_jin: ['金系攻击', '金攻', '%'], el_mu: ['木系攻击', '木攻', '%'], el_shui: ['水系攻击', '水攻', '%'], el_huo: ['火系攻击', '火攻', '%'], el_tu: ['土系攻击', '土攻', '%'],
     crit: ['暴击', '暴击', '%'], ke: ['克制增伤', '克伤', '%'], guard: ['减伤', '减伤', '%'], mpRegen: ['出手回灵', '回灵', ''], regen: ['出手回血', '回血', '%'],
-    xj: ['先机', '先机', '%'], tx: ['调息', '调息', '%'], jc: ['聚财', '聚财', '%'], wu: ['悟性', '悟性', '%'] };   // 后四样是饰品独有的（作者 11-27 16:39）：先机＝开战时行动条先走几成，调息＝打完一场回几成气血灵力，聚财 / 悟性＝这一场的灵石 / 修为多几成
-  const SUB_TOP = { el: 8, crit: 3, ke: 8, guard: 3, mpRegen: 3, regen: 2, xj: 20, tx: 10, jc: 20, wu: 10 };   // 各种副属性在材料上最高能到多少（比大小用）
-  const LV = { el: { 0: [1, 2], 1: [2, 3], 2: [4, 5], 3: [6, 8] }, crit: { 1: [1], 2: [2], 3: [3] }, ke: { 1: [3], 2: [4, 5], 3: [6, 8] }, guard: { 1: [1], 2: [2], 3: [3] }, mpRegen: { 1: [1], 2: [2], 3: [3] }, regen: { 1: [1], 2: [1], 3: [2] } };
-  const LK = { W: [['el', 55], ['crit', 28], ['ke', 17]], A: [['guard', 45], ['mpRegen', 30], ['regen', 25]], X: [['el', 100]] }, LP = { 0: .3, 1: .45, 2: .65, 3: 1 };   // X：五行之精，三成机会带一点自己那一行的「某系攻击」
+    xj: ['先机', '先机', '%'], tx: ['调息', '调息', '%'], jc: ['聚财', '聚财', '%'], wu: ['悟性', '悟性', '%'],
+    // 11-27 夜里添的七种（设计稿第三节，作者 18:02 点头）：暴伤＝暴击那一下再多打几成；破甲＝无视对方几成防御；某系抗性＝挨那一行的打少掉几成；
+    //   反震＝挨打时把几成伤害震回去；定心＝有几成机会挣脱冰封、眩晕、缚丝；寻宝＝这一场掉东西的机会多几成；怒意＝开战时怒气先有一截（后两样饰品独有）
+    cd: ['暴伤', '暴伤', '%'], pj: ['破甲', '破甲', '%'], fz: ['反震', '反震', '%'], dx: ['定心', '定心', '%'],
+    res_jin: ['金系抗性', '金抗', '%'], res_mu: ['木系抗性', '木抗', '%'], res_shui: ['水系抗性', '水抗', '%'], res_huo: ['火系抗性', '火抗', '%'], res_tu: ['土系抗性', '土抗', '%'],
+    xb: ['寻宝', '寻宝', '%'], ny: ['怒意', '怒意', ''] };   // 后四样是饰品独有的（作者 11-27 16:39）：先机＝开战时行动条先走几成，调息＝打完一场回几成气血灵力，聚财 / 悟性＝这一场的灵石 / 修为多几成
+  const SUB_TOP = { el: 8, crit: 3, ke: 8, guard: 3, mpRegen: 3, regen: 2, xj: 20, tx: 10, jc: 20, wu: 10, cd: 15, pj: 15, res: 8, fz: 8, dx: 15, xb: 20, ny: 20 };   // 各种副属性在材料上最高能到多少（比大小用）
+  const LV = { el: { 0: [1, 2], 1: [2, 3], 2: [4, 5], 3: [6, 8] }, crit: { 1: [1], 2: [2], 3: [3] }, ke: { 1: [3], 2: [4, 5], 3: [6, 8] }, guard: { 1: [1], 2: [2], 3: [3] }, mpRegen: { 1: [1], 2: [2], 3: [3] }, regen: { 1: [1], 2: [1], 3: [2] },
+    cd: { 1: [6], 2: [8, 10], 3: [12, 15] }, pj: { 1: [5], 2: [8, 10], 3: [12, 15] }, res: { 1: [3], 2: [4, 5], 3: [6, 8] }, fz: { 1: [3], 2: [4, 5], 3: [6, 8] }, dx: { 1: [6], 2: [8, 10], 3: [12, 15] } };
+  const LK = { W: [['el', 46], ['crit', 22], ['ke', 14], ['cd', 9], ['pj', 9]], A: [['guard', 36], ['mpRegen', 22], ['regen', 18], ['res', 12], ['fz', 8], ['dx', 4]], X: [['el', 100]] }, LP = { 0: .3, 1: .45, 2: .65, 3: 1 };   // X：五行之精，三成机会带一点自己那一行的「某系攻击」
   const parse = ln => { const i = ln.lastIndexOf(':'); return [ln.slice(0, i), +ln.slice(i + 1)]; };
   const subText = (k, v, short) => SUB[k] ? (short ? SUB[k][1] : SUB[k][0]) + ' +' + v + SUB[k][2] : '';
   const lineText = (ln, short) => { if (!ln) return ''; const [k, v] = parse(ln); return subText(k, v, short); };
-  const score = ln => { if (!ln) return -1; const [k, v] = parse(ln); return v / (SUB_TOP[k.startsWith('el_') ? 'el' : k] || 1); };
-  const ALLOW = { weapon: k => /^el_/.test(k) || k === 'crit' || k === 'ke', wrist: k => k === 'crit' || k === 'ke', armor: k => k === 'guard' || k === 'regen' || k === 'mpRegen', shoe: k => k === 'guard' || k === 'regen' || k === 'mpRegen', acc: () => false };
+  const score = ln => { if (!ln) return -1; const [k, v] = parse(ln); return v / (SUB_TOP[k.startsWith('el_') ? 'el' : k.startsWith('res_') ? 'res' : k] || 1); };
+  const DEFK = k => k === 'guard' || k === 'regen' || k === 'mpRegen' || k === 'fz' || k === 'dx' || /^res_/.test(k);   // 防御类：衣甲和鞋留得住
+  const ALLOW = { weapon: k => /^el_/.test(k) || k === 'crit' || k === 'ke' || k === 'cd' || k === 'pj', wrist: k => k === 'crit' || k === 'ke' || k === 'cd', armor: DEFK, shoe: DEFK, acc: () => false };   // 兵器全留得住攻击类；护腕留得住暴击、暴伤、克制增伤
   const allow = (slot, ln) => { if (!ln) return false; const f = ALLOW[slot]; return f ? f(parse(ln)[0]) : true; };
   const ACC_P = H => H >= 5 ? .2 : H === 4 ? .15 : H === 3 ? .12 : H === 2 ? .1 : H === 1 ? .08 : H === 0 ? .05 : .02;   // 饰品出一条独有属性的机会：摆得再好也只有两成
-  const ACC_V = { 1: { xj: [10], tx: [5], jc: [10], wu: [5] }, 2: { xj: [15, 20], tx: [8, 10], jc: [15, 20], wu: [8, 10] } };
+  const ACC_V = { 1: { xj: [10], tx: [5], jc: [10], wu: [5], xb: [10], ny: [10] }, 2: { xj: [15, 20], tx: [8, 10], jc: [15, 20], wu: [8, 10], xb: [15, 20], ny: [15, 20] } };
   const canLine = m => !!m && (!!m.c || (!!m.wx && m.g === 0));   // 兵饰料、防具料、五行之精会带；内丹、星辰砂不带
   const SIG_P = .6;   // 带副属性的时候，六成是它「多半带」的那一条（MAT 里的 sig），剩下四成照这一类料的老比例摇
   function rollLine(id) { const m = MAT[id]; if (!canLine(m) || Math.random() >= (LP[m.g] || 0)) return null; const tb = LK[m.c || 'X']; let r = Math.random() * tb.reduce((a, t) => a + t[1], 0), k = tb[0][0]; for (const t of tb) { r -= t[1]; if (r <= 0) { k = t[0]; break; } }
     if (m.sig && LV[m.sig] && Math.random() < SIG_P) k = m.sig;
-    if (k === 'el' && !m.wx) k = m.c === 'W' ? 'crit' : 'guard'; const vs = (LV[k][m.g] || LV[k][1]), v = vs[Math.floor(Math.random() * vs.length)]; return (k === 'el' ? 'el_' + m.wx : k) + ':' + v; }
+    if (k === 'el' && !m.wx) k = m.c === 'W' ? 'crit' : 'guard'; if (k === 'res' && !m.wx) k = 'guard'; const vs = (LV[k][m.g] || LV[k][1]), v = vs[Math.floor(Math.random() * vs.length)]; return (k === 'el' ? 'el_' + m.wx : k === 'res' ? 'res_' + m.wx : k) + ':' + v; }
   const have = id => (S.hero.bag[id] || 0);
   const MQ = () => (S.hero.mq = S.hero.mq || {});
   function linesOf(id) { const q = MQ(), a = q[id]; if (!a) return []; const n = have(id); if (a.length > n) { a.sort((x, y) => score(y) - score(x)); a.length = Math.max(0, n); } if (!a.length) { delete q[id]; return []; } return a; }
@@ -231,7 +239,7 @@
     if (it.slot && a.kind === 'fixed') { if (a.keep) lines = [parse(a.keep)]; }
     else if (it.slot && a.kind === 'mix') { m = Math.round((a.lo + Math.random() * (a.hi - a.lo)) * 100) / 100;
       for (const u of us) { if (!u.ln || !allow(it.slot, u.ln) || Math.random() >= a.p) continue; const [k, v] = parse(u.ln), sv = scale(v, a.V), i = lines.findIndex(l => l[0] === k); if (i < 0) lines.push([k, sv]); else if (sv > lines[i][1]) lines[i][1] = sv; }
-      if (it.slot === 'acc' && Math.random() < ACC_P(a.H)) { const ks = ['xj', 'tx', 'jc', 'wu'], k = ks[Math.floor(Math.random() * ks.length)], vs = ACC_V[G6.tierOf(base) || a.tier] || ACC_V[1]; lines.push([k, vs[k][Math.floor(Math.random() * vs[k].length)]]); } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
+      if (it.slot === 'acc' && Math.random() < ACC_P(a.H)) { const ks = ['xj', 'tx', 'jc', 'wu', 'xb', 'ny'], k = ks[Math.floor(Math.random() * ks.length)], vs = ACC_V[G6.tierOf(base) || a.tier] || ACC_V[1]; lines.push([k, vs[k][Math.floor(Math.random() * vs[k].length)]]); } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
     if (it.slot && (a.kind === 'mix' || (a.kind === 'fixed' && lines.length))) id = makeInstance(base, m, lines);   // 混着放出来的都是独一份；五个一样又没带副属性的，就是店里那样的一件
     addItem(id, 1); const f = F(); f.forged = (f.forged || 0) + 1; if (a.kind === 'recipe') f['r400_made_' + base] = 1;
     return { id, base, mult: m, lines, grade: ITEM_DB[id].fg ? ITEM_DB[id].grade : null, rank: G6.rankOf(base), tier: G6.tierOf(base), a }; }

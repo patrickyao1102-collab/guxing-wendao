@@ -111,9 +111,9 @@
   // 这个人身上现在生效的效果：激活了的套装 + 身上每件装备自己的副属性（剑炉合成时从材料上带来的：某系攻击 el_金木水火土、暴击、克制增伤、减伤、回灵、回血）
   const activeFx = who => { const fx = {}; for (const [s, st] of setsOf(who)) if (st.on) { for (const k in s.fx) fx[k] = (fx[k] || 0) + s.fx[k]; if (st.on4) for (const k in s.extra.fx) fx[k] = (fx[k] || 0) + s.extra.fx[k]; }
     try { const eq = eqOf(who), sub = {}; for (const sl of SLOTS) { const it = ITEM_DB[eq[sl]], f = it && it.fx5; if (f) for (const k in f) sub[k] = (sub[k] || 0) + f[k]; }
-      for (const k in sub) fx[k] = (fx[k] || 0) + Math.min(sub[k], SUB_CAP[k] || (/^el_/.test(k) ? .3 : 9)); } catch (e) {}   // 四件装备的副属性加起来有个顶，免得叠出格
+      for (const k in sub) fx[k] = (fx[k] || 0) + Math.min(sub[k], SUB_CAP[k] || (/^(el|res)_/.test(k) ? .3 : 9)); } catch (e) {}   // 四件装备的副属性加起来有个顶，免得叠出格
     return fx; };
-  const SUB_CAP = { crit: .2, ke: .3, guard: .2, regen: .05, mpRegen: 8, xj: .5, tx: .3, jc: .5, wu: .5 };
+  const SUB_CAP = { crit: .2, ke: .3, guard: .2, regen: .05, mpRegen: 8, xj: .5, tx: .3, jc: .5, wu: .5, cd: .5, pj: .5, fz: .25, dx: .5, xb: .5, ny: 50 };   // 后六样是 11-27 夜里添的：暴伤、破甲、反震、定心、寻宝、怒意（某系抗性和某系攻击一样，各自三成封顶）
 
   // 队友：不合灵根的装备打折（在 r101 把装备属性加上去之后，把差额减回来）
   allyStats = (orig => function (k) { const o = orig.apply(this, arguments);
@@ -124,7 +124,9 @@
   const whoOf = u => !u || u.side !== 'hero' ? null : (u.ally || 'hero');
   const fxOf = u => { const w = whoOf(u); if (!w) return {}; const b = battle; if (!b) return {}; b._setFx = b._setFx || {}; return b._setFx[w] || (b._setFx[w] = activeFx(w)); };
   // 暴击
-  if (typeof dmgCalc === 'function') dmgCalc = (orig => function (att, def, mult, critRate) { try { const c = att && att.side === 'hero' && def && def.side === 'enemy' ? fxOf(att).crit : 0; if (c) return orig.call(this, att, def, mult === undefined ? 1 : mult, (critRate === undefined ? .15 : critRate) + c); } catch (e) {} return orig.apply(this, arguments); })(dmgCalc);
+  // 破甲 pj：算这一下的时候，对方的防御少算几成（照原样另造一份只改防御的，不动对方身上的数）
+  if (typeof dmgCalc === 'function') dmgCalc = (orig => function (att, def, mult, critRate) { try { if (att && att.side === 'hero' && def && def.side === 'enemy') { const fx = fxOf(att), c = fx.crit || 0, pj = fx.pj || 0;
+        if (c || pj) { const d2 = pj && def.def > 0 ? Object.assign(Object.create(def), { def: Math.round(def.def * (1 - pj)) }) : def; return orig.call(this, att, d2, mult === undefined ? 1 : mult, (critRate === undefined ? .15 : critRate) + c); } } } catch (e) {} return orig.apply(this, arguments); })(dmgCalc);
   // 伤害：火套（克制再加）、星痕（换纹那一手）、土套（挨打减伤）
   if (typeof applyDamage === 'function') applyDamage = (orig => function (t, d, crit, opts) {
     try { const b = battle, att = b && b.active; if (b && t && t.alive && !(b.cfg && b.cfg.sunKill)) {
@@ -132,8 +134,13 @@
           if (fx.ke && WX5.rel(WX5.unitWx(att), WX5.unitWx(t)) > 0) k *= 1 + fx.ke;
           const ex = fx['el_' + WX5.unitWx(att)]; if (ex) k *= 1 + ex;   // 副属性「某系攻击」：这一手是那一行的，就加
           if (fx.rune && !att.ally && b._wxSw === (b._actNo || 0) && b._wxSw != null) k *= 1 + fx.rune;
+          if (crit && fx.cd) k *= 1 + fx.cd;   // 暴伤：暴击那一下再多打几成
           if (k !== 1) arguments[1] = Math.max(1, Math.round(d * k)); }
-        else if (t.side === 'hero') { const g = fxOf(t).guard; if (g) arguments[1] = Math.max(1, Math.round(d * (1 - g))); } } } catch (e) {}
+        else if (t.side === 'hero') { const fx = fxOf(t), foe = att && att.side === 'enemy' && att.alive ? att : null; let k = 1; if (fx.guard) k *= 1 - fx.guard;
+          if (foe) { const el = WX5.unitWx(foe), rs = el && fx['res_' + el]; if (rs) k *= 1 - rs; }   // 某系抗性：打你的是那一行的，少掉几成
+          if (k !== 1) arguments[1] = Math.max(1, Math.round(d * k));
+          // 反震：把这一下的几成震回去。不会把对方震死（留一点血），免得它一套招没出完人先没了
+          if (foe && fx.fz && arguments[1] > 0 && foe.hp > 1) { const back = Math.min(foe.hp - 1, Math.max(1, Math.round(arguments[1] * fx.fz))); if (back > 0) { foe.hp -= back; foe.hurt = 1; try { floatText(foe.x, foe.y - foe.h * .7 - 30, '反震 ' + back, '#d8c8ff', 30); } catch (e) {} } } } } } catch (e) {}
     return orig.apply(this, arguments); })(applyDamage);
   // 出手后回气血 / 灵力（木套、水套）
   if (typeof doHeroAction === 'function') doHeroAction = (orig => async function (k) { const b = battle, u = b && b.active; const r = await orig.apply(this, arguments);
@@ -179,17 +186,30 @@
 
   // ---------- 七、饰品独有的四样（作者 11-27 16:39：别的四个部位没有；很难出，大多数饰品是普通的）----------
   // 先机 xj：开战时行动条先走几成。调息 tx：打完一场回几成气血灵力。聚财 jc：这一场的灵石多几成。悟性 wu：这一场的修为多几成（聚财、悟性全队加起来算）。
+  // 11-27 夜里添：怒意 ny：开战时怒气先有一截。寻宝 xb：这一场掉东西的机会多几成（全队加起来算）。
   if (typeof updateBattle === 'function') updateBattle = (orig => function (dt) {
-    try { const b = battle; if (b && !b._xj && b.units && b.state === 'run') { b._xj = 1; for (const u of b.units) if (u.side === 'hero' && u.alive) { const v = fxOf(u).xj; if (v) { u.gauge = Math.min(99, (u.gauge || 0) + 100 * v); try { floatText(u.x, u.y - u.h - 30, '先机', '#f0d890', 28); } catch (e) {} } } } } catch (e) {}
+    try { const b = battle; if (b && !b._xj && b.units && b.state === 'run') { b._xj = 1; xbBack(); for (const u of b.units) if (u.side === 'hero' && u.alive) { const f = fxOf(u), v = f.xj; if (v) { u.gauge = Math.min(99, (u.gauge || 0) + 100 * v); try { floatText(u.x, u.y - u.h - 30, '先机', '#f0d890', 28); } catch (e) {} }
+          if (f.ny) { u.rage = Math.min(100, (u.rage || 0) + f.ny); try { floatText(u.x, u.y - u.h - (v ? 62 : 30), '怒意', '#ff9a6a', 28); } catch (e) {} } } } } catch (e) {}   // 怒意：开战时怒气先有一截
     return orig.apply(this, arguments); })(updateBattle);
-  if (typeof endBattle === 'function') endBattle = (orig => function (win) {
-    try { const b = battle; if (win && b && !b._r404 && b.units) { b._r404 = 1; let jc = 0, wu = 0;
-        for (const u of b.units) if (u.side === 'hero') { const fx = fxOf(u); jc += fx.jc || 0; wu += fx.wu || 0;
+  // 寻宝抬过的掉落表记在这儿，摇完放回去；万一结算那一串没走完（没放回去），下一场开打、下一回结算之前也会先放回去，不会越抬越高
+  let XB_KEEP = null; const xbBack = () => { try { if (XB_KEEP) { for (const k in XB_KEEP) DROPS[k] = XB_KEEP[k]; XB_KEEP = null; } } catch (e) {} };
+  if (typeof endBattle === 'function') endBattle = (orig => function (win) { let keep = null; xbBack();
+    try { const b = battle; if (win && b && !b._r404 && b.units) { b._r404 = 1; let jc = 0, wu = 0, xb = 0;
+        for (const u of b.units) if (u.side === 'hero') { const fx = fxOf(u); jc += fx.jc || 0; wu += fx.wu || 0; xb += fx.xb || 0;
           if (fx.tx && u.alive) { u.hp = Math.min(u.maxhp, u.hp + Math.round(u.maxhp * fx.tx)); u.mp = Math.min(u.maxmp, u.mp + Math.round(u.maxmp * fx.tx)); } }
         jc = Math.min(SUB_CAP.jc, jc); wu = Math.min(SUB_CAP.wu, wu);
         if (wu) b.cfg.exp = Math.round((b.cfg.exp || b.enemies.reduce((s, e) => s + Math.round(e.maxhp / 6), 0)) * (1 + wu));
-        if (jc) b.cfg.gold = Math.round((b.cfg.gold || b.enemies.reduce((s, e) => s + Math.round(e.maxhp / 12), 0)) * (1 + jc)); } } catch (e) {}
-    return orig.apply(this, arguments); })(endBattle);
+        if (jc) b.cfg.gold = Math.round((b.cfg.gold || b.enemies.reduce((s, e) => s + Math.round(e.maxhp / 12), 0)) * (1 + jc));
+        // 寻宝 xb（全队加起来算）：这一场每样东西掉的机会多几成。结算是照掉落表当场摇的，所以摇之前把这几只妖物的机会抬一抬，摇完原样放回去
+        xb = Math.min(SUB_CAP.xb, xb); if (xb > 0 && typeof DROPS !== 'undefined') { keep = {}; for (const e of b.enemies || []) if (DROPS[e.key] && !keep[e.key]) { keep[e.key] = DROPS[e.key]; DROPS[e.key] = DROPS[e.key].map(([id, p]) => [id, Math.min(1, p * (1 + xb))]); } XB_KEEP = keep; } } } catch (e) {}
+    let r; try { r = orig.apply(this, arguments); } finally { if (keep) { const back = () => { if (XB_KEEP === keep) xbBack(); }; if (r && typeof r.then === 'function') r.then(back, back); else back(); } }
+    return r; })(endBattle);
+  // 定心 dx：妖物出完手，谁刚被冰封、眩晕，或者被缚丝拖住了行动条，有几成机会当场挣脱（每挨一回只摇一次）
+  if (typeof enemyAct === 'function') enemyAct = (orig => async function (e) { const r = await orig.apply(this, arguments);
+    try { const b = battle; if (b && b.units) for (const u of b.units) { if (u.side !== 'hero' || !u.alive) continue; const held = !!(u.buffs && (u.buffs.frozen > 0 || u.buffs.stun > 0)) || u.gauge < -5;
+          if (!held) { u._dxSeen = 0; continue; } if (u._dxSeen) continue; u._dxSeen = 1; const v = fxOf(u).dx; if (!v || Math.random() >= v) continue;
+          if (u.buffs) { u.buffs.frozen = 0; u.buffs.stun = 0; } u.frozenFx = 0; if (u.gauge < 0) u.gauge = 0; u._dxSeen = 0; try { floatText(u.x, u.y - u.h - 40, '定心 · 挣脱', '#bfe8ff', 34); } catch (er) {} } } catch (er) {}
+    return r; })(enemyAct);
 
   // ---------- 八、套装技能（作者 11-27 16:43 / 16:47）----------
   // 成套的专属套装带一个技能：穿齐了才能施展，脱了就没有；不能用卷册参悟。云雷套带出「云雷踏影」；凝霜套的那一招以后再加；星痕套还没定。
