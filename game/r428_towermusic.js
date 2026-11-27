@@ -16,7 +16,7 @@
   for (const k in TR) { if (!HAVE[k]) continue; const [name, desc] = TR[k]; lib['lib_r428_' + k] = { no: '塔' + String(++i).padStart(2, '0'), name, group: G, kind: 'bgm', file: 'r428m/' + k + '.mp3', vol: .7, desc: '小云雀 Seed Audio 1.0 · ' + desc, dur: HAVE[k] }; }
   // 每层默认放哪首（作者挑过以后改这里）
   const PICK = { 1: 'f1' };   // 二、三层还在挑
-  const want = () => { try { const mm = /^wyt_f(\d)$/.exec((world && world.mapName) || ''); if (!mm) return null; let k = PICK[+mm[1]]; if (!k || !lib['lib_r428_' + k]) return null; return k ? 'lib_r428_' + k : null; } catch (e) { return null; } };
+  const want = () => { try { const mm = /^wyt_f(\d)[abc]?$/.exec((world && world.mapName) || ''); if (!mm) return null; let k = PICK[+mm[1]]; if (!k || !lib['lib_r428_' + k]) return null; return k ? 'lib_r428_' + k : null; } catch (e) { return null; } };
   function apply() { try { if (typeof battle !== 'undefined' && battle) return; if (!AUD.mode || AUD.muted) return; const k = want(); if (!k) return; if (AUD.bgmName !== k || !AUD.bgm) BGM29.audition(k); } catch (e) {} }
   // 底层进图时按地图类型放通用曲——塔里的图有自己的曲子，直接换成它（不先放一下通用曲再换）
   if (typeof playBgm === 'function') playBgm = (orig => function (n) { try { const k = want(); const T = BGM29.T || {}; if (k && !(typeof battle !== 'undefined' && battle) && n !== T.battle && n !== T.boss) { if (AUD.bgmName === k && AUD.bgm) return; BGM29.audition(k); return; } } catch (e) {} return orig.apply(this, arguments); })(playBgm);
