@@ -95,8 +95,7 @@
     T('数量', x0, B_MINUS.y + 26, 17, C.text, KAI(), 600); btn(B_MINUS, '−', UI.qty > 1 ? 'n' : 'd', 28); T(String(UI.qty), (B_MINUS.x + B_MINUS.w + B_PLUS.x) / 2, B_MINUS.y + 26, 26, C.gold2, NUM(), 700, 'center'); btn(B_PLUS, '+', UI.qty < mx ? 'n' : 'd', 28); btn(B_MAX, '最多', mx > 1 && UI.qty < mx ? 'n' : 'd', 18);
     const total = pr * UI.qty, gold = S.hero.gold || 0, xsN = sell ? 0 : (it.xs || 0) * UI.qty, left = sell ? gold + total : gold - total, xl = (S.hero.xs || 0) - xsN;
     T(sell ? '卖得' : '合计', x0, BY - 58, 17, C.text, KAI(), 600); const ts = String(total); T(ts, x0 + 50, BY - 58, 30, C.gold2, NUM(), 700); ctx.font = `700 30px ${NUM()}`; const tw = ctx.measureText(ts).width; T('灵石', x0 + 56 + tw, BY - 54, 14, C.sub, KAI(), 500);
-    if (xsN) T('+ 悬赏点 ' + xsN, x0 + 56 + tw + 38, BY - 54, 14, xl < 0 ? C.red : C.blue, KAI(), 600);
-    T(sell ? '卖后有 ' + left + ' 灵石' : xl < 0 ? '悬赏点还差 ' + (-xl) + '，去做支线' : left < 0 ? '灵石不够，还差 ' + (-left) : '单价 ' + pr + '　买后余 ' + left + ' 灵石', x0, BY - 26, 14.5, !sell && (left < 0 || xl < 0) ? C.red : C.sub, KAI(), 500);
+    ctx.font = `500 14.5px ${KAI()}`; T(fitW(sell ? '卖后有 ' + left + ' 灵石' : xl < 0 ? '悬赏点还差 ' + (-xl) + '，去做支线' : left < 0 ? '灵石不够，还差 ' + (-left) : (xsN ? '另需悬赏点 ' + xsN + '　' : '') + '买后余 ' + left + ' 灵石', B_GO.x - x0 - 12), x0, BY - 26, 14.5, !sell && (left < 0 || xl < 0) ? C.red : C.sub, KAI(), 500);   /* 这一行不能顶到「买入」那颗按钮上：单价格子里有了，这里不再写 */
     const can = sell ? have(id) >= UI.qty : left >= 0 && xl >= 0, armed = sell && UI.arm && UI.arm.id === id && now - UI.arm.t < 3500, pressed = now - UI.press < 160;
     btn(B_GO, sell ? (armed ? '再点一下' : '卖　出') : '买　入', !can ? 'd' : pressed ? 'p' : 'n', 24); }
 
