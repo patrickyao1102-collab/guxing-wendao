@@ -101,7 +101,8 @@
     where: '天剑山 · 下山路深处', tip: '它每动一回，身上的铁甲就厚一层。只有逼它使出「镇岳踏」、力竭之后，铁甲才会碎。', extra: ['m_neidan', 'm_neidan', 'm_horn', 'm_horn', 'p_revive', 'p_revive'] });
   const ywDone = y => !!F()['yw_' + y.id];
   const allFive = () => YW.filter(y => !y.hidden).every(ywDone);
-  const HP = lv => 2700 + (lv - 10) * 650, ATK = lv => 66 + Math.round((lv - 10) * 6.5), DEF = lv => 14 + Math.round((lv - 10) * 1.5);
+  const OL = lv => (typeof GXLVO === 'function' ? GXLVO(lv) : lv);   // 妖王的等级照新表写（一境十级），数值还按老表上那个数算，免得平白变强
+  const HP = lv => 2700 + (OL(lv) - 10) * 650, ATK = lv => 66 + Math.round((OL(lv) - 10) * 6.5), DEF = lv => 14 + Math.round((OL(lv) - 10) * 1.5);
   const SPD = { boar: 9, wolf: 14, leopard: 19, spider: 15, treant: 9, rhino: 8, xingwolf: 12 };
   const heroes = b => (b.heroes || [b.P]).filter(u => u.alive);
   const big = (t, c = '#ff6a4a', s = 62) => floatText(W / 2, 300, t, c, s, 1.5, BRUSH);
@@ -125,7 +126,7 @@
   function summon(b, e, types, name) {
     const slots = (e && e._yw && e._yw.sslots) || [[570, 665], [545, 470], [440, 560], [620, 565], [470, 690]], used = b.enemies.filter(x => x.alive).map(x => [x.x, x.y]); let n = 0;
     for (const t of types) { const s = slots.find(s => used.every(u => Math.hypot(u[0] - s[0], u[1] - s[1]) > 110)); if (!s) break; used.push(s);
-      const m = makeEnemy(t, Math.max(0, e.lv - 8) * .5); if (name) { m.name = name; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + Math.max(1, e.lv - 2); m.lv = e.lv - 2; m._add = e._id;
+      const m = makeEnemy(t, Math.max(0, OL(e.lv) - 8) * .5); if (name) { m.name = name; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + Math.max(1, e.lv - 2); m.lv = e.lv - 2; m._add = e._id;
       const u = unit(Object.assign({ side: 'enemy' }, m)); u.x = s[0]; u.y = s[1]; u.gauge = ri(0, 30);
       try { const hh = window.BATTLE_SIZE && BATTLE_SIZE[u.key]; if (hh) u.h = hh; } catch (e2) {}
       b.enemies.push(u); b.units.push(u); n++; try { particleBurst(u.x, u.y - u.h / 2, 30, ['#b48cff', '#fff'], 300, .8, 6); } catch (e2) {} }
@@ -195,8 +196,8 @@
   let FIGHT = null;
   async function fight(y) {
     const boss = makeYW(y), ens = [boss];
-    for (const [i, t] of (y.adds || []).entries()) { const m = makeEnemy(t, Math.max(0, y.lv - 8) * .5); if (y.addName) { m.name = y.addName; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + (y.lv - 2); m.lv = y.lv - 2; m._add = y.id; m._type = t; m.slot = [[560, 690], [540, 440]][i]; ens.push(m); }
-    const exp = y.exp || Math.round(expNeed(y.lv) * .55), gold = y.gold != null ? y.gold : 300 + (y.lv - 10) * 120;
+    for (const [i, t] of (y.adds || []).entries()) { const m = makeEnemy(t, Math.max(0, OL(y.lv) - 8) * .5); if (y.addName) { m.name = y.addName; m.hp = m.maxhp = Math.round(m.maxhp * 1.3); m._flower = 1; } m.name += ' Lv' + (y.lv - 2); m.lv = y.lv - 2; m._add = y.id; m._type = t; m.slot = [[560, 690], [540, 440]][i]; ens.push(m); }
+    const exp = y.exp || Math.round(expNeed(y.lv) * .55), gold = y.gold != null ? y.gold : 300 + (OL(y.lv) - 10) * 120;
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
@@ -216,7 +217,7 @@
     await sleep(300); banner('妖王伏诛'); try { playSnd('jingle_win', .6); } catch (e) {} await sleep(1700);
     const give = (y.fabao ? [[y.fabao, 1]] : []).concat([['m_neidan', 1]]); const cnt = {}; for (const id of y.extra || []) cnt[id] = (cnt[id] || 0) + 1; for (const id in cnt) give.push([id, cnt[id]]);
     for (const [id, n] of give) { if (ITEM_DB[id].fabao) fbOwn()[id] = 1; else addItem(id, n); }
-    const xs = 40 + (y.lv - 10) * 6; S.hero.xs = (S.hero.xs || 0) + xs;   // 悬赏点（R298 那套：去典籍阁换剑谱、玉简）
+    const xs = 40 + (OL(y.lv) - 10) * 6; S.hero.xs = (S.hero.xs || 0) + xs;   // 悬赏点（R298 那套：去典籍阁换剑谱、玉简）
     if (!fb().on && y.fabao) fb().on = y.fabao;
     if (window.itemGet) await itemGet(give.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })).concat(ITEM_DB.k_xs ? [{ icon: 'item:k_xs', name: '悬赏点', count: '+' + xs, desc: '讨伐榜的赏格。去天剑集市 · 典籍阁换剑谱、玉简' }] : []), '讨伐 ' + y.ep + ' · ' + y.name);
     if (y.fabao) await say('星旋', '「' + ITEM_DB[y.fabao].name + '」——这东西归本神仙祭炼了。打架的时候点左上角的法宝，一场能用一回。');

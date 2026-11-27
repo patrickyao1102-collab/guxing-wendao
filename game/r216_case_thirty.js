@@ -135,7 +135,7 @@
     await L([
       [ZS, '（斗笠压得很低，声音沙哑）天剑宗的小辈。一封密信，一把古剑，如今是三十个人——你坏了谷里三件事了。'], [ZS, '也好。星属性的凝丹修士，魂火比他们三十个加起来都亮。主上见了，想必欢喜。'],
       [NV, '（短剑出鞘，退后一步，与叶孤星并肩）……我的帖子，是一号。'], [NV, '所以这一剑，我先出。']]);
-    const lv = Math.max(0, (S.hero.lv || 11) - 11);
+    const lv = Math.max(0, GXLVO(S.hero.lv || 11) - 11);
     const mk = (name, key, hp, atk, def, extra) => Object.assign({ name, key: (typeof IMG !== 'undefined' && IMG[key]) ? key : 'e_grunt', hp, maxhp: hp, atk, def, spd: 13, h: 250, color: '#665' }, extra || {});
     let win = true;
     try { await fadeOut(220); const pr = startBattle({ bg: (typeof IMG !== 'undefined' && IMG.bg_r219_dye) ? 'bg_r219_dye' : 'bg_night', normalBgm: true, title: '旧染坊 · 月晦之前', boss: true, exp: 320, gold: 240,

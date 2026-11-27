@@ -1291,6 +1291,15 @@ function lvOfRealm(r) {
   return 0;
 }
 const expNeed = lv => Math.round(40 * Math.pow(lv, 1.5));
+// ---- 等级表换算（作者 11-27 16:44：等级用数字说话，一境十级）----
+// 正式版：每境九级（练气一～九重 = 1～9，凝丹一重 = 10 ……），下面几个函数原样返回 / 照旧写境界名。
+// 测试版：r405_level.js 把表换成每境十级（一～九重 + 圆满；凝丹一重 = 11），装上 GX_LVC / GX_LVOLD，并打开 GX_LV10。
+//   GXLV(n)       代码里按老表写死的等级数字 → 现在这张表上同一个境界的数字（14「凝丹五重」→ 15）。
+//   GXLVO(n)      现在的等级 → 老表上的数字（圆满算九重）。按等级给敌人涨数值的算式用它，免得敌人平白变强。
+//   lvNeedText(n) 「要到多少才行」的写法：正式版写境界名，测试版写「N 级」。
+function GXLV(n) { return window.GX_LVC ? GX_LVC(n) : n; }
+function GXLVO(n) { return window.GX_LVOLD ? GX_LVOLD(n) : n; }
+function lvNeedText(n) { return window.GX_LV10 ? n + ' 级' : realmOf(n); }
 const GROW = { maxhp: 24, maxmp: 6, atk: 3, def: 2 };
 // ---- 技能表（九曜剑典 · 七星）----
 const SKILL_DB = {
@@ -1406,7 +1415,7 @@ endBattle = (orig => async function (win) {
 async function levelUpShow(lv0) {
   const h = S.hero; playSnd('jingle_levelup'); S.flash = .6; S.flashColor = '#fff3c0';
   const gain = Object.entries(GROW).map(([k, v]) => STAT_CN[k] + ' +' + v * (h.lv - lv0)).join(' · ');
-  await showPanel('等级提升！', [realmOf(lv0) + ' → ' + h.realm + '（' + h.lv + ' 级）', gain, '气血、灵力已回满']);
+  await showPanel('等级提升！', [window.GX_LV10 ? lv0 + ' 级 → ' + h.lv + ' 级（' + h.realm + '）' : realmOf(lv0) + ' → ' + h.realm + '（' + h.lv + ' 级）', gain, '气血、灵力已回满']);
   await showLearns();
 }
 async function showLearns() {
@@ -1572,7 +1581,7 @@ updateMap = (orig => function (dt) {
 async function mobFight(a) {
   world.locked = true; world.walkTarget = null; world.player.moving = false; playSnd('sfx_claw', .6);
   const m = world.map.mobs, n = Math.random() < .35 ? 1 : Math.random() < .7 ? 2 : 3;
-  const boost = Math.max(0, S.hero.lv - 8) * .5;
+  const boost = Math.max(0, GXLVO(S.hero.lv) - 8) * .5;
   const ens = [makeEnemy(a.mob, boost)]; for (let i = 1; i < n; i++) ens.push(makeEnemy(m.types[Math.floor(Math.random() * m.types.length)], boost));
   const mapName = world.mapName, px = world.player.x, py = world.player.y;
   await fadeOut(200);
@@ -1680,8 +1689,8 @@ Object.assign(SKILL_DB, {
   jueying: { name: '贪狼剑意·绝影', cost: 60, desc: '万法皆破的杀招，可跨境界重创单体', star: '贪狼', lv: 16 },
 });
 function allyStats(k) {
-  const d = PARTY_DB[k], lv = Math.max(10, S.hero.lv), o = {};
-  for (const s in d.base) o[s] = Math.round(d.base[s] + (d.grow[s] || 0) * (lv - 10));
+  const d = PARTY_DB[k], lv = Math.max(GXLV(10), S.hero.lv), o = {};
+  for (const s in d.base) o[s] = Math.round(d.base[s] + (d.grow[s] || 0) * (lv - GXLV(10)));
   return o;
 }
 function allyState(k) { S.allies = S.allies || {}; if (!S.allies[k]) { const st = allyStats(k); S.allies[k] = { hp: st.maxhp, mp: st.maxmp, rage: 0 }; } return S.allies[k]; }
@@ -2590,7 +2599,7 @@ spawnMobs = (orig => function () { if (world.map && world.map.tile) return; retu
 mobFight = (orig => async function (a) {
   if (!(world.map && world.map.tile)) return orig(a);
   const def = world.map.def; world.locked = true; world.path = null; world.player.moving = false; playSnd('sfx_claw', .6);
-  const n = Math.random() < .3 ? 1 : Math.random() < .65 ? 2 : 3; const lvb = (def.mobs.lv || 0) + Math.max(0, S.hero.lv - 10) * .3;
+  const n = Math.random() < .3 ? 1 : Math.random() < .65 ? 2 : 3; const lvb = (def.mobs.lv || 0) + Math.max(0, GXLVO(S.hero.lv) - 10) * .3;
   const ens = [makeEnemy(a.mob, lvb)]; for (let i = 1; i < n; i++) ens.push(makeEnemy(def.mobs.types[Math.floor(Math.random() * def.mobs.types.length)], lvb));
   const px = world.player.x, py = world.player.y;
   // 一闪：遇敌
@@ -4296,7 +4305,7 @@ async function ch2After() {
   partyRest();
   await narrate('与此同时，那颗与他完全融合的天枢星骤然大放光明——一道澎湃的星辰之力从虚空落下，直接灌入叶孤星的丹田。');
   playSnd('jingle_levelup'); S.flash = .8; S.flashColor = '#fff3c0';
-  const h = S.hero; const r0 = h.realm; { h.realm = realmOf(Math.max(11, (h.lv || 10) + 1)); for (const k in GROW) h[k] += GROW[k]; h.hp = h.maxhp; h.mp = h.maxmp; }   /* 11-12：按正常等级往上破一重，不再重复弹「凝丹二重」 */
+  const h = S.hero; const r0 = h.realm; { h.realm = realmOf(Math.max(GXLV(11), (h.lv || GXLV(10)) + 1)); for (const k in GROW) h[k] += GROW[k]; h.hp = h.maxhp; h.mp = h.maxmp; }   /* 11-12：按正常等级往上破一重，不再重复弹「凝丹二重」 */
   await showPanel('突破 · ' + h.realm, ['!' + r0 + ' → ' + h.realm, '气血、灵力全满']);
   await say('星旋', '刚突破' + h.realm + '，就算兑换了绝影，施展一次也得躺地上任人宰割。不如先换个实用的群攻——破军剑意·星罗。');
   await say('叶孤星', '那就兑换星罗！');
@@ -4329,7 +4338,7 @@ async function ch2EndNew() {
 }
 // 调试入口
 (() => { const q = new URLSearchParams(location.search).get('part');
-  const setup = (lv = 10) => { const h = S.hero; h.realm = realmOf(lv); h.maxhp = 380 + (lv - 10) * 24; h.maxmp = 130 + (lv - 10) * 6; h.atk = 45 + (lv - 10) * 3; h.def = 16; h.hp = h.maxhp; h.mp = h.maxmp; h.sword = true; h.skills = ['pojun', 'tanlang']; h.learnQ = []; h.gold = 500; };
+  const setup = (lv = 10) => { const h = S.hero; h.realm = realmOf(GXLV(lv)); h.maxhp = 380 + (lv - 10) * 24; h.maxmp = 130 + (lv - 10) * 6; h.atk = 45 + (lv - 10) * 3; h.def = 16; h.hp = h.maxhp; h.mp = h.maxmp; h.sword = true; h.skills = ['pojun', 'tanlang']; h.learnQ = []; h.gold = 500; };
   if (q === 'party') setTimeout(() => { setup(16); h2(); }, 60);
   async function h2() { S.hero.skills = ['pojun', 'tanlang', 'tianshu', 'xingluo', 'jueying']; S.hero.learnQ = []; joinParty('yunting'); joinParty('linxue'); for (const k of S.party) allyState(k).rage = 100; S.fade = 1;
     const p = startBattle({ title: '测试', bg: 'bg_mountain', enemies: [BEAST('wolf2'), BEAST('rhino'), BEAST('leopard')] }); await fadeIn(200); battle.heroes.forEach(u => u.rage = 100); await p; }
@@ -4428,7 +4437,7 @@ function drawHudCard(m, i, x, C, im) {
   const nameCol = C.dark ? '#f6dfa6' : '#27445f', nameOut = C.dark ? '#140a02' : 'rgba(255,255,255,.85)', subCol = C.dark ? '#d9c9a6' : '#3e5a74';
   const fs = Math.min(22, th * .4);
   ctx.font = `${Math.round(fs)}px ${BRUSH}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; textOutline(m.name, X0, Y0 + th * .2, nameCol, nameOut, 3);
-  const nw = ctx.measureText(m.name).width; ctx.font = `600 ${Math.round(fs * .6)}px ${FONT}`; ctx.fillStyle = subCol; ctx.fillText(i === 0 ? m.realm : 'Lv ' + m.lv, X0 + nw + 6, Y0 + th * .22);
+  const nw = ctx.measureText(m.name).width; ctx.font = `600 ${Math.round(fs * .6)}px ${FONT}`; ctx.fillStyle = subCol; ctx.fillText(window.GX_LV10 ? m.lv + ' 级' : (i === 0 ? m.realm : 'Lv ' + m.lv), X0 + nw + 6, Y0 + th * .22);
   const bh = Math.max(7, th * .15);
   bar(X0, Y0 + th * .44, tw, bh, m.hp / m.maxhp, UI.hp); bar(X0, Y0 + th * .44 + bh + 3, tw, bh * .75, m.mp / m.maxmp, UI.mp);
   if (i === 0) bar(X0, Y0 + th * .44 + bh * 1.75 + 6, tw, 4, m.exp / m.need, UI.exp);
@@ -4444,7 +4453,7 @@ drawMapHud = function () {
     lacquer(x, y, w, h, { r: 12, thin: true, top: 'rgba(40,24,14,.86)', bot: 'rgba(18,10,6,.86)' });
     medallion(m.p, x + 36, y + 35, 26, { name: m.name, color: m.color });
     ctx.font = `24px ${BRUSH}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; textOutline(m.name, x + 70, y + 18, '#f6dfa6', '#1a0800', 3);   // HUD 底板固定是深漆色，名字不跟主题色走（浅色主题 gold2 是深墨色，会看不见）
-    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = '#d9c9a6'; ctx.fillText(i === 0 ? m.realm : 'Lv ' + m.lv, x + 70 + m.name.length * 24 + 6, y + 19);
+    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = '#d9c9a6'; ctx.fillText(window.GX_LV10 ? m.lv + ' 级' : (i === 0 ? m.realm : 'Lv ' + m.lv), x + 70 + m.name.length * 24 + 6, y + 19);
     bar(x + 70, y + 34, 122, 11, m.hp / m.maxhp, UI.hp); bar(x + 70, y + 49, 122, 8, m.mp / m.maxmp, UI.mp);
     if (i === 0) bar(x + 70, y + 60, 122, 4, m.exp / m.need, UI.exp);
   });
@@ -4492,8 +4501,8 @@ function equipCards(L) {
 }
 function skillList(k) {
   const h = S.hero;
-  if (k === 'hero') return Object.entries(SKILL_DB).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: s.star, on: h.skills.includes(id), need: s.lv ? realmOf(s.lv) + '领悟' : '剧情中领悟' }));
-  const out = Object.entries(ALLY_SKILLS).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: '天剑', on: !s.lv || h.lv >= s.lv, need: realmOf(s.lv || 1) + '领悟' }));
+  if (k === 'hero') return Object.entries(SKILL_DB).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: s.star, on: h.skills.includes(id), need: s.lv ? lvNeedText(s.lv) + '领悟' : '剧情中领悟' }));
+  const out = Object.entries(ALLY_SKILLS).map(([id, s]) => ({ id, name: s.name, cost: s.cost, desc: s.desc, badge: '天剑', on: !s.lv || h.lv >= s.lv, need: lvNeedText(s.lv || 1) + '领悟' }));
   const u = PARTY_DB[k].ult === 'jiutian' ? ['九天神雷', '引九天雷霆劈落，攻击全体并可能麻痹'] : ['大雪纷飞', '漫天风雪冰封全体敌人'];
   out.push({ id: 'ult', name: u[0], cost: '怒气 100', desc: u[1], badge: '必杀', on: true }); return out;
 }
@@ -4559,7 +4568,7 @@ function drawStatus(B, mi, now) {
   const im = IMG[mi.p]; if (im) { const ph = B.h + 40, pw = ph * im.width / im.height, dx = /^p_luochen/.test(mi.p) ? -pw * .16 : 0; ctx.save(); ctx.globalAlpha = .95; ctx.beginPath(); ctx.rect(B.x, B.y, B.w, B.h); ctx.clip(); ctx.drawImage(fadeLeft(im), B.x + B.w - pw + 30 + dx, B.y + 10 + Math.sin(now * 1.2) * 3, pw, ph); ctx.restore(); }
   const x = B.x + 36; let y = B.y + 50;
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `56px ${BRUSH}`; textOutline(mi.name, x, y, UI.title, UI.titleLine, 5);
-  ctx.font = `600 20px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(mi.realm + '　·　' + mi.lv + ' 级', x + mi.name.length * 58 + 16, y + 6);
+  ctx.font = `600 20px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(window.GX_LV10 ? mi.lv + ' 级　·　' + mi.realm : mi.realm + '　·　' + mi.lv + ' 级', x + mi.name.length * 58 + 16, y + 6);
   y += 64; const bw = 380;
   const row = (lab, v, col, text) => { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(lab, x, y + 10); bar(x + 60, y, bw, 20, v, col, text); y += 38; };
   row('气血', mi.hp / mi.maxhp, UI.hp, mi.hp + ' / ' + mi.maxhp); row('灵力', mi.mp / mi.maxmp, UI.mp, mi.mp + ' / ' + mi.maxmp);
@@ -5027,9 +5036,10 @@ const C3 = {
   shard(n = 1, why = '') { S.shards = (S.shards || 0) + n; playSnd('sfx_sword_ring', .6); toast('获得 星辰碎片' + (why ? '（' + why + '）' : '') + '　' + S.shards + ' / 12', 2200); },
   bond(n) { S.bond = (S.bond || 0) + n; if (n > 0) toast('兄弟情义 +' + n, 1400); },
   async breakTo(lv, label) { // 境界突破：光柱 + 面板
+    lv = GXLV(lv);   /* 调用的地方写的都是老表上的数字（11、14、16） */
     const h = S.hero; const lv0 = h.lv; while (h.lv < lv) { for (const k in GROW) h[k] += GROW[k]; h.lv = h.lv + 1; }
     h.hp = h.maxhp; h.mp = h.maxmp; playSnd('jingle_levelup'); S.flash = .8; S.flashColor = '#fff3c0';
-    await showPanel(label || ('突破 · ' + h.realm), [realmOf(lv0) + ' → ' + h.realm, '气血、灵力全满']);
+    await showPanel(label || ('突破 · ' + h.realm), [window.GX_LV10 ? lv0 + ' 级 · ' + realmOf(lv0) + ' → ' + h.lv + ' 级 · ' + h.realm : realmOf(lv0) + ' → ' + h.realm, '气血、灵力全满']);
     await showLearns();
   },
   scene(key, dim = 0, tint) { // 用一张插画当整屏场景（剧情对话用）
@@ -5098,7 +5108,7 @@ tileDraw = (orig => function () {
 
 // ---------------- 吞噬（叶孤星新技能）----------------
 SKILL_DB.jueying.lv = 15; // 作者：绝影在凝丹六重领悟（15 级）
-setInterval(() => { try { const h = S.hero; if (h && h.lv >= 15 && h.skills && !h.skills.includes('jueying') && (!window.SK_REQ || SK_REQ('jueying'))) { h.skills.push('jueying'); toast('凝丹六重 · 领悟 贪狼剑意·绝影', 2400); } } catch (e) {} }, 1500);
+setInterval(() => { try { const h = S.hero; if (h && h.lv >= GXLV(15) && h.skills && !h.skills.includes('jueying') && (!window.SK_REQ || SK_REQ('jueying'))) { h.skills.push('jueying'); toast('凝丹六重 · 领悟 贪狼剑意·绝影', 2400); } } catch (e) {} }, 1500);
 SKILL_DB.tunshi = { name: '纳月 · 吞噬', cost: 24, desc: '以纳月之力吞噬敌人灵力，伤害的一半化为自身气血，回复灵力（对邪修伤害 +50%）', star: '纳月' };
 async function skTunshi(P, t) {
   if (!t) return; await dimTo(.6, 250); skillBanner('纳月 · 吞噬', '#d9b8ff', '吞天地之万法'); playSnd('sfx_charge');
@@ -5158,7 +5168,7 @@ const C3_ENTER = { xt_city: () => ch3City(true) };
 
 // ================= 剧情 =================
 async function ch3Start() {
-  const h = S.hero; if (h.lv < 11) await C3.breakTo(11);
+  const h = S.hero; if (h.lv < GXLV(11)) await C3.breakTo(11);
   if (!h.skills.includes('xingluo')) h.skills.push('xingluo');
   S.flags.ch3 = 1; S.hud = false; world.map = null; joinParty('yunting');
   // 钩子：炼魂谷的血阵（反派插叙）
@@ -5349,7 +5359,7 @@ async function ch3ForestEnter() {
 async function ch3Tiger() {
   world.locked = true;
   await narrate('空地中央，一头浑身覆满黑铁鳞甲的巨虎正在撕咬一具妖狼的尸体。它缓缓抬起头，额心那只竖眼亮起了暗红的光。');
-  { const d = 14 - (S.hero.lv || 11); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
+  { const d = GXLV(14) - (S.hero.lv || GXLV(11)); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
   await say('叶孤星', '那正好，试试刚换的星罗。');
   await fadeOut(250);
   const pr = startBattle({ title: '铁鳞魔虎', bg: 'bg_youying', enemies: [tigerBoss()], exp: 260, gold: 400, boss: true, loot: '铁鳞 ×3' }); await fadeIn(250); await pr;
@@ -5675,7 +5685,7 @@ function elderBattleCfg() {
 
 // ================= 剧情 =================
 async function ch4Start() {
-  const h = S.hero; if (h.lv < 14) { h.realm = '凝丹五重'; }
+  const h = S.hero; if (h.lv < GXLV(14)) { h.realm = '凝丹五重'; }
   if (!h.skills.includes('tunshi')) h.skills.push('tunshi');
   S.flags.ch4 = 1; joinParty('yunting');
   await fadeOut(300); await bigTitle('第四章', '苍月炼魂', 3000);
@@ -6027,7 +6037,7 @@ window.NO_CG = true;
   let seal = null;
   window.breakSeal = function (cfg) {
     const n = cfg.n || 5, cost = cfg.cost || 0, h = S.hero;
-    if (cfg.lv && h.lv < cfg.lv) { toast('需要达到' + realmOf(cfg.lv) + '才能破解这座锁灵阵'); return Promise.resolve(false); }
+    if (cfg.lv && h.lv < cfg.lv) { toast('需要达到' + lvNeedText(cfg.lv) + '才能破解这座锁灵阵'); return Promise.resolve(false); }
     if ((h.bag.yunxingshi || 0) < cost) { toast('破阵灵晶不够（需要 ' + cost + ' 颗）'); return Promise.resolve(false); }
     if (seal && seal.res) return seal.promise;   // 作者 11-03：锁灵阵经常卡住——已经在破阵中又被触发一次时，不再另起一局（旧的那局永远等不到结果）
     let pts = [];
@@ -12442,7 +12452,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   drawActorT = (orig => function (a, now) { if (a.fire) return; return orig(a, now); })(drawActorT);
   tileAmbientHigh = (orig => function (T, cam, now) { orig && orig(T, cam, now); const fs = (world.mobs || []).filter(a => a.fire && !a.hidden).sort((p, q) => p.y - q.y); for (const a of fs) drawFire(a, now); })(typeof tileAmbientHigh === 'function' ? tileAmbientHigh : null);
   // 进野外地图：提示这里的妖物等级
-  tileSetMap = (orig => function (name, c, r, face) { const res = orig(name, c, r, face); const M = TMAPS[name]; if (M && M.mobs && M.mobs.lvR) setTimeout(() => world.mapName === name && !dialog && toast(`${M.title} · 妖物等级 Lv${M.mobs.lvR[0]}–${M.mobs.lvR[1]}（你 Lv${S.hero.lv}）`, 2600), 900); return res; })(tileSetMap);
+  tileSetMap = (orig => function (name, c, r, face) { const res = orig(name, c, r, face); const M = TMAPS[name]; if (M && M.mobs && M.mobs.lvR) setTimeout(() => world.mapName === name && !dialog && toast(window.GX_LV10 ? `${M.title} · 妖物 ${M.mobs.lvR[0]}–${M.mobs.lvR[1]} 级（你 ${S.hero.lv} 级）` : `${M.title} · 妖物等级 Lv${M.mobs.lvR[0]}–${M.mobs.lvR[1]}（你 Lv${S.hero.lv}）`, 2600), 900); return res; })(tileSetMap);
   // 测试：在主角身边放 5 种颜色的火各一团
   window.FIRE_DEBUG = function () {
     const def = world.map && world.map.def; if (!def || !def.mobs) { toast('这张图没有野怪，先传送到野外地图', 2000); return; }
@@ -14906,7 +14916,7 @@ window.R80 = {"blocked":"1111111111111111111111111111111111111111111111111111111
 <script src="r177_tips.js"></script><script src="loading.js?v=3"></script>
 <script src="skills_fix.js"></script>
 <script src="mount_duo_effects.js"></script><script src="mount_fx2.js"></script><script src="mount.js"></script><script src="ui_icons.js"></script><script src="shenqi_r62.js"></script><script src="battle_menu2.js"></script>
-<script src="skill_tree.js?v=298"></script><script src="item_icons.js"></script><script src="fx_prewarm.js"></script><script src="early_bal.js"></script><script src="equip_plus.js?v=4"></script><script src="target_pick.js"></script><script src="route_fix.js"></script><script src="story_fx.js"></script><script src="bgm_lib.js"></script><script src="bgm_music.js?v=2"></script><script src="bgm_libui.js"></script><script src="voice_skill.js"></script>
+<script src="skill_tree.js?v=299"></script><script src="item_icons.js"></script><script src="fx_prewarm.js?v=2"></script><script src="early_bal.js"></script><script src="equip_plus.js?v=4"></script><script src="target_pick.js"></script><script src="route_fix.js"></script><script src="story_fx.js"></script><script src="bgm_lib.js"></script><script src="bgm_music.js?v=2"></script><script src="bgm_libui.js"></script><script src="voice_skill.js"></script>
 <script src="dummy_test.js"></script>
 
 <script>// ===== Codex R69 落云岭·岩隙藏洞 翻新（作者认可）：动效 + 地图补丁内联，图片放作品素材库 =====
@@ -15244,8 +15254,8 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   window.SK4_SHOP = function () { const L = lv(), out = [];
     const put = (who, id, need) => { if (L >= need) out.push(bookId(who, id)); };
     // 辅助不再卖书（到修为自动领悟），只卖秘传
-    put('linxue', 'bingfeng', 15); put('yunting', 'yunlei', 19); put('shenle', 'shenfa', 19); put('shenle', 'jiuyinhe', 21);
-    out.push('juan2', 'juan3'); if (L >= 19) out.push('juan4'); if (L >= 21) out.push('juan5');
+    put('linxue', 'bingfeng', GXLV(15)); put('yunting', 'yunlei', GXLV(19)); put('shenle', 'shenfa', GXLV(19)); put('shenle', 'jiuyinhe', GXLV(21));
+    out.push('juan2', 'juan3'); if (L >= GXLV(19)) out.push('juan4'); if (L >= GXLV(21)) out.push('juan5');
     return out.filter(id => ITEM_DB[id]); };
 
   // ---------- 状态（回合制增益）：u.bx = { k: { v, n } }，自己的回合开始时 n−1 ----------
@@ -16817,12 +16827,12 @@ window.MarketEffects = (() => {
 </script>
 <script src="itemget_frame.js"></script>
 <script src="eqp10_panel.js"></script>
-<script src="r134_fix.js?v=2"></script>
+<script src="r134_fix.js?v=3"></script>
 <script src="nayue_fx.js"></script>
 <script src="nayue_fx3.js"></script>
 <script src="r134_nayue.js"></script>
-<script src="levelup_panel.js"></script>
-<script src="lvpanel.js"></script>
+<script src="levelup_panel.js?v=2"></script>
+<script src="lvpanel.js?v=2"></script>
 <script src="joystick.js?v=2"></script><script src="mobile_zoom.js"></script>
 <script src="companions8.js"></script>
 <script src="dialog_face.js"></script>
@@ -16840,14 +16850,14 @@ window.MarketEffects = (() => {
 <script src="r186_questfx.js"></script>
 <script src="r137_data.js"></script>
 <script src="r137_qz.js"></script>
-<script src="r201_bag.js?v=1"></script><script src="r138_pokong.js"></script>
+<script src="r201_bag.js?v=2"></script><script src="r138_pokong.js"></script>
 <script src="r138_panel.js"></script>
 <script src="r139_qz_life.js"></script>
 <script src="r140_quest.js"></script><script src="r165_quest.js?v=3"></script>
 <script src="r143/shanmen_walk.js"></script>
 <script src="r143_songfeng.js"></script>
 <script src="r144_books.js"></script>
-<script src="r145_save.js?v=2"></script>
+<script src="r145_save.js?v=3"></script>
 <script src="r187_savepage.js"></script>
 <script src="r146_tp.js"></script>
 <script src="r147_cxfx_tiles.js"></script>
@@ -16855,36 +16865,37 @@ window.MarketEffects = (() => {
 <script src="r149_mobile_text.js"></script>
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
-<script src="r153_skillwin.js?v=2"></script><script src="r154_skilldetail.js"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js?v=2"></script><script src="r160_popups.js"></script><script src="r162_qz_shi.js"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js?v=299"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js?v=2"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=8"></script><script src="r193_art.js?v=8"></script><script src="r193_gear.js?v=2"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js?v=2"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js?v=2"></script>
+<script src="r153_skillwin.js?v=2"></script><script src="r154_skilldetail.js?v=2"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js?v=2"></script><script src="r160_popups.js?v=2"></script><script src="r162_qz_shi.js?v=2"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js?v=299"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js?v=2"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=8"></script><script src="r193_art.js?v=8"></script><script src="r193_gear.js?v=2"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js?v=2"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js?v=2"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js?v=2"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js?v=2"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js?v=2"></script>
 <script src="r209_bagdark.js?v=2"></script>
 <script src="r210_hfcine.js?v=2"></script>
-<script src="r212_qingyang.js?v=13"></script>
+<script src="r212_qingyang.js?v=14"></script>
 <script src="r213/rooms.js?v=11"></script><script src="r213/patch.js?v=2"></script><script src="r225_apply.js?v=3"></script><script src="r213/patch2.js?v=1"></script><script src="r229_apply.js?v=1"></script><script src="r213_rooms.js?v=9"></script>
-<script src="r213_xuantian.js?v=3"></script>
-<script src="r214_case_inn.js?v=3"></script><script src="r215_case_wanbao.js?v=7"></script><script src="r217/inn.js?v=5"></script><script src="r217_inn.js?v=1"></script><script src="r216_case_thirty.js?v=4"></script><script src="r219/scenes.js?v=1"></script><script src="r219/vip.js?v=2"></script><script src="r219_scenes.js?v=2"></script>
+<script src="r213_xuantian.js?v=4"></script>
+<script src="r214_case_inn.js?v=3"></script><script src="r215_case_wanbao.js?v=8"></script><script src="r217/inn.js?v=5"></script><script src="r217_inn.js?v=1"></script><script src="r216_case_thirty.js?v=5"></script><script src="r219/scenes.js?v=1"></script><script src="r219/vip.js?v=2"></script><script src="r219_scenes.js?v=2"></script>
 <script src="r221/manifest.js?v=1"></script><script src="r221_cine.js?v=3"></script><script src="r228_ext.js?v=15"></script>
 <script src="r238/tea.js?v=1"></script><script src="r238_teahouse.js?v=3"></script>
 <script src="r236_hub.js?v=4"></script>
-<script src="r233/room1.js?v=1"></script><script src="r232_case_lamp.js?v=6"></script><script src="r239/data.js?v=2"></script><script src="r239_sect.js?v=7"></script>
+<script src="r233/room1.js?v=1"></script><script src="r232_case_lamp.js?v=7"></script><script src="r239/data.js?v=2"></script><script src="r239_sect.js?v=7"></script>
 <script src="r250_room3.js?v=1"></script><script src="r252_sun.js?v=1"></script><script src="r243_front.js?v=3"></script><script src="r246/f2.js?v=1"></script><script src="r246_teahouse2.js?v=4"></script><script src="r253_fixes.js?v=6"></script><script src="r249_market.js?v=2"></script><script src="r256_npc8.js?v=3"></script><script src="r260/court.js?v=1"></script><script src="r260_court.js?v=3"></script><script src="r255/yi1.js?v=1"></script><script src="r255/yi2.js?v=1"></script><script src="r255/bing1.js?v=2"></script><script src="r257_homes.js?v=4"></script><script src="r260_xt_walls.js?v=3"></script><script src="r263_window.js?v=2"></script><script src="r262_front.js?v=3"></script><script src="r271_tidy.js?v=1"></script><script src="r272_stairs.js?v=1"></script><script src="r269_inn.js?v=8"></script><script src="r274_rest.js?v=5"></script><script src="r254f2/f2.js?v=1"></script><script src="r254_2f.js?v=1"></script><script src="r275_rooms.js?v=6"></script><script src="r266_guests.js?v=4"></script><script src="r276_room1.js?v=3"></script>
 <script src="r230_search.js?v=4"></script><script src="r227_music.js?v=12"></script><script src="r227_vo.js?v=5"></script><script src="r311_music.js?v=3"></script><script src="r211_script.js?v=5"></script>
 <script src="r277_portal_top.js?v=3"></script><script src="r278_chain.js?v=6"></script><script src="r279_seated.js?v=1"></script><script src="r280_stalls.js?v=1"></script><script src="r282_ext.js?v=2"></script>
-<script src="r283/grid.js?v=2"></script><script src="r283_collide.js?v=1"></script><script src="r284_mapnav.js?v=2"></script><script src="r284_sidenav.js?v=1"></script><script src="r287_qbook.js?v=10"></script><script src="r291_inns.js?v=1"></script><script src="r292_minglu.js?v=14"></script><script src="r290_icons.js?v=2"></script><script src="r293_yunlai.js?v=1"></script><script src="r295_cast.js?v=2"></script><script src="r298_reward.js?v=1"></script><script src="r297_rooms.js?v=5"></script><script src="r300_tyl2f.js?v=1"></script><script src="r302_fix.js?v=14"></script><script src="r303_rooms.js?v=2"></script><script src="r312_fix.js?v=4"></script><script src="r313_sqtest.js?v=4"></script><script src="r314_dahu.js?v=1"></script><script src="r315_wanbao.js?v=6"></script><script src="r316_libfire.js?v=5"></script><script src="r317_sqmark.js?v=2"></script><script src="r318_huagirl.js?v=8"></script><script src="r319_sqbranch.js?v=3"></script><script src="r320_portraits.js?v=5"></script><script src="r321_sqtwist.js?v=3"></script><script src="r322_cine.js?v=5"></script><script src="r323_spots.js?v=1"></script><script src="r324_props.js?v=1"></script><script src="r325_yunlai307.js?v=1"></script><script src="r326_recall.js?v=4"></script><script src="r327_court.js?v=2"></script><script src="r328_walkin.js?v=2"></script><script src="r347/data.js?v=1"></script><script src="r329_dongxiang.js?v=20"></script><script src="r330_lock.js?v=1"></script><script src="r331_links.js?v=1"></script><script src="r333_yamen.js?v=3"></script><script src="r334_dxpeach.js?v=6"></script><script src="r335_xtroad.js?v=5"></script><script src="r336_brothers.js?v=5"></script><script src="r337_dahu_ext.js?v=1"></script><script src="r338_routes.js?v=1"></script><script src="r340_bubble.js?v=1"></script><script src="r345/tl.js?v=1"></script><script src="r341_dx_memory.js?v=7"></script><script src="r359_audio.js?v=1"></script><script src="r343_hanfu.js?v=2"></script><script src="r344/data.js?v=1"></script><script src="r344_dxhome.js?v=14"></script><script src="r348_ayan_ext.js?v=6"></script><script src="r364_tidy.js?v=2"></script><script src="r365_dinner.js?v=2"></script><script src="r366_tavern.js?v=3"></script><script src="r367_shops.js?v=1"></script><script src="r368_icons.js?v=1"></script><script src="r370_core.js?v=10"></script><script src="r370_ui.js?v=13"></script><script src="r385_data.js?v=1"></script><script src="r371_shops.js?v=3"></script><script src="r373_skin.js?v=1"></script><script src="r374_lines.js?v=1"></script>
-<script src="r375_feel.js?v=4"></script>
+<script src="r283/grid.js?v=2"></script><script src="r283_collide.js?v=1"></script><script src="r284_mapnav.js?v=2"></script><script src="r284_sidenav.js?v=1"></script><script src="r287_qbook.js?v=10"></script><script src="r291_inns.js?v=1"></script><script src="r292_minglu.js?v=14"></script><script src="r290_icons.js?v=2"></script><script src="r293_yunlai.js?v=1"></script><script src="r295_cast.js?v=2"></script><script src="r298_reward.js?v=2"></script><script src="r297_rooms.js?v=5"></script><script src="r300_tyl2f.js?v=1"></script><script src="r302_fix.js?v=14"></script><script src="r303_rooms.js?v=2"></script><script src="r312_fix.js?v=4"></script><script src="r313_sqtest.js?v=4"></script><script src="r314_dahu.js?v=1"></script><script src="r315_wanbao.js?v=6"></script><script src="r316_libfire.js?v=5"></script><script src="r317_sqmark.js?v=2"></script><script src="r318_huagirl.js?v=8"></script><script src="r319_sqbranch.js?v=3"></script><script src="r320_portraits.js?v=5"></script><script src="r321_sqtwist.js?v=3"></script><script src="r322_cine.js?v=5"></script><script src="r323_spots.js?v=1"></script><script src="r324_props.js?v=1"></script><script src="r325_yunlai307.js?v=1"></script><script src="r326_recall.js?v=4"></script><script src="r327_court.js?v=2"></script><script src="r328_walkin.js?v=2"></script><script src="r347/data.js?v=1"></script><script src="r329_dongxiang.js?v=20"></script><script src="r330_lock.js?v=1"></script><script src="r331_links.js?v=1"></script><script src="r333_yamen.js?v=3"></script><script src="r334_dxpeach.js?v=6"></script><script src="r335_xtroad.js?v=5"></script><script src="r336_brothers.js?v=5"></script><script src="r337_dahu_ext.js?v=1"></script><script src="r338_routes.js?v=1"></script><script src="r340_bubble.js?v=1"></script><script src="r345/tl.js?v=1"></script><script src="r341_dx_memory.js?v=7"></script><script src="r359_audio.js?v=1"></script><script src="r343_hanfu.js?v=2"></script><script src="r344/data.js?v=1"></script><script src="r344_dxhome.js?v=14"></script><script src="r348_ayan_ext.js?v=6"></script><script src="r364_tidy.js?v=2"></script><script src="r365_dinner.js?v=2"></script><script src="r366_tavern.js?v=3"></script><script src="r367_shops.js?v=1"></script><script src="r368_icons.js?v=1"></script><script src="r370_core.js?v=11"></script><script src="r370_ui.js?v=14"></script><script src="r385_data.js?v=1"></script><script src="r371_shops.js?v=3"></script><script src="r373_skin.js?v=1"></script><script src="r374_lines.js?v=1"></script>
+<script src="r375_feel.js?v=5"></script>
 <script src="r377_bossglow.js?v=6"></script>
 <script src="r378_meta.js?v=3"></script>
 <script src="r378_kings.js?v=4"></script>
 <script src="r379_world.js?v=19"></script>
-<script src="r380_book.js?v=3"></script>
+<script src="r380_book.js?v=4"></script>
 <script src="r381_dialog.js?v=3"></script>
 <script src="r382_wuxing.js?v=2"></script>
 <script src="r388_meta.js?v=1"></script><script src="r388_wolf.js?v=4"></script>
 <script src="r390_routes.js?v=1"></script>
-<script src="r386_jade.js?v=6"></script>
+<script src="r386_jade.js?v=7"></script>
 <script src="r391_boons.js?v=1"></script>
 <script src="r393_wxjing.js?v=6"></script><script src="r392_data.js?v=1"></script><script src="r392_luoxing.js?v=2"></script><script src="r395_pingjing.js?v=1"></script><script src="r396_hs12fix.js?v=1"></script>
-<script src="r389_gear.js?v=7"></script><script src="r389_panel.js?v=5"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r400_craft.js?v=4"></script><script src="r394_forge.js?v=7"></script><script src="r402_shop.js?v=2"></script><script src="r397_testbtn.js?v=5"></script>
+<script src="r389_gear.js?v=7"></script><script src="r389_panel.js?v=6"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r400_craft.js?v=4"></script><script src="r394_forge.js?v=7"></script><script src="r402_shop.js?v=3"></script><script src="r397_testbtn.js?v=5"></script>
 <script src="r349/data.js?v=6"></script><script src="r349_chehome.js?v=11"></script><script src="r352_chehome_ext.js?v=4"></script><script src="r354_scaletest.js?v=1"></script><script src="r355_indoor_scale.js?v=1"></script><script src="r357/tl.js?v=1"></script><script src="r357_memory.js?v=1"></script>
+<script src="r405_level.js?v=1"></script>
 <script src="asset_ready.js"></script>
 </body></html>

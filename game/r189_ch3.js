@@ -95,7 +95,7 @@
   async function tigerFight() {
     world.locked = true; world.path = null; world.player.moving = false; world.camFocus = [TIGER_AT[0] - 60, TIGER_AT[1] - 80];
     await narrate('古樟东侧的空地上，一头浑身覆满黑铁鳞甲的巨虎正伏在一具妖狼的尸体上撕咬。它缓缓抬起头，额心那只竖眼亮起了暗红的光。');
-    { const d = 14 - (S.hero.lv || 11); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
+    { const d = GXLV(14) - (S.hero.lv || GXLV(11)); await say('星旋', d > 0 ? '铁鳞魔虎，凝丹五重！小子，比你高了' + '一二三四五'[Math.min(4, d - 1)] + '个小境界——' : '铁鳞魔虎，凝丹五重！小子，跟你差不多的境界，别大意——'); }
     await say('叶孤星', '那正好，试试刚换的星罗。');
     await fadeOut(250);
     const pr = startBattle({ title: '铁鳞魔虎', bg: 'bg_youying', enemies: [tigerBoss()], exp: 260, gold: 400, boss: true, loot: '铁鳞 ×3' }); await fadeIn(250); await pr;
@@ -283,7 +283,7 @@
       S.flash = .9; S.flashColor = '#fff3c0'; S.shake = 10; try { playSnd('sfx_ult', .5); } catch (e) {}
       floatText(p.x, p.y - 170, txt, '#ffe48a', 60, 1.3, BRUSH); await sleep(1200);
     }
-    if (S.hero.lv < 14) await C3.breakTo(14, '连破三重 · 凝丹五重');
+    if (S.hero.lv < GXLV(14)) await C3.breakTo(14, '连破三重 · 凝丹五重');
     await narrate('就在这时，身旁传来一声压抑的闷哼。');
     await narrate('云霆浑身发抖，脸色白得像纸，周身凝出了一层薄霜——霜还在往外蔓延，连泉水都开始结冰。');
     await say('星旋', '糟了！是冰封剑心！这小子这几天一直在偷偷用这个法子练剑！');

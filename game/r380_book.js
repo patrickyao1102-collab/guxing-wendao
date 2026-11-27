@@ -63,7 +63,7 @@
     const im = IMG[mi.p]; if (im) { const pc = portrait(im), pw = 470, ph = pw * pc.height / pc.width, dx = /^p_luochen/.test(mi.p) ? -40 : 0; ctx.drawImage(pc, 770 + dx, 62 + Math.sin(now * 1.2) * 2, pw, ph); }
     // 名字 / 境界
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `700 54px ${BR()}`; ctx.fillStyle = '#30241C'; ctx.fillText(mi.name, 298, 164); const nw = ctx.measureText(mi.name).width;
-    ctx.font = `600 22px ${KAI()}`; ctx.fillStyle = '#423022'; ctx.fillText(mi.realm + '　·　' + mi.lv + ' 级', 298 + nw + 26, 172);
+    ctx.font = `600 22px ${KAI()}`; ctx.fillStyle = '#423022'; ctx.fillText(mi.lv + ' 级　·　' + mi.realm, 298 + nw + 26, 172);
     // 三条槽
     const rows = [['气血', 'health', mi.hp / mi.maxhp, mi.hp + ' / ' + mi.maxhp], ['灵力', 'spirit', mi.mp / mi.maxmp, mi.mp + ' / ' + mi.maxmp]]; if (!mi.ally) rows.push(['修为', 'cultivation', mi.exp / mi.need, mi.exp + ' / ' + mi.need]);
     rows.forEach(([lab, k, v, t], i) => { const y = 215 + i * 42; ctx.font = `600 21px ${KAI()}`; ctx.textAlign = 'left'; ctx.fillStyle = '#453425'; ctx.fillText(lab, 300, y + 14); meter(k + '_track', k + '_fill', 381, y, v, t); });

@@ -16,7 +16,7 @@
   const YE = '叶孤星', XX = '星旋';
   const afterCamp = () => { const f = F(); return !!(f.ch3_night || f.ch3_city || f.ch3 || f.ch3_report); };   // 黑风寨已经打完
   const inTown = () => afterCamp();   // 作者 11-16：黑风寨没打完之前，青阳镇人心惶惶，故事线都不开（原来是定下进黑风谷就开）
-  const lvUp = () => Math.max(0, (S.hero.lv || 11) - 11);
+  const lvUp = () => Math.max(0, (typeof GXLVO === 'function' ? GXLVO(S.hero.lv || 11) : (S.hero.lv || 11)) - 11);
 
   function hook(mid, name, fn) {
     const M = TMAPS[mid], n = M && (M.npcs || []).find(n => n.name === name && !n.hidden);

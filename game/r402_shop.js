@@ -82,7 +82,7 @@
     else if (!it.desc) { const ef = [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '救起倒下的同伴' : ''].filter(Boolean).join('　') || it.eff || ''; if (ef) { T(ef, x0, y, 18, C.green, KAI(), 600); y += 30; } }
     const room = it.slot ? 2 : 6, big = !it.slot; ctx.font = `500 ${big ? 17 : 15}px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = big ? C.text : C.sub; const lh = big ? 27 : 23, n = wrap(it.desc || '', x0, y + 2, DP.w - 36, lh, room); y += n * lh + 10;   /* 丹药、杂物没有属性行，说明就是正文，字放大一号 */
     if (it.slot) { const lack = it.lvReq && (S.hero.lv || 1) < it.lvReq;
-      T('换上以后', x0, y + 4, 14, C.dim, KAI(), 600); if (lack) T('境界不足：要' + (typeof realmOf === 'function' ? realmOf(it.lvReq) : it.lvReq + ' 级'), xr, y + 4, 14, C.red, KAI(), 600, 'right'); y += 30;
+      T('换上以后', x0, y + 4, 14, C.dim, KAI(), 600); if (lack) T('等级不足：要 ' + it.lvReq + ' 级', xr, y + 4, 14, C.red, KAI(), 600, 'right'); y += 30;
       for (const w of members()) { if (y > BY - 184) break; const { cur, out } = deltas(w, id); T(whoName(w), x0, y, 16, C.text, KAI(), 600); let x = x0 + 74;
         if (cur === id) T('正穿着', x, y, 15, C.dim, KAI(), 500); else if (!out.length) T('持平', x, y, 15, C.dim, KAI(), 500);
         else for (const [k, d] of out.slice(0, 2)) { const s = SN[k] + (d > 0 ? ' ▲' : ' ▼') + Math.abs(d); T(s, x, y, 15, d > 0 ? C.green : C.red, KAI(), 700); x += ctx.measureText(s).width + 14; }

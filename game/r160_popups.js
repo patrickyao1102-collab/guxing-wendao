@@ -90,7 +90,7 @@
   // ---------- 等级提升 / 境界提升 ----------
   const LP0 = window.levelPanel;
   const fmt = rows => rows.map(([l, a, b]) => l + ' +' + (b - a)).filter(s => !/\+0$/.test(s));
-  function allyGain(k, lv0, lv1) { try { const d = PARTY_DB[k]; const at = lv => { const o = {}; for (const s in d.base) o[s] = Math.round(d.base[s] + (d.grow[s] || 0) * (Math.max(10, lv) - 10)); return o; }; const a = at(lv0), b = at(lv1);
+  function allyGain(k, lv0, lv1) { try { const d = PARTY_DB[k]; const at = lv => { const o = {}; for (const s in d.base) o[s] = Math.round(d.base[s] + (d.grow[s] || 0) * (Math.max(GXLV(10), lv) - GXLV(10))); return o; }; const a = at(lv0), b = at(lv1);
     return [['气血', a.maxhp, b.maxhp], ['灵力', a.maxmp, b.maxmp], ['攻击', a.atk, b.atk], ['防御', a.def, b.def], ['身法', a.spd, b.spd]]; } catch (e) { return []; } }
   // 作者 11-08：「升级不变」—— 等级提升 / 境界提升 仍用原来的金色海棠窗（levelup_panel.js），黑金只用在技能类弹窗和战斗结算
 

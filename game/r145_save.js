@@ -39,6 +39,8 @@
   function fixHero(h) {
     try {
       let lv = +h.lv || 0;
+      // 测试版的等级表是一境十级（r405_level.js）：老存档里的数字是按每境九级记的，所以以存档里记的境界名字为准重新定等级；新存档两样本来就对得上。正式版不走这一句。
+      if (window.GX_LV10 && typeof lvOfRealm === 'function' && h.realm) { const v = lvOfRealm(h.realm); if (v) lv = v; }
       if (!lv && typeof lvOfRealm === 'function' && h.realm) lv = lvOfRealm(h.realm);
       if (!lv) { let eq = 0; try { for (const k in (h.equip || {})) { const it = h.equip[k] && ITEM_DB[h.equip[k]]; if (it && it.maxhp) eq += it.maxhp; } } catch (e) {} lv = Math.max(6, Math.round(6 + ((h.maxhp || 280) - eq - 280) / ((typeof GROW !== 'undefined' && GROW.maxhp) || 24))); }
       delete h.lv; delete h.realm;
@@ -71,7 +73,7 @@
     const h = d.hero || {}, t = new Date(d.t || 0);
     const two = n => String(n).padStart(2, '0');
     const when = (t.getMonth() + 1) + '月' + t.getDate() + '日 ' + two(t.getHours()) + ':' + two(t.getMinutes());
-    return head + ' · ' + (d.title || '') + ' · ' + (h.realm || ('Lv' + (h.lv || '?'))) + ' · ' + when;
+    return head + ' · ' + (d.title || '') + ' · ' + (window.GX_LV10 && h.realm && typeof lvOfRealm === 'function' && lvOfRealm(h.realm) ? lvOfRealm(h.realm) + ' 级 ' + h.realm : (h.realm || ('Lv' + (h.lv || '?')))) + ' · ' + when;
   };
 
   // 开机时各模块挂进 S.overlay 的都是常驻层（自己判断画不画），标成 _keep；之后临时推进来的弹层读档时照旧清掉

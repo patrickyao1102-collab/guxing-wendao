@@ -11,7 +11,7 @@
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const YE = '叶孤星', XX = '星旋', ELDER = '据点长老';
   const inCity = () => { const f = F(); return !!(f.ch3_city || f.ch3_report || f.ch3); };
-  const lvUp = () => Math.max(0, (S.hero.lv || 12) - 12);
+  const lvUp = () => Math.max(0, (typeof GXLVO === 'function' ? GXLVO(S.hero.lv || 12) : (S.hero.lv || 12)) - 12);
   const free = (x, y) => { try { return B.blocked.charCodeAt(Math.floor(y / B.cs) * B.cols + Math.floor(x / B.cs)) === 48; } catch (e) { return true; } };
   const nearFree = (x, y) => { for (let r = 0; r <= 160; r += 16) for (let a = 0; a < 8; a++) { const px = x + Math.cos(a * Math.PI / 4) * r, py = y + Math.sin(a * Math.PI / 4) * r; if (free(px, py)) return [px, py]; } return [x, y]; };
   function hook(name, fn) {

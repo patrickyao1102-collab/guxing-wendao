@@ -220,7 +220,7 @@
       [QIN, '老夫验了三十年东西，认得什么样的人会为什么样的东西出价。那位贵客托人来问了七回——不问剑锋利不利，不问灵纹全不全，只问一句：「里头的东西，还醒着么？」'],
       ['', '雅间里，那位一直含笑不语的管事，脸上的笑慢慢收了。'], [QIN, '买剑的人不问剑，问魂。老夫没有凭据，说出来谁信？掌柜的要做生意，韩公子等着救命钱。老夫只好……让他们拍走一块死铁。'],
       [GS, '（轻轻鼓了两下掌）老先生眼睛瞎了，心倒不瞎。'], [GS, '可惜。主上要的东西，从来没有拿不到的。一缕三百年的剑魂——够炼一炉好丹了。'], [XX, '（炼魂——小子！是炼魂谷的人！）'], [YE, '（横剑挡在秦老身前）想要，自己来拿。']]);
-    const lv = Math.max(0, (S.hero.lv || 11) - 11);
+    const lv = Math.max(0, GXLVO(S.hero.lv || 11) - 11);
     const mk = (name, key, hp, atk, def, extra) => Object.assign({ name, key: (typeof IMG !== 'undefined' && IMG[key]) ? key : 'e_grunt', hp, maxhp: hp, atk, def, spd: 13, h: 250, color: '#665' }, extra || {});
     let win = true;
     try { await fadeOut(220); const pr = startBattle({ bg: 'bg_night', normalBgm: true, title: '万宝楼 · 鉴宝雅间', boss: true, exp: 260, gold: 200,

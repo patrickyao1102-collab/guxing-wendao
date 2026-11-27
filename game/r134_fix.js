@@ -7,7 +7,7 @@
   const freeNow = () => typeof battle !== 'undefined' && !battle && world && world.map && S.scene === drawMap && !world.locked && !dialog && !choice && !(typeof sysPanel !== 'undefined' && sysPanel) && !(window.IG_OPEN && IG_OPEN());
   // 等到玩家空闲（商店、对话、面板都关了）再跑一段剧情
   const whenFree = (fn, tries = 600) => { const id = setInterval(() => { if (--tries < 0) return clearInterval(id); if (!freeNow()) return; clearInterval(id); fn(); }, 300); };
-  const heroTier = () => { const h = S.hero || {}, r = String(h.realm || ''), lv = h.lv || 0; return lv >= 19 || /引魂|归元|灵台|洞虚|万劫|法相|无上/.test(r) ? 2 : lv >= 10 || /凝丹/.test(r) ? 1 : 0; };
+  const heroTier = () => { const h = S.hero || {}, r = String(h.realm || ''), lv = h.lv || 0; return lv >= GXLV(19) || /引魂|归元|灵台|洞虚|万劫|法相|无上/.test(r) ? 2 : lv >= GXLV(10) || /凝丹/.test(r) ? 1 : 0; };
   const wrapText = (txt, maxW) => { const out = []; let line = ''; for (const ch of String(txt)) { if (ctx.measureText(line + ch).width > maxW && line) { out.push(line); line = ch; } else line += ch; } if (line) out.push(line); return out; };
 
   // ---- 新物品（图标先借相近的，Codex 的新图标到了再换）----
@@ -100,7 +100,7 @@
   for (const id in ITEM_DB) { const it = ITEM_DB[id]; if (it && it.slot && it.lvReq && !/需要境界/.test(it.desc || '')) it.desc = (it.desc || '') + '（需要境界：' + (typeof realmOf === 'function' ? realmOf(it.lvReq) : it.lvReq + ' 级') + '）'; }
   equipItem = (orig => function (id) {
     const it = ITEM_DB[id], h = S.hero;
-    if (it && it.lvReq && h && (h.lv || 1) < it.lvReq && !world.locked && !dialog) { toast('境界不足：' + it.name + ' 需要' + (typeof realmOf === 'function' ? realmOf(it.lvReq) : it.lvReq + ' 级'), 2200); try { playSnd('ui_cancel'); } catch (e) {} return; }
+    if (it && it.lvReq && h && (h.lv || 1) < it.lvReq && !world.locked && !dialog) { toast(window.GX_LV10 ? '等级不足：' + it.name + ' 需要 ' + it.lvReq + ' 级' : '境界不足：' + it.name + ' 需要' + (typeof realmOf === 'function' ? realmOf(it.lvReq) : it.lvReq + ' 级'), 2200); try { playSnd('ui_cancel'); } catch (e) {} return; }
     return orig.apply(this, arguments);
   })(equipItem);
 

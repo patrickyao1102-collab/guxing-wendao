@@ -93,7 +93,7 @@
       else { ctx.drawImage(im, cx - pw / 2, 76 + Math.sin(now * 1.2) * 2, pw, ph);
       const g = ctx.createLinearGradient(0, fy - 60, 0, 500); g.addColorStop(0, 'rgba(240,239,236,0)'); g.addColorStop(1, 'rgba(240,239,236,1)'); ctx.fillStyle = g; ctx.fillRect(500, fy - 60, 444, 500 - fy + 60); ctx.restore(); } }
     D('hero_sub_plate', 547, 454, 350, 46); D('hero_name_plate', 610, 420, 224, 44);
-    txt(mi.name, 722, 442, 30, C.light, 'center'); txt(mi.realm + ' · ' + mi.lv + '级', 722, 478, 22, C.ink, 'center');
+    txt(mi.name, 722, 442, 30, C.light, 'center'); txt(window.GX_LV10 ? mi.lv + ' 级 · ' + mi.realm : mi.realm + ' · ' + mi.lv + '级', 722, 478, 22, C.ink, 'center');
     // 四个栏位
     const { top } = equipCards(L);
     for (const c of top) { const has = !!c.id, x = c.x, y = c.y;
@@ -144,7 +144,7 @@
         D('save_thumb_frame', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12);
         const h = d.hero || {}, t = new Date(d.t || 0);
         txt('存档' + CN3[i] + ' · ' + fit(d.title || '某处', 300), 663, y + 35, 31, C.ink);
-        txt('叶孤星 · ' + (h.realm ? h.realm + ' · ' : '') + (h.lv || '?') + '级', 672, y + 71, 22, C.ink, 'left', FONT, 600);
+        txt(window.GX_LV10 ? '叶孤星 · ' + (h.lv || '?') + ' 级' + (h.realm ? ' · ' + h.realm : '') : '叶孤星 · ' + (h.realm ? h.realm + ' · ' : '') + (h.lv || '?') + '级', 672, y + 71, 22, C.ink, 'left', FONT, 600);
         txt(t.getFullYear() + '-' + two(t.getMonth() + 1) + '-' + two(t.getDate()) + '  ' + two(t.getHours()) + ':' + two(t.getMinutes()), 672, y + 103, 22, C.ink, 'left', NUM, 600); }
       else { D('save_thumb_empty', 280, y + 12, 336, 114); D('dot_diamond', 634, y + 62, 12, 12); txt('存档' + CN3[i] + ' · 空存档', 663, y + 68, 31, C.ink); } }
     D('divider_h', 272, 606, 460, 10); D('hint_diamond', 258, 632, 22, 22);

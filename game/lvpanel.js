@@ -7,11 +7,11 @@
   const HAS = { yunting: 1, linxue: 1, luochen: 1, shenle: 1 };
   let pend = null;
   async function allies(lv0, lv1) {
-    const L0 = Math.max(10, lv0), L1 = Math.max(10, lv1); if (L1 <= L0) return;
+    const B = GXLV(10), L0 = Math.max(B, lv0), L1 = Math.max(B, lv1);   /* 同伴从凝丹一重起每级长一截；这个数在测试版的新等级表上是 11 */ if (L1 <= L0) return;
     for (const k of (S.party || []).slice()) {
       const d = PARTY_DB[k]; if (!d || !HAS[k] || !d.base) continue;
       let cur; try { cur = allyStats(k); } catch (e) { continue; }
-      const rows = STATS.filter(([s]) => d.base[s] != null).map(([s, l]) => { const g = (d.grow || {})[s] || 0, dl = Math.round(d.base[s] + g * (L1 - 10)) - Math.round(d.base[s] + g * (L0 - 10)), nv = Math.round(cur[s]); return [l, nv - dl, nv]; });
+      const rows = STATS.filter(([s]) => d.base[s] != null).map(([s, l]) => { const g = (d.grow || {})[s] || 0, dl = Math.round(d.base[s] + g * (L1 - B)) - Math.round(d.base[s] + g * (L0 - B)), nv = Math.round(cur[s]); return [l, nv - dl, nv]; });
       if (rows.length >= 3) await levelPanel({ who: k, name: d.name, lv0, lv1, rows });
     }
   }

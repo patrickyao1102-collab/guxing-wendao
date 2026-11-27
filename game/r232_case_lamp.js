@@ -279,7 +279,7 @@
       [YE, '（展开那页旧账）这是从黑风寨的账本上撕下来的一页。那本账，我在青阳镇从头翻到了尾。'], [YE, '七年前，贺九章把柳溪渡粮车的时辰卖给黑风寨，四十两。那时候你还叫雷老七，是寨子里的人。'],
       [YE, '后来你洗了手，改了名，进了镖局。他攥着这页账，每月收你二十两封口钱。三天前他进城，是来加价的。'], [GUI, '（喃喃）每月二十两，雷打不动……东家收的，是这笔账？'],
       [LEI, '（脸上的笑一点一点没了）……他要两百两。说不给，就把这页纸送到镇远镖局总镖头的桌上。'], [LEI, '老子洗手三年了！三年没碰过一趟黑货！凭什么——'], ['', '他猛地掀翻了桌子，左手已经按在了刀柄上。'], [XX, '（来了。小子，当心他的左手刀！）']]);
-    const lv = S.hero.lv || 10, mk = (name, key, hp, atk, def, extra) => Object.assign({ name, key: (typeof IMG !== 'undefined' && IMG[key]) ? key : 'e_grunt', hp, maxhp: hp, atk, def, spd: 14, h: 250, color: '#665' }, extra || {});
+    const lv = GXLVO(S.hero.lv || 10), mk = (name, key, hp, atk, def, extra) => Object.assign({ name, key: (typeof IMG !== 'undefined' && IMG[key]) ? key : 'e_grunt', hp, maxhp: hp, atk, def, spd: 14, h: 250, color: '#665' }, extra || {});
     let win = true;
     try { await fadeOut(220); const pr = startBattle({ bg: 'bg_night', normalBgm: true, title: '云来客栈 · 大堂', boss: true, exp: 300, gold: 240, enemies: [mk('雷大勇（原黑风寨 · 雷老七）', 'e_bandit', 1700 + lv * 120, 48 + lv * 3, 14, { boss: true })] });
       await fadeIn(220); const r = await pr; S.scene = drawMap; await fadeIn(200); win = !!r && r !== 'flee'; } catch (e) { console.warn('R232 fight', e); }

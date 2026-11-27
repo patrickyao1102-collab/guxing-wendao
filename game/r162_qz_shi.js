@@ -1251,12 +1251,12 @@
   { const s0 = window.SK4_SHOP; if (s0) window.SK4_SHOP = function () { return (s0.apply(this, arguments) || []).filter(id => id !== 'juan4' && id !== 'juan5'); }; }
   setTimeout(() => { for (const id of ['juan4', 'juan5']) if (ITEM_DB[id]) ITEM_DB[id].desc = (ITEM_DB[id].desc || '') + '　典籍阁不售：首领身上、野外宝箱里偶尔能得，或请小桃在藏经阁誊抄。'; }, 0);
   if (typeof startBattle === 'function') startBattle = (o => function (cfg) { const r = o.apply(this, arguments); try { if (cfg && cfg.boss && r && r.then) r.then(w => { if (!w) return; const L = S.hero.lv || 1;
-      const id = L >= 21 && Math.random() < .3 ? 'juan5' : L >= 16 && Math.random() < .5 ? 'juan4' : null; if (id) { addItem(id, 1); setTimeout(() => toast('首领身上掉出一卷：' + ITEM_DB[id].name, 2600), 1200); } }); } catch (e) {} return r; })(startBattle);
+      const id = L >= GXLV(21) && Math.random() < .3 ? 'juan5' : L >= GXLV(16) && Math.random() < .5 ? 'juan4' : null; if (id) { addItem(id, 1); setTimeout(() => toast('首领身上掉出一卷：' + ITEM_DB[id].name, 2600), 1200); } }); } catch (e) {} return r; })(startBattle);
   const WILD = m => !QZ(m) && !/^(tj_|qy_town|xt_city|xt_manor|lin_(manor|court|guest|study|yi_room|service|teahouse|servants))/.test(m);
   const hash = s => { let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
-  function seedChests(name) { const L = S.hero.lv || 1; if (!WILD(name) || L < 16) return;
+  function seedChests(name) { const L = S.hero.lv || 1; if (!WILD(name) || L < GXLV(16)) return;
     for (const ch of world.chests || []) { if (ch.opened || ch._q162) continue; ch._q162 = 1; const h = hash(name + ':' + ch.c + ':' + ch.r) % 100;
-      if (L >= 21 && h < 6) ch.items = ch.items.concat([['juan5', 1]]); else if (h < 14) ch.items = ch.items.concat([['juan4', 1]]); } }
+      if (L >= GXLV(21) && h < 6) ch.items = ch.items.concat([['juan5', 1]]); else if (h < 14) ch.items = ch.items.concat([['juan4', 1]]); } }
   // 手艺头一回开放：各一件秘密
   EVS.push(
     { id: 'maid1:sew', who: 'maid1', shi: '戌', type: 'talk', once: 1, p: 1, need: () => bondV('maid1') >= 8, b: 2, title: '少爷带回来的兽皮', hint: '入夜 · 熟络以后，她看上了少爷带回来的料子', run: async () => {

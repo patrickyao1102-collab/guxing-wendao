@@ -89,7 +89,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
   };
   // 作者 11-01：叶孤星的功法分开——开局只有天剑诀（点星、自创的星落 + 辅助）；九曜剑典要等星旋用玉佩把残本修复成完本之后才出现（破军 / 贪狼 / 秘传）
   window.JIUYAO_OWNED = () => { const f = S.flags || {}; if (f.jiuyao_full) return true; const h = S.hero || {}, sk = h.skills || [];
-    return ['pojun', 'tanlang', 'xingluo', 'xingyun', 'jueying', 'duopo', 'tianshu', 'sun', 'tunshi'].some(k => sk.includes(k)) || /凝丹|引魂|练气[七八九]/.test(h.realm || ''); };
+    return ['pojun', 'tanlang', 'xingluo', 'xingyun', 'jueying', 'duopo', 'tianshu', 'sun', 'tunshi'].some(k => sk.includes(k)) || /凝丹|引魂|练气[七八九圆]/.test(h.realm || ''); };
   Object.defineProperty(TREE.hero, 'roots', { get() { const tj = { gongfa: 'tianjian', name: '天剑诀', cols: [0, 3] };
     return JIUYAO_OWNED() ? [tj, { gongfa: 'jiuyao', name: '九曜剑典', cols: [1, 2, 4] }] : [tj]; } });
   Object.defineProperty(TREE.hero, 'title', { get() { return JIUYAO_OWNED() ? '功法双修' : '天剑诀'; } });
@@ -106,10 +106,10 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     if (n.future) return { name: n.name, cost: n.cost, desc: n.desc, learned: false, why: '下次更新开放', max: 5, tier: 1 };
     const K4 = window.SK4, xd = K4 && K4.X[who] && K4.X[who][n.id];
     if (xd) { const ok = K4.learned(who, n.id), lvok = S.hero.lv >= xd.lv, bid = K4.bookId(who, n.id), bk = xd.kind === 'mi';   // 辅助第一重不需要书
-      return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (realmOf(xd.lv) + '，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（' + (xd.shopTxt || '典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石') + '）') : (xd.why || realmOf(xd.lv) + '领悟'), max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
+      return { name: xd.name, cost: xd.cost ? '灵力 ' + xd.cost : '不耗灵力', desc: xd.desc, lore: xd.lore, learned: ok, why: bk ? (lvNeedText(xd.lv) + '，持《' + xd.name + '》' + (xd.kind === 'mi' ? '秘传' : '辅助') + '参悟（' + (xd.shopTxt || '典籍阁 ' + (xd.kind === 'mi' ? 1200 : 600) + ' 灵石') + '）') : (xd.why || lvNeedText(xd.lv) + '领悟'), max: 5, tier: Math.max(1, LV()[key(who, n.id)] || 1), book: bk && !ok ? { item: bid, lvok, has: itemCount(bid) > 0, lv: xd.lv } : null }; }
     if (who === 'hero' && n.id === 'sun') { const sd = SKILL_DB.sun || {}; return { name: sd.name || n.name, cost: '灵力 ' + (sd.cost || 80), desc: sd.desc || n.desc, learned: !!(S.flags && S.flags.sun_unlocked), why: '解锁条件：无上境', max: 1, tier: 1 }; }
-    if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? realmOf(src.lv) + '领悟' : '剧情中领悟'; if (!learned && window.SK_REQ_TXT) { const rq = SK_REQ_TXT(n.id); if (rq) why = (src.lv ? realmOf(src.lv) + '，' : '') + rq; } }
-    else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = realmOf(src.lv || 1) + '领悟'; }
+    if (who === 'hero') { src = SKILL_DB[n.id] || {}; learned = S.hero.skills.includes(n.id); why = src.lv ? lvNeedText(src.lv) + '领悟' : '剧情中领悟'; if (!learned && window.SK_REQ_TXT) { const rq = SK_REQ_TXT(n.id); if (rq) why = (src.lv ? lvNeedText(src.lv) + '，' : '') + rq; } }
+    else if (who === 'yunting' || who === 'linxue') { src = Object.assign({}, ALLY_SKILLS[n.id] || {}); if (who === 'linxue' && n.id === 'shaxing') { src.name = '杀星·寒星'; src.desc = '杀星的寒冰版：单体 230%，冻结中的目标再 +50%'; } learned = S.hero.lv >= (src.lv || 0); why = lvNeedText(src.lv || 1) + '领悟'; }
     else { src = (ALLY2_SKILLS[who] || {})[n.id] || {}; learned = true; }
     const solo = TREE[who].solo, mx = solo ? 1 : MAXT(who, n.id);
     return { name: (solo ? n.short : src.name) || n.short, cost: solo ? '随时可放' : (src.rage ? '怒气 ' + src.rage : '灵力 ' + (src.cost || 0)), desc: n.d || src.desc || '', lore: window.SK4 && SK4.LORE[n.id] || '', learned, why, max: mx, tier: solo ? 1 : Math.max(1, LV()[key(who, n.id)] || 1), solo };
@@ -117,7 +117,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
   // 必杀归入「秘传」列（九天神雷 / 大雪纷飞 / 寂灭仙曲）
   {    for (const w of ['yunting', 'linxue', 'shenle']) { const T = TREE[w]; if (T && T.ult) { const mc = T.cols.find(c => c[0] === '秘传'); if (mc) mc[1].unshift(T.ult); else T.cols.push(['秘传', [T.ult]]); T.ult = null; } } }
   const MAXT = (who, id) => (who === 'shenle' && id === 'qingxin') ? 7 : 5;   // 成长技七重
-  const realmCap = who => { const l = S.hero.lv; return l <= 9 ? 2 : l <= 18 ? 3 : l <= 27 ? 4 : 5; };   // 练气二重、凝丹三重、引魂四重、归元五重
+  const realmCap = who => { const l = S.hero.lv; return l < GXLV(10) ? 2 : l < GXLV(19) ? 3 : l < GXLV(28) ? 4 : 5; };   // 练气二重、凝丹三重、引魂四重、归元五重
   const CAPTXT = { 2: '练气期最多修至二重，凝丹后可继续', 3: '凝丹期最多修至三重，引魂后可继续', 4: '引魂期最多修至四重，归元后可继续' };
   const bookId = id => 'jp_' + id;
   function need(who, n, I) {
@@ -257,7 +257,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     const RZ = R2.on(); window.R202_TREE = RZ;
     // 星图剑谱底
     if (RZ) { R2.D('panel_star_fixed', TA.x, TA.y, TA.w, TA.h); if (T.title === '功法双修') R2.D('title_gfsx', TA.x + 14, TA.y + 8, 142, 42); else { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(T.title, TA.x + 18, TA.y + 28, '#FFF2D0', 'rgba(20,40,42,.8)', 4); }
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `600 13px ${FONT}`; ctx.fillStyle = '#FFF2D0'; ctx.fillText(memberInfo(who).name + ' · ' + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56); } else {
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `600 13px ${FONT}`; ctx.fillStyle = '#FFF2D0'; ctx.fillText(memberInfo(who).name + ' · ' + (window.GX_LV10 ? memberInfo(who).lv + ' 级 · ' : '') + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56); } else {
     ctx.save(); roundRect(TA.x, TA.y, TA.w, TA.h, 12); const bg = ctx.createLinearGradient(0, TA.y, 0, TA.y + TA.h); bg.addColorStop(0, J('#18213a')); bg.addColorStop(1, J('#0b0f1d')); ctx.fillStyle = bg; ctx.fill(); ctx.clip();
     if (!stars) { stars = []; let s = 7; const R = () => (s = (s * 9301 + 49297) % 233280) / 233280; for (let i = 0; i < 90; i++) stars.push([R(), R(), R()]); }
     for (const [u, v, w] of stars) { ctx.globalAlpha = .25 + .5 * w * (.6 + .4 * Math.sin(t * 1.5 + w * 20)); ctx.fillStyle = J('#cfe0ff'); ctx.fillRect(TA.x + u * TA.w, TA.y + v * TA.h, 1 + w * 1.6, 1 + w * 1.6); }
@@ -265,7 +265,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     ctx.restore();
     roundRect(TA.x, TA.y, TA.w, TA.h, 12); ctx.lineWidth = 1.5; ctx.strokeStyle = J('rgba(232,194,122,.55)'); ctx.stroke();
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `30px ${BRUSH}`; textOutline(T.title, TA.x + 18, TA.y + 28, J('#f6dfa6'), J('#120a04'), 4);
-    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = J('rgba(214,196,150,.8)'); ctx.fillText(memberInfo(who).name + ' · ' + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56); }
+    ctx.font = `600 13px ${FONT}`; ctx.fillStyle = J('rgba(214,196,150,.8)'); ctx.fillText(memberInfo(who).name + ' · ' + (window.GX_LV10 ? memberInfo(who).lv + ' 级 · ' : '') + (memberInfo(who).realm || ''), TA.x + 20, TA.y + 56); }
     // 连线
     const ult = G.nodes.find(o => o.col < 0), byCol = {};
     for (const o of G.nodes) if (o.col >= 0) (byCol[o.col] = byCol[o.col] || []).push(o);
@@ -344,7 +344,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     const row = (lab, txt, col, labCol) => { if (S.menu && S.menu.who !== 'hero') txt = String(txt || '').replace('（叶孤星施展打八折）', '');   /* 11-11：云霆的点星不该写叶孤星打折 */ ctx.font = `600 14px ${FONT}`; ctx.fillStyle = labCol || J('#c9b48c'); ctx.fillText(lab, x, y); y += 22 * LF; ctx.font = `600 16px ${FONT}`; ctx.fillStyle = col; for (const l of wrap(txt, DP.w - 40)) { ctx.fillText(l, x, y); y += 22 * LF; } y += 8 * LF; };
     if (!I.learned && I.ult) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); row('领悟后', '怒气满 100 时在「秘传」中施展，不需修炼重数。', J('#f5ead2')); }
     else if (!I.learned) { row('尚未领悟 · 领悟条件', I.why || '', J('#ff9a7a')); const T0 = tiersOf(o.n.id); row('领悟后 · 第一重', T0[0], J('#f5ead2'));
-      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText('需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
+      if (I.book) { ctx.font = `600 15px ${FONT}`; ctx.fillStyle = I.book.has ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText((I.book.has ? '已持有' : '尚无') + ITEM_DB[I.book.item].name, x, y); y += 24 * LF; ctx.fillStyle = I.book.lvok ? J('#e9dcc0') : J('#ff8a7a'); ctx.fillText(window.GX_LV10 ? '需 ' + I.book.lv + ' 级（现 ' + S.hero.lv + ' 级）' : '需' + realmOf(I.book.lv) + '（现' + realmOf(S.hero.lv) + '）', x, y); y += 24 * LF; } }
     else if (I.ult || I.solo) { row(I.ult ? '秘传' : '本源绝技', I.ult ? '怒气满 100 时可施展，不需修炼重数。' : '随时可放，不需修炼重数。', J('#e9dcc0')); }
     else {
       const T = tiersOf(o.n.id); row('当前 · 第' + CN[I.tier] + '重', T[I.tier - 1], J('#f5ead2'));
@@ -393,7 +393,7 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
     for (const o of G.nodes) if (Math.hypot(tp.x - o.x, tp.y - o.y) < o.r + 12) { input.tapped = null; const again = selKey === key(G.who, o.n.id); selKey = key(G.who, o.n.id); playSnd('ui_click'); if (again && window.R154 && info(G.who, o.n).learned) R154.open(G.who, o.n.id); return; }
     if (inR(tp, G.btn) && !rootSel(G)) { const o = curSel(G), cu = canUp(G, o);
       if (cu && cu.learn && o.n.id === 'ult') { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast('没有《九天神雷》秘传（天剑集市 · 典籍阁有售）'); return; } anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 }; if (window.R134_YT_LEARN) R134_YT_LEARN(); return; }
-      if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
+      if (cu && cu.learn) { input.tapped = null; if (!cu.ok) { playSnd('ui_click'); toast(!cu.learn.has ? '没有' + ITEM_DB[cu.learn.item].name + '（典籍阁有售）' : window.GX_LV10 ? '等级不足：需 ' + cu.learn.lv + ' 级' : '境界不足：需' + realmOf(cu.learn.lv)); return; }
         const h = S.hero; h.bag[cu.learn.item]--; if (h.bag[cu.learn.item] <= 0) delete h.bag[cu.learn.item]; SK4.learn(G.who, o.n.id); anim = { k: key(G.who, o.n.id), t0: performance.now() / 1000 };
         if (window.SKWIN) { const xd = cu.I; SKWIN.learn({ k: o.n.id, name: xd.name, desc: xd.desc || '', meta: xd.cost ? String(xd.cost).replace(/^灵力 /, '消耗灵力：') : '' }); } else { try { playSnd('jingle_levelup'); } catch (e) {} toast('领悟 · ' + cu.I.name); } try { if (typeof saveGame === 'function') saveGame(); } catch (e) {} return; }
       if (cu && cu.q) { input.tapped = null;
@@ -424,4 +424,4 @@ const R2 = (() => { const N = ['badge_upgrade', 'branch_blank', 'branch_fu', 'br
 })();
 
 // 作者：凝丹一重（10 级）领悟破军剑阵·星罗——已过 10 级的存档补发
-setInterval(() => { try { const h = S.hero; if (h && h.lv >= 10 && h.skills && h.skills.includes('pojun') && !h.skills.includes('xingluo')) { h.skills.push('xingluo'); toast('领悟 · 破军剑阵·星罗', 2200); } } catch (e) {} }, 2000);
+setInterval(() => { try { const h = S.hero; if (h && h.lv >= GXLV(10) && h.skills && h.skills.includes('pojun') && !h.skills.includes('xingluo')) { h.skills.push('xingluo'); toast('领悟 · 破军剑阵·星罗', 2200); } } catch (e) {} }, 2000);

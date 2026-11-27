@@ -24,8 +24,8 @@
   window.R154_OPEN = () => !!D;
 
   // ---------- 数据 ----------
-  const realmStage = lv => String(realmOf(lv)).replace(/(初期|中期|后期|.重)$/, '') + '期';
-  function reqLv(I, t) { if (I.max === 7) return t <= 3 ? 1 : t === 4 ? 10 : t === 5 ? 19 : 28; return t <= 2 ? 1 : t === 3 ? 10 : t === 4 ? 19 : 28; }
+  const realmStage = lv => String(realmOf(lv)).replace(/(初期|中期|后期|圆满|.重)$/, '') + '期';
+  function reqLv(I, t) { if (I.max === 7) return t <= 3 ? 1 : GXLV(t === 4 ? 10 : t === 5 ? 19 : 28); return t <= 2 ? 1 : GXLV(t === 3 ? 10 : t === 4 ? 19 : 28); }
   const pct = s => (String(s).match(/\d+%/) || [null])[0];
   const mainOf = s => String(s).split('，')[0];
   const extraOf = s => String(s).split('，').slice(1).join('，');
@@ -51,7 +51,7 @@
     const have = itemCount(q.item) + (q.t === 2 ? itemCount(K.bookId(id)) : 0);
     const bookOk = have >= q.n, rl = reqLv(I, q.t), realmOk = q.t <= q.cap;
     d.req = [['卷册', q.label.replace(/[《》]/g, '') + ' ×' + q.n, bookOk ? '持有 ' + have + ' 本' : have ? '仅有 ' + have + ' 本' : '尚无此卷', bookOk],
-             ['境界', rl <= 1 ? '不限' : realmOf(rl), realmOk ? '已达成' : '尚在' + realmStage(S.hero.lv), realmOk]];
+             window.GX_LV10 ? ['等级', rl <= 1 ? '不限' : rl + ' 级（' + realmOf(rl) + '）', realmOk ? '已达成' : '现在 ' + S.hero.lv + ' 级', realmOk] : ['境界', rl <= 1 ? '不限' : realmOf(rl), realmOk ? '已达成' : '尚在' + realmStage(S.hero.lv), realmOk]];
     d.why = !bookOk ? '没有' + q.label + '（天剑集市·典籍阁有售）' : !realmOk ? (q.capTxt || K.CAPTXT[q.cap] || '境界不足') : '';
     d.v = bookOk && realmOk ? 'ready' : 'blocked';
     return d;

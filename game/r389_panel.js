@@ -52,7 +52,7 @@
     portrait(mi, LEFT.x + LEFT.w / 2, LEFT.y + 16, 640);
     for (const s of G.SLOTS) drawSlot(s, now);
     D('panel_well_9', LEFT.x + 12, LEFT.y + 462, LEFT.w - 24, 102);
-    T(mi.name, LEFT.x + 30, LEFT.y + 490, 30, C.gold2, BR(), 400); T(mi.realm || '', LEFT.x + LEFT.w - 30, LEFT.y + 492, 17, C.gold, KAI(), 500, 'right');
+    T(mi.name, LEFT.x + 30, LEFT.y + 490, 30, C.gold2, BR(), 400); T((mi.lv ? mi.lv + ' 级 · ' : '') + (mi.realm || ''), LEFT.x + LEFT.w - 30, LEFT.y + 492, 17, C.gold, KAI(), 500, 'right');
     const [el, a, b] = rootLine(UI.who); try { if (el) WX5.emblem(el, LEFT.x + 44, LEFT.y + 534, 15, 1); } catch (e) {}
     T(a, LEFT.x + 68, LEFT.y + 524, 17, C.text, KAI(), 600); ctx.font = `500 14px ${KAI()}`; T(fitW(b, LEFT.w - 100), LEFT.x + 68, LEFT.y + 547, 14, C.sub, KAI(), 500); }
 
@@ -96,7 +96,7 @@
     if (id === cur) { // 卸下
       if (who === 'hero') { try { applyItemStats(id, -1); } catch (e) {} h.equip[UI.slot] = null; } else { eq()[UI.slot] = null; }
       h.bag[id] = (h.bag[id] || 0) + 1; snd('ui_click'); say('卸下了「' + it.name + '」。'); UI.sel = null; return; }
-    if (who === 'hero') { if (it.lvReq && (h.lv || 1) < it.lvReq) { say('境界不足：要' + (typeof realmOf === 'function' ? realmOf(it.lvReq) : it.lvReq + ' 级') + '才穿得上。'); snd('ui_cancel'); return; } equipItem(id); if (h.equip[UI.slot] !== id) { say('穿不上。'); return; } }
+    if (who === 'hero') { if (it.lvReq && (h.lv || 1) < it.lvReq) { say('等级不足：要 ' + it.lvReq + ' 级才穿得上。'); snd('ui_cancel'); return; } equipItem(id); if (h.equip[UI.slot] !== id) { say('穿不上。'); return; } }
     else if (!(window.equipAlly && equipAlly(who, id))) { say('换不上。'); return; }
     try { if (sysPanel && sysPanel.eqp) sysPanel = null; } catch (e) {}   // 行囊里换装会弹的那张「旧值 → 新值」面板，这里不弹（本面板自己写清楚了）
     const [ft] = G.fitText(who, id); say('换上了「' + it.name + '」' + (who === 'hero' || !WX5.GEAR[id] ? '。' : '——' + ft + '。')); UI.sel = id; }

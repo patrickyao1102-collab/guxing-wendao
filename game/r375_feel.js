@@ -111,7 +111,7 @@
       ms.forEach(([k, name, eq], i) => { const y = y0 + i * rh; R169.part('price_ticket', x, y, w, rh - 2);
         ctx.font = `600 16px ${FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = '#42301e'; ctx.fillText(name, x + 16, y + 15);
         const old = ITEM_DB[eq[it.slot]] || {}, parts = [];
-        if (low) parts.push(['境界不足', '#a8382b']); else if (eq[it.slot] === id) parts.push(['已穿着', '#7a6a55']);
+        if (low) parts.push(['等级不足', '#a8382b']); else if (eq[it.slot] === id) parts.push(['已穿着', '#7a6a55']);
         else { for (const s of STATS) { const d = (it[s] || 0) - (old[s] || 0); if (d) parts.push([AB[s] + (d > 0 ? '+' : '−') + Math.abs(d), d > 0 ? '#2f7a3a' : '#a8382b']); } if (!parts.length) parts.push(['一样', '#7a6a55']); }
         let fs = 15; const width = () => { ctx.font = `700 ${fs}px ${FONT}`; return parts.reduce((a, [s]) => a + ctx.measureText(s).width + 7, -7); }; while (fs > 11 && width() > w - 86) fs--;
         let px = x + w - 14; ctx.textAlign = 'right'; ctx.font = `700 ${fs}px ${FONT}`; for (let j = parts.length - 1; j >= 0; j--) { ctx.fillStyle = parts[j][1]; ctx.fillText(parts[j][0], px, y + 15); px -= ctx.measureText(parts[j][0]).width + 7; } });

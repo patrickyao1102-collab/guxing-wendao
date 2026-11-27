@@ -43,8 +43,9 @@
     c.drawImage(A[pk], 640 - pw / 2, 264 - ph + bob, pw, ph);
     img('title_blank', 430, 6);
     txt(P.title.slice(0, 2), 580, 44, `46px ${BRUSH}`, '#f5dba9'); txt(P.title.slice(2), 699, 44, `46px ${BRUSH}`, '#f5dba9');
-    txt(P.name, 640, 293.5, `600 36px ${FONT}`, '#422b17');
-    txt('Lv.' + P.lv0, 600, 336.5, `bold 40px ${NUM}`, '#422b17', 'right'); arrow(640, 336.5, 36, 14, '#422b17', 1.5); txt('Lv.' + P.lv1, 678, 336.5, `bold 40px ${NUM}`, '#115a1c', 'left');
+    const L10 = !!window.GX_LV10;   // 测试版（r405_level.js）：等级写「12 级」，名字后面跟境界
+    txt(L10 && typeof P.lv1 === 'number' ? P.name + ' · ' + realmOf(P.lv1) : P.name, 640, 293.5, `600 ${L10 ? 32 : 36}px ${FONT}`, '#422b17');
+    txt(L10 ? P.lv0 + ' 级' : 'Lv.' + P.lv0, 600, 336.5, `bold ${L10 ? 36 : 40}px ${NUM}`, '#422b17', 'right'); arrow(640, 336.5, 36, 14, '#422b17', 1.5); txt(L10 ? P.lv1 + ' 级' : 'Lv.' + P.lv1, 678, 336.5, `bold ${L10 ? 36 : 40}px ${NUM}`, '#115a1c', 'left');
     P.rows.forEach(([lab, a, b], i) => {
       const y = 384.5 + 37 * i, d = b - a, q = Math.min(1, Math.max(0, (t - .25 - i * .08) / .25)); c.save(); c.globalAlpha = e * q;
       const col = d > 0 ? '#115a1c' : d < 0 ? '#9a2a22' : '#7a6650';

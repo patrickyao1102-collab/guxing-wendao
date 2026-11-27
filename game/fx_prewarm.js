@@ -13,7 +13,7 @@
     sun: { who: ['hero'], name: '破军剑阵·太阳', when: sunOn, have: () => !!window.SUN_RT, run: rt('SUN_RT'), ready: () => !!(window.SUN_RT && SUN_RT._ready) },
     dx: { who: ['hero', 'yunting', 'linxue'], name: '天剑一式·点星', have: () => !!window.DX_RT, run: rt('DX_RT'), ready: () => !!(window.DX_RT && DX_RT._ready) },
     qx: { who: ['yunting', 'linxue'], name: '天剑二式·群星', have: () => !!window.QX_RT, run: rt('QX_RT'), ready: () => !!(window.QX_RT && QX_RT._ready) },
-    sx: { who: ['yunting', 'linxue'], name: '天剑三式·杀星', when: () => S.hero.lv >= 14, have: () => !!window.SX_RT, run: rt('SX_RT'), ready: () => !!(window.SX_RT && SX_RT._ready) },
+    sx: { who: ['yunting', 'linxue'], name: '天剑三式·杀星', when: () => S.hero.lv >= GXLV(14), have: () => !!window.SX_RT, run: rt('SX_RT'), ready: () => !!(window.SX_RT && SX_RT._ready) },
     gm: { who: ['luochen'], name: '光明本源', have: () => !!window.GM_CODEX, run: () => GM_CODEX.preload(), ready: () => !!(window.GM_CODEX && GM_CODEX.ready) },
     ha: { who: ['luochen'], name: '黑暗本源', have: () => !!window.HA_CODEX, run: () => Promise.all([HA_CODEX.preload(), window.HA_RT && HA_RT.preload ? HA_RT.preload() : 0]), ready: () => !!(window.HA_CODEX && HA_CODEX.ready) },
     ry: { who: ['luochen'], name: '日月轮转', have: () => typeof window.LC_DRAGON_LOAD === 'function', run: () => Promise.resolve(LC_DRAGON_LOAD()) },

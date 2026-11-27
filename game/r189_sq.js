@@ -52,7 +52,7 @@
   }
   // 两棵树下的支线战
   function ghostBoss(T) { const g = typeof ghostUnit === 'function' ? ghostUnit(T.k === 'm' ? 2 : 1) : { name: '阴魂', hp: 420, maxhp: 420, atk: 40, def: 6, spd: 15, h: 220, color: '#5a7a9a', xie: true, ghost: true };
-    const lv = Math.max(0, (S.hero.lv || 12) - 12); return Object.assign(g, { name: T.name, key: has(T.key) ? T.key : g.key, hp: 1400 + lv * 90, maxhp: 1400 + lv * 90, atk: 48 + lv * 3, def: 10, spd: 15, h: 270, boss: true, color: T.k === 'm' ? '#6a7f9a' : '#9a7ab8' }); }
+    const lv = Math.max(0, GXLVO(S.hero.lv || 12) - 12); return Object.assign(g, { name: T.name, key: has(T.key) ? T.key : g.key, hp: 1400 + lv * 90, maxhp: 1400 + lv * 90, atk: 48 + lv * 3, def: 10, spd: 15, h: 270, boss: true, color: T.k === 'm' ? '#6a7f9a' : '#9a7ab8' }); }
   function addTrees() {
     if (world.mapName !== 'm_yy_tiger' || st().s !== 1 || !world.triggers) return;
     for (const T of TREES) { if (F()[T.flag] || T.busy || world.triggers.some(t => t._yyq === T.k && !t.done)) continue;

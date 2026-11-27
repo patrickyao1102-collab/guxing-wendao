@@ -49,7 +49,7 @@
   const Q1 = '第四章 · 苍月炼魂：去城主府（正街尽头的传送法阵）', Q2 = '第四章 · 苍月炼魂：出北门，去北郊荒林找地底的入口',
     Q3 = '第四章 · 苍月炼魂：顺着石阶下到地底', Q4 = '第四章 · 苍月炼魂：救下被关的人，往深处的符锁石门走', Q5 = '第四章 · 苍月炼魂：下到炼魂密室';
   async function start() {
-    const h = S.hero; if (h.lv < 14) { h.realm = '凝丹五重'; }
+    const h = S.hero; if (h.lv < GXLV(14)) { h.realm = '凝丹五重'; }
     if (!h.skills.includes('tunshi')) h.skills.push('tunshi');
     F().ch4 = 1; joinParty('yunting');
     await fadeOut(300); await bigTitle('第四章', '苍月炼魂', 3000);

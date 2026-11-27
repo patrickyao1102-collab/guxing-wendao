@@ -76,8 +76,8 @@
     { id: 't6', cat: '探索', name: '见多识广', desc: '图鉴收录 12 种', n: () => [bookN(), 12], pts: 40, show: () => bookN() >= 3, quip: '十二种了。记性比剑法强，也算一门本事。' },
     // 修行
     { id: 'x1', cat: '修行', name: '初破桎梏', desc: '修为突破到练气七重', n: () => [Math.min(lv(), 7), 7], pts: 20, quip: '卡了整整两年总算挪了一步。本神仙等得花都谢了，往后敢偷懒你就死定了。' },
-    { id: 'x2', cat: '修行', name: '九重圆满', desc: '修为到练气九重', n: () => [Math.min(lv(), 9), 9], pts: 40, show: () => lv() >= 7, quip: '九重了。离凝丹就差一口气——别在这口气上给本神仙岔了。' },
-    { id: 'x3', cat: '修行', name: '星力凝丹', desc: '踏入凝丹境', n: () => [Math.min(lv(), 10), 10], pts: 100, show: () => lv() >= 8, quip: '还算没白费本神仙的心血。不过凝丹在九州也就是个起步，少在那儿得意忘形。' },
+    { id: 'x2', cat: '修行', name: '九重登临', desc: '修为到练气九重', n: () => [Math.min(lv(), 9), 9], pts: 40, show: () => lv() >= 7, quip: '九重了。离凝丹就差一口气——别在这口气上给本神仙岔了。' },
+    { id: 'x3', cat: '修行', name: '星力凝丹', desc: '踏入凝丹境', n: () => { const need = GXLV(10); return [Math.min(lv(), need), need]; }, pts: 100, show: () => lv() >= 8, quip: '还算没白费本神仙的心血。不过凝丹在九州也就是个起步，少在那儿得意忘形。' },
     { id: 'x4', cat: '修行', name: '法宝在手', desc: '得到第一件法宝', n: () => [Math.min(1, fbN()), 1], pts: 20, quip: '有件法宝压箱底，起码挨揍的时候能多喘一口气。' },
     { id: 'x5', cat: '修行', name: '千锤百炼', desc: '把一件法宝祭炼到小成', n: () => [Math.min(1, fbRankMax()), 1], pts: 40, show: () => fbN() >= 1, quip: '人靠衣装剑靠炼，总算舍得往自己身上下功夫了。' },
     { id: 'x6', cat: '修行', name: '初入宝库', desc: '在星辰宝库里兑换一件东西', n: () => [Math.min(1, Object.keys(J().bought).length), 1], pts: 10, quip: '点数是拿来花的，攒着又不下崽。' },
@@ -88,7 +88,7 @@
   const tClaimable = t => !J().claimed[t.id] && tShown(t) && tDone(t);
 
   // ---------- 星辰宝库 ----------
-  const TIERS = [{ k: 1, name: '练气层', open: () => true, why: '' }, { k: 2, name: '凝丹层', open: () => lv() >= 10, why: '踏入凝丹境后开放' }, { k: 3, name: '引魂层', open: () => false, why: '修为还差得远——星旋说，到时候自然给你看' }];
+  const TIERS = [{ k: 1, name: '练气层', open: () => true, why: '' }, { k: 2, name: '凝丹层', open: () => lv() >= GXLV(10), why: '踏入凝丹境后开放' }, { k: 3, name: '引魂层', open: () => false, why: '修为还差得远——星旋说，到时候自然给你看' }];
   const bought = id => J().bought[id] || 0;
   const XW = [['mu', '木纹 · 克土'], ['shui', '水纹 · 克火'], ['huo', '火纹 · 克金'], ['tu', '土纹 · 克水']];
   const SHOP = [
@@ -129,9 +129,9 @@
     D('panel_well_9', LEFT.x + 14, LEFT.y + 214, LEFT.w - 28, 132);
     ctx.font = `500 16px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.text; const k = Math.min(1, (now - UI.sayT) / 28 / Math.max(1, UI.say.length)); wrap('「' + [...UI.say].slice(0, Math.ceil(UI.say.length * k)).join('') + (k >= 1 ? '」' : ''), LEFT.x + 28, LEFT.y + 238, LEFT.w - 56, 23, 5);
     // 宿主
-    const h = S.hero, y0 = LEFT.y + 368; T('宿主', LEFT.x + 24, y0, 15, C.sub); T('叶孤星', LEFT.x + 70, y0, 18, C.text, KAI(), 600); T(h.realm || '', LEFT.x + LEFT.w - 24, y0, 16, C.gold, KAI(), 500, 'right');
-    T('修为', LEFT.x + 24, y0 + 34, 15, C.sub); D('bar_track_9', LEFT.x + 70, y0 + 25, LEFT.w - 94, 18); const need = expNeed(h.lv), kk = Math.max(0, Math.min(1, (h.exp || 0) / need)); if (kk > .02) { ctx.save(); ctx.beginPath(); ctx.rect(LEFT.x + 70, y0 + 25, (LEFT.w - 94) * kk, 18); ctx.clip(); D('bar_exp_9', LEFT.x + 70, y0 + 25, LEFT.w - 94, 18); ctx.restore(); }
-    T(Math.round(kk * 100) + '%', LEFT.x + 70 + (LEFT.w - 94) / 2, y0 + 34, 13, C.gold2, NUM(), 600, 'center');
+    const h = S.hero, y0 = LEFT.y + 368; T('宿主', LEFT.x + 24, y0, 15, C.sub); T('叶孤星', LEFT.x + 70, y0, 18, C.text, KAI(), 600); T((h.lv || 1) + ' 级', LEFT.x + LEFT.w - 24, y0, 17, C.gold, KAI(), 600, 'right');   /* 等级写数字；境界放到下面修为条的前头 */
+    const bx = LEFT.x + 100, bw = LEFT.w - 124; T(h.realm || '修为', LEFT.x + 24, y0 + 34, 15, C.sub); D('bar_track_9', bx, y0 + 25, bw, 18); const need = expNeed(h.lv), kk = Math.max(0, Math.min(1, (h.exp || 0) / need)); if (kk > .02) { ctx.save(); ctx.beginPath(); ctx.rect(bx, y0 + 25, bw * kk, 18); ctx.clip(); D('bar_exp_9', bx, y0 + 25, bw, 18); ctx.restore(); }
+    T(Math.round(kk * 100) + '%', bx + bw / 2, y0 + 34, 13, C.gold2, NUM(), 600, 'center');
     D('divider_h_3', LEFT.x + 20, y0 + 62, LEFT.w - 40, 3);
     T('星辰点', cx, y0 + 90, 15, C.sub, KAI(), 500, 'center'); T(String(h.points || 0), cx, y0 + 126, 44, C.blue, NUM(), 700, 'center');
     const nc = TASKS.filter(tClaimable).length; if (nc) T('有 ' + nc + ' 桩事迹可以交了', cx, y0 + 162, 15, C.green, KAI(), 500, 'center'); }

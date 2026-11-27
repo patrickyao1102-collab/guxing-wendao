@@ -55,7 +55,7 @@
   try { const X = SK4.X; if (X.yunting && X.yunting.yunlei) X.yunting.yunlei.shopTxt = '支线「三十个名字」或首领战得'; for (const id of MI_SOLD) { const m = id.split('_'); const d = X[m[1]] && X[m[1]][m[2]]; if (d) d.shopTxt = '典籍阁 80 悬赏点 + 1200 灵石'; } } catch (e) {}
   const lvNow = () => (S.hero && S.hero.lv) || 1;
   const wrapShop = () => { const s0 = window.SK4_SHOP; if (!s0 || s0._r298) return; const f = function () { const L = lvNow(); let out = (s0.apply(this, arguments) || []).filter(id => id !== 'juan5' && !/^bk_(hero|yunting)_/.test(id));
-      if (L >= 10 && !out.includes('juan4')) out.splice(out.indexOf('juan3') + 1, 0, 'juan4'); return out; }; f._r298 = 1; window.SK4_SHOP = f; };
+      if (L >= GXLV(10) && !out.includes('juan4')) out.splice(out.indexOf('juan3') + 1, 0, 'juan4'); return out; }; f._r298 = 1; window.SK4_SHOP = f; };
   wrapShop(); setTimeout(wrapShop, 0); setTimeout(wrapShop, 3000);
 
   // ---------------- 3) 招式前置 ----------------
@@ -72,7 +72,7 @@
   // ---------------- 4) 首领战掉书、宝箱里加书 ----------------
   if (typeof endBattle === 'function') { const eb = endBattle;
     endBattle = async function (win) { try { const b = battle; if (win && b && b.cfg && b.cfg.boss && !b.cfg.cannotLose) { const key = String(b.cfg.title || (b.enemies && b.enemies[0] && b.enemies[0].name) || 'boss'), got = F().xs_boss || (F().xs_boss = {});
-        if (!got[key]) { got[key] = 1; const id = lvNow() >= 19 && Object.keys(got).length % 3 === 0 ? 'juan5' : lvNow() >= 10 ? 'juan4' : 'juan3'; if (ITEM_DB[id]) { addItem(id, 1); b.cfg.loot = (b.cfg.loot ? b.cfg.loot + '、' : '') + nm(id); } } } } catch (e) {}
+        if (!got[key]) { got[key] = 1; const id = lvNow() >= GXLV(19) && Object.keys(got).length % 3 === 0 ? 'juan5' : lvNow() >= GXLV(10) ? 'juan4' : 'juan3'; if (ITEM_DB[id]) { addItem(id, 1); b.cfg.loot = (b.cfg.loot ? b.cfg.loot + '、' : '') + nm(id); } } } } catch (e) {}
       return eb.apply(this, arguments); }; }
   const hash = s => { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; };
   for (const m of Object.keys(TMAPS)) for (const ch of TMAPS[m].chests || []) { if (!ch || !Array.isArray(ch.items) || ch._r298) continue; ch._r298 = 1; const h = hash(m + ':' + ch.c + ':' + ch.r);
