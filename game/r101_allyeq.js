@@ -14,8 +14,8 @@
   const HERO_ONLY = id => !!(ITEM_DB[id] && ITEM_DB[id].heroOnly === true && false);
   const OK = id => { const it = ITEM_DB[id]; return !!(it && it.slot) && !HERO_ONLY(id); };
   window.ALLY_EQ_OK = OK;
-  const SLOTS = ['weapon', 'armor', 'shoe', 'acc'];
-  function eqOf(k) { S.allyEq = S.allyEq || {}; if (!S.allyEq[k]) S.allyEq[k] = { weapon: null, armor: null, shoe: null, acc: null }; return S.allyEq[k]; }
+  const SLOTS = ['weapon', 'wrist', 'armor', 'shoe', 'acc'];   // 11-27：加护腕一格（正式版里没有护腕这种东西，这一格永远是空的）
+  function eqOf(k) { S.allyEq = S.allyEq || {}; if (!S.allyEq[k]) S.allyEq[k] = { weapon: null, wrist: null, armor: null, shoe: null, acc: null }; return S.allyEq[k]; }
   window.allyEqOf = eqOf;
   // 剧情给的兵器衣甲 → 真物品（每样只转一次；旧存档进来也会补上）
   function migrate() {
@@ -40,7 +40,7 @@
   const isAlly = () => S.menu && S.menu.who && S.menu.who !== 'hero';
   // 装备页：队友看的是自己的三格 + 共用背包里能穿的
   equipCards = function (L) {
-    const h = S.hero, ally = isAlly(), eq = ally ? eqOf(S.menu.who) : h.equip, slots = [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']], cw = (L.body.w - 50) / 4;
+    const h = S.hero, ally = isAlly(), eq = ally ? eqOf(S.menu.who) : h.equip, slots = EQ_SLOTS(), cw = (L.body.w - 10 - slots.length * 10) / slots.length;
     const top = slots.map(([s, n], i) => ({ s, n, id: eq[s], x: L.body.x + 10 + i * (cw + 10), y: L.body.y + 10, w: cw, h: 110 }));
     const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot && (!ally || OK(id)));
     const pages = Math.max(1, Math.ceil(own.length / 8)), pg = Math.min(S.menu.eqPage || 0, pages - 1);

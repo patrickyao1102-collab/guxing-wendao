@@ -41,7 +41,7 @@
   };
   for (const el of ORDER) MAT['m_wx_' + el] = { c: null, wx: el, g: 0 };
   for (const id of Object.keys(MAT)) if (!ITEM_DB[id]) delete MAT[id];
-  const CLASS_NAME = { W: '兵器 · 饰品料', A: '衣甲 · 鞋料', X: '百搭' };
+  const CLASS_NAME = { W: '兵器 · 护腕 · 饰品料', A: '衣甲 · 鞋料', X: '百搭' };
   const isMat = id => !!MAT[id];
   // 背包里的说明加一句「这是哪一类料」
   for (const id of Object.keys(MAT)) { const it = ITEM_DB[id], m = MAT[id]; if (!it || it._r400d) continue; it._r400d = 1;
@@ -55,6 +55,12 @@
     { id: 'a_yunlei', who: 'yunting', mats: ['m_xingjing', 'm_yanjing', 'm_yanjing', 'm_wx_huo', 'm_wx_huo'], fee: 600 },
     { id: 's_yunlei', who: 'yunting', mats: ['m_tiejia', 'm_yanjing', 'm_wx_huo', 'm_wx_huo', 'm_wx_huo'], fee: 500 },
     { id: 's_tashuang', who: 'linxue', mats: ['m_gupian', 'm_yingpi', 'm_yingpi', 'm_wx_shui', 'm_wx_shui'], fee: 500 },
+    // 11-27 16:39：专属套装五件成套——各补一件护腕；云雷、凝霜各补一件饰品。头目的珍稀料从每只两枚加到三枚，第三枚就用在这里。
+    { id: 'r_xinghen', who: 'hero', mats: ['m_songxin', 'm_tiejia', 'm_wx_jin', 'm_wx_jin', 'm_wx_jin'], fee: 600 },
+    { id: 'r_yunlei', who: 'yunting', mats: ['m_xingjing', 'm_yanjing', 'm_yanjing', 'm_yanjing', 'm_wx_huo'], fee: 600 },
+    { id: 'c_yunlei', who: 'yunting', mats: ['m_jinsi', 'm_yanjing', 'm_wx_huo', 'm_wx_huo', 'm_wx_huo'], fee: 600 },
+    { id: 'r_ningshuang', who: 'linxue', mats: ['m_jinsi', 'm_yingpi', 'm_yingpi', 'm_wx_shui', 'm_wx_shui'], fee: 600 },
+    { id: 'c_ningshuang', who: 'linxue', mats: ['m_neidan', 'm_tooth', 'm_tooth', 'm_wx_shui', 'm_wx_shui'], fee: 600 },
   ].filter(r => ITEM_DB[r.id] && r.mats.every(m => ITEM_DB[m]));
   const keyOf = ids => ids.slice().sort().join('+');
   const RKEY = {}; for (const r of RECIPES) RKEY[keyOf(r.mats)] = r;
@@ -81,8 +87,10 @@
       2: { jin: ['a_liuguang', 'a_xuanlin'], mu: ['a_biluo', 'a_tiancan'], shui: ['a_xuanshuang', 'a_nichang'], huo: ['a_zidian', 'a_xiaguang'], tu: ['a_zhenyue', 'a_xipi'] } },
     shoe: { 1: { jin: ['s_baihong'], mu: ['s_qingteng'], shui: ['s_hanxing'], huo: ['s_chiyan'], tu: ['s_xuanyan', 's_langhao'] },
       2: { jin: ['s_liuguang'], mu: ['s_biluo', 's_zhuifeng'], shui: ['s_xuanshuang', 's_yingbu', 's_taxue'], huo: ['s_zidian'], tu: ['s_zhenyue'] } },
+    wrist: { 1: { jin: ['r_baihong'], mu: ['r_qingteng'], shui: ['r_hanxing'], huo: ['r_chiyan'], tu: ['r_xuanyan'] },
+      2: { jin: ['r_liuguang', 'c_jinsi'], mu: ['r_biluo'], shui: ['r_xuanshuang'], huo: ['r_zidian'], tu: ['r_zhenyue'] } },
     acc: { 1: { jin: ['c_wx_jin'], mu: ['c_wx_mu'], shui: ['c_wx_shui'], huo: ['c_wx_huo'], tu: ['c_wx_tu'] },
-      2: { jin: ['c_jinsi'], mu: ['c_ningshen', 'c_baihua'], shui: ['c_jade'], huo: ['c_wx_huo'], tu: ['c_tusk'] } },
+      2: { jin: ['c_wx_jin'], mu: ['c_ningshen', 'c_baihua'], shui: ['c_jade'], huo: ['c_wx_huo'], tu: ['c_tusk'] } },
   };
   for (const sl of Object.keys(POOL)) for (const t of [1, 2]) for (const el of ORDER) POOL[sl][t][el] = (POOL[sl][t][el] || []).filter(id => ITEM_DB[id]);
   const FEE = { 1: 120, 2: 400, gem: 60 };   // 开炉的炭火钱（同档的东西店里卖四五百 / 一千到两千多）
@@ -97,14 +105,19 @@
   //     兵饰料多半带自己那一行的「某系攻击」，也会带暴击、克制增伤；防具料多半带减伤、回灵、回血，也会带某系攻击。
   // 记法：S.hero.mq[材料] = ['el_huo:4', 'crit:2', …]，一件一条；没记的那几件就是不带的。别处扣材料（强化、精炼、任务、卖店）时先扣不带的，再从数值最低的扣起。
   const SUB = { el_jin: ['金系攻击', '金攻', '%'], el_mu: ['木系攻击', '木攻', '%'], el_shui: ['水系攻击', '水攻', '%'], el_huo: ['火系攻击', '火攻', '%'], el_tu: ['土系攻击', '土攻', '%'],
-    crit: ['暴击', '暴击', '%'], ke: ['克制增伤', '克伤', '%'], guard: ['减伤', '减伤', '%'], mpRegen: ['出手回灵', '回灵', ''], regen: ['出手回血', '回血', '%'] };
-  const SUB_TOP = { el: 8, crit: 3, ke: 8, guard: 3, mpRegen: 3, regen: 2 };   // 各种副属性在材料上最高能到多少（比大小用）
+    crit: ['暴击', '暴击', '%'], ke: ['克制增伤', '克伤', '%'], guard: ['减伤', '减伤', '%'], mpRegen: ['出手回灵', '回灵', ''], regen: ['出手回血', '回血', '%'],
+    xj: ['先机', '先机', '%'], tx: ['调息', '调息', '%'], jc: ['聚财', '聚财', '%'], wu: ['悟性', '悟性', '%'] };   // 后四样是饰品独有的（作者 11-27 16:39）：先机＝开战时行动条先走几成，调息＝打完一场回几成气血灵力，聚财 / 悟性＝这一场的灵石 / 修为多几成
+  const SUB_TOP = { el: 8, crit: 3, ke: 8, guard: 3, mpRegen: 3, regen: 2, xj: 20, tx: 10, jc: 20, wu: 10 };   // 各种副属性在材料上最高能到多少（比大小用）
   const LV = { el: { 0: [1, 2], 1: [2, 3], 2: [4, 5], 3: [6, 8] }, crit: { 1: [1], 2: [2], 3: [3] }, ke: { 1: [3], 2: [4, 5], 3: [6, 8] }, guard: { 1: [1], 2: [2], 3: [3] }, mpRegen: { 1: [1], 2: [2], 3: [3] }, regen: { 1: [1], 2: [1], 3: [2] } };
-  const LK = { W: [['el', 55], ['crit', 28], ['ke', 17]], A: [['guard', 38], ['mpRegen', 24], ['regen', 14], ['el', 24]], X: [['el', 100]] }, LP = { 0: .3, 1: .45, 2: .65, 3: 1 };   // X：五行之精，三成机会带一点自己那一行的「某系攻击」
+  const LK = { W: [['el', 55], ['crit', 28], ['ke', 17]], A: [['guard', 45], ['mpRegen', 30], ['regen', 25]], X: [['el', 100]] }, LP = { 0: .3, 1: .45, 2: .65, 3: 1 };   // X：五行之精，三成机会带一点自己那一行的「某系攻击」
   const parse = ln => { const i = ln.lastIndexOf(':'); return [ln.slice(0, i), +ln.slice(i + 1)]; };
   const subText = (k, v, short) => SUB[k] ? (short ? SUB[k][1] : SUB[k][0]) + ' +' + v + SUB[k][2] : '';
   const lineText = (ln, short) => { if (!ln) return ''; const [k, v] = parse(ln); return subText(k, v, short); };
   const score = ln => { if (!ln) return -1; const [k, v] = parse(ln); return v / (SUB_TOP[k.startsWith('el_') ? 'el' : k] || 1); };
+  const ALLOW = { weapon: k => /^el_/.test(k) || k === 'crit' || k === 'ke', wrist: k => k === 'crit' || k === 'ke', armor: k => k === 'guard' || k === 'regen' || k === 'mpRegen', shoe: k => k === 'guard' || k === 'regen' || k === 'mpRegen', acc: () => false };
+  const allow = (slot, ln) => { if (!ln) return false; const f = ALLOW[slot]; return f ? f(parse(ln)[0]) : true; };
+  const ACC_P = H => H >= 5 ? .2 : H === 4 ? .15 : H === 3 ? .12 : H === 2 ? .1 : H === 1 ? .08 : H === 0 ? .05 : .02;   // 饰品出一条独有属性的机会：摆得再好也只有两成
+  const ACC_V = { 1: { xj: [10], tx: [5], jc: [10], wu: [5] }, 2: { xj: [15, 20], tx: [8, 10], jc: [15, 20], wu: [8, 10] } };
   const canLine = m => !!m && (!!m.c || (!!m.wx && m.g === 0));   // 兵饰料、防具料、五行之精会带；内丹、星辰砂不带
   function rollLine(id) { const m = MAT[id]; if (!canLine(m) || Math.random() >= (LP[m.g] || 0)) return null; const tb = LK[m.c || 'X']; let r = Math.random() * tb.reduce((a, t) => a + t[1], 0), k = tb[0][0]; for (const t of tb) { r -= t[1]; if (r <= 0) { k = t[0]; break; } }
     if (k === 'el' && !m.wx) k = m.c === 'W' ? 'crit' : 'guard'; const vs = (LV[k][m.g] || LV[k][1]), v = vs[Math.floor(Math.random() * vs.length)]; return (k === 'el' ? 'el_' + m.wx : k) + ':' + v; }
@@ -150,15 +163,16 @@
     if (fl.length < 5) return Object.assign(base, { ok: false, why: 'need5' });
     const rc = RKEY[keyOf(ids)];
     if (rc) return Object.assign(base, { ok: true, kind: 'recipe', recipe: rc, cands: [[rc.id, 1]], fee: rc.fee, rare: false });
-    if (ids.every(id => id === ids[0]) && FIXED[ids[0]]) { const out = FIXED[ids[0]], it = ITEM_DB[out]; let ln = us[0].ln; if (!ln) ln = us.map(u => u.ln).filter(Boolean).sort((x, y) => score(y) - score(x))[0] || null;
+    if (ids.every(id => id === ids[0]) && FIXED[ids[0]]) { const out = FIXED[ids[0]], it = ITEM_DB[out]; let ln = allow(it.slot, us[0].ln) ? us[0].ln : null; if (!ln) ln = us.map(u => u.ln).filter(l => allow(it.slot, l)).sort((x, y) => score(y) - score(x))[0] || null;
       return Object.assign(base, { ok: true, kind: 'fixed', cands: [[out, 1]], fee: it.gem ? FEE.gem : (it.lvReq || 0) >= 10 ? FEE[2] : FEE[1], keep: ln && it.slot ? ln : null, gem: !!it.gem }); }
     const cl = ids.filter(id => MAT[id].c); if (!cl.length) return Object.assign(base, { ok: false, why: 'noclass' });
     const nW = cl.filter(id => MAT[id].c === 'W').length, nA = cl.length - nW, cls = nW > nA ? 'W' : nA > nW ? 'A' : MAT[cl[0]].c;
-    const mine = cl.filter(id => MAT[id].c === cls), slot = cls === 'W' ? (new Set(mine).size >= 3 ? 'acc' : 'weapon') : (mine.length >= 4 ? 'armor' : 'shoe');
+    const mine = cl.filter(id => MAT[id].c === cls), kinds = new Set(mine).size, slot = cls === 'W' ? (kinds >= 4 ? 'acc' : kinds === 3 ? 'wrist' : 'weapon') : (mine.length >= 4 ? 'armor' : 'shoe');
     const tier = cl.reduce((a, id) => a + MAT[id].g, 0) / cl.length >= 1.6 ? 2 : 1, el = E || 'jin';
     const P = POOL[slot], mains = P[tier][el].length ? P[tier][el] : P[1][el], m = {}; for (const id of mains) m[id] = 100; const up = tier === 1 ? P[2][el][0] : null; if (up && !m[up]) m[up] = UP_W(H);
     const [lo, hi, p] = ROLL(H);
-    return Object.assign(base, { ok: true, kind: 'mix', cls, slot, tier, el, cands: Object.entries(m), fee: FEE[tier], lo, hi, p, V: 1 + .05 * Math.max(-3, Math.min(5, H)) }); }
+    return Object.assign(base, { ok: true, kind: 'mix', cls, slot, tier, el, cands: Object.entries(m), fee: FEE[tier], lo, hi, p, V: 1 + .05 * Math.max(-3, Math.min(5, H)),
+      lined: new Set(fl.filter(u => allow(slot, u.ln)).map(u => parse(u.ln)[0])).size, lost: new Set(fl.filter(u => u.ln && !allow(slot, u.ln)).map(u => parse(u.ln)[0])).size, accP: slot === 'acc' ? ACC_P(H) : 0 }); }   // lined：这个部位留得住的有几种；lost：留不住的有几种
   function roll(a) { let t = a.cands.reduce((x, c) => x + c[1], 0), r = Math.random() * t; for (const [id, w] of a.cands) { r -= w; if (r <= 0) return id; } return a.cands[a.cands.length - 1][0]; }
 
   // ---------- 八、打出来的每一件都是独一份 ----------
@@ -203,7 +217,8 @@
     const base = roll(a), it = ITEM_DB[base]; let id = base, m = 1, lines = [];
     if (it.slot && a.kind === 'fixed') { if (a.keep) lines = [parse(a.keep)]; }
     else if (it.slot && a.kind === 'mix') { m = Math.round((a.lo + Math.random() * (a.hi - a.lo)) * 100) / 100;
-      for (const u of us) { if (!u.ln || Math.random() >= a.p) continue; const [k, v] = parse(u.ln), sv = scale(v, a.V), i = lines.findIndex(l => l[0] === k); if (i < 0) lines.push([k, sv]); else if (sv > lines[i][1]) lines[i][1] = sv; } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
+      for (const u of us) { if (!u.ln || !allow(it.slot, u.ln) || Math.random() >= a.p) continue; const [k, v] = parse(u.ln), sv = scale(v, a.V), i = lines.findIndex(l => l[0] === k); if (i < 0) lines.push([k, sv]); else if (sv > lines[i][1]) lines[i][1] = sv; }
+      if (it.slot === 'acc' && Math.random() < ACC_P(a.H)) { const ks = ['xj', 'tx', 'jc', 'wu'], k = ks[Math.floor(Math.random() * ks.length)], vs = ACC_V[a.tier] || ACC_V[1]; lines.push([k, vs[k][Math.floor(Math.random() * vs[k].length)]]); } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
     if (it.slot && (a.kind === 'mix' || (a.kind === 'fixed' && lines.length))) id = makeInstance(base, m, lines);   // 混着放出来的都是独一份；五个一样又没带副属性的，就是店里那样的一件
     addItem(id, 1); const f = F(); f.forged = (f.forged || 0) + 1; if (a.kind === 'recipe') f['r400_made_' + base] = 1;
     return { id, base, mult: m, lines, grade: ITEM_DB[id].fg ? ITEM_DB[id].grade : null, a }; }
@@ -212,14 +227,16 @@
   // 三只头目各掉两枚。已经打倒过的：星旋把他「替你收着」的拿出来（落星坡那头狼打倒时他说过这句）。
   const BOSS = { xingwolf: 'm_xingjing', songxiao: 'm_songxin', chuanshanjia: 'm_tiejia' };
   try { for (const [bid, mid] of Object.entries(BOSS)) { const y = (window.R370_YW || []).find(q => q.id === bid); if (!y || !ITEM_DB[mid]) continue;
-      y.extra = y.extra || []; if (!y.extra.includes(mid)) y.extra.push(mid, mid);
-      y.after = (o => async function () { F()['r400_g_' + bid] = 1; return o ? o.apply(this, arguments) : undefined; })(y.after); } } catch (e) { console.warn('R400 boss', e); }
+      y.extra = y.extra || []; if (!y.extra.includes(mid)) y.extra.push(mid, mid, mid);   // 11-27 傍晚：专属套装多了护腕，每只从两枚加到三枚
+      y.after = (o => async function () { F()['r400_g_' + bid] = 1; F()['r404_g3_' + bid] = 1; return o ? o.apply(this, arguments) : undefined; })(y.after); } } catch (e) { console.warn('R400 boss', e); }
   let giving = false;
   setInterval(() => { try { if (giving || !S.started || S.scene !== drawMap || !S.hud || world.locked || dialog || choice || sysPanel || battle) return; const f = F(), got = [];
-      for (const [bid, mid] of Object.entries(BOSS)) if (f['yw_' + bid] && !f['r400_g_' + bid] && ITEM_DB[mid]) { f['r400_g_' + bid] = 1; addItem(mid, 2); got.push(mid); }
-      if (!got.length || !window.SAY_LATER) return; giving = true;
-      SAY_LATER(async () => { try { await say('星旋', '先前那几只头目身上的好东西，本神仙一直替你收着。拿去——云海大亭的炉子上，打专属套装用得着。');
-          if (window.itemGet) await itemGet(got.map(id => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×2', desc: ITEM_DB[id].desc })), '星旋交还'); } finally { giving = false; } }); } catch (e) {} }, 2000);
+      for (const [bid, mid] of Object.entries(BOSS)) { if (!f['yw_' + bid] || !ITEM_DB[mid]) continue;
+        if (!f['r400_g_' + bid]) { f['r400_g_' + bid] = 1; f['r404_g3_' + bid] = 1; addItem(mid, 3); got.push([mid, 3]); }           // 打倒时还没有这套规矩：三枚一起补
+        else if (!f['r404_g3_' + bid]) { f['r404_g3_' + bid] = 1; addItem(mid, 1); got.push([mid, 1]); } }                              // 已经拿过两枚的：补第三枚
+      if (!got.length || !window.SAY_LATER) return; giving = true; const third = got.every(g => g[1] === 1);
+      SAY_LATER(async () => { try { await say('星旋', third ? '那几只头目身上还剩一样，本神仙替你收着。拿去——专属套装如今要配护腕，炉子上用得着。' : '先前那几只头目身上的好东西，本神仙一直替你收着。拿去——云海大亭的炉子上，打专属套装用得着。');
+          if (window.itemGet) await itemGet(got.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })), '星旋交还'); } finally { giving = false; } }); } catch (e) {} }, 2000);
 
   // ---------- 十、图标：Codex R400 画的（r400i/<id>.webp，192 见方）。画法同别的物品：深色圆底 + 一圈品质色；珍稀料、专属的那件是金圈带一层光 ----------
   const ART = new Set(['m_xingjing', 'm_songxin', 'm_tiejia', 'g_jin', 'g_mu', 'g_shui', 'g_huo', 'g_tu', 'c_wx_jin', 'c_wx_mu', 'c_wx_shui', 'c_wx_huo', 'c_wx_tu', 'c_xinghen']);   // Codex R400 的图 11-27 下午到齐
@@ -240,5 +257,5 @@
 
   try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {}   // 这里和 r389 新加的装备，补套上强化的读数（主程序只在开局三秒时补一遍，载入慢就漏了）
   setTimeout(() => { for (const id of ART) { try { itemIcon(id, -999, -999, 8); } catch (e) {} } }, 8000);   // 图标提前要一遍
-  window.CRAFT = { MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, FEE, GEM, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
+  window.CRAFT = { ALLOW, allow, ACC_P, MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, FEE, GEM, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
 })();

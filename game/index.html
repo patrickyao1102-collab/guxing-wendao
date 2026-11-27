@@ -1324,6 +1324,8 @@ const ITEM_DB = {
   m_hide: { name: '兽皮', price: 0, sell: 12, desc: '妖兽的毛皮，可以卖钱' },
 };
 const STATS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'];
+// 作者 11-27 16:33：加「护腕」一格——武器、护腕、衣服、鞋子、饰品五件。护腕只在测试版里有（r389_gear.js 里打开 GX_WRIST），正式版还是四格。
+function EQ_SLOTS() { return window.GX_WRIST ? [['weapon', '武器'], ['wrist', '护腕'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']] : [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']]; }
 const STAT_CN = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '身法' };
 function rpgInit() {
   const h = S.hero; if (h._rpg) return; h._rpg = true;
@@ -1590,7 +1592,7 @@ function closeMenu() { S.menu = null; world.locked = false; playSnd('ui_click');
 const TABS = ['状态', '装备', '背包', '技能'];
 function menuItems() {
   const h = S.hero, m = S.menu;
-  if (m.tab === 1) { const slots = [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']]; const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
+  if (m.tab === 1) { const slots = EQ_SLOTS(); const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
     return [...slots.map(([s, n]) => ({ kind: 'slot', s, label: n + '：' + (h.equip[s] ? ITEM_DB[h.equip[s]].name : '（空）'), sub: h.equip[s] ? statText(ITEM_DB[h.equip[s]]) : '' })),
       ...own.map(id => ({ kind: 'equip', id, label: '换上 ' + ITEM_DB[id].name + (h.bag[id] > 1 ? ' ×' + h.bag[id] : ''), sub: statText(ITEM_DB[id]) + ' · ' + ITEM_DB[id].desc }))]; }
   if (m.tab === 2) { const ids = ['p_small', ...Object.keys(h.bag)].filter((v, i, a) => a.indexOf(v) === i && itemCount(v) > 0);
@@ -4480,7 +4482,7 @@ function bagTabs(L) { return BAG_CATS.map(([k, n], i) => ({ k, n, x: L.body.x + 
 function bagPager(L) { const y = L.body.y + 10; return { prev: { x: L.body.x + L.body.w - 250, y, w: 76, h: 36 }, next: { x: L.body.x + L.body.w - 88, y, w: 76, h: 36 } }; }
 function bagCells(L) { const cols = 5, cw = (L.body.w - 20) / cols, ch = 92, pg = Math.min(S.menu.bagPage || 0, bagPages() - 1); return bagFiltered().slice(pg * 15, pg * 15 + 15).map((id, i) => ({ id, x: L.body.x + 10 + (i % cols) * cw, y: L.body.y + 56 + Math.floor(i / cols) * (ch + 8), w: cw - 12, h: ch })); }
 function equipCards(L) {
-  const h = S.hero, slots = [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']], cw = (L.body.w - 50) / 4;
+  const h = S.hero, slots = EQ_SLOTS(), cw = (L.body.w - 10 - slots.length * 10) / slots.length;
   const top = slots.map(([s, n], i) => ({ s, n, id: h.equip[s], x: L.body.x + 10 + i * (cw + 10), y: L.body.y + 10, w: cw, h: 110 }));
   const own = Object.keys(h.bag).filter(id => ITEM_DB[id] && ITEM_DB[id].slot);
   const pages = Math.max(1, Math.ceil(own.length / 8)), pg = Math.min(S.menu.eqPage || 0, pages - 1);
@@ -4567,8 +4569,9 @@ function drawStatus(B, mi, now) {
     ctx.font = `600 15px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(n, sx + 48, y + 12); ctx.font = `700 24px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(String(v), sx + 48, y + 36); });
   y += 76;
   if (!mi.ally) { const h = S.hero; ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText('随身', x, y); y += 30;
-    [['weapon', '武器'], ['armor', '衣服'], ['shoe', '鞋子'], ['acc', '饰品']].forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * 40, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * 40, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
-      ctx.font = `600 18px ${FONT}`; ctx.fillStyle = id ? UI.text : UI.dim; ctx.fillText(n + '　' + (id ? ITEM_DB[id].name : '未装备'), x + 44, y + i * 40 + 1); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; if (id) ctx.fillText(statText(ITEM_DB[id]), x + 230, y + i * 40 + 1); }); }
+    const SL = EQ_SLOTS(), SY = SL.length > 4 ? 33 : 40;   // 五格时行距收一点，不然最底下一行出框
+    SL.forEach(([s, n], i) => { const id = h.equip[s]; if (id) itemIcon(id, x + 18, y + i * SY, 15); else { ctx.beginPath(); ctx.arc(x + 18, y + i * SY, 15, 0, 7); ctx.strokeStyle = UI.line; ctx.stroke(); }
+      ctx.font = `600 18px ${FONT}`; ctx.fillStyle = id ? UI.text : UI.dim; ctx.fillText(n + '　' + (id ? ITEM_DB[id].name : '未装备'), x + 44, y + i * SY + 1); ctx.font = `14px ${FONT}`; ctx.fillStyle = UI.sub; if (id) ctx.fillText(statText(ITEM_DB[id]), x + 230, y + i * SY + 1); }); }
   else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.sub; wrapText(({ yunting: '天剑宗天才弟子，一身黑衣，冷峻寡言，被叶孤星戏称「冰块脸」。雷属性灵根，修天剑诀。嘴上不多说，却是肯为叶孤星豁出命去的兄弟。', linxue: '天剑宗天才弟子，叶孤星的师姐。容貌清丽，目光清冷，冰属性灵根，修天剑诀。看着冷淡，却嫉恶如仇，见不得恃强凌弱。', shenle: '音谷圣女，出身仙灵大陆三大仙宗之一的天音宗。月白长裙，手持晶莹长笛，清丽出尘如谪仙。修超神阶功法《九音录》，以音律化道，可镇魂杀敌于无形。', luochen: '来自南蛮大陆的妖族少年，身负极古老、极高贵的妖族血脉，双眸一黑一金。被妖皇追杀，流落云渺大陆，为叶孤星所救，暂居天剑宗，与他结为好友。' })[mi.k] || '', 440).forEach((l, i) => ctx.fillText(l, x, y + i * 30)); }
 }
 function drawEquip(B, L, mi) {
@@ -4586,7 +4589,9 @@ function drawEquip(B, L, mi) {
     ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((pager.pg + 1) + ' / ' + pager.pages, (pager.prev.x + pager.prev.w + pager.next.x) / 2, pager.prev.y + 17); }
   for (const c of top) { lacquer(c.x, c.y, c.w, c.h, { r: 10, thin: true, top: UI.cTop, bot: UI.cBot });
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `24px ${BRUSH}`; ctx.fillStyle = UI.gold2; ctx.fillText(c.n, c.x + 16, c.y + 24);
-    if (c.id) { itemIcon(c.id, c.x + 40, c.y + 70, 24); ctx.font = `700 20px ${FONT}`; ctx.fillStyle = UI.text; ctx.fillText(ITEM_DB[c.id].name, c.x + 76, c.y + 60); ctx.font = `15px ${FONT}`; ctx.fillStyle = (UI.id === 'paper' ? '#2f7a2a' : '#9fe0a0'); ctx.fillText(statText(ITEM_DB[c.id]), c.x + 76, c.y + 86); }
+    if (c.id) { itemIcon(c.id, c.x + 40, c.y + 70, 24); const av = c.w - 84, nm = ITEM_DB[c.id].name, stx = statText(ITEM_DB[c.id]); let fs = 20;   /* 格子窄了（五格）字跟着缩，不出框 */
+      ctx.font = `700 ${fs}px ${FONT}`; while (fs > 13 && ctx.measureText(nm).width > av) { fs--; ctx.font = `700 ${fs}px ${FONT}`; } ctx.fillStyle = UI.text; ctx.fillText(nm, c.x + 76, c.y + 60);
+      fs = 15; ctx.font = `${fs}px ${FONT}`; while (fs > 10 && ctx.measureText(stx).width > av) { fs--; ctx.font = `${fs}px ${FONT}`; } ctx.fillStyle = (UI.id === 'paper' ? '#2f7a2a' : '#9fe0a0'); ctx.fillText(stx, c.x + 76, c.y + 86); }
     else { ctx.font = `600 18px ${FONT}`; ctx.fillStyle = UI.dim; ctx.fillText('（空）', c.x + 20, c.y + 70); } }
   ctx.font = `600 17px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(list.length ? '背包里的装备（点击查看 / 换上）' : '背包里没有可换的装备', B.x + 14, B.y + 148);
   for (const c of list) { const it = ITEM_DB[c.id], cur = h.equip[it.slot] ? ITEM_DB[h.equip[it.slot]] : {};
@@ -14901,7 +14906,7 @@ window.R80 = {"blocked":"1111111111111111111111111111111111111111111111111111111
 <script src="r177_tips.js"></script><script src="loading.js?v=3"></script>
 <script src="skills_fix.js"></script>
 <script src="mount_duo_effects.js"></script><script src="mount_fx2.js"></script><script src="mount.js"></script><script src="ui_icons.js"></script><script src="shenqi_r62.js"></script><script src="battle_menu2.js"></script>
-<script src="skill_tree.js?v=298"></script><script src="item_icons.js"></script><script src="fx_prewarm.js"></script><script src="early_bal.js"></script><script src="equip_plus.js?v=3"></script><script src="target_pick.js"></script><script src="route_fix.js"></script><script src="story_fx.js"></script><script src="bgm_lib.js"></script><script src="bgm_music.js?v=2"></script><script src="bgm_libui.js"></script><script src="voice_skill.js"></script>
+<script src="skill_tree.js?v=298"></script><script src="item_icons.js"></script><script src="fx_prewarm.js"></script><script src="early_bal.js"></script><script src="equip_plus.js?v=4"></script><script src="target_pick.js"></script><script src="route_fix.js"></script><script src="story_fx.js"></script><script src="bgm_lib.js"></script><script src="bgm_music.js?v=2"></script><script src="bgm_libui.js"></script><script src="voice_skill.js"></script>
 <script src="dummy_test.js"></script>
 
 <script>// ===== Codex R69 落云岭·岩隙藏洞 翻新（作者认可）：动效 + 地图补丁内联，图片放作品素材库 =====
@@ -15216,7 +15221,7 @@ const R69_BLOB = {"g_ly_cave": "f1d532d8bd81811d94d0a7efbe00693a", "l_ly_cave_da
   if (typeof ALLY2_SKILLS !== 'undefined' && ALLY2_SKILLS.shenle) { delete ALLY2_SKILLS.shenle.liehun; if (ALLY2_SKILLS.shenle.qingxin) ALLY2_SKILLS.shenle.qingxin.cost = 22; }
 
   // ---------- 学会判断 ----------
-  const learned = (who, id) => { const d = X[who] && X[who][id]; if (!d) return false; if (d.kind === 'gong' || d.kind === 'aux') return lv() >= d.lv || !!LEARN()[who + '.' + id]; return !!LEARN()[who + '.' + id]; };   // 作者 11-03：辅助第一重不需要书，到修为自动领悟
+  const learned = (who, id) => { const d = X[who] && X[who][id]; if (!d) return false; if (window.SET_SKILL) { const r = SET_SKILL(who, id); if (r !== undefined) return r; }   /* 作者 11-27：套装技能——穿齐那一套才算会（规矩在 r389_gear.js，只在测试版里有） */ if (d.kind === 'gong' || d.kind === 'aux') return lv() >= d.lv || !!LEARN()[who + '.' + id]; return !!LEARN()[who + '.' + id]; };   // 作者 11-03：辅助第一重不需要书，到修为自动领悟
   function learn(who, id) { LEARN()[who + '.' + id] = 1; if (who === 'hero' && S.hero.skills && !S.hero.skills.includes(id)) S.hero.skills.push(id); }
   // 升级替换：新招继承旧招重数
   const INHERIT = [['hero', 'pojun', 'xingluo'], ['hero', 'xingluo', 'xingyun'], ['hero', 'tanlang', 'jueying'], ['hero', 'jueying', 'duopo']];
@@ -16792,9 +16797,9 @@ window.MarketEffects = (() => {
 </script>
 <script src="mount_sys.js"></script><script src="r86.js"></script><script src="r78p.js"></script><script src="r83p.js"></script><script src="r88_outfit.js"></script><script src="r89_daxue14_data.js"></script><script src="r89_daxue14.js"></script><script src="r90_pavilion.js"></script><script src="r90_court.js"></script><script src="r90_fish.js"></script><script src="r91_xingluo.js"></script><script src="r91_market.js"></script><script src="r92_xlw.js"></script><script src="r95_xl1.js?v=2"></script><script src="map_zoom.js"></script><script src="r96_jyh3.js"></script>
 <script src="r97_walk8.js"></script>
-<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js"></script>
+<script src="r99_mini.js"></script><script src="r100_dxhex.js"></script><script src="r100_portrait.js"></script><script src="r100_xlarr.js"></script><script src="r93_pillars.js"></script><script src="r100_skswap.js"></script><script src="r101_allyeq.js?v=1"></script>
 <script src="r102_misc.js"></script>
-<script src="r103_equipinfo.js"></script><script src="r104_sound.js"></script><script src="r104_linyi.js"></script><script src="r105_linyi.js"></script><script src="r103_world.js"></script><script src="r105_crane.js"></script><script src="r106_sfxfix.js"></script><script src="r107_maps.js"></script>
+<script src="r103_equipinfo.js?v=1"></script><script src="r104_sound.js"></script><script src="r104_linyi.js"></script><script src="r105_linyi.js"></script><script src="r103_world.js"></script><script src="r105_crane.js"></script><script src="r106_sfxfix.js"></script><script src="r107_maps.js"></script>
 <script src="r131_chests.js"></script><script src="r132_xiashan.js"></script>
 <script src="xyzh_rt.js"></script>
 <script src="r93_xyzh.js"></script><script>window.R76_OFF = true;   // 作者：R76 是代码画的线条、而且卡 → 关掉，改用 R78 画的素材重做</script><script src="r76lib.js"></script><script src="r76fx.js"></script>
@@ -16879,7 +16884,7 @@ window.MarketEffects = (() => {
 <script src="r386_jade.js?v=6"></script>
 <script src="r391_boons.js?v=1"></script>
 <script src="r393_wxjing.js?v=6"></script><script src="r392_data.js?v=1"></script><script src="r392_luoxing.js?v=2"></script><script src="r395_pingjing.js?v=1"></script><script src="r396_hs12fix.js?v=1"></script>
-<script src="r389_gear.js?v=5"></script><script src="r389_panel.js?v=4"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r400_craft.js?v=3"></script><script src="r394_forge.js?v=6"></script><script src="r402_shop.js?v=1"></script><script src="r397_testbtn.js?v=5"></script>
+<script src="r389_gear.js?v=6"></script><script src="r389_panel.js?v=5"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r400_craft.js?v=4"></script><script src="r394_forge.js?v=7"></script><script src="r402_shop.js?v=2"></script><script src="r397_testbtn.js?v=5"></script>
 <script src="r349/data.js?v=6"></script><script src="r349_chehome.js?v=11"></script><script src="r352_chehome_ext.js?v=4"></script><script src="r354_scaletest.js?v=1"></script><script src="r355_indoor_scale.js?v=1"></script><script src="r357/tl.js?v=1"></script><script src="r357_memory.js?v=1"></script>
 <script src="asset_ready.js"></script>
 </body></html>

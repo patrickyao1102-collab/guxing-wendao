@@ -10,10 +10,10 @@
   const { KIT, D, T, C, BR, KAI, NUM, fit: fitW, wrap, kitLoad, kitReady, inR } = K, WX = WX5.WX;
   const F = () => (S.flags = S.flags || {});
   const UI = { open: false, t0: 0, taps: [], who: 'hero', slot: 'weapon', sel: null, page: 0, msg: '', msgT: 0 };
-  const SLOT_NAME = { weapon: '武器', armor: '衣甲', shoe: '靴', acc: '饰品' };
+  const SLOT_NAME = { weapon: '武器', wrist: '护腕', armor: '衣甲', shoe: '靴', acc: '饰品' };
   const STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' };
   const P = { x: 20, y: 96, w: 1240, h: 604 }, LEFT = { x: 34, y: 110, w: 470, h: 576 }, RIGHT = { x: 516, y: 110, w: 730, h: 576 }, CLOSE = { x: 1126, y: 34, w: 124, h: 46 };
-  const SLOT_POS = { weapon: [LEFT.x + 16, LEFT.y + 44], acc: [LEFT.x + 16, LEFT.y + 304], armor: [LEFT.x + LEFT.w - 116, LEFT.y + 44], shoe: [LEFT.x + LEFT.w - 116, LEFT.y + 304] };
+  const SLOT_POS = { weapon: [LEFT.x + 16, LEFT.y + 34], wrist: [LEFT.x + 16, LEFT.y + 172], acc: [LEFT.x + 16, LEFT.y + 310], armor: [LEFT.x + LEFT.w - 116, LEFT.y + 34], shoe: [LEFT.x + LEFT.w - 116, LEFT.y + 310] };   // 11-27：左边一列是管攻击的三件（武器、护腕、饰品），右边是衣甲和靴
   const slotR = s => ({ x: SLOT_POS[s][0], y: SLOT_POS[s][1], w: 100, h: 100 });
   const whoR = i => ({ x: 250 + i * 150, y: 36, w: 140, h: 44 });
   const cardR = i => ({ x: RIGHT.x + 14 + (i % 2) * 354, y: RIGHT.y + 92 + Math.floor(i / 2) * 86, w: 346, h: 78 });
@@ -80,10 +80,11 @@
     // 套装
     D('panel_well_9', SETB.x, SETB.y, SETB.w, SETB.h); const sets = G.setsOf(UI.who), own = G.SETS.find(s => s.owner === UI.who), rows = sets.slice();
     if (own && !rows.some(([s]) => s.id === own.id)) rows.unshift([own, G.setState(UI.who, own)]);
-    if (!rows.length) T('身上还没有成套的装备。专属套装凑齐三件才显威力；同一行的普通剑、衣、靴凑三件，只有一点小加成。', SETB.x + 22, SETB.y + 34, 16, C.sub);
+    if (!rows.length) T('身上还没有成套的装备。套装要凑齐四件：剑、护腕、衣、靴。专属套装再配上它的饰品，还有一层。', SETB.x + 22, SETB.y + 34, 16, C.sub);
     rows.slice(0, 3).forEach(([s, st], i) => { const y = SETB.y + 22 + i * 28; if (s.wx) { try { WX5.emblem(s.wx, SETB.x + 30, y, 10, 1); } catch (e) {} }
-      const head = (s.owner ? '专属套装 · ' : '同行 · ') + s.name + '　' + st.n + ' / ' + st.need + (s.extra ? (st.ex ? ' + 坠' : '') : ''); T(head, SETB.x + 48, y, 16, st.on ? C.green : C.gold2, KAI(), 600); const hw = ctx.measureText(head).width;
-      const full = st.on4 ? '四件：' + s.text + '；' + s.extra.text : '三件：' + s.text + (s.extra && st.on ? '（再配上' + ITEM_DB[s.extra.id].name + '还有一层）' : '');
+      const head = (s.owner ? '专属套装 · ' : '套装 · ') + s.name + '　' + st.n + ' / ' + st.need + (s.extra ? (st.ex ? ' + 饰品' : '') : ''); T(head, SETB.x + 48, y, 16, st.on ? C.green : C.gold2, KAI(), 600); const hw = ctx.measureText(head).width;
+      const sk = s.skill ? '；套装技能「' + s.skillName + '」' + (st.on ? '可以施展' : '（穿齐才能施展）') : '';
+      const full = st.on4 ? '五件：' + s.text + '；' + s.extra.text + sk : '四件：' + s.text + sk + (s.extra && st.on && ITEM_DB[s.extra.id] ? '（再配上' + ITEM_DB[s.extra.id].name + '还有一层）' : '');
       ctx.font = `500 15px ${KAI()}`;
       if (rows.length === 1) { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = st.on ? C.text : C.sub; wrap(full, SETB.x + 48, y + 27, SETB.w - 76, 22, 2); }   // 只有一套时：效果另起一行写全（专属套装的字多，一行写不下）
       else T(fitW(full, SETB.w - 48 - Math.max(160, hw + 18) - 150), SETB.x + 48 + Math.max(160, hw + 18), y, 15, st.on ? C.text : C.sub);

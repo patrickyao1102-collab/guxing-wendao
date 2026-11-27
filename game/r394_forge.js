@@ -13,7 +13,7 @@
   const { KIT, D, T, C, BR, KAI, NUM, fit: fitW, wrap, kitLoad, kitReady, inR } = K, WX = WX5.WX, ORDER = WX5.ORDER, MAT = CR.MAT;
   const F = () => (S.flags = S.flags || {});
   const SMITH = '铸剑师', RUNE = [6, 300];
-  const STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' }, KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'], SLOT_CN = { weapon: '兵器', armor: '衣甲', shoe: '鞋履', acc: '饰品' };
+  const STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' }, KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'], SLOT_CN = { weapon: '兵器', wrist: '护腕', armor: '衣甲', shoe: '鞋履', acc: '饰品' };
   const UI = { open: false, t0: 0, taps: [], tab: 0, arm: null, say: '', sayT: 0, slots: [null, null, null, null, null], mf: 0, mp: 0, res: null, fx: [], gsel: null, gp: 0, msel: null, sock: 0 };
   const P = { x: 20, y: 96, w: 1240, h: 604 }, BODY = { x: 40, y: 112, w: 1200, h: 572 }, CLOSE = { x: 1126, y: 34, w: 124, h: 46 };
   const TABS = ['合成', '强化', '镶嵌', '精炼', '星纹'], TABK = ['hecheng', 'qianghua', 'xiangqian', 'jinglian', 'xingwen'], tabR = i => ({ x: 232 + i * 150, y: 36, w: 142, h: 44 });
@@ -95,7 +95,7 @@
     if (a.why === 'noclass') return [['光有精气，没有料。', C.red], ['至少放一样牙、角、皮、丝之类的东西。', C.sub]];
     if (a.kind === 'recipe') return owned(a.recipe.id) ? [['「' + ITEM_DB[a.recipe.id].name.replace(/ \+\d$/, '') + '」已经有一件了，不用再打。', C.sub], ['', C.sub]] : [['对上了秘籍：「' + ITEM_DB[a.recipe.id].name + '」', C.gold2], ['专属的东西属性是定死的，不看摆法。', C.sub]];
     if (a.kind === 'fixed') return a.gem ? [['五枚同一行的精：炼成一颗灵珠。', C.text], ['', C.sub]] : [['五样同出一源：主属性整十成，不浮动。', C.text], [a.keep ? '只带头一样料上的那一条：' + CR.lineText(a.keep) : '这五样都没带副属性。', a.keep ? C.green : C.sub]];
-    return [[edgeText(a) + '　主属性 ' + pct(a.lo) + ' – ' + pct(a.hi), col], [a.lined ? '炉里有 ' + a.lined + ' 种副属性，每种约 ' + pct(a.p) + ' 的机会留下。' : '这几样料都没带副属性。', C.sub]]; }
+    return [[edgeText(a) + '　主属性 ' + pct(a.lo) + ' – ' + pct(a.hi), col], [a.slot === 'acc' ? '料上的副属性这一炉留不住；有 ' + pct(a.accP) + ' 的机会带出一条别处没有的。' : a.lined ? '这一炉留得住的副属性有 ' + a.lined + ' 种，每种约 ' + pct(a.p) + ' 的机会留下。' + (a.lost ? '（另有 ' + a.lost + ' 种这个部位带不上）' : '') : a.lost ? '料上带的那 ' + a.lost + ' 种副属性，这个部位带不上。' : '这几样料都没带副属性。', C.sub]]; }
   function drawDisc(now, a) { const ar = art('array'), R = DISC / 2;
     ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     if (ar) ctx.drawImage(ar, CX - R, CY - R, DISC, DISC);
@@ -199,7 +199,7 @@
   // 二、强化（规矩照旧：equip_plus 那一套）
   // =====================================================================================================
   const MAXLV = 5, RATE = [1, 1, 1, .7, .5], B_REF = { x: GD.x + GD.w - 250, y: GD.y + GD.h - 76, w: 226, h: 54 };
-  const refCost = (id, l) => ({ gold: Math.round((40 + (ITEM_DB[id].price || 120) * .35) * (l + 1)), n: l + 1, cls: /^(weapon|acc)$/.test(ITEM_DB[id].slot) ? 'W' : 'A' });
+  const refCost = (id, l) => ({ gold: Math.round((40 + (ITEM_DB[id].price || 120) * .35) * (l + 1)), n: l + 1, cls: /^(weapon|wrist|acc)$/.test(ITEM_DB[id].slot) ? 'W' : 'A' });
   // 下一级是多少：把等级临时拨高一格读一遍再拨回来（数是 equip_plus 那套读数算的，这里不另算一套）
   function peekNext(id, l) { const R = (S.hero.refine = S.hero.refine || {}), old = R[id], out = {}; R[id] = l + 1; try { for (const k of KEYS) out[k] = ITEM_DB[id][k] || 0; } finally { if (old) R[id] = old; else delete R[id]; } return out; }
   // 用哪几样料：先用寻常的，珍稀的（三品）和百搭的不动
@@ -336,7 +336,7 @@
   async function talk() { const f = F();
     if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就守着这座炉子。'); }
     if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
-      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
+      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器、护腕和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
       await say(SMITH, '相邻两样相生，成色就高；相克，成色就低。料上若带着灵性，有几分能留进成品里——留几条，看手气。');
       await say(SMITH, '出什么，开了炉才知道。只有各人的专属套装，我这本秘籍上记着方子。');
       await say('星旋', '金生水，水生木，木生火，火生土，土生金。照这个顺序摆一圈试试——本神仙只说这一回。'); }

@@ -28,9 +28,9 @@
 
   // ---------- 货 ----------
   const KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'], SN = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' };
-  const CAT_ORDER = ['兵器', '衣甲', '鞋履', '饰品', '丹药', '功法', '材料', '钓具', '食材', '杂物'];
+  const CAT_ORDER = ['兵器', '护腕', '衣甲', '鞋履', '饰品', '丹药', '功法', '材料', '钓具', '食材', '杂物'];
   const isMat = id => { try { return !!(window.CRAFT && CRAFT.isMat && CRAFT.isMat(id)); } catch (e) { return false; } };
-  const catOf = id => { const it = ITEM_DB[id] || {}; return it.slot === 'weapon' ? '兵器' : it.slot === 'armor' ? '衣甲' : it.slot === 'shoe' ? '鞋履' : it.slot === 'acc' ? '饰品' : it.book ? '功法' : isMat(id) || /^m_/.test(id) ? '材料' : it.cat ? it.cat : (it.use || it.hp || it.mp || it.revive || /^p_/.test(id)) ? '丹药' : '杂物'; };
+  const catOf = id => { const it = ITEM_DB[id] || {}; return it.slot === 'weapon' ? '兵器' : it.slot === 'wrist' ? '护腕' : it.slot === 'armor' ? '衣甲' : it.slot === 'shoe' ? '鞋履' : it.slot === 'acc' ? '饰品' : it.book ? '功法' : isMat(id) || /^m_/.test(id) ? '材料' : it.cat ? it.cat : (it.use || it.hp || it.mp || it.revive || /^p_/.test(id)) ? '丹药' : '杂物'; };
   const have = id => { try { return itemCount(id) || 0; } catch (e) { return (S.hero.bag[id] || 0); } };
   const wxOf = id => { try { return (window.WX5 && WX5.GEAR[id]) || (window.CRAFT && CRAFT.MAT[id] && CRAFT.MAT[id].wx) || null; } catch (e) { return null; } };
   const exclusive = id => { try { const it = ITEM_DB[id]; if (it.heroOnly) return true; const s = window.GEAR5 && GEAR5.setOfItem(it.base || id); return !!(s && s.owner); } catch (e) { return false; } };
@@ -78,7 +78,7 @@
     D('divider_h_3', x0, DP.y + 116, DP.w - 36, 3);
     let y = DP.y + 142;
     if (it.slot) { const ks = KEYS.filter(k => it[k]); ks.forEach((k, i) => { const cx = x0 + (i % 2) * 206, cy = y + Math.floor(i / 2) * 30; T(SN[k], cx, cy, 18, C.text, KAI(), 600); T((it[k] > 0 ? '+' : '') + it[k], cx + 44, cy, 20, C.gold2, NUM(), 700); }); y += Math.ceil(ks.length / 2) * 30 + 2;
-      try { const st = window.GEAR5 && GEAR5.setOfItem(it.base || id); if (st) { ctx.font = `500 14px ${KAI()}`; T(fitW(st.name + '套装（三件齐）：' + st.text, DP.w - 36), x0, y, 14, C.blue, KAI(), 500); y += 24; } } catch (e) {} }
+      try { const st = window.GEAR5 && GEAR5.setOfItem(it.base || id); if (st) { ctx.font = `500 14px ${KAI()}`; T(fitW(st.name + '套装（' + '〇一二三四五'[st.parts.length] + '件齐）：' + st.text, DP.w - 36), x0, y, 14, C.blue, KAI(), 500); y += 24; } } catch (e) {} }
     else if (!it.desc) { const ef = [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '救起倒下的同伴' : ''].filter(Boolean).join('　') || it.eff || ''; if (ef) { T(ef, x0, y, 18, C.green, KAI(), 600); y += 30; } }
     const room = it.slot ? 2 : 6, big = !it.slot; ctx.font = `500 ${big ? 17 : 15}px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = big ? C.text : C.sub; const lh = big ? 27 : 23, n = wrap(it.desc || '', x0, y + 2, DP.w - 36, lh, room); y += n * lh + 10;   /* 丹药、杂物没有属性行，说明就是正文，字放大一号 */
     if (it.slot) { const lack = it.lvReq && (S.hero.lv || 1) < it.lvReq;

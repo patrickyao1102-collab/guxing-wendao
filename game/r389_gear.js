@@ -44,10 +44,27 @@
     ['w_zhenyue', '镇岳剑', 'weapon', 'tu', 'zhenyue', 12, { atk: 28, def: 3 }, '暗金色的阔剑，剑身刻着山岳纹，剑格嵌一块黄玉。'],
     ['a_zhenyue', '镇岳甲', 'armor', 'tu', 'zhenyue', 12, { def: 21, maxhp: 140 }, '暗金鳞甲，两肩的护肩是两座小小的山。'],
     ['s_zhenyue', '镇岳靴', 'shoe', 'tu', 'zhenyue', 12, { def: 6, spd: 3, maxhp: 30 }, '包金的重靴，靴筒刻着山纹。'],
+    // 护腕（作者 11-27 16:33 加的第五个部位；16:39：普通套装四件——剑、护腕、衣、靴）。护腕管攻击，定在同档兵器的四五成。
+    ['r_baihong', '白虹护腕', 'wrist', 'jin', 'baihong', 8, { atk: 9, spd: 1 }, '磨得发白的薄铁护腕，腕口扣着一圈细环。'],
+    ['r_qingteng', '青藤护腕', 'wrist', 'mu', 'qingteng', 8, { atk: 8, maxhp: 20 }, '老藤一圈圈缠成的护腕，贴着腕子的那面垫了软麻。'],
+    ['r_hanxing', '寒星护腕', 'wrist', 'shui', 'hanxing', 6, { atk: 9, maxmp: 10 }, '深蓝的窄护腕，腕背缝着三粒寒铁星钉，和寒星剑是一炉里出的。'],
+    ['r_chiyan', '赤炎护腕', 'wrist', 'huo', 'chiyan', 8, { atk: 10 }, '硬皮上钉着烧蓝的铜片，握拳的时候铜片微微发烫。'],
+    ['r_xuanyan', '玄岩护腕', 'wrist', 'tu', 'xuanyan', 8, { atk: 9, def: 2 }, '厚牛皮上钉着两排石片，沉甸甸地压着腕子。'],
+    ['r_liuguang', '流光护腕', 'wrist', 'jin', 'liuguang', 10, { atk: 10, spd: 1 }, '银白的细鳞护腕，翻腕时鳞片上流过一线光。'],
+    ['r_biluo', '碧落护腕', 'wrist', 'mu', 'biluo', 11, { atk: 12, maxhp: 30 }, '碧色软缎裹着细藤，腕口缀一片青玉叶子。'],
+    ['r_xuanshuang', '玄霜护腕', 'wrist', 'shui', 'xuanshuang', 12, { atk: 12, maxmp: 20 }, '冰蓝的护腕，腕背凝着一层擦不掉的薄霜。'],
+    ['r_zidian', '紫电护腕', 'wrist', 'huo', 'zidian', 14, { atk: 15, spd: 1 }, '深紫的轻甲护腕，出剑时甲缝里窜过一丝电光。'],
+    ['r_zhenyue', '镇岳护腕', 'wrist', 'tu', 'zhenyue', 12, { atk: 13, def: 3 }, '暗金的鳞甲护腕，腕背嵌一小块黄玉。'],
     // 专属
     ['a_yunlei', '云雷衣', 'armor', 'huo', 'yunlei', 12, { def: 22, maxhp: 190, spd: 2, atk: 4 }, '云霆的衣。玄色窄袖劲装，衣上暗绣流云，领缘和袖口是雷纹银边。'],
     ['s_yunlei', '云雷靴', 'shoe', 'huo', 'yunlei', 12, { def: 6, spd: 7, atk: 4 }, '云霆的靴。玄色长靴，靴侧一道银色雷纹。'],
     ['s_tashuang', '踏霜履', 'shoe', 'shui', 'ningshuang', 12, { def: 6, spd: 6, maxmp: 45, maxhp: 40 }, '林雪的履。素白的软履，鞋尖一点冰蓝，走过的地方留一线薄霜。'],
+    // 专属套装连饰品一起成套，一共五件（作者 11-27 16:39）：三套各补一件护腕，云雷、凝霜各补一件饰品。都在剑炉照合成秘籍打。
+    ['r_xinghen', '星痕护腕', 'wrist', 'jin', 'xinghen', 9, { atk: 12, spd: 2, maxmp: 20 }, '叶孤星的护腕。乌银底子上錾着七点星，腕口一道浅浅的剑痕。'],
+    ['r_yunlei', '云雷护腕', 'wrist', 'huo', 'yunlei', 12, { atk: 18, spd: 2 }, '云霆的护腕。玄色硬皮，腕背一道银色雷纹，握剑时雷纹会亮一下。'],
+    ['r_ningshuang', '凝霜护腕', 'wrist', 'shui', 'ningshuang', 12, { atk: 14, maxmp: 40 }, '林雪的护腕。素白软缎裹着薄冰似的玉片，腕口凝一圈细霜。'],
+    ['c_yunlei', '云雷佩', 'acc', 'huo', 'yunlei', 12, { atk: 8, spd: 2 }, '云霆的佩。一块墨玉，玉里天生一道银色雷纹。'],
+    ['c_ningshuang', '凝霜簪', 'acc', 'shui', 'ningshuang', 12, { atk: 5, maxmp: 40 }, '林雪的簪。冰蓝的玉簪，簪头一朵六出霜花。'],
   ];
   // 星痕第四件（饰品）：作者说只有玄器、仙器那一档的套装才配饰品——叶孤星的「星痕」是头一套。在剑炉照合成秘籍打（r400_craft.js）。
   if (!ITEM_DB.c_xinghen) ITEM_DB.c_xinghen = { name: '星痕坠', slot: 'acc', price: 0, sell: 400, lvReq: 9, heroOnly: true, r400: 1, atk: 8, spd: 2, maxmp: 30, desc: '叶孤星的坠子。七颗银星连成北斗，正中一道剑痕，和星痕剑是一家的。叶孤星佩戴另有专属效果（需要境界：' + REALM(9) + '）' };
@@ -58,26 +75,27 @@
   // ---------- 二、套装 ----------
   // owner：专属（只有这个人能激活）；fx：战斗里的效果
   const SETS = [
-    { id: 'baihong', name: '白虹', wx: 'jin', tier: 1, parts: ['w_baihong', 'a_baihong', 's_baihong'], fx: { crit: .03 }, text: '暴击 +3%' },
-    { id: 'qingteng', name: '青藤', wx: 'mu', tier: 1, parts: ['w_qingteng', 'a_qingteng', 's_qingteng'], fx: { regen: .02 }, text: '每次出手后回复 2% 气血' },
-    { id: 'hanxing', name: '寒星', wx: 'shui', tier: 1, parts: ['w_hanxing', 'a_hanxing', 's_hanxing'], fx: { mpRegen: 4 }, text: '每次出手后回复 4 灵力' },
-    { id: 'chiyan', name: '赤炎', wx: 'huo', tier: 1, parts: ['w_chiyan', 'a_chiyan', 's_chiyan'], fx: { ke: .06 }, text: '打出相克时，伤害再加 6%' },
-    { id: 'xuanyan', name: '玄岩', wx: 'tu', tier: 1, parts: ['w_xuanyan', 'a_xuanyan', 's_xuanyan'], fx: { guard: .04 }, text: '受到的伤害减 4%' },
-    { id: 'liuguang', name: '流光', wx: 'jin', tier: 2, parts: ['w_liuguang', 'a_liuguang', 's_liuguang'], fx: { crit: .05 }, text: '暴击 +5%' },
-    { id: 'biluo', name: '碧落', wx: 'mu', tier: 2, parts: ['w_biluo', 'a_biluo', 's_biluo'], fx: { regen: .03 }, text: '每次出手后回复 3% 气血' },
-    { id: 'xuanshuang', name: '玄霜', wx: 'shui', tier: 2, parts: ['w_xuanshuang', 'a_xuanshuang', 's_xuanshuang'], fx: { mpRegen: 6 }, text: '每次出手后回复 6 灵力' },
-    { id: 'zidian', name: '紫电', wx: 'huo', tier: 2, parts: ['w_zidian', 'a_zidian', 's_zidian'], fx: { ke: .10 }, text: '打出相克时，伤害再加一成' },
-    { id: 'zhenyue', name: '镇岳', wx: 'tu', tier: 2, parts: ['w_zhenyue', 'a_zhenyue', 's_zhenyue'], fx: { guard: .06 }, text: '受到的伤害减 6%' },
-    { id: 'xinghen', name: '星痕', wx: null, tier: 9, owner: 'hero', parts: [['w_xinghen', 'w_xinghen2'], 'a_liuyun', 'c_tayun'], fx: { rune: .3, crit: .08 }, text: '换过星纹的那一手伤害加三成；暴击 +8%', extra: { id: 'c_xinghen', fx: { ke: .2, mpRegen: 8 }, text: '打出相克时伤害再加两成；每次出手后回复 8 灵力' } },
-    { id: 'yunlei', name: '云雷', wx: 'huo', tier: 9, owner: 'yunting', parts: ['w_yunlei', 'a_yunlei', 's_yunlei'], fx: { crit: .2, ke: .2 }, text: '暴击 +20%；打出相克时伤害再加两成' },
-    { id: 'ningshuang', name: '凝霜', wx: 'shui', tier: 9, owner: 'linxue', parts: ['@auc_sword', 'a_ziyun', 's_tashuang'], partNames: ['凝霜剑'], fx: { mpRegen: 16, regen: .05, guard: .1 }, text: '每次出手后回复 16 灵力、5% 气血；受到的伤害减一成' },
+    { id: 'baihong', name: '白虹', wx: 'jin', tier: 1, parts: ['w_baihong', 'r_baihong', 'a_baihong', 's_baihong'], fx: { crit: .03 }, text: '暴击 +3%' },
+    { id: 'qingteng', name: '青藤', wx: 'mu', tier: 1, parts: ['w_qingteng', 'r_qingteng', 'a_qingteng', 's_qingteng'], fx: { regen: .02 }, text: '每次出手后回复 2% 气血' },
+    { id: 'hanxing', name: '寒星', wx: 'shui', tier: 1, parts: ['w_hanxing', 'r_hanxing', 'a_hanxing', 's_hanxing'], fx: { mpRegen: 4 }, text: '每次出手后回复 4 灵力' },
+    { id: 'chiyan', name: '赤炎', wx: 'huo', tier: 1, parts: ['w_chiyan', 'r_chiyan', 'a_chiyan', 's_chiyan'], fx: { ke: .06 }, text: '打出相克时，伤害再加 6%' },
+    { id: 'xuanyan', name: '玄岩', wx: 'tu', tier: 1, parts: ['w_xuanyan', 'r_xuanyan', 'a_xuanyan', 's_xuanyan'], fx: { guard: .04 }, text: '受到的伤害减 4%' },
+    { id: 'liuguang', name: '流光', wx: 'jin', tier: 2, parts: ['w_liuguang', 'r_liuguang', 'a_liuguang', 's_liuguang'], fx: { crit: .05 }, text: '暴击 +5%' },
+    { id: 'biluo', name: '碧落', wx: 'mu', tier: 2, parts: ['w_biluo', 'r_biluo', 'a_biluo', 's_biluo'], fx: { regen: .03 }, text: '每次出手后回复 3% 气血' },
+    { id: 'xuanshuang', name: '玄霜', wx: 'shui', tier: 2, parts: ['w_xuanshuang', 'r_xuanshuang', 'a_xuanshuang', 's_xuanshuang'], fx: { mpRegen: 6 }, text: '每次出手后回复 6 灵力' },
+    { id: 'zidian', name: '紫电', wx: 'huo', tier: 2, parts: ['w_zidian', 'r_zidian', 'a_zidian', 's_zidian'], fx: { ke: .10 }, text: '打出相克时，伤害再加一成' },
+    { id: 'zhenyue', name: '镇岳', wx: 'tu', tier: 2, parts: ['w_zhenyue', 'r_zhenyue', 'a_zhenyue', 's_zhenyue'], fx: { guard: .06 }, text: '受到的伤害减 6%' },
+    { id: 'xinghen', name: '星痕', wx: null, tier: 9, owner: 'hero', parts: [['w_xinghen', 'w_xinghen2'], 'r_xinghen', 'a_liuyun', 'c_tayun'], fx: { rune: .3, crit: .08 }, text: '换过星纹的那一手伤害加三成；暴击 +8%', extra: { id: 'c_xinghen', fx: { ke: .2, mpRegen: 8 }, text: '打出相克时伤害再加两成；每次出手后回复 8 灵力' } },
+    { id: 'yunlei', name: '云雷', wx: 'huo', tier: 9, owner: 'yunting', parts: ['w_yunlei', 'r_yunlei', 'a_yunlei', 's_yunlei'], fx: { crit: .2, ke: .2 }, text: '暴击 +20%；打出相克时伤害再加两成', skill: 'yunlei', skillName: '云雷踏影', extra: { id: 'c_yunlei', fx: { xj: .3 }, text: '先机：开战时行动条先走三成' } },
+    { id: 'ningshuang', name: '凝霜', wx: 'shui', tier: 9, owner: 'linxue', parts: ['@auc_sword', 'r_ningshuang', 'a_ziyun', 's_tashuang'], partNames: ['凝霜剑'], fx: { mpRegen: 16, regen: .05, guard: .1 }, text: '每次出手后回复 16 灵力、5% 气血；受到的伤害减一成', extra: { id: 'c_ningshuang', fx: { tx: .1 }, text: '调息：每打完一场，回复一成气血和灵力' } },
   ];
   const setOfItem = id => SETS.find(s => s.parts.some(p => Array.isArray(p) ? p.includes(id) : p === id) || (s.extra && s.extra.id === id)) || null;
   for (const s of SETS) for (const p of s.parts) for (const id of (Array.isArray(p) ? p : [p])) if (ITEM_DB[id]) ITEM_DB[id].set389 = s.id;
   for (const s of SETS) if (s.extra && ITEM_DB[s.extra.id]) ITEM_DB[s.extra.id].set389 = s.id;
 
   // ---------- 三、谁穿着什么；合不合灵根 ----------
-  const SLOTS = ['weapon', 'armor', 'shoe', 'acc'];
+  const SLOTS = ['weapon', 'wrist', 'armor', 'shoe', 'acc'];   // 作者 11-27 16:33：加护腕
+  window.GX_WRIST = 1;   // 行囊的装备页、状态页照这个多画一格（index.html 的 EQ_SLOTS）
   const eqOf = who => { try { return who === 'hero' ? (S.hero.equip || {}) : (window.allyEqOf ? allyEqOf(who) : {}); } catch (e) { return {}; } };
   const rootOf = who => who === 'hero' ? null : (ROOT[who] || null);
   // 这件装备穿在这个人身上发挥几成：1 / .9 / .8
@@ -87,7 +105,7 @@
   function setState(who, s) { const eq = eqOf(who), have = s.parts.map(p => typeof p === 'string' && p[0] === '@' ? !!F()[p.slice(1)] && who === s.owner : (Array.isArray(p) ? p : [p]).some(id => SLOTS.some(sl => eq[sl] === id)));
     const n = have.filter(Boolean).length, r = rootOf(who); let why = '';
     if (s.owner && s.owner !== who) why = '只有' + (s.owner === 'hero' ? '叶孤星' : (PARTY_DB[s.owner] || {}).name || '') + '能激活'; else if (s.wx && who !== 'hero' && !(r === s.wx || ROOT2[who] === s.wx)) why = '灵根不合，激不活';
-    const on = n >= s.parts.length && !why, ex = !!(s.extra && SLOTS.some(sl => eq[sl] === s.extra.id));   // ex：第四件（饰品）也戴上了
+    const on = n >= s.parts.length && !why, ex = !!(s.extra && SLOTS.some(sl => eq[sl] === s.extra.id));   // ex：专属套装的饰品也戴上了（第五件）
     return { n, need: s.parts.length, have, on, why, ex, on4: on && ex }; }
   const setsOf = who => SETS.map(s => [s, setState(who, s)]).filter(([, st]) => st.n > 0);
   // 这个人身上现在生效的效果：激活了的套装 + 身上每件装备自己的副属性（剑炉合成时从材料上带来的：某系攻击 el_金木水火土、暴击、克制增伤、减伤、回灵、回血）
@@ -95,7 +113,7 @@
     try { const eq = eqOf(who), sub = {}; for (const sl of SLOTS) { const it = ITEM_DB[eq[sl]], f = it && it.fx5; if (f) for (const k in f) sub[k] = (sub[k] || 0) + f[k]; }
       for (const k in sub) fx[k] = (fx[k] || 0) + Math.min(sub[k], SUB_CAP[k] || (/^el_/.test(k) ? .3 : 9)); } catch (e) {}   // 四件装备的副属性加起来有个顶，免得叠出格
     return fx; };
-  const SUB_CAP = { crit: .2, ke: .3, guard: .2, regen: .05, mpRegen: 8 };
+  const SUB_CAP = { crit: .2, ke: .3, guard: .2, regen: .05, mpRegen: 8, xj: .5, tx: .3, jc: .5, wu: .5 };
 
   // 队友：不合灵根的装备打折（在 r101 把装备属性加上去之后，把差额减回来）
   allyStats = (orig => function (k) { const o = orig.apply(this, arguments);
@@ -132,8 +150,51 @@
     const im = it && it.r389 && get(id);
     if (im) { const q = (setOfItem(id) || {}).tier >= 9 ? 3 : (setOfItem(id) || {}).tier === 2 ? 2 : 1; ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
       ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[q]; ctx.stroke(); const s2 = r * 2.15; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); ctx.restore(); }
+    else if (it && it.r389 && (it.slot === 'wrist' || /^c_(yunlei|ningshuang)$/.test(id))) {   // 图还没到的新东西（护腕、两件专属饰品）：先用一个带字的圆顶着，Codex 的图到了自动换上
+      const q = (setOfItem(id) || {}).tier >= 9 ? 3 : (setOfItem(id) || {}).tier === 2 ? 2 : 1; ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[q]; ctx.stroke(); ctx.font = `${Math.round(r * 1.05)}px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#e9d9a8'; ctx.fillText(it.slot === 'wrist' ? '腕' : id === 'c_ningshuang' ? '簪' : '佩', x, y + r * .06); ctx.restore(); }
     else orig.apply(this, arguments);
     try { const g = it && it.slot && WX5.GEAR[id]; if (g && r >= 13) WX5.emblem(g, x + r * .72, y + r * .72, Math.max(7, r * .36), 1); } catch (e) {} })(itemIcon);
 
-  window.GEAR5 = { NEW: NEW.map(a => a[0]), SETS, SLOTS, setOfItem, fit, fitText, setState, setsOf, activeFx, eqOf, rootOf };
+
+  // ---------- 六、护腕：三件旧的搬过来；身上戴错格子的挪正 ----------
+  // 金丝护腕、竹纹护腕、陨星护腕原来挂在饰品栏（作者 11-27 16:20：「金丝护腕肯定不属于饰品」）。护腕管攻击：金丝护腕的攻击提到同档兵器的四五成。
+  const JINSI_OLD = { atk: 6, def: 6 }, JINSI_NEW = { atk: 12, def: 4 };
+  for (const id of ['c_jinsi', 'c_qz_huwan', 'c_yunxing']) if (ITEM_DB[id]) ITEM_DB[id].slot = 'wrist';
+  if (ITEM_DB.c_jinsi) Object.assign(ITEM_DB.c_jinsi, JINSI_NEW);
+  if (!WX5.GEAR.c_jinsi && ITEM_DB.c_jinsi) WX5.GEAR.c_jinsi = 'jin';
+  const fixSlots = () => { try { if (!S.hero || !S.hero.equip) return; const f = F(), h = S.hero;
+      // 金丝护腕的数改过：叶孤星正戴着的话，把差额补到他身上（每份存档只补一回）
+      if (!f.r404_jinsi) { f.r404_jinsi = 1; if (Object.values(h.equip).includes('c_jinsi')) for (const k in JINSI_NEW) h[k] += JINSI_NEW[k] - JINSI_OLD[k]; }
+      const all = [['hero', h.equip]].concat(Object.entries(S.allyEq || {}));
+      for (const [who, eq] of all) { if (!eq || typeof eq !== 'object') continue;
+        for (const sl of Object.keys(eq)) { const id = eq[sl], it = id && ITEM_DB[id]; if (!it || !it.slot || it.slot === sl || !SLOTS.includes(sl)) continue;
+          if (!eq[it.slot]) { eq[it.slot] = id; eq[sl] = null; }   // 这件该戴在另一格：那一格空着就挪过去
+          else { eq[sl] = null; if (who === 'hero') { try { applyItemStats(id, -1); } catch (e) {} } h.bag[id] = (h.bag[id] || 0) + 1; } } } } catch (e) {} };
+  fixSlots(); setInterval(fixSlots, 2000);
+
+  // ---------- 七、饰品独有的四样（作者 11-27 16:39：别的四个部位没有；很难出，大多数饰品是普通的）----------
+  // 先机 xj：开战时行动条先走几成。调息 tx：打完一场回几成气血灵力。聚财 jc：这一场的灵石多几成。悟性 wu：这一场的修为多几成（聚财、悟性全队加起来算）。
+  if (typeof updateBattle === 'function') updateBattle = (orig => function (dt) {
+    try { const b = battle; if (b && !b._xj && b.units && b.state === 'run') { b._xj = 1; for (const u of b.units) if (u.side === 'hero' && u.alive) { const v = fxOf(u).xj; if (v) { u.gauge = Math.min(99, (u.gauge || 0) + 100 * v); try { floatText(u.x, u.y - u.h - 30, '先机', '#f0d890', 28); } catch (e) {} } } } } catch (e) {}
+    return orig.apply(this, arguments); })(updateBattle);
+  if (typeof endBattle === 'function') endBattle = (orig => function (win) {
+    try { const b = battle; if (win && b && !b._r404 && b.units) { b._r404 = 1; let jc = 0, wu = 0;
+        for (const u of b.units) if (u.side === 'hero') { const fx = fxOf(u); jc += fx.jc || 0; wu += fx.wu || 0;
+          if (fx.tx && u.alive) { u.hp = Math.min(u.maxhp, u.hp + Math.round(u.maxhp * fx.tx)); u.mp = Math.min(u.maxmp, u.mp + Math.round(u.maxmp * fx.tx)); } }
+        jc = Math.min(SUB_CAP.jc, jc); wu = Math.min(SUB_CAP.wu, wu);
+        if (wu) b.cfg.exp = Math.round((b.cfg.exp || b.enemies.reduce((s, e) => s + Math.round(e.maxhp / 6), 0)) * (1 + wu));
+        if (jc) b.cfg.gold = Math.round((b.cfg.gold || b.enemies.reduce((s, e) => s + Math.round(e.maxhp / 12), 0)) * (1 + jc)); } } catch (e) {}
+    return orig.apply(this, arguments); })(endBattle);
+
+  // ---------- 八、套装技能（作者 11-27 16:43 / 16:47）----------
+  // 成套的专属套装带一个技能：穿齐了才能施展，脱了就没有；不能用卷册参悟。云雷套带出「云雷踏影」；凝霜套的那一招以后再加；星痕套还没定。
+  // 学没学会由这里说了算（index.html 的 learned 先来问一声）：返回 undefined 表示「这招不是套装技能，照老规矩」。
+  window.SET_SKILL = (who, id) => { const s = SETS.find(x => x.skill === id && x.owner === who); if (!s) return undefined; try { return !!setState(who, s).on; } catch (e) { return false; } };
+  const setSkillOf = who => SETS.filter(x => x.skill && x.owner === who).map(x => ({ set: x, on: !!setState(who, x).on }));
+  // 典籍阁不再卖套装技能的书
+  if (typeof window.SK4_SHOP === 'function' && window.SK4) window.SK4_SHOP = (o => function () { let out = o.apply(this, arguments); try { for (const x of SETS) if (x.skill) out = out.filter(id => id !== SK4.bookId(x.owner, x.skill)); } catch (e) {} return out; })(window.SK4_SHOP);
+  try { for (const x of SETS) if (x.skill && window.SK4) { const bk = ITEM_DB[SK4.bookId(x.owner, x.skill)]; if (bk) { bk.price = 0; bk.desc = '旧书。「' + x.skillName + '」如今是' + x.name + '套装带出来的：穿齐四件就能施展，用不着这本书了。'; } } } catch (e) {}
+
+  window.GEAR5 = { NEW: NEW.map(a => a[0]), SETS, SLOTS, setOfItem, fit, fitText, setState, setsOf, activeFx, eqOf, rootOf, setSkillOf, fixSlots };
 })();
