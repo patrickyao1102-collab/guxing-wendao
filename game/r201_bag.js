@@ -67,6 +67,9 @@
 
   // ---------------- 装备页 ----------------
   const SLOTS = [['weapon', '武器', 244, 167], ['armor', '衣服', 244, 328], ['shoe', '鞋子', 953, 167], ['acc', '饰品', 953, 328]];
+  // 测试版多一格护腕（r389_gear.js 打开 GX_WRIST）：左边一列是管攻击的三件（武器、护腕、饰品），卡矮一点才排得下；右边衣服、鞋子照旧。正式版没有这个开关，还是上面四格。
+  const SLOTS5 = [['weapon', '武器', 244, 150, 108], ['wrist', '护腕', 244, 268, 108], ['acc', '饰品', 244, 386, 108], ['armor', '衣服', 953, 167], ['shoe', '鞋子', 953, 328]];
+  const slotsNow = () => window.GX_WRIST ? SLOTS5 : SLOTS;
   const ROW = { x: 244, y: 550, w: 970, h: 112 }, CW = 310, GAP = 20;
   const isAlly = () => S.menu && S.menu.who && S.menu.who !== 'hero';
   const eqNow = () => isAlly() && window.allyEqOf ? allyEqOf(S.menu.who) : S.hero.equip;
@@ -78,7 +81,7 @@
   function clampScroll(n) { const m = S.menu; m.eqScroll = Math.max(0, Math.min(maxScroll(n), m.eqScroll || 0)); }
   const prevEquipCards = equipCards;
   equipCards = function (L) { if (!READY()) return prevEquipCards(L); const eq = eqNow();
-    const top = SLOTS.map(([s, n, x, y]) => ({ s, n, id: eq[s], x, y, w: 254, h: 132 }));
+    const top = slotsNow().map(([s, n, x, y, hh]) => ({ s, n, id: eq[s], x, y, w: 254, h: hh || 132 }));
     const ls = swapList(); clampScroll(ls.length); const off = S.menu.eqScroll || 0;
     const list = ls.map((o, i) => ({ id: o.id, sc: o.sc, x: ROW.x + i * (CW + GAP) - off, y: ROW.y, w: CW, h: ROW.h })).filter(c => c.x + c.w > ROW.x && c.x < ROW.x + ROW.w);
     return { top, list, pager: null, all: ls.length }; };
@@ -96,18 +99,22 @@
     txt(mi.name, 722, 442, 30, C.light, 'center'); txt(window.GX_LV10 ? mi.lv + ' 级 · ' + mi.realm : mi.realm + ' · ' + mi.lv + '级', 722, 478, 22, C.ink, 'center');
     // 四个栏位
     const { top } = equipCards(L);
-    for (const c of top) { const has = !!c.id, x = c.x, y = c.y;
-      nine(has ? 'slot_card_9' : 'slot_card_empty_9', x, y, 254, 132);
-      if (c.s === sel) { ctx.save(); ctx.strokeStyle = `rgba(214,160,60,${.65 + .35 * Math.sin(now * 4)})`; ctx.lineWidth = 3; ctx.shadowColor = '#f0c060'; ctx.shadowBlur = 12; if (typeof roundRect === 'function') roundRect(x + 4, y + 4, 246, 124, 14); ctx.stroke(); ctx.restore(); }
+    for (const c of top) { const has = !!c.id, x = c.x, y = c.y, ch = c.h, sm = ch < 132;   // sm：测试版五格时左边那三张矮一点的卡
+      nine(has ? 'slot_card_9' : 'slot_card_empty_9', x, y, 254, ch);
+      if (c.s === sel) { ctx.save(); ctx.strokeStyle = `rgba(214,160,60,${.65 + .35 * Math.sin(now * 4)})`; ctx.lineWidth = 3; ctx.shadowColor = '#f0c060'; ctx.shadowBlur = 12; if (typeof roundRect === 'function') roundRect(x + 4, y + 4, 246, ch - 8, 14); ctx.stroke(); ctx.restore(); }
       D('slot_label_' + c.n, x + 30, y - 13, 116, 34);
-      D(has ? 'item_disc' : 'item_disc_empty', x + 24, y + 37, 82, 82);
-      if (has) { itemIcon(c.id, x + 65, y + 78, 30); const it = ITEM_DB[c.id]; ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
+      if (sm) D(has ? 'item_disc' : 'item_disc_empty', x + 26, y + 27, 72, 72); else D(has ? 'item_disc' : 'item_disc_empty', x + 24, y + 37, 82, 82);
+      if (has) { const it = ITEM_DB[c.id];
+        if (sm) { itemIcon(c.id, x + 62, y + 63, 26); ctx.font = `24px ${KAI}`; txt(fit(it.name, 136), x + 108, y + 52, 24, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 138), x + 108, y + 81, 14, C.green, 'left', FONT); }
+        else { itemIcon(c.id, x + 65, y + 78, 30); ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
+        if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(c.id); if (lv) REFINE_FX.rect(x + 5, y + 5, 244, ch - 10, 14, lv, performance.now()); } }   // 测试版：强化几级，栏位的框上就有几道光绕着转（r407_refine_fx.js；正式版没有这个文件）
+      else if (sm) { D('ghost_' + c.n, x + 41, y + 33, 44, 54); txt('未装备', x + 108, y + 60, 24, C.grey); }
       else { D('ghost_' + c.n, x + 39, y + 44, 52, 64); txt('未装备', x + 115, y + 72, 25, C.grey); } }
     // 可替换装备
     D('section_可替换装备', 250, 501, 948, 50);
     const { list, all } = equipCards(L), cur = eq[sel] ? ITEM_DB[eq[sel]] : null;
     ctx.save(); ctx.beginPath(); ctx.rect(ROW.x - 4, ROW.y - 6, ROW.w + 8, ROW.h + 12); ctx.clip();
-    if (!list.length) txt('背包里没有能换的' + SLOTS.find(s => s[0] === sel)[1], ROW.x + ROW.w / 2, ROW.y + ROW.h / 2, 24, C.grey, 'center');
+    if (!list.length) txt('背包里没有能换的' + (slotsNow().find(s => s[0] === sel) || SLOTS[0])[1], ROW.x + ROW.w / 2, ROW.y + ROW.h / 2, 24, C.grey, 'center');
     for (const c of list) { const it = ITEM_DB[c.id], on = m.eqPick === c.id;
       nine(on ? 'swap_card_9_s' : 'swap_card_9_n', c.x, c.y, c.w, c.h); D('item_disc', c.x + 18, c.y + 15, 82, 82); itemIcon(c.id, c.x + 59, c.y + 56, 30);
       const nameW = on ? 96 : 190; ctx.font = `24px ${KAI}`; txt(fit(it.name + (S.hero.bag[c.id] > 1 ? '×' + S.hero.bag[c.id] : ''), nameW), c.x + 110, c.y + 42, 24, C.ink);

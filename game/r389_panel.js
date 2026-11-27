@@ -43,7 +43,9 @@
     else { const im = IMG[mi.p]; if (im && im.width) { const s = h / im.height, w = im.width * s; ctx.drawImage(im, cx - w / 2, top, w, h); } }
     ctx.restore(); }
   function drawSlot(s, now) { const r = slotR(s), id = eq()[s], on = UI.slot === s; D(on ? 'item_slot_s' : 'item_slot_n', r.x, r.y, r.w, r.h);
-    if (id && ITEM_DB[id]) { try { itemIcon(id, r.x + 50, r.y + 48, 34); } catch (e) {} } else T('空', r.x + 50, r.y + 50, 24, C.dim, BR(), 400, 'center');
+    if (id && ITEM_DB[id]) { try { itemIcon(id, r.x + 50, r.y + 48, 34); } catch (e) {}
+      if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(id); if (lv) REFINE_FX.rect(r.x + 5, r.y + 5, r.w - 10, r.h - 10, 15, lv, now); } }   // 强化几级，框上就有几道光绕着转（r407_refine_fx.js）
+    else T('空', r.x + 50, r.y + 50, 24, C.dim, BR(), 400, 'center');
     ctx.font = `600 15px ${KAI()}`; const nm = id && ITEM_DB[id] ? fitW(String(ITEM_DB[id].name).replace(/（(下品|中品|上品|极品|绝品)）/, ''), 118) : SLOT_NAME[s];   // 格子下面的名字不带成色（图标左上角有小牌） ctx.save(); ctx.fillStyle = 'rgba(6,16,24,.78)'; const tw = Math.min(124, ctx.measureText(nm).width + 16); ctx.fillRect(r.x + 50 - tw / 2, r.y + 104, tw, 24); ctx.restore(); T(nm, r.x + 50, r.y + 117, 15, id ? C.gold2 : C.sub, KAI(), 600, 'center');
     if (id && UI.who !== 'hero') { const f = G.fit(UI.who, id); if (f < 1) { ctx.save(); ctx.fillStyle = f >= .9 ? '#8a6a2a' : '#8a3a2c'; ctx.beginPath(); ctx.arc(r.x + 16, r.y + 16, 15, 0, 7); ctx.fill(); T(f >= .9 ? '九' : '八', r.x + 16, r.y + 17, 16, '#ffe9c8', BR(), 400, 'center'); ctx.restore(); } } }
 
@@ -67,14 +69,16 @@
     list.slice(UI.page * PER, UI.page * PER + PER).forEach((id, i) => { const r = cardR(i), it = ITEM_DB[id], on = UI.sel === id, isCur = id === cur, [ft, fk] = G.fitText(UI.who, id), st = G.setOfItem(id);
       D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(id, r.x + 40, r.y + 39, 26); } catch (e) {}
       ctx.font = `400 21px ${BR()}`; T(fitW(it.name, 150), r.x + 78, r.y + 26, 21, C.gold2, BR(), 400); const nw = Math.min(150, ctx.measureText(it.name).width);
-      if (st) T('〔' + st.name + '〕', r.x + 82 + nw, r.y + 27, 14, st.tier >= 9 ? '#f0c86a' : C.blue, KAI(), 600);
+      const rkc = window.GEAR6 ? GEAR6.col(id) : null;   // 排进格子的装备：套装名用它那一等的颜色；不成套的写「稀有」「难得」（常见的不写）
+      if (st) T('〔' + st.name + '〕', r.x + 82 + nw, r.y + 27, 14, st.tier >= 9 ? '#f0c86a' : rkc || C.blue, KAI(), 600);
+      else if (rkc && GEAR6.rankOf(id) > 0) T('〔' + GEAR6.rankName(id) + '〕', r.x + 82 + nw, r.y + 27, 14, rkc, KAI(), 600);
       if (isCur) T('身上', r.x + r.w - 16, r.y + 26, 15, C.green, KAI(), 600, 'right');
       ctx.font = `600 14px ${KAI()}`; const tagW = ctx.measureText(ft).width; T(ft, r.x + r.w - 16, r.y + 54, 14, fk > 0 ? C.green : fk < -1 ? C.red : fk < 0 ? '#d9b46a' : C.sub, KAI(), 600, 'right');
       ctx.font = `500 14px ${KAI()}`; T(fitW(statText(id, UI.who), r.w - 78 - tagW - 30), r.x + 78, r.y + 54, 14, C.text, KAI(), 500); });
     // 选中的那一件
     D('panel_well_9', DET.x, DET.y, DET.w, DET.h); const id = UI.sel && ITEM_DB[UI.sel] ? UI.sel : null;
     if (!id) { T(UI.msg && now - UI.msgT < 4000 ? UI.msg : '点左边的格子换部位；点上面的装备看说明。', DET.x + 22, DET.y + 34, 17, UI.msg && now - UI.msgT < 4000 ? C.gold2 : C.sub); }
-    else { const it = ITEM_DB[id]; T(it.name, DET.x + 22, DET.y + 28, 24, C.gold2, BR(), 400); const g = WX5.GEAR[id]; ctx.font = `400 24px ${BR()}`; const nw = ctx.measureText(it.name).width; if (g) { try { WX5.emblem(g, DET.x + 42 + nw, DET.y + 28, 12, 1); } catch (e) {} T(WX[g].n + '性', DET.x + 60 + nw, DET.y + 29, 15, C.sub); }
+    else { const it = ITEM_DB[id]; T(it.name, DET.x + 22, DET.y + 28, 24, C.gold2, BR(), 400); const g = WX5.GEAR[id]; ctx.font = `400 24px ${BR()}`; const nw = ctx.measureText(it.name).width; const lb = window.GEAR6 ? GEAR6.label(id) : ''; if (g) { try { WX5.emblem(g, DET.x + 42 + nw, DET.y + 28, 12, 1); } catch (e) {} T(WX[g].n + '性' + (lb ? ' · ' + lb : ''), DET.x + 60 + nw, DET.y + 29, 15, C.sub); } else if (lb) T(lb, DET.x + 34 + nw, DET.y + 29, 15, C.sub);
       ctx.font = `500 15px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = UI.msg && now - UI.msgT < 4000 ? C.gold2 : C.text; wrap(UI.msg && now - UI.msgT < 4000 ? UI.msg : String(it.desc || ''), DET.x + 22, DET.y + 58, DET.w - 210, 22, 2);
       btn(ACT, id === cur ? '卸　下' : '换　上', 'n'); }
     // 套装

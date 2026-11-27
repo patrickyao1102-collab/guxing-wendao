@@ -17,13 +17,13 @@
   window.R370_ITEMS = Object.keys(NEW);
   // 图标：Codex R370（r370i/<id>.webp，96×96 透明），画法同 R290 / R368：深色圆底 + 品质外圈
   if (typeof itemIcon === 'function') { const IM = {}, QC = ['#9a8a70', '#5fbf73', '#5f9cf0', '#f0b43a'];
-    const Q = id => NEW[id].fabao ? 3 : NEW[id].mat ? (/neidan|jinsi|gupian/.test(id) ? 2 : 0) : /zidian|xiaguang|taxue|yaowang|jinsi/.test(id) ? 2 : 1;
+    const Q = id => NEW[id].fabao ? 3 : NEW[id].mat ? (/neidan|jinsi|gupian/.test(id) ? 2 : 0) : ITEM_DB[id] && ITEM_DB[id].rk != null ? ITEM_DB[id].rk : /zidian|xiaguang|taxue|yaowang|jinsi/.test(id) ? 2 : 1;   /* 排进格子的装备（r406）：圈的颜色看它是第几等 */
     const get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r370i/' + id + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
     window.R370_ICON = get;
     itemIcon = (orig => function (id, x, y, r) { const im = NEW[id] && get(id); if (!im) return orig.apply(this, arguments);
       const q = Q(id); ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
       ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[q]; ctx.stroke();
-      if (q >= 2) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
+      if (q >= 2 && !(ITEM_DB[id] && ITEM_DB[id].rk != null && q < 3)) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }   /* 排进格子的：只有难得那件带光晕 */
       const s2 = r * 2.15; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); ctx.restore(); })(itemIcon);
     setTimeout(() => { for (const id in NEW) get(id); }, 9000); }
 

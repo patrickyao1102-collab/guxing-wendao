@@ -97,6 +97,7 @@
       try { const els = [...new Set(((TMAPS[name].mobs || {}).types || []).map(t => window.WX5 && WX5.ENEMY[(MOB_DB[t] || {}).key]).filter(Boolean))]; if (els.length && window.WXJ && R() < .65) return [[WXJ.ID(els[Math.floor(R() * els.length)]), 1]]; } catch (e) {}
       return [['gold', 30 + lv * 5 + Math.floor(R() * 30)]]; }
     const mats = []; try { for (const t of TMAPS[name].mobs.types) for (const [id] of (typeof DROPS !== 'undefined' && DROPS[(MOB_DB[t] || {}).key]) || []) if (ITEM_DB[id] && ITEM_DB[id].mat && !mats.includes(id)) mats.push(id); } catch (e) {}
+    for (const id of ['m_shetui', 'm_yugu']) if (ITEM_DB[id] && !mats.includes(id)) mats.push(id);   // 11-27 傍晚：溪边草丛里的青蛇蜕、银鱼骨（练气档的水性料，妖物身上没有）
     const r = R(); return r < .4 ? [['p_small', 1]] : r < .62 ? [['p_mp', 1]] : mats.length && r < .86 ? [[mats[Math.floor(R() * mats.length)], 1]] : [['x_xingshen', 1]]; }
   const POP = [];
   function pick(name, p) { F()['pk_' + name + '_' + p.i] = 1; const got = [];

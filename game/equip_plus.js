@@ -13,12 +13,16 @@
   const KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'];
   // 把装备的名字和属性改成「随强化等级变化」的读取器：所有显示和计算自动跟着变
   const BASE = {};
+  const wrapKey = (id, it, b, k) => Object.defineProperty(it, k, { configurable: true, enumerable: true,
+    get() { const l = lvOf(id); if (!l) return b[k]; const v = b[k]; if (v <= 0) return v; return v + Math.max(l, Math.round(v * STEP * l)); }, set(v) { b[k] = v; } });
   function wrap(id) {
-    const it = ITEM_DB[id]; if (!it || !it.slot || BASE[id]) return;
+    const it = ITEM_DB[id]; if (!it || !it.slot) return;
+    if (BASE[id]) {   // 已经套过读数的：测试版里（r406 打开 GX_WRAP_LATE）后来才添上的那一项也补套；正式版没有这个开关，照旧不动
+      if (window.GX_WRAP_LATE) { const b = BASE[id]; for (const k of KEYS) if (!(k in b)) { const d = Object.getOwnPropertyDescriptor(it, k); if (d && !d.get && !d.set && typeof d.value === 'number') { b[k] = d.value; wrapKey(id, it, b, k); } } }
+      return; }
     const b = BASE[id] = { name: it.name }; for (const k of KEYS) if (typeof it[k] === 'number') b[k] = it[k];
     Object.defineProperty(it, 'name', { configurable: true, enumerable: true, get() { const l = lvOf(id); return b.name + (l ? ' +' + l : ''); }, set(v) { b.name = v; } });
-    for (const k of KEYS) if (k in b) Object.defineProperty(it, k, { configurable: true, enumerable: true,
-      get() { const l = lvOf(id); if (!l) return b[k]; const v = b[k]; if (v <= 0) return v; return v + Math.max(l, Math.round(v * STEP * l)); }, set(v) { b[k] = v; } });
+    for (const k of KEYS) if (k in b) wrapKey(id, it, b, k);
   }
   const wrapAll = () => { for (const id in ITEM_DB) wrap(id); };
   wrapAll(); setTimeout(wrapAll, 3000);   // 后面模块再加的装备（如寒星剑、星痕剑中品）也包进来

@@ -146,14 +146,18 @@
   const ART_READY = true;   // Codex R389 的图标 11-27 上午到了（r389i/，用的是 192 的那一份，手机高清屏上不糊）
   const IM = {}; const get = id => { if (!ART_READY) return null; let o = IM[id]; if (!o) { o = IM[id] = { ok: false, bad: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.onerror = () => { o.bad = true; }; o.im.src = 'r389i/' + id + '.webp?v=' + (/^r_|^c_(yunlei|ningshuang)$/.test(id) ? 2 : 1);   /* 护腕和两件专属饰品的图 11-27 傍晚才到（Codex R403）：换个版本号，免得浏览器还记着早先「没有这张图」 */ try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   const QC = ['#9a8a70', '#5fbf73', '#5f9cf0', '#f0b43a'];
+  // 圈的颜色：专属套装金；排进格子的（r406_items.js）看它在那一格里是第几等——常见灰、套装件绿、稀有蓝、难得金；别的照老规矩
+  const qOf = id => { const st = setOfItem(id) || {}, it = ITEM_DB[id] || {}; return st.tier >= 9 ? 3 : it.rk != null ? it.rk : st.tier === 2 ? 2 : 1; };
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id];
     const im = it && it.r389 && get(id);
-    if (im) { const q = (setOfItem(id) || {}).tier >= 9 ? 3 : (setOfItem(id) || {}).tier === 2 ? 2 : 1; ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
+    if (im) { const q = qOf(id); ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
       ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[q]; ctx.stroke(); const s2 = r * 2.15; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); ctx.restore(); }
     else if (it && it.r389 && (it.slot === 'wrist' || /^c_(yunlei|ningshuang)$/.test(id))) {   // 图还没到的新东西（护腕、两件专属饰品）：先用一个带字的圆顶着，Codex 的图到了自动换上
-      const q = (setOfItem(id) || {}).tier >= 9 ? 3 : (setOfItem(id) || {}).tier === 2 ? 2 : 1; ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
+      const q = qOf(id); ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');
       ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[q]; ctx.stroke(); ctx.font = `${Math.round(r * 1.05)}px ${BRUSH}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#e9d9a8'; ctx.fillText(it.slot === 'wrist' ? '腕' : id === 'c_ningshuang' ? '簪' : '佩', x, y + r * .06); ctx.restore(); }
-    else orig.apply(this, arguments);
+    else { orig.apply(this, arguments);
+      // 老图标（主程序、r370 画的那些）排进格子以后，外面那一圈也换成第几等的颜色
+      if (it && it.slot && it.rk != null && !it.r406 && !it.r400 && !it.fg) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = QC[it.rk]; ctx.stroke(); ctx.restore(); } }
     try { const g = it && it.slot && WX5.GEAR[id]; if (g && r >= 13) WX5.emblem(g, x + r * .72, y + r * .72, Math.max(7, r * .36), 1); } catch (e) {} })(itemIcon);
 
 

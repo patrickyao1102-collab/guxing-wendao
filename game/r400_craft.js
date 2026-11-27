@@ -11,8 +11,8 @@
 //   · 普通装备不等于差：低档朴素，高档照样厉害；只是不成套、没有说明。
 // 这里只有数据和算法；界面在 r394_forge.js。
 (function () {
-  if (!window.WX5 || !window.GEAR5 || typeof ITEM_DB === 'undefined' || typeof S === 'undefined') return;
-  const WX = WX5.WX, KE = WX5.KE, SHENG = WX5.SHENG, ORDER = WX5.ORDER, F = () => (S.flags = S.flags || {});
+  if (!window.WX5 || !window.GEAR5 || !window.GEAR6 || typeof ITEM_DB === 'undefined' || typeof S === 'undefined') return;
+  const WX = WX5.WX, KE = WX5.KE, SHENG = WX5.SHENG, ORDER = WX5.ORDER, G6 = window.GEAR6, F = () => (S.flags = S.flags || {});
   const REALM = lv => { try { return realmOf(lv); } catch (e) { return lv + ' 级'; } };
   const add = (id, o) => { if (!ITEM_DB[id]) ITEM_DB[id] = o; return ITEM_DB[id]; };
 
@@ -31,13 +31,19 @@
 
   // ---------- 二、材料：哪一类、什么五行、几品 ----------
   // c：W = 兵器 / 饰品料（牙、角、骨、晶、铁、木芯）；A = 防具 / 鞋料（皮、丝、翼、壳、鳞）；null = 百搭（五行之精、内丹、星辰砂）
-  // g：1 寻常、2 上等、3 珍稀。五行跟着它的出处走（打什么性的妖兽，掉什么性的料）。
+  // g：1 寻常（练气料）、2 上等（凝丹料）、3 珍稀。五行跟着它的出处走（打什么性的妖兽，掉什么性的料）。
+  // sig：这种料多半带哪一条副属性（作者 11-27 18:02 点头的「什么料出什么」）——牙带暴击，骨带克制增伤，晶、铁、木芯带那一行的攻击；
+  //      皮、鳞、甲片带减伤，藤皮、蝠翼带回血，蛇蜕、蛛丝带回灵。（角螯的破甲、鳞的五行抗性、甲片的反震、金蛛丝的定心，等那几种副属性做出来再换。）
   const MAT = {
-    m_fang: { c: 'W', wx: 'huo', g: 1 }, m_tooth: { c: 'W', wx: 'jin', g: 2 }, m_horn: { c: 'W', wx: 'jin', g: 2 }, m_thorn: { c: 'W', wx: 'mu', g: 2 }, m_yanjing: { c: 'W', wx: 'huo', g: 2 },
-    m_gupian: { c: 'W', wx: 'shui', g: 3 }, m_yuntie: { c: 'W', wx: 'jin', g: 3 }, m_xingjing: { c: 'W', wx: 'huo', g: 3 }, m_songxin: { c: 'W', wx: 'mu', g: 3 },
-    m_hide: { c: 'A', wx: 'tu', g: 1 }, m_yingpi: { c: 'A', wx: 'shui', g: 2 }, m_silk: { c: 'A', wx: 'mu', g: 2 }, m_wing: { c: 'A', wx: 'huo', g: 2 }, m_shike: { c: 'A', wx: 'tu', g: 2 }, m_tielin: { c: 'A', wx: 'jin', g: 2 },
-    m_jinsi: { c: 'A', wx: 'jin', g: 3 }, m_tiejia: { c: 'A', wx: 'jin', g: 3 },
+    m_fang: { c: 'W', wx: 'huo', g: 1, sig: 'crit' }, m_tooth: { c: 'W', wx: 'jin', g: 2, sig: 'crit' }, m_horn: { c: 'W', wx: 'jin', g: 2, sig: 'ke' }, m_thorn: { c: 'W', wx: 'mu', g: 2, sig: 'el' }, m_yanjing: { c: 'W', wx: 'huo', g: 2, sig: 'el' },
+    m_gupian: { c: 'W', wx: 'shui', g: 3, sig: 'ke' }, m_yuntie: { c: 'W', wx: 'jin', g: 3, sig: 'el' }, m_xingjing: { c: 'W', wx: 'huo', g: 3, sig: 'el' }, m_songxin: { c: 'W', wx: 'mu', g: 3, sig: 'el' },
+    m_hide: { c: 'A', wx: 'tu', g: 1, sig: 'guard' }, m_yingpi: { c: 'A', wx: 'shui', g: 2, sig: 'guard' }, m_silk: { c: 'A', wx: 'mu', g: 2, sig: 'mpRegen' }, m_wing: { c: 'A', wx: 'huo', g: 2, sig: 'regen' }, m_shike: { c: 'A', wx: 'tu', g: 2, sig: 'guard' }, m_tielin: { c: 'A', wx: 'jin', g: 2, sig: 'guard' },
+    m_jinsi: { c: 'A', wx: 'jin', g: 3, sig: 'mpRegen' }, m_tiejia: { c: 'A', wx: 'jin', g: 3, sig: 'guard' },
     m_neidan: { c: null, wx: null, g: 3 }, m_xcsha: { c: null, wx: null, g: 3 },
+    // 11-27 傍晚补的十种（东西在 r406_items.js 里登记）：练气料每个五行两类都有了；凝丹料补上水的兵饰料、土的兵饰料
+    m_duanren: { c: 'W', wx: 'jin', g: 1, sig: 'el' }, m_yaomu: { c: 'W', wx: 'mu', g: 1, sig: 'el' }, m_yugu: { c: 'W', wx: 'shui', g: 1, sig: 'ke' }, m_shougu: { c: 'W', wx: 'tu', g: 1, sig: 'ke' },
+    m_jiapian: { c: 'A', wx: 'jin', g: 1, sig: 'guard' }, m_tengpi: { c: 'A', wx: 'mu', g: 1, sig: 'regen' }, m_shetui: { c: 'A', wx: 'shui', g: 1, sig: 'mpRegen' }, m_langpi: { c: 'A', wx: 'huo', g: 1, sig: 'guard' },
+    m_yingya: { c: 'W', wx: 'shui', g: 2, sig: 'crit' }, m_zhuao: { c: 'W', wx: 'tu', g: 2, sig: 'ke' },
   };
   for (const el of ORDER) MAT['m_wx_' + el] = { c: null, wx: el, g: 0 };
   for (const id of Object.keys(MAT)) if (!ITEM_DB[id]) delete MAT[id];
@@ -67,34 +73,33 @@
   const whoName = w => w === 'hero' ? '叶孤星' : ((typeof PARTY_DB !== 'undefined' && PARTY_DB[w]) || {}).name || w;
   const recipeShown = r => r.who === 'hero' || (S.party || []).includes(r.who);
 
-  // ---------- 四、五个一模一样的 → 固定这一件 ----------
-  const FIXED = {
-    m_fang: 'w_chiyan', m_tooth: 'w_baihong', m_horn: 'w_liuguang', m_thorn: 'w_qingteng', m_yanjing: 'w_zidian', m_gupian: 'w_xuanshuang',
-    m_hide: 'a_leather', m_yingpi: 'a_xuanshuang', m_silk: 'a_zhusi', m_wing: 'a_zidian', m_shike: 'a_zhenyue', m_tielin: 'a_tielin', m_jinsi: 'a_liuguang',
-  };
-  for (const el of ORDER) FIXED['m_wx_' + el] = 'g_' + el;
-  for (const k of Object.keys(FIXED)) if (!ITEM_DB[k] || !ITEM_DB[FIXED[k]]) delete FIXED[k];
-
-  // ---------- 五、混着放：出哪个部位、哪一行、哪一档，再在两三件里随机出一件 ----------
-  // 部位：兵饰料为主——用到的兵饰料不到三种 → 兵器；三种以上 → 饰品（饰品更复杂）。
-  //       防具料为主——放了四样以上 → 衣甲；三样以下 → 鞋（料多成衣，料少成靴）。
-  // 五行：五样里哪一行最多（一样多看谁摆在前头）。  档：兵饰 / 防具料的平均品级 ≥ 1.6 算第二档。
-  // 出哪件：这一格里的几件随机出一件；练气档另有小机会直接出同一行的凝丹档（相生两处以上时机会大些）。
-  const POOL = {
-    weapon: { 1: { jin: ['w_baihong'], mu: ['w_qingteng'], shui: ['w_hantie'], huo: ['w_chiyan'], tu: ['w_xuanyan'] },
-      2: { jin: ['w_liuguang'], mu: ['w_biluo'], shui: ['w_xuanshuang'], huo: ['w_chixiao', 'w_zidian'], tu: ['w_zhenyue'] } },
-    armor: { 1: { jin: ['a_baihong', 'a_iron'], mu: ['a_qingteng', 'a_yunjin'], shui: ['a_hanxing'], huo: ['a_chiyan'], tu: ['a_xuanyan'] },
-      2: { jin: ['a_liuguang', 'a_xuanlin'], mu: ['a_biluo', 'a_tiancan'], shui: ['a_xuanshuang', 'a_nichang'], huo: ['a_zidian', 'a_xiaguang'], tu: ['a_zhenyue', 'a_xipi'] } },
-    shoe: { 1: { jin: ['s_baihong'], mu: ['s_qingteng'], shui: ['s_hanxing'], huo: ['s_chiyan'], tu: ['s_xuanyan', 's_langhao'] },
-      2: { jin: ['s_liuguang'], mu: ['s_biluo', 's_zhuifeng'], shui: ['s_xuanshuang', 's_yingbu', 's_taxue'], huo: ['s_zidian'], tu: ['s_zhenyue'] } },
-    wrist: { 1: { jin: ['r_baihong'], mu: ['r_qingteng'], shui: ['r_hanxing'], huo: ['r_chiyan'], tu: ['r_xuanyan'] },
-      2: { jin: ['r_liuguang', 'c_jinsi'], mu: ['r_biluo'], shui: ['r_xuanshuang'], huo: ['r_zidian'], tu: ['r_zhenyue'] } },
-    acc: { 1: { jin: ['c_wx_jin'], mu: ['c_wx_mu'], shui: ['c_wx_shui'], huo: ['c_wx_huo'], tu: ['c_wx_tu'] },
-      2: { jin: ['c_wx_jin'], mu: ['c_ningshen', 'c_baihua'], shui: ['c_jade'], huo: ['c_wx_huo'], tu: ['c_tusk'] } },
-  };
-  for (const sl of Object.keys(POOL)) for (const t of [1, 2]) for (const el of ORDER) POOL[sl][t][el] = (POOL[sl][t][el] || []).filter(id => ITEM_DB[id]);
-  const FEE = { 1: 120, 2: 400, gem: 60 };   // 开炉的炭火钱（同档的东西店里卖四五百 / 一千到两千多）
-  const UP_W = H => H >= 2 ? 30 : 10;        // 练气档直接出凝丹档的机会（和这一格里几件各 100 的份量比）
+  // ---------- 四、格子：这一炉会出哪一格、哪一档 ----------
+  // 作者 11-27 17:09 / 17:37 / 17:50 / 18:02 定的（格子表本身在 r406_items.js）：
+  //   · 部位 × 五行算一格。练气档一格三件，凝丹档四件，从常见到难得；同样的料随机出其中一件。
+  //   · 部位：兵饰料为主——用到的兵饰料只有一两种 → 兵器；三种 → 护腕；四种以上 → 饰品（饰品最复杂）。
+  //           防具料为主——放了四样以上 → 衣甲；三样以下 → 鞋（料多成衣，料少成靴）。
+  //   · 五行：五样里哪一行最多（一样多看谁摆在前头）。
+  //   · 档：不同档的料可以混着放。每放一样高一档的料（凝丹料、珍稀料），出凝丹档的机会多两成；全是高一档的，必出凝丹档。
+  //         五行之精不分档，不算在里头（拿它改五行，不拖累也不加成）。
+  //   · 出哪一件：练气档 常见五成、套装件三成半、难得一成半；凝丹档 四成、三成、两成、一成。
+  //         相生每多一处，难得那件的机会涨两成（五行流转一圈全相生，翻一倍）；相克多过相生，减半。
+  //         料比这一档好（珍稀料放得多），稀有和难得的机会跟着涨；拿低档料垫着赌高一档，稀有和难得的机会打折。涨出来、折下去的份量都算在常见那件头上。
+  //   · 五个一模一样的料：只出这一格常见的那件，成色整十成（作者：「五件同样物品打造出来的装备属性最稳定」）。五枚同一行的精炼成一颗灵珠。
+  const POOL = {}; for (const sl of GEAR5.SLOTS) { POOL[sl] = { 1: {}, 2: {} }; for (const t of [1, 2]) for (const el of ORDER) POOL[sl][t][el] = ((G6.GRID[sl] || {})[t] || {})[el] ? G6.GRID[sl][t][el].filter(id => ITEM_DB[id]) : []; }
+  const RANK_W = { 1: { 0: 50, 1: 35, 3: 15 }, 2: { 0: 40, 1: 30, 2: 20, 3: 10 } };
+  const FEE = { 1: 120, 2: 400, gem: 60 };   // 开炉的炭火钱（同档的东西店里卖四五百 / 一千上下）；两档混着放，按出凝丹档的机会在两个价钱之间折
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  // 一格里几件各占多少份（加起来一百）。H：火候（相生处数 − 相克处数）；q：料的成色比这一档高多少（1 = 正好）
+  function cellW(ids, t, H, q) { const w = {}, base = RANK_W[t]; let common = null;
+    for (const id of ids) { const r = G6.rankOf(id); if (r == null || G6.NO_FORGE[id]) continue;   // 不从炉子里出的那件（寒星剑）：它那一份并给常见的那件（常见的拿剩下的全部）
+      let v = base[r] || 0; if (r === 3) v *= (H > 0 ? 1 + .2 * Math.min(5, H) : H < 0 ? .5 : 1) * q; else if (r === 2) v *= q; if (r === 0) common = id; else w[id] = v; }
+    const rest = Object.values(w).reduce((a, v) => a + v, 0);
+    if (common) { if (rest > 95) { const k = 95 / rest; for (const id of Object.keys(w)) w[id] *= k; w[common] = 5; } else w[common] = 100 - rest; }   // 常见的那件兜底，最少留半成
+    return Object.entries(w); }
+  // 五个一模一样的：五枚同一行的精 → 灵珠；别的料 → 它那一格常见的那件（兵饰料出兵器，防具料出衣甲；练气料出练气档，凝丹料、珍稀料出凝丹档）
+  const FIXED = {};
+  for (const el of ORDER) if (ITEM_DB['m_wx_' + el] && ITEM_DB['g_' + el]) FIXED['m_wx_' + el] = 'g_' + el;
+  for (const id of Object.keys(MAT)) { const m = MAT[id]; if (!m.c || !m.wx) continue; const ids = POOL[m.c === 'W' ? 'weapon' : 'armor'][m.g >= 2 ? 2 : 1][m.wx] || [], out = ids.find(q => G6.rankOf(q) === 0 && !G6.NO_FORGE[q]) || ids.find(q => !G6.NO_FORGE[q]); if (out) FIXED[id] = out; }
 
   // ---------- 六、副属性：材料自己带的那一条 ----------
   // 作者 11-27 14:25：「材料本身也有属性……同一个材料它爆出来它也有附带属性」「装备分为主属性跟副属性，主属性就是攻击、防御、速度之类，
@@ -119,7 +124,9 @@
   const ACC_P = H => H >= 5 ? .2 : H === 4 ? .15 : H === 3 ? .12 : H === 2 ? .1 : H === 1 ? .08 : H === 0 ? .05 : .02;   // 饰品出一条独有属性的机会：摆得再好也只有两成
   const ACC_V = { 1: { xj: [10], tx: [5], jc: [10], wu: [5] }, 2: { xj: [15, 20], tx: [8, 10], jc: [15, 20], wu: [8, 10] } };
   const canLine = m => !!m && (!!m.c || (!!m.wx && m.g === 0));   // 兵饰料、防具料、五行之精会带；内丹、星辰砂不带
+  const SIG_P = .6;   // 带副属性的时候，六成是它「多半带」的那一条（MAT 里的 sig），剩下四成照这一类料的老比例摇
   function rollLine(id) { const m = MAT[id]; if (!canLine(m) || Math.random() >= (LP[m.g] || 0)) return null; const tb = LK[m.c || 'X']; let r = Math.random() * tb.reduce((a, t) => a + t[1], 0), k = tb[0][0]; for (const t of tb) { r -= t[1]; if (r <= 0) { k = t[0]; break; } }
+    if (m.sig && LV[m.sig] && Math.random() < SIG_P) k = m.sig;
     if (k === 'el' && !m.wx) k = m.c === 'W' ? 'crit' : 'guard'; const vs = (LV[k][m.g] || LV[k][1]), v = vs[Math.floor(Math.random() * vs.length)]; return (k === 'el' ? 'el_' + m.wx : k) + ':' + v; }
   const have = id => (S.hero.bag[id] || 0);
   const MQ = () => (S.hero.mq = S.hero.mq || {});
@@ -164,14 +171,16 @@
     const rc = RKEY[keyOf(ids)];
     if (rc) return Object.assign(base, { ok: true, kind: 'recipe', recipe: rc, cands: [[rc.id, 1]], fee: rc.fee, rare: false });
     if (ids.every(id => id === ids[0]) && FIXED[ids[0]]) { const out = FIXED[ids[0]], it = ITEM_DB[out]; let ln = allow(it.slot, us[0].ln) ? us[0].ln : null; if (!ln) ln = us.map(u => u.ln).filter(l => allow(it.slot, l)).sort((x, y) => score(y) - score(x))[0] || null;
-      return Object.assign(base, { ok: true, kind: 'fixed', cands: [[out, 1]], fee: it.gem ? FEE.gem : (it.lvReq || 0) >= 10 ? FEE[2] : FEE[1], keep: ln && it.slot ? ln : null, gem: !!it.gem }); }
+      return Object.assign(base, { ok: true, kind: 'fixed', cands: [[out, 1]], fee: it.gem ? FEE.gem : G6.tierOf(out) >= 2 ? FEE[2] : FEE[1], keep: ln && it.slot ? ln : null, gem: !!it.gem, tier: G6.tierOf(out) || 1, p2: G6.tierOf(out) >= 2 ? 1 : 0 }); }
     const cl = ids.filter(id => MAT[id].c); if (!cl.length) return Object.assign(base, { ok: false, why: 'noclass' });
     const nW = cl.filter(id => MAT[id].c === 'W').length, nA = cl.length - nW, cls = nW > nA ? 'W' : nA > nW ? 'A' : MAT[cl[0]].c;
     const mine = cl.filter(id => MAT[id].c === cls), kinds = new Set(mine).size, slot = cls === 'W' ? (kinds >= 4 ? 'acc' : kinds === 3 ? 'wrist' : 'weapon') : (mine.length >= 4 ? 'armor' : 'shoe');
-    const tier = cl.reduce((a, id) => a + MAT[id].g, 0) / cl.length >= 1.6 ? 2 : 1, el = E || 'jin';
-    const P = POOL[slot], mains = P[tier][el].length ? P[tier][el] : P[1][el], m = {}; for (const id of mains) m[id] = 100; const up = tier === 1 ? P[2][el][0] : null; if (up && !m[up]) m[up] = UP_W(H);
-    const [lo, hi, p] = ROLL(H);
-    return Object.assign(base, { ok: true, kind: 'mix', cls, slot, tier, el, cands: Object.entries(m), fee: FEE[tier], lo, hi, p, V: 1 + .05 * Math.max(-3, Math.min(5, H)),
+    const el = E || 'jin', avg = cl.reduce((a, id) => a + MAT[id].g, 0) / cl.length, P = POOL[slot];
+    let p2 = cl.filter(id => MAT[id].g >= 2).length / cl.length; if (!P[2][el].length) p2 = 0; else if (!P[1][el].length) p2 = 1;   // 出凝丹档的机会
+    const m = {}; for (const t of [1, 2]) { const pt = t === 2 ? p2 : 1 - p2; if (pt <= 0) continue; for (const [id, w] of cellW(P[t][el], t, H, clamp(1 + .5 * (avg - t), .5, 2))) m[id] = (m[id] || 0) + w * pt; }
+    if (!Object.keys(m).length) return Object.assign(base, { ok: false, why: 'noclass' });
+    const tier = p2 >= .5 ? 2 : 1, [lo, hi, p] = ROLL(H);
+    return Object.assign(base, { ok: true, kind: 'mix', cls, slot, tier, p2, el, cands: Object.entries(m), fee: Math.round((FEE[1] + (FEE[2] - FEE[1]) * p2) / 10) * 10, lo, hi, p, V: 1 + .05 * Math.max(-3, Math.min(5, H)),
       lined: new Set(fl.filter(u => allow(slot, u.ln)).map(u => parse(u.ln)[0])).size, lost: new Set(fl.filter(u => u.ln && !allow(slot, u.ln)).map(u => parse(u.ln)[0])).size, accP: slot === 'acc' ? ACC_P(H) : 0 }); }   // lined：这个部位留得住的有几种；lost：留不住的有几种
   function roll(a) { let t = a.cands.reduce((x, c) => x + c[1], 0), r = Math.random() * t; for (const [id, w] of a.cands) { r -= w; if (r <= 0) return id; } return a.cands[a.cands.length - 1][0]; }
 
@@ -218,10 +227,10 @@
     if (it.slot && a.kind === 'fixed') { if (a.keep) lines = [parse(a.keep)]; }
     else if (it.slot && a.kind === 'mix') { m = Math.round((a.lo + Math.random() * (a.hi - a.lo)) * 100) / 100;
       for (const u of us) { if (!u.ln || !allow(it.slot, u.ln) || Math.random() >= a.p) continue; const [k, v] = parse(u.ln), sv = scale(v, a.V), i = lines.findIndex(l => l[0] === k); if (i < 0) lines.push([k, sv]); else if (sv > lines[i][1]) lines[i][1] = sv; }
-      if (it.slot === 'acc' && Math.random() < ACC_P(a.H)) { const ks = ['xj', 'tx', 'jc', 'wu'], k = ks[Math.floor(Math.random() * ks.length)], vs = ACC_V[a.tier] || ACC_V[1]; lines.push([k, vs[k][Math.floor(Math.random() * vs[k].length)]]); } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
+      if (it.slot === 'acc' && Math.random() < ACC_P(a.H)) { const ks = ['xj', 'tx', 'jc', 'wu'], k = ks[Math.floor(Math.random() * ks.length)], vs = ACC_V[G6.tierOf(base) || a.tier] || ACC_V[1]; lines.push([k, vs[k][Math.floor(Math.random() * vs[k].length)]]); } }   // 五样料各自那一条，各摇各的；同一种副属性一件装备上只留一条（留高的）
     if (it.slot && (a.kind === 'mix' || (a.kind === 'fixed' && lines.length))) id = makeInstance(base, m, lines);   // 混着放出来的都是独一份；五个一样又没带副属性的，就是店里那样的一件
     addItem(id, 1); const f = F(); f.forged = (f.forged || 0) + 1; if (a.kind === 'recipe') f['r400_made_' + base] = 1;
-    return { id, base, mult: m, lines, grade: ITEM_DB[id].fg ? ITEM_DB[id].grade : null, a }; }
+    return { id, base, mult: m, lines, grade: ITEM_DB[id].fg ? ITEM_DB[id].grade : null, rank: G6.rankOf(base), tier: G6.tierOf(base), a }; }
 
   // ---------- 九、珍稀材料从哪来 ----------
   // 三只头目各掉两枚。已经打倒过的：星旋把他「替你收着」的拿出来（落星坡那头狼打倒时他说过这句）。
@@ -244,7 +253,7 @@
     const RING = { jin: '#d8dde4', mu: '#6fc98a', shui: '#6fb6ee', huo: '#f08a4a', tu: '#d0a860' };
     if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id], im = it && it.r400 && get(id); if (!im) return orig.apply(this, arguments);
       ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)'); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill();
-      const top = it.rare || it.heroOnly, col = top ? '#f0b43a' : it.gem ? (RING[it.gem] || '#9a8a70') : it.slot ? '#5fbf73' : (RING[it.wx] || '#9a8a70');
+      const top = it.rare || it.heroOnly, col = top ? '#f0b43a' : it.gem ? (RING[it.gem] || '#9a8a70') : it.slot ? (G6.col(id) || '#5fbf73') : (RING[it.wx] || '#9a8a70');
       ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = col; ctx.stroke(); if (top) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
       const s2 = r * (it.gem ? 1.9 : 2.1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); ctx.restore();
       try { const gg = it.slot && WX5.GEAR[id]; if (gg && r >= 13) WX5.emblem(gg, x + r * .72, y + r * .72, Math.max(7, r * .36), 1); } catch (e) {} })(itemIcon); }
@@ -257,5 +266,5 @@
 
   try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {}   // 这里和 r389 新加的装备，补套上强化的读数（主程序只在开局三秒时补一遍，载入慢就漏了）
   setTimeout(() => { for (const id of ART) { try { itemIcon(id, -999, -999, 8); } catch (e) {} } }, 8000);   // 图标提前要一遍
-  window.CRAFT = { ALLOW, allow, ACC_P, MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, FEE, GEM, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
+  window.CRAFT = { ALLOW, allow, ACC_P, MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, RANK_W, cellW, FEE, GEM, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
 })();

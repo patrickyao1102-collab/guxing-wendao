@@ -121,18 +121,21 @@
     const res = UI.res; if (res) { const k = Math.min(1, (now - res.t) / 220), sc = 1 + (1 - k) * .5; ctx.save(); try { ctx.globalAlpha *= k; itemIcon(res.id, CX, CY, (CORE_R - 7) * sc); } catch (e) {} ctx.restore(); }
     else if (a.el && a.n) { try { WX5.emblem(a.el, CX, CY, 22, .32 + .1 * Math.sin(now / 400)); } catch (e) {} } }
   const GRADE_COL = ['#aab3b6', '#E9D9A8', '#8cc4f2', '#f6c65a', '#ff9a6a'];
+  const CHENG = v => { const n = Math.round(v * 10); return n >= 10 ? '十成' : '一二三四五六七八九'[n - 1] + '成'; };
+  const tierText = a => { const T6 = window.GEAR6 ? GEAR6.TIER_CN : { 1: '练气档', 2: '凝丹档' }; return a.p2 >= 1 ? '这一炉出' + T6[2] : a.p2 <= 0 ? '这一炉出' + T6[1] : '这一炉：' + T6[2] + CHENG(a.p2) + '，' + T6[1] + CHENG(1 - a.p2); };
   function drawSynth(now) { const a = CR.analyze(UI.slots);
     drawMats('材料', null, null, true);
     drawDisc(now, a);
     const res = UI.res, topY = CY - DISC / 2 - 15;
     if (saying(now)) { ctx.font = `500 15px ${KAI()}`; T(fitW(SMITH + '：' + UI.say, 440), CX, topY, 15, C.gold2, KAI(), 500, 'center'); } else if (res) T('出　炉', CX, topY, 16, C.sub, KAI(), 600, 'center');
+    else if (a.ok && a.kind === 'mix') T(tierText(a), CX, topY, 15, a.p2 > 0 && a.p2 < 1 ? C.gold2 : C.sub, KAI(), 600, 'center');   // 两档的料混着放：出高一档的机会写明（出哪一件照旧不说）
     if (res) { const it = ITEM_DB[res.id]; ctx.font = `400 25px ${BR()}`; T(fitW(it.name, 420), CX, 581, 25, it.fg ? GRADE_COL[it.grade] : C.gold2, BR(), 400, 'center');
-      const sub = it.fg ? '主属性 ' + pct(it.mult) + (it.subs.length ? '　' + it.subs.join('　') : '　没带出副属性') : it.slot ? statText(res.id) : ''; ctx.font = `500 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
+      const lb = window.GEAR6 ? GEAR6.label(res.id) : '', sub = (lb ? lb + '　' : '') + (it.fg ? '主属性 ' + pct(it.mult) + (it.subs.length ? '　' + it.subs.join('　') : '　没带出副属性') : it.slot ? statText(res.id) : ''); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
     else { const h = hints(a); ctx.font = `600 16px ${KAI()}`; T(fitW(h[0][0], 440), CX, 583, 16, h[0][1], KAI(), 600, 'center'); ctx.font = `500 15px ${KAI()}`; T(fitW(h[1][0], 440), CX, 607, 15, h[1][1], KAI(), 500, 'center'); }
     btn(B_CLEAR, '清　空', a.n ? 'n' : 'd', 17);
     const ng = S.hero.gold || 0;
     if (a.n < 5) btn(B_GO, '放满五样', 'd', 18); else if (!a.ok) btn(B_GO, '这一炉开不了', 'd', 18); else if (a.kind === 'recipe' && owned(a.recipe.id)) btn(B_GO, '已经有一件了', 'd', 18); else if (ng < a.fee) btn(B_GO, '灵石不够（要 ' + a.fee + '）', 'd', 17);
-    else btn(B_GO, armed('go') ? (a.kind === 'mix' && a.rare ? '里面有珍稀料 · 再点才开炉' : '再点一次 · 开炉') : '合　成　· 灵石 ' + a.fee, armed('go') ? 'p' : 'n', armed('go') && a.kind === 'mix' && a.rare ? 15 : 18);
+    else btn(B_GO, armed('go') ? (a.kind !== 'recipe' && a.rare ? '里面有珍稀料 · 再点才开炉' : '再点一次 · 开炉') : '合　成　· 灵石 ' + a.fee, armed('go') ? 'p' : 'n', armed('go') && a.kind !== 'recipe' && a.rare ? 15 : 18);
     // 秘籍
     D('panel_well_9', RB.x, RB.y, RB.w, RB.h); const bk = art('book'); if (bk) ctx.drawImage(bk, RB.x + 8, RB.y + 2, 46, 46); T('合成秘籍', RB.x + (bk ? 58 : 16), RB.y + 24, 20, C.gold2, BR(), 400); T('只记各人的专属套装', RB.x + RB.w - 14, RB.y + 26, 14, C.sub, KAI(), 500, 'right');
     T('点一条，料齐的会自己摆上去。', RB.x + 16, RB.y + 56, 14, C.sub);
@@ -165,11 +168,12 @@
     if (!armed('go')) { UI.arm = { k: 'go', t: performance.now() }; snd('ui_click'); return; }
     UI.arm = null; const r = CR.craft(UI.slots); if (r.err) { speak(r.err === 'gold' ? '炭火钱不够。' : '料不够了。'); snd('ui_cancel'); return; }
     const it = ITEM_DB[r.id], el = (it.gem || WX5.GEAR[r.id] || a.el || 'jin'); UI.slots.fill(null); UI.res = { id: r.id, t: performance.now() };
-    burst(CX, CY, el, r.grade >= 3 ? 1.4 : 1.15); if (r.grade >= 4) setTimeout(() => { if (UI.open) burst(CX, CY, 'jin', 1.7); }, 160);
+    burst(CX, CY, el, r.grade >= 3 || r.rank >= 3 ? 1.4 : 1.15); if (r.grade >= 4 || (r.rank >= 3 && a.kind === 'mix')) setTimeout(() => { if (UI.open) burst(CX, CY, 'jin', 1.7); }, 160);
     try { S.flash = r.grade >= 3 ? .3 : .22; S.flashColor = '#ffe9b8'; } catch (e) {} snd('sfx_sword_ring', .6); try { playSnd('jingle_levelup', .45); } catch (e) {}
     speak(it.gem ? '五枚精炼成一颗「' + it.name + '」。到镶嵌那一页，镶到装备上去。' : a.kind === 'recipe' ? '成了。「' + it.name + '」——这一件只认它的主人。'
       : a.kind === 'fixed' ? (r.lines.length ? '五样同出一源，稳当。头一样料上的那一条，带进去了。' : '五样同出一源，稳当。')
-      : r.grade >= 4 ? '五行流转，五条全留——这样的东西，我打了一辈子铁也没见过几回。绝品。' : r.grade === 3 ? '成色极好。极品。' : r.grade === 2 ? '成色不错，上品。' : r.grade === 0 ? (a.H < 0 ? '五行相克，成色差了些。下回把相生的两样挨着摆。' : '这一炉手气差了点。') : '成了。中规中矩。');
+      : (r.rank >= 3 ? '「' + ITEM_DB[r.base].name + '」——这一路料里最难得的一件，十炉也未必出一回。' : r.rank === 2 ? '「' + ITEM_DB[r.base].name + '」，稀有的东西。' : '')
+        + (r.grade >= 4 ? '五行流转，五条全留——这样的东西，我打了一辈子铁也没见过几回。绝品。' : r.grade === 3 ? '成色极好。极品。' : r.grade === 2 ? '成色不错，上品。' : r.grade === 0 ? (a.H < 0 ? '五行相克，成色差了些。下回把相生的两样挨着摆。' : '这一炉手气差了点。') : r.rank >= 2 ? '' : '成了。中规中矩。'));
     return 'forged'; }
 
   // =====================================================================================================
@@ -192,7 +196,8 @@
     const page = list.slice(UI.gp * per, UI.gp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, gcR(i))) { if (UI.gsel !== page[i].id) { UI.gsel = page[i].id; UI.arm = null; UI.say = ''; UI.sock = 0; snd('ui_click'); } return true; } return false; }
   const GD = { x: 516, y: 124, w: 712, h: 548 };
   function gearHead(id) { const it = ITEM_DB[id], g = WX5.GEAR[id]; try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} T(it.name, GD.x + 130, GD.y + 46, 28, C.gold2, BR(), 400);
-    T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text);
+    if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(id); if (lv) REFINE_FX.ring(GD.x + 66, GD.y + 70, 49, lv, performance.now()); }   // 强化几级，图标外面就有几道光绕着转
+    const lb = window.GEAR6 ? GEAR6.label(id) : ''; T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + (lb ? ' · ' + lb : '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text);
     if (it.fg) { ctx.font = `500 15px ${KAI()}`; T(fitW('主属性 ' + pct(it.mult) + '　' + (it.subs.length ? '副属性：' + it.subs.join('　') : '没有副属性'), GD.w - 160), GD.x + 130, GD.y + 110, 15, it.subs.length ? C.green : C.sub, KAI(), 500); } }
 
   // =====================================================================================================
@@ -231,7 +236,8 @@
   // 三、镶嵌（五行灵珠；按「这一种装备」记，和强化一样）
   // =====================================================================================================
   const GEMS = () => (S.hero.gems = S.hero.gems || {});
-  const sockN = id => { const it = ITEM_DB[id]; if (!it || !it.slot || WX5.isXH(id)) return 0; const st = G.setOfItem(id); return (st && st.tier >= 2) || (it.lvReq || 0) >= 10 ? 2 : 1; };
+  const sockN = id => { const it = ITEM_DB[id]; if (!it || !it.slot || WX5.isXH(id)) return 0; const t6 = window.GEAR6 ? GEAR6.tierOf(id) : 0; if (t6) return t6 >= 2 ? 2 : 1;   // 排进格子的装备：练气档一个孔，凝丹档两个
+    const st = G.setOfItem(id); return (st && st.tier >= 2) || (it.lvReq || 0) >= 10 ? 2 : 1; };
   const gemsOf = id => { const a = GEMS()[id] || []; return [a[0] || null, a[1] || null].slice(0, sockN(id)); };
   const gemVal = (el, id) => { const [, k, v] = CR.GEM[el]; return [k, WX5.GEAR[id] === el ? Math.round(v * 1.5) : v]; };
   const gemBonus = (id, k) => { let t = 0; for (const el of gemsOf(id)) if (el) { const [kk, v] = gemVal(el, id); if (kk === k) t += v; } return t; };
@@ -338,7 +344,7 @@
     if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
       await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器、护腕和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
       await say(SMITH, '相邻两样相生，成色就高；相克，成色就低。料上若带着灵性，有几分能留进成品里——留几条，看手气。');
-      await say(SMITH, '出什么，开了炉才知道。只有各人的专属套装，我这本秘籍上记着方子。');
+      await say(SMITH, '出什么，开了炉才知道。同样的料，出常见的还是难得的，看手气；好料放得多，出好东西的机会就大。只有各人的专属套装，我这本秘籍上记着方子。');
       await say('星旋', '金生水，水生木，木生火，火生土，土生金。照这个顺序摆一圈试试——本神仙只说这一回。'); }
     await open(0); }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, RUNE, ARTN, art, sockN, gemsOf, setGem };

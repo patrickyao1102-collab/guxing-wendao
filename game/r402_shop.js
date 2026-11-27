@@ -74,7 +74,7 @@
     if (!it) { T(sell ? '点左边的东西，看能卖多少。' : '点左边的货看看。', DP.x + DP.w / 2, DP.y + 220, 17, C.sub, KAI(), 500, 'center'); return; }
     D('item_disc_n', x0 - 2, DP.y + 12, 96, 96); try { itemIcon(id, x0 + 46, DP.y + 60, 33); } catch (e) {}
     ctx.font = `400 28px ${BR()}`; T(fitW(it.name, DP.w - 146), x0 + 108, DP.y + 44, 28, it.fg ? GRADE_COL[it.grade] || C.gold2 : C.gold2, BR(), 400);
-    const wx = wxOf(id), sub = catOf(id) + (wx && window.WX5 ? ' · ' + WX5.WX[wx].n + '系' : '') + '　已有 ' + have(id); T(sub, x0 + 108, DP.y + 82, 15, C.sub, KAI(), 500);
+    const wx = wxOf(id), lb = it.slot && window.GEAR6 ? GEAR6.label(id) : '', sub = catOf(id) + (wx && window.WX5 ? ' · ' + WX5.WX[wx].n + '系' : '') + (lb ? ' · ' + lb : '') + '　已有 ' + have(id); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, DP.w - 130), x0 + 108, DP.y + 82, 15, C.sub, KAI(), 500);
     D('divider_h_3', x0, DP.y + 116, DP.w - 36, 3);
     let y = DP.y + 142;
     if (it.slot) { const ks = KEYS.filter(k => it[k]); ks.forEach((k, i) => { const cx = x0 + (i % 2) * 206, cy = y + Math.floor(i / 2) * 30; T(SN[k], cx, cy, 18, C.text, KAI(), 600); T((it[k] > 0 ? '+' : '') + it[k], cx + 44, cy, 20, C.gold2, NUM(), 700); }); y += Math.ceil(ks.length / 2) * 30 + 2;
