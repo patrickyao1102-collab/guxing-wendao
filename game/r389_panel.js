@@ -51,6 +51,7 @@
 
   function drawLeft(now) { const mi = info(); D('panel_detail_9', LEFT.x, LEFT.y, LEFT.w, LEFT.h);
     if (KIT.skill_star_base) { ctx.save(); ctx.globalAlpha *= .35; ctx.beginPath(); ctx.rect(LEFT.x + 8, LEFT.y + 8, LEFT.w - 16, 452); ctx.clip(); ctx.drawImage(KIT.skill_star_base, LEFT.x - 40, LEFT.y + 10, 560, 460); ctx.restore(); }
+    try { const FX = window.REFINE_FX; if (FX && FX.bodyAura) { const e = eq(), ids = G.SLOTS.map(k => e[k]); if (ids.every(Boolean)) { const m = Math.min(...ids.map(id => FX.lvOf(id))); if (m >= 3) { ctx.save(); ctx.beginPath(); ctx.rect(LEFT.x + 8, LEFT.y + 8, LEFT.w - 16, 452); ctx.clip(); FX.bodyAura(LEFT.x + LEFT.w / 2, LEFT.y + 448, 430, m, now); ctx.restore(); } } } } catch (er) {}   // 五件都强化到三级以上：立绘背后亮起来（r407 第四版）
     portrait(mi, LEFT.x + LEFT.w / 2, LEFT.y + 16, 640);
     for (const s of G.SLOTS) drawSlot(s, now);
     D('panel_well_9', LEFT.x + 12, LEFT.y + 462, LEFT.w - 24, 102);
