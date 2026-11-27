@@ -123,9 +123,19 @@
   window.R427_MECH = async (n, o) => { if (n !== 2 || !ON2() || !o || o.name !== 'winch_24_12' || T7().hu) return false; await hu(); return true; };
   // 场景物件换态：梦丝（缠着 / 断了）、香案（冷 / 点上）
   window.R427_STATE = (n, o) => { if (o.name === 'dream_threads') return T7().wen ? 'broken' : 'bound'; if (o.name === 'altar') return RUN.f2.nuo ? 'lit' : 'cold'; return null; };
+  // ---------- 溯光镜：九块碎片（作者 11-28：「九层的话就会有出现一个极品仙器……九件碎片合一」）----------
+  // 每层首领第一次打倒掉一块；九块凑齐在塔顶合成极品仙器「溯光镜」（和流云仙衣同级；合成和它的本事等九层做完再接）。图是 Codex R425。
+  const CN = '一二三四五六七八九';
+  if (typeof ITEM_DB === 'object') for (let i = 1; i <= 9; i++) { const id = 'f_suguang_' + i; if (!ITEM_DB[id]) ITEM_DB[id] = { name: '溯光镜碎片·' + CN[i - 1], price: 0, sell: 0, cat: '宝物', noSell: 1, r427: 1,
+    desc: '一片古铜镜的碎片，镜背铸着流云和星辰，碎口泛着淡淡的银蓝光。万妖塔第' + CN[i - 1] + '层得来。传说九片凑齐，便是能照见过去、逆溯光阴的上古仙器「溯光镜」。' }; }
+  const fragN = () => { let k = 0; for (let i = 1; i <= 9; i++) if (F()['tw_frag_' + i]) k++; return k; };
   // 虎卫之诺：打玄锋那一仗，全队受的伤少一成
   let NUO = false;
-  { const fb = TOWER.fightBoss; TOWER.fightBoss = async function (n) { NUO = n === 2 && !!RUN.f2.nuo; try { return await fb.apply(this, arguments); } finally { NUO = false; } }; }
+  { const fb = TOWER.fightBoss; TOWER.fightBoss = async function (n) { NUO = n === 2 && !!RUN.f2.nuo; let win = false; try { win = await fb.apply(this, arguments); } finally { NUO = false; }
+      try { if (win && !F()['tw_frag_' + n] && ITEM_DB['f_suguang_' + n]) { F()['tw_frag_' + n] = 1; addItem('f_suguang_' + n, 1); try { playSnd('sfx_star', .7); } catch (e) {}
+        await showPanel('溯光镜碎片', ['首领消散的地方，落下一片古镜的碎片。', '!获得：溯光镜碎片·' + CN[n - 1] + '（' + fragN() + ' / 9）']);
+        if (fragN() === 1) await say('星旋', '……这镜子的气息，不是这座塔里的东西。小子，收好了，一片都别丢。'); } } catch (e) { console.warn('R427 frag', e); }
+      return win; }; }
   applyDamage = (orig => function (t, d, crit, opts) { try { if (NUO && t && t.side === 'hero' && d > 0) d = Math.max(1, Math.round(d * .9)); } catch (e) {} return orig.call(this, t, d, crit, opts); })(applyDamage);
   // ---------- 摆进地图：看不见的点（点了触发） + 人物画在地图里 ----------
   const P = MZ.P;
@@ -150,5 +160,5 @@
   updateMap = (orig => function (dt) { const r = orig.apply(this, arguments);
     try { const n = MZ.curN(), p = world.player; if (n === 2 && ON2() && p && !world.locked && !dialog && !choice && !T7().plaza) { const [x0, y0, x1, y1] = POS.plaza; if (p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1) { T7().plaza = 1; world.locked = true; L(TXT.plaza).finally(() => { world.locked = false; }); } } } catch (e) {} return r; })(updateMap);
   tileSetMap = (orig => function (m) { const prev = world && world.mapName; const r = orig.apply(this, arguments); try { const mm = /^wyt_f(\d)$/.exec(m || ''); if (mm && prev !== m) RUN['f' + mm[1]] = {}; } catch (e) {} return r; })(tileSetMap);
-  window.R427 = { TXT, POS, RUN, T7, fightElite, wen, pond, altar, lu, hu, ON1, ON2, add };
+  window.R427 = { TXT, POS, RUN, T7, fightElite, wen, pond, altar, lu, hu, ON1, ON2, add, fragN };
 })();
