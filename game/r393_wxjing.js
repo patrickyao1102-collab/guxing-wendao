@@ -44,5 +44,5 @@
   // 头一回拿到：星旋交代一句（只说一回）
   let queued = false;
   if (typeof addItem === 'function') addItem = (orig => function (id, n) { const r = orig.apply(this, arguments);
-    try { const f = (S.flags = S.flags || {}); if (/^m_wx_/.test(id) && !f.wxj_said && !queued) { queued = true; SAY_LATER(async () => { const g = S.flags || {}; queued = false; if (g.wxj_said) return; g.wxj_said = 1; await say('星旋', '「' + ITEM_DB[id].name + '」？收好。妖兽是什么性，身上就凝什么精——攒着，回头带去云海大亭的剑炉，能打兵器。'); }); } } catch (e) {} return r; })(addItem);
+    try { const f = (S.flags = S.flags || {}); if (/^m_wx_/.test(id) && !f.wxj_said && !queued) { queued = true; SAY_LATER(async () => { const g = S.flags || {}; queued = false; if (g.wxj_said) return; g.wxj_said = 1; await say('星旋', '「' + ITEM_DB[id].name + '」？收好。妖兽是什么性，身上就凝什么精——攒着，回头带去云海大亭的剑炉，合装备、炼灵珠都用得着。'); }); } } catch (e) {} return r; })(addItem);
 })();

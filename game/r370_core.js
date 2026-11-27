@@ -18,7 +18,7 @@
   // 图标：Codex R370（r370i/<id>.webp，96×96 透明），画法同 R290 / R368：深色圆底 + 品质外圈
   if (typeof itemIcon === 'function') { const IM = {}, QC = ['#9a8a70', '#5fbf73', '#5f9cf0', '#f0b43a'];
     const Q = id => NEW[id].fabao ? 3 : NEW[id].mat ? (/neidan|jinsi|gupian/.test(id) ? 2 : 0) : /zidian|xiaguang|taxue|yaowang|jinsi/.test(id) ? 2 : 1;
-    const get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r370i/' + id + '.webp?v=1'; } return o.ok ? o.im : null; };
+    const get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r370i/' + id + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
     window.R370_ICON = get;
     itemIcon = (orig => function (id, x, y, r) { const im = NEW[id] && get(id); if (!im) return orig.apply(this, arguments);
       const q = Q(id); ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)');

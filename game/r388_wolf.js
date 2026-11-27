@@ -9,7 +9,7 @@
   const y = { id: 'xingwolf', mini: true, hidden: true, ep: '衔星', name: '赤焰狼王', type: 'wolf', map: 'tj_luoxing', pos: [1400, 760], lv: 7, hp: 780, atk: 36, def: 8, spd: 12, exp: 280, gold: 120, fabao: null, bg: 'bg_night', scale: 1, fxColor: '#ff8a3a',
     where: '天剑宗后山 · 落星坡 · 陨星坑', tip: '它仰头长嚎就是要扑了——那一下防御。扑完它会趴下喘，那是出手的时候。', extra: ['p_small', 'p_small', 'p_mp'],
     cond: () => { try { const w = S.hero.equip && S.hero.equip.weapon; return !!w && w !== 'w_wood'; } catch (e) { return false; } },   // 手里有了真剑才露面
-    after: async () => { await say('星旋', '头一只头目。记住这个滋味——往后的，只会更凶。'); await say('星旋', '它肩上那块星晶，星力散得差不多了。剩下这点本神仙替你收着，算你一桩事迹，回头到玉佩里来交。'); } };
+    after: async () => { await say('星旋', '头一只头目。记住这个滋味——往后的，只会更凶。'); await say('星旋', '它肩上那两块星晶你收好，是打好东西的料。这一桩本神仙给你记上，回头到玉佩里来交。'); } };
   R370_YW.push(y);
   VSPRITE_ADD(key, '../r388/xingwolf', M.main, M.h, false, false);
   if (M.charge) VSPRITE_ADD(key + '_c', '../r388/xingwolf_charge', M.charge, M.h, false, false);

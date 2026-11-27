@@ -60,6 +60,7 @@
     }
   }
   window.REFINE_UI = refineUI;
+  window.REFINE_WRAP = wrapAll;   // 给别的强化界面用：后加进来的装备（载入慢时会晚于上面那三秒）也补套上读数
 
   // ---------- 铁匠 / 铸剑师：先问要买东西还是强化 ----------
   const SMITHS = new Set(['王铁匠', '铸剑师']);

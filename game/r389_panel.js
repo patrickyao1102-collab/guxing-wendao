@@ -80,10 +80,14 @@
     // 套装
     D('panel_well_9', SETB.x, SETB.y, SETB.w, SETB.h); const sets = G.setsOf(UI.who), own = G.SETS.find(s => s.owner === UI.who), rows = sets.slice();
     if (own && !rows.some(([s]) => s.id === own.id)) rows.unshift([own, G.setState(UI.who, own)]);
-    if (!rows.length) T('身上还没有成套的装备。同一套的剑、衣、靴凑齐三件，有套装效果。', SETB.x + 22, SETB.y + 34, 16, C.sub);
+    if (!rows.length) T('身上还没有成套的装备。专属套装凑齐三件才显威力；同一行的普通剑、衣、靴凑三件，只有一点小加成。', SETB.x + 22, SETB.y + 34, 16, C.sub);
     rows.slice(0, 3).forEach(([s, st], i) => { const y = SETB.y + 22 + i * 28; if (s.wx) { try { WX5.emblem(s.wx, SETB.x + 30, y, 10, 1); } catch (e) {} }
-      const head = (s.owner ? '专属 · ' : '') + s.name + '　' + st.n + ' / ' + st.need; T(head, SETB.x + 48, y, 16, st.on ? C.green : C.gold2, KAI(), 600); const hw = ctx.measureText(head).width;
-      ctx.font = `500 15px ${KAI()}`; T(fitW('三件：' + s.text, SETB.w - 48 - Math.max(160, hw + 18) - 150), SETB.x + 48 + Math.max(160, hw + 18), y, 15, st.on ? C.text : C.sub); T(st.on ? '已激活' : st.why || ('还差 ' + (st.need - st.n) + ' 件'), SETB.x + SETB.w - 20, y, 15, st.on ? C.green : st.why ? C.red : C.sub, KAI(), 600, 'right'); }); }
+      const head = (s.owner ? '专属套装 · ' : '同行 · ') + s.name + '　' + st.n + ' / ' + st.need + (s.extra ? (st.ex ? ' + 坠' : '') : ''); T(head, SETB.x + 48, y, 16, st.on ? C.green : C.gold2, KAI(), 600); const hw = ctx.measureText(head).width;
+      const full = st.on4 ? '四件：' + s.text + '；' + s.extra.text : '三件：' + s.text + (s.extra && st.on ? '（再配上' + ITEM_DB[s.extra.id].name + '还有一层）' : '');
+      ctx.font = `500 15px ${KAI()}`;
+      if (rows.length === 1) { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = st.on ? C.text : C.sub; wrap(full, SETB.x + 48, y + 27, SETB.w - 76, 22, 2); }   // 只有一套时：效果另起一行写全（专属套装的字多，一行写不下）
+      else T(fitW(full, SETB.w - 48 - Math.max(160, hw + 18) - 150), SETB.x + 48 + Math.max(160, hw + 18), y, 15, st.on ? C.text : C.sub);
+      T(st.on ? '已激活' : st.why || ('还差 ' + (st.need - st.n) + ' 件'), SETB.x + SETB.w - 20, y, 15, st.on ? C.green : st.why ? C.red : C.sub, KAI(), 600, 'right'); }); }
 
   function btn(r, label, state, size) { D(state === 'd' ? 'button_d' : state === 'p' ? 'button_p' : 'button_n', r.x, r.y, r.w, r.h); T(label, r.x + r.w / 2, r.y + r.h / 2 + 1, size || 18, state === 'd' ? C.dim : C.gold2, KAI(), 600, 'center'); }
 

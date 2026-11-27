@@ -15,7 +15,7 @@
   // 作者 11-27 晨：「不要把鬼火变成动物——地图就那么大，动物也不可能做多帧，这样很难看。BOSS 单独做一个物体可以，小怪没必要。」野怪一律用回原来的鬼火 / 兽火。
   const MOBS = false;
   let NAMES = LS('r379_names') !== 'off';
-  const ART = {}; const art = n => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r379/' + n + '.webp?v=1'; } return o.ok ? o.im : null; };
+  const ART = {}; const art = n => { let o = ART[n]; if (!o) { o = ART[n] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r379/' + n + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
   const TIER = () => window.FIRE_TIER || {};
   const ELITE = { lin_forest: 'wolfking', hf_valley: 'wolfking', yy_forest: 'spiderq' };
