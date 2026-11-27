@@ -98,7 +98,7 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.translate(640 - sl * .4, 350); ctx.scale(sc, sc);
       ctx.shadowColor = rgba(c, .95); ctx.shadowBlur = 34; ctx.font = `92px ${BRUSH}`; ctx.fillStyle = rgba(c, 1); ctx.fillText(e._ep || '', 0, -6); ctx.shadowBlur = 0;
       ctx.font = `92px ${BRUSH}`; ctx.fillStyle = 'rgba(255,250,236,.92)'; ctx.fillText(e._ep || '', 0, -6);
-      ctx.font = `700 24px ${FONT}`; ctx.fillStyle = rgba(c, 1); ctx.fillText((e._yw && e._yw.mini ? '头目' : '妖王') + '　·　' + ((e._yw && e._yw.name) || '') + '　Lv' + e.lv, 0, 56); ctx.restore(); } catch (er) { try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
+      ctx.font = `700 24px ${FONT}`; ctx.fillStyle = rgba(c, 1); ctx.fillText((e._tw ? '万妖塔 · 第' + '一二三四五六七八九'[(e._tw.n || 1) - 1] + '层' : e._yw && e._yw.mini ? '头目' : '妖王') + '　·　' + ((e._yw && e._yw.name) || '') + '　Lv' + e.lv, 0, 56); ctx.restore(); } catch (er) { try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
 
   // ---- 地图上的妖王巢穴：垫在本体后面 ----
   if (typeof tileAmbientHigh === 'function') tileAmbientHigh = (orig => function (T, cam, now) {

@@ -18,6 +18,8 @@
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
     VSS[key] = k; return { key, vh: Math.round(M.bodyH * .92 * k), M }; }
   const FORM = {}; for (const id of Object.keys(K)) FORM[id] = reg(id, K[id]);
+  // 战斗背景（Codex R419）：一层彼岸花海、二层北关城楼前
+  for (const [k, f] of [['bg_tw1', 'bg_bianhua'], ['bg_tw2', 'bg_baihu']]) { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = 'r419/' + f + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
   const preload = ids => { for (const id of ids) for (const s of ['', '_charge', '_break']) { const im = new Image(); im.src = 'r415/' + id + s + '.webp'; } };
   // 小怪：登记进 MOB_DB（塔里的怪比外面的厉害，经验多五成）
   const MOBS = {
@@ -33,9 +35,9 @@
 
   // ---------- 首领 ----------
   const BOSS = {
-    1: { id: 'tw_bianhua', ep: '彼岸', name: '绛蘅', title: '彼岸花精', wx: 'mu', lv: 14, spd: 13, hpK: 1.05, atkK: .9, f1: 'bianhua_f1', f2: 'bianhua_f2', f2name: '花冢', bg: 'bg_night', pos: [300, 628], pos2: [300, 640],
+    1: { n: 1, id: 'tw_bianhua', ep: '彼岸', name: '绛蘅', title: '彼岸花精', wx: 'mu', lv: 14, spd: 13, hpK: 1.05, atkK: .9, f1: 'bianhua_f1', f2: 'bianhua_f2', f2name: '花冢', bg: 'bg_tw1', pos: [300, 628], pos2: [300, 640],
       cry: '嘘——轻点声。两个一起留下来睡吧。', turn: ['……竟还不肯睡？', '那便让这些花，替我留客吧。'], adds: ['tw_huayan'] },
-    2: { id: 'tw_baihu', ep: '白虎', name: '玄锋', title: '白虎之魂', wx: 'jin', lv: 17, spd: 14, hpK: 1.6, atkK: 1.05, f1: 'baihu_f1', f2: 'baihu_f2', f2name: '白虎真身', bg: 'bg_night', pos: [290, 630], pos2: [300, 640],
+    2: { n: 2, id: 'tw_baihu', ep: '白虎', name: '玄锋', title: '白虎之魂', wx: 'jin', lv: 17, spd: 14, hpK: 1.6, atkK: 1.05, f1: 'baihu_f1', f2: 'baihu_f2', f2name: '白虎真身', bg: 'bg_tw2', pos: [290, 630], pos2: [300, 640],
       cry: '关外的东西，一个也不许进来。', turn: ['……北关，不破。'], adds: [] } };
   const heroes = b => H.heroes(b);
   async function become(e, b) {   // 换第二种形态
