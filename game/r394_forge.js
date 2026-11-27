@@ -398,8 +398,11 @@
     if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就在这后庭潭边待着，炉子在亭子那头。'); }
     if (!f.forge_pond) { f.forge_pond = 1; await say(SMITH, '这潭水是崖顶雪水落下来的，寒得透骨。剑出了炉，在这里淬一回，锋口不卷。'); await say(SMITH, '往后它就叫淬剑潭。钓竿收了吧，鱼都叫我惊走了。'); }
     if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
-      await say(SMITH, '妖兽身上的料，五样凑一炉，在阵盘上围成一圈就能开炉。出什么，开了炉才知道。');
-      await say(SMITH, '五行的门道不用记——炉边左上角有个「五行」，忘了就点开看看。'); }
+      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器、护腕和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
+      await say(SMITH, '相邻两样相生，出的东西就好；相克，就差些——差些也照样能打。料上若带着灵性，有几分能留进成品里，留几条看手气。');
+      await say(SMITH, '出什么，开了炉才知道。只有各人的专属套装，我这本秘籍上记着方子。');
+      await say('星旋', '金生水，水生木，木生火，火生土，土生金。照这个顺序摆一圈试试。');
+      await say('星旋', '记不住也不打紧——炉子左上角有个「五行」，忘了就点开看一眼。'); }   // 作者 11-28 08:06：头一回见面讲规矩是对的，讲完玩家记不住，所以要有小贴士
     await open(0); }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, RUNE, ARTN, art, sockN, gemsOf, setGem };
 })();
