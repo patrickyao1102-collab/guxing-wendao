@@ -93,7 +93,9 @@
   function rewardOf(name, p) { const lv = (S.hero && S.hero.lv) || 1, R = rng(hash(name + p.i + 'rw'));
     if (p.kind === 'relic') return RELIC[name] || [['p_big', 1]];
     if (p.kind === 'coin') { const r0 = R(); return r0 < .6 ? [['gold', 12 + Math.floor(R() * 24)]] : r0 < .85 ? [['p_small', 1]] : [['x_xingshen', 1]]; }
-    if (p.kind === 'ore') return [['gold', 30 + lv * 5 + Math.floor(R() * 30)]];
+    if (p.kind === 'ore') {   // 11-27：灵矿多半出五行之精——这张图上的妖兽是哪几行，矿里就凝哪几行的精
+      try { const els = [...new Set(((TMAPS[name].mobs || {}).types || []).map(t => window.WX5 && WX5.ENEMY[(MOB_DB[t] || {}).key]).filter(Boolean))]; if (els.length && window.WXJ && R() < .65) return [[WXJ.ID(els[Math.floor(R() * els.length)]), 1]]; } catch (e) {}
+      return [['gold', 30 + lv * 5 + Math.floor(R() * 30)]]; }
     const mats = []; try { for (const t of TMAPS[name].mobs.types) for (const [id] of (typeof DROPS !== 'undefined' && DROPS[(MOB_DB[t] || {}).key]) || []) if (ITEM_DB[id] && ITEM_DB[id].mat && !mats.includes(id)) mats.push(id); } catch (e) {}
     const r = R(); return r < .4 ? [['p_small', 1]] : r < .62 ? [['p_mp', 1]] : mats.length && r < .86 ? [[mats[Math.floor(R() * mats.length)], 1]] : [['x_xingshen', 1]]; }
   const POP = [];
