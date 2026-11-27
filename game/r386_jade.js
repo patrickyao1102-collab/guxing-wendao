@@ -224,6 +224,8 @@
   async function open(tab) { if (UI.open || (typeof battle !== 'undefined' && battle)) return; kitLoad(); const lock0 = world.locked, hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; if (tab != null) J().tab = tab; if (!tabOn(J().tab)) J().tab = 0; sel = null; arm = null; page = 0; snd('ui_open');
     const nc = TASKS.filter(tClaimable).length; speak(!F().r386_intro ? '任务榜和宝库，本神仙都给你开了。事迹做成了来交，点数拿去宝库换东西——别攒着。' : nc ? '有 ' + nc + ' 桩事迹做成了，还不快交？' : QUIPS[Math.floor(Math.random() * QUIPS.length)]); F().r386_intro = 1;
+    // 开场那段戏的前提是「正版剑典要一百点，叶孤星只有十点，所以去藏经阁拿残本抵九成」。现在拿剑典之前也攒得到点数了，星旋把这笔账说一句，免得对不上
+    try { if (!F().jiuyao_full && !F().res_fixed && !F().ch1_free && !F().ch2_roam && (S.hero.points || 0) >= 70 && !F().r386_jy) { F().r386_jy = 1; speak('点数攒起来了？别打歪主意——正版剑典一百点，拿残本来抵只收十点。省下的九十点够你在宝库换好几样。老老实实去藏经阁。'); } } catch (e) {}
     let res; try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) { if (closing) { res = closing; break; } continue; } if (!kitReady()) continue;
         if (inR(tp, CLOSE)) break; let hitTab = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hitTab = true; if (!tabOn(i)) { speak('幻境还没开。等本神仙收拾好了叫你。'); snd('ui_click'); } else if (J().tab !== i) { J().tab = i; sel = null; arm = null; page = 0; snd('ui_click'); } } if (hitTab) continue;
         const tab2 = J().tab; if (tab2 === 0) tapTasks(tp); else if (tab2 === 1) tapShop(tp); else if (tab2 === 2 && window.R384_TAP) { const r = R384_TAP(tp, BODY, { speak, snd }); if (r) { res = r; break; } } } }
