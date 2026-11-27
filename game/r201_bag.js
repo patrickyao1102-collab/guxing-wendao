@@ -104,10 +104,11 @@
       if (c.s === sel) { ctx.save(); ctx.strokeStyle = `rgba(214,160,60,${.65 + .35 * Math.sin(now * 4)})`; ctx.lineWidth = 3; ctx.shadowColor = '#f0c060'; ctx.shadowBlur = 12; if (typeof roundRect === 'function') roundRect(x + 4, y + 4, 246, ch - 8, 14); ctx.stroke(); ctx.restore(); }
       D('slot_label_' + c.n, x + 30, y - 13, 116, 34);
       if (sm) D(has ? 'item_disc' : 'item_disc_empty', x + 26, y + 27, 72, 72); else D(has ? 'item_disc' : 'item_disc_empty', x + 24, y + 37, 82, 82);
-      if (has) { const it = ITEM_DB[c.id];
+      if (has) { const it = ITEM_DB[c.id], FX = window.REFINE_FX, rl = FX ? FX.lvOf(c.id) : 0, nowF = performance.now();   // 测试版：强化过的，栏位上盖金纹框、亮星钉（r407_refine_fx.js；正式版没有这个文件，rl 恒为 0）
+        if (rl) { if (sm) FX.under(x + 62, y + 63, 26, rl, nowF); else FX.under(x + 65, y + 78, 30, rl, nowF); }
         if (sm) { itemIcon(c.id, x + 62, y + 63, 26); ctx.font = `24px ${KAI}`; txt(fit(it.name, 136), x + 108, y + 52, 24, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 138), x + 108, y + 81, 14, C.green, 'left', FONT); }
         else { itemIcon(c.id, x + 65, y + 78, 30); ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
-        if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(c.id); if (lv) REFINE_FX.rect(x + 5, y + 5, 244, ch - 10, 14, lv, performance.now()); } }   // 测试版：强化几级，栏位的框上就有几道光绕着转（r407_refine_fx.js；正式版没有这个文件）
+        if (rl) FX.slot(x, y, 254, ch, rl, nowF, true); }
       else if (sm) { D('ghost_' + c.n, x + 41, y + 33, 44, 54); txt('未装备', x + 108, y + 60, 24, C.grey); }
       else { D('ghost_' + c.n, x + 39, y + 44, 52, 64); txt('未装备', x + 115, y + 72, 25, C.grey); } }
     // 可替换装备

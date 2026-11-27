@@ -43,8 +43,8 @@
     else { const im = IMG[mi.p]; if (im && im.width) { const s = h / im.height, w = im.width * s; ctx.drawImage(im, cx - w / 2, top, w, h); } }
     ctx.restore(); }
   function drawSlot(s, now) { const r = slotR(s), id = eq()[s], on = UI.slot === s; D(on ? 'item_slot_s' : 'item_slot_n', r.x, r.y, r.w, r.h);
-    if (id && ITEM_DB[id]) { try { itemIcon(id, r.x + 50, r.y + 48, 34); } catch (e) {}
-      if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(id); if (lv) REFINE_FX.rect(r.x + 5, r.y + 5, r.w - 10, r.h - 10, 15, lv, now); } }   // 强化几级，框上就有几道光绕着转（r407_refine_fx.js）
+    if (id && ITEM_DB[id]) { const FX = window.REFINE_FX, lv = FX ? FX.lvOf(id) : 0;   // 强化过的：格子上盖金纹框、亮星钉，四五级图标后面垫宝光（r407_refine_fx.js）
+      if (lv) FX.under(r.x + 50, r.y + 48, 34, lv, now); try { itemIcon(id, r.x + 50, r.y + 48, 34); } catch (e) {} if (lv) FX.slot(r.x, r.y, r.w, r.h, lv, now); }
     else T('空', r.x + 50, r.y + 50, 24, C.dim, BR(), 400, 'center');
     ctx.font = `600 15px ${KAI()}`; const nm = id && ITEM_DB[id] ? fitW(String(ITEM_DB[id].name).replace(/（(下品|中品|上品|极品|绝品)）/, ''), 118) : SLOT_NAME[s];   // 格子下面的名字不带成色（图标左上角有小牌） ctx.save(); ctx.fillStyle = 'rgba(6,16,24,.78)'; const tw = Math.min(124, ctx.measureText(nm).width + 16); ctx.fillRect(r.x + 50 - tw / 2, r.y + 104, tw, 24); ctx.restore(); T(nm, r.x + 50, r.y + 117, 15, id ? C.gold2 : C.sub, KAI(), 600, 'center');
     if (id && UI.who !== 'hero') { const f = G.fit(UI.who, id); if (f < 1) { ctx.save(); ctx.fillStyle = f >= .9 ? '#8a6a2a' : '#8a3a2c'; ctx.beginPath(); ctx.arc(r.x + 16, r.y + 16, 15, 0, 7); ctx.fill(); T(f >= .9 ? '九' : '八', r.x + 16, r.y + 17, 16, '#ffe9c8', BR(), 400, 'center'); ctx.restore(); } } }

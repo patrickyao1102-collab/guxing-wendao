@@ -23,7 +23,11 @@
   add('m_tiejia', { name: '穿山铁鳞', price: 0, sell: 200, mat: true, wx: 'jin', rare: 1, r400: 1, desc: '铁鳞穿山甲背上最大的一片鳞，银灰色，比铁甲还硬。珍稀——那畜生啃了上百年铁矿才长成。合成秘籍上记着它的用处。' });
   // 五行灵珠：五枚同一行的精合成一颗；镶在装备上（镶嵌页）
   const GEM = { jin: ['金灵珠', 'atk', 5, '攻击'], mu: ['木灵珠', 'maxhp', 45, '气血'], shui: ['水灵珠', 'maxmp', 25, '灵力'], huo: ['火灵珠', 'spd', 2, '速度'], tu: ['土灵珠', 'def', 5, '防御'] };
-  for (const el of ORDER) add('g_' + el, { name: GEM[el][0], price: 0, sell: 120, gem: el, wx: el, r400: 1, desc: '五枚' + WX[el].n + '精炼成的一颗珠子。镶在装备上：' + GEM[el][3] + ' +' + GEM[el][2] + '；装备也是' + WX[el].n + '性的话再多五成。' });
+  for (const el of ORDER) add('g_' + el, { name: GEM[el][0], price: 0, sell: 120, gem: el, glv: 1, wx: el, r400: 1, desc: '五枚' + WX[el].n + '精炼成的一颗珠子。镶在装备上：' + GEM[el][3] + ' +' + GEM[el][2] + '；装备也是' + WX[el].n + '性的话再多五成。两颗一样的，在「镶嵌」那一页能合成高一级的。' });
+  // 灵珠能升级（设计稿第六节，作者 11-27 18:02 让设计宝石）：两颗一样的合成高一级的一颗，一到五级。还是五种，各管一样主属性。
+  const GEM_V = { jin: [5, 8, 12, 17, 23], mu: [45, 75, 110, 155, 210], shui: [25, 40, 60, 85, 115], huo: [2, 3, 4, 5, 7], tu: [5, 8, 12, 17, 23] }, GEM_MAX = 5, GEM_CN = ['', '', '二', '三', '四', '五'];
+  const gemId = (el, lv) => 'g_' + el + (lv > 1 ? lv : '');
+  for (const el of ORDER) for (let lv = 2; lv <= GEM_MAX; lv++) add(gemId(el, lv), { name: GEM[el][0] + ' · ' + GEM_CN[lv], price: 0, sell: 120 * (1 << (lv - 1)), gem: el, glv: lv, wx: el, r400: 1, desc: '两颗' + (lv > 2 ? GEM[el][0] + ' · ' + GEM_CN[lv - 1] : GEM[el][0]) + '合成的' + '一二三四五'[lv - 1] + '级灵珠。镶在装备上：' + GEM[el][3] + ' +' + GEM_V[el][lv - 1] + '；装备也是' + WX[el].n + '性的话再多五成。' });
   // 五行佩：五件朴素的普通饰品（合成才有）
   const PEI = [['c_wx_jin', '锐金佩', 'jin', { atk: 4 }, '白铜打的小环佩，素面无纹，系一根灰白细绳。'], ['c_wx_mu', '青木佩', 'mu', { maxhp: 50 }, '青玉磨的叶形小佩，叶脉只有浅浅几道。'],
     ['c_wx_shui', '玄水佩', 'shui', { maxmp: 30 }, '墨蓝色的水滴形石坠，摸着总是凉的。'], ['c_wx_huo', '离火佩', 'huo', { atk: 2, spd: 1 }, '三粒赤玛瑙串成的短坠，贴身戴着微微发暖。'], ['c_wx_tu', '厚土佩', 'tu', { def: 4 }, '土黄色的方形小石牌，四角磨得圆润。']];
@@ -249,6 +253,7 @@
 
   // ---------- 十、图标：Codex R400 画的（r400i/<id>.webp，192 见方）。画法同别的物品：深色圆底 + 一圈品质色；珍稀料、专属的那件是金圈带一层光 ----------
   const ART = new Set(['m_xingjing', 'm_songxin', 'm_tiejia', 'g_jin', 'g_mu', 'g_shui', 'g_huo', 'g_tu', 'c_wx_jin', 'c_wx_mu', 'c_wx_shui', 'c_wx_huo', 'c_wx_tu', 'c_xinghen']);   // Codex R400 的图 11-27 下午到齐
+  for (const el of ORDER) for (let lv = 2; lv <= GEM_MAX; lv++) ART.add(gemId(el, lv));   // 二到五级的灵珠：Codex R408 画的，也放在 r400i/
   { const IM = {}, get = id => { if (!ART.has(id)) return null; let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r400i/' + id + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
     const RING = { jin: '#d8dde4', mu: '#6fc98a', shui: '#6fb6ee', huo: '#f08a4a', tu: '#d0a860' };
     if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id], im = it && it.r400 && get(id); if (!im) return orig.apply(this, arguments);
@@ -256,7 +261,10 @@
       const top = it.rare || it.heroOnly, col = top ? '#f0b43a' : it.gem ? (RING[it.gem] || '#9a8a70') : it.slot ? (G6.col(id) || '#5fbf73') : (RING[it.wx] || '#9a8a70');
       ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = col; ctx.stroke(); if (top) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
       const s2 = r * (it.gem ? 1.9 : 2.1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); ctx.restore();
-      try { const gg = it.slot && WX5.GEAR[id]; if (gg && r >= 13) WX5.emblem(gg, x + r * .72, y + r * .72, Math.max(7, r * .36), 1); } catch (e) {} })(itemIcon); }
+      try { const gg = it.slot && WX5.GEAR[id]; if (gg && r >= 13) WX5.emblem(gg, x + r * .72, y + r * .72, Math.max(7, r * .36), 1); } catch (e) {}
+      // 二级以上的灵珠：右下角挂一枚小牌写着几级（二级和三级的图长得很像，光看珠子分不出来）
+      try { if (it.gem && it.glv > 1 && r >= 13) { const bx = x + r * .72, by = y + r * .72, br = Math.max(7, r * .38); ctx.save(); ctx.beginPath(); ctx.arc(bx, by, br, 0, 7); ctx.fillStyle = 'rgba(10,20,26,.94)'; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = '#c9a962'; ctx.stroke();
+        ctx.font = '700 ' + Math.round(br * 1.3) + 'px ' + (window.R386_KIT && R386_KIT.KAI ? R386_KIT.KAI() : '"STKaiti","KaiTi",serif'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f3e3b2'; ctx.fillText('一二三四五'[it.glv - 1], bx, by + br * .08); ctx.restore(); } } catch (e) { try { ctx.restore(); } catch (e2) {} } })(itemIcon); }
 
   // 独一份的装备：图标用它原型的，左上角挂一枚成色小牌（中品不挂）。这一层套在所有图标画法的最外面。
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id]; if (!it || !it.fg) return orig.apply(this, arguments);
@@ -266,5 +274,5 @@
 
   try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {}   // 这里和 r389 新加的装备，补套上强化的读数（主程序只在开局三秒时补一遍，载入慢就漏了）
   setTimeout(() => { for (const id of ART) { try { itemIcon(id, -999, -999, 8); } catch (e) {} } }, 8000);   // 图标提前要一遍
-  window.CRAFT = { ALLOW, allow, ACC_P, MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, RANK_W, cellW, FEE, GEM, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
+  window.CRAFT = { ALLOW, allow, ACC_P, MAT, CLASS_NAME, isMat, RECIPES, recipeShown, whoName, FIXED, POOL, RANK_W, cellW, FEE, GEM, GEM_V, GEM_MAX, gemId, BOSS, ART, SUB, GRADES, ROLL, gradeOf, keyOf, analyze, roll, craft, setRefine, refineOf, have, take, takeUnit, stacks, linesOf, lineText, subText, parse, score, reg, syncAll, rollLine };
 })();

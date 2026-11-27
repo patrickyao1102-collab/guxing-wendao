@@ -35,6 +35,7 @@
   function takeMats(ms, n) { for (const m of ms) { const t = Math.min(n, have(m)); if (t) { S.hero.bag[m] -= t; if (!S.hero.bag[m]) delete S.hero.bag[m]; n -= t; } if (!n) break; } }
 
   async function refineUI(who) {
+    if (window.R394 && typeof R394.open === 'function') { await R394.open(1, who); return; }   // 测试版：强化统一走剑炉那一页（材料、规矩都在那边）；正式版没有 R394，照旧走下面这套对话
     wrapAll();
     for (;;) {
       const h = S.hero, eq = h.equip || {}, slots = ['weapon', 'wrist', 'armor', 'shoe', 'acc'].filter(s => eq[s]);

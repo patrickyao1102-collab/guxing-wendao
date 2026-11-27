@@ -12,6 +12,7 @@
 //   二、原有那 58 件排进格子：等级理齐（练气档 6 级、凝丹档 11 级——原来凝丹档五个系列从 10 级到 14 级不等，火性的人要多等四级才有得穿）；
 //       有 14 件的数对不上它在格子里的位置，改了（改了什么见 CHG）；五行佩五件照「饰品攻击排第三」补了攻击。
 //   三、十种新料：练气档每个五行两类料都有了，凝丹档补上水的兵饰料、土的兵饰料。连同出处：妖物掉、宝箱、钓鱼、店里卖。
+//       另有四样强化材料（淬灵砂、晶、玉、髓）和它们的出处。
 //   四、图标：Codex R406 / R407 / R408（r406i/<名字牌>.webp，192 见方）。圈的颜色跟着第几等走：常见灰、套装件和少见绿、稀有蓝、难得金。
 //   五、店里添货：常见的那件进店（练气档在青阳镇，凝丹档在玄天城）。
 //   六、存档：数改过的那几件要是正穿在叶孤星身上，把差额补到他身上（每份存档只补一回）。队友的属性是现算的，不用补。
@@ -320,12 +321,34 @@
   if (typeof addItem === 'function') addItem = (orig => function (id, n) { const r = orig.apply(this, arguments);
     try { if (/^fish_/.test(String(id)) && ITEM_DB.m_yugu && Math.random() < .3) { addItem('m_yugu', 1); if (typeof toast === 'function') toast('线上还缠着一副银鱼骨', 2200); } } catch (e) {} return r; })(addItem);
 
+  // ---------- 三之二、强化材料：淬灵砂 / 晶 / 玉 / 髓 ----------
+  // 设计稿第五节（作者 18:02 让设计强化材料；18:48 定强化 +5 封顶）：强化不再和合成抢料——练气档的装备用淬灵砂，凝丹档的用淬灵晶
+  //   （引魂档的玉、归元档的髓先登记着，等那两档的装备做出来再放出处）。强化到第几级用几份（规矩在 r394_forge.js）。
+  //   出处：砂——练气的妖物两三成掉一份，青阳镇铁匠铺、玄兵阁有卖；晶——凝丹的妖物一成上下，头目、妖王身上成把地有。
+  const QUENCH = [['q_sha', '淬灵砂', 1, 50, 15, '青灰色的细砂，里面闪着点点银光。铁匠拿它淬练气档的装备：强化到第几级，就用几份。'],
+    ['q_jing', '淬灵晶', 2, 0, 60, '一簇淡青色的小晶体，棱角分明，微微透亮。淬凝丹档的装备用：强化到第几级，就用几份。头目、妖王身上多。'],
+    ['q_yu', '淬灵玉', 3, 0, 150, '一块温润的青白玉料，玉里有一缕流动的光。淬引魂档的装备用。'],
+    ['q_sui', '淬灵髓', 4, 0, 300, '小小一只白瓷瓶，瓶里浓稠的青金色灵髓透出光来。淬归元档的装备用。']];
+  for (const [id, name, tier, price, sell, desc] of QUENCH) if (!ITEM_DB[id]) ITEM_DB[id] = { name, price, sell, quench: tier, cat: '材料', r406: 1, desc };
+  const QDROP = { q_sha: { m_wolf: .2, m_monkey: .2, m_tree: .2, e_grunt: .22, e_archer: .22, e_boar: .3 },
+    q_jing: { e_wolf2: .1, e_rhino: .12, e_leopard: .14, e_ywolf: .12, e_spider: .12, e_treant: .12, e_xiexiu: .12, e_corpse: .12, e_xbat: .1, e_xwraith: .12, e_xspider: .12, e_xguard1: .12, e_xguard2: .12, e_xguard3: .12, e_spiderq: 1, e_wolfking: 1 } };
+  try { if (typeof DROPS !== 'undefined') for (const q of Object.keys(QDROP)) for (const k of Object.keys(QDROP[q])) { const a = DROPS[k] = DROPS[k] || []; if (!a.some(x => x[0] === q)) a.push([q, QDROP[q][k]]); } } catch (e) { console.warn('R406 qdrop', e); }
+  // 头目、妖王：打倒时另给几份（头一只狼王在练气，给砂；别的给晶）
+  try { for (const y of (window.R370_YW || [])) { const q = y.id === 'xingwolf' ? 'q_sha' : 'q_jing', n = y.id === 'xingwolf' ? 4 : y.mini ? 2 : 3; y.extra = y.extra || []; if (!y.extra.includes(q)) for (let i = 0; i < n; i++) y.extra.push(q); } } catch (e) { console.warn('R406 yw', e); }
+  // 老存档：强化的规矩换了，身上一份淬灵都没有——星旋给几份见面礼（每份存档一回；刚开局的新档不给）
+  let gifting = false;
+  setInterval(() => { try { const f = F(), h = S.hero; if (gifting || f.q406_gift || !S.started || !h || typeof drawMap === 'undefined' || S.scene !== drawMap || !S.hud || world.locked || dialog || choice || sysPanel || (typeof battle !== 'undefined' && battle)) return;
+      const old = (h.lv || 1) >= 8 || !!f.forged || Object.values(h.refine || {}).some(v => v > 0); f.q406_gift = 1; if (!old || !window.SAY_LATER) return;
+      const got = [['q_sha', 6]]; if ((h.lv || 1) >= (window.GX_LV10 ? 11 : 10)) got.push(['q_jing', 4]); for (const [id, n] of got) addItem(id, n); gifting = true;
+      SAY_LATER(async () => { try { await say('星旋', '小子，如今铁匠淬火要用淬灵砂、淬灵晶，狼牙兽皮留着打装备。本神仙替你攒了几份，拿去。');
+          if (window.itemGet) await itemGet(got.map(([id, n]) => ({ icon: 'item:' + id, name: ITEM_DB[id].name, count: '×' + n, desc: ITEM_DB[id].desc })), '星旋相赠'); } finally { gifting = false; } }); } catch (e) {} }, 2500);
+
   // ---------- 四、图标 ----------
   // 新装备、新料用 Codex 的图；圈的颜色看第几等。图还没载到的那一小会儿，先画一个带字的圆顶着。
   const IM = {}, get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r406i/' + id + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   const RING = { jin: '#d8dde4', mu: '#6fc98a', shui: '#6fb6ee', huo: '#f08a4a', tu: '#d0a860' }, CH = { weapon: '剑', wrist: '腕', armor: '衣', shoe: '靴', acc: '佩' };
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id]; if (!it || !it.r406) return orig.apply(this, arguments);
-    const im = get(id), c = it.slot ? RANK_COL[it.rk || 0] : (RING[it.wx] || '#9a8a70'), top = it.slot && it.rk === 3;
+    const im = get(id), c = it.slot ? RANK_COL[it.rk || 0] : it.quench ? RANK_COL[Math.min(3, it.quench - 1)] : (RING[it.wx] || '#9a8a70'), top = it.slot && it.rk === 3;
     ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)'); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill();
     ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = c; ctx.stroke(); if (top) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }   // 难得的那件：金圈外面再罩一层光
     if (im) { const s2 = r * 2.12; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); }
@@ -339,11 +362,11 @@
   // ---------- 五、店里添货 ----------
   // 作者：店里卖常见的。练气档的常见货放在青阳镇三家铺子（铁匠铺卖兵甲护腕和打铁的料，杂货铺卖鞋和零碎，聚宝斋卖佩饰），凝丹档的放在玄天城三家。
   const stock = (arr, ids) => { if (!Array.isArray(arr)) return; for (const id of ids) if (ITEM_DB[id] && !arr.includes(id)) arr.push(id); };
-  const QY = { '王铁匠': ['w_jinggang', 'w_tiehua', 'w_chitong', 'w_houbei', 'r_tongding', 'r_mabu', 'r_hantie', 'r_chitong', 'r_niupi', 'a_yulin', 'a_zhuqi', 's_tiezhang', 'm_duanren', 'm_jiapian'],
+  const QY = { '王铁匠': ['w_jinggang', 'w_tiehua', 'w_chitong', 'w_houbei', 'r_tongding', 'r_mabu', 'r_hantie', 'r_chitong', 'r_niupi', 'a_yulin', 'a_zhuqi', 's_tiezhang', 'm_duanren', 'm_jiapian', 'q_sha'],
     '杂货铺老板': ['s_buyun', 's_sheshui', 's_chipi', 's_cuge', 'm_yugu', 'm_shetui'], '聚宝斋掌柜': ['c_wx_jin', 'c_wx_mu', 'c_wx_shui', 'c_wx_huo', 'c_wx_tu'] };
   try { for (const m of Object.keys(TMAPS)) for (const n of (TMAPS[m].npcs || [])) if (QY[n.name] && Array.isArray(n.shop)) stock(n.shop, QY[n.name]); } catch (e) { console.warn('R406 shop', e); }
   try { const ST = window.R370_STOCK; if (ST) {
-      stock(ST.xuanbing, ['w_longquan', 'w_songwen', 'w_bingwen', 'w_yantie', 'w_yanwen', 'r_wengang', 'r_tengjia', 'r_bingwen', 'r_yantie', 'r_yanwen', 'a_yanwen']);
+      stock(ST.xuanbing, ['w_longquan', 'w_songwen', 'w_bingwen', 'w_yantie', 'w_yanwen', 'r_wengang', 'r_tengjia', 'r_bingwen', 'r_yantie', 'r_yanwen', 'a_yanwen', 'q_sha']);
       stock(ST.chengyi, ['a_shuiyun', 'a_jiangsha', 's_baodi', 's_bingwen', 's_chiji', 's_yanwen']);
       stock(ST.yanzhi, ['c_gengjin', 'c_yimu', 'c_guishui', 'c_binghuo', 'c_wutu']);
       // 货架上按部位、再按价钱从低到高排（香、杂物排在最后）
@@ -363,5 +386,5 @@
       h.hp = Math.max(1, Math.min(h.hp, h.maxhp)); h.mp = Math.max(0, Math.min(h.mp, h.maxmp)); } catch (e) { console.warn('R406 save', e); } }
   setInterval(fixSave, 700);
 
-  window.GEAR6 = { GRID, NO_FORGE, TIER_CN, RANK_CN, RANK_COL, LV, CHG, OLD, NOW, MATS: MATS.map(m => m[0]), baseOf, rankOf, tierOf, rankName, label, col, fixSave, icon: get };
+  window.GEAR6 = { GRID, NO_FORGE, TIER_CN, RANK_CN, RANK_COL, LV, CHG, OLD, NOW, MATS: MATS.map(m => m[0]), QUENCH: { 1: 'q_sha', 2: 'q_jing', 3: 'q_yu', 4: 'q_sui' }, baseOf, rankOf, tierOf, rankName, label, col, fixSave, icon: get };
 })();

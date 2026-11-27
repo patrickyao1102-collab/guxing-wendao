@@ -5,16 +5,16 @@
 //   · 合成：左边是身上的材料，点一下放上阵盘；五样围成一圈，放满点「合成」，盘心出东西。不告诉玩家会出什么。
 //           相邻两样相生，那条边亮绿，成色高；相克亮红，成色低（14:25 作者说不要「走火」）。材料自己带的副属性有机会留进成品（14:35：要靠运气）。
 //           右边是「合成秘籍」，只记各人的专属套装。
-//   · 强化：原来就有的那套（最高 +5，+4 七成、+5 五成，失败只损材料），换成带图标的界面；兵器饰品吃兵饰料，衣甲鞋吃防具料。
-//   · 镶嵌：五行灵珠镶到装备上（星痕剑不镶珠，它点星纹）。  · 精炼：把用不上的材料炼成五行之精。  · 星纹：上午做的，没动。
+//   · 强化：原来就有的那套（最高 +5，+4 七成、+5 五成，失败只损材料），换成带图标的界面。11-27 傍晚：材料换成淬灵砂 / 淬灵晶（不再和合成抢料）；能把强化挪到同部位的另一件上。
+//   · 镶嵌：五行灵珠镶到装备上（星痕剑不镶珠，它点星纹）。11-27 傍晚：灵珠能升级（两颗合一颗，一到五级），换下来的珠子退回行囊。  · 精炼：把用不上的材料炼成五行之精。  · 星纹：上午做的，没动。
 // 界面用行囊「玄青星图」那套件；阵盘、页签图标、灵珠等 Codex R400 的图，到了自动换上，没到先用简单的线顶着。
 (function () {
   const K = window.R386_KIT, G = window.GEAR5, J = window.WXJ, CR = window.CRAFT; if (!K || !G || !J || !CR || !window.WX5 || typeof cv === 'undefined') return;
   const { KIT, D, T, C, BR, KAI, NUM, fit: fitW, wrap, kitLoad, kitReady, inR } = K, WX = WX5.WX, ORDER = WX5.ORDER, MAT = CR.MAT;
   const F = () => (S.flags = S.flags || {});
-  const SMITH = '铸剑师', RUNE = [6, 300];
+  let SMITH = '铸剑师'; const RUNE = [6, 300];   // SMITH：这一回是谁在炉子边说话（青阳镇的王铁匠也用这一套界面）
   const STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' }, KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'], SLOT_CN = { weapon: '兵器', wrist: '护腕', armor: '衣甲', shoe: '鞋履', acc: '饰品' };
-  const UI = { open: false, t0: 0, taps: [], tab: 0, arm: null, say: '', sayT: 0, slots: [null, null, null, null, null], mf: 0, mp: 0, res: null, fx: [], gsel: null, gp: 0, msel: null, sock: 0 };
+  const UI = { open: false, t0: 0, taps: [], tab: 0, arm: null, say: '', sayT: 0, slots: [null, null, null, null, null], mf: 0, mp: 0, res: null, fx: [], gsel: null, gp: 0, msel: null, sock: 0, mv: null, gsk: null, gmp: 0 };
   const P = { x: 20, y: 96, w: 1240, h: 604 }, BODY = { x: 40, y: 112, w: 1200, h: 572 }, CLOSE = { x: 1126, y: 34, w: 124, h: 46 };
   const TABS = ['合成', '强化', '镶嵌', '精炼', '星纹'], TABK = ['hecheng', 'qianghua', 'xiangqian', 'jinglian', 'xingwen'], tabR = i => ({ x: 232 + i * 150, y: 36, w: 142, h: 44 });
   const snd = (n, v) => { try { playSnd(n, v || .7); } catch (e) {} };
@@ -170,7 +170,7 @@
     const it = ITEM_DB[r.id], el = (it.gem || WX5.GEAR[r.id] || a.el || 'jin'); UI.slots.fill(null); UI.res = { id: r.id, t: performance.now() };
     burst(CX, CY, el, r.grade >= 3 || r.rank >= 3 ? 1.4 : 1.15); if (r.grade >= 4 || (r.rank >= 3 && a.kind === 'mix')) setTimeout(() => { if (UI.open) burst(CX, CY, 'jin', 1.7); }, 160);
     try { S.flash = r.grade >= 3 ? .3 : .22; S.flashColor = '#ffe9b8'; } catch (e) {} snd('sfx_sword_ring', .6); try { playSnd('jingle_levelup', .45); } catch (e) {}
-    speak(it.gem ? '五枚精炼成一颗「' + it.name + '」。到镶嵌那一页，镶到装备上去。' : a.kind === 'recipe' ? '成了。「' + it.name + '」——这一件只认它的主人。'
+    speak(it.gem ? '五枚精炼成一颗「' + it.name + '」。到镶嵌那一页，镶到装备上去；攒够两颗一样的，还能合成高一级的。' : a.kind === 'recipe' ? '成了。「' + it.name + '」——这一件只认它的主人。'
       : a.kind === 'fixed' ? (r.lines.length ? '五样同出一源，稳当。头一样料上的那一条，带进去了。' : '五样同出一源，稳当。')
       : (r.rank >= 3 ? '「' + ITEM_DB[r.base].name + '」——这一路料里最难得的一件，十炉也未必出一回。' : r.rank === 2 ? '「' + ITEM_DB[r.base].name + '」，稀有的东西。' : '')
         + (r.grade >= 4 ? '五行流转，五条全留——这样的东西，我打了一辈子铁也没见过几回。绝品。' : r.grade === 3 ? '成色极好。极品。' : r.grade === 2 ? '成色不错，上品。' : r.grade === 0 ? (a.H < 0 ? '五行相克，成色差了些。下回把相生的两样挨着摆。' : '这一炉手气差了点。') : r.rank >= 2 ? '' : '成了。中规中矩。'));
@@ -195,52 +195,77 @@
     if (np > 1 && inR(tp, GPG.prev)) { if (UI.gp > 0) { UI.gp--; snd('ui_click'); } return true; } if (np > 1 && inR(tp, GPG.next)) { if (UI.gp < np - 1) { UI.gp++; snd('ui_click'); } return true; }
     const page = list.slice(UI.gp * per, UI.gp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, gcR(i))) { if (UI.gsel !== page[i].id) { UI.gsel = page[i].id; UI.arm = null; UI.say = ''; UI.sock = 0; snd('ui_click'); } return true; } return false; }
   const GD = { x: 516, y: 124, w: 712, h: 548 };
-  function gearHead(id) { const it = ITEM_DB[id], g = WX5.GEAR[id]; try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} T(it.name, GD.x + 130, GD.y + 46, 28, C.gold2, BR(), 400);
-    if (window.REFINE_FX) { const lv = REFINE_FX.lvOf(id); if (lv) REFINE_FX.ring(GD.x + 66, GD.y + 70, 49, lv, performance.now()); }   // 强化几级，图标外面就有几道光绕着转
+  function gearHead(id) { const it = ITEM_DB[id], g = WX5.GEAR[id], FX = window.REFINE_FX, rl = FX ? FX.lvOf(id) : 0, nowF = performance.now();   // 强化过的：图标外面盖金纹框、亮星钉（r407_refine_fx.js）
+    if (rl) FX.under(GD.x + 66, GD.y + 70, 44, rl, nowF); try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} if (rl) FX.slot(GD.x + 66 - 60, GD.y + 70 - 58, 120, 120, rl, nowF); T(it.name, GD.x + 130, GD.y + 46, 28, C.gold2, BR(), 400);
     const lb = window.GEAR6 ? GEAR6.label(id) : ''; T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + (lb ? ' · ' + lb : '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text);
     if (it.fg) { ctx.font = `500 15px ${KAI()}`; T(fitW('主属性 ' + pct(it.mult) + '　' + (it.subs.length ? '副属性：' + it.subs.join('　') : '没有副属性'), GD.w - 160), GD.x + 130, GD.y + 110, 15, it.subs.length ? C.green : C.sub, KAI(), 500); } }
 
   // =====================================================================================================
-  // 二、强化（规矩照旧：equip_plus 那一套）
+  // 二、强化（+5 封顶、每级各项加一成半、前三级必成——equip_plus 那一套不变；11-27 傍晚换了材料，加了「挪强化」）
   // =====================================================================================================
-  const MAXLV = 5, RATE = [1, 1, 1, .7, .5], B_REF = { x: GD.x + GD.w - 250, y: GD.y + GD.h - 76, w: 226, h: 54 };
-  const refCost = (id, l) => ({ gold: Math.round((40 + (ITEM_DB[id].price || 120) * .35) * (l + 1)), n: l + 1, cls: /^(weapon|wrist|acc)$/.test(ITEM_DB[id].slot) ? 'W' : 'A' });
+  // 设计稿第五节：强化不再和合成抢料。练气档的装备用淬灵砂，凝丹档的用淬灵晶；强化到第几级，就用几份。
+  //   炭火钱按档算：练气档每级 80、凝丹档每级 200（+1 一倍、+2 两倍……）。
+  // 挪强化：把一件装备的强化原样挪到同一个部位的另一件上（那一件得比它低），旧的那件清零——换了新装备，前面的强化不白费。
+  const MAXLV = 5, RATE = [1, 1, 1, .7, .5], B_REF = { x: GD.x + GD.w - 250, y: GD.y + GD.h - 76, w: 226, h: 54 }, B_MOVE = { x: GD.x + GD.w - 250 - 196, y: GD.y + GD.h - 76, w: 184, h: 54 };
+  const G6 = () => window.GEAR6 || null;
+  // 这件装备算哪一档：排进格子的看格子；别的看需要等级（11 级起算凝丹档）。引魂、归元两档的装备还没做，先封在凝丹档
+  const gearTier = id => { const g = G6(), t = g ? g.tierOf(id) : 0; if (t) return Math.min(2, t); return (ITEM_DB[id].lvReq || 0) >= (window.GX_LV10 ? 11 : 10) ? 2 : 1; };
+  const quenchOf = id => { const g = G6(), q = g && g.QUENCH[gearTier(id)]; return q && ITEM_DB[q] ? q : null; };
+  const refCost = (id, l) => { const t = gearTier(id); return { gold: (t >= 2 ? 200 : 80) * (l + 1), n: l + 1, mat: quenchOf(id), tier: t }; };
+  const moveFee = (to, lv) => (gearTier(to) >= 2 ? 150 : 60) * lv;
   // 下一级是多少：把等级临时拨高一格读一遍再拨回来（数是 equip_plus 那套读数算的，这里不另算一套）
   function peekNext(id, l) { const R = (S.hero.refine = S.hero.refine || {}), old = R[id], out = {}; R[id] = l + 1; try { for (const k of KEYS) out[k] = ITEM_DB[id][k] || 0; } finally { if (old) R[id] = old; else delete R[id]; } return out; }
-  // 用哪几样料：先用寻常的，珍稀的（三品）和百搭的不动
-  const inRecipe = id => CR.RECIPES.some(r => r.mats.includes(id));
-  function refPick(cls, n) { const pool = Object.keys(MAT).filter(id => MAT[id].c === cls && MAT[id].g <= 2 && have(id) > 0).sort((a, b) => MAT[a].g - MAT[b].g || (inRecipe(a) ? 1 : 0) - (inRecipe(b) ? 1 : 0) || have(b) - have(a) || (a < b ? -1 : 1)), out = []; let left = n;
-    for (const id of pool) { if (left <= 0) break; const t = Math.min(left, have(id)); out.push([id, t]); left -= t; } return { list: out, left }; }
-  function drawRefine(now) { drawGears('强化哪一件', id => { const l = CR.refineOf(id); return l ? '+' + l : ''; }); D('panel_well_9', GD.x, GD.y, GD.w, GD.h);
+  const canMoveTo = (src, id) => !!src && id !== src && ITEM_DB[id] && ITEM_DB[src] && ITEM_DB[id].slot === ITEM_DB[src].slot && CR.refineOf(id) < CR.refineOf(src);
+  function drawRefine(now) { const mv = UI.mv && ITEM_DB[UI.mv] && CR.refineOf(UI.mv) > 0 ? UI.mv : (UI.mv = null);
+    drawGears(mv ? '挪到哪一件上' : '强化哪一件', id => { const l = CR.refineOf(id); return mv ? (id === mv ? '+' + l : canMoveTo(mv, id) ? '可' : '') : (l ? '+' + l : ''); }); D('panel_well_9', GD.x, GD.y, GD.w, GD.h);
     const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null;
-    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一件装备。每强化一级，这件装备的各项属性加一成半，最高 +5。兵器、饰品用牙角骨晶，衣甲、鞋履用皮丝壳鳞。前三级必成；+4 七成、+5 五成，不成只损材料，装备不坏。', GD.x + 26, GD.y + 44, GD.w - 52, 28, 5); return; }
-    gearHead(id); const l = CR.refineOf(id), it = ITEM_DB[id];
-    if (l >= MAXLV) { T('已经到 +' + MAXLV + '，再敲就碎了。', GD.x + 30, GD.y + 170, 19, C.gold2, KAI(), 600); if (saying(now)) T(SMITH + '：' + UI.say, GD.x + 30, GD.y + GD.h - 48, 16, C.gold2); return; }
-    const c = refCost(id, l), pk = refPick(c.cls, c.n), ng = S.hero.gold || 0;
+    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一件装备。每强化一级，这件装备的各项属性加一成半，最高 +5。练气档的装备用淬灵砂，凝丹档的用淬灵晶：强化到第几级，就用几份。前三级必成；+4 七成、+5 五成，不成只损材料，装备不坏。换了新装备，可以把旧装备的强化挪过去。', GD.x + 26, GD.y + 44, GD.w - 52, 28, 6); return; }
+    gearHead(id); const l = CR.refineOf(id), it = ITEM_DB[id], ng = S.hero.gold || 0;
+    // 正在挪：右边写清楚从哪一件挪到哪一件
+    if (mv) { const lv = CR.refineOf(mv), ok = canMoveTo(mv, id), fee = ok ? moveFee(id, lv) : 0;
+      T('把「' + ITEM_DB[mv].name + '」的强化挪过来', GD.x + 30, GD.y + 150, 20, C.gold2, KAI(), 600);
+      if (id === mv) T('点左边另一件' + (SLOT_CN[it.slot] || '装备') + '（右上角标着「可」的）。', GD.x + 30, GD.y + 190, 17, C.sub);
+      else if (!ok) T(ITEM_DB[id].slot !== ITEM_DB[mv].slot ? '部位不一样，挪不过来。' : '这一件的强化不比它低，用不着挪。', GD.x + 30, GD.y + 190, 17, C.red);
+      else { T('这一件：+' + l + '　→　+' + lv, GD.x + 30, GD.y + 194, 24, C.green, NUM(), 700); T('「' + ITEM_DB[mv].name.replace(/ \+\d$/, '') + '」回到 +0', GD.x + 30, GD.y + 234, 17, C.sub); T('灵石 ' + ng + ' / ' + fee, GD.x + 30, GD.y + 270, 17, ng >= fee ? C.green : C.red, NUM(), 600); }
+      if (saying(now)) T(SMITH + '：' + UI.say, GD.x + 30, GD.y + GD.h - 100, 16, C.gold2);
+      btn(B_MOVE, '不挪了', 'n', 18); if (ok) btn(B_REF, ng < fee ? '灵石不够' : armed('mv') ? '再点一次 · 挪过来' : '挪到这一件', ng < fee ? 'd' : armed('mv') ? 'p' : 'n', 18); return; }
+    if (l >= MAXLV) { T('已经到 +' + MAXLV + '，再敲就碎了。', GD.x + 30, GD.y + 170, 19, C.gold2, KAI(), 600); if (saying(now)) T(SMITH + '：' + UI.say, GD.x + 30, GD.y + GD.h - 100, 16, C.gold2); btn(B_REF, '把强化挪走', 'n', 18); return; }
+    const c = refCost(id, l), hv = c.mat ? have(c.mat) : 0;
     T('+' + l + '　→　+' + (l + 1), GD.x + 30, GD.y + 150, 26, C.gold2, NUM(), 700);
     const nx = peekNext(id, l); let y = GD.y + 196; for (const k of KEYS) { const v = it[k]; if (!v || v <= 0) continue; T(STAT_NAME[k], GD.x + 30, y, 17, C.sub); T(String(v), GD.x + 100, y, 19, C.text, NUM(), 700); T('→', GD.x + 150, y, 17, C.sub); T(String(nx[k]), GD.x + 186, y, 19, C.green, NUM(), 700); y += 32; }
-    T('要用的料（' + CR.CLASS_NAME[c.cls] + ' ×' + c.n + '）', GD.x + 330, GD.y + 150, 17, C.sub); let x = GD.x + 356;
-    if (!pk.list.length) T('身上一样都没有', GD.x + 330, GD.y + 196, 17, C.red); pk.list.forEach(([m, n]) => { try { itemIcon(m, x, GD.y + 204, 24); } catch (e) {} T('×' + n, x + 28, GD.y + 216, 15, C.text, NUM(), 700); T(fitW(ITEM_DB[m].name, 80), x, GD.y + 244, 13, C.sub, KAI(), 500, 'center'); x += 92; });
-    if (pk.left > 0 && pk.list.length) T('还差 ' + pk.left, x, GD.y + 204, 16, C.red, KAI(), 600);
-    T('灵石 ' + ng + ' / ' + c.gold, GD.x + 330, GD.y + 296, 17, ng >= c.gold ? C.green : C.red, NUM(), 600); T('成功率 ' + Math.round(RATE[l] * 100) + '%' + (RATE[l] < 1 ? '（不成只损材料）' : ''), GD.x + 330, GD.y + 328, 17, RATE[l] < 1 ? '#d9b46a' : C.text);
-    if (saying(now)) T(SMITH + '：' + UI.say, GD.x + 30, GD.y + GD.h - 48, 16, C.gold2);
-    if (pk.left > 0) btn(B_REF, '料不够', 'd', 18); else if (ng < c.gold) btn(B_REF, '灵石不够', 'd', 18); else btn(B_REF, armed('ref') ? '再点一次 · 下锤' : '强　化', armed('ref') ? 'p' : 'n'); }
-  function tapRefine(tp) { if (tapGears(tp)) return; const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null; if (!id || !inR(tp, B_REF)) return; const l = CR.refineOf(id); if (l >= MAXLV) return;
-    const c = refCost(id, l), pk = refPick(c.cls, c.n); if (pk.left > 0) { speak('料不够。' + (c.cls === 'W' ? '牙、角、骨、晶' : '皮、丝、壳、鳞') + '之类的，再攒 ' + pk.left + ' 样来。'); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < c.gold) { speak('炭火钱不够。'); snd('ui_cancel'); return; }
+    T('要用的料', GD.x + 330, GD.y + 150, 17, C.sub);
+    if (c.mat) { try { itemIcon(c.mat, GD.x + 356, GD.y + 204, 26); } catch (e) {} T(ITEM_DB[c.mat].name + ' ×' + c.n, GD.x + 396, GD.y + 196, 19, C.text, KAI(), 600); T('身上有 ' + hv, GD.x + 396, GD.y + 222, 15, hv >= c.n ? C.green : C.red, KAI(), 500); }
+    T('灵石 ' + ng + ' / ' + c.gold, GD.x + 330, GD.y + 276, 17, ng >= c.gold ? C.green : C.red, NUM(), 600); T('成功率 ' + Math.round(RATE[l] * 100) + '%' + (RATE[l] < 1 ? '（不成只损材料）' : ''), GD.x + 330, GD.y + 308, 17, RATE[l] < 1 ? '#d9b46a' : C.text);
+    if (saying(now)) T(SMITH + '：' + UI.say, GD.x + 30, GD.y + GD.h - 100, 16, C.gold2);
+    if (l > 0) btn(B_MOVE, '把强化挪走', 'n', 17);
+    if (!c.mat || hv < c.n) btn(B_REF, '料不够', 'd', 18); else if (ng < c.gold) btn(B_REF, '灵石不够', 'd', 18); else btn(B_REF, armed('ref') ? '再点一次 · 下锤' : '强　化', armed('ref') ? 'p' : 'n'); }
+  function tapRefine(tp) { const mv = UI.mv && ITEM_DB[UI.mv] && CR.refineOf(UI.mv) > 0 ? UI.mv : (UI.mv = null);
+    if (tapGears(tp)) return; const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null; if (!id) return; const l = CR.refineOf(id), bx = GD.x + 66, by = GD.y + 70;
+    if (mv) { if (inR(tp, B_MOVE)) { UI.mv = null; UI.arm = null; snd('ui_click'); return; } if (!inR(tp, B_REF) || !canMoveTo(mv, id)) return; const lv = CR.refineOf(mv), fee = moveFee(id, lv);
+      if ((S.hero.gold || 0) < fee) { speak('挪一回要 ' + fee + ' 灵石的炭火钱。'); snd('ui_cancel'); return; } if (!armed('mv')) { UI.arm = { k: 'mv', t: performance.now() }; snd('ui_click'); return; }
+      UI.arm = null; S.hero.gold -= fee; const from = ITEM_DB[mv].name.replace(/ \+\d$/, ''); CR.setRefine(mv, 0); CR.setRefine(id, lv); UI.mv = null; burst(bx, by, WX5.GEAR[id] || 'jin', .9); snd('sfx_sword_ring', .6); try { S.flash = .18; S.flashColor = '#ffe9b8'; } catch (e) {}
+      speak('挪好了。「' + from + '」上的火候，原样到了这一件上。'); return; }
+    if (inR(tp, B_MOVE) && l > 0 && l < MAXLV) { UI.mv = id; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
+    if (!inR(tp, B_REF)) return; if (l >= MAXLV) { UI.mv = id; UI.arm = null; UI.say = ''; snd('ui_click'); return; }
+    const c = refCost(id, l), hv = c.mat ? have(c.mat) : 0; if (!c.mat || hv < c.n) { speak((c.mat ? ITEM_DB[c.mat].name : '淬灵') + '不够，这一级要 ' + c.n + ' 份。' + (c.tier >= 2 ? '头目、妖王身上多，凝丹的妖物偶尔也掉。' : '练气的妖物身上有，铁匠铺也卖。')); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < c.gold) { speak('炭火钱不够。'); snd('ui_cancel'); return; }
     if (!armed('ref')) { UI.arm = { k: 'ref', t: performance.now() }; snd('ui_click'); return; }
-    UI.arm = null; for (const [m, n] of pk.list) CR.take(m, n); S.hero.gold -= c.gold; snd('sfx_sword_ring', .7); const bx = GD.x + 66, by = GD.y + 70;
+    UI.arm = null; CR.take(c.mat, c.n); S.hero.gold -= c.gold; snd('sfx_sword_ring', .7);
     if (Math.random() < RATE[l]) { CR.setRefine(id, l + 1); burst(bx, by, WX5.GEAR[id] || 'jin', .9); try { S.flash = .2; S.flashColor = '#ffe9b8'; playSnd('jingle_levelup', .45); } catch (e) {} speak('成了，+' + (l + 1) + '。' + (l + 1 >= MAXLV ? '到头了，再敲就碎了。' : '')); }
     else { try { S.flash = .18; S.flashColor = '#7a2a1a'; S.shake = 6; playSnd('sfx_hurt', .5); } catch (e) {} speak('火候差了一点。料和炭钱没了，东西没坏，还是 +' + l + '。'); } }
 
   // =====================================================================================================
   // 三、镶嵌（五行灵珠；按「这一种装备」记，和强化一样）
   // =====================================================================================================
+  // 11-27 傍晚（设计稿第六节）：灵珠能升级——两颗一样的合成高一级的一颗，一到五级；换下来的珠子不碎了，退回行囊。
+  //   孔里记的是「哪一行 + 几级」：'huo' 是一级的火灵珠（老存档就是这么记的），'huo3' 是三级的。
   const GEMS = () => (S.hero.gems = S.hero.gems || {});
   const sockN = id => { const it = ITEM_DB[id]; if (!it || !it.slot || WX5.isXH(id)) return 0; const t6 = window.GEAR6 ? GEAR6.tierOf(id) : 0; if (t6) return t6 >= 2 ? 2 : 1;   // 排进格子的装备：练气档一个孔，凝丹档两个
     const st = G.setOfItem(id); return (st && st.tier >= 2) || (it.lvReq || 0) >= 10 ? 2 : 1; };
+  const gemEL = g => String(g || '').replace(/\d+$/, ''), gemLV = g => +((/(\d+)$/.exec(String(g || '')) || [])[1] || 1), gemTok = (el, lv) => lv > 1 ? el + lv : el;
+  const gemItem = g => CR.gemId(gemEL(g), gemLV(g));   // 孔里那颗珠子是行囊里的哪一样东西
   const gemsOf = id => { const a = GEMS()[id] || []; return [a[0] || null, a[1] || null].slice(0, sockN(id)); };
-  const gemVal = (el, id) => { const [, k, v] = CR.GEM[el]; return [k, WX5.GEAR[id] === el ? Math.round(v * 1.5) : v]; };
-  const gemBonus = (id, k) => { let t = 0; for (const el of gemsOf(id)) if (el) { const [kk, v] = gemVal(el, id); if (kk === k) t += v; } return t; };
+  const gemVal = (g, id) => { const el = gemEL(g), lv = Math.min(CR.GEM_MAX, gemLV(g)), k = CR.GEM[el][1], v = CR.GEM_V[el][lv - 1]; return [k, WX5.GEAR[id] === el ? Math.round(v * 1.5) : v]; };
+  const gemBonus = (id, k) => { let t = 0; for (const g of gemsOf(id)) if (g && CR.GEM[gemEL(g)]) { const [kk, v] = gemVal(g, id); if (kk === k) t += v; } return t; };
   // 让装备的属性读数把灵珠算进去（套在强化那层读数的外面）
   function gemWrap(id) { const it = ITEM_DB[id]; if (!it || !it.slot || it._gemW) return; try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {} it._gemW = 1;
     for (const k of KEYS) { const d = Object.getOwnPropertyDescriptor(it, k); let getB, setB; if (d && d.get) { getB = () => d.get.call(it); setB = v => { if (d.set) d.set.call(it, v); }; } else { let v = d ? d.value : undefined; getB = () => v; setB = x => { v = x; }; }
@@ -248,30 +273,49 @@
   // 等强化那层读数先套好（它在开局三秒时补套一遍），再套灵珠这一层；读档进来的也是这里补上
   const plusReady = it => { const d = Object.getOwnPropertyDescriptor(it, 'name'); return !!(d && d.get) || performance.now() > 5000; };
   setInterval(() => { try { if (!S.hero || !S.hero.gems) return; for (const id of Object.keys(S.hero.gems)) { const it = ITEM_DB[id]; if (it && !it._gemW && plusReady(it)) gemWrap(id); } } catch (e) {} }, 500);
-  function setGem(id, i, el) { const it = ITEM_DB[id], h = S.hero; gemWrap(id); const before = {}; for (const k of KEYS) before[k] = it[k] || 0; const a = GEMS()[id] = gemsOf(id).concat([null, null]).slice(0, 2); a[i] = el;
-    const on = h.equip && h.equip[it.slot] === id; if (on) { for (const k of KEYS) { const d = (it[k] || 0) - before[k]; if (d) h[k] += d; } h.hp = Math.min(h.hp, h.maxhp); h.mp = Math.min(h.mp, h.maxmp); } }
-  const skR = i => ({ x: GD.x + 40 + i * 150, y: GD.y + 150, w: 130, h: 130 }), gmR = i => ({ x: GD.x + 30 + i * 132, y: GD.y + 340, w: 122, h: 118 });
+  // 往第 i 个孔里镶 g（null = 取下来）。原来那颗退回行囊。正穿在叶孤星身上的，把差额补到他身上
+  function setGem(id, i, g) { const it = ITEM_DB[id], h = S.hero; gemWrap(id); const before = {}; for (const k of KEYS) before[k] = it[k] || 0; const a = GEMS()[id] = gemsOf(id).concat([null, null]).slice(0, 2), old = a[i]; a[i] = g || null;
+    if (old && ITEM_DB[gemItem(old)]) addItem(gemItem(old), 1);
+    const on = h.equip && h.equip[it.slot] === id; if (on) { for (const k of KEYS) { const d = (it[k] || 0) - before[k]; if (d) h[k] += d; } h.hp = Math.min(h.hp, h.maxhp); h.mp = Math.min(h.mp, h.maxmp); } return old || null; }
+  const skR = i => ({ x: GD.x + 40 + i * 150, y: GD.y + 150, w: 130, h: 130 }), gmR = i => ({ x: GD.x + 26 + (i % 4) * 166, y: GD.y + 320 + Math.floor(i / 4) * 60, w: 160, h: 56 }), GPER = 8;   // 一排四叠、两排；一叠里左边是图标，右边名字一行、加多少一行，个数靠右
+  const GMPG = { prev: { x: GD.x + GD.w - 196, y: GD.y + 286, w: 80, h: 30 }, next: { x: GD.x + GD.w - 106, y: GD.y + 286, w: 80, h: 30 } };
+  const B_SET = { x: GD.x + GD.w - 250, y: GD.y + GD.h - 76, w: 226, h: 54 }, B_MERGE = { x: GD.x + GD.w - 250 - 236, y: GD.y + GD.h - 76, w: 224, h: 54 }, B_OFF = { x: GD.x + 356, y: GD.y + 190, w: 150, h: 46 };
+  const mergeFee = lv => 100 * lv;   // 两颗 lv 级的合成一颗 lv + 1 级的：炭火钱
+  // 行囊里的灵珠：一样一叠，按五行排，同一行高的在前
+  function gemStacks() { const out = []; for (const el of ORDER) for (let lv = CR.GEM_MAX; lv >= 1; lv--) { const gid = CR.gemId(el, lv), n = have(gid); if (n > 0 && ITEM_DB[gid]) out.push({ gid, el, lv, n, tok: gemTok(el, lv) }); } return out; }
   function drawInlay(now) { drawGears('镶哪一件', id => { const n = gemsOf(id).filter(Boolean).length; return n ? '珠' + n : ''; }); D('panel_well_9', GD.x, GD.y, GD.w, GD.h);
-    const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null;
-    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一件装备，再点一颗灵珠镶上去。灵珠是五枚同一行的精在「合成」那一页炼出来的。珠子和装备同一行，效果多五成。换珠子时，原来那颗会碎。', GD.x + 26, GD.y + 44, GD.w - 52, 28, 5); }
+    const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null, st = gemStacks(), np = Math.max(1, Math.ceil(st.length / GPER)); UI.gmp = Math.min(UI.gmp || 0, np - 1); const sel = st.find(q => q.gid === UI.gsk) || null; if (!sel) UI.gsk = null;
+    let cur = null;
+    if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一件装备，再点下面的一颗灵珠，按「镶上」。灵珠是五枚同一行的精在「合成」那一页炼出来的；两颗一样的能合成高一级的，最高五级。珠子和装备同一行，效果多五成。换下来的珠子退回行囊。', GD.x + 26, GD.y + 44, GD.w - 52, 28, 5); }
     else { gearHead(id); const n = sockN(id), gs = gemsOf(id);
       if (!n) { T('星痕剑不镶珠——它点星纹（看「星纹」那一页）。', GD.x + 30, GD.y + 190, 18, C.gold2, KAI(), 600); }
-      else { UI.sock = Math.min(UI.sock, n - 1); T('孔位（点一下选中）', GD.x + 30, GD.y + 132, 15, C.sub);
-        for (let i = 0; i < n; i++) { const r = skR(i), on = UI.sock === i, el = gs[i]; D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); const se = art('socket_empty');
-          if (el) { try { itemIcon('g_' + el, r.x + r.w / 2, r.y + 50, 32); } catch (e) {} const [k, v] = gemVal(el, id); T(STAT_NAME[k] + ' +' + v, r.x + r.w / 2, r.y + 106, 15, C.green, KAI(), 600, 'center'); }
-          else { if (se) ctx.drawImage(se, r.x + r.w / 2 - 36, r.y + 14, 72, 72); else { ctx.save(); ctx.strokeStyle = 'rgba(194,173,120,.45)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(r.x + r.w / 2, r.y + 50, 28, 0, 7); ctx.stroke(); ctx.restore(); } T('空', r.x + r.w / 2, r.y + 106, 15, C.sub, KAI(), 600, 'center'); } } } }
-    T('身上的灵珠', GD.x + 30, GD.y + 318, 15, C.sub);
-    ORDER.forEach((el, i) => { const r = gmR(i), gid = 'g_' + el, n = have(gid), k = 'gem_' + el; ctx.save(); if (!n) ctx.globalAlpha *= .4; D(armed(k) ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(gid, r.x + r.w / 2, r.y + 40, 27); } catch (e) {}
-      T(ITEM_DB[gid].name, r.x + r.w / 2, r.y + 80, 15, C.gold2, KAI(), 600, 'center'); const same = !!(id && sockN(id) && WX5.GEAR[id] === el), [kk, v] = id && sockN(id) ? gemVal(el, id) : [CR.GEM[el][1], CR.GEM[el][2]];
-      T(STAT_NAME[kk] + ' +' + v + '　×' + n, r.x + r.w / 2, r.y + 102, 13, same ? C.green : C.text, KAI(), 500, 'center'); ctx.restore(); if (same && n) T('同性', r.x + r.w - 20, r.y + 16, 12, C.green, KAI(), 600, 'center'); });
-    T(saying(now) ? SMITH + '：' + UI.say : (UI.arm && /^gem_/.test(UI.arm.k) && armed(UI.arm.k) ? '再点一次这颗珠子，就镶上去。' : ''), GD.x + 30, GD.y + GD.h - 48, 16, C.gold2); }
-  function tapInlay(tp) { if (tapGears(tp)) return; const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null; if (!id) return; const n = sockN(id); if (!n) return;
-    for (let i = 0; i < n; i++) if (inR(tp, skR(i))) { UI.sock = i; UI.arm = null; snd('ui_click'); return; }
-    for (let i = 0; i < ORDER.length; i++) if (inR(tp, gmR(i))) { const el = ORDER[i], gid = 'g_' + el, k = 'gem_' + el; if (!have(gid)) { speak('这种珠子身上没有。五枚' + WX[el].n + '精，到合成那一页炼一颗。'); snd('ui_cancel'); return; }
-        const cur = gemsOf(id)[UI.sock]; if (cur === el) { speak('这个孔里已经是' + ITEM_DB[gid].name + '了。'); return; }
-        if (!armed(k)) { UI.arm = { k, t: performance.now() }; snd('ui_click'); if (cur) speak('这个孔里原来那颗' + ITEM_DB['g_' + cur].name + '会碎。再点一次才换。'); return; }
-        UI.arm = null; CR.take(gid, 1); setGem(id, UI.sock, el); const r = skR(UI.sock); burst(r.x + r.w / 2, r.y + 50, el, .8); snd('ui_confirm'); try { playSnd('jingle_levelup', .4); } catch (e) {}
-        const [kk, v] = gemVal(el, id); speak('镶上了。' + STAT_NAME[kk] + ' +' + v + (WX5.GEAR[id] === el ? '——珠子和它同是' + WX[el].n + '性，多出五成。' : '。')); return; } }
+      else { UI.sock = Math.min(UI.sock, n - 1); cur = gs[UI.sock]; T('孔位（点一下选中）', GD.x + 30, GD.y + 132, 15, C.sub);
+        for (let i = 0; i < n; i++) { const r = skR(i), on = UI.sock === i, g = gs[i]; D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); const se = art('socket_empty');
+          if (g) { try { itemIcon(gemItem(g), r.x + r.w / 2, r.y + 50, 32); } catch (e) {} const [k, v] = gemVal(g, id); T(STAT_NAME[k] + ' +' + v, r.x + r.w / 2, r.y + 106, 15, C.green, KAI(), 600, 'center'); }
+          else { if (se) ctx.drawImage(se, r.x + r.w / 2 - 36, r.y + 14, 72, 72); else { ctx.save(); ctx.strokeStyle = 'rgba(194,173,120,.45)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(r.x + r.w / 2, r.y + 50, 28, 0, 7); ctx.stroke(); ctx.restore(); } T('空', r.x + r.w / 2, r.y + 106, 15, C.sub, KAI(), 600, 'center'); } }
+        if (cur) btn(B_OFF, '取下这一颗', 'n', 16); } }
+    T('行囊里的灵珠' + (st.length ? '（点一颗选中）' : ''), GD.x + 30, GD.y + 302, 15, C.sub);
+    if (!st.length) T('一颗都没有。五枚同一行的精，到「合成」那一页炼一颗。', GD.x + 30, GD.y + 350, 16, C.sub);
+    st.slice(UI.gmp * GPER, UI.gmp * GPER + GPER).forEach((q, i) => { const r = gmR(i), on = UI.gsk === q.gid; D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(q.gid, r.x + 26, r.y + 28, 19); } catch (e) {}
+      ctx.font = `600 14px ${KAI()}`; T(fitW(ITEM_DB[q.gid].name, r.w - 56), r.x + 50, r.y + 19, 14, C.gold2, KAI(), 600); const same = !!(id && sockN(id) && WX5.GEAR[id] === q.el), kk = CR.GEM[q.el][1], v = id && sockN(id) ? gemVal(q.tok, id)[1] : CR.GEM_V[q.el][q.lv - 1];
+      T(STAT_NAME[kk] + ' +' + v, r.x + 50, r.y + 39, 13, same ? C.green : C.text, KAI(), 500); T('×' + q.n, r.x + r.w - 12, r.y + 39, 13, C.sub, KAI(), 500, 'right'); });
+    if (np > 1) { btn(GMPG.prev, '上一页', UI.gmp > 0 ? 'n' : 'd', 14); btn(GMPG.next, '下一页', UI.gmp < np - 1 ? 'n' : 'd', 14); }
+    if (saying(now)) { ctx.font = `500 16px ${KAI()}`; T(fitW(SMITH + '：' + UI.say, GD.w - 60), GD.x + 30, GD.y + GD.h - 96, 16, C.gold2, KAI(), 500); }
+    else if (sel) { const kk = CR.GEM[sel.el][1]; ctx.font = `500 15px ${KAI()}`; T(fitW(ITEM_DB[sel.gid].name + '：' + STAT_NAME[kk] + ' +' + CR.GEM_V[sel.el][sel.lv - 1] + '，镶在' + WX[sel.el].n + '性的装备上再多五成。' + (sel.lv < CR.GEM_MAX ? '两颗能合成一颗' + '一二三四五'[sel.lv] + '级的。' : '已经是最高一级。'), GD.w - 60), GD.x + 30, GD.y + GD.h - 96, 15, C.sub, KAI(), 500); }
+    if (sel) { const ng = S.hero.gold || 0, fee = mergeFee(sel.lv);
+      if (sel.lv < CR.GEM_MAX) btn(B_MERGE, sel.n < 2 ? '要两颗才能合' : ng < fee ? '灵石不够（要 ' + fee + '）' : armed('mg') ? '再点一次 · 合成' : '两颗合一颗 · 灵石 ' + fee, sel.n < 2 || ng < fee ? 'd' : armed('mg') ? 'p' : 'n', 16);
+      if (id && sockN(id)) btn(B_SET, cur === sel.tok ? '孔里就是这一颗' : cur ? '换上这一颗' : '镶　上', cur === sel.tok ? 'd' : 'n', 18); } }
+  function tapInlay(tp) { if (tapGears(tp)) return; const id = UI.gsel && ITEM_DB[UI.gsel] ? UI.gsel : null, n = id ? sockN(id) : 0, st = gemStacks(), np = Math.max(1, Math.ceil(st.length / GPER));
+    if (id && n) { for (let i = 0; i < n; i++) if (inR(tp, skR(i))) { UI.sock = i; UI.arm = null; snd('ui_click'); return; }
+      const cur = gemsOf(id)[UI.sock]; if (cur && inR(tp, B_OFF)) { setGem(id, UI.sock, null); UI.arm = null; snd('ui_click'); speak('取下来了，' + ITEM_DB[gemItem(cur)].name + '回到行囊里。'); return; } }
+    if (np > 1 && inR(tp, GMPG.prev)) { if (UI.gmp > 0) { UI.gmp--; snd('ui_click'); } return; } if (np > 1 && inR(tp, GMPG.next)) { if (UI.gmp < np - 1) { UI.gmp++; snd('ui_click'); } return; }
+    const page = st.slice((UI.gmp || 0) * GPER, (UI.gmp || 0) * GPER + GPER); for (let i = 0; i < page.length; i++) if (inR(tp, gmR(i))) { if (UI.gsk !== page[i].gid) { UI.gsk = page[i].gid; UI.arm = null; UI.say = ''; snd('ui_click'); } return; }
+    const sel = st.find(q => q.gid === UI.gsk); if (!sel) return;
+    if (sel.lv < CR.GEM_MAX && inR(tp, B_MERGE)) { const fee = mergeFee(sel.lv); if (sel.n < 2) { speak('要两颗一样的才能合。'); snd('ui_cancel'); return; } if ((S.hero.gold || 0) < fee) { speak('炭火钱不够，要 ' + fee + ' 灵石。'); snd('ui_cancel'); return; }
+      if (!armed('mg')) { UI.arm = { k: 'mg', t: performance.now() }; snd('ui_click'); return; }
+      UI.arm = null; CR.take(sel.gid, 2); S.hero.gold -= fee; const up = CR.gemId(sel.el, sel.lv + 1); addItem(up, 1); UI.gsk = up; const r = gmR(0); burst(r.x + 26, r.y + 28, sel.el, .8); snd('ui_confirm'); try { playSnd('jingle_levelup', .4); } catch (e) {} speak('两颗并作一颗：「' + ITEM_DB[up].name + '」。'); return; }
+    if (id && n && inR(tp, B_SET)) { const cur = gemsOf(id)[UI.sock]; if (cur === sel.tok) return; UI.arm = null; CR.take(sel.gid, 1); const old = setGem(id, UI.sock, sel.tok); const r = skR(UI.sock); burst(r.x + r.w / 2, r.y + 50, sel.el, .8); snd('ui_confirm'); try { playSnd('jingle_levelup', .4); } catch (e) {}
+      const [kk, v] = gemVal(sel.tok, id); speak('镶上了。' + STAT_NAME[kk] + ' +' + v + (WX5.GEAR[id] === sel.el ? '——珠子和它同是' + WX[sel.el].n + '性，多出五成。' : '。') + (old ? '原来那颗退回行囊了。' : '')); return; } }
 
   // =====================================================================================================
   // 四、精炼：把用不上的材料炼成那一行的精（寻常的三炼一，上等的两炼一；珍稀料不在这儿炼）
@@ -329,10 +373,10 @@
     DRAW[UI.tab](now); drawFx(now); ctx.restore(); }
   try { S.overlay.push({ draw() { try { draw(); } catch (e) { console.warn('R394', e); try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
 
-  async function open(tab) { if (UI.open || (typeof battle !== 'undefined' && battle)) return; kitLoad(); artAll(); try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {} try { if (window.IMG_GUARD && IMG_GUARD.bumpMatch) IMG_GUARD.bumpMatch(['fx/fx3_burst_']); } catch (e) {} const lock0 = world.locked, hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
-    UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots = [null, null, null, null, null]; UI.mp = 0; UI.gp = 0; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
+  async function open(tab, who) { if (UI.open || (typeof battle !== 'undefined' && battle)) return; SMITH = who || '铸剑师'; kitLoad(); artAll(); try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {} try { if (window.IMG_GUARD && IMG_GUARD.bumpMatch) IMG_GUARD.bumpMatch(['fx/fx3_burst_']); } catch (e) {} const lock0 = world.locked, hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
+    UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots = [null, null, null, null, null]; UI.mp = 0; UI.gp = 0; UI.mv = null; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
     try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; if (!kitReady()) continue; if (inR(tp, CLOSE)) break;
-        let hit = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hit = true; if (UI.tab !== i) { UI.tab = i; UI.arm = null; UI.say = ''; UI.mf = 0; UI.mp = 0; UI.gp = 0; snd('ui_click'); } } if (hit) continue;
+        let hit = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hit = true; if (UI.tab !== i) { UI.tab = i; UI.arm = null; UI.say = ''; UI.mf = 0; UI.mp = 0; UI.gp = 0; UI.mv = null; snd('ui_click'); } } if (hit) continue;
         if (TAP[UI.tab](tp) === 'forged') forged++; } }
     finally { UI.open = false; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} snd('ui_click'); }
     if (forged && !F().forge_tip && window.SAY_LATER) { F().forge_tip = 1; SAY_LATER(async () => { await say('星旋', '新打的东西在行囊里。点左上角的头像，看看穿在谁身上合适——各人灵根不同，合的十成，不合的八折。'); }); } }
