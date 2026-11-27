@@ -32,7 +32,7 @@
   const K = (z, name) => 'r443_' + V + '_' + z + '_' + name, KT = name => 'r443_tp_' + name;
   function ldk(k, src) { if (k in want) return; want[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; got[k] = 1; }; im.onerror = () => { got[k] = 1; }; im.src = src; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
   const ld = (z, name) => ldk(K(z, name), 'r443/' + V + '/' + z + '/' + name + '.webp?v=1');
-  const ldt = name => ldk(KT(name), 'r443/tp/' + name + '.webp?v=1');
+  const ldt = name => ldk(KT(name), 'r443/tp/' + name + '.webp?v=2');   // v2：R446c 加帧（法阵 idle 12 / on 16，传送 go 24 / arrive 12）
   const Z = z => META[V][z];
   function loadCore(z) { const M = Z(z); ld(z, 'base'); for (const o of M.ov) ld(z, o[6]); }
   function loadRest(z) { const M = Z(z);
@@ -107,14 +107,14 @@
   function drawPads(z, now) { const U = used(), t = performance.now();
     for (const p of PADS[z]) { const [x, y] = ctr(...p.c);
       if (p.decoy && U[padKey(z, p)]) { strip(KT('tp_used'), 1, 260, 260, 0, x, y, 130, 182); continue; }
-      const on = FX.pad && FX.pad.z === z && FX.pad.p === p ? Math.floor((t - FX.pad.t0) / 95) : -1;
-      if (on >= 0 && on < 8) strip(KT('tp_' + p.g + '_on'), 8, 260, 260, on, x, y, 130, 182);
-      else strip(KT('tp_' + p.g + '_idle'), 6, 260, 260, Math.floor(now * 1000 / 235 + p.c[0]), x, y, 130, 182); } }
+      const on = FX.pad && FX.pad.z === z && FX.pad.p === p ? Math.floor((t - FX.pad.t0) / 42) : -1;
+      if (on >= 0 && on < 16) strip(KT('tp_' + p.g + '_on'), 16, 260, 260, on, x, y, 130, 182);
+      else strip(KT('tp_' + p.g + '_idle'), 12, 260, 260, Math.floor(now * 12 + p.c[0]), x, y, 130, 182); } }
   if (typeof tileAmbientLow === 'function') tileAmbientLow = (orig => function (T, cam, now) { orig.apply(this, arguments); const z = curZ(); if (!z) return; try { drawWater(z, now); drawPads(z, now); } catch (e) {} })(tileAmbientLow);
   tileAmbientHigh = (orig => function (T, cam, now) { if (orig) orig.apply(this, arguments); const z = curZ(); if (!z) return;
     try { const t = performance.now();
-      if (FX.go && FX.go.z === z) { const i = Math.floor((t - FX.go.t0) / 75); if (i < 12) strip(KT('tp1_go'), 12, 256, 384, i, FX.go.x, FX.go.y, 128, 324); else FX.go = null; }
-      if (FX.arrive && FX.arrive.z === z) { const i = Math.floor((t - FX.arrive.t0) / 90); if (i < 6) strip(KT('tp1_arrive'), 6, 256, 384, i, FX.arrive.x, FX.arrive.y, 128, 324); else FX.arrive = null; }
+      if (FX.go && FX.go.z === z) { const i = Math.floor((t - FX.go.t0) / 42); if (i < 24) strip(KT('tp1_go'), 24, 256, 384, i, FX.go.x, FX.go.y, 128, 324); else FX.go = null; }
+      if (FX.arrive && FX.arrive.z === z) { const i = Math.floor((t - FX.arrive.t0) / 42); if (i < 12) strip(KT('tp1_arrive'), 12, 256, 384, i, FX.arrive.x, FX.arrive.y, 128, 324); else FX.arrive = null; }
       // 遗物的一点闪光；没点亮的灯一明一暗
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; const tt = now;
       for (const o of Z(z).objs) { let x, y, r0;

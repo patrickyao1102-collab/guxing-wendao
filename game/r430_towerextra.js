@@ -51,8 +51,8 @@
     return orig.apply(this, arguments); })(T.fightBoss);
   // ---------- 招式特效（Codex R435：黑底，叠加发光） ----------
   try { if (typeof FXM === 'object') {
-      Object.assign(FXM, { fx_tw_rumeng: { w: 768, h: 512, n: 12, fps: 24 }, fx_tw_huazang: { w: 768, h: 512, n: 12, fps: 24 }, fx_tw_huxiao: { w: 768, h: 512, n: 10, fps: 24 }, fx_tw_huishi: { w: 512, h: 512, n: 10, fps: 26 }, fx_tw_none: { w: 1, h: 1, n: 1, fps: 30 } });
-      for (const k of ['fx_tw_rumeng', 'fx_tw_huazang', 'fx_tw_huxiao', 'fx_tw_huishi']) ld(k, 'r434/' + k + '.webp?v=1'); } } catch (e) {}
+      Object.assign(FXM, { fx_tw_rumeng: { w: 768, h: 512, n: 18, fps: 36 }, fx_tw_huazang: { w: 768, h: 512, n: 18, fps: 36 }, fx_tw_huxiao: { w: 768, h: 512, n: 18, fps: 40 }, fx_tw_huishi: { w: 512, h: 512, n: 18, fps: 42 }, fx_tw_none: { w: 1, h: 1, n: 1, fps: 30 } });   // R446c 加帧：每招 18 帧
+      for (const k of ['fx_tw_rumeng', 'fx_tw_huazang', 'fx_tw_huxiao', 'fx_tw_huishi']) ld(k, 'r434/' + k + '.webp?v=2'); } } catch (e) {}
   const TEAM = { 入梦: 'fx_tw_rumeng', 花葬: 'fx_tw_huazang', 虎啸: 'fx_tw_huxiao' }, ONE = { 白虎噬: 'fx_tw_huishi' };
   const H = window.R370_H;
   if (H && H.aoe) H.aoe = (orig => async function (e, b, name, fxName) { const k = TEAM[name];
