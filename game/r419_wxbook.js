@@ -26,7 +26,7 @@
   function drawBtn() { const im = art(performance.now() - pressT < 160 ? 'btn_wx_p' : 'btn_wx'); if (!im) return; const d = BTN.r * 2;
     ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 10; ctx.drawImage(im, BTN.x - BTN.r, BTN.y - BTN.r, d, d); ctx.restore(); }
 
-  function drawBook() { K.kitLoad();
+  function drawBook(mode) { K.kitLoad(); const forge = mode === 'forge';   // 剑炉里也用这本（作者 11-28：精炼旁边要有个小贴士，一点开就看到相生相克）
     ctx.save(); ctx.fillStyle = 'rgba(4,8,12,.86)'; ctx.fillRect(0, 0, 1280, 720);
     ctx.fillStyle = 'rgba(9,20,26,.94)'; ctx.fillRect(P.x + 8, P.y + 8, P.w - 16, P.h - 16); D('panel_main_9', P.x, P.y, P.w, P.h);
     T('五 行 图 鉴', P.x + 300, P.y + 42, 34, '#E9D9A8', BR(), 400, 'center');
@@ -35,9 +35,9 @@
     const k = WH.s / 560, base = art('wheel_base');
     if (base) ctx.drawImage(base, WH.x, WH.y, WH.s, WH.s);
     for (const el of W5.ORDER) { const [sx, sy] = SOCK[el]; W5.emblem(el, WH.x + sx * k, WH.y + sy * k, 44 * k / .9); }
-    for (const kd of [KINDS[2], KINDS[1], KINDS[0]]) { const im = art('wheel_' + kd.k); if (!im) continue; ctx.save(); ctx.globalAlpha = !sel || sel === kd.k ? 1 : .1; ctx.drawImage(im, WH.x, WH.y, WH.s, WH.s); ctx.restore(); }
+    for (const kd of [KINDS[2], KINDS[1], KINDS[0]]) { if (forge && kd.k === 'cike') continue; const im = art('wheel_' + kd.k); if (!im) continue; ctx.save(); ctx.globalAlpha = !sel || sel === kd.k ? 1 : .1; ctx.drawImage(im, WH.x, WH.y, WH.s, WH.s); ctx.restore(); }
     // 文字版：三列
-    KINDS.forEach((kd, i) => { const c = COL(i), on = !sel || sel === kd.k;
+    (forge ? [Object.assign({}, KINDS[2], { note: '炉里连线发绿' }), Object.assign({}, KINDS[0], { note: '炉里连线发红' })] : KINDS).forEach((kd, i) => { const c = forge ? { x: 640 + i * 250, y: 116, w: 210 } : COL(i), on = forge || !sel || sel === kd.k;
       D(sel === kd.k ? 'category_s' : 'category_n', c.x, c.y, c.w, 46);
       T(kd.n, c.x + c.w / 2, c.y + 24, 22, on ? '#F2E4B8' : '#8E958F', KAI(), 600, 'center');
       ctx.save(); ctx.globalAlpha = on ? 1 : .32;
@@ -50,6 +50,10 @@
       ctx.restore(); });
     // 说明
     const nx = 610, ny = 508; D('panel_well_9', nx - 10, ny, 586, 152);
+    if (forge) { T('剑炉里：相邻两样「相生」，连线发绿；「相克」，连线发红。', nx + 10, ny + 30, 17, '#E4DDC9', KAI(), 500);
+      T('绿越多，出的东西越好；红的照样能合，只是差一些。', nx + 10, ny + 64, 17, '#E4DDC9', KAI(), 500);
+      T('照 金 → 水 → 木 → 火 → 土 围一圈，一圈全绿。', nx + 10, ny + 98, 17, '#A8D8A0', KAI(), 600);
+      T('点哪里都能关上', WH.x + WH.s / 2, P.y + P.h - 22, 15, '#667375', KAI(), 500, 'center'); ctx.restore(); return; }
     T('你打它：「克」伤害多三成，「次克」多一成半，「生」少三成。', nx + 10, ny + 28, 17, '#E4DDC9', KAI(), 500);
     T('次克：被生的那一行，反过来次克生它的——', nx + 10, ny + 62, 17, '#E4DDC9', KAI(), 500);
     T('金生水，所以水打金是次克（子盗母气）。', nx + 10, ny + 90, 17, '#E4DDC9', KAI(), 500);
@@ -71,5 +75,5 @@
     e.stopImmediatePropagation(); e.preventDefault(); try { input.tapped = null; } catch (e2) {}
     for (let i = 0; i < 3; i++) { const c = COL(i); if (inR(p, { x: c.x, y: c.y, w: c.w, h: 46 })) { sel = sel === KINDS[i].k ? null : KINDS[i].k; try { playSnd('ui_confirm', .4); } catch (e2) {} return; } }
     if (inR(p, CLOSE) || !inR(p, P)) { open = false; try { playSnd('ui_cancel', .5); } catch (e2) {} } }, true); } catch (e) {}
-  window.WXBOOK = { open: () => { open = true; sel = null; }, close: () => { open = false; }, isOpen: () => open };
+  window.WXBOOK = { open: () => { open = true; sel = null; }, close: () => { open = false; }, isOpen: () => open, draw: drawBook, art };
 })();

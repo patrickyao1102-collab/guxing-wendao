@@ -62,7 +62,7 @@
     if (!list.length) { ctx.font = `500 16px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap(UI.mf ? '这一类的材料，身上一样都没有。' : '身上还没有材料。打妖兽、开宝箱、采灵矿都能得。', ML.x + 20, ML.y + 130, ML.w - 40, 24, 3); }
     list.slice(UI.mp * per, UI.mp * per + per).forEach((c, i) => { const r = mcR(i), id = c.id, m = MAT[id], n = c.n - used(c), on = selId === id; ctx.save(); if (n <= 0) ctx.globalAlpha *= .35;
       D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(id, r.x + r.w / 2, r.y + 34, 25); } catch (e) {}
-      if (m.wx) { try { WX5.emblem(m.wx, r.x + 15, r.y + 15, 10, 1); } catch (e) {} }
+      if (m.wx) { try { WX5.emblem(m.wx, r.x + 16, r.y + 16, 13, 1); } catch (e) {} }
       if (m.c) T(m.c === 'W' ? '兵' : '防', r.x + r.w - 15, r.y + 15, 13, C.sub, KAI(), 600, 'center');
       T(String(Math.max(0, n)), r.x + r.w - 10, r.y + 52, 16, C.gold2, NUM(), 700, 'right');
       ctx.font = `500 13px ${KAI()}`; T(fitW(ITEM_DB[id].name, r.w - 8), r.x + r.w / 2, r.y + (byLine ? 69 : 78), 13, C.text, KAI(), 500, 'center');
@@ -89,13 +89,15 @@
   const pct = v => Math.round(v * 100) + '%';
   const edgeText = a => a.ns === 5 ? '五行流转，一圈全相生' : a.ns || a.nk ? [a.ns ? '相生 ' + a.ns + ' 处' : '', a.nk ? '相克 ' + a.nk + ' 处' : ''].filter(Boolean).join(' · ') : '五行平和';
   // 阵盘下面那两行字：火候怎样、主属性会落在哪一段、有几条副属性在炉里。出哪一件不说。
-  function hints(a) { const col = a.H > 0 ? C.green : a.H < 0 ? C.red : C.text;
-    if (!a.n) return [['点左边的材料放上阵盘：从最上面那格起，顺时针围成一圈。', C.sub], ['相邻两样相生，成色高；相克，成色低。', C.sub]];
-    if (a.n < 5) return [[edgeText(a), col], ['还差 ' + (5 - a.n) + ' 样。', C.sub]];
-    if (a.why === 'noclass') return [['光有精气，没有料。', C.red], ['至少放一样牙、角、皮、丝之类的东西。', C.sub]];
-    if (a.kind === 'recipe') return owned(a.recipe.id) ? [['「' + ITEM_DB[a.recipe.id].name.replace(/ \+\d$/, '') + '」已经有一件了，不用再打。', C.sub], ['', C.sub]] : [['对上了秘籍：「' + ITEM_DB[a.recipe.id].name + '」', C.gold2], ['专属的东西属性是定死的，不看摆法。', C.sub]];
-    if (a.kind === 'fixed') return a.gem ? [['五枚同一行的精：炼成一颗灵珠。', C.text], ['', C.sub]] : [['五样同出一源：主属性整十成，不浮动。', C.text], [a.keep ? '只带头一样料上的那一条：' + CR.lineText(a.keep) : '这五样都没带副属性。', a.keep ? C.green : C.sub]];
-    return [[edgeText(a) + '　主属性 ' + pct(a.lo) + ' – ' + pct(a.hi), col], [a.slot === 'acc' ? '料上的副属性这一炉留不住；有 ' + pct(a.accP) + ' 的机会带出一条别处没有的。' : a.lined ? '这一炉留得住的副属性有 ' + a.lined + ' 种，每种约 ' + pct(a.p) + ' 的机会留下。' + (a.lost ? '（另有 ' + a.lost + ' 种这个部位带不上）' : '') : a.lost ? '料上带的那 ' + a.lost + ' 种副属性，这个部位带不上。' : '这几样料都没带副属性。', C.sub]]; }
+  // 作者 11-28 07:49：「底下说什么成色那些东西……我作为玩家理解不了，也不看。最直观的就是金木水火土，对了绿色，不对红色……本来就有容错，主要是给人看小贴士。」
+  //   所以阵盘下面只留一行最要紧的；相生相克的道理放进左上角「五行」小贴士里。
+  function hints(a) { const col = a.nk > a.ns ? C.red : a.ns ? C.green : C.text, gr = a.ns || a.nk ? [a.ns ? '绿 ' + a.ns : '', a.nk ? '红 ' + a.nk : ''].filter(Boolean).join('　') : '';
+    if (!a.n) return [['点左边的材料放上阵盘，五样围成一圈。', C.sub], ['', C.sub]];
+    if (a.n < 5) return [['还差 ' + (5 - a.n) + ' 样' + (gr ? '　·　' + gr : ''), C.sub], ['', C.sub]];
+    if (a.why === 'noclass') return [['至少放一样牙、角、皮、丝之类的料。', C.red], ['', C.sub]];
+    if (a.kind === 'recipe') return owned(a.recipe.id) ? [['「' + ITEM_DB[a.recipe.id].name.replace(/ \+\d$/, '') + '」已经有一件了。', C.sub], ['', C.sub]] : [['对上了秘籍：「' + ITEM_DB[a.recipe.id].name + '」', C.gold2], ['', C.sub]];
+    if (a.kind === 'fixed') return a.gem ? [['五枚同一行的精：炼成一颗灵珠。', C.text], ['', C.sub]] : [['五样同出一源，稳当。', C.text], ['', C.sub]];
+    return [[a.ns === 5 ? '一圈全绿 · 五行流转' : gr ? gr + '　·　绿越多，出的越好' : '五行平和', col], ['', C.sub]]; }
   function drawDisc(now, a) { const ar = art('array'), R = DISC / 2;
     ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     if (ar) ctx.drawImage(ar, CX - R, CY - R, DISC, DISC);
@@ -110,12 +112,14 @@
       const dx = x2 - x, dy = y2 - y, L = Math.hypot(dx, dy), x0 = x + dx / L * (SEAT + 2), y0 = y + dy / L * (SEAT + 2), x1 = x2 - dx / L * (SEAT + 2), y1 = y2 - dy / L * (SEAT + 2);
       if (rl === 'same' && a.kind !== 'recipe') { ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},.45)`; ctx.lineWidth = 2.5; }
       else { ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},.95)`; ctx.shadowBlur = 12; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${k})`; ctx.lineWidth = 4.5; }
-      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); } ctx.restore();
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+      if ((rl === 'sheng' || rl === 'ke') && a.kind !== 'recipe') { const mx = (x0 + x1) / 2, my = (y0 + y1) / 2; ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(6,14,19,.92)'; ctx.beginPath(); ctx.arc(mx, my, 13, 0, 7); ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},.95)`; ctx.stroke(); T(rl === 'sheng' ? '生' : '克', mx, my + 1, 15, `rgb(${c[0]},${c[1]},${c[2]})`, KAI(), 700, 'center'); } } ctx.restore();
     const on = art('slot_on'), os = SEAT * 2 * 1.13, NUMS = '一二三四五';
     UI.slots.forEach((u, i) => { const [x, y] = slotXY(i), ox = (x - CX) / SR, oy = (y - CY) / SR;
       T(NUMS[i], x + ox * (SEAT + 13), y + oy * (SEAT + 13) + 1, 13, i === 0 ? 'rgba(233,217,168,.9)' : 'rgba(194,173,120,.5)', KAI(), 700, 'center');   // 第几格（头一格颜色亮些）
       if (!u) return; if (on) ctx.drawImage(on, x - os / 2, y - os / 2, os, os); try { itemIcon(u.id, x, y, SLOT_R); } catch (e) {}
-      const m = MAT[u.id]; if (m && m.wx) { try { WX5.emblem(m.wx, x + SLOT_R * .8, y - SLOT_R * .8, 11, 1); } catch (e) {} }
+      const m = MAT[u.id]; if (m && m.wx) { try { WX5.emblem(m.wx, x + SLOT_R * .95, y - SLOT_R * .95, 15, 1); } catch (e) {} }
       if (u.ln) { const k = CR.parse(u.ln)[0]; ctx.font = `700 12.5px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(CR.lineText(u.ln, true), x, y + SLOT_R - 3, LINE_COL(k), 'rgba(6,14,19,.95)', 4); } });
     // 炉心：刚出炉的那一件；没有的话，看得出主行就淡淡亮一枚那一行的徽记
     const res = UI.res; if (res) { const k = Math.min(1, (now - res.t) / 220), sc = 1 + (1 - k) * .5; ctx.save(); try { ctx.globalAlpha *= k; itemIcon(res.id, CX, CY, (CORE_R - 7) * sc); } catch (e) {} ctx.restore(); }
@@ -128,7 +132,7 @@
     drawDisc(now, a);
     const res = UI.res, topY = CY - DISC / 2 - 15;
     if (saying(now)) { ctx.font = `500 15px ${KAI()}`; T(fitW(SMITH + '：' + UI.say, 440), CX, topY, 15, C.gold2, KAI(), 500, 'center'); } else if (res) T('出　炉', CX, topY, 16, C.sub, KAI(), 600, 'center');
-    else if (a.ok && a.kind === 'mix') T(tierText(a), CX, topY, 15, a.p2 > 0 && a.p2 < 1 ? C.gold2 : C.sub, KAI(), 600, 'center');   // 两档的料混着放：出高一档的机会写明（出哪一件照旧不说）
+   // 两档的料混着放：出高一档的机会写明（出哪一件照旧不说）
     if (res) { const it = ITEM_DB[res.id]; ctx.font = `400 25px ${BR()}`; T(fitW(it.name, 420), CX, 581, 25, it.fg ? GRADE_COL[it.grade] : C.gold2, BR(), 400, 'center');
       const lb = window.GEAR6 ? GEAR6.label(res.id) : '', sub = (lb ? lb + '　' : '') + (it.fg ? '主属性 ' + pct(it.mult) + (it.subs.length ? '　' + it.subs.join('　') : '　没带出副属性') : it.slot ? statText(res.id) : ''); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
     else { const h = hints(a); ctx.font = `600 16px ${KAI()}`; T(fitW(h[0][0], 440), CX, 583, 16, h[0][1], KAI(), 600, 'center'); ctx.font = `500 15px ${KAI()}`; T(fitW(h[1][0], 440), CX, 607, 15, h[1][1], KAI(), 500, 'center'); }
@@ -370,12 +374,19 @@
     T('灵石 ' + (S.hero.gold || 0), CLOSE.x - 24, CLOSE.y + CLOSE.h / 2 + 1, 18, C.gold, NUM(), 600, 'right');
     D('close_n', CLOSE.x, CLOSE.y, CLOSE.w, CLOSE.h); T('关　闭', CLOSE.x + CLOSE.w / 2, CLOSE.y + CLOSE.h / 2 + 1, 19, C.gold2, KAI(), 600, 'center');
     D('panel_main_9', P.x, P.y, P.w, P.h); D('panel_detail_9', BODY.x - 6, BODY.y - 2, BODY.w + 12, BODY.h + 4);
-    DRAW[UI.tab](now); drawFx(now); ctx.restore(); }
+    DRAW[UI.tab](now); drawFx(now);
+    // 左上角「五行」小贴士（作者 11-28：精炼旁边一个小贴士，一点开就能看到各种相生相克）
+    try { const im = window.WXBOOK && WXBOOK.art && WXBOOK.art('btn_wx'); if (im) { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 10; ctx.drawImage(im, TIPB.x - TIPB.r, TIPB.y - TIPB.r, TIPB.r * 2, TIPB.r * 2); ctx.restore(); }
+      else { ctx.fillStyle = 'rgba(12,24,31,.95)'; ctx.beginPath(); ctx.arc(TIPB.x, TIPB.y, TIPB.r, 0, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.gold; ctx.stroke(); T('五行', TIPB.x, TIPB.y + 1, 17, C.gold2, KAI(), 700, 'center'); }
+      if (UI.tips && window.WXBOOK && WXBOOK.draw) WXBOOK.draw('forge'); } catch (e) {}
+    ctx.restore(); }
+  const TIPB = { x: 190, y: 60, r: 30 };
   try { S.overlay.push({ draw() { try { draw(); } catch (e) { console.warn('R394', e); try { ctx.restore(); } catch (e2) {} } } }); } catch (e) {}
 
   async function open(tab, who) { if (UI.open || (typeof battle !== 'undefined' && battle)) return; SMITH = who || '铸剑师'; kitLoad(); artAll(); try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (e) {} try { if (window.IMG_GUARD && IMG_GUARD.bumpMatch) IMG_GUARD.bumpMatch(['fx/fx3_burst_']); } catch (e) {} const lock0 = world.locked, hud0 = S.hud; S.hud = false; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
-    UI.open = true; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots = [null, null, null, null, null]; UI.mp = 0; UI.gp = 0; UI.mv = null; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
-    try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; if (!kitReady()) continue; if (inR(tp, CLOSE)) break;
+    UI.open = true; UI.tips = false; UI.t0 = performance.now(); UI.taps.length = 0; UI.arm = null; UI.say = ''; UI.res = null; UI.fx.length = 0; UI.slots = [null, null, null, null, null]; UI.mp = 0; UI.gp = 0; UI.mv = null; if (typeof tab === 'number') UI.tab = tab; snd('ui_open'); let forged = 0;
+    try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; if (!kitReady()) continue; if (UI.tips) { UI.tips = false; snd('ui_cancel'); continue; } if (inR(tp, CLOSE)) break;
+        if (Math.hypot(tp.x - TIPB.x, tp.y - TIPB.y) <= TIPB.r + 8) { UI.tips = true; snd('ui_confirm'); continue; }
         let hit = false; for (let i = 0; i < TABS.length; i++) if (inR(tp, tabR(i))) { hit = true; if (UI.tab !== i) { UI.tab = i; UI.arm = null; UI.say = ''; UI.mf = 0; UI.mp = 0; UI.gp = 0; UI.mv = null; snd('ui_click'); } } if (hit) continue;
         if (TAP[UI.tab](tp) === 'forged') forged++; } }
     finally { UI.open = false; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} snd('ui_click'); }
@@ -387,10 +398,8 @@
     if (!f.forge_met) { f.forge_met = 1; await say(SMITH, '宗主家的公子？手伸出来。……茧子是有的，剑没白练。'); await say(SMITH, '广场上人来人往，静不下心。往后我就在这后庭潭边待着，炉子在亭子那头。'); }
     if (!f.forge_pond) { f.forge_pond = 1; await say(SMITH, '这潭水是崖顶雪水落下来的，寒得透骨。剑出了炉，在这里淬一回，锋口不卷。'); await say(SMITH, '往后它就叫淬剑潭。钓竿收了吧，鱼都叫我惊走了。'); }
     if (!f.forge3_met) { f.forge2_met = 1; f.forge3_met = 1;
-      await say(SMITH, '妖兽身上的牙、角、骨、晶，打兵器、护腕和佩饰；皮、丝、壳、鳞，做衣甲和鞋履。五样料凑一炉，在阵盘上围成一圈。');
-      await say(SMITH, '相邻两样相生，成色就高；相克，成色就低。料上若带着灵性，有几分能留进成品里——留几条，看手气。');
-      await say(SMITH, '出什么，开了炉才知道。同样的料，出常见的还是难得的，看手气；好料放得多，出好东西的机会就大。只有各人的专属套装，我这本秘籍上记着方子。');
-      await say('星旋', '金生水，水生木，木生火，火生土，土生金。照这个顺序摆一圈试试——本神仙只说这一回。'); }
+      await say(SMITH, '妖兽身上的料，五样凑一炉，在阵盘上围成一圈就能开炉。出什么，开了炉才知道。');
+      await say(SMITH, '五行的门道不用记——炉边左上角有个「五行」，忘了就点开看看。'); }
     await open(0); }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, RUNE, ARTN, art, sockN, gemsOf, setGem };
 })();
