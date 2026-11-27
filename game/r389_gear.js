@@ -131,7 +131,7 @@
   if (typeof applyDamage === 'function') applyDamage = (orig => function (t, d, crit, opts) {
     try { const b = battle, att = b && b.active; if (b && t && t.alive && !(b.cfg && b.cfg.sunKill)) {
         if (t.side === 'enemy' && att && att.side === 'hero' && !(opts && opts.noWx)) { const fx = fxOf(att); let k = 1;
-          if (fx.ke && WX5.rel(WX5.unitWx(att), WX5.unitWx(t)) > 0) k *= 1 + fx.ke;
+          if (fx.ke && WX5.rel(WX5.unitWx(att), WX5.unitWx(t)) >= 1) k *= 1 + fx.ke;   // 克制增伤只管正克，次克不算
           const ex = fx['el_' + WX5.unitWx(att)]; if (ex) k *= 1 + ex;   // 副属性「某系攻击」：这一手是那一行的，就加
           if (fx.rune && !att.ally && b._wxSw === (b._actNo || 0) && b._wxSw != null) k *= 1 + fx.rune;
           if (crit && fx.cd) k *= 1 + fx.cd;   // 暴伤：暴击那一下再多打几成

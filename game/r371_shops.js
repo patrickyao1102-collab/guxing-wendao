@@ -36,7 +36,7 @@
     M.baked = { ground: PRE + 'g_' + s.k, cs: D.cs, cols: D.cols, rows: D.rows, w: D.w, h: D.h, blocked: D.blocked, objs };
     M.start = P(D.spawn[0], D.spawn[1]);
     try { if (typeof WIDE_OK === 'object') WIDE_OK[s.id] = 1; if (window.R252_WIN) delete R252_WIN[s.id]; } catch (e) {}
-    try { if (NEW) { const Z = window.R385_Z || [1.024, 1.412];   // 画是按「人高 160 像素」配的家具（人比地图 = 1.38）；镜头刚好让 1088 宽的屋子铺满屏幕
+    try { if (NEW) { const Z = window.R385_Z || [.8, 1.1];   // 11-27 夜作者：「胭脂铺好大好大，人物和场景都大」——镜头退到 0.8，人物跟着同比缩（人和家具的比例不变），屋子四周留出一圈，不再铺满整屏   // 画是按「人高 160 像素」配的家具（人比地图 = 1.38）；镜头刚好让 1088 宽的屋子铺满屏幕
         if (typeof MAP_ZOOM === 'object') MAP_ZOOM[s.id] = Z[0]; if (typeof CHAR_SCALE === 'object') CHAR_SCALE[s.id] = Z[1]; }
       else { if (typeof MAP_ZOOM === 'object' && MAP_ZOOM.xt_danxia && !MAP_ZOOM[s.id]) MAP_ZOOM[s.id] = MAP_ZOOM.xt_danxia; if (typeof CHAR_SCALE === 'object' && CHAR_SCALE.xt_danxia && !CHAR_SCALE[s.id]) CHAR_SCALE[s.id] = CHAR_SCALE.xt_danxia; } } catch (e) {}
     (CITY.doors = CITY.doors || []).push({ x: s.door[0], y: s.door[1] + 8, rw: 46, rh: 26, to: s.id, at: P(D.spawn[0], D.spawn[1]), face: 'up', label: s.label });

@@ -401,7 +401,7 @@
   const MAP = 'qingzhu_upper_pavilion'; if (typeof TMAPS === 'undefined' || !TMAPS[MAP] || !TMAPS[MAP].baked || !window.R394 || typeof IMG === 'undefined') return;
   const M = TMAPS[MAP], B = M.baked, F = () => (S.flags = S.flags || {});
   const CW = 660, CH = 460, K = 383 / CW, GX = 420, GY = 640, GW = Math.round(CW * K), GH = Math.round(CH * K), SY = GY + 442 * K;   // 整组图在地图上的位置和大小（图是 2 倍画的）
-  const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [762, 902], SMITH = '铸剑师';
+  const FIRE = { x: 172, y: 6, w: 170, h: 68, n: 4, ms: 150 }, NPC_AT = [800, 812], SMITH = '铸剑师';   // 11-27 夜作者：铸剑师站在亭前的路口老挡路——挪到剑架右边、亭子左前角，让开南边上来的那条路
   const P = (x, y) => [x / 64 - .5, y / 64 - .8];
   const IMS = [], load = (k, s) => { const im = new Image(); im.onload = () => { try { IMG[k] = im; } catch (e) {} }; im.src = s; IMS.push(im); };
   load('r394_forge', 'r394/forge.webp?v=1'); load('r394_fire', 'r394/fire.webp?v=1');
@@ -420,7 +420,10 @@
   function block() { if (B._r394 === B.blocked) return; const cs = B.cs, cols = B.cols, rows = B.rows, b = B.blocked.split('');
     for (const [x0, y0, x1, y1] of RECTS) for (let r = Math.floor((GY + y0 * K) / cs); r <= Math.floor((GY + y1 * K) / cs); r++) for (let c = Math.floor((GX + x0 * K) / cs); c <= Math.floor((GX + x1 * K) / cs); c++) if (c >= 0 && r >= 0 && c < cols && r < rows) b[r * cols + c] = '1';
     B.blocked = b.join(''); B._r394 = B.blocked; try { if (window.R283 && R283.done) R283.done[MAP] = B.blocked; } catch (e) {} }
-  tileSetMap = (orig => function (m) { if (m === MAP) { try { if (window.R283) R283.apply(MAP); block(); } catch (e) { console.warn('R394 block', e); } } return orig.apply(this, arguments); })(tileSetMap);
+  tileSetMap = (orig => function (m) { if (m === MAP) { try { if (window.R283) R283.apply(MAP); block(); } catch (e) { console.warn('R394 block', e); } } const res = orig.apply(this, arguments);
+    // 走路实际看的是 world.map.T.block（建图时已经从 B.blocked 抄过去了），这里补上，不然炉子、石槽人能穿过去
+    try { if (m === MAP && world.map && world.map.T && world.map.T.block) { const T = world.map.T, cs = T.cs, c0 = T.c0 || 0; for (const [x0, y0, x1, y1] of RECTS) for (let wy = GY + y0 * K; wy <= GY + y1 * K; wy += cs) for (let wx = GX + x0 * K; wx <= GX + x1 * K; wx += cs) { const r = Math.floor(wy / cs), c = Math.floor(wx / cs) - c0; if (T.block[r] && c >= 0 && c < T.block[r].length) T.block[r][c] = 1; } } } catch (e) { console.warn('R394 T.block', e); }
+    return res; })(tileSetMap);
   // 铸剑师：就是原来站在演武广场上的那一位（Codex R156 的造型，提锤御剑）——照作者说的，把他搬到云海大亭的剑炉旁。广场上不再站人。
   try { const TF = TMAPS.tj_front; if (TF && Array.isArray(TF.npcs)) TF.npcs = TF.npcs.filter(n => n.name !== SMITH); } catch (e) {}
   M.npcs = M.npcs || []; if (!M.npcs.some(n => n.forge)) { const [c, r] = P(NPC_AT[0], NPC_AT[1]); M.npcs.push({ key: 'c_a2', cx: 'spirit_swordsmith', c, r, wander: false, face: 'down', name: SMITH, forge: 1, talk: () => R394.talk() }); }

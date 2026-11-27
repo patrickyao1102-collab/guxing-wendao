@@ -152,7 +152,7 @@
     // 右边：带什么去
     let y2 = B.y + 300; const ln2 = (s, col, sz) => { ctx.font = `500 ${sz || 15}px ${KAI()}`; T(fit(s, B.x + B.w - 20 - x1), x1, y2, sz || 15, col || C.text); y2 += 26; };
     ln2('谁的剑克它', C.gold2, 17); const good = BEAT(el);
-    for (const [, nm, eq] of party()) { const w = eq.weapon, we = w ? WX5.gearWx(w) : null, mark = !we ? '—' : we === good ? '✓ 克它' : KE[el] === we ? '✗ 被它克' : '· 不克', col = we === good ? C.green : KE[el] === we ? C.red : C.sub; ln2(nm + '：' + (w && ITEM_DB[w] ? ITEM_DB[w].name : '空手') + '　' + mark, col, 14); }
+    for (const [, nm, eq] of party()) { const w = eq.weapon, we = w ? WX5.gearWx(w) : null, rr = we ? WX5.rel(we, el) : 0, mark = !we ? '—' : rr >= 1 ? '✓ 克它' : rr > 0 ? '✓ 次克它' : rr < 0 ? '✗ 生它，伤害少三成' : '· 平', col = rr > 0 ? C.green : rr < 0 ? C.red : C.sub; ln2(nm + '：' + (w && ITEM_DB[w] ? ITEM_DB[w].name : '空手') + '　' + mark, col, 14); }
     const n = gearCheck(Lx.tier), need = NEED[L]; if (need) ln2('三人身上当前档上等的主装备 ' + n + ' 件（建议 ≥ ' + need + '）', n >= need ? C.green : C.red, 14); else ln2('一重随便打，攒料攒淬灵用。', C.sub, 14);
     ln2('掉：' + CN[el] + '行的料、' + ITEM_DB[Lx.q].name + (Lx.rare ? '、珍稀料 ×' + Lx.rare : '') + '，有机会出灵珠和装备', C.sub, 14);
     const ok = open(el, L), can = ok && sp() > 0; K.btn(GO(B), !ok ? '先打通' + NUMCN[L - 1] + '重' : !sp() ? '星力不够' : UI.arm && now - UI.arm < 3500 ? '再点一次 · 进门' : '进入（星力 -1）', can ? (UI.arm && now - UI.arm < 3500 ? 'p' : 'n') : 'd', 18);

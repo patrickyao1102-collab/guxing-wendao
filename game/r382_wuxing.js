@@ -15,8 +15,10 @@
   const WX = { jin: { n: '金', c: '#f4eccd', k: '#b9a25a' }, mu: { n: '木', c: '#a6dc92', k: '#4f9a4a' }, shui: { n: '水', c: '#9fd3ff', k: '#3f86c8' }, huo: { n: '火', c: '#ffa070', k: '#d2552a' }, tu: { n: '土', c: '#e6bd7c', k: '#9a6f34' } };
   const ORDER = ['jin', 'mu', 'shui', 'huo', 'tu'];
   const KE = { jin: 'mu', mu: 'tu', tu: 'shui', shui: 'huo', huo: 'jin' }, SHENG = { jin: 'shui', shui: 'mu', mu: 'huo', huo: 'tu', tu: 'jin' };
-  const rel = (a, t) => !a || !t ? 0 : KE[a] === t ? 1 : SHENG[a] === t ? -1 : 0;   // 出手的属性 a 打 目标属性 t：1 克、-1 生、0 平
-  const KE_MULT = 1.3, SHENG_MULT = .7;
+  // 出手的属性 a 打 目标属性 t：1 克、.5 次克、-1 生、0 平。
+  //   次克（作者 11-27 22:54 定的「游戏自己的理念」，出自「子盗母气」）：谁生谁，被生的那一行反过来次克生它的——木生火，所以火次克木；金生水，所以水次克金。
+  const rel = (a, t) => !a || !t ? 0 : KE[a] === t ? 1 : SHENG[t] === a ? .5 : SHENG[a] === t ? -1 : 0;
+  const KE_MULT = 1.3, CIKE_MULT = 1.15, SHENG_MULT = .7;
   // 本命灵根（云霆的雷：出手按火；装备和套装上金也算合，见 r389）
   const ROOT = { yunting: 'huo', linxue: 'shui', shenle: 'mu', luochen: 'tu' }, ROOT2 = { yunting: 'jin' };
   // 装备的五行（没列的 = 无属性）。按名字和来历定：寒、霜、雪 = 水；雷、电、火、霞 = 火；木、藤、丝、风 = 木；铁、钢、鳞、金 = 金；皮、骨、岩、牙 = 土
@@ -62,10 +64,11 @@
   // ---------- 打到敌人身上：克 / 生 ----------
   applyDamage = (orig => function (t, d, crit, opts) {
     try { const b = battle, att = b && b.active; if (on(b) && t && t.alive && t.side === 'enemy' && att && att.side === 'hero' && !(opts && opts.noWx)) { const a = unitWx(att), e = unitWx(t), r = rel(a, e);
-        if (r) { arguments[1] = d = Math.max(1, Math.round(d * (r > 0 ? KE_MULT : SHENG_MULT))); mark(b, att, t, r, a, e); } } } catch (e) { console.warn('R382', e); }
+        if (r) { arguments[1] = d = Math.max(1, Math.round(d * (r >= 1 ? KE_MULT : r > 0 ? CIKE_MULT : SHENG_MULT))); mark(b, att, t, r, a, e); } } } catch (e) { console.warn('R382', e); }
     return orig.apply(this, arguments); })(applyDamage);
   function mark(b, att, t, r, a, e) { const an = b._actNo || 0, st = ST(), f = F();
-    if (t._wxAct !== an) { t._wxAct = an; const x = t.x + (t.ox || 0) + 8, y = t.y - Math.min(t.h || 200, 340) - 62; if (r > 0) { pop('txt_ke', '克', x, y, '#ffe9a0', 116); try { sfx('crit'); } catch (e2) {} } else pop('txt_sheng', '生', x, y + 10, '#b9d8bf', 84); }
+    if (t._wxAct !== an) { t._wxAct = an; const x = t.x + (t.ox || 0) + 8, y = t.y - Math.min(t.h || 200, 340) - 62; if (r >= 1) { pop('txt_ke', '克', x, y, '#ffe9a0', 116); try { sfx('crit'); } catch (e2) {} } else if (r > 0) pop('txt_cike', '次克', x, y + 6, '#ffd9a0', 92); else pop('txt_sheng', '生', x, y + 10, '#b9d8bf', 84); }
+    if (r > 0 && r < 1) { if (!f.wx_tip3) { f.wx_tip3 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '次克' + WX[e].n + ' —— ' + WX[e].n + '生' + WX[a].n + '，被生的反过来耗它，伤害多一成半' }; } return; }
     if (r > 0) { if (b._wxKeAct !== an) { b._wxKeAct = an; st.ke = (st.ke || 0) + 1; b._keN = (b._keN || 0) + 1; } t._keHit = an; f.wx_last = [a, e, att.name, String(t.name || '').replace(/\s*Lv\s*\d+$/, ''), att.ally ? 0 : 1]; if (!f.wx_tip1) { f.wx_tip1 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '克' + WX[e].n + ' —— 用克它的属性去打，伤害多三成' }; } }
     else if (!f.wx_tip2) { f.wx_tip2 = 1; b._wxTip = { t0: performance.now(), s: WX[a].n + '生' + WX[e].n + ' —— 这一下等于给它添了力气，伤害少三成' }; } }
 
@@ -74,7 +77,7 @@
     try { const b = battle; if (u && u.alive && on(b) && !b._cineHide) { const el = unitWx(u); if (el) { const y0 = u.y + (u.oy || 0), x0 = u.x + (u.ox || 0);
           if (u.side === 'enemy') { let ex, ey; if (u._noBar || u._plate || u._scale) { ex = x0 - Math.min(90, (u.h || 300) * .26); ey = y0 - Math.min(u.h || 300, 400) - 8; } else { ex = x0 - 55 - 21; ey = y0 - u.h - 26 + 3; }
             emblem(el, ex, ey, 16);
-            const act = b.active; if (act && act.side === 'hero' && (b.state === 'menu' || b.state === 'pick')) { const k = rel(unitWx(act), el); if (k) { const bob = Math.sin(performance.now() / 260) * 2.5; arrow(k > 0, ex - 27, ey + (k > 0 ? -bob : bob), 11); } } }
+            const act = b.active; if (act && act.side === 'hero' && (b.state === 'menu' || b.state === 'pick')) { const k = rel(unitWx(act), el); if (k) { const bob = Math.sin(performance.now() / 260) * 2.5; arrow(k > 0, ex - 27, ey + (k > 0 ? -bob : bob), k > 0 && k < 1 ? 8 : 11); } } }
           else emblem(el, x0 - 55 - 19, y0 - u.h - 26 + 3, 14); } } } catch (e) {}
     return r; })(drawUnit);
 
@@ -127,6 +130,6 @@
           await say('星旋', '看见没有？' + foe + '是' + WX[e].n + '性，' + (hero ? '你手里的剑属' + WX[a].n : who + '是' + WX[a].n + '灵根') + '——' + WX[a].n + '克' + WX[e].n + '，打上去格外疼。');
           await say('星旋', '谁是什么性，名字旁边那个字写着呢。' + (a === 'shui' ? '反过来可别拿水剑去砍树妖：水生木，那是给它浇水。' : '反过来也一样：' + WX[a].n + '生' + WX[SHENG[a]].n + '，拿它去打' + WX[SHENG[a]].n + '性的东西，等于给它添力气。')); } } catch (e) { console.warn('R382 intro', e); } }; }
 
-  window.WX5 = { WX, ORDER, KE, SHENG, rel, ROOT, ROOT2, GEAR, ENEMY, YW, gearWx, heroWx, unitWx, enemyWx, isXH, XH, stat: ST, baseKey, emblem, arrow, art, KE_MULT, SHENG_MULT };
+  window.WX5 = { WX, ORDER, KE, SHENG, rel, ROOT, ROOT2, GEAR, ENEMY, YW, gearWx, heroWx, unitWx, enemyWx, isXH, XH, stat: ST, baseKey, emblem, arrow, art, KE_MULT, CIKE_MULT, SHENG_MULT };
   window.R382 = { stat: ST, baseKey };   // 旧名字留给别的文件用
 })();
