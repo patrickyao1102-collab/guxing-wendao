@@ -14,7 +14,7 @@
     tw_shuanglang: { name: '霜鬃狼', hp: 640, atk: 58, def: 12, spd: 19, atkType: 'claw', wx: 'jin', fl: 2 },
     tw_nukui: { name: '城头弩傀', hp: 780, atk: 54, def: 20, spd: 10, atkType: 'claw', wx: 'jin', fl: 2 } };
   for (const [t, m] of Object.entries(MOBS)) { const id = t.slice(3), M = META[id]; if (!M) continue; const key = 'e_' + t;
-    VSPRITE_ADD(key, '../r415/' + id, M.main, M.h, false, false); VSS[key] = 1;
+    VSPRITE_ADD(key, '../r415/' + (M.file || id), M.main, M.h, false, false); VSS[key] = 1;
     MOB_DB[t] = { key, name: m.name, hp: m.hp, atk: m.atk, def: m.def, spd: m.spd, h: Math.round(M.bodyH * .92), atkType: m.atkType, mh: 104 };
     try { if (window.WX5) WX5.ENEMY[key] = m.wx; } catch (e) {}
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}

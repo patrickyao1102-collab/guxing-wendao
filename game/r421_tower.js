@@ -12,15 +12,15 @@
   // ---------- 图集登记 ----------
   const K = { bianhua_f1: .8, bianhua_f2: .82, baihu_f1: .8, baihu_f2: .8 };
   function reg(id, k) { const M = META[id]; if (!M) return null; const key = 'yw_tw_' + id;
-    VSPRITE_ADD(key, '../r415/' + id, M.main, M.h, false, false);
-    if (M.charge) VSPRITE_ADD(key + '_c', '../r415/' + id + '_charge', M.charge, M.h, false, false);
-    if (M.break) VSPRITE_ADD(key + '_b', '../r415/' + id + '_break', M.break, M.h, false, false);
+    VSPRITE_ADD(key, '../r415/' + (M.file || id), M.main, M.h, false, false);
+    if (M.charge) VSPRITE_ADD(key + '_c', '../r415/' + (M.file || id) + '_charge', M.charge, M.h, false, false);
+    if (M.break) VSPRITE_ADD(key + '_b', '../r415/' + (M.file || id) + '_break', M.break, M.h, false, false);
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
     VSS[key] = k; return { key, vh: Math.round(M.bodyH * .92 * k), M }; }
   const FORM = {}; for (const id of Object.keys(K)) FORM[id] = reg(id, K[id]);
   // 战斗背景（Codex R419）：一层彼岸花海、二层北关城楼前
   for (const [k, f] of [['bg_tw1', 'bg_bianhua'], ['bg_tw2', 'bg_baihu']]) { const im = new Image(); im.onload = () => { IMG[k] = im; }; im.src = 'r419/' + f + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
-  const preload = ids => { for (const id of ids) for (const s of ['', '_charge', '_break']) { const im = new Image(); im.src = 'r415/' + id + s + '.webp'; } };
+  const preload = ids => { for (const id of ids) for (const s of ['', '_charge', '_break']) { const im = new Image(); im.src = 'r415/' + ((META[id] && META[id].file) || id) + s + '.webp'; } };
   // 小怪：登记进 MOB_DB（塔里的怪比外面的厉害，经验多五成）
   const MOBS = {
     tw_huayan: { name: '花魇', hp: 560, atk: 47, def: 11, spd: 15, atkType: 'claw', wx: 'mu', fl: 1 },
@@ -28,7 +28,7 @@
     tw_xuewei: { name: '雪魄虎卫', hp: 700, atk: 55, def: 15, spd: 15, atkType: 'claw', wx: 'jin', fl: 2 },
     tw_bingjia: { name: '冰甲残兵', hp: 820, atk: 50, def: 21, spd: 9, atkType: 'claw', wx: 'shui', fl: 2 } };
   for (const [t, m] of Object.entries(MOBS)) { const id = t.slice(3), M = META[id]; if (!M) continue; const key = 'e_' + t;
-    VSPRITE_ADD(key, '../r415/' + id, M.main, M.h, false, false); VSS[key] = 1;
+    VSPRITE_ADD(key, '../r415/' + (M.file || id), M.main, M.h, false, false); VSS[key] = 1;
     MOB_DB[t] = { key, name: m.name, hp: m.hp, atk: m.atk, def: m.def, spd: m.spd, h: Math.round(M.bodyH * .92), atkType: m.atkType, mh: 104 };
     try { if (window.WX5) WX5.ENEMY[key] = m.wx; } catch (e) {}
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {} }

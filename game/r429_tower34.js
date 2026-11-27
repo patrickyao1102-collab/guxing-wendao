@@ -9,9 +9,9 @@
   const H = R370_H, AI = R370_AI, ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1)), VSS = window.VS_SCALE = window.VS_SCALE || {};
   // ---------- 图集登记（和 r421 一个规矩） ----------
   function reg(id, k) { const M = META[id]; if (!M) return null; const key = 'yw_tw_' + id;
-    VSPRITE_ADD(key, '../r415/' + id, M.main, M.h, false, false);
-    if (M.charge) VSPRITE_ADD(key + '_c', '../r415/' + id + '_charge', M.charge, M.h, false, false);
-    if (M.break) VSPRITE_ADD(key + '_b', '../r415/' + id + '_break', M.break, M.h, false, false);
+    VSPRITE_ADD(key, '../r415/' + (M.file || id), M.main, M.h, false, false);
+    if (M.charge) VSPRITE_ADD(key + '_c', '../r415/' + (M.file || id) + '_charge', M.charge, M.h, false, false);
+    if (M.break) VSPRITE_ADD(key + '_b', '../r415/' + (M.file || id) + '_break', M.break, M.h, false, false);
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}
     VSS[key] = k; return { key, vh: Math.round(M.bodyH * .92 * k), M }; }
   const K = { longnv_f1: .8, longnv_f2: .82, fenyu_f1: .8, fenyu_f2: .82 };
@@ -24,7 +24,7 @@
     tw_huiyu: { name: '烬羽', hp: 760, atk: 70, def: 13, spd: 19, atkType: 'claw', wx: 'huo', fl: 4 },
     tw_dantong: { name: '丹童傀儡', hp: 1050, atk: 62, def: 24, spd: 10, atkType: 'claw', wx: 'huo', fl: 4 } };
   for (const [t, m] of Object.entries(MOBS)) { const id = t.slice(3), M = META[id]; if (!M) continue; const key = 'e_' + t;
-    VSPRITE_ADD(key, '../r415/' + id, M.main, M.h, false, false); VSS[key] = 1;
+    VSPRITE_ADD(key, '../r415/' + (M.file || id), M.main, M.h, false, false); VSS[key] = 1;
     MOB_DB[t] = { key, name: m.name, hp: m.hp, atk: m.atk, def: m.def, spd: m.spd, h: Math.round(M.bodyH * .92), atkType: m.atkType, mh: 104 };
     try { if (window.WX5) WX5.ENEMY[key] = m.wx; } catch (e) {}
     try { let v = null, pic = null; Object.defineProperty(IMG, key, { configurable: true, enumerable: true, set(x) { v = x; }, get() { if (v) return v; if (!pic) { pic = new Image(); pic.src = 'r415/' + id + '_pic.webp?v=1'; } return pic.complete && pic.naturalWidth ? pic : undefined; } }); } catch (e) {}

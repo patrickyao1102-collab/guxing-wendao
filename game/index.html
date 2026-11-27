@@ -12875,8 +12875,9 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   function frame(u, now) {
     const V = VS[VK(u)], m = V.meta;
     if (u._vd) { const t = now - u._vd; return { f: Math.min(m.idleEnd, 2), die: t }; }
-    if (u._va != null) { const f = m.idleEnd + 1 + Math.floor((now - u._va) * ATK_FPS); if (f < m.n) return { f }; u._va = null; }
-    const L = m.idleEnd + 1, k = Math.floor((now + (u.x % 3)) * 8) % (L * 2 - 2 || 1), f = k < L ? k : L * 2 - 2 - k;
+    if (u._va != null) { const f = m.idleEnd + 1 + Math.floor((now - u._va) * (m.afps || ATK_FPS)); if (f < m.n) return { f }; u._va = null; }
+    // R446（11-28）：加帧版图集带 ifps / loop / afps——待机按自己的帧率首尾循环，出手按自己的帧率放；老图集照旧 8 拍来回播
+    const L = m.idleEnd + 1, k = Math.floor((now + (u.x % 3)) * (m.ifps || 8)) % (m.loop ? L : (L * 2 - 2 || 1)), f = m.loop || k < L ? k : L * 2 - 2 - k;
     return { f, hit: u._vh && now - u._vh < .45 ? now - u._vh : null };
   }
   let skip = null;
@@ -12910,7 +12911,7 @@ lineFree = function (T, x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0)
   enemyAct = (orig => async function (e) {
     const V = VS[VK(e)]; if (!V || !e.alive) return orig(e);
     const m = V.meta, now = performance.now() / 1000; e._va = now; e.pose = 'atk';
-    const lead = Math.max(0, (m.impact - m.idleEnd - 1) / ATK_FPS - .22); await sleep(lead * 1000);
+    const lead = Math.max(0, (m.impact - m.idleEnd - 1) / (m.afps || ATK_FPS) - .22); await sleep(lead * 1000);
     return orig(e);
   })(enemyAct);
 })();
@@ -16882,7 +16883,7 @@ window.MarketEffects = (() => {
 <script src="r277_portal_top.js?v=3"></script><script src="r278_chain.js?v=6"></script><script src="r279_seated.js?v=1"></script><script src="r280_stalls.js?v=1"></script><script src="r282_ext.js?v=2"></script>
 <script src="r283/grid.js?v=2"></script><script src="r283_collide.js?v=1"></script><script src="r284_mapnav.js?v=2"></script><script src="r284_sidenav.js?v=1"></script><script src="r287_qbook.js?v=10"></script><script src="r291_inns.js?v=1"></script><script src="r292_minglu.js?v=14"></script><script src="r290_icons.js?v=2"></script><script src="r293_yunlai.js?v=1"></script><script src="r295_cast.js?v=2"></script><script src="r298_reward.js?v=2"></script><script src="r297_rooms.js?v=5"></script><script src="r300_tyl2f.js?v=1"></script><script src="r302_fix.js?v=14"></script><script src="r303_rooms.js?v=2"></script><script src="r312_fix.js?v=4"></script><script src="r313_sqtest.js?v=4"></script><script src="r314_dahu.js?v=1"></script><script src="r315_wanbao.js?v=6"></script><script src="r316_libfire.js?v=5"></script><script src="r317_sqmark.js?v=2"></script><script src="r318_huagirl.js?v=8"></script><script src="r319_sqbranch.js?v=3"></script><script src="r320_portraits.js?v=5"></script><script src="r321_sqtwist.js?v=3"></script><script src="r322_cine.js?v=5"></script><script src="r323_spots.js?v=1"></script><script src="r324_props.js?v=1"></script><script src="r325_yunlai307.js?v=1"></script><script src="r326_recall.js?v=4"></script><script src="r327_court.js?v=2"></script><script src="r328_walkin.js?v=2"></script><script src="r347/data.js?v=1"></script><script src="r329_dongxiang.js?v=20"></script><script src="r330_lock.js?v=2"></script><script src="r331_links.js?v=1"></script><script src="r333_yamen.js?v=3"></script><script src="r334_dxpeach.js?v=6"></script><script src="r335_xtroad.js?v=5"></script><script src="r336_brothers.js?v=5"></script><script src="r337_dahu_ext.js?v=1"></script><script src="r338_routes.js?v=1"></script><script src="r340_bubble.js?v=1"></script><script src="r345/tl.js?v=1"></script><script src="r341_dx_memory.js?v=7"></script><script src="r359_audio.js?v=1"></script><script src="r343_hanfu.js?v=2"></script><script src="r344/data.js?v=1"></script><script src="r344_dxhome.js?v=14"></script><script src="r348_ayan_ext.js?v=6"></script><script src="r364_tidy.js?v=2"></script><script src="r365_dinner.js?v=2"></script><script src="r366_tavern.js?v=3"></script><script src="r367_shops.js?v=1"></script><script src="r368_icons.js?v=1"></script><script src="r370_core.js?v=13"></script><script src="r370_ui.js?v=14"></script><script src="r385_data.js?v=1"></script><script src="r371_shops.js?v=4"></script><script src="r373_skin.js?v=1"></script><script src="r374_lines.js?v=1"></script>
 <script src="r375_feel.js?v=5"></script>
-<script src="r377_bossglow.js?v=7"></script>
+<script src="r377_bossglow.js?v=8"></script>
 <script src="r378_meta.js?v=3"></script>
 <script src="r378_kings.js?v=4"></script>
 <script src="r379_world.js?v=22"></script>
@@ -16896,6 +16897,6 @@ window.MarketEffects = (() => {
 <script src="r393_wxjing.js?v=6"></script><script src="r392_data.js?v=1"></script><script src="r392_luoxing.js?v=2"></script><script src="r395_pingjing.js?v=1"></script><script src="r396_hs12fix.js?v=1"></script>
 <script src="r389_gear.js?v=10"></script><script src="r389_panel.js?v=9"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r406_items.js?v=4"></script><script src="r407_refine_fx.js?v=3"></script><script src="r400_craft.js?v=7"></script><script src="r394_forge.js?v=13"></script><script src="r402_shop.js?v=4"></script><script src="r397_testbtn.js?v=5"></script>
 <script src="r349/data.js?v=6"></script><script src="r349_chehome.js?v=11"></script><script src="r352_chehome_ext.js?v=4"></script><script src="r354_scaletest.js?v=1"></script><script src="r355_indoor_scale.js?v=1"></script><script src="r357/tl.js?v=1"></script><script src="r357_memory.js?v=1"></script>
-<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=3"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=4"></script><script src="r421_tower.js?v=9"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=6"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=3"></script><script src="r429_tower34.js?v=1"></script><script src="r430_towerextra.js?v=1"></script><script src="r443_meta.js?v=1"></script><script src="r443_f1zones.js?v=1"></script><script src="r428_towermusic.js?v=5"></script>
+<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=3"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=5"></script><script src="r421_tower.js?v=10"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=6"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=3"></script><script src="r429_tower34.js?v=2"></script><script src="r430_towerextra.js?v=2"></script><script src="r443_meta.js?v=1"></script><script src="r443_f1zones.js?v=1"></script><script src="r428_towermusic.js?v=5"></script>
 <script src="asset_ready.js"></script>
 </body></html>
