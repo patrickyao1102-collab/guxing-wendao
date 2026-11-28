@@ -9,6 +9,7 @@
   const MZ = window.TOWER && TOWER.MAZE, META = window.R443_META;
   if (!MZ || !META || typeof TMAPS === 'undefined' || typeof IMG === 'undefined') return;
   const F = () => (S.flags = S.flags || {}), ST = () => MZ.ST(1), TXT = MZ.TXT[1], P = MZ.P;
+  const MOBN = { a: 5, b: 4, c: 4 };   // 每苑同时飘着几团鬼火（打掉一团，过一阵再补）
   const CS = 40, TSZ = 240, ZS = ['a', 'b', 'c'], ZNAME = { a: '外苑', b: '中苑', c: '内苑' }, MAPN = z => 'wyt_f1' + z;
   const zoneOf = m => { const mm = /^wyt_f1([abc])$/.exec(m || ''); return mm ? mm[1] : null; };
   const curZ = () => zoneOf(world && world.mapName);
@@ -69,6 +70,9 @@
     const S0 = ctr(...START[z]);
     TMAPS[MAPN(z)] = { title: '万妖塔 · 第一层 · ' + ZNAME[z], name: MAPN(z), indoor: false, leaves: false, chests: [], npcs, start: P(S0[0], S0[1]),
       baked: { ground: K(z, 'base'), w: M.w, h: M.h, cs: CS, cols, rows, blocked: bl.join(''), objs },
+      // 明雷（作者 11-28 12:58：「不要暗雷，做明雷」）：地图上飘鬼火，碰到才开打。起点、首领台、传送阵附近不刷
+      mobs: { n: MOBN[z], get types() { return TXT.mobs.flat().filter((t, i, A) => A.indexOf(t) === i && typeof MOB_DB !== 'undefined' && MOB_DB[t]); }, bg: 'bg_tw1', lv: 4, lvR: [12, 13], tower: 1,
+        zone: (c, r) => { const x = (c + .5) * CS, y = (r + .5) * CS, s0 = ctr(...START[z]); if (Math.hypot(x - s0[0], y - s0[1]) < 520) return false; if (z === 'c' && Math.hypot(x - BOSS_AT[0], y - BOSS_AT[1]) < 640) return false; for (const pd of PADS[z]) { const q = ctr(...pd.c); if (Math.hypot(x - q[0], y - q[1]) < 200) return false; } return true; } },
       exits: z === 'a' ? [{ x: Math.floor((10 * TSZ) / CS), y: rows - 1, w: Math.ceil(TSZ / CS), h: 1, to: BACK[0], at: [BACK[1], BACK[2]], face: 'down', label: '出塔' }] : [] };
     if (typeof MAP_ZOOM === 'object') MAP_ZOOM[MAPN(z)] = MAP_ZOOM.qingzhu_upper_pavilion || 1; }
   const buildAll = () => ZS.forEach(build); buildAll();
@@ -156,7 +160,10 @@
       else for (const pd of PADS[z]) { if (pd.decoy && used()[padKey(z, pd)]) continue; if (onPad(pd, p.x, p.y)) { tp(z, pd); return r; } }
       const d = Math.hypot(p.x - STEP.lx, p.y - STEP.ly); STEP.lx = p.x; STEP.ly = p.y; if (d > 0 && d < 40) STEP.d += d;
       const [sx, sy] = ctr(...START[z]); if (Math.hypot(p.x - sx, p.y - sy) < 300) return r;
-      if (STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 850 + Math.random() * 650; encounter(z); } } catch (e) {} return r; })(updateMap);
+      if (window.R443_DARK && STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 850 + Math.random() * 650; encounter(z); } } catch (e) {} return r; })(updateMap);   // 暗雷关了（R443_DARK=1 才开）
+  // 塔里的鬼火：不刷「越级红火」（一层要能打过）
+  spawnTileMob = (orig => function (T, def) { const n = world.mobs ? world.mobs.length : 0; const r = orig.apply(this, arguments);
+    try { const a = world.mobs[world.mobs.length - 1]; if (def && def.mobs && def.mobs.tower && world.mobs.length > n && a && a.fire && a.fire.tier === 'red') { const [lo, hi] = def.mobs.lvR; a.fire.tier = 'blue'; a.fire.lv = lo + Math.floor(Math.random() * (hi - lo + 1)); } } catch (e) {} return r; })(spawnTileMob);
   async function encounter(z) { BUSY = true; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { const set = TXT.mobs[Math.floor(Math.random() * TXT.mobs.length)]; S.flash = .5; S.flashColor = '#ff3a4a'; try { playSnd('sfx_claw', .6); } catch (e) {} await sleep(150); await fadeOut(200);
       const pr = TOWER.fightMobs(1, set); await fadeIn(260); const win = await pr; S.scene = drawMap;

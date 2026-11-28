@@ -11,7 +11,7 @@
   const F = () => (S.flags = S.flags || {}), TS64 = 64, CS = 40, P = (x, y) => [x / TS64 - .5, y / TS64 - .8];
   const ST = n => { const t = F().tw || (F().tw = {}); return t['f' + n] || (t['f' + n] = { mech: [], relic: [], gate: 0, seen: 0, chest: 0 }); };
   const BACK = ['qingzhu_upper_pavilion', ...P(-200, 640)];   // 出塔回到铸剑师身边
-  const NEED_LV = { 1: 10, 2: 13 };
+  const NEED_LV = { 1: 1, 2: 1 };   // 作者 11-28 13:04：不设等级门槛，能跟铸剑师说上话就能进；打不过就多练练
   // ---------- 各层的话（剧本：Claude 写、Gemini 润色、作者看过） ----------
   const TXT = {
     1: { title: '万妖塔 · 第一层 · 彼岸花海', mech: '照魂灯', mechVerb: '点亮', mobs: [['tw_huayan', 'tw_huayan'], ['tw_mengkui', 'tw_huayan'], ['tw_mengkui', 'tw_mengkui', 'tw_huayan']],
@@ -65,6 +65,7 @@
     (M.chests || []).forEach((c, j) => { if (TXT[n].chest && TXT[n].chest[j]) spot('残匣', c[0], c[1] + 30, () => chest(n, j), 70); });
     if (dais) spot(TXT[n].boss, dais.x, dais.y - 40, () => boss(n), 200);
     TMAPS['wyt_f' + n] = { title: TXT[n].title, name: 'wyt_f' + n, indoor: false, leaves: false, chests: [], npcs, start: P(E[0], E[1] - 70),
+      mobs: { n: 6, get types() { return TXT[n].mobs.flat().filter((t, i, A) => A.indexOf(t) === i && typeof MOB_DB !== 'undefined' && MOB_DB[t]); }, bg: n === 1 ? 'bg_tw1' : 'bg_tw2', lv: n === 1 ? 4 : 6.5, lvR: n === 1 ? [12, 13] : [15, 16], tower: n, zone: (c, r) => Math.hypot((c + .5) * CS - E[0], (r + .5) * CS - E[1]) > 520 },   // 明雷（作者 11-28：不要暗雷）
       baked: { ground: key(n, 'base'), w: M.w, h: M.h, cs: CS, cols, rows, blocked: bl.join(''), objs },
       exits: [{ x: Math.floor((E[0] - 150) / CS), y: rows - 1, w: Math.ceil(300 / CS), h: 1, to: BACK[0], at: [BACK[1], BACK[2]], face: 'down', label: '出塔' }] };
     if (typeof MAP_ZOOM === 'object') MAP_ZOOM['wyt_f' + n] = MAP_ZOOM.qingzhu_upper_pavilion || 1; }
@@ -125,7 +126,7 @@
     try { const n = curN(); const p = world.player; if (!n || !p || world.locked || STEP.busy || dialog || choice || sysPanel || (typeof battle !== 'undefined' && battle)) { if (p) { STEP.lx = p.x; STEP.ly = p.y; } return r; }
       const d = Math.hypot(p.x - STEP.lx, p.y - STEP.ly); STEP.lx = p.x; STEP.ly = p.y; if (d > 0 && d < 40) STEP.d += d;
       const E = META['f' + n].entrance.center; if (Math.hypot(p.x - E[0], p.y - E[1]) < 260) return r;   // 入口那一块不遇怪
-      if (STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 800 + Math.random() * 600; encounter(n); } } catch (e) {} return r; })(updateMap);
+      if (window.R443_DARK && STEP.d >= STEP.next) { STEP.d = 0; STEP.next = 800 + Math.random() * 600; encounter(n); } } catch (e) {} return r; })(updateMap);
   async function encounter(n) { STEP.busy = true; world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { const X = TXT[n], set = X.mobs[Math.floor(Math.random() * X.mobs.length)]; S.flash = .5; S.flashColor = n === 1 ? '#ff3a4a' : '#cfe8ff'; try { playSnd('sfx_claw', .6); } catch (e) {} await sleep(150); await fadeOut(200);
       const pr = TOWER.fightMobs(n, set); await fadeIn(260); const win = await pr; S.scene = drawMap;
