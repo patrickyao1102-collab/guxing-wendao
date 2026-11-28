@@ -24,8 +24,8 @@
   // ---------- 花瓣 ----------
   const PET = []; let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   function makePetals() { PET.length = 0; seed = 7;
-    for (let i = 0; i < 320; i++) PET.push({ a0: rnd() * Math.PI * 2, r0: 520 + rnd() * 700, h0: -rnd() * 260 + 60, rT: 30 + rnd() * 120, hT: -40 - rnd() * 360, sp: (.6 + rnd() * .8) * (rnd() < .5 ? 1 : 1),
-      d: rnd() * 1.4, sz: 5 + rnd() * 7, rot: rnd() * 6.28, vr: (rnd() - .5) * 3, col: rnd(), fall: 40 + rnd() * 90, drift: (rnd() - .5) * 220, glow: rnd() < .35 }); }
+    for (let i = 0; i < 230; i++) PET.push({ a0: rnd() * Math.PI * 2, r0: 520 + rnd() * 700, h0: -rnd() * 260 + 60, rT: 55 + rnd() * 150, hT: -50 - rnd() * 300, sp: (.6 + rnd() * .8) * (rnd() < .5 ? 1 : 1),
+      d: rnd() * 1.4, sz: 4 + rnd() * 4.5, rot: rnd() * 6.28, vr: (rnd() - .5) * 3, col: rnd(), fall: 40 + rnd() * 90, drift: (rnd() - .5) * 220, glow: rnd() < .15 }); }
   function petalPos(p, t, cx, cy) {
     // 1) 0.6～3.6 秒：从远处旋进来，收成一根花柱；2) 3.6～6.2：绕着她转；3) 6.2 以后：散开成花雨慢慢落下、淡掉
     const kin = ease2(seg(t, .6 + p.d * .5, 3.6 + p.d * .4));
@@ -38,23 +38,23 @@
   }
   function drawPetal(g, x, y, s, rot, col, a, glow) {
     g.save(); g.translate(x, y); g.rotate(rot); g.globalAlpha = a;
-    const c1 = col < .5 ? '#ff3b4e' : col < .8 ? '#e0182e' : '#ff8a96';
-    g.fillStyle = c1; g.beginPath(); g.moveTo(0, -s); g.quadraticCurveTo(s * .55, -s * .1, 0, s); g.quadraticCurveTo(-s * .55, -s * .1, 0, -s); g.fill();
-    if (glow) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * .35; g.fillStyle = '#ff6070'; g.beginPath(); g.arc(0, 0, s * 1.3, 0, 7); g.fill(); }
+    const c1 = col < .5 ? '#d81a30' : col < .8 ? '#b50f22' : '#f04a5c';   // 彼岸花瓣：细长、深红，不是圆点
+    g.fillStyle = c1; g.beginPath(); g.moveTo(0, -s * 1.6); g.quadraticCurveTo(s * .42, -s * .2, 0, s * 1.2); g.quadraticCurveTo(-s * .42, -s * .2, 0, -s * 1.6); g.fill();
+    g.strokeStyle = 'rgba(255,170,170,.45)'; g.lineWidth = .8; g.beginPath(); g.moveTo(0, -s * 1.4); g.lineTo(0, s); g.stroke();
+    if (glow) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * .2; g.fillStyle = '#ff5064'; g.beginPath(); g.ellipse(0, 0, s * .6, s * 1.4, 0, 0, 7); g.fill(); }
     g.restore();
   }
   // ---------- 光柱、法环 ----------
+  // 光柱贴图（只做一次）：横向中间亮两边透明、竖向顶端淡出；用 lighter 叠上去（不用 destination-out，那会把地图擦成黑块）
+  let PT = null; function ptex() { if (PT) return PT; const c = document.createElement('canvas'); c.width = 128; c.height = 512; const g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 128, 0); gr.addColorStop(0, 'rgba(255,40,70,0)'); gr.addColorStop(.3, 'rgba(255,70,95,.35)'); gr.addColorStop(.5, 'rgba(255,200,200,1)'); gr.addColorStop(.7, 'rgba(255,70,95,.35)'); gr.addColorStop(1, 'rgba(255,40,70,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 512); const vg = g.createLinearGradient(0, 0, 0, 512); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(.35, 'rgba(0,0,0,1)'); vg.addColorStop(1, 'rgba(0,0,0,1)');
+    g.globalCompositeOperation = 'destination-in'; g.fillStyle = vg; g.fillRect(0, 0, 128, 512); return PT = c; }
   function pillar(g, cx, gy, t) {
     const up = ease(seg(t, 1.6, 3.8)), out = ease(seg(t, 6.0, 7.8)); const k = up * (1 - out); if (k <= 0) return;
-    const Hh = 900 * up, w = 150 + 20 * Math.sin(t * 1.3);
+    const Hh = 1000 * up, w = 170 + 16 * Math.sin(t * 1.3), T = ptex();
     g.save(); g.globalCompositeOperation = 'lighter';
-    for (const [ww, aa] of [[w * 1.9, .16], [w, .32], [w * .38, .5]]) {
-      const gr = g.createLinearGradient(cx - ww / 2, 0, cx + ww / 2, 0);
-      gr.addColorStop(0, 'rgba(255,40,70,0)'); gr.addColorStop(.5, `rgba(255,${ww < w ? 190 : 90},${ww < w ? 190 : 110},${aa * k})`); gr.addColorStop(1, 'rgba(255,40,70,0)');
-      g.fillStyle = gr; g.fillRect(cx - ww / 2, gy - Hh, ww, Hh);
-    }
-    const tg = g.createLinearGradient(0, gy - Hh, 0, gy - Hh + 260); tg.addColorStop(0, 'rgba(0,0,0,1)'); tg.addColorStop(1, 'rgba(0,0,0,0)');   // 光柱顶端渐隐
-    g.globalCompositeOperation = 'destination-out'; g.fillStyle = tg; g.fillRect(cx - w * 1.2, gy - Hh, w * 2.4, 260);
+    for (const [ww, aa] of [[w * 2.2, .22], [w, .38], [w * .4, .45]]) { g.globalAlpha = aa * k; g.drawImage(T, cx - ww / 2, gy - Hh, ww, Hh); }
     g.restore();
   }
   function rings(g, cx, gy, t) {
@@ -90,8 +90,8 @@
       if (C.T == null) C.t += Math.min(dt, .05);
       const [bx, by] = C.at, p0 = C.p0;
       const k1 = ease2(seg(t, 0, 1.8)), k2 = ease(seg(t, 4.2, 8.6));
-      C.z = lerp(1, .84, k1) * lerp(1, 1.14, k2);   // 先拉远成广角，后段慢慢推近
-      const fx = lerp(p0[0], bx, k1), fy = lerp(p0[1], by - 150, k1) + lerp(0, 40, k2);
+      C.z = lerp(1, .84, k1) * lerp(1, 1.5, k2);   // 先拉远成广角，后段慢慢推近
+      const fx = lerp(p0[0], bx, k1), fy = lerp(p0[1], by - 150, k1) + lerp(0, 10, k2);
       const T = world.map.T, vw = W / VZ(), vh = H / VZ();
       world.cam.x = Math.max(T.x0 || 0, Math.min(T.mw - vw, fx - vw / 2)); world.cam.y = Math.max(0, Math.min(T.mh - vh, fy - vh / 2));
       if (C.T == null && t >= DUR && C.done) { const d = C.done; C.done = null; d(); }
