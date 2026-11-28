@@ -2,9 +2,11 @@
 // 素材：Codex「R474_内苑梦傀战斗帧与特效」——三只各 idle / charge / atk / hurt / defeat 五套动作，三招特效：梦仆「牵丝」、梦傀「入梦香」、精英梦傀首「千丝坠」。
 // 图集：tools/r474n_build.py → game/r474n/*.webp；尺寸表 game/r474n_meta.js（window.R474N_META）。原画朝右 = 面朝我方，这里自己画、不镜像。
 //
-// 战斗里怎么画（和 r474_jhbattle.js 绛蘅那套一个路数）：
-//   ① 本体自己画：平时 idle；挨打 hurt（往后一晃再缓回来）；蓄力 charge（放完在最后几帧里慢慢来回，憋着那口气）；出手 atk；倒下 defeat（放完停一下再淡掉）。
-//      动作之间柔柔地交叉淡入，不硬切。没有「破绽」「喘息」之类的字，全靠身姿。
+// 战斗里怎么画（和 r474_jhbattle.js 绛蘅那套一个路数，画法在 r474_pose.js）：
+//   ① 作者 11-28 23:15：逐帧播「好卡」→ 改成「定稿图 + 动作图」：平时一张定稿站姿（idle 第 0 帧）极轻地上下浮；蓄力一张蓄力图（身上红光）；
+//      出手只用「起手 → 出招」两张（POSE 表），交叉淡入 0.08～0.12 秒，出招那一下往前一冲、放大 1.06 再回位；
+//      挨打不换图，整张往后一仰 + 白边亮一下；死不倒地——定稿图停住，从脚往头化成梦丝和灰色光点飘散（约 1.7 秒）。
+//      没有「破绽」「喘息」「虚弱」之类的字和姿势。梦傀首血掉到一半以下：身上那圈红光更足（发怒）。
 //   ② 出招：
 //      · 普通一下：播 atk，同时把自己那招特效按 anim.json 的建议比例（人物的 1.6 倍，suggestedScale）落在被打的那个人身上；命中帧跳伤害。
 //      · 招牌技（梦仆 / 梦傀每三手一次；梦傀首先蓄一手、下一手放）：特效整片铺开——从她手里一路撒到我方整队，比例按「她的手到我方中间」的距离放大，
@@ -30,8 +32,8 @@
         if (typeof AUD !== 'undefined' && (AUD.muted || !AUD.mode)) return;
         if (/\.(mp3|ogg|m4a|wav)$/i.test(v)) { const a = new Audio(v); a.volume = .9; a.play().catch(() => {}); } else if (typeof playSnd === 'function') playSnd(v); } catch (e) {} } };
 
-  const M = window.R474N_META;
-  if (!M || typeof drawUnit !== 'function' || typeof S === 'undefined' || !window.R370_H) return;
+  const M = window.R474N_META, PO = window.R474POSE;
+  if (!M || !PO || typeof drawUnit !== 'function' || typeof S === 'undefined' || !window.R370_H) return;
   const LSK = 'gx_r474_ny';
   const LSG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
   const LSS = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
@@ -77,69 +79,40 @@
   const kindOf = u => (ON && u && u.side === 'enemy' && KINDS.includes(u._ny) ? u._ny : null);
   const isNY = u => !!kindOf(u);
 
-  // ---------- 这一刻播哪一帧（u._nj = { cur, prev, one, cT0, dT0, lastHurt }）----------
-  function J(u) { return u._nj || (u._nj = { lastHurt: 0 }); }
-  function play(u, act, o = {}) {
-    const j = J(u), A = M.forms[u._ny].acts[act]; if (!A) return 0;
-    const fps = o.fps || A.fps, dur = A.n / fps;
-    j.one = { act, t0: o.t0 != null ? o.t0 : nowS(), dur: o.pingpong ? dur * 2 : dur, fps, pingpong: !!o.pingpong };
-    return dur; }
+  // ---------- 定稿图 / 动作图（挑帧：报告里有拼图 /tmp/claude-0/n4/pose/挑帧.jpg）----------
+  const POSE = {
+    meng_pu: { still: ['idle', 0], charge: ['charge', 12], wind: ['atk', 8], strike: ['atk', 13] },          // 书生：垂手而立 / 抬腕牵丝 / 袖举过头 → 广袖平甩
+    meng_kui: { still: ['idle', 0], charge: ['charge', 13], wind: ['atk', 7], strike: ['atk', 14] },         // 宫侍：侧身含笑 / 拈袖 / 广袖掩身 → 长袖横扫
+    meng_kui_shou: { still: ['idle', 0], charge: ['charge', 13], wind: ['atk', 8], strike: ['atk', 12] } };  // 梦傀首：张臂立定 / 双手举过头顶 / 双臂上扬 → 弓步一手前探
+  const KEY = a => a[0] + '|' + a[1];
   const dead = u => !u.alive || u.hp <= 0;
-  function pick(u, now) {
-    const j = J(u), A = M.forms[u._ny].acts;
-    if (j.one && (now - j.one.t0 >= j.one.dur || dead(u))) j.one = null;
-    if (!u._charge) j.cT0 = null;
-    let act, f;
-    if (dead(u)) { act = 'defeat'; if (j.dT0 == null) j.dT0 = now; f = Math.min(A.defeat.n - 1, Math.floor((now - j.dT0) * A.defeat.fps)); }
-    else if (j.one && now >= j.one.t0) {
-      act = j.one.act; const a = A[act]; let k = Math.floor((now - j.one.t0) * j.one.fps);
-      if (j.one.pingpong) k = k < a.n ? k : Math.max(0, 2 * a.n - 1 - k);
-      f = clamp(k, 0, a.n - 1);
-    } else if (u._charge) {
-      act = 'charge'; if (j.cT0 == null) j.cT0 = now; const a = A.charge; let k = Math.floor((now - j.cT0) * a.fps);
-      if (k >= a.n) { const L = 6, h = Math.floor((now - j.cT0 - a.n / a.fps) * 6) % (2 * L - 2); k = a.n - 1 - (h < L ? h : 2 * L - 2 - h); }
-      f = k;
-    } else { act = 'idle'; const a = A.idle; f = Math.floor((now + (u.x % 3)) * a.fps) % a.n; }
-    const cur = { act, f };
-    if (j.cur && j.cur.act !== act) j.prev = Object.assign({}, j.cur, { t: now });
-    j.cur = cur; return cur; }
+  function J(u) { return u._nj || (u._nj = { lastHurt: -9 }); }
+  const baseKey = u => KEY(u._charge || J(u).chg > nowS() ? POSE[u._ny].charge : POSE[u._ny].still);
+  // 放一招：t0 起手、ts 出招那一下、te 收招
+  function move(e, t0, ts, te) { const P = POSE[e._ny]; PO.act(e, { t0, ts, te, L: 22, S: .06, steps: [[t0, KEY(P.wind), .12], [ts - .05, KEY(P.strike), .08]] }); }
 
   // ---------- 画本体 ----------
-  function blit(fr, k, sc, x, y) { if (!fr) return false; const im = pim(M.forms[k].pages[fr[0]][0]); if (!ok(im)) return false;
-    ctx.drawImage(im, fr[1], fr[2], fr[3], fr[4], x + fr[5] * sc, y + fr[6] * sc, fr[3] * sc, fr[4] * sc); return true; }
-  const SIL = document.createElement('canvas'), sg = SIL.getContext('2d');
-  { let mw = 1, mh = 1; for (const k of KINDS) for (const a of Object.values(M.forms[k].acts)) for (const r of a.fr) if (r) { mw = Math.max(mw, Math.ceil(r[3] / 3)); mh = Math.max(mh, Math.ceil(r[4] / 3)); } SIL.width = mw; SIL.height = mh; }
-  // 蓄力时身上一圈柔光（梦丝的红），梦傀首平时也有一点
-  function glow(fr, k, sc, x, y, power, now) {
-    if (!fr || power <= .01) return; const im = pim(M.forms[k].pages[fr[0]][0]); if (!ok(im)) return;
-    const w = Math.max(1, Math.ceil(fr[3] / 3)), h = Math.max(1, Math.ceil(fr[4] / 3));
-    sg.clearRect(0, 0, w + 2, h + 2); sg.globalCompositeOperation = 'source-over'; sg.drawImage(im, fr[1], fr[2], fr[3], fr[4], 0, 0, w, h);
-    sg.globalCompositeOperation = 'source-in'; sg.fillStyle = 'rgb(255,70,96)'; sg.fillRect(0, 0, w, h); sg.globalCompositeOperation = 'source-over';
-    const r = 3 + power * 3, a = (.08 + power * .2) * (.85 + .15 * Math.sin(now * 2.4));
-    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha *= a;
-    for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4; ctx.drawImage(SIL, 0, 0, w, h, x + fr[5] * sc + Math.cos(an) * r, y + fr[6] * sc + Math.sin(an) * r, fr[3] * sc, fr[4] * sc); }
-    ctx.restore(); }
-  const frOf = (k, c) => M.forms[k].acts[c.act] && M.forms[k].acts[c.act].fr[c.f];
+  const SRC = {};
+  function srcOf(k) { const C = SRC[k] || (SRC[k] = new Map()); return key => { let o = C.get(key); if (o === undefined) { const [a, i] = key.split('|'), A = M.forms[k].acts[a], fr = A && A.fr[+i]; o = fr ? { im: pim(M.forms[k].pages[fr[0]][0]), fr, sc: CS() } : null; C.set(key, o); } return o; }; }
   function drawBody(u, now) {
-    const k = u._ny, j = J(u), cur = j.cur; if (!cur) return;
-    const x = u.x + (u.ox || 0), y = u.y + (u.oy || 0), sc = CS(), fr = frOf(k, cur);
-    let fade = 1; if (dead(u) && j.dT0 != null) { const A = M.forms[k].acts.defeat; fade = clamp01(1 - (now - j.dT0 - A.n / A.fps - .5) / .8); if (fade <= 0) return; }
-    ctx.save(); ctx.globalAlpha *= fade;
-    const power = u._charge ? 1 : k === 'meng_kui_shou' && !dead(u) ? .3 : 0;
-    glow(fr, k, sc, x, y, power, now);
-    const p = j.prev, kk = p ? (now - p.t) / .16 : 1;
-    if (p && kk < 1) { ctx.save(); ctx.globalAlpha *= 1 - sm(kk); blit(frOf(k, p), k, sc, x, y); ctx.restore(); } else j.prev = null;
-    blit(fr, k, sc, x, y);
-    ctx.restore(); }
+    const k = u._ny, x = u.x + (u.ox || 0), y = u.y + (u.oy || 0), chg = u._charge || J(u).chg > now;
+    const rage = k === 'meng_kui_shou' && u.hp < u.maxhp * .5;   // 梦傀首血掉一半：发怒，光更足
+    const power = chg ? .85 + .15 * Math.sin(now * 3) : rage ? .65 : k === 'meng_kui_shou' ? .3 : 0;
+    PO.draw(u, now, srcOf(k), x, y, { glow: [255, 70, 96], power, float: 2 }); }
 
   // ---------- 接进 drawUnit：影子、血条、名字照旧，本体换成真画帧 ----------
   const NKEY = 'ny474_body'; let CUR = null;
   drawUnit = (orig => function (u) {
     if (!isNY(u) || !ready(u._ny)) return orig.apply(this, arguments);
     const now = nowS(), j = J(u);
-    if (u.hurt > .85 && u.alive && now - j.lastHurt > .35 && !(j.one && j.one.act !== 'hurt' && now < j.one.t0 + j.one.dur)) { j.lastHurt = now; play(u, 'hurt', { pingpong: true, fps: 16 }); SND.play('ny_' + u._ny + '_hurt'); }
-    if (dead(u) && !j.deadSnd) { j.deadSnd = 1; SND.play('ny_' + u._ny + '_defeat'); }
-    pick(u, now);
+    if (dead(u)) {   // 死：定稿图停住，从脚往头化成梦丝和灰色光点飘散；散完连影子都不画
+      if (!j.deadSnd) { j.deadSnd = 1; SND.play('ny_' + u._ny + '_defeat'); }
+      if (j.gone) return; const D = u._ps && u._ps.diss;
+      if (!D || now - D.t0 < PO.DUR * .5) { const k0 = u.key, vk0 = u._vk; u.key = NKEY; u._vk = undefined; CUR = { done: true }; try { orig.apply(this, arguments); } catch (e) {} finally { u.key = k0; u._vk = vk0; CUR = null; } }   // 只要影子：老梦傀的倒下别画出来
+      if (!PO.dissolve(u, now, srcOf(u._ny), KEY(POSE[u._ny].still), u.x + (u.ox || 0), u.y + (u.oy || 0), 'dream')) j.gone = 1;
+      return; }
+    if (u.hurt > .85 && now - j.lastHurt > .35) { j.lastHurt = now; PO.hit(u, now); SND.play('ny_' + u._ny + '_hurt'); }
+    PO.pick(u, now, baseKey(u));
     const k0 = u.key, vk0 = u._vk, hu = u.hurt, h0 = u.h;
     u.key = NKEY; u._vk = undefined; u.hurt = 0; u.h = BODY(u._ny) + 6; CUR = { u, now, done: false };
     try { orig.apply(this, arguments); }
@@ -194,21 +167,21 @@
   async function waitUntil(t) { const w = t - nowS(); if (w > 0) await sleep(w * 1000); }
   async function normal(e, b) {
     const hs = heroes(b); if (!hs.length) return true; const P = hs[Math.floor(Math.random() * hs.length)], k = e._ny, key = FXOF[k];
-    const t0 = nowS(), dur = play(e, 'atk'); SND.play('ny_' + key + '_cast');
+    const t0 = nowS(), hT = HIT(k), te = t0 + hT + .5; move(e, t0, t0 + hT - .08, te); SND.play('ny_' + key + '_cast');
     if (fxReady(key)) fxOne(e, P, t0);
-    await waitUntil(t0 + HIT(k)); if (P.alive) { hitOne(e, P, 1); SND.play('ny_' + key + '_hit'); }
-    await waitUntil(t0 + dur - .35); return true; }
+    await waitUntil(t0 + hT); if (P.alive) { hitOne(e, P, 1); SND.play('ny_' + key + '_hit'); }
+    await waitUntil(te); return true; }
   async function skill(e, b) {
     const k = e._ny, key = FXOF[k], SK = SKILL[k]; e._charge = null;
-    if (k !== 'meng_kui_shou') { play(e, 'charge'); await sleep(Math.min(900, M.forms[k].acts.charge.n / M.forms[k].acts.charge.fps * 1000)); }
+    if (k !== 'meng_kui_shou') { J(e).chg = nowS() + .85; await sleep(850); }   // 小怪：先亮一下蓄力图（身上红光）再放
     const hs = heroes(b); if (!hs.length) return true;
     try { H.big(SK.name, SK.color, 62); } catch (er) {}
-    const t0 = nowS(), dur = play(e, 'atk'); SND.play('ny_' + key + '_cast');
+    const t0 = nowS(), hT = HIT(k), te = t0 + hT + .55; move(e, t0, t0 + hT - .08, te); SND.play('ny_' + key + '_cast');
     if (fxReady(key)) fxWide(e, hs, t0);
-    await waitUntil(t0 + HIT(k));
+    await waitUntil(t0 + hT);
     b._aoe = 1; try { for (const P of heroes(b)) { const d = hitOne(e, P, SK.mult); if (P.alive && d > 0) try { EFF[SK.eff](P); } catch (er) {} } } finally { b._aoe = 0; }
     SND.play('ny_' + key + '_hit');
-    await waitUntil(t0 + dur - .2); return true; }
+    await waitUntil(te); return true; }
   // 每只的打法：梦仆 / 梦傀第三（或第四）手起每三手放一次招牌技；梦傀首每三手蓄一手、下一手放「千丝坠」
   async function nyAI(e, b) {
     if (!isNY(e) || !ready(e._ny)) return false;   // 没加载好（或切回旧版）：交回原来的打法
@@ -216,7 +189,7 @@
     e._nyN++; const n = e._nyN, tr = w => { TRACE.push(e._ny + '#' + n + ':' + w); if (TRACE.length > 60) TRACE.shift(); };
     if (e._ny === 'meng_kui_shou') {
       if (e._charge) { tr('skill'); return skill(e, b); }
-      if (n % 3 === 2) { tr('charge'); e._charge = '她十指一收，满苑的梦丝都绷紧了——「千丝坠」，防御！'; play(e, 'charge'); SND.play('ny_qiansizhui_charge'); await sleep(1100); return true; }
+      if (n % 3 === 2) { tr('charge'); e._charge = '她十指一收，满苑的梦丝都绷紧了——「千丝坠」，防御！'; SND.play('ny_qiansizhui_charge'); await sleep(1100); return true; }
       tr('normal'); return normal(e, b); }
     if (n % 3 === 0) { tr('skill'); return skill(e, b); }
     tr('normal'); return normal(e, b); }
@@ -277,7 +250,7 @@
 
   // 录预览 / 测试用：让某只直接出一手（w = 'normal' 普通一下 / 'skill' 招牌技 / 'charge' 梦傀首蓄力）
   async function demo(e, w = 'normal') { const b = battle; if (!b || !isNY(e)) return false;
-    if (w === 'charge') { e._charge = '「千丝坠」'; play(e, 'charge'); await sleep(1100); return true; }
+    if (w === 'charge') { e._charge = '「千丝坠」'; await sleep(1100); return true; }
     return w === 'skill' ? skill(e, b) : normal(e, b); }
-  window.R474NY = { TRACE, demo, on: () => ON, set, make, fight, fromMapMob, kindOf, act: u => (u && u._nj && u._nj.cur ? u._nj.cur.act : null), play, ready, load, M, KINDS, SKILL, SETS };
+  window.R474NY = { TRACE, demo, on: () => ON, set, make, fight, fromMapMob, kindOf, act: u => (u && u._ps && u._ps.cur ? u._ps.cur.key.split('|')[0] : null), move, POSE, ready, load, M, KINDS, SKILL, SETS };
 })();

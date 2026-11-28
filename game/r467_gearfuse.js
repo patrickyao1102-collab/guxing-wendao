@@ -164,7 +164,8 @@
   const tierOfId = id => { const it = ITEM_DB[id] || {}; return Math.max(1, G6.tierOf(id) || ((it.lvReq || 0) >= 11 ? 2 : 1)); };
   const subsLong = id => { const t = tierOfId(id); return linesOf(id).map(l => CR.lineText(l) + (isTop(l, t) ? '（极品）' : '')); };
   function sockText(id, short) { const it = ITEM_DB[id]; return gemsOf(id).map(g => { if (!g) return '空'; const l = tokLine(g, it.slot); return short ? CR.subText(l[0], l[1], true) : tokName(g) + '（' + CR.subText(l[0], l[1]) + '）'; }).join(short ? ' ' : '、'); }
-  function descOf(id, lore) { const it = ITEM_DB[id], r = recOf(id), ls = subsLong(id), k = socksOf(id), out = [];
+  function descOf(id, lore) { if (window.GEAR_TIP && GEAR_TIP.briefOn) return GEAR_TIP.brief(id);   // 11-28 夜（r477）：只有一两行的地方（行囊下面那一条）只写一句简介，详情看弹出的详情框
+    const it = ITEM_DB[id], r = recOf(id), ls = subsLong(id), k = socksOf(id), out = [];
     out.push('【' + gradeWord(id) + (XIAN[id] ? ' · 仙器' : '') + '】');
     out.push(ls.length ? '副属性：' + ls.join('，') + '。' : '没有副属性。');
     if (k) out.push('灵窍 ' + k + '：' + sockText(id) + '。');
@@ -177,7 +178,8 @@
     const d0 = Object.getOwnPropertyDescriptor(it, 'desc'); let lore = d0 ? (d0.get ? d0.get.call(it) : d0.value) : '';
     Object.defineProperty(it, 'desc', { configurable: true, enumerable: true, get: () => descOf(id, loreFn ? loreFn() : lore), set(v) { if (!loreFn) lore = v; } });
     Object.defineProperty(it, 'fx5', { configurable: true, enumerable: true, get: () => fxCalc(id), set() {} });
-    Object.defineProperty(it, 'subs', { configurable: true, enumerable: true, get: () => subsLong(id), set() {} }); }
+    Object.defineProperty(it, 'subs', { configurable: true, enumerable: true, get: () => subsLong(id), set() {} });
+    Object.defineProperty(it, 'lore467', { configurable: true, enumerable: false, get: () => String(loreFn ? loreFn() : lore || '') }); }   // 只有物品描述那一句（r477 详情框「说明」区用）
   // 「旧珠余韵」（11-28 晚）：老存档里镶过灵珠的装备，换算时把那几颗珠子原来加的主属性记在这件装备身上（rec.leg），读数一直带着——
   //   老玩家读档不会觉得变弱；珠子还留在窍里、照新规矩加副属性。只给换算那一下有珠的装备，新打的、新买的都没有。
   const legOf = (id, k) => { const r = H() && ((H().fg || {})[id] || (XIAN[id] ? (H().gu || {})[id] : null)); return (r && r.leg && r.leg[k]) || 0; };
@@ -612,7 +614,7 @@
     const list = gearList2(), np = Math.max(1, Math.ceil(list.length / PER)); LS.page = Math.min(LS.page, np - 1);
     if (!list.length) T('身上、行囊里都没有装备。', GL.x + 20, GL.y + 90, 16, C.sub);
     list.slice(LS.page * PER, LS.page * PER + PER).forEach((g, i) => { const r = K.gcR(i), on = o.sel && o.sel(g), dim = o.dim && o.dim(g); ctx.save(); if (dim) ctx.globalAlpha *= .32;
-      D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(g.id, r.x + r.w / 2, r.y + 38, 27); } catch (e) {}
+      D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(g.id, r.x + r.w / 2, r.y + 38, 27); } catch (e) {} if (window.GEAR_TIP) GEAR_TIP.hot(g.id, r);   // 长按 / 右键弹详情框（r477）
       ctx.font = `700 14px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (g.who) textOutline(g.who === 'hero' ? '叶' : CR.whoName(g.who).slice(0, 1), r.x + 13, r.y + 14, C.green, 'rgba(6,14,19,.92)', 4); else if (g.n > 1) textOutline('×' + g.n, r.x + 16, r.y + 14, C.text, 'rgba(6,14,19,.92)', 4);
       const bd = o.badge && o.badge(g); if (bd) { ctx.font = `700 14px ${NUM()}`; ctx.textAlign = 'right'; textOutline(bd, r.x + r.w - 6, r.y + 14, C.gold2, 'rgba(6,14,19,.92)', 4); }
@@ -624,6 +626,7 @@
   // ---- 右边头部：这件装备的名字（按颜色）、主属性、副属性、灵窍、灵韵 ----
   function head(id) { const it = ITEM_DB[id], g = WX5.GEAR[id], FX = window.REFINE_FX, rl = refLv(id), nowF = performance.now(), tx = GD.x + (rl ? 150 : 130), mw = GD.x + GD.w - 20 - tx;
     if (rl && FX) FX.under(GD.x + 66, GD.y + 70, 44, rl, nowF); try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} if (rl && FX) FX.slot(GD.x + 6, GD.y + 12, 120, 120, rl, nowF);
+    if (window.GEAR_TIP) { const DR = { x: GD.x + GD.w - 96, y: GD.y + 16, w: 80, h: 34 }; btn(DR, '详　情', 'n', 15); GEAR_TIP.hot(id, DR, { tap: true }); GEAR_TIP.hot(id, { x: GD.x + 6, y: GD.y + 12, w: 120, h: 120 }, { tap: true }); }   // r477：点图标或「详情」看这件的详情框
     ctx.font = `400 28px ${BR()}`; const nm = fitW(it.name, mw - 90); T(nm, tx, GD.y + 40, 28, window.GEAR_COL(id) || C.gold2, BR(), 400); const nw = ctx.measureText(nm).width;
     const gw = gradeWord(id) + (XIAN[id] && !art('xianqi') ? ' · 仙器' : ''); T(gw, tx + nw + 12, GD.y + 42, 16, window.GEAR_COL(id) || C.sub, KAI(), 700);
     if (XIAN[id] && art('xianqi')) { ctx.font = `700 16px ${KAI()}`; ctx.drawImage(art('xianqi'), tx + nw + 20 + ctx.measureText(gw).width, GD.y + 30, 62, 26); }   // 仙器徽记
@@ -650,7 +653,9 @@
     if (res && ITEM_DB[res.id]) { const it = ITEM_DB[res.id]; ctx.font = `400 25px ${BR()}`; const nm = fitW(it.name, 300), gw = it.slot ? gradeWord(res.id) : ''; ctx.font = `400 25px ${BR()}`; const w1 = ctx.measureText(nm).width; ctx.font = `700 16px ${KAI()}`; const w2 = gw ? ctx.measureText(gw).width + 10 : 0;
       T(nm, CX - (w1 + w2) / 2, 581, 25, window.GEAR_COL(res.id) || C.gold2, BR(), 400); if (gw) T(gw, CX - (w1 + w2) / 2 + w1 + 10, 583, 16, window.GEAR_COL(res.id), KAI(), 700);
       const k = socksOf(res.id), s0 = it.slot ? subsFit(res.id, 300, 15) : '', sub = it.slot ? (s0 || '没带出副属性') + (k ? '　· 灵窍 ' + k : '') : statText(res.id);
-      ctx.font = `600 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, s0 || k ? C.green : C.sub, KAI(), 600, 'center'); }
+      ctx.font = `600 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, s0 || k ? C.green : C.sub, KAI(), 600, 'center');
+      if (it.slot && window.GEAR_TIP) { GEAR_TIP.hot(res.id, { x: CX - 230, y: 562, w: 460, h: 58 }, { tap: true }); GEAR_TIP.hot(res.id, { x: CX - 70, y: K.CY - 70, w: 140, h: 140 }); }   // r477：点名字那两行（或长按炉心）看详情
+    }
     else { const h = hints(a); ctx.font = `600 16px ${KAI()}`; T(fitW(h[0], 440), CX, 590, 16, h[1], KAI(), 600, 'center'); }
     btn(K.B_CLEAR, '清　空', a.n ? 'n' : 'd', 17);
     const ng = H().gold || 0, B = K.B_GO;
@@ -719,14 +724,14 @@
   const PK_PREV = { x: PK.x + 30, y: PK.y + PK.h - 64, w: 120, h: 44 }, PK_NEXT = { x: PK.x + 166, y: PK.y + PK.h - 64, w: 120, h: 44 }, PK_CLOSE = { x: PK.x + PK.w - 170, y: PK.y + PK.h - 64, w: 140, h: 44 };
   function pickList(f) { const all = gearList2(); if (f.pick === 'main') return all;
     const m = f.main && ITEM_DB[f.main.id]; if (!m) return []; return all.filter(e => !e.who && !XIAN[e.id] && ITEM_DB[e.id].slot === m.slot && !(e.id === f.main.id && e.who == f.main.who && e.n <= 1) && subAvail(f, e) > 0); }
-  function drawPicker(now, f) { const list = pickList(f), np = Math.max(1, Math.ceil(list.length / PPER)); f.pp = Math.min(f.pp || 0, np - 1);
+  function drawPicker(now, f) { const list = pickList(f), np = Math.max(1, Math.ceil(list.length / PPER)); f.pp = Math.min(f.pp || 0, np - 1); if (window.GEAR_TIP) GEAR_TIP.hotClear();   // 单子盖住了底下的格子：底下登记的不算
     ctx.save(); ctx.fillStyle = 'rgba(3,8,12,.72)'; ctx.fillRect(0, TOPY, 1280, 720 - TOPY); ctx.restore();
     D('panel_well_9', PK.x, PK.y, PK.w, PK.h); ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(214,180,110,.7)'; ctx.strokeRect(PK.x + 3, PK.y + 3, PK.w - 6, PK.h - 6); ctx.restore();
     const mi = f.main && ITEM_DB[f.main.id];
     T(f.pick === 'main' ? '选主装备' : '选副装备', PK.x + 30, PK.y + 36, 26, C.gold2, BR(), 400);
     ctx.font = `500 16px ${KAI()}`; T(fitW(f.pick === 'main' ? '合完还是它：名字、主属性、强化都不变。仙器（流云仙衣、星痕剑）只能当主装备。' : '要和主装备同一部位（' + SLOT_CN[mi.slot] + '），放在行囊里的才行；仙器不能被合掉。', PK.w - 220), PK.x + 180, PK.y + 38, 16, C.sub, KAI(), 500);
     if (!list.length) T(f.pick === 'main' ? '身上、行囊里都没有装备。' : '行囊里没有能当副装备的' + SLOT_CN[mi.slot] + '。', PK.x + PK.w / 2, PK.y + 230, 19, C.sub, KAI(), 500, 'center');
-    list.slice(f.pp * PPER, f.pp * PPER + PPER).forEach((e, i) => { const r = pkR(i); D('card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(e.id, r.x + r.w / 2, r.y + 50, 32); } catch (er) {}
+    list.slice(f.pp * PPER, f.pp * PPER + PPER).forEach((e, i) => { const r = pkR(i); D('card_n_9', r.x, r.y, r.w, r.h); try { itemIcon(e.id, r.x + r.w / 2, r.y + 50, 32); } catch (er) {} if (window.GEAR_TIP) GEAR_TIP.hot(e.id, r);
       ctx.font = `700 15px ${KAI()}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (e.who) textOutline(e.who === 'hero' ? '叶' : CR.whoName(e.who).slice(0, 1), r.x + 14, r.y + 14, C.green, 'rgba(6,14,19,.92)', 4); else if (e.n > 1) textOutline('×' + e.n, r.x + 18, r.y + 14, C.text, 'rgba(6,14,19,.92)', 4);
       const rl = refLv(e.id); if (rl) { ctx.font = `700 15px ${NUM()}`; ctx.textAlign = 'right'; textOutline('+' + rl, r.x + r.w - 8, r.y + 14, C.gold2, 'rgba(6,14,19,.92)', 4); }
@@ -746,11 +751,11 @@
     if (!panelLayer('panel_base')) { D('panel_well_9', 60, 110, 1160, 580); }
     if (!panelLayer('panel_slots')) { frameBox(MCR, !!main); for (let i = 0; i < 3; i++) frameBox(SCR(i), !!f.subs[i]); frameBox(WR, f.ward); }
     // 2. 主装备
-    if (main) { const rl = refLv(main.id), FX = window.REFINE_FX; if (rl && FX) FX.under(MC.x, MC.y, 46, rl, now); try { itemIcon(main.id, MC.x, MC.y, 46); } catch (e) {} if (rl && FX) FX.slot(MCR.x, MCR.y, MCR.w, MCR.h, rl, now);
+    if (main) { const rl = refLv(main.id), FX = window.REFINE_FX; if (rl && FX) FX.under(MC.x, MC.y, 46, rl, now); try { itemIcon(main.id, MC.x, MC.y, 46); } catch (e) {} if (rl && FX) FX.slot(MCR.x, MCR.y, MCR.w, MCR.h, rl, now); if (window.GEAR_TIP) GEAR_TIP.hot(main.id, MCR);
       ctx.font = `400 22px ${BR()}`; const nm = fitW(ITEM_DB[main.id].name, 250); T(nm, MC.x, MCR.y + MCR.h + 22, 22, window.GEAR_COL(main.id) || C.gold2, BR(), 400, 'center'); }
     else { ctx.save(); ctx.globalAlpha = .55 + .2 * Math.sin(now / 400); T('点这里选主装备', MC.x, MC.y, 17, C.gold2, KAI(), 600, 'center'); ctx.restore(); }
     // 3. 副装备
-    for (let i = 0; i < 3; i++) { const r = SCR(i), id = f.subs[i]; if (id && ITEM_DB[id]) { try { itemIcon(id, r.x + r.w / 2, r.y + r.h / 2, 30); } catch (e) {} }
+    for (let i = 0; i < 3; i++) { const r = SCR(i), id = f.subs[i]; if (id && ITEM_DB[id]) { try { itemIcon(id, r.x + r.w / 2, r.y + r.h / 2, 30); } catch (e) {} if (window.GEAR_TIP) GEAR_TIP.hot(id, r); }
       else if (main) T('＋', r.x + r.w / 2, r.y + r.h / 2, 30, 'rgba(232,199,122,.55)', KAI(), 400, 'center'); }
     // 4. 护灵符格
     { const nW = have(FUSE.WARD), im = art('hulingfu'), c = { x: WR.x + WR.w / 2, y: WR.y + WR.h / 2 }; ctx.save(); if (!f.ward) ctx.globalAlpha *= nW ? .75 : .35;
@@ -967,5 +972,5 @@
     return o.apply(this, arguments); }; }
 
   window.GEARFUSE = { SUB2, VAL2, valOf, STATK, ROUTES, POOL2, P_TOP, routeOf, rollVal, rollLines, subStat, bonusOn, heroSync, convert2, migLines, mapOld, SAND, STRIP, strip, B_STRIP, SP, spR, SP_GO, SP_CLOSE, lnScore, newMatLine, tierOfId,
-    GRADES, FUSE, FORGE, TOP, LY, LYI, GEM_V, XIAN, recOf, linesOf, socksOf, gemsOf, gradeOf, countOf, fxCalc, newInst, split, analyze, craft, fuseRoll, fuse, redo, failP, isTop, convertSave, oldEff, lyTarget, tokLine, setTok, giveTok, takeTok, ART_NAMES, eat, FUSE_UI, LOOT, rollLoot, rollAffix, shopG, legOf, legCalc };
+    GRADES, FUSE, FORGE, TOP, LY, LYI, GEM_V, XIAN, recOf, linesOf, socksOf, gemsOf, gradeOf, countOf, fxCalc, newInst, split, analyze, craft, fuseRoll, fuse, redo, failP, isTop, convertSave, oldEff, lyTarget, tokLine, setTok, giveTok, takeTok, ART_NAMES, eat, FUSE_UI, LOOT, rollLoot, rollAffix, shopG, legOf, legCalc, PLUS5, tokItem, refLv };
 })();

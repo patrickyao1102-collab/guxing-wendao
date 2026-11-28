@@ -9,9 +9,11 @@
 //   ③ 门一推开（新画内苑）：镜头越过门楼看向花树——树洞的暗红光涨起来、花瓣旋进洞里，她在树洞里由暗红人影慢慢显出颜色（代码版，
 //      R476 关键帧到了用 R473.APPEAR.useFrames 换掉人物那一段，见下面 ③'）→ 名号 → 一层 meet 对白 → 开打；打输了再来只放一句、直接开打。
 //      旧画内苑照旧：走进花树那片院子才放 R463 的现身演出。
-//   ④ 战斗里首领名牌左边一枚头像，按状态换表情：平时 / 蓄力（冷笑）/ 换形态后（怒）/ 力竭（喘、狼狈）/ 败。
+//   ④ 战斗里首领名牌左边一枚头像，按状态换表情：平时 / 蓄力（冷笑）/ 换形态后（怒）/ 败。
+//      作者 11-28 23:15：「不需要弄那个咳嗽喘气、衰弱……BOSS 一定是很帅……然后发怒，最后死的时候消散」→ 去掉「力竭（hurt）」那一档：
+//      r370 的力竭（_break）只留数值，头像照「平时 / 怒」走，不再低头、发灰、喘；也不再触发 _tired 配音。
 //      现在每个首领只有「平常」「被打败」两张对话立绘，先用代码做变化（色调、阴影、眼部光、轻微缩放倾斜）；
-//      接口：Codex 交 r434/p_jiangheng_{normal,smirk,angry,hurt,defeat}.webp（构图和 p_jiangheng.webp 一样），有哪张就自动用哪张。
+//      接口：Codex 交 r434/p_jiangheng_{normal,smirk,angry,defeat}.webp（构图和 p_jiangheng.webp 一样），有哪张就自动用哪张。
 //   ⑤ 首领配音挂点：r473/vo/<键>.mp3 有就放，没有就静默（键名见 VO_KEYS，报告里有清单）。
 (function () {
   if (typeof S === 'undefined' || !window.TOWER || !TOWER.MAZE || !window.R443_META) return;
@@ -297,7 +299,7 @@
   const FACE = { jiangheng: [.61, .26, .30], jiangheng_2: [.65, .32, .30], xuanfeng: [.62, .18, .30], xuanfeng_2: [.64, .26, .30], jiyue: [.66, .29, .30], jiyue_2: [.70, .30, .30], fenyu: [.71, .19, .30], fenyu_2: [.69, .22, .30] };
   const EYE = { jiangheng: [[.40, .36], [.66, .33]] };   // 眼睛在头像里的位置（冷笑时眼里一点光）
   const BOSSID = { 绛蘅: 'jiangheng', 玄锋: 'xuanfeng', 霁月: 'jiyue', 焚羽: 'fenyu' };
-  const STATES = ['normal', 'smirk', 'angry', 'hurt', 'defeat'];
+  const STATES = ['normal', 'smirk', 'angry', 'defeat'];
   const EXIMG = {};   // id_state → Image（没有的会 onerror，记成 bad，不再要）
   // 已经交了的专门表情图（不去试探没交的文件，免得控制台一串 404）：Codex 交了 r434/p_jiangheng_smirk.webp 这类，就在这里加一项 'jiangheng_smirk'
   const EXPR_FILES = new Set([]);
@@ -305,18 +307,17 @@
   function srcFor(id, st) {   // → [图, 裁切参数, 是不是专门画的]
     const own = exImg(id, st); if (own) return [own, FACE[id] || [.6, .25, .3], true];
     const two = IMG['r434_p_' + id + '_2'], one = IMG['r434_p_' + id];
-    if ((st === 'hurt' || st === 'defeat') && two) return [two, FACE[id + '_2'] || FACE[id] || [.6, .28, .3], false];
+    if (st === 'defeat' && two) return [two, FACE[id + '_2'] || FACE[id] || [.6, .28, .3], false];
     if (one) return [one, FACE[id] || [.6, .25, .3], false]; return [null]; }
-  const stateOf = e => !e.alive || e.hp <= 0 || e._defeat ? 'defeat' : e._break > 0 ? 'hurt' : e._charge ? 'smirk' : e._ph2 ? 'angry' : 'normal';
+  const stateOf = e => !e.alive || e.hp <= 0 || e._defeat ? 'defeat' : e._charge ? 'smirk' : e._ph2 ? 'angry' : 'normal';   // 没有「力竭」这一档（见文件头 ④）
   const EX = { e: null, cur: 'normal', prev: null, t0: 0, pulse: 0 };
   const MED = { x: 396, y: 186, r: 50 };
   function face(g, id, st, a, now) { const [im, fc, drawn] = srcFor(id, st); if (!im || a <= .01) return;
     const R = MED.r, s = fc[2] * im.width, sx = fc[0] * im.width - s / 2, sy = fc[1] * im.height - s / 2;
-    // 轻微的姿态：冷笑 抬一点、侧一点；怒 前压、放大；力竭 低头、下沉、慢慢喘（缓、不抖）
+    // 轻微的姿态：冷笑 抬一点、侧一点；怒 前压、放大（缓、不抖）
     let sc = 1, rot = 0, dy = 0;
     if (st === 'smirk') { sc = 1.06; rot = -.05; dy = -2; }
     else if (st === 'angry') { sc = 1.08 + .012 * Math.sin(now * 2.4); }
-    else if (st === 'hurt') { sc = 1.02 + .02 * Math.sin(now * 2.1); rot = .07; dy = 4 + 2 * Math.sin(now * 2.1); }
     else if (st === 'defeat') { sc = 1; rot = .04; dy = 3; }
     g.save(); g.globalAlpha = a; g.beginPath(); g.arc(MED.x, MED.y, R, 0, 7); g.clip();
     g.fillStyle = '#120608'; g.fillRect(MED.x - R, MED.y - R, R * 2, R * 2);
@@ -325,13 +326,12 @@
       g.globalCompositeOperation = 'source-atop';
       if (st === 'smirk') { const lg = g.createLinearGradient(-R, 0, R, 0); lg.addColorStop(0, 'rgba(120,0,20,.30)'); lg.addColorStop(.6, 'rgba(0,0,0,0)'); lg.addColorStop(1, 'rgba(255,90,70,.22)'); g.fillStyle = lg; g.fillRect(-R, -R, R * 2, R * 2); }
       if (st === 'angry') { g.fillStyle = `rgba(185,8,22,${.36 + .05 * Math.sin(now * 2.4)})`; g.fillRect(-R, -R, R * 2, R * 2); const vg = g.createRadialGradient(0, 0, R * .4, 0, 0, R * 1.05); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(30,0,4,.55)'); g.fillStyle = vg; g.fillRect(-R, -R, R * 2, R * 2); }
-      if (st === 'hurt') { g.fillStyle = 'rgba(40,30,60,.30)'; g.fillRect(-R, -R, R * 2, R * 2); const vg = g.createLinearGradient(0, -R, 0, R); vg.addColorStop(0, 'rgba(10,0,10,.45)'); vg.addColorStop(.5, 'rgba(0,0,0,0)'); g.fillStyle = vg; g.fillRect(-R, -R, R * 2, R * 2); }
       if (st === 'defeat') { g.fillStyle = 'rgba(60,55,60,.42)'; g.fillRect(-R, -R, R * 2, R * 2); }
       g.globalCompositeOperation = 'source-over';
-      if (st === 'smirk' && EYE[id]) { g.globalCompositeOperation = 'lighter'; const f = .7 + .3 * Math.sin(now * 2.2);
+      if ((st === 'smirk' || st === 'angry') && EYE[id]) { g.globalCompositeOperation = 'lighter'; const f = (.7 + .3 * Math.sin(now * 2.2)) * (st === 'angry' ? 1.25 : 1);   // 冷笑 / 发怒：眼里一点光（怒时更亮）
         for (const [ex, ey] of EYE[id]) { const x = -R + ex * R * 2, y = -R + ey * R * 2, rg = g.createRadialGradient(x, y, 0, x, y, 9); rg.addColorStop(0, `rgba(255,220,200,${.5 * f})`); rg.addColorStop(.35, `rgba(255,60,80,${.3 * f})`); rg.addColorStop(1, 'rgba(255,40,60,0)'); g.fillStyle = rg; g.fillRect(x - 9, y - 9, 18, 18); } } }
     g.restore(); g.restore(); }
-  const RING = { normal: [233, 196, 120], smirk: [255, 90, 80], angry: [255, 50, 50], hurt: [170, 150, 190], defeat: [150, 140, 130] };
+  const RING = { normal: [233, 196, 120], smirk: [255, 90, 80], angry: [255, 50, 50], defeat: [150, 140, 130] };
   const exLayer = { draw() { try {
     const b = typeof battle !== 'undefined' && battle; if (!b || !b.cfg || !b.cfg.tower) { EX.e = null; return; }
     const e = b._yw && b._yw._tw ? b._yw : (b.enemies || []).find(u => u._tw); if (!e) return; const id = BOSSID[e._tw.name]; if (!id) return;
@@ -349,7 +349,7 @@
     ctx.restore(); } catch (er) {} } };
   S.overlay.push(exLayer);
   // 表情变的时候顺带出声（配音挂点）
-  function onExpr(e, st) { const id = BOSSID[e._tw.name]; if (!id) return; if (st === 'angry') vo(id + '_turn'); else if (st === 'hurt') vo(id + '_tired'); }
+  function onExpr(e, st) { const id = BOSSID[e._tw.name]; if (!id) return; if (st === 'angry') vo(id + '_turn'); }
   // 首领倒下：先让她（他）说完最后一句（「被打败」立绘），再收场
   const DEFEAT = { 1: [['绛蘅', '……花根已断，梦境要散了。……原来，真的没有人在等我……']], 2: [['玄锋', '虎卫听令……随本将……再守最后一阵……北关……不破……']] };
   endBattle = (orig => async function (win) { try { const b = battle; if (win && b && b.cfg && b.cfg.tower && b.cfg.boss && !b._r473d) { b._r473d = 1; const e = (b.enemies || []).find(u => u._tw); const L = DEFEAT[b.cfg.tower];
@@ -360,7 +360,7 @@
   // ---------- ⑤ 配音挂点 ----------
   // r473/vo/<键>.mp3：有就放，没有就静默。静音 / 关了配音（r227_vo_off）时不放。招式名 → 拼音键。
   const MOVE = { 入梦: 'rumeng', 花葬: 'huazang', 花刃: 'huaren', 刀瓣: 'daoban', 花开: 'huakai', 虎啸: 'huxiao', 白虎噬: 'baihushi', 断戟横扫: 'duanji', 扑击: 'puji' };
-  const VO_KEYS = ['jh_appear', 'jh_meet_1', 'jh_meet_2', 'jh_meet_3', 'jh_meet_4', 'jh_retry', 'jiangheng_charge_rumeng', 'jiangheng_rumeng', 'jiangheng_huaren', 'jiangheng_turn', 'jiangheng_huakai', 'jiangheng_charge_huazang', 'jiangheng_huazang', 'jiangheng_daoban', 'jiangheng_tired', 'jiangheng_ximeng', 'jiangheng_burnt', 'jiangheng_defeat'];
+  const VO_KEYS = ['jh_appear', 'jh_meet_1', 'jh_meet_2', 'jh_meet_3', 'jh_meet_4', 'jh_retry', 'jiangheng_charge_rumeng', 'jiangheng_rumeng', 'jiangheng_huaren', 'jiangheng_turn', 'jiangheng_huakai', 'jiangheng_charge_huazang', 'jiangheng_huazang', 'jiangheng_daoban', 'jiangheng_ximeng', 'jiangheng_burnt', 'jiangheng_defeat'];
   // 已经录好的配音（文件放 r473/vo/<键>.mp3，然后把键名加进下面这个名单；不在名单里的只记一笔、不去请求文件，免得控制台一串 404）
   //   测试时看 R473.VO_LOG：每次挂点被触发都会记下键名和时刻，配音到了按这个对口型。
   const VO_HAVE = new Set([]);

@@ -77,6 +77,16 @@
     const wx = wxOf(id), lb = it.slot && window.GEAR6 ? GEAR6.label(id) : '', sub = catOf(id) + (wx && window.WX5 ? ' · ' + WX5.WX[wx].n + '系' : '') + (lb ? ' · ' + lb : '') + '　已有 ' + have(id); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, DP.w - 130), x0 + 108, DP.y + 82, 15, C.sub, KAI(), 500);
     D('divider_h_3', x0, DP.y + 116, DP.w - 36, 3);
     let y = DP.y + 142;
+    // 11-28 夜（r477）：装备的详情换成全游戏统一的排法（主属性 / 副属性 / 灵窍 / 强化 / 灵韵 / 说明，一条一行），放不下就在这一栏里上下滑；「换上以后」接在最后
+    if (it.slot && window.GEAR_TIP) { const yT = DP.y + 124, yB = BY - 168, ms = members(), lack = it.lvReq && (S.hero.lv || 1) < it.lvReq;
+      GEAR_TIP.inline(id, x0, yT, DP.w - 36, yB - yT, { key: 'shop', cmp: S.hero.equip && S.hero.equip[it.slot], extra: { h: 34 + ms.length * 27, draw: (xx, yy) => { let y = yy + 14;
+        T('换上以后', x0, y, 15, C.dim, KAI(), 600); if (lack) T('等级不足：要 ' + it.lvReq + ' 级', xr - 14, y, 15, C.red, KAI(), 600, 'right'); y += 30;
+        for (const w of ms) { const { cur, out } = deltas(w, id); T(whoName(w), x0, y, 16, C.text, KAI(), 600); let x = x0 + 74;
+          if (cur === id) T('正穿着', x, y, 15, C.dim, KAI(), 500); else if (!out.length) T('持平', x, y, 15, C.dim, KAI(), 500);
+          else for (const [k, d] of out.slice(0, 2)) { const s = SN[k] + (d > 0 ? ' ▲' : ' ▼') + Math.abs(d); T(s, x, y, 15, d > 0 ? C.green : C.red, KAI(), 700); x += ctx.measureText(s).width + 14; }
+          if (w !== 'hero') { try { const ft = GEAR5.fitText(w, id); T(ft[0].replace('灵根 · ', ' · '), xr - 14, y, 13, ft[1] > 0 ? C.green : ft[1] < 0 ? C.red : C.dim, KAI(), 500, 'right'); } catch (e) {} }
+          y += 27; } } } }); }
+    else {
     if (it.slot) { const ks = KEYS.filter(k => it[k]); ks.forEach((k, i) => { const cx = x0 + (i % 2) * 206, cy = y + Math.floor(i / 2) * 30; T(SN[k], cx, cy, 18, C.text, KAI(), 600); T((it[k] > 0 ? '+' : '') + it[k], cx + 44, cy, 20, C.gold2, NUM(), 700); }); y += Math.ceil(ks.length / 2) * 30 + 2;
       try { const st = window.GEAR5 && GEAR5.setOfItem(it.base || id); if (st) { ctx.font = `500 14px ${KAI()}`; T(fitW(st.name + '套装（' + '〇一二三四五'[st.parts.length] + '件齐）：' + st.text, DP.w - 36), x0, y, 14, C.blue, KAI(), 500); y += 24; } } catch (e) {} }
     else if (!it.desc) { const ef = [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '救起倒下的同伴' : ''].filter(Boolean).join('　') || it.eff || ''; if (ef) { T(ef, x0, y, 18, C.green, KAI(), 600); y += 30; } }
@@ -88,7 +98,7 @@
         if (cur === id) T('正穿着', x, y, 15, C.dim, KAI(), 500); else if (!out.length) T('持平', x, y, 15, C.dim, KAI(), 500);
         else for (const [k, d] of out.slice(0, 2)) { const s = SN[k] + (d > 0 ? ' ▲' : ' ▼') + Math.abs(d); T(s, x, y, 15, d > 0 ? C.green : C.red, KAI(), 700); x += ctx.measureText(s).width + 14; }
         if (w !== 'hero') { try { const ft = GEAR5.fitText(w, id); T(ft[0].replace('灵根 · ', ' · '), xr, y, 13, ft[1] > 0 ? C.green : ft[1] < 0 ? C.red : C.dim, KAI(), 500, 'right'); } catch (e) {} }
-        y += 27; } }
+        y += 27; } } }
     // 右下：数量、合计、买 / 卖
     if (UI.msg && now - UI.msgT < 2200) { ctx.save(); ctx.globalAlpha *= Math.min(1, (2200 - (now - UI.msgT)) / 400); ctx.font = `600 15px ${KAI()}`; T(fitW(UI.msg, DP.w - 36), x0, BY - 174, 15, UI.msgOk ? C.green : C.red, KAI(), 600); ctx.restore(); }
     D('divider_h_3', x0, BY - 160, DP.w - 36, 3);

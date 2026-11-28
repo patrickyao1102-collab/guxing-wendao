@@ -52,6 +52,10 @@
 
   function drawInfo(L, info) {
     const B = box(L), it = ITEM_DB[info.id]; if (!it) return;
+    // 11-28 夜（测试版有 r477 时）：换成全游戏统一的装备详情框——分区、一条一行、颜色区分；按钮还是「换上 / 卸下」+「关闭」
+    if (window.GEAR_TIP && GEAR_TIP.open) { const m = S.menu; m.eqInfo = null; const cur = info.from === 'bag' ? eqNow()[it.slot] : null, lab = info.from === 'slot' ? '卸　下' : (isAlly() && heroOnly(info.id) ? '专　属' : '换　上');
+      let who = ''; try { if (isAlly()) who = memberInfo(S.menu.who).name; } catch (e) {}
+      GEAR_TIP.open(info.id, { cmp: cur, who, btns: [{ label: lab, ok: lab !== '专　属', no: () => toast(it.name + '是叶孤星专属，旁人用不了'), on: () => { if (info.from === 'slot') unequip(info.slot); else wear(info.id); } }, { label: '关　闭' }] }); return; }
     ctx.save(); ctx.fillStyle = 'rgba(10,6,2,.45)'; ctx.fillRect(L.body.x - 6, L.body.y - 6, L.body.w + 12, L.body.h + 12);
     lacquer(B.x, B.y, B.w, B.h, { r: 16, corners: true, top: UI.cTop, bot: UI.cBot });
     itemIcon(info.id, B.x + 70, B.y + 74, 40);
@@ -76,6 +80,7 @@
     ctx.restore();
   }
 
+  window.R103_EQ = { wear, unequip, eqNow, isAlly, heroOnly };   // r477（行囊·背包页点装备弹的详情框）用
   drawEquip = (orig => function (B, L, mi) {
     orig.apply(this, arguments);
     const m = S.menu; if (m && m.eqInfo && ITEM_DB[m.eqInfo.id]) drawInfo(L, m.eqInfo);

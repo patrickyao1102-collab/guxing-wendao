@@ -83,7 +83,7 @@
     D('panel_well_9', DET.x, DET.y, DET.w, DET.h); const id = UI.sel && ITEM_DB[UI.sel] ? UI.sel : null;
     if (!id) { T(UI.msg && now - UI.msgT < 4000 ? UI.msg : '点左边的格子换部位；点上面的装备看说明。', DET.x + 22, DET.y + 34, 17, UI.msg && now - UI.msgT < 4000 ? C.gold2 : C.sub); }
     else { const it = ITEM_DB[id]; T(it.name, DET.x + 22, DET.y + 28, 24, (window.GEAR_COL && GEAR_COL(id)) || C.gold2, BR(), 400); const g = WX5.GEAR[id]; ctx.font = `400 24px ${BR()}`; const nw = ctx.measureText(it.name).width; const lb = window.GEAR6 ? GEAR6.label(id) : ''; if (g) { try { WX5.emblem(g, DET.x + 42 + nw, DET.y + 28, 12, 1); } catch (e) {} T(WX[g].n + '性' + (lb ? ' · ' + lb : ''), DET.x + 60 + nw, DET.y + 29, 15, C.sub); } else if (lb) T(lb, DET.x + 34 + nw, DET.y + 29, 15, C.sub);
-      ctx.font = `500 15px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = UI.msg && now - UI.msgT < 4000 ? C.gold2 : C.text; wrap(UI.msg && now - UI.msgT < 4000 ? UI.msg : String(it.desc || ''), DET.x + 22, DET.y + 58, DET.w - 210, 22, 2);
+      ctx.font = `500 15px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = UI.msg && now - UI.msgT < 4000 ? C.gold2 : C.text; wrap(UI.msg && now - UI.msgT < 4000 ? UI.msg : window.GEAR_TIP ? GEAR_TIP.brief(id) + '　点装备看详情' : String(it.desc || ''), DET.x + 22, DET.y + 58, DET.w - 210, 22, 2);   /* 11-28 夜：测试版（r477）这里只写一句简介，详情在点装备弹的详情框里 */
       btn(ACT, id === cur ? '卸　下' : '换　上', 'n'); }
     // 套装
     D('panel_well_9', SETB.x, SETB.y, SETB.w, SETB.h); const sets = G.setsOf(UI.who), own = G.SETS.find(s => s.owner === UI.who), rows = sets.slice();
@@ -100,6 +100,9 @@
 
   function btn(r, label, state, size) { D(state === 'd' ? 'button_d' : state === 'p' ? 'button_p' : 'button_n', r.x, r.y, r.w, r.h); T(label, r.x + r.w / 2, r.y + r.h / 2 + 1, size || 18, state === 'd' ? C.dim : C.gold2, KAI(), 600, 'center'); }
 
+  // 11-28 夜（测试版 r477）：点装备弹全游戏统一的详情框，框里直接「换上 / 卸下」
+  function tip(id, r) { if (!window.GEAR_TIP || !ITEM_DB[id]) return; const cur = eq()[UI.slot]; let who = ''; try { if (UI.who !== 'hero') who = info().name; } catch (e) {}
+    GEAR_TIP.open(id, { anchor: r, cmp: id === cur ? null : cur, who, btns: [{ label: id === cur ? '卸　下' : '换　上', on: () => { try { doEquip(id); } catch (e) { console.warn('R389 equip', e); } } }, { label: '关　闭' }] }); }
   function doEquip(id) { const it = ITEM_DB[id], h = S.hero, who = UI.who, cur = eq()[UI.slot];
     if (id === cur) { // 卸下
       if (who === 'hero') { try { applyItemStats(id, -1); } catch (e) {} h.equip[UI.slot] = null; } else { eq()[UI.slot] = null; }
@@ -125,10 +128,10 @@
     try { for (;;) { await nextFrame(); const tp = UI.taps.shift(); if (!tp) continue; if (!kitReady()) continue;
         if (inR(tp, CLOSE)) break;
         const pl = partyList(); let hit = false; for (let i = 0; i < pl.length; i++) if (inR(tp, whoR(i))) { hit = true; if (UI.who !== pl[i]) { UI.who = pl[i]; UI.sel = null; UI.page = 0; UI.msg = ''; snd('ui_click'); } } if (hit) continue;
-        for (const s of G.SLOTS) if (inR(tp, slotR(s))) { hit = true; if (UI.slot !== s) { UI.slot = s; UI.page = 0; snd('ui_click'); } UI.sel = eq()[s] || null; UI.msg = ''; } if (hit) continue;
+        for (const s of G.SLOTS) if (inR(tp, slotR(s))) { hit = true; const again = UI.slot === s; if (UI.slot !== s) { UI.slot = s; UI.page = 0; snd('ui_click'); } UI.sel = eq()[s] || null; UI.msg = ''; if (again && UI.sel) tip(UI.sel, slotR(s)); } if (hit) continue;   // 已经选着的那个部位再点一下：弹详情框
         const list = cands(), np = Math.max(1, Math.ceil(list.length / PER));
         if (np > 1) { if (inR(tp, PG.prev) && UI.page > 0) { UI.page--; snd('ui_click'); continue; } if (inR(tp, PG.next) && UI.page < np - 1) { UI.page++; snd('ui_click'); continue; } }
-        const vis = list.slice(UI.page * PER, UI.page * PER + PER); for (let i = 0; i < vis.length; i++) if (inR(tp, cardR(i))) { hit = true; UI.sel = vis[i]; UI.msg = ''; snd('ui_click'); } if (hit) continue;
+        const vis = list.slice(UI.page * PER, UI.page * PER + PER); for (let i = 0; i < vis.length; i++) if (inR(tp, cardR(i))) { hit = true; UI.sel = vis[i]; UI.msg = ''; snd('ui_click'); tip(vis[i], cardR(i)); } if (hit) continue;
         if (UI.sel && ITEM_DB[UI.sel] && inR(tp, ACT)) { try { doEquip(UI.sel); } catch (e) { console.warn('R389 equip', e); } continue; } } }
     finally { UI.open = false; world.locked = lock0; S.hud = hud0; try { input.tapped = null; } catch (e) {} snd('ui_click'); } }
   try { cv.addEventListener('pointerdown', e => { if (!UI.open) return; e.stopImmediatePropagation(); e.preventDefault(); UI.taps.push(toLogical(e)); try { input.tapped = null; } catch (e2) {} }, true); } catch (e) {}

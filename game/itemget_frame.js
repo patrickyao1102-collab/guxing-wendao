@@ -54,7 +54,10 @@
       ctx.fillText(c, x + 742, y + 101); const cw = ctx.measureText(c).width;
       const maxN = Math.min(344, 742 - cw - 24 - 260);
       ctx.textAlign = 'left'; let nf = 58; ctx.font = `${nf}px ${BRUSH}`; while (nf > 40 && ctx.measureText(String(it.name)).width > maxN) { nf -= 4; ctx.font = `${nf}px ${BRUSH}`; }
-      const desc = it.desc ? String(it.desc) : '';
+      // 11-28 夜（测试版 r477）：装备那一行只写一句简介（红装 · 副属性 5 条 · 灵窍 3），点这一行弹统一的装备详情框
+      const gid = window.GEAR_TIP ? (it.id || (/^item:/.test(String(it.icon || '')) ? String(it.icon).slice(5) : '')) : '', gear = gid && ITEM_DB[gid] && ITEM_DB[gid].slot;
+      if (gear) GEAR_TIP.hot(gid, { x: cx + (x - w / 2) * sc, y: cy + (1 - ek) * 18 + (y - h / 2) * sc, w: 792 * sc, h: 202 * sc }, { tap: true });
+      const desc = gear ? GEAR_TIP.brief(gid) + '　点开看详情' : it.desc ? String(it.desc) : '';
       ctx.fillText(ell(it.name, maxN), x + 260, y + (desc ? 82 : 101));
       if (desc) { ctx.font = `500 28px ${FONT}`; ctx.fillStyle = 'rgba(89,74,53,.78)'; ctx.fillText(ell(desc, 742 - 260), x + 262, y + 142); }
       ctx.restore();
