@@ -1,0 +1,497 @@
+{
+"_说明": "R478 每张地图专属载入插画（Codex R477，79 张）。maps：地图id → 插画文件名（r478/illu/<名>.webp）；files：每张插画左上角（题名、来历那一块）的亮度 lum、花哨程度 std，来历暗底按这个加深。",
+"maps": {
+"lin_forest": "lin_forest",
+"qy_town": "qy_town",
+"qy_home_li": "qy_town",
+"qy_home_wang": "qy_town",
+"qy_home_chen": "qy_town",
+"qy_home_sun": "qy_town",
+"qy_inn": "qy_inn",
+"qy_inn_s1": "qy_inn",
+"qy_inn_s2": "qy_inn",
+"qy_inn_s3": "qy_inn",
+"qy_herb": "qy_herb",
+"qy_smith": "qy_smith",
+"qy_tea": "qy_tea",
+"qy_house": "qy_house",
+"lin_manor": "lin_manor",
+"lin_guest_west": "lin_manor",
+"lin_guest_east": "lin_manor",
+"lin_guest_xue": "lin_manor",
+"lin_court": "lin_manor",
+"lin_study": "lin_manor",
+"lin_yi_room": "lin_manor",
+"lin_service": "lin_manor",
+"lin_teahouse": "lin_manor",
+"lin_servants": "lin_manor",
+"hf_valley": "hf_valley",
+"hf_camp": "hf_camp",
+"qy_tavern": "qy_tavern",
+"qy_grocery": "qy_grocery",
+"qy_treasure": "qy_treasure",
+"tj_front": "tj_front",
+"tj_houshan": "tj_front",
+"tj_scripture": "tj_front",
+"tj_market": "tj_front",
+"tj_yunjie": "tj_front",
+"tj_shanmen": "tj_front",
+"tj_luoxing": "tj_front",
+"seal_field": "seal_field",
+"tj_library": "tj_library",
+"tj_forbidden": "tj_library",
+"qingzhu_court": "qingzhu_court",
+"tj_room": "tj_room",
+"qingzhu_stairs": "qingzhu_stairs",
+"xt_city": "xt_city",
+"xt_dyeyard": "xt_city",
+"xt_home_zhou": "xt_city",
+"xt_home_shen": "xt_city",
+"xt_home_xu": "xt_city",
+"xt_home_luo": "xt_city",
+"xt_home_liang": "xt_city",
+"xt_home_liu": "xt_city",
+"xt_home_feng": "xt_city",
+"xt_home_qian": "xt_city",
+"xt_home_he": "xt_city",
+"xt_home_zheng": "xt_city",
+"xt_home_song": "xt_city",
+"qingzhu_bamboo": "qingzhu_bamboo",
+"qingzhu_upper_pavilion": "qingzhu_upper_pavilion",
+"qingzhu_servant_room": "qingzhu_upper_pavilion",
+"qingzhu_steward_room": "qingzhu_steward_room",
+"tj_hall": "tj_hall",
+"xt_manor": "xt_manor",
+"xt_manor_hall": "xt_manor",
+"xt_manor_recovery": "xt_manor",
+"xt_manor_treasury": "xt_manor",
+"m_cy_study": "m_cy_manor",
+"m_cy_bedroom": "m_cy_manor",
+"m_cy_kitchen": "m_cy_manor",
+"m_cy_guest": "m_cy_manor",
+"xt_auction": "xt_auction",
+"xt_auction_vip": "xt_auction_vip",
+"xt_wanbao": "xt_wanbao",
+"xt_wanbao_vip": "xt_wanbao",
+"xt_wanbao_store": "xt_wanbao",
+"ly_ridge": "ly_ridge",
+"ly_midnorth": "ly_ridge",
+"ly_cave": "ly_ridge",
+"ly_valley": "ly_valley",
+"qy_escape": "qy_escape",
+"qy_defense": "qy_escape",
+"qy_shelter": "qy_shelter",
+"qy_rescue": "qy_rescue",
+"m_yy_tiger": "m_yy_tiger",
+"m_yy_verge": "m_yy_tiger",
+"m_nw_creek": "m_nw_creek",
+"m_nw_glade": "m_nw_glade",
+"m_nw_stones": "m_nw_glade",
+"m_nw_falls": "m_nw_falls",
+"m_nw_passage": "m_nw_passage",
+"m_nw_temple": "m_nw_temple",
+"m_nw_spring": "m_nw_spring",
+"m_cy_gate": "m_cy_gate",
+"m_cy_manor": "m_cy_manor",
+"m_cy_council": "m_cy_manor",
+"m_cy_guiying": "m_cy_guiying",
+"m_cy_north": "m_cy_north",
+"m_xx_b1": "m_xx_b1",
+"m_xx_b2": "m_xx_b2",
+"tj_xiashan": "tj_xiashan",
+"qingzhu_room_qinghe": "qingzhu_room_qinghe",
+"qingzhu_room_xiaotao": "qingzhu_room_qinghe",
+"qingzhu_room_afu": "qingzhu_room_qinghe",
+"qingzhu_kitchen": "qingzhu_room_qinghe",
+"qingzhu_garden": "qingzhu_garden",
+"qingzhu_garden2": "qingzhu_garden",
+"qingzhu_garden2_watch_room": "qingzhu_garden2_watch_room",
+"qy_yicui": "qy_yicui",
+"qy_yicui_2f": "qy_yicui",
+"qy_changle": "qy_changle",
+"qy_changle_2f": "qy_changle",
+"xt_inn_hall": "xt_inn_hall",
+"xt_inn_room3": "xt_inn_hall",
+"xt_inn_corr": "xt_inn_hall",
+"xt_inn_room1": "xt_inn_hall",
+"qy_inn_room_a": "xt_inn_hall",
+"qy_inn_room_b": "xt_inn_hall",
+"xt_inn_room2": "xt_inn_hall",
+"xt_inn_room4": "xt_inn_hall",
+"xt_teahouse": "xt_teahouse",
+"xt_teahouse_2f": "xt_teahouse",
+"xt_sect_hall": "xt_sect_hall",
+"xt_sect_rest": "xt_sect_hall",
+"xt_sect_court": "xt_sect_hall",
+"ml_yamen": "ml_yamen",
+"ml_morgue": "ml_yamen",
+"ml_jail": "ml_yamen",
+"ml_archive": "ml_yamen",
+"ml_secret": "ml_yamen",
+"ml_cellar": "ml_cellar",
+"ml_huapo": "ml_huapo",
+"xt_danxia": "xt_danxia",
+"dh_zheng": "dh_zheng",
+"dh_zheng_in": "dh_zheng",
+"dh_song": "dh_song",
+"dh_song_in": "dh_song",
+"dh_fang": "dh_fang",
+"dh_fang_in": "dh_fang",
+"dh_xie": "dh_xie",
+"dh_xie_in": "dh_xie",
+"dh_tang": "dh_tang",
+"dh_tang_in": "dh_tang",
+"dx_east": "dx_east",
+"dx_home": "dx_east",
+"dx_kitchen": "dx_east",
+"dx_mainroom": "dx_east",
+"xt_road": "xt_road",
+"dh_han": "dh_han",
+"dh_han_in": "dh_han",
+"dx_home_old": "dx_home_old",
+"qy_chehome_old": "dx_home_old",
+"xt_chengyi": "xt_chengyi",
+"xt_caifeng": "xt_caifeng",
+"xt_yanzhi": "xt_yanzhi",
+"qy_chehome": "qy_chehome",
+"wyt_base": "wyt_base",
+"wyt_f1": "wyt_f1",
+"wyt_f1a": "wyt_f1",
+"wyt_f1b": "wyt_f1",
+"wyt_f1c": "wyt_f1",
+"wyt_f3a": "wyt_f3",
+"wyt_f3b": "wyt_f3",
+"wyt_f3c": "wyt_f3",
+"wyt_f2": "wyt_f2",
+"wyt_f2a": "wyt_f2",
+"wyt_f2b": "wyt_f2",
+"wyt_f2c": "wyt_f2",
+"wyt_f5a": "wyt_f5",
+"wyt_f5b": "wyt_f5",
+"wyt_f5c": "wyt_f5",
+"wyt_f6a": "wyt_f6",
+"wyt_f6b": "wyt_f6",
+"wyt_f6c": "wyt_f6",
+"wyt_f4a": "wyt_f4",
+"wyt_f4b": "wyt_f4",
+"wyt_f4c": "wyt_f4"
+},
+"files": {
+"lin_forest": {
+"lum": 0.324,
+"std": 0.116
+},
+"qy_town": {
+"lum": 0.338,
+"std": 0.19
+},
+"qy_inn": {
+"lum": 0.149,
+"std": 0.08
+},
+"qy_herb": {
+"lum": 0.233,
+"std": 0.097
+},
+"qy_smith": {
+"lum": 0.167,
+"std": 0.041
+},
+"qy_tea": {
+"lum": 0.208,
+"std": 0.062
+},
+"qy_house": {
+"lum": 0.248,
+"std": 0.114
+},
+"lin_manor": {
+"lum": 0.264,
+"std": 0.119
+},
+"hf_valley": {
+"lum": 0.206,
+"std": 0.054
+},
+"hf_camp": {
+"lum": 0.214,
+"std": 0.061
+},
+"qy_tavern": {
+"lum": 0.191,
+"std": 0.046
+},
+"qy_grocery": {
+"lum": 0.21,
+"std": 0.095
+},
+"qy_treasure": {
+"lum": 0.224,
+"std": 0.071
+},
+"tj_front": {
+"lum": 0.421,
+"std": 0.189
+},
+"seal_field": {
+"lum": 0.294,
+"std": 0.074
+},
+"tj_library": {
+"lum": 0.243,
+"std": 0.091
+},
+"qingzhu_court": {
+"lum": 0.318,
+"std": 0.158
+},
+"tj_room": {
+"lum": 0.238,
+"std": 0.037
+},
+"qingzhu_stairs": {
+"lum": 0.25,
+"std": 0.085
+},
+"xt_city": {
+"lum": 0.349,
+"std": 0.143
+},
+"qingzhu_bamboo": {
+"lum": 0.237,
+"std": 0.039
+},
+"qingzhu_upper_pavilion": {
+"lum": 0.395,
+"std": 0.127
+},
+"qingzhu_steward_room": {
+"lum": 0.215,
+"std": 0.092
+},
+"tj_hall": {
+"lum": 0.291,
+"std": 0.181
+},
+"xt_manor": {
+"lum": 0.299,
+"std": 0.166
+},
+"xt_auction": {
+"lum": 0.154,
+"std": 0.059
+},
+"xt_auction_vip": {
+"lum": 0.199,
+"std": 0.054
+},
+"xt_wanbao": {
+"lum": 0.245,
+"std": 0.094
+},
+"ly_ridge": {
+"lum": 0.278,
+"std": 0.106
+},
+"ly_valley": {
+"lum": 0.274,
+"std": 0.083
+},
+"qy_escape": {
+"lum": 0.318,
+"std": 0.077
+},
+"qy_shelter": {
+"lum": 0.235,
+"std": 0.075
+},
+"qy_rescue": {
+"lum": 0.322,
+"std": 0.069
+},
+"m_yy_tiger": {
+"lum": 0.249,
+"std": 0.068
+},
+"m_nw_creek": {
+"lum": 0.275,
+"std": 0.086
+},
+"m_nw_glade": {
+"lum": 0.26,
+"std": 0.089
+},
+"m_nw_falls": {
+"lum": 0.369,
+"std": 0.141
+},
+"m_nw_passage": {
+"lum": 0.16,
+"std": 0.066
+},
+"m_nw_temple": {
+"lum": 0.262,
+"std": 0.124
+},
+"m_nw_spring": {
+"lum": 0.281,
+"std": 0.082
+},
+"m_cy_gate": {
+"lum": 0.299,
+"std": 0.094
+},
+"m_cy_manor": {
+"lum": 0.328,
+"std": 0.121
+},
+"m_cy_guiying": {
+"lum": 0.229,
+"std": 0.089
+},
+"m_cy_north": {
+"lum": 0.293,
+"std": 0.095
+},
+"m_xx_b1": {
+"lum": 0.171,
+"std": 0.056
+},
+"m_xx_b2": {
+"lum": 0.181,
+"std": 0.054
+},
+"tj_xiashan": {
+"lum": 0.235,
+"std": 0.076
+},
+"qingzhu_room_qinghe": {
+"lum": 0.179,
+"std": 0.048
+},
+"qingzhu_garden": {
+"lum": 0.257,
+"std": 0.106
+},
+"qingzhu_garden2_watch_room": {
+"lum": 0.134,
+"std": 0.026
+},
+"qy_yicui": {
+"lum": 0.267,
+"std": 0.162
+},
+"qy_changle": {
+"lum": 0.139,
+"std": 0.034
+},
+"xt_inn_hall": {
+"lum": 0.245,
+"std": 0.107
+},
+"xt_teahouse": {
+"lum": 0.255,
+"std": 0.101
+},
+"xt_sect_hall": {
+"lum": 0.327,
+"std": 0.151
+},
+"ml_yamen": {
+"lum": 0.188,
+"std": 0.078
+},
+"ml_cellar": {
+"lum": 0.138,
+"std": 0.045
+},
+"ml_huapo": {
+"lum": 0.197,
+"std": 0.056
+},
+"xt_danxia": {
+"lum": 0.273,
+"std": 0.137
+},
+"dh_zheng": {
+"lum": 0.261,
+"std": 0.128
+},
+"dh_song": {
+"lum": 0.205,
+"std": 0.096
+},
+"dh_fang": {
+"lum": 0.227,
+"std": 0.063
+},
+"dh_xie": {
+"lum": 0.264,
+"std": 0.12
+},
+"dh_tang": {
+"lum": 0.203,
+"std": 0.088
+},
+"dx_east": {
+"lum": 0.191,
+"std": 0.071
+},
+"xt_road": {
+"lum": 0.316,
+"std": 0.121
+},
+"dh_han": {
+"lum": 0.213,
+"std": 0.1
+},
+"dx_home_old": {
+"lum": 0.302,
+"std": 0.111
+},
+"xt_chengyi": {
+"lum": 0.241,
+"std": 0.096
+},
+"xt_caifeng": {
+"lum": 0.258,
+"std": 0.139
+},
+"xt_yanzhi": {
+"lum": 0.277,
+"std": 0.108
+},
+"qy_chehome": {
+"lum": 0.26,
+"std": 0.095
+},
+"wyt_base": {
+"lum": 0.27,
+"std": 0.083
+},
+"wyt_f1": {
+"lum": 0.268,
+"std": 0.078
+},
+"wyt_f3": {
+"lum": 0.254,
+"std": 0.11
+},
+"wyt_f2": {
+"lum": 0.414,
+"std": 0.154
+},
+"wyt_f5": {
+"lum": 0.268,
+"std": 0.098
+},
+"wyt_f6": {
+"lum": 0.233,
+"std": 0.147
+},
+"wyt_f4": {
+"lum": 0.294,
+"std": 0.133
+}
+}
+}

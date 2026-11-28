@@ -20,7 +20,8 @@
   // R163 书法题名：换图时先把这张图的两版题名下好（最多等 8 秒，没有就用电脑字）
   const TIM = {}, TIT = {};
   const titleLoad = m => { if (!m || TIM[m]) return; TIM[m] = {}; TIT[m] = performance.now();
-    for (const v of ['light', 'dark']) { const im = new Image(); im.onload = () => { TIM[m][v] = im; }; im.onerror = () => { TIM[m][v] = null; }; im.src = 'r163/' + m + '_' + v + '.webp'; } };
+    // R478：题名图换新样式（Codex A 行草横题 / B 宋刻横题 / C 隶书双行，作者还没挑）时，设 window.LOADING_TITLE_SRC = (地图id, 'light'|'dark') => 图片地址 就行，返回空就算这张图没有题名
+    for (const v of ['light', 'dark']) { const im = new Image(); im.onload = () => { TIM[m][v] = im; }; im.onerror = () => { TIM[m][v] = null; }; let src = 'r163/' + m + '_' + v + '.webp'; try { if (window.LOADING_TITLE_SRC) src = LOADING_TITLE_SRC(m, v); } catch (e) {} if (src) im.src = src; else TIM[m][v] = null; } };
   const TITLE_IM = (m, v) => { titleLoad(m); return TIM[m] && TIM[m][v] || null; };
   const titleReady = () => { const m = world.mapName; titleLoad(m); const t = TIM[m]; return !t || ('light' in t && 'dark' in t) || performance.now() - TIT[m] > 8000; };
   const extraReady = () => { try { const e = window.MAP_EXTRA_READY ? MAP_EXTRA_READY(world.mapName) : 1; return e == null ? 1 : e; } catch (e) { return 1; } };
@@ -123,23 +124,25 @@
     }
     return true; }
   // 作者 11-08：「换图会黑一下再出现图片，这个绝对不准出现！」—— 过图不再先黑屏：旧地图上直接淡入这次要用的载入插画，换完图插画接着盖着，地图好了再淡出
+  // 这张图用哪张专属插画：R478 每张地图专属插画（测试版，LOADING_MAP_ART）优先，其次青竹一带 R144 轮换那套（QZ_LOAD_ART），都没有就随机抽 R157
+  const artFor = (to, from) => { let q = null; try { if (window.LOADING_MAP_ART) q = LOADING_MAP_ART(to, from); } catch (e) { q = null; } if (q) return q; return window.QZ_LOAD_ART ? QZ_LOAD_ART(to, from) : null; };
   const COVER = { on: false, to: null, from: null, t0: 0, ms: 220, idx: -1, qz: null };
   const anyArt = () => { const rd = LB.im.map((o, i) => o && o.ok && metOk(SEL[i][2]) ? i : -1).filter(i => i >= 0 && rareOut(i) && firstOk(i)); return rd.length ? rd[Math.floor(Math.random() * rd.length)] : -1; };
   function coverStart(to, ms) {
-    let qz = null; try { qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(to, world.mapName) : null; } catch (e) {} if (qz && !qz.ok) qz = null;
+    let qz = null; try { qz = artFor(to, world.mapName); } catch (e) {} if (qz && !qz.ok && !qz.swap) qz = null;
     const fa = firstArt(); if (fa >= 0) qz = null; const idx = fa >= 0 ? fa : anyArt(); if (!qz && idx < 0) return false;   // 一张插画都还没下好（刚开机）：照旧
     Object.assign(COVER, { on: true, to, from: world.mapName, t0: performance.now(), ms: ms || 220, idx, qz }); return true; }
   function coverPaint() { if (!COVER.on || world.mapName !== COVER.from) return false;   // 只在换图之前（还停在旧图）画；一换图就交给下面的载入画面
-    const B = COVER.qz ? COVER.qz.im : COVER.idx >= 0 && LB.im[COVER.idx] ? LB.im[COVER.idx].im : null; if (!B) return false;
+    const B = COVER.qz && COVER.qz.ok ? COVER.qz.im : COVER.idx >= 0 && LB.im[COVER.idx] ? LB.im[COVER.idx].im : null; if (!B) return false;
     const a = Math.min(1, (performance.now() - COVER.t0) / COVER.ms); ctx.save(); ctx.globalAlpha = a; ctx.drawImage(B, 0, 0, W, H);
     const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150); ctx.restore(); return true; }
   const layer = { draw(force) {
     if (coverPaint()) return;
     if (world.mapName !== mapAt) { const pv = mapAt; mapAt = world.mapName; readyAt = null; t0 = performance.now(); prog = 0;
       if (COVER.on) { LB.idx = COVER.idx; LB.qz = COVER.qz; nextTip(); lbNext = pickU(); lbLoad(lbNext); shown = 1; }   // 过图前已经盖上的那张插画接着用，不换图
-      else { lbPick(); try { LB.qz = window.QZ_LOAD_ART ? QZ_LOAD_ART(mapAt, pv) : null; } catch (e) { LB.qz = null; } }
+      else { lbPick(); try { LB.qz = artFor(mapAt, pv); } catch (e) { LB.qz = null; } }
       { const fa = firstArt(); if (fa >= 0) { LB.idx = fa; LB.qz = null; } if (S.started && S.flags) { if (fa >= 0 && SEL[fa][0] === RARE) { S.flags.nb13_pending = 0; S.flags.nb13_shown = 1; LB.hold = performance.now() + 5600; } S.flags.first_art_try = 1; } }   // 11-11：不再一过图就算「第一次」用完——新游戏开场会连着切几张图，真正露脸的那张载入图被别的图顶掉；改成下面：第一次载入画面真的放了 2 秒以上才算
-      if (LB.qz && !LB.qz.ok) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图
+      if (LB.qz && !LB.qz.ok && !LB.qz.swap) LB.qz = null;   // 青竹专属插画还没下好：这一次就用 R157 插画，中途不再换图（R478 地图专属插画 swap=1：先用 R157 垫着，一下好立刻换上）
       COVER.on = false; }
     let r = force != null ? Math.min(.97, force) : readiness();
     if (LB.hold && performance.now() < LB.hold && forced !== world.mapName) r = Math.min(r, .99);   // 作者 11-11：星落襁褓（藏经阁回青竹那一次）停 5～6 秒
@@ -164,15 +167,21 @@
       const now = performance.now(), title0 = (world.map && world.map.def && world.map.def.title) || '', title = title0.replace(/^.*·\s*/, '') || title0, i = LB.idx;
       ctx.drawImage(B, 0, 0, W, H);
       const gb = ctx.createLinearGradient(0, H - 150, 0, H); gb.addColorStop(0, 'rgba(4,6,10,0)'); gb.addColorStop(1, 'rgba(4,6,10,.72)'); ctx.fillStyle = gb; ctx.fillRect(0, H - 150, W, 150);
-      const four = false, col = QA ? '#FFF2D5' : LCOL[i], dark = col !== '#FFF2D5';
+      const four = false, col = QA ? (QA.col || '#FFF2D5') : LCOL[i], dark = col !== '#FFF2D5';
       const TI = TITLE_IM(world.mapName, dark ? 'dark' : 'light');
+      // R478：题名画在哪儿（TR = 题名图实际画出来的框）交给 LOADING_TITLE_DONE，测试版在题名下面接着排「地图来历」；
+      //       这张图没有书法题名（两版都 404）时，先问 LOADING_TITLE_MISSING 要不要自己补一个题名（它画了就返回框，不画返回 null，照旧走 8 秒电脑字）
+      const tm0 = TIM[world.mapName], miss = !!tm0 && tm0.light === null && tm0.dark === null; let TR = null;
       if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
         const sc = Math.min(1.3, (four ? 185 : 520) / TI.width), dw = TI.width * sc, dh = TI.height * sc;
-        ctx.drawImage(TI, four ? 30 : 44, four ? 26 : 44, dw, dh);
+        ctx.drawImage(TI, four ? 30 : 44, four ? 26 : 44, dw, dh); TR = { x: four ? 30 : 44, y: four ? 26 : 44, w: dw, h: dh, im: TI };
+      } else if (miss && window.LOADING_TITLE_MISSING && (TR = (() => { try { return LOADING_TITLE_MISSING(title0, dark, col, a); } catch (e) { return null; } })())) {
       } else if (performance.now() - (TIT[world.mapName] || 0) > 8000) {   // 作者 11-09：书法题名没到之前不先露电脑字，8 秒还没有才用电脑字
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${four ? 42 : 50}px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`;
       ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = dark ? 'rgba(255,248,232,.55)' : 'rgba(10,8,6,.6)'; ctx.strokeText(title, four ? 42 : 72, four ? 43 : 70); ctx.fillStyle = col; ctx.fillText(title, four ? 42 : 72, four ? 43 : 70);
+      TR = { x: four ? 42 : 72, y: four ? 43 : 70, w: ctx.measureText(title).width, h: four ? 46 : 56 };
       }
+      if (window.LOADING_TITLE_DONE) { ctx.save(); try { LOADING_TITLE_DONE(TR, { map: world.mapName, dark, a, now }); } catch (e) {} ctx.restore(); }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 22px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; if (now - tipT > 7000) nextTip(); ctx.strokeText(LB.tip, 640, 618); ctx.fillStyle = '#f3e4c2'; ctx.fillText(LB.tip, 640, 618); ctx.font = `14px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.55)'; ctx.textAlign = 'left'; ctx.fillText('点击屏幕换图换提示', 166, 700); ctx.textAlign = 'center';
       if (!lbBar(prog, now)) { ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(198, 661, 884, 8); ctx.fillStyle = '#e8c27a'; ctx.fillRect(198, 661, 884 * prog, 8); }
       ctx.textAlign = 'right'; ctx.font = `600 16px ${typeof FONT !== 'undefined' ? FONT : 'sans-serif'}`; ctx.fillStyle = 'rgba(243,228,194,.85)'; ctx.fillText(Math.round(prog * 100) + '%', 1114, 700);
