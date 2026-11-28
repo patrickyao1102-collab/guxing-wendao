@@ -115,7 +115,13 @@
   // ---------- 点 ----------
   function remove(id, n) { const h = S.hero; if (id === 'p_small') { h.potions = Math.max(0, (h.potions || 0) - n); return; }
     if (isMat(id) && CRAFT.take) { CRAFT.take(id, n); return; }
-    h.bag[id] = (h.bag[id] || 0) - n; if (h.bag[id] <= 0) { delete h.bag[id]; if (h.fg && h.fg[id]) { delete h.fg[id]; if (h.refine) delete h.refine[id]; } } }
+    h.bag[id] = (h.bag[id] || 0) - n; if (h.bag[id] <= 0) { delete h.bag[id]; if (h.fg && h.fg[id]) { delete h.fg[id]; if (h.refine) delete h.refine[id]; } clearForge(id); } }
+  // 11-28 体检：强化、镶珠是按「这一种装备」记的（h.refine[id]、h.gems[id]）。店里卖的那种普通装备，强化到 +5、镶了珠再卖掉，
+  //   回头在店里买一件新的，它还是 +5、孔里还有珠——等于白送。卖掉最后一件、身上也没人穿着这一种时，把强化清掉，孔里的珠子退回行囊
+  function clearForge(id) { try { const h = S.hero, G = window.GEAR5; if (!G || !ITEM_DB[id] || !ITEM_DB[id].slot) return;
+      for (const w of ['hero', ...(S.party || [])]) { const e = G.eqOf(w); for (const sl of G.SLOTS) if (e && e[sl] === id) return; }   // 还有人穿着同一种：强化、珠子都是它的，不动
+      if (h.refine && h.refine[id]) delete h.refine[id];
+      const gs = h.gems && h.gems[id]; if (gs) { for (const g of gs) { if (!g) continue; const el = String(g).replace(/\d+$/, ''), lv = +((/(\d+)$/.exec(String(g)) || [])[1] || 1), gid = window.CRAFT && CRAFT.gemId ? CRAFT.gemId(el, lv) : null; if (gid && ITEM_DB[gid]) addItem(gid, 1); } delete h.gems[id]; } } catch (e) { console.warn('R402 clearForge', e); } }
   async function trade(now) { const id = UI.sel, it = id && ITEM_DB[id]; if (!it) return; const n = UI.qty, pr = priceOf(id);
     if (UI.mode === 'buy') { const cost = pr * n, xc = (it.xs || 0) * n;
       if (xc > (S.hero.xs || 0)) { note('悬赏点不够，去做几件支线。'); snd('ui_cancel'); return; }

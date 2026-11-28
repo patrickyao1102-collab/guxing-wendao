@@ -120,6 +120,12 @@
     try { const e = window.allyEqOf && S.allyEq && S.allyEq[k]; if (e) for (const s of SLOTS) { const id = e[s], it = ITEM_DB[id], f = it ? fit(k, id) : 1; if (it && f < 1) for (const st of STATS) if (it[st] > 0) o[st] = (o[st] || 0) - Math.round(it[st] * (1 - f)); } } catch (er) {}
     return o; })(allyStats);
 
+  // 11-28 体检：叶孤星穿装备要够等级（r134 的 equipItem 拦着），队友那边的 equipAlly 没拦——队友的等级就是叶孤星的等级，
+  //   结果 8 级时叶孤星穿不上的凝丹档兵器，换给云霆就能穿。这里照叶孤星的规矩补上一道（剧情里直接塞进 allyEq 的不走这里，不受影响）
+  if (typeof window.equipAlly === 'function') window.equipAlly = (orig => function (k, id) { try { const it = ITEM_DB[id], lv = (S.hero && S.hero.lv) || 1;
+      if (it && it.slot && it.lvReq && lv < it.lvReq) { try { toast('等级不足：' + String(it.name) + ' 需要 ' + it.lvReq + ' 级', 2200); playSnd('ui_cancel'); } catch (e) {} return false; } } catch (e) {}
+    return orig.apply(this, arguments); })(window.equipAlly);
+
   // ---------- 四、套装在战斗里的效果 ----------
   const whoOf = u => !u || u.side !== 'hero' ? null : (u.ally || 'hero');
   const fxOf = u => { const w = whoOf(u); if (!w) return {}; const b = battle; if (!b) return {}; b._setFx = b._setFx || {}; return b._setFx[w] || (b._setFx[w] = activeFx(w)); };

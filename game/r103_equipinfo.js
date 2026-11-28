@@ -39,7 +39,10 @@
   }
   function wear(id) {
     if (isAlly()) { if (equipAlly(S.menu.who, id)) toast(memberInfo(S.menu.who).name + ' 换上了 ' + ITEM_DB[id].name); }
-    else { equipItem(id); playSnd('ui_confirm'); toast('已装备 ' + ITEM_DB[id].name); }
+    else { const it = ITEM_DB[id], sl = it && it.slot;
+      // 11-28 体检：行囊开着时 world.locked 为真，r134 的等级关卡不拦（那是给剧情发装备留的口子），这里自己拦一道；没穿上就不弹「已装备」
+      if (it && it.lvReq && (S.hero.lv || 1) < it.lvReq) { toast('等级不足：' + it.name + ' 需要 ' + it.lvReq + ' 级', 2200); try { S.toast.inBag = 1; } catch (e) {} playSnd('ui_cancel'); return; }   // inBag：测试版行囊（r201）会把这句画在行囊上面，不然被行囊盖住
+      equipItem(id); if (sl && S.hero.equip[sl] === id) { playSnd('ui_confirm'); toast('已装备 ' + it.name); } }
   }
 
   // ---- 详情面板布局 ----
@@ -53,7 +56,7 @@
     lacquer(B.x, B.y, B.w, B.h, { r: 16, corners: true, top: UI.cTop, bot: UI.cBot });
     itemIcon(info.id, B.x + 70, B.y + 74, 40);
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `34px ${BRUSH}`; ctx.fillStyle = UI.gold2; ctx.fillText(it.name, B.x + 128, B.y + 58);
-    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(SLOT_CN[it.slot] + '　·　' + (RANK[info.id] || '灵器') + (heroOnly(info.id) ? '　·　叶孤星专属' : ''), B.x + 130, B.y + 96);
+    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(SLOT_CN[it.slot] + '　·　' + (RANK[info.id] || (window.GEAR6 && GEAR6.label(info.id)) || '灵器') +   /* 11-28：剑炉以后添的装备（含合成出的独一份）没有老品级，原来一律写「灵器」——改写它在格子里的档和等，如「练气档 · 难得」 */ (heroOnly(info.id) ? '　·　叶孤星专属' : ''), B.x + 130, B.y + 96);
     // 属性：背包里的和身上那件比
     const cur = info.from === 'bag' && eqNow()[it.slot] ? ITEM_DB[eqNow()[it.slot]] : null; let dx = B.x + 40; const sy = B.y + 140;
     ctx.font = `700 19px ${FONT}`;

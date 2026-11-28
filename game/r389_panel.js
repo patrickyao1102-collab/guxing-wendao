@@ -46,7 +46,10 @@
     if (id && ITEM_DB[id]) { const FX = window.REFINE_FX, lv = FX ? FX.lvOf(id) : 0;   // 强化过的：格子上盖金纹框、亮星钉，四五级图标后面垫宝光（r407_refine_fx.js）
       if (lv) FX.under(r.x + 50, r.y + 48, 34, lv, now); try { itemIcon(id, r.x + 50, r.y + 48, 34); } catch (e) {} if (lv) FX.slot(r.x, r.y, r.w, r.h, lv, now); }
     else T('空', r.x + 50, r.y + 50, 24, C.dim, BR(), 400, 'center');
-    ctx.font = `600 15px ${KAI()}`; const nm = id && ITEM_DB[id] ? fitW(String(ITEM_DB[id].name).replace(/（(下品|中品|上品|极品|绝品)）/, ''), 118) : SLOT_NAME[s];   // 格子下面的名字不带成色（图标左上角有小牌） ctx.save(); ctx.fillStyle = 'rgba(6,16,24,.78)'; const tw = Math.min(124, ctx.measureText(nm).width + 16); ctx.fillRect(r.x + 50 - tw / 2, r.y + 104, tw, 24); ctx.restore(); T(nm, r.x + 50, r.y + 117, 15, id ? C.gold2 : C.sub, KAI(), 600, 'center');
+    // 格子下面的名字不带成色（图标左上角有小牌）
+    // 11-28 体检：原来这一行的注释写在了代码前头，把后面画名字牌的几句一起注释掉了——五个格子底下一直没有名字，这里拆开
+    ctx.font = `600 15px ${KAI()}`; const nm = id && ITEM_DB[id] ? fitW(String(ITEM_DB[id].name).replace(/（(下品|中品|上品|极品|绝品)）/, ''), 118) : SLOT_NAME[s];
+    ctx.save(); ctx.fillStyle = 'rgba(6,16,24,.78)'; const tw = Math.min(124, ctx.measureText(nm).width + 16); ctx.fillRect(r.x + 50 - tw / 2, r.y + 104, tw, 24); ctx.restore(); T(nm, r.x + 50, r.y + 117, 15, id ? C.gold2 : C.sub, KAI(), 600, 'center');
     if (id && UI.who !== 'hero') { const f = G.fit(UI.who, id); if (f < 1) { ctx.save(); ctx.fillStyle = f >= .9 ? '#8a6a2a' : '#8a3a2c'; ctx.beginPath(); ctx.arc(r.x + 16, r.y + 16, 15, 0, 7); ctx.fill(); T(f >= .9 ? '九' : '八', r.x + 16, r.y + 17, 16, '#ffe9c8', BR(), 400, 'center'); ctx.restore(); } } }
 
   function drawLeft(now) { const mi = info(); D('panel_detail_9', LEFT.x, LEFT.y, LEFT.w, LEFT.h);
@@ -101,7 +104,8 @@
     if (id === cur) { // 卸下
       if (who === 'hero') { try { applyItemStats(id, -1); } catch (e) {} h.equip[UI.slot] = null; } else { eq()[UI.slot] = null; }
       h.bag[id] = (h.bag[id] || 0) + 1; snd('ui_click'); say('卸下了「' + it.name + '」。'); UI.sel = null; return; }
-    if (who === 'hero') { if (it.lvReq && (h.lv || 1) < it.lvReq) { say('等级不足：要 ' + it.lvReq + ' 级才穿得上。'); snd('ui_cancel'); return; } equipItem(id); if (h.equip[UI.slot] !== id) { say('穿不上。'); return; } }
+    if (it.lvReq && (h.lv || 1) < it.lvReq) { say('等级不足：要 ' + it.lvReq + ' 级才穿得上。'); snd('ui_cancel'); return; }   // 11-28：队友的等级跟叶孤星走，一样要够等级（原来只拦了叶孤星）
+    if (who === 'hero') { equipItem(id); if (h.equip[UI.slot] !== id) { say('穿不上。'); return; } }
     else if (!(window.equipAlly && equipAlly(who, id))) { say('换不上。'); return; }
     try { if (sysPanel && sysPanel.eqp) sysPanel = null; } catch (e) {}   // 行囊里换装会弹的那张「旧值 → 新值」面板，这里不弹（本面板自己写清楚了）
     const [ft] = G.fitText(who, id); say('换上了「' + it.name + '」' + (who === 'hero' || !WX5.GEAR[id] ? '。' : '——' + ft + '。')); UI.sel = id; }

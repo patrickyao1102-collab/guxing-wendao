@@ -134,7 +134,10 @@
     if (saying(now)) { ctx.font = `500 15px ${KAI()}`; T(fitW(SMITH + '：' + UI.say, 440), CX, topY, 15, C.gold2, KAI(), 500, 'center'); } else if (res) T('出　炉', CX, topY, 16, C.sub, KAI(), 600, 'center');
    // 两档的料混着放：出高一档的机会写明（出哪一件照旧不说）
     if (res) { const it = ITEM_DB[res.id]; ctx.font = `400 25px ${BR()}`; T(fitW(it.name, 420), CX, 581, 25, it.fg ? GRADE_COL[it.grade] : C.gold2, BR(), 400, 'center');
-      const lb = window.GEAR6 ? GEAR6.label(res.id) : '', sub = (lb ? lb + '　' : '') + (it.fg ? '主属性 ' + pct(it.mult) + (it.subs.length ? '　' + it.subs.join('　') : '　没带出副属性') : it.slot ? statText(res.id) : ''); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
+      const lb = window.GEAR6 ? GEAR6.label(res.id) : '', sub0 = (lb ? lb + '　' : '') + (it.fg ? '主属性 ' + pct(it.mult) : it.slot ? statText(res.id) : ''); ctx.font = `500 15px ${KAI()}`;
+      // 11-28：四五条副属性时一行写不下，后几条原来被省略号吃掉——写不下就用短名
+      const sub = sub0 + (it.fg ? (it.subs.length ? '　' + subsShort(res.id, 440 - ctx.measureText(sub0 + '　').width) : '　没带出副属性') : '');
+      T(fitW(sub, 440), CX, 607, 15, it.fg && it.subs.length ? C.green : C.sub, KAI(), 500, 'center'); }
     else { const h = hints(a); ctx.font = `600 16px ${KAI()}`; T(fitW(h[0][0], 440), CX, 583, 16, h[0][1], KAI(), 600, 'center'); ctx.font = `500 15px ${KAI()}`; T(fitW(h[1][0], 440), CX, 607, 15, h[1][1], KAI(), 500, 'center'); }
     btn(B_CLEAR, '清　空', a.n ? 'n' : 'd', 17);
     const ng = S.hero.gold || 0;
@@ -200,9 +203,13 @@
     const page = list.slice(UI.gp * per, UI.gp * per + per); for (let i = 0; i < page.length; i++) if (inR(tp, gcR(i))) { if (UI.gsel !== page[i].id) { UI.gsel = page[i].id; UI.arm = null; UI.say = ''; UI.sock = 0; snd('ui_click'); } return true; } return false; }
   const GD = { x: 516, y: 124, w: 712, h: 548 };
   function gearHead(id) { const it = ITEM_DB[id], g = WX5.GEAR[id], FX = window.REFINE_FX, rl = FX ? FX.lvOf(id) : 0, nowF = performance.now();   // 强化过的：图标外面盖金纹框、亮星钉（r407_refine_fx.js）
-    if (rl) FX.under(GD.x + 66, GD.y + 70, 44, rl, nowF); try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} if (rl) FX.slot(GD.x + 66 - 60, GD.y + 70 - 58, 120, 120, rl, nowF); T(it.name, GD.x + 130, GD.y + 46, 28, C.gold2, BR(), 400);
-    const lb = window.GEAR6 ? GEAR6.label(id) : ''; T((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + (lb ? ' · ' + lb : '') + '　' + statText(id), GD.x + 130, GD.y + 84, 16, C.text);
-    if (it.fg) { ctx.font = `500 15px ${KAI()}`; T(fitW('主属性 ' + pct(it.mult) + '　' + (it.subs.length ? '副属性：' + it.subs.join('　') : '没有副属性'), GD.w - 160), GD.x + 130, GD.y + 110, 15, it.subs.length ? C.green : C.sub, KAI(), 500); } }
+    // 11-28 体检：强化过的那件，金纹框和四五级的灵焰往右探出十几像素，名字贴着框写会被焰盖住——有框时字往右让一点
+    const tx = GD.x + (rl ? 150 : 130);
+    if (rl) FX.under(GD.x + 66, GD.y + 70, 44, rl, nowF); try { itemIcon(id, GD.x + 66, GD.y + 70, 44); } catch (e) {} if (rl) FX.slot(GD.x + 66 - 60, GD.y + 70 - 58, 120, 120, rl, nowF); ctx.font = `400 28px ${BR()}`; T(fitW(it.name, GD.x + GD.w - 20 - tx), tx, GD.y + 46, 28, C.gold2, BR(), 400);
+    const lb = window.GEAR6 ? GEAR6.label(id) : ''; ctx.font = `500 16px ${KAI()}`; T(fitW((g ? WX[g].n + '性 · ' : '') + (SLOT_CN[it.slot] || '') + (lb ? ' · ' + lb : '') + '　' + statText(id), GD.x + GD.w - 20 - tx), tx, GD.y + 84, 16, C.text);
+    if (it.fg) { ctx.font = `500 15px ${KAI()}`; T(fitW('主属性 ' + pct(it.mult) + '　' + (it.subs.length ? '副属性：' + subsShort(id, GD.x + GD.w - 20 - tx - 150) : '没有副属性'), GD.x + GD.w - 20 - tx), tx, GD.y + 110, 15, it.subs.length ? C.green : C.sub, KAI(), 500); } }
+  // 副属性一行写不下时改用短名（「金系攻击 +3%」→「金攻 +3%」），免得后面几条被省略号吃掉
+  function subsShort(id, w) { const it = ITEM_DB[id], long = it.subs.join('　'); try { if (ctx.measureText(long).width <= w) return long; const e = (S.hero.fg || {})[id]; if (e && e.s) return e.s.map(l => CR.lineText(l, true)).filter(Boolean).join(' '); } catch (e) {} return long; }
 
   // =====================================================================================================
   // 二、强化（+5 封顶、每级各项加一成半、前三级必成——equip_plus 那一套不变；11-27 傍晚换了材料，加了「挪强化」）
@@ -293,7 +300,7 @@
     if (!id) { ctx.font = `500 17px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.sub; wrap('点左边的一件装备，再点下面的一颗灵珠，按「镶上」。灵珠是五枚同一行的精在「合成」那一页炼出来的；两颗一样的能合成高一级的，最高五级。珠子和装备同一行，效果多五成。换下来的珠子退回行囊。', GD.x + 26, GD.y + 44, GD.w - 52, 28, 5); }
     else { gearHead(id); const n = sockN(id), gs = gemsOf(id);
       if (!n) { T('星痕剑不镶珠——它点星纹（看「星纹」那一页）。', GD.x + 30, GD.y + 190, 18, C.gold2, KAI(), 600); }
-      else { UI.sock = Math.min(UI.sock, n - 1); cur = gs[UI.sock]; T('孔位（点一下选中）', GD.x + 30, GD.y + 132, 15, C.sub);
+      else { UI.sock = Math.min(UI.sock, n - 1); cur = gs[UI.sock]; T('孔位（点一下选中）', GD.x + (CR.refineOf(id) ? 150 : 30), GD.y + 132, 15, C.sub);   // 11-28：强化过的那件，图标外的金纹框下沿（星钉）正好压在这行字上——有框时字挪到框右边
         for (let i = 0; i < n; i++) { const r = skR(i), on = UI.sock === i, g = gs[i]; D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h); const se = art('socket_empty');
           if (g) { try { itemIcon(gemItem(g), r.x + r.w / 2, r.y + 50, 32); } catch (e) {} const [k, v] = gemVal(g, id); T(STAT_NAME[k] + ' +' + v, r.x + r.w / 2, r.y + 106, 15, C.green, KAI(), 600, 'center'); }
           else { if (se) ctx.drawImage(se, r.x + r.w / 2 - 36, r.y + 14, 72, 72); else { ctx.save(); ctx.strokeStyle = 'rgba(194,173,120,.45)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(r.x + r.w / 2, r.y + 50, 28, 0, 7); ctx.stroke(); ctx.restore(); } T('空', r.x + r.w / 2, r.y + 106, 15, C.sub, KAI(), 600, 'center'); } }

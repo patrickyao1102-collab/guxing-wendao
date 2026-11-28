@@ -208,6 +208,9 @@
         ctx.restore(); }
       header(L, m); homeBtn();
     } finally { window.R201_IN = false; window.BAG_DARK = false; fontOff(); ctx.restore(); for (const k in keep) UI[k] = keep[k]; }
+    // 11-28 体检：行囊是画在提示条（toast）上面的，行囊里点「换上」弹的「等级不足」「已装备」都被行囊盖住，点了像没反应。
+    //   只把行囊里换装弹的那几句（标了 inBag）在行囊上面再画一遍；别的提示（报时之类）照旧等行囊关了再说
+    try { if (S.toast && S.toast.inBag && typeof drawToast === 'function') drawToast(0); } catch (e) {}
   };
 
   // ---------------- 装备页点击 + 拖动 ----------------
@@ -244,7 +247,12 @@
     consumeTap(); m.eqPick = null;
   };
   function wear(id) {
-    if (isAlly()) { if (window.ALLY_EQ_OK && !ALLY_EQ_OK(id)) { toast(ITEM_DB[id].name + '是叶孤星专属，旁人用不了'); return; } if (window.equipAlly && equipAlly(S.menu.who, id)) toast(memberInfo(S.menu.who).name + ' 换上了 ' + ITEM_DB[id].name); }
-    else { equipItem(id); playSnd('ui_confirm'); toast('已装备 ' + ITEM_DB[id].name); }
+    if (isAlly()) { if (window.ALLY_EQ_OK && !ALLY_EQ_OK(id)) { toast(ITEM_DB[id].name + '是叶孤星专属，旁人用不了'); bagToast(); return; } if (window.equipAlly && equipAlly(S.menu.who, id)) toast(memberInfo(S.menu.who).name + ' 换上了 ' + ITEM_DB[id].name); bagToast(); }
+    else { const it = ITEM_DB[id], sl = it && it.slot;
+      // 11-28 体检：r134 的等级关卡只在 world.locked 为假时才拦（给剧情里直接发装备留的口子），可行囊一打开 world.locked 就是真——结果 8 级在行囊里能穿 11 级的兵器。这里自己拦一道
+      if (it && it.lvReq && (S.hero.lv || 1) < it.lvReq) { toast('等级不足：' + it.name + ' 需要 ' + it.lvReq + ' 级', 2200); bagToast(); playSnd('ui_cancel'); return; }
+      equipItem(id); if (sl && S.hero.equip[sl] === id) { playSnd('ui_confirm'); toast('已装备 ' + it.name); bagToast(); } }   // 没穿上就不弹「已装备」
   }
+  // 行囊里换装弹的提示：标一下，让它画在行囊上面（见 drawMenu 末尾）。队友那边 equipAlly 弹的「等级不足」也一样
+  function bagToast() { try { if (S.toast && S.toast.t < 300) S.toast.inBag = 1; } catch (e) {} }   // t < 300：只标刚弹出来的这一句
 })();
