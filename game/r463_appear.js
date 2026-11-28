@@ -24,7 +24,7 @@
   // ---------- 花瓣 ----------
   const PET = []; let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   function makePetals() { PET.length = 0; seed = 7;
-    for (let i = 0; i < 230; i++) PET.push({ a0: rnd() * Math.PI * 2, r0: 520 + rnd() * 700, h0: -rnd() * 260 + 60, rT: 55 + rnd() * 150, hT: -50 - rnd() * 300, sp: (.6 + rnd() * .8) * (rnd() < .5 ? 1 : 1),
+    for (let i = 0; i < 300; i++) PET.push({ a0: rnd() * Math.PI * 2, r0: 600 + rnd() * 900, h0: -rnd() * 260 + 60, rT: 55 + rnd() * 150, hT: -50 - rnd() * 300, sp: (.6 + rnd() * .8) * (rnd() < .5 ? 1 : 1),
       d: rnd() * 1.4, sz: 4 + rnd() * 4.5, rot: rnd() * 6.28, vr: (rnd() - .5) * 3, col: rnd(), fall: 40 + rnd() * 90, drift: (rnd() - .5) * 220, glow: rnd() < .15 }); }
   function petalPos(p, t, cx, cy) {
     // 1) 0.6～3.6 秒：从远处旋进来，收成一根花柱；2) 3.6～6.2：绕着她转；3) 6.2 以后：散开成花雨慢慢落下、淡掉
@@ -57,6 +57,28 @@
     for (const [ww, aa] of [[w * 2.2, .22], [w, .38], [w * .4, .45]]) { g.globalAlpha = aa * k; g.drawImage(T, cx - ww / 2, gy - Hh, ww, Hh); }
     g.restore();
   }
+  // 作者 15:42「特效挺好看，还可以再炫酷一点」：两道花光绕着光柱交缠上升、火星慢慢往上飘、她落定时一圈花瓣贴地荡开、台面一圈圈暖光扩散（都缓进缓出，不闪）
+  function helix(g, cx, gy, t) {
+    const up = ease(seg(t, 2.0, 4.2)), out = ease(seg(t, 6.0, 7.8)), k = up * (1 - out); if (k <= 0) return; const Hh = 980 * up;
+    g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+    for (const ph of [0, Math.PI]) for (let i = 0; i < 70; i++) { const y0 = i / 70, y1 = (i + 1) / 70; if (y1 * 1000 > Hh) break;
+      const xa = cx + Math.cos(y0 * 9 + t * 2.4 + ph) * (90 - 40 * y0), xb = cx + Math.cos(y1 * 9 + t * 2.4 + ph) * (90 - 40 * y1), front = Math.sin(y0 * 9 + t * 2.4 + ph) > 0;
+      const fade = Math.min(1, (Hh - y0 * 1000) / 220) * (1 - y0 * .6);
+      g.strokeStyle = `rgba(255,${front ? 150 : 90},${front ? 160 : 110},${(front ? .55 : .25) * k * fade})`; g.lineWidth = front ? 5 : 3;
+      g.beginPath(); g.moveTo(xa, gy - y0 * 1000); g.lineTo(xb, gy - y1 * 1000); g.stroke(); }
+    g.restore();
+  }
+  const SPK = []; for (let i = 0; i < 90; i++) SPK.push({ x: (Math.random() - .5) * 520, d: Math.random() * 5, v: 40 + Math.random() * 70, s: 1.2 + Math.random() * 2.2, w: Math.random() * 6.28 });
+  function sparks(g, cx, gy, t) { const k = ease(seg(t, 1.8, 3.2)) * (1 - ease(seg(t, 8.0, 10.2))); if (k <= 0) return;
+    g.save(); g.globalCompositeOperation = 'lighter';
+    for (const p of SPK) { const tt = (t - 1.8 + p.d) % 5, y = gy - tt * p.v * 1.6, x = cx + p.x * (1 - tt / 9) + Math.sin(tt * 1.4 + p.w) * 14, a = k * Math.sin(Math.PI * tt / 5) * .8; if (a <= 0) continue;
+      g.globalAlpha = a; g.fillStyle = '#ffb090'; g.beginPath(); g.arc(x, y, p.s, 0, 7); g.fill(); }
+    g.restore(); }
+  function landing(g, cx, gy, t) { const k = seg(t, 7.0, 9.4); if (k <= 0 || k >= 1) return; const e = ease(k), r = 40 + 420 * e, a = (1 - e) * .9;
+    g.save(); g.globalCompositeOperation = 'lighter'; g.translate(cx, gy); g.scale(1, .36);
+    const rg = g.createRadialGradient(0, 0, r * .7, 0, 0, r); rg.addColorStop(0, 'rgba(255,60,90,0)'); rg.addColorStop(.85, `rgba(255,90,110,${.35 * a})`); rg.addColorStop(1, 'rgba(255,60,90,0)'); g.fillStyle = rg; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.restore();
+    for (let i = 0; i < 48; i++) { const an = i / 48 * Math.PI * 2 + i * .37, rr = r * (.86 + (i % 5) * .03); drawPetal(g, cx + Math.cos(an) * rr, gy + Math.sin(an) * rr * .36, 4.5, an + t * 2, i % 3 / 3, a, i % 4 === 0); } }
   function rings(g, cx, gy, t) {
     const show = (a, b, R, col, spin) => { const k = ease(seg(t, a, b)), out = ease(seg(t, 6.4, 8.4)); if (k <= 0 || out >= 1) return; const r = R * (.25 + .75 * k);
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = k * (1 - out); g.translate(cx, gy); g.scale(1, .38);
@@ -104,10 +126,10 @@
       const dim = ease(seg(t, .2, 1.8)) * (1 - ease(seg(t, 7.6, 9.4)) * .6);
       ctx.fillStyle = `rgba(18,2,8,${.38 * dim})`; ctx.fillRect(0, 0, W, H);
       ctx.translate(-cam.x * zm, -cam.y * zm); ctx.scale(zm, zm);
-      rings(ctx, bx, gy, t);
+      rings(ctx, bx, gy, t); landing(ctx, bx, gy, t);
       const pts = PET.map(p => [p, petalPos(p, t, bx, gy - 120)]);
       for (const [p, q] of pts) if (!q.front && q.a > .01) drawPetal(ctx, q.x, q.y, p.sz, p.rot + t * p.vr, p.col, q.a, p.glow);
-      pillar(ctx, bx, gy, t);
+      pillar(ctx, bx, gy, t); helix(ctx, bx, gy, t); sparks(ctx, bx, gy, t);
       // 人物（作者 15:27 嫌露腿的姿势丑 → 只用张臂狂笑这一张：裙摆收得住、不露腿、轮廓大）：3.0～4.6 由脚到头凝出、悬空 → 6.0～7.4 缓缓降到离台半尺，悬着轻轻起伏
       const bob = Math.sin(t * 1.8) * 6, liftK = 1 - ease2(seg(t, 6.0, 7.4)), lift = 22 + (48 + bob) * liftK + Math.sin(t * 1.2) * 3 * (1 - liftK);
       const rv = ease(seg(t, 3.0, 4.6)), aF = clamp01(seg(t, 3.0, 3.4));
