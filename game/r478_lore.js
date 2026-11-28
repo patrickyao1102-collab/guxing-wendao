@@ -1,5 +1,6 @@
 // ================= R478 · 地图来历（载入画面左上角，书法题名下面的一段话；只进测试版）=================
 // 作者 11-28 23:35：「过图那个插画背景，左上角是地名，然后你在底下写一些故事。老版《剑网三》每个地图载入时都有当前地图的来历、背景或者故事。」
+// 作者 11-29：来历改用 Gemini 重写的版本（kind：传说 / 定位 / 诗 / 无）。
 // 文字在 r478/lore.json（{地图id: {k 段名, title 题名, sub 小字, text 来历}}；同一地点的屋子共用一段，k 相同）。没有来历的图不显示。
 // 改字：改 lore.json，再跑 tools/r478_build.py 重做字体子集（r478/lore.woff 霞鹜文楷、r478/title.woff 马善政，只含用到的字）。
 // 排版：题名图实际画出来的那一块（扫透明边，不按图片外框）往下 10 像素起排；字 25 像素（手机横屏 844×390 上约 13.5 像素），行距 1.6，
@@ -10,7 +11,7 @@
 (function () {
   if (typeof S === 'undefined' || typeof ctx === 'undefined') return;
   let LORE = {}, ILLU = { maps: {}, files: {} };
-  { const p1 = fetch('r478/lore.json?v=1').then(r => r.json()).then(j => { LORE = j || {}; }).catch(() => {});
+  { const p1 = fetch('r478/lore.json?v=2').then(r => r.json()).then(j => { LORE = j || {}; }).catch(() => {});
     const p2 = fetch('r478/illu.json?v=1').then(r => r.json()).then(j => { ILLU = j && j.maps ? j : ILLU; }).catch(() => {});
     try { if (window.PRELOAD) { PRELOAD('地图来历', p1); PRELOAD('专属插画表', p2); } } catch (e) {} }
 
@@ -27,7 +28,7 @@
   setTimeout(() => { try { if (world && world.mapName) preloadNear(world.mapName); } catch (e) {} }, 3000);
   window.R478_ART = { art, artKey, get loaded() { return Object.keys(ART).filter(k => ART[k].ok); } };
   // 字体：载入画面要用之前装好（装不上就退回游戏里的楷体）
-  const FF = [['R478Lore', 'r478/lore.woff?v=1'], ['R478Title', 'r478/title.woff?v=1']];
+  const FF = [['R478Lore', 'r478/lore.woff?v=2'], ['R478Title', 'r478/title.woff?v=2']];
   for (const [n, u] of FF) { try { const f = new FontFace(n, `url(${u})`); const p = f.load().then(x => document.fonts.add(x)).catch(() => {}); if (window.PRELOAD) PRELOAD('来历字体', p); } catch (e) {} }
   const BODY = '"R478Lore","GuxingKai","R201WK",' + (typeof FONT !== 'undefined' ? FONT : 'serif');
   const HEAD = '"R478Title","R201MS",' + (typeof BRUSH !== 'undefined' ? BRUSH : 'serif');
@@ -57,8 +58,11 @@
       else { cur += ch; w += cw; } }
     if (cur) L.push(cur); return L; }
   const LINES = {};   // 断好的行按「段名 + 宽」缓存
-  function lines(e) { const key = e.k + '|' + CFG.maxW + '|' + CFG.size; let L = LINES[key]; if (L && L.font === fontOk()) return L.v;
-    ctx.font = `${CFG.size}px ${BODY}`; let v = wrap(e.text, CFG.maxW);
+  function lines(e) { if (!e.text) return []; const key = e.k + '|' + CFG.maxW + '|' + CFG.size; let L = LINES[key]; if (L && L.font === fontOk()) return L.v;
+    ctx.font = `${CFG.size}px ${BODY}`;
+    // 作者 11-29：没有真来历的地方用一两句诗（kind 诗）——一句一行，不折行混排
+    if (e.kind === '诗') { const v = e.text.split(/(?<=。)/).map(t => t.trim()).filter(Boolean); LINES[key] = { v, font: fontOk() }; return v; }
+    let v = wrap(e.text, CFG.maxW);
     // 最后一行只剩一两个字（「样。」）难看：把行宽一点点收窄重排，让最后一行至少四个字（最多收到 82%）
     for (let w = CFG.maxW - CFG.size; v.length > 1 && [...v[v.length - 1]].length < 4 && w > CFG.maxW * .82; w -= CFG.size / 2) { const v2 = wrap(e.text, w); if (v2.length > v.length) break; v = v2; }
     L = LINES[key] = { v, font: fontOk() }; return L.v; }
@@ -88,7 +92,7 @@
 
   // ---------- 题名下面排来历 ----------
   window.LOADING_TITLE_DONE = (TR, info) => {
-    const m = info.map, e = LORE[m]; if (!e || !TR) return;
+    const m = info.map, e = LORE[m]; if (!e || !e.text || !TR) return;   // 作者 11-29：房间庭院这类小地方（kind 无）只显示名字
     const now = info.now || performance.now(); track(m, now);
     { const A = window.LOADING_MAP_ART && LOADING_MAP_ART(m), ak = A && A.ok ? A.key : null; if (ak !== T.art) { T.art = ak; T.lumAt = 0; } }   // 专属插画中途换上来：重新量底下的亮度
     // 题名实际的墨迹框（图）或者字框（自己补的题名）
@@ -130,7 +134,7 @@
   // 只在地图画面上拦；题名一直没画出来（插画没到、走了别的路）最多拦 9 秒；来历完整露出 3.5 秒、或者玩家点一下，就放行。
   const H = { map: null, t0: 0 };
   const holding = m => { const now = performance.now(); if (H.map !== m) { H.map = m; H.t0 = now; }
-    const e = LORE[m]; if (!e || seen(e.k)) return false;
+    const e = LORE[m]; if (!e || !e.text || seen(e.k)) return false;
     if (typeof drawMap === 'undefined' || S.scene !== drawMap || !S.started) return false;
     if (now - H.t0 > CFG.holdMax) { mark(e.k); return false; }
     if (T.map === m && T.last >= H.t0) { if (T.skip) return false; if (T.fullAt && now - T.fullAt >= CFG.hold) { mark(e.k); return false; } }
