@@ -11,7 +11,7 @@
 (function () {
   if (typeof S === 'undefined' || typeof ctx === 'undefined') return;
   let LORE = {}, ILLU = { maps: {}, files: {} };
-  { const p1 = fetch('r478/lore.json?v=2').then(r => r.json()).then(j => { LORE = j || {}; }).catch(() => {});
+  { const p1 = fetch('r478/lore.json?v=3').then(r => r.json()).then(j => { LORE = j || {}; }).catch(() => {});
     const p2 = fetch('r478/illu.json?v=1').then(r => r.json()).then(j => { ILLU = j && j.maps ? j : ILLU; }).catch(() => {});
     try { if (window.PRELOAD) { PRELOAD('地图来历', p1); PRELOAD('专属插画表', p2); } } catch (e) {} }
 
