@@ -54,6 +54,10 @@
   applyDamage = (orig => function (t, d, crit, opts) {
     try { if (t && t._tw && !t._ph2 && t.alive) { const half = Math.round(t.maxhp * .5); if (t.hp - d < half) { if (t.hp <= half) d = 0; else d = t.hp - half; t._turnNow = 1; t.gauge = 999; } } } catch (e) {}
     return orig.call(this, t, d, crit, opts); })(applyDamage);
+  // 火烧花（作者 11-28 采纳）：花魇被云霆的火打死，绛蘅下一轮「吸梦」吸不到，回不了血——五行教学：火克木
+  applyDamage = (orig => function (t, d, crit, opts) { const r = orig.call(this, t, d, crit, opts);
+    try { const b = battle; if (b && t && t.key === 'e_tw_huayan' && !t.alive && !t._burnShown && b.active && b.active.ally === 'yunting') { t._burnShown = 1; const boss = b.enemies.find(e => e._tw && e._tw.n === 1 && e.alive); if (boss) { boss._burnt = 1; floatText(t.x, t.y - (t.h || 200) - 20, '火烧花 · 断梦', '#ff9a4a', 40, 1.4); try { playSnd('sfx_boom', .5); } catch (e) {} } } } catch (e) {}
+    return r; })(applyDamage);
   // 一层 · 绛蘅
   AI.tw_bianhua = async (e, b) => {
     if (e._turnNow && !e._ph2) { e._turnNow = 0; return become(e, b); }
@@ -64,7 +68,8 @@
     // 形态二：花魇在，她就回血；火烧花——身边的花魇被火打死过，她这一轮不回
     const fl = H.addsAlive(b, e), t = e.turn % 4;
     const cap = Math.round(e.maxhp * .5);   // 吸梦最多回到换形态时那一半
-    if (fl.length && e.hp < cap) { const heal = Math.min(cap - e.hp, Math.round(e.maxhp * .015 * fl.length)); e.hp += heal; floatText(e.x, e.y - e.h * .8, '吸梦 +' + heal, '#ff9aa8', 40); await sleep(400); }
+    if (e._burnt) { e._burnt = 0; floatText(e.x, e.y - e.h * .8, '梦断了……吸不动', '#ffb08a', 34); await sleep(300); }
+    else if (fl.length && e.hp < cap) { const heal = Math.min(cap - e.hp, Math.round(e.maxhp * .015 * fl.length)); e.hp += heal; floatText(e.x, e.y - e.h * .8, '吸梦 +' + heal, '#ff9aa8', 40); await sleep(400); }
     const bloom = (!e._bl1 && e.turn === 1) || (!e._bl2 && e._bl1 && e.hp < e.maxhp * .25);   // 花开两回：换完形态头一手、血剩四分之一
     if (bloom && fl.length < 2) { if (!e._bl1) e._bl1 = 1; else e._bl2 = 1; H.big('花开', '#ff6a7a', 64); await sleep(500); H.summon(b, e, ['tw_huayan', 'tw_huayan'].slice(0, 2 - fl.length)); await sleep(400); return true; }
     if (t === 3) return H.charge(e, '所有花瓣向后收拢，花心亮得刺眼——「花葬」，防御！');

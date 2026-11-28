@@ -9,7 +9,9 @@
   const MZ = window.TOWER && TOWER.MAZE, META = window.R443_META;
   if (!MZ || !META || typeof TMAPS === 'undefined' || typeof IMG === 'undefined') return;
   const F = () => (S.flags = S.flags || {}), ST = () => MZ.ST(1), TXT = MZ.TXT[1], P = MZ.P;
-  const MOBN = { a: 5, b: 4, c: 4 };   // 每苑同时飘着几团鬼火（打掉一团，过一阵再补）
+  const MOBN = { a: 5, b: 4, c: 4 };
+  // 迷宫宝箱（作者 11-28 采纳）：放两件推荐线装备 + 「护体」辅助书，没钱买装备也能过一层
+  const CHEST = { a: [[7, 13, [['r_yantie', 1], ['p_big', 1]]]], b: [[19, 1, [['s_baodi', 1], ['p_big', 1]]]], c: [[19, 1, [['bk_hero_huti', 1], ['p_big', 2]]]] };   // 每苑同时飘着几团鬼火（打掉一团，过一阵再补）
   const CS = 40, TSZ = 240, ZS = ['a', 'b', 'c'], ZNAME = { a: '外苑', b: '中苑', c: '内苑' }, MAPN = z => 'wyt_f1' + z;
   const zoneOf = m => { const mm = /^wyt_f1([abc])$/.exec(m || ''); return mm ? mm[1] : null; };
   const curZ = () => zoneOf(world && world.mapName);
@@ -68,7 +70,7 @@
         objs.push({ id: 'r427_obj', uid: 'r443_wen', img: K(z, 'base'), r427: { n: 1, name: 'wen' }, x: wx - 80, y: wy - 240, w: 160, h: 240, sy: wy + 2, flat: false, flip: false, noBlock: true, noPre: true }); }
       if (pond) spot('忘川泉', pond.bx, pond.by - 20, R427.pond, 90); }
     const S0 = ctr(...START[z]);
-    TMAPS[MAPN(z)] = { title: '万妖塔 · 第一层 · ' + ZNAME[z], name: MAPN(z), indoor: false, leaves: false, chests: [], npcs, start: P(S0[0], S0[1]),
+    TMAPS[MAPN(z)] = { title: '万妖塔 · 第一层 · ' + ZNAME[z], name: MAPN(z), indoor: false, leaves: false, chests: CHEST[z].map(([cc, rr, items]) => ({ c: cc * 6 + 3, r: rr * 6 + 3, items })), npcs, start: P(S0[0], S0[1]),
       baked: { ground: K(z, 'base'), w: M.w, h: M.h, cs: CS, cols, rows, blocked: bl.join(''), objs },
       // 明雷（作者 11-28 12:58：「不要暗雷，做明雷」）：地图上飘鬼火，碰到才开打。起点、首领台、传送阵附近不刷
       mobs: { n: MOBN[z], get types() { return TXT.mobs.flat().filter((t, i, A) => A.indexOf(t) === i && typeof MOB_DB !== 'undefined' && MOB_DB[t]); }, bg: 'bg_tw1', lv: 4, lvR: [12, 13], tower: 1,
