@@ -12,17 +12,16 @@
   const MOBN = { a: 5, b: 4, c: 4 };
   // 迷宫宝箱（作者 11-28 采纳）：放两件推荐线装备 + 「护体」辅助书，没钱买装备也能过一层
   // 迷宫宝箱（作者 11-28：一层起码七八到十几个——装备、药材、技能书、丹方都要有）。每苑四个，藏在死胡同和拐角
-  const CHEST = {
-    a: [[7, 13, [['r_yantie', 1], ['p_big', 1]]], [19, 1, [['q_sha', 4], ['h_bahua', 3]]], [19, 13, [['juan2', 1], ['p_mp', 2]]], [3, 9, [['gold', 300], ['h_wangyou', 2]]]],
-    b: [[19, 1, [['s_baodi', 1], ['p_big', 1]]], [19, 13, [['f_huichun', 1], ['h_mengtan', 2]]], [13, 5, [['a_tiancan', 1]]], [1, 11, [['q_jing', 2], ['m_wx_huo', 2]]]],
-    c: [[19, 1, [['bk_hero_huti', 1], ['p_big', 2]]], [17, 13, [['f_dinghun', 1], ['h_huanhun', 1]]], [13, 5, [['c_huoqi', 1]]], [3, 7, [['juan3', 1], ['m_wx_jin', 2]]]] };
+  const CHEST = {   // 作者 11-28 13:43：丹方珍贵，一层最多一张；技能书一两本；最多的是药材和炼器料（一样料做不出装备，要凑四五样）
+    a: [[7, 13, [['r_yantie', 1], ['h_bahua', 2]]], [19, 1, [['m_yaomu', 3], ['m_thorn', 2], ['h_wangyou', 2]]], [19, 13, [['juan2', 1], ['h_bahua', 3]]], [3, 9, [['m_tengpi', 3], ['m_langpi', 2], ['q_sha', 3]]]],
+    b: [[19, 1, [['s_baodi', 1], ['h_mengtan', 2]]], [19, 13, [['m_silk', 2], ['m_wing', 2], ['h_wangyou', 3]]], [13, 5, [['m_wx_huo', 2], ['m_wx_mu', 2], ['h_bahua', 2]]], [1, 11, [['m_yanjing', 1], ['m_fang', 3], ['q_jing', 2]]]],
+    c: [[19, 1, [['bk_hero_huti', 1], ['h_mengtan', 2]]], [17, 13, [['f_dinghun', 1], ['h_huanhun', 1]]], [13, 5, [['m_thorn', 3], ['m_yanjing', 1], ['h_huanhun', 1]]], [3, 7, [['m_wx_jin', 2], ['m_wx_huo', 2], ['m_tooth', 2]]]] };
   // 药材（炼丹用，炼丹炉开了以后才用得上）和丹方
   try { const NEW = {
       h_bahua: { name: '彼岸花蕊', cat: '药材', price: 0, sell: 40, desc: '彼岸花心里一缕金丝，捻碎了有一股冷香，能安神定魄。万妖塔一层才有。【炼丹的药材】' },
       h_wangyou: { name: '忘忧草', cat: '药材', price: 0, sell: 30, desc: '长在花圃阴处的细叶草，揉一揉，心里的事就淡了几分。【炼丹的药材】' },
       h_mengtan: { name: '梦昙露', cat: '药材', price: 0, sell: 60, desc: '梦昙一夜只开一回，花谢时留下一滴露，清冷透亮。【炼丹的药材】' },
       h_huanhun: { name: '还魂草', cat: '药材', price: 0, sell: 120, desc: '叶背泛着淡淡的银光，传说能把将散的魂拉回来。珍稀。【炼丹的药材】' },
-      f_huichun: { name: '丹方·回春凝露丹', cat: '丹方', price: 0, sell: 0, desc: '一页泛黄的丹方：梦昙露为君，忘忧草为臣，炼成的丹能回气血。丹方是长久的，炼丹炉开了以后照方就能炼。' },
       f_dinghun: { name: '丹方·定魂安魄丹', cat: '丹方', price: 0, sell: 0, desc: '一页墨迹发红的丹方：彼岸花蕊、还魂草同炉，炼成的丹能解入梦、定心神。丹方是长久的，炼丹炉开了以后照方就能炼。' } };
     for (const [k, v] of Object.entries(NEW)) if (!ITEM_DB[k]) ITEM_DB[k] = v; } catch (e) {}
   const CS = 40, TSZ = 240, ZS = ['a', 'b', 'c'], ZNAME = { a: '外苑', b: '中苑', c: '内苑' }, MAPN = z => 'wyt_f1' + z;
