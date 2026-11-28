@@ -46,7 +46,7 @@
   const want = {}, got = {};
   const K = (z, name) => 'r443_' + V + '_' + z + '_' + name, KT = name => 'r443_tp_' + name;
   function ldk(k, src) { if (k in want) return; want[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; got[k] = 1; }; im.onerror = () => { got[k] = 1; }; im.src = src; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
-  const ld = (z, name) => ldk(K(z, name), 'r443/' + V + '/' + z + '/' + name + '.webp?v=' + (V === 'b' && z === 'a' ? 2 : 1));   // b 外苑 v2：R453 修整
+  const ld = (z, name) => ldk(K(z, name), 'r443/' + V + '/' + z + '/' + name + '.webp?v=' + (V === 'b' ? (z === 'a' ? 2 : 3) : 1));   // b 版：外苑 v2、中苑内苑 v3（R453 修整）
   const ldt = name => ldk(KT(name), 'r443/tp/' + name + '.webp?v=2');   // v2：R446c 加帧（法阵 idle 12 / on 16，传送 go 24 / arrive 12）
   const Z = z => META[V][z];
   function loadCore(z) { const M = Z(z); ld(z, 'base'); for (const o of M.ov) ld(z, o[6]); }
