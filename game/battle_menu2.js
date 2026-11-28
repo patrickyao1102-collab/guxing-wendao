@@ -98,7 +98,8 @@
     const P = b.P; b.state = 'act'; b.menu = null;
     const es = aliveEnemies(), avg = es.reduce((s, e) => s + (e.spd || 10), 0) / Math.max(1, es.length);
     const pk = S.hero && S.hero.bag && S.hero.bag.k_pokong > 0 ? .25 : 0;   // 作者 11-07：带着叶擎苍给的破空遁符，逃跑成功率 +25%
-    const rate = Math.max(.3, Math.min(.95, .55 + pk + ((P.spd || 10) - avg) * .025));
+    let rate = Math.max(.3, Math.min(.95, .55 + pk + ((P.spd || 10) - avg) * .025));
+    try { if (window.FLEE_SURE && FLEE_SURE(b)) rate = 1; } catch (e) {}   // 11-28：测试版鞋上的灵韵「踏风」——逃跑必成（r467_gearfuse.js；正式版没有这个函数）
     try { skillBanner('逃 跑', '#e8f0ff', '成功率 ' + Math.round(rate * 100) + '%' + (pk ? '（破空遁符）' : '')); } catch (e) {}
     await sleep(500);
     if (Math.random() < rate) {

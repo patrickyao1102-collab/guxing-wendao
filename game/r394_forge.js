@@ -16,7 +16,7 @@
   const STAT_NAME = { atk: '攻击', def: '防御', maxhp: '气血', maxmp: '灵力', spd: '速度' }, KEYS = ['atk', 'def', 'maxhp', 'maxmp', 'spd'], SLOT_CN = { weapon: '兵器', wrist: '护腕', armor: '衣甲', shoe: '鞋履', acc: '饰品' };
   const UI = { open: false, t0: 0, taps: [], tab: 0, arm: null, say: '', sayT: 0, slots: [null, null, null, null, null], mf: 0, mp: 0, res: null, fx: [], gsel: null, gp: 0, msel: null, sock: 0, mv: null, gsk: null, gmp: 0 };
   const P = { x: 20, y: 96, w: 1240, h: 604 }, BODY = { x: 40, y: 112, w: 1200, h: 572 }, CLOSE = { x: 1126, y: 34, w: 124, h: 46 };
-  const TABS = ['合成', '强化', '镶嵌', '精炼', '星纹'], TABK = ['hecheng', 'qianghua', 'xiangqian', 'jinglian', 'xingwen'], tabR = i => ({ x: 232 + i * 150, y: 36, w: 142, h: 44 });
+  const TABS = ['合成', '强化', '镶嵌', '精炼', '星纹'], TABK = ['hecheng', 'qianghua', 'xiangqian', 'jinglian', 'xingwen'], tabR = i => TABS.length > 5 ? { x: 226 + i * 128, y: 36, w: 124, h: 44 } : ({ x: 232 + i * 150, y: 36, w: 142, h: 44 });   // 11-28：r467 加了「合成」一页，六个页签挤一挤，别压到右上角的灵石数
   const snd = (n, v) => { try { playSnd(n, v || .7); } catch (e) {} };
   const speak = s => { UI.say = s; UI.sayT = performance.now(); };
   const saying = now => UI.say && now - UI.sayT < 7000;
@@ -412,6 +412,8 @@
       await say('星旋', '记不住也不打紧——炉子左上角有个「五行」，忘了就点开看一眼。'); }   // 作者 11-28 08:06：头一回见面讲规矩是对的，讲完玩家记不住，所以要有小贴士
     await open(0); }
   window.R394 = { open, talk, isOpen: () => UI.open, UI, RUNE, ARTN, art, sockN, gemsOf, setGem };
+  // 11-28：新装备系统（r467_gearfuse.js）要换掉打造 / 强化 / 镶嵌三页、加一页「合成」——把这里的画法和小工具借给它用（不改这里的老逻辑）
+  window.R394.K = { TABS, TABK, DRAW, TAP, UI, P, BODY, CLOSE, btn, speak, saying, armed, burst, snd, have, owned, statText, drawMats, tapMats, matList, drawDisc, fillRecipe, slotXY, CX, CY, DISC, SEAT, SLOT_R, CORE_R, B_CLEAR, B_GO, RB, rcR, GL, GD, GPG, gcR, gearList, refCost, quenchOf, gearTier, moveFee, peekNext, RATE, MAXLV, B_REF, B_MOVE, smith: () => SMITH, LINE_COL, GLOW, edgeText, tierText, mergeFee, STAT_NAME, KEYS, SLOT_CN, MCOLS, MROWS, mcR };
 })();
 
 // ================= 剑炉和铸剑师摆进云海大亭（Codex R389 的画）=================

@@ -106,8 +106,8 @@
       if (sm) D(has ? 'item_disc' : 'item_disc_empty', x + 26, y + 27, 72, 72); else D(has ? 'item_disc' : 'item_disc_empty', x + 24, y + 37, 82, 82);
       if (has) { const it = ITEM_DB[c.id], FX = window.REFINE_FX, rl = FX ? FX.lvOf(c.id) : 0, nowF = performance.now();   // 测试版：强化过的，栏位上盖金纹框、亮星钉（r407_refine_fx.js；正式版没有这个文件，rl 恒为 0）
         if (rl) { if (sm) FX.under(x + 62, y + 63, 26, rl, nowF); else FX.under(x + 65, y + 78, 30, rl, nowF); }
-        if (sm) { itemIcon(c.id, x + 62, y + 63, 26); ctx.font = `24px ${KAI}`; txt(fit(it.name, 136), x + 108, y + 52, 24, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 138), x + 108, y + 81, 14, C.green, 'left', FONT); }
-        else { itemIcon(c.id, x + 65, y + 78, 30); ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
+        if (sm) { itemIcon(c.id, x + 62, y + 63, 26); ctx.font = `24px ${KAI}`; txt(fit(it.name, 136), x + 108, y + 52, 24, (window.GEAR_COL && GEAR_COL(c.id, 1)) || C.ink);   /* 11-28：名字按颜色品级着色（r467；纸面用深一号的颜色） */ ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 138), x + 108, y + 81, 14, C.green, 'left', FONT); }
+        else { itemIcon(c.id, x + 65, y + 78, 30); ctx.font = `25px ${KAI}`; txt(fit(it.name, 128), x + 115, y + 66, 25, (window.GEAR_COL && GEAR_COL(c.id, 1)) || C.ink); ctx.font = `600 14px ${FONT}`; txt(fit(statText(it), 130), x + 115, y + 98, 14, C.green, 'left', FONT); }
         if (rl) FX.slot(x, y, 254, ch, rl, nowF, true); }
       else if (sm) { D('ghost_' + c.n, x + 41, y + 33, 44, 54); txt('未装备', x + 108, y + 60, 24, C.grey); }
       else { D('ghost_' + c.n, x + 39, y + 44, 52, 64); txt('未装备', x + 115, y + 72, 25, C.grey); } }
@@ -118,7 +118,7 @@
     if (!list.length) txt('背包里没有能换的' + (slotsNow().find(s => s[0] === sel) || SLOTS[0])[1], ROW.x + ROW.w / 2, ROW.y + ROW.h / 2, 24, C.grey, 'center');
     for (const c of list) { const it = ITEM_DB[c.id], on = m.eqPick === c.id;
       nine(on ? 'swap_card_9_s' : 'swap_card_9_n', c.x, c.y, c.w, c.h); D('item_disc', c.x + 18, c.y + 15, 82, 82); itemIcon(c.id, c.x + 59, c.y + 56, 30);
-      const nameW = on ? 96 : 190; ctx.font = `24px ${KAI}`; txt(fit(it.name + (S.hero.bag[c.id] > 1 ? '×' + S.hero.bag[c.id] : ''), nameW), c.x + 110, c.y + 42, 24, C.ink);
+      const nameW = on ? 96 : 190; ctx.font = `24px ${KAI}`; txt(fit(it.name + (S.hero.bag[c.id] > 1 ? '×' + S.hero.bag[c.id] : ''), nameW), c.x + 110, c.y + 42, 24, (window.GEAR_COL && GEAR_COL(c.id, 1)) || C.ink);
       if (c.sc > 0) txt('↑', c.x + 110 + Math.min(nameW, ctx.measureText(it.name).width) + 8, c.y + 40, 24, C.green, 'left', FONT);
       // 和身上那件比
       let dx = c.x + 110; ctx.font = `600 14px ${FONT}`; for (const k of STATS) { const d = (it[k] || 0) - ((cur && cur[k]) || 0); if (!it[k] && !(cur && cur[k])) continue; const s = STAT_CN[k] + (d > 0 ? '▲' + d : d < 0 ? '▼' + (-d) : '='); if (dx + ctx.measureText(s).width > c.x + (on ? c.w - 116 : c.w - 16)) break; txt(s, dx, c.y + 76, 14, d > 0 ? C.green : d < 0 ? C.red : C.grey, 'left', FONT); dx += ctx.measureText(s).width + 8; }

@@ -55,8 +55,8 @@
     ctx.save(); ctx.fillStyle = 'rgba(10,6,2,.45)'; ctx.fillRect(L.body.x - 6, L.body.y - 6, L.body.w + 12, L.body.h + 12);
     lacquer(B.x, B.y, B.w, B.h, { r: 16, corners: true, top: UI.cTop, bot: UI.cBot });
     itemIcon(info.id, B.x + 70, B.y + 74, 40);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `34px ${BRUSH}`; ctx.fillStyle = UI.gold2; ctx.fillText(it.name, B.x + 128, B.y + 58);
-    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(SLOT_CN[it.slot] + '　·　' + (RANK[info.id] || (window.GEAR6 && GEAR6.label(info.id)) || '灵器') +   /* 11-28：剑炉以后添的装备（含合成出的独一份）没有老品级，原来一律写「灵器」——改写它在格子里的档和等，如「练气档 · 难得」 */ (heroOnly(info.id) ? '　·　叶孤星专属' : ''), B.x + 130, B.y + 96);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `34px ${BRUSH}`; ctx.fillStyle = (window.GEAR_COL && GEAR_COL(info.id, UI.id === 'paper')) || UI.gold2; ctx.fillText(it.name, B.x + 128, B.y + 58);   // 11-28：名字按颜色品级着色（r467）
+    ctx.font = `600 16px ${FONT}`; ctx.fillStyle = UI.sub; ctx.fillText(SLOT_CN[it.slot] + '　·　' + ((window.GEAR_COL && window.GEAR6 && GEAR6.label(info.id)) || RANK[info.id] || (window.GEAR6 && GEAR6.label(info.id)) || '灵器') +   /* 11-28：剑炉以后添的装备（含合成出的独一份）没有老品级，原来一律写「灵器」——改写它在格子里的档和等，如「练气档 · 难得」；测试版有 r467 的颜色品级时一律写颜色（「凝丹档 · 紫装」「仙器 · 金装」），老的「极品灵器」之类不再给玩家看 */ (heroOnly(info.id) ? '　·　叶孤星专属' : ''), B.x + 130, B.y + 96);
     // 属性：背包里的和身上那件比
     const cur = info.from === 'bag' && eqNow()[it.slot] ? ITEM_DB[eqNow()[it.slot]] : null; let dx = B.x + 40; const sy = B.y + 140;
     ctx.font = `700 19px ${FONT}`;

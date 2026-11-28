@@ -226,5 +226,5 @@
   if (typeof window.SK4_SHOP === 'function' && window.SK4) window.SK4_SHOP = (o => function () { let out = o.apply(this, arguments); try { for (const x of SETS) if (x.skill) out = out.filter(id => id !== SK4.bookId(x.owner, x.skill)); } catch (e) {} return out; })(window.SK4_SHOP);
   try { for (const x of SETS) if (x.skill && window.SK4) { const bk = ITEM_DB[SK4.bookId(x.owner, x.skill)]; if (bk) { bk.price = 0; bk.desc = '旧书。「' + x.skillName + '」如今是' + x.name + '套装带出来的：穿齐四件就能施展，用不着这本书了。'; } } } catch (e) {}
 
-  window.GEAR5 = { NEW: NEW.map(a => a[0]), SETS, SLOTS, setOfItem, fit, fitText, setState, setsOf, activeFx, eqOf, rootOf, setSkillOf, fixSlots };
+  window.GEAR5 = { NEW: NEW.map(a => a[0]), SETS, SLOTS, setOfItem, fit, fitText, setState, setsOf, activeFx, eqOf, rootOf, setSkillOf, fixSlots, SUB_CAP };   // SUB_CAP：11-28 r467 灵珠改加副属性后要把封顶抬一点，借出去改
 })();

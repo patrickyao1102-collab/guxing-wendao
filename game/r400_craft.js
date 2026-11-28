@@ -216,7 +216,9 @@
     if (WX5.GEAR[e.b]) WX5.GEAR[xid] = WX5.GEAR[e.b];
     // 同一行的剑、衣、靴凑三件：这一件顶它原型的位置
     try { for (const s of GEAR5.SETS) { if (s.owner) continue; for (let i = 0; i < s.parts.length; i++) { const p = s.parts[i]; if (p === e.b) s.parts[i] = [e.b, xid]; else if (Array.isArray(p) && p.includes(e.b) && !p.includes(xid)) p.push(xid); } } } catch (er) {}
-    try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (er) {} }
+    try { if (window.REFINE_WRAP) REFINE_WRAP(); } catch (er) {}
+    // 11-28 新装备系统（r467_gearfuse.js）：登记完再交给它改名字、说明、副属性读数（颜色品级、灵窍、灵韵都在那边）
+    try { if (window.FG_REG) FG_REG(xid, ITEM_DB[xid], e); } catch (er) { console.warn('R400 FG_REG', er); } }
   function syncAll(refresh) { try { const f = S.hero && S.hero.fg; if (f) for (const xid of Object.keys(f)) reg(xid, refresh === true); } catch (e) { console.warn('R400 sync', e); } }
   function makeInstance(base, m, lines) { const h = S.hero; h.fgn = (h.fgn || 0) + 1; const xid = base + '~' + h.fgn; FG()[xid] = { b: base, m: Math.round(m * 100) / 100, s: lines.map(l => l[0] + ':' + l[1]) }; reg(xid); return xid; }
   // 读档 / 开新档会把 S.hero 整个换掉：一换就照着它身上记的把独一份的装备登记回来（赶在任何界面去查物品表之前）

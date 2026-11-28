@@ -62,7 +62,7 @@
     page.forEach((id, i) => { const r = cellR(i), it = ITEM_DB[id], on = UI.sel === id, pr = priceOf(id), n = have(id), poor = !sell && ((S.hero.gold || 0) < pr || (it.xs || 0) > (S.hero.xs || 0));
       D(on ? 'card_s_9' : 'card_n_9', r.x, r.y, r.w, r.h);
       ctx.save(); if (poor) ctx.globalAlpha *= .5; try { itemIcon(id, r.x + 48, r.y + 50, 31); } catch (e) {} const wx = !it.slot && wxOf(id); if (wx) { try { WX5.emblem(wx, r.x + 17, r.y + 18, 10, 1); } catch (e) {} } ctx.restore();   /* 装备的图标自己带五行小标，材料没有，这里补一个 */
-      ctx.font = `600 19px ${KAI()}`; T(fitW(shortName(it.name), r.w - 104), r.x + 92, r.y + 33, 19, poor ? C.sub : C.text, KAI(), 600);
+      ctx.font = `600 19px ${KAI()}`; T(fitW(shortName(it.name), r.w - 104), r.x + 92, r.y + 33, 19, poor ? C.sub : (it.slot && window.GEAR_COL && GEAR_COL(id)) || C.text, KAI(), 600);   // 11-28：装备名字按颜色品级着色（r467）
       const ps = String(pr); T(ps, r.x + 92, r.y + 66, 20, poor ? C.red : C.gold2, NUM(), 700); ctx.font = `700 20px ${NUM()}`; const pw = ctx.measureText(ps).width; T('灵石', r.x + 97 + pw, r.y + 68, 13, C.sub, KAI(), 500);
       if (!sell && it.xs) T('悬赏 ' + it.xs, r.x + r.w - 12, r.y + 68, 13, (it.xs || 0) > (S.hero.xs || 0) ? C.red : C.blue, KAI(), 600, 'right');
       if (sell) T('×' + n, r.x + r.w - 12, r.y + 68, 17, C.text, NUM(), 700, 'right'); else if (n) T('已有 ' + n, r.x + r.w - 12, r.y + 68, 14, C.sub, KAI(), 500, 'right');
@@ -73,7 +73,7 @@
   function drawDetail(now) { D('panel_well_9', DP.x, DP.y, DP.w, DP.h); const id = UI.sel, it = id && ITEM_DB[id], sell = UI.mode === 'sell', x0 = DP.x + 18, xr = DP.x + DP.w - 18;
     if (!it) { T(sell ? '点左边的东西，看能卖多少。' : '点左边的货看看。', DP.x + DP.w / 2, DP.y + 220, 17, C.sub, KAI(), 500, 'center'); return; }
     D('item_disc_n', x0 - 2, DP.y + 12, 96, 96); try { itemIcon(id, x0 + 46, DP.y + 60, 33); } catch (e) {}
-    ctx.font = `400 28px ${BR()}`; T(fitW(it.name, DP.w - 146), x0 + 108, DP.y + 44, 28, it.fg ? GRADE_COL[it.grade] || C.gold2 : C.gold2, BR(), 400);
+    ctx.font = `400 28px ${BR()}`; T(fitW(it.name, DP.w - 146), x0 + 108, DP.y + 44, 28, (it.slot && window.GEAR_COL && GEAR_COL(id)) || (it.fg ? GRADE_COL[it.grade] || C.gold2 : C.gold2), BR(), 400);
     const wx = wxOf(id), lb = it.slot && window.GEAR6 ? GEAR6.label(id) : '', sub = catOf(id) + (wx && window.WX5 ? ' · ' + WX5.WX[wx].n + '系' : '') + (lb ? ' · ' + lb : '') + '　已有 ' + have(id); ctx.font = `500 15px ${KAI()}`; T(fitW(sub, DP.w - 130), x0 + 108, DP.y + 82, 15, C.sub, KAI(), 500);
     D('divider_h_3', x0, DP.y + 116, DP.w - 36, 3);
     let y = DP.y + 142;
@@ -121,7 +121,7 @@
   function clearForge(id) { try { const h = S.hero, G = window.GEAR5; if (!G || !ITEM_DB[id] || !ITEM_DB[id].slot) return;
       for (const w of ['hero', ...(S.party || [])]) { const e = G.eqOf(w); for (const sl of G.SLOTS) if (e && e[sl] === id) return; }   // 还有人穿着同一种：强化、珠子都是它的，不动
       if (h.refine && h.refine[id]) delete h.refine[id];
-      const gs = h.gems && h.gems[id]; if (gs) { for (const g of gs) { if (!g) continue; const el = String(g).replace(/\d+$/, ''), lv = +((/(\d+)$/.exec(String(g)) || [])[1] || 1), gid = window.CRAFT && CRAFT.gemId ? CRAFT.gemId(el, lv) : null; if (gid && ITEM_DB[gid]) addItem(gid, 1); } delete h.gems[id]; } } catch (e) { console.warn('R402 clearForge', e); } }
+      const gs = h.gems && h.gems[id]; if (gs) { for (const g of gs) { if (!g) continue; if (window.GEARFUSE) { GEARFUSE.giveTok(g); continue; }   /* 11-28 测试版 r467：窍里可能镶的是珍稀料（m:料:那一条），交给它退，连那一条一起回行囊 */ const el = String(g).replace(/\d+$/, ''), lv = +((/(\d+)$/.exec(String(g)) || [])[1] || 1), gid = window.CRAFT && CRAFT.gemId ? CRAFT.gemId(el, lv) : null; if (gid && ITEM_DB[gid]) addItem(gid, 1); } delete h.gems[id]; } } catch (e) { console.warn('R402 clearForge', e); } }
   async function trade(now) { const id = UI.sel, it = id && ITEM_DB[id]; if (!it) return; const n = UI.qty, pr = priceOf(id);
     if (UI.mode === 'buy') { const cost = pr * n, xc = (it.xs || 0) * n;
       if (xc > (S.hero.xs || 0)) { note('悬赏点不够，去做几件支线。'); snd('ui_cancel'); return; }

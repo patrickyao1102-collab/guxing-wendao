@@ -115,8 +115,9 @@
   const playAtk = e => { try { if (e.alive && e._va == null && hasAtk(e)) { e._vk = undefined; e._va = performance.now() / 1000; return true; } } catch (er) {} return false; };
   async function aoe(e, b, name, fxName, mult, color, each) {
     e._charge = null; e._va = null; setTimeout(() => playAtk(e), 400); big(name, color, 70);   /* 出手帧晚四拍起：命中那一帧正好落在伤害跳出来的时候 */ try { playSnd('sfx_charge'); } catch (e2) {} await dimTo(.55, 250); await sleep(500);
-    for (const P of heroes(b)) { try { fx(fxName, { x: P.x, y: P.y - P.h * .5, scale: 1.15, alpha: 1.4 }); } catch (e2) {}
-      let { d, crit } = dmgCalc(e, P, mult, .05); const g = guard(P); d = Math.round(d * g); applyDamage(P, d, crit); if (each && P.alive) each(P, g < 1, d); }
+    b._aoe = 1;   // 11-28：记一笔「这是群攻」，r467 的灵韵「身轻如燕」看这个
+    try { for (const P of heroes(b)) { try { fx(fxName, { x: P.x, y: P.y - P.h * .5, scale: 1.15, alpha: 1.4 }); } catch (e2) {}
+      let { d, crit } = dmgCalc(e, P, mult, .05); const g = guard(P); d = Math.round(d * g); applyDamage(P, d, crit); if (each && P.alive) each(P, g < 1, d); } } finally { b._aoe = 0; }
     try { playSnd('sfx_boom', .8); } catch (e2) {} S.shake = 18; await sleep(600); await dimTo(0, 250); await tired(e); return true; }
   async function strike(e, b, P, name, mult, fxName) {
     if (name) big(name, '#ffb04a', 64);

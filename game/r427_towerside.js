@@ -154,8 +154,8 @@
     else if (name === 'lu') { if (T.lu) { const k = T.luGone ? (performance.now() - T.luGone) / 900 : 9; if (k >= 1) return; alpha = 1 - k; } fr = T.lu ? AT('npc/lubugui_walk', 0, 1) : AT('npc/lubugui_hug', Math.floor(t * 6), 2); }
     else if (name === 'hu') { if (T.hu) return; fr = AT('npc/huwei19_stand', Math.floor(t * 5), 4); flip = true; }
     if (!fr) return; const [a, sx] = fr; ctx.save(); ctx.globalAlpha *= alpha;
-    if (name !== 'lu' || T.lu) { ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y - 8, 24, 7, 0, 0, 7); ctx.fill(); }
-    ctx.translate(x, y - 8); if (flip) ctx.scale(-1, 1); ctx.scale(.52, .52); ctx.drawImage(a, sx, 0, 160, 240, -80, -232, 160, 240); ctx.restore(); })(drawBaked);
+    if (name !== 'lu' || T.lu) { ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y - 8, name === 'wen' ? 38 : 24, name === 'wen' ? 10 : 7, 0, 0, 7); ctx.fill(); }
+    ctx.translate(x, y - 8); if (flip) ctx.scale(-1, 1); const SC = name === 'wen' ? .8 : .52; ctx.scale(SC, SC);   /* 作者 11-28 19:20：温行舟太小，走到跟前差点没发现——他是盘坐的，按站着的人缩就更小了，单独放大 */ ctx.drawImage(a, sx, 0, 160, 240, -80, -232, 160, 240); ctx.restore(); })(drawBaked);
   // 走进演武场那一下的话（只一回）；每次从外面进塔，这一趟的泉水、虎卫之诺清掉
   updateMap = (orig => function (dt) { const r = orig.apply(this, arguments);
     try { const n = MZ.curN(), p = world.player; if (n === 2 && ON2() && p && !world.locked && !dialog && !choice && !T7().plaza) { const [x0, y0, x1, y1] = POS.plaza; if (p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1) { T7().plaza = 1; world.locked = true; L(TXT.plaza).finally(() => { world.locked = false; }); } } } catch (e) {} return r; })(updateMap);
