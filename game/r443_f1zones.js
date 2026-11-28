@@ -11,7 +11,20 @@
   const F = () => (S.flags = S.flags || {}), ST = () => MZ.ST(1), TXT = MZ.TXT[1], P = MZ.P;
   const MOBN = { a: 5, b: 4, c: 4 };
   // 迷宫宝箱（作者 11-28 采纳）：放两件推荐线装备 + 「护体」辅助书，没钱买装备也能过一层
-  const CHEST = { a: [[7, 13, [['r_yantie', 1], ['p_big', 1]]]], b: [[19, 1, [['s_baodi', 1], ['p_big', 1]]]], c: [[19, 1, [['bk_hero_huti', 1], ['p_big', 2]]]] };   // 每苑同时飘着几团鬼火（打掉一团，过一阵再补）
+  // 迷宫宝箱（作者 11-28：一层起码七八到十几个——装备、药材、技能书、丹方都要有）。每苑四个，藏在死胡同和拐角
+  const CHEST = {
+    a: [[7, 13, [['r_yantie', 1], ['p_big', 1]]], [19, 1, [['q_sha', 4], ['h_bahua', 3]]], [19, 13, [['juan2', 1], ['p_mp', 2]]], [3, 9, [['gold', 300], ['h_wangyou', 2]]]],
+    b: [[19, 1, [['s_baodi', 1], ['p_big', 1]]], [19, 13, [['f_huichun', 1], ['h_mengtan', 2]]], [13, 5, [['a_tiancan', 1]]], [1, 11, [['q_jing', 2], ['m_wx_huo', 2]]]],
+    c: [[19, 1, [['bk_hero_huti', 1], ['p_big', 2]]], [17, 13, [['f_dinghun', 1], ['h_huanhun', 1]]], [13, 5, [['c_huoqi', 1]]], [3, 7, [['juan3', 1], ['m_wx_jin', 2]]]] };
+  // 药材（炼丹用，炼丹炉开了以后才用得上）和丹方
+  try { const NEW = {
+      h_bahua: { name: '彼岸花蕊', cat: '药材', price: 0, sell: 40, desc: '彼岸花心里一缕金丝，捻碎了有一股冷香，能安神定魄。万妖塔一层才有。【炼丹的药材】' },
+      h_wangyou: { name: '忘忧草', cat: '药材', price: 0, sell: 30, desc: '长在花圃阴处的细叶草，揉一揉，心里的事就淡了几分。【炼丹的药材】' },
+      h_mengtan: { name: '梦昙露', cat: '药材', price: 0, sell: 60, desc: '梦昙一夜只开一回，花谢时留下一滴露，清冷透亮。【炼丹的药材】' },
+      h_huanhun: { name: '还魂草', cat: '药材', price: 0, sell: 120, desc: '叶背泛着淡淡的银光，传说能把将散的魂拉回来。珍稀。【炼丹的药材】' },
+      f_huichun: { name: '丹方·回春凝露丹', cat: '丹方', price: 0, sell: 0, desc: '一页泛黄的丹方：梦昙露为君，忘忧草为臣，炼成的丹能回气血。丹方是长久的，炼丹炉开了以后照方就能炼。' },
+      f_dinghun: { name: '丹方·定魂安魄丹', cat: '丹方', price: 0, sell: 0, desc: '一页墨迹发红的丹方：彼岸花蕊、还魂草同炉，炼成的丹能解入梦、定心神。丹方是长久的，炼丹炉开了以后照方就能炼。' } };
+    for (const [k, v] of Object.entries(NEW)) if (!ITEM_DB[k]) ITEM_DB[k] = v; } catch (e) {}
   const CS = 40, TSZ = 240, ZS = ['a', 'b', 'c'], ZNAME = { a: '外苑', b: '中苑', c: '内苑' }, MAPN = z => 'wyt_f1' + z;
   const zoneOf = m => { const mm = /^wyt_f1([abc])$/.exec(m || ''); return mm ? mm[1] : null; };
   const curZ = () => zoneOf(world && world.mapName);
@@ -70,7 +83,7 @@
         objs.push({ id: 'r427_obj', uid: 'r443_wen', img: K(z, 'base'), r427: { n: 1, name: 'wen' }, x: wx - 80, y: wy - 240, w: 160, h: 240, sy: wy + 2, flat: false, flip: false, noBlock: true, noPre: true }); }
       if (pond) spot('忘川泉', pond.bx, pond.by - 20, R427.pond, 90); }
     const S0 = ctr(...START[z]);
-    TMAPS[MAPN(z)] = { title: '万妖塔 · 第一层 · ' + ZNAME[z], name: MAPN(z), indoor: false, leaves: false, chests: CHEST[z].map(([cc, rr, items]) => ({ c: cc * 6 + 3, r: rr * 6 + 3, items })), npcs, start: P(S0[0], S0[1]),
+    TMAPS[MAPN(z)] = { title: '万妖塔 · 第一层 · ' + ZNAME[z], name: MAPN(z), indoor: false, leaves: false, chests: CHEST[z].map(([cc, rr, items]) => ({ c: (cc + .5) * TSZ / 64 - .5, r: ((rr + .5) * TSZ + 50) / 64 - 1, items }))   /* 宝箱按 64 像素一格记 */, npcs, start: P(S0[0], S0[1]),
       baked: { ground: K(z, 'base'), w: M.w, h: M.h, cs: CS, cols, rows, blocked: bl.join(''), objs },
       // 明雷（作者 11-28 12:58：「不要暗雷，做明雷」）：地图上飘鬼火，碰到才开打。起点、首领台、传送阵附近不刷
       mobs: { n: MOBN[z], get types() { return TXT.mobs.flat().filter((t, i, A) => A.indexOf(t) === i && typeof MOB_DB !== 'undefined' && MOB_DB[t]); }, bg: 'bg_tw1', lv: 4, lvR: [12, 13], tower: 1,
