@@ -54,6 +54,7 @@
       if (o.id === 'wangchuan_pond' && o.w > 300) blk(o.x + o.w * .12, o.y + o.h * .3, o.x + o.w * .86, o.y + o.h * .86); }
     const objs = [];
     for (const [r, x, y, w, h, sy, name] of M.ov) objs.push({ id: 'r443_ov', uid: K(z, name), img: K(z, name), x, y, w, h, sy, flat: false, flip: false, noBlock: true, noPre: true });
+    if (z === 'a' && V === 'b' && window.R457) objs.push({ id: 'r443_obj', uid: 'r457_fl', img: K(z, 'base'), r443: { z, o: { id: 'flowers' } }, x: 0, y: 0, w: M.w, h: M.h, sy: -1e6, flat: true, flip: false, noBlock: true, noPre: true });   // R457：外苑的花随风摆
     for (const o of M.objs) objs.push({ id: 'r443_obj', uid: K(z, o.id), img: K(z, 'base'), r443: { z, o }, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.id === 'flower_tree' ? o.by - 80 : o.by, flat: /mist|pond|dais/.test(o.id), flip: false, noBlock: true, noPre: true });
     const dais = M.objs.find(o => o.id === 'boss_dais');
     if (dais) objs.push({ id: 'r443_obj', uid: K(z, 'boss_pic'), img: K(z, 'base'), r443: { z, o: { id: 'boss_pic', bx: dais.bx, by: dais.by } }, x: dais.bx - 200, y: dais.by - 520, w: 400, h: 520, sy: dais.by - 100, flat: false, flip: false, noBlock: true, noPre: true });
@@ -86,6 +87,7 @@
   const BPIC = {}; const bpic = () => { const s = TXT.pic; let a = BPIC[s]; if (!a) { a = BPIC[s] = new Image(); a.src = s; } return a.complete && a.naturalWidth ? a : null; };
   drawBaked = (orig => function (o, now) { if (!o || o.id !== 'r443_obj') return orig.apply(this, arguments);
     const { z, o: d } = o.r443;
+    if (d.id === 'flowers') { try { R457.draw(ctx, IMG[K(z, 'base')], now); } catch (e) {} return; }
     if (d.id === 'boss_pic') { if (TOWER_STORY.cleared(1)) return; const p = bpic(); if (!p) return; const h = TXT.picH * 1.15, w = p.width * h / p.height, fy = d.by - 130;
       ctx.save(); ctx.globalAlpha = .97; ctx.translate(d.bx, 0); ctx.scale(-1, 1); ctx.drawImage(p, -w / 2, fy - h, w, h); ctx.restore(); return; }
     let k = null;
