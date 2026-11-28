@@ -13,7 +13,7 @@ META_JS = os.path.join(OUT, '..', ODIR + '_meta.js')
 # 战斗里「平时那一帧」身体显示多高（逻辑像素，1280×720 画面）、站位
 BODY = {'boar': 430, 'leopard': 400, 'rhino': 450, 'treant': 470, 'wolf': 480, 'spider': 460}
 if os.environ.get('R378_BODY'): BODY = json.loads(os.environ['R378_BODY'])
-OVER = 1.25          # 图集比显示尺寸大多少（留一点清晰度）
+OVER = float(os.environ.get('R378_OVER', '1.25'))   # 图集比显示尺寸大多少（留一点清晰度；手机屏 2～3 倍，作者嫌糊 → 万妖塔的怪用 2.2）
 IDLE_HOLD = 2        # 平时每帧连放几拍（8 拍 / 秒，来回播）
 ATK_HOLD = [4, 3, 5, 3, 3]   # 出手五帧各放几拍（20 拍 / 秒）；第三帧是命中帧
 def load(p):
@@ -59,13 +59,14 @@ for d in sorted(glob.glob(os.path.join(SRC, '*'))):
     pad = 8; ub = (max(0, ub[0] - pad), max(0, ub[1] - pad), min(W0, ub[2] + pad), min(H0, ub[3] + pad))
     foot_y = ib[3]                                  # 脚底线：平时第一帧最低的不透明像素（比写死 1080 可靠）
     foot_x = (ib[0] + ib[2]) / 2                    # 重心：平时第一帧的左右中点
-    bodyH = ib[3] - ib[1]; q = BODY[bid] * OVER / bodyH
+    OV = json.loads(os.environ.get('R378_OVERS', '{}')).get(bid, OVER)   # 个别大体型压一点，免得图集超过 4096
+    bodyH = ib[3] - ib[1]; q = BODY[bid] * OV / bodyH
     def prep(im):
         c = im.crop(ub); c = c.resize((max(1, round(c.width * q)), max(1, round(c.height * q))), Image.LANCZOS)
         return c.transpose(Image.FLIP_LEFT_RIGHT)   # 图集里朝左
     fw, fh = round((ub[2] - ub[0]) * q), round((ub[3] - ub[1]) * q)
     footX = fw - (foot_x - ub[0]) * q; footY = (foot_y - ub[1]) * q
-    H = fh / OVER
+    H = fh / OV
     # 图集里每张画只存一份；「这一帧连放几拍」写在 map 里（第几拍 → 图集里第几格）。原来是把同一张画重复存好几遍，图集大了三倍。
     I = [prep(f) for f in idle]; phys = list(I); fmap = []
     for i in range(len(I)): fmap += [i] * IDLE_HOLD
