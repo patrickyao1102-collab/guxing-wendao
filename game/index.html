@@ -996,8 +996,9 @@ function fx(name, o) {
     ctx.rotate(val(o.rot ?? 0, k, f));
     ctx.scale(sc * (o.flip ? -1 : 1) * val(o.sx ?? 1, k, f), sc);
     const ax = (o.ax ?? .5) * m.w, ay = (o.ay ?? .5) * m.h;
-    ctx.drawImage(im, fr * m.w, 0, m.w, m.h, -ax, -ay, m.w, m.h);
-    if (a > 1) { ctx.globalAlpha = Math.min(1, a - 1); ctx.drawImage(im, fr * m.w, 0, m.w, m.h, -ax, -ay, m.w, m.h); }
+    const sx0 = m.cols ? (fr % m.cols) * m.w : fr * m.w, sy0 = m.cols ? Math.floor(fr / m.cols) * m.h : 0;   // m.cols：多行图集（一行放不下的长特效）
+    ctx.drawImage(im, sx0, sy0, m.w, m.h, -ax, -ay, m.w, m.h);
+    if (a > 1) { ctx.globalAlpha = Math.min(1, a - 1); ctx.drawImage(im, sx0, sy0, m.w, m.h, -ax, -ay, m.w, m.h); }
     ctx.restore();
   } });
 }
@@ -16899,6 +16900,6 @@ window.MarketEffects = (() => {
 <script src="r393_wxjing.js?v=6"></script><script src="r392_data.js?v=1"></script><script src="r392_luoxing.js?v=2"></script><script src="r395_pingjing.js?v=1"></script><script src="r396_hs12fix.js?v=1"></script>
 <script src="r389_gear.js?v=10"></script><script src="r389_panel.js?v=9"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r406_items.js?v=5"></script><script src="r407_refine_fx.js?v=3"></script><script src="r400_craft.js?v=7"></script><script src="r394_forge.js?v=13"></script><script src="r402_shop.js?v=4"></script><script src="r397_testbtn.js?v=5"></script>
 <script src="r349/data.js?v=6"></script><script src="r349_chehome.js?v=11"></script><script src="r352_chehome_ext.js?v=4"></script><script src="r354_scaletest.js?v=1"></script><script src="r355_indoor_scale.js?v=1"></script><script src="r357/tl.js?v=1"></script><script src="r357_memory.js?v=1"></script>
-<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=3"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=7"></script><script src="r421_tower.js?v=11"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=8"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=4"></script><script src="r429_tower34.js?v=2"></script><script src="r430_towerextra.js?v=3"></script><script src="r443_meta.js?v=2"></script><script src="r457_flowers.js?v=1"></script><script src="r443_f1zones.js?v=9"></script><script src="r458_teaser.js?v=2"></script><script src="r428_towermusic.js?v=5"></script>
+<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=3"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=7"></script><script src="r421_tower.js?v=11"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=8"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=4"></script><script src="r429_tower34.js?v=2"></script><script src="r430_towerextra.js?v=3"></script><script src="r461_towerfx.js?v=1"></script><script src="r443_meta.js?v=2"></script><script src="r457_flowers.js?v=1"></script><script src="r443_f1zones.js?v=9"></script><script src="r458_teaser.js?v=2"></script><script src="r428_towermusic.js?v=5"></script>
 <script src="asset_ready.js"></script>
 </body></html>
