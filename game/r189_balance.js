@@ -24,7 +24,13 @@
   for (const id of ['w_xinghen', 'w_xinghen2']) { const it = ITEM_DB[id]; if (it && it.desc) it.desc = it.desc.replace(/^叶孤星专属 · /, '叶孤星佩戴另有专属效果 · ').replace('九曜剑典剑招威力', '（叶孤星）九曜剑典剑招威力'); }
 
   // ---------- 2) 云霆攻击成长 ----------
-  if (typeof PARTY_DB !== 'undefined' && PARTY_DB.yunting) { PARTY_DB.yunting.base.atk = 48; PARTY_DB.yunting.grow.atk = 3.7; }
+  if (typeof PARTY_DB !== 'undefined' && PARTY_DB.yunting) { PARTY_DB.yunting.base.atk = 48; PARTY_DB.yunting.grow.atk = 4.0; }   // 作者 11-28 夜：五人定位稿，云霆攻击成长 4.0（原 3.7）
+  // 五人定位稿的成长（index.html 里叶孤星 GROW_F、PARTY_DB 四个队友）只进测试版：正式版（构建时打上 GX_RELEASE）退回原来的数，老玩家不受影响
+  if (window.GX_RELEASE) { try {
+    const OLD = { yunting: { maxhp: 28, maxmp: 6, atk: 3.7, def: 2, spd: .15 }, linxue: { maxhp: 26, maxmp: 7, atk: 3.2, def: 2, spd: .18 }, shenle: { maxhp: 24, maxmp: 8, atk: 3, def: 1.8, spd: .2 }, luochen: { maxhp: 32, maxmp: 6, atk: 5.2, def: 2.1, spd: .15 } };
+    for (const k in OLD) if (PARTY_DB[k]) PARTY_DB[k].grow = OLD[k];
+    if (typeof GROW_F !== 'undefined' && typeof GROW_OLD !== 'undefined') Object.assign(GROW_F, GROW_OLD);   // 叶孤星：24 / 6 / 3 / 2 / 身法 0；老存档补差额那一步也就补 0
+  } catch (e) {} }
 
   // ---------- 3) 叶孤星战斗攻击 ×7/8 ----------
   const HERO_K = 7 / 8;

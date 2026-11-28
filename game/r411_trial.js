@@ -10,7 +10,7 @@
 //   · 三重：一重推荐 8 级、掉练气档；二重推荐 14 级、掉凝丹档，必给一件珍稀料；三重推荐 18 级、凝丹档，稀有难得多得多，两件珍稀料，守关的会发狂。打过前一重才开后一重。
 //   · 进一次要一点「星力」：外面每打赢三场攒一点，打倒头目妖王给一点，最多五点。头一回进玉佩这一页送三点。
 //   · 星：一重六手以内、二重八手以内、三重发狂之前打倒守关的，三星；没人倒下两星；打通一星。三星多开一个箱子。
-//   · 名器（设计稿第二节末）：每一格「难得」的兵器带「斩妖」——打头目、妖王、试炼守关的伤害多三成；「难得」的衣甲带「镇邪」——它们打你少两成。
+//   · 名器（设计稿第二节末；兵器那条「斩妖」11-28 晚拿掉了，见下面 FAMED）：每一格「难得」的兵器带「斩妖」——打头目、妖王、试炼守关的伤害多三成；「难得」的衣甲带「镇邪」——它们打你少两成。
 (function () {
   if (typeof ITEM_DB === 'undefined' || typeof S === 'undefined' || !window.R370_YW || !window.R370_MAKE || !window.GEAR6 || !window.CRAFT || !window.WX5 || !window.R386_KIT) return;
   const F = () => (S.flags = S.flags || {}), G6 = window.GEAR6, CR = window.CRAFT, WX = WX5.WX, KE = WX5.KE;
@@ -47,7 +47,9 @@
     return orig.apply(this, arguments); })(endBattle);
 
   // ---------- 三、名器：斩妖、镇邪 ----------
-  const FAMED = id => { const b = G6.baseOf(id), it = ITEM_DB[b]; return !!(it && it.rk === 3 && (it.slot === 'weapon' || it.slot === 'armor') && !G6.NO_FORGE[b]); };
+  // 11-28 晚（主会话定）：兵器上的「名器 · 斩妖」（打首领 ×1.3）拿掉——测试版的新装备系统（r467）有一条灵韵也叫「斩妖」（×1.1），两条叠在一起又重名，
+  //   斩妖只留灵韵那一条。衣甲的「名器 · 镇邪」没有重名的，照旧。
+  const FAMED = id => { const b = G6.baseOf(id), it = ITEM_DB[b]; return !!(it && it.rk === 3 && it.slot === 'armor' && !G6.NO_FORGE[b]); };
   const famedOf = (u, slot) => { try { const eq = u.side !== 'hero' ? null : u.ally ? (S.allyEq && S.allyEq[u.ally]) : S.hero.equip; const id = eq && eq[slot]; return id && ITEM_DB[id] && FAMED(id) ? id : null; } catch (e) { return null; } };
   const isGuard = e => !!(e && (e._trialG || e._yw || e.boss));
   if (typeof dmgCalc === 'function') dmgCalc = (orig => function (att, def, mult, critRate) { try { let m = mult === undefined ? 1 : mult;
@@ -55,7 +57,7 @@
       else if (def && def.side === 'hero' && att && att.side === 'enemy' && isGuard(att) && famedOf(def, 'armor')) m *= .8;
       if (m !== (mult === undefined ? 1 : mult)) return orig.call(this, att, def, m, critRate); } catch (e) {} return orig.apply(this, arguments); })(dmgCalc);
   const FAMED_LINE = { weapon: '【名器 · 斩妖】打头目、妖王、试炼守关的，伤害多三成。', armor: '【名器 · 镇邪】头目、妖王、试炼守关的打你，少掉两成。' };
-  try { for (const slot of ['weapon', 'armor']) for (const t of [1, 2]) for (const el of ORDER) { const ids = ((G6.GRID[slot] || {})[t] || {})[el] || []; for (const id of ids) { const it = ITEM_DB[id]; if (it && it.rk === 3 && !G6.NO_FORGE[id] && !/名器/.test(it.desc || '')) it.desc = (it.desc || '') + FAMED_LINE[slot]; } } } catch (e) { console.warn('R411 famed', e); }
+  try { for (const slot of ['armor']) for (const t of [1, 2]) for (const el of ORDER) { const ids = ((G6.GRID[slot] || {})[t] || {})[el] || []; for (const id of ids) { const it = ITEM_DB[id]; if (it && it.rk === 3 && !G6.NO_FORGE[id] && !/名器/.test(it.desc || '')) it.desc = (it.desc || '') + FAMED_LINE[slot]; } } } catch (e) { console.warn('R411 famed', e); }
 
   // ---------- 四、手数和发狂 ----------
   if (typeof enemyAct === 'function') enemyAct = (orig => async function (e) {

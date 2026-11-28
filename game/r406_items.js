@@ -349,7 +349,8 @@
   const IM = {}, get = id => { let o = IM[id]; if (!o) { o = IM[id] = { ok: false, im: new Image() }; o.im.onload = () => { o.ok = true; }; o.im.src = 'r406i/' + id + '.webp?v=1'; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(o.im); } catch (e) {} } return o.ok ? o.im : null; };
   const RING = { jin: '#d8dde4', mu: '#6fc98a', shui: '#6fb6ee', huo: '#f08a4a', tu: '#d0a860' }, CH = { weapon: '剑', wrist: '腕', armor: '衣', shoe: '靴', acc: '佩' };
   if (typeof itemIcon === 'function') itemIcon = (orig => function (id, x, y, r) { const it = ITEM_DB[id]; if (!it || !it.r406) return orig.apply(this, arguments);
-    const im = get(id), c = it.slot ? RANK_COL[it.rk || 0] : it.quench ? RANK_COL[Math.min(3, it.quench - 1)] : (RING[it.wx] || '#9a8a70'), top = it.slot && it.rk === 3;
+    // 11-28 晚：测试版有了颜色品级（r467 的框），装备图标里这一圈不再按「常见 / 少见 / 稀有 / 难得」上色（两套颜色叠着玩家分不清），一律素铜色
+    const im = get(id), c = it.slot ? (window.GEAR_COL ? '#8a7a5a' : RANK_COL[it.rk || 0]) : it.quench ? RANK_COL[Math.min(3, it.quench - 1)] : (RING[it.wx] || '#9a8a70'), top = it.slot && it.rk === 3 && !window.GEAR_COL;
     ctx.save(); const g = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r); g.addColorStop(0, 'rgba(70,52,34,.9)'); g.addColorStop(1, 'rgba(18,12,8,.92)'); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill();
     ctx.lineWidth = Math.max(1.5, r * .09); ctx.strokeStyle = c; ctx.stroke(); if (top) { ctx.globalAlpha = .35; ctx.lineWidth = r * .22; ctx.beginPath(); ctx.arc(x, y, r + r * .08, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }   // 难得的那件：金圈外面再罩一层光
     if (im) { const s2 = r * 2.12; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, x - s2 / 2, y - s2 / 2, s2, s2); }

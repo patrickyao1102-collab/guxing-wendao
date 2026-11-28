@@ -1303,7 +1303,11 @@ const expNeed = lv => Math.round(40 * Math.pow(lv, 1.5));
 function GXLV(n) { return window.GX_LVC ? GX_LVC(n) : n; }
 function GXLVO(n) { return window.GX_LVOLD ? GX_LVOLD(n) : n; }
 function lvNeedText(n) { return window.GX_LV10 ? n + ' 级' : realmOf(n); }
-const GROW = { maxhp: 24, maxmp: 6, atk: 3, def: 2 };
+// 作者 11-28 夜（五人定位稿）：叶孤星每升一级 气血 26 / 灵力 6 / 攻击 3.6 / 防御 2.0 / 身法 .17（原来 24 / 6 / 3 / 2 / 0）。
+//   带小数的按「到这一级累计多少、四舍五入」逐级给整数（攻击 3、4、4、3、4……），身上的数不会出小数。老存档补一回前面各级的差额（flags.grow1128）。
+const GROW_F = { maxhp: 26, maxmp: 6, atk: 3.6, def: 2, spd: .17 }, GROW_OLD = { maxhp: 24, maxmp: 6, atk: 3, def: 2, spd: 0 };
+const GROW = {}; for (const k in GROW_F) Object.defineProperty(GROW, k, { enumerable: true, get: () => { const L = (typeof S !== 'undefined' && S.hero && S.hero.lv) || 1; return Math.round(GROW_F[k] * (L + 1)) - Math.round(GROW_F[k] * L); } });
+setInterval(() => { try { const h = S.hero, f = S.flags; if (!h || !f || f.grow1128 || typeof h.lv !== 'number') return; f.grow1128 = 1; const L = Math.max(6, h.lv); for (const k in GROW_F) h[k] = (h[k] || 0) + (Math.round(GROW_F[k] * L) - Math.round(GROW_F[k] * 6)) - GROW_OLD[k] * (L - 6); } catch (e) {} }, 1000);
 // ---- 技能表（九曜剑典 · 七星）----
 const SKILL_DB = {
   pojun: { name: '破军剑阵', cost: 20, desc: '剑阵护体并横扫全体敌人', star: '破军' },
@@ -1417,7 +1421,7 @@ endBattle = (orig => async function (win) {
 })(endBattle);
 async function levelUpShow(lv0) {
   const h = S.hero; playSnd('jingle_levelup'); S.flash = .6; S.flashColor = '#fff3c0';
-  const gain = Object.entries(GROW).map(([k, v]) => STAT_CN[k] + ' +' + v * (h.lv - lv0)).join(' · ');
+  const gain = Object.keys(GROW_F).map(k => [k, Math.round(GROW_F[k] * h.lv) - Math.round(GROW_F[k] * lv0)]).filter(([, v]) => v).map(([k, v]) => STAT_CN[k] + ' +' + v).join(' · ');
   await showPanel('等级提升！', [window.GX_LV10 ? lv0 + ' 级 → ' + h.lv + ' 级（' + h.realm + '）' : realmOf(lv0) + ' → ' + h.realm + '（' + h.lv + ' 级）', gain, '气血、灵力已回满']);
   await showLearns();
 }
@@ -1672,9 +1676,9 @@ Object.assign(SPEAKERS, {
 });
 const PARTY_DB = {
   yunting: { name: '云霆', key: 'b_yunting', walk: 'w_yunting', portrait: 'p_yunting', color: '#b8c4ff', theme: 'thunder',
-    base: { maxhp: 560, maxmp: 140, atk: 46, def: 15, spd: 12 }, grow: { maxhp: 28, maxmp: 6, atk: 3.4, def: 2, spd: .15 }, ult: 'jiutian' },
+    base: { maxhp: 560, maxmp: 140, atk: 46, def: 15, spd: 12 }, grow: { maxhp: 24, maxmp: 6, atk: 4.0, def: 1.5, spd: .16 }, ult: 'jiutian' },   /* 作者 11-28 夜：五人定位稿的成长（原 28 / 6 / 3.4 / 2 / .15） */
   linxue: { name: '林雪', key: 'b_linxue', walk: 'w_linxue', portrait: 'p_linxue', color: '#bff0ff', theme: 'ice',
-    base: { maxhp: 520, maxmp: 160, atk: 44, def: 13, spd: 14 }, grow: { maxhp: 26, maxmp: 7, atk: 3.2, def: 2, spd: .18 }, ult: 'daxue' },
+    base: { maxhp: 520, maxmp: 160, atk: 44, def: 13, spd: 14 }, grow: { maxhp: 24, maxmp: 9, atk: 2.8, def: 2.4, spd: .18 }, ult: 'daxue' },   /* 11-28 夜：原 26 / 7 / 3.2 / 2 / .18 */
 };
 const ALLY_SKILLS = {
   dianxing: { name: '天剑一式·点星', cost: 22, desc: '剑芒凝于一点，贯穿单体', lv: 0 },
@@ -8483,9 +8487,9 @@ Object.assign(SPEAKERS, {
 });
 Object.assign(PARTY_DB, {
   shenle: { name: '神乐', key: 'b_shenle', walk: 'w_shenle', portrait: 'p_shenle', color: '#f3e6c8', theme: 'sound', hs: 1.06,
-    base: { maxhp: 480, maxmp: 190, atk: 40, def: 12, spd: 15 }, grow: { maxhp: 24, maxmp: 8, atk: 3, def: 1.8, spd: .2 }, ult: 'tianlai' },
+    base: { maxhp: 480, maxmp: 190, atk: 40, def: 12, spd: 15 }, grow: { maxhp: 26, maxmp: 11, atk: 2.2, def: 2.0, spd: .20 }, ult: 'tianlai' },   /* 11-28 夜：原 24 / 8 / 3 / 1.8 / .2 */
   luochen: { name: '洛尘', key: 'b_luochen', walk: 'w_luochen', portrait: 'p_luochen', color: '#f0d49a', theme: 'gold', hs: 1.2,
-    base: { maxhp: 640, maxmp: 150, atk: 72, def: 18, spd: 13 }, grow: { maxhp: 32, maxmp: 6, atk: 5.2, def: 2.1, spd: .15 }, ult: 'tuotian' },
+    base: { maxhp: 640, maxmp: 150, atk: 72, def: 18, spd: 13 }, grow: { maxhp: 36, maxmp: 6, atk: 3.0, def: 3.2, spd: .12 }, ult: 'tuotian' },   /* 11-28 夜：原 32 / 6 / 5.2 / 2.1 / .15 */
 });
 Object.assign(ULT_NAME, { tianlai: '九音录·寂灭仙曲', tuotian: '擎天' });
 const ALLY2_SKILLS = {
@@ -16872,7 +16876,7 @@ window.MarketEffects = (() => {
 <script src="r150_bootflow.js"></script>
 <script src="r152_ch2flow.js"></script>
 <script src="r153_skillwin.js?v=2"></script><script src="r154_skilldetail.js?v=2"></script><script src="r158_blackhint.js"></script><script src="r159_xiashan_story.js"></script><script src="r161_konghou.js"></script><script src="r160_canvas.js?v=2"></script><script src="r160_popups.js?v=2"></script><script src="r162_qz_shi.js?v=2"></script>
-<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js?v=299"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js?v=3"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=9"></script><script src="r193_art.js?v=8"></script><script src="r193_gear.js?v=2"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js?v=2"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js"></script><script src="r189_ch3.js?v=2"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js?v=2"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js?v=2"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js?v=2"></script>
+<script src="r155_victory.js"></script><script src="r164_victory.js"></script><script src="r167_scale.js"></script><script src="r168_fish_entry.js"></script><script src="r169_ui.js"></script><script src="r169_shop.js?v=299"></script><script src="r178_shop.js"></script><script src="r175_mobs.js"></script><script src="r175h_houting.js"></script><script src="r175h_fish.js?v=3"></script><script src="r191_gate.js?v=1"></script><script src="r193_data.js?v=1"></script><script src="r193_angling.js?v=9"></script><script src="r193_art.js?v=8"></script><script src="r193_gear.js?v=2"></script><script src="r193_sfx.js?v=1"></script><script src="r175g_garden.js"></script><script src="r175g_build.js"></script><script src="r175g_farm.js"></script><script src="r175k_kitchen.js"></script><script src="r175g2_garden.js"></script><script src="r175g2_farm.js?v=2"></script><script src="r175g2_watch.js"></script><script src="r175q_collide.js"></script><script src="r189_balance.js?v=2"></script><script src="r189_ch3.js?v=2"></script><script src="r195_yueming.js"></script><script src="r197_ch4.js?v=2"></script><script src="r200_guide.js?v=1"></script><script src="r189_sq.js?v=2"></script><script src="r189_models.js"></script><script src="r192_choice.js"></script><script src="r206_jinling.js"></script><script src="r207_tut.js"></script><script src="r208_promptg.js?v=2"></script>
 <script src="r209_bagdark.js?v=2"></script>
 <script src="r210_hfcine.js?v=2"></script>
 <script src="r212_qingyang.js?v=14"></script>
@@ -16900,8 +16904,8 @@ window.MarketEffects = (() => {
 <script src="r386_jade.js?v=9"></script>
 <script src="r391_boons.js?v=1"></script>
 <script src="r393_wxjing.js?v=6"></script><script src="r392_data.js?v=1"></script><script src="r392_luoxing.js?v=2"></script><script src="r395_pingjing.js?v=1"></script><script src="r396_hs12fix.js?v=1"></script>
-<script src="r389_gear.js?v=12"></script><script src="r389_panel.js?v=11"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r406_items.js?v=5"></script><script src="r407_refine_fx.js?v=3"></script><script src="r400_craft.js?v=8"></script><script src="r394_forge.js?v=15"></script><script src="r402_shop.js?v=6"></script><script src="r467_gearfuse.js?v=1"></script><script src="r397_testbtn.js?v=5"></script>
+<script src="r389_gear.js?v=13"></script><script src="r389_panel.js?v=11"></script><script src="r398_chests.js?v=1"></script><script src="r399_meta.js?v=1"></script><script src="r399_minis.js?v=2"></script><script src="r406_items.js?v=6"></script><script src="r407_refine_fx.js?v=3"></script><script src="r400_craft.js?v=8"></script><script src="r394_forge.js?v=15"></script><script src="r402_shop.js?v=7"></script><script src="r467_gearfuse.js?v=4"></script><script src="r397_testbtn.js?v=5"></script>
 <script src="r349/data.js?v=6"></script><script src="r349_chehome.js?v=11"></script><script src="r352_chehome_ext.js?v=4"></script><script src="r354_scaletest.js?v=1"></script><script src="r355_indoor_scale.js?v=1"></script><script src="r357/tl.js?v=1"></script><script src="r357_memory.js?v=1"></script>
-<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=3"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=10"></script><script src="r421_tower.js?v=11"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=8"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=5"></script><script src="r429_tower34.js?v=2"></script><script src="r430_towerextra.js?v=6"></script><script src="r461_towerfx.js?v=1"></script><script src="r443_meta.js?v=3"></script><script src="r457_flowers.js?v=2"></script><script src="r443_f1zones.js?v=12"></script><script src="r469_meta.js?v=1"></script><script src="r469_dyn.js?v=1"></script><script src="r469_floors.js?v=1"></script><script src="r458_teaser.js?v=2"></script><script src="r463_appear.js?v=1"></script><script src="r470_getfix.js?v=2"></script><script src="r471_atmos.js?v=3"></script><script src="r472_wasteland.js?v=2"></script><script src="r428_towermusic.js?v=5"></script>
+<script src="r405_level.js?v=1"></script><script src="r411_trial.js?v=4"></script><script src="r419_wxbook.js?v=5"></script><script src="r415_meta.js?v=10"></script><script src="r421_tower.js?v=11"></script><script src="r423_westcourt.js?v=3"></script><script src="r422_scroll.js?v=1"></script><script src="r425_chests.js?v=2"></script><script src="r426_search.js?v=4"></script><script src="r424_meta.js?v=5"></script><script src="r424_maze.js?v=8"></script><script src="r427_meta.js?v=1"></script><script src="r427_towerside.js?v=5"></script><script src="r429_tower34.js?v=2"></script><script src="r430_towerextra.js?v=6"></script><script src="r461_towerfx.js?v=1"></script><script src="r443_meta.js?v=3"></script><script src="r457_flowers.js?v=2"></script><script src="r443_f1zones.js?v=12"></script><script src="r469_meta.js?v=1"></script><script src="r469_dyn.js?v=1"></script><script src="r469_floors.js?v=1"></script><script src="r458_teaser.js?v=2"></script><script src="r463_appear.js?v=1"></script><script src="r470_getfix.js?v=2"></script><script src="r471_atmos.js?v=3"></script><script src="r472_wasteland.js?v=2"></script><script src="r428_towermusic.js?v=5"></script>
 <script src="asset_ready.js"></script>
 </body></html>

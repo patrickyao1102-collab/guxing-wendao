@@ -80,7 +80,8 @@
     if (it.slot) { const ks = KEYS.filter(k => it[k]); ks.forEach((k, i) => { const cx = x0 + (i % 2) * 206, cy = y + Math.floor(i / 2) * 30; T(SN[k], cx, cy, 18, C.text, KAI(), 600); T((it[k] > 0 ? '+' : '') + it[k], cx + 44, cy, 20, C.gold2, NUM(), 700); }); y += Math.ceil(ks.length / 2) * 30 + 2;
       try { const st = window.GEAR5 && GEAR5.setOfItem(it.base || id); if (st) { ctx.font = `500 14px ${KAI()}`; T(fitW(st.name + '套装（' + '〇一二三四五'[st.parts.length] + '件齐）：' + st.text, DP.w - 36), x0, y, 14, C.blue, KAI(), 500); y += 24; } } catch (e) {} }
     else if (!it.desc) { const ef = [it.hp ? '气血 +' + it.hp : '', it.mp ? '灵力 +' + it.mp : '', it.revive ? '救起倒下的同伴' : ''].filter(Boolean).join('　') || it.eff || ''; if (ef) { T(ef, x0, y, 18, C.green, KAI(), 600); y += 30; } }
-    const room = it.slot ? 2 : 6, big = !it.slot; ctx.font = `500 ${big ? 17 : 15}px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = big ? C.text : C.sub; const lh = big ? 27 : 23, n = wrap(it.desc || '', x0, y + 2, DP.w - 36, lh, room); y += n * lh + 10;   /* 丹药、杂物没有属性行，说明就是正文，字放大一号 */
+    // 11-28 晚：装备的说明原来只给两行，测试版的装备说明里有副属性、灵窍、灵韵，写不下——改成「换上以后」那几行之前的空地能写几行就写几行（至少留一行比较）
+    const big = !it.slot, lh = big ? 27 : 21, room = it.slot ? Math.max(2, Math.floor((BY - 184 - 57 - y) / lh)) : 6; ctx.font = `500 ${big ? 17 : 14}px ${KAI()}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = big ? C.text : C.sub; const n = wrap(it.desc || '', x0, y + 2, DP.w - 36, lh, room); y += n * lh + 10;   /* 丹药、杂物没有属性行，说明就是正文，字放大一号 */
     if (it.slot) { const lack = it.lvReq && (S.hero.lv || 1) < it.lvReq;
       T('换上以后', x0, y + 4, 14, C.dim, KAI(), 600); if (lack) T('等级不足：要 ' + it.lvReq + ' 级', xr, y + 4, 14, C.red, KAI(), 600, 'right'); y += 30;
       for (const w of members()) { if (y > BY - 184) break; const { cur, out } = deltas(w, id); T(whoName(w), x0, y, 16, C.text, KAI(), 600); let x = x0 + 74;
