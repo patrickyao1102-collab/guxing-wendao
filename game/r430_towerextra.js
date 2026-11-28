@@ -25,7 +25,7 @@
   // ---------- 对话立绘 ----------
   const BOSSP = { 绛蘅: 'jiangheng', 玄锋: 'xuanfeng', 霁月: 'jiyue', 焚羽: 'fenyu' };
   const COLOR = { 绛蘅: '#ffb0b8', 玄锋: '#dfeaff', 霁月: '#bfefff', 焚羽: '#ffc08a' };
-  for (const [who, id] of Object.entries(BOSSP)) { ld('r434_p_' + id, 'r434/p_' + id + '.webp?v=1'); ld('r434_p_' + id + '_2', 'r434/p_' + id + '_2.webp?v=1');
+  for (const [who, id] of Object.entries(BOSSP)) { ld('r434_p_' + id, 'r434/p_' + id + '.webp?v=2'); ld('r434_p_' + id + '_2', 'r434/p_' + id + '_2.webp?v=2');
     if (typeof SPEAKERS === 'object') SPEAKERS[who] = Object.assign({}, SPEAKERS[who] || {}, { p: 'r434_p_' + id, color: COLOR[who] }); }
   // 打完放故事时，首领用「被打败」那一张
   try { const ST = window.TOWER_STORY; if (ST && ST.play) ST.play = (orig => async function () { const keep = {};
