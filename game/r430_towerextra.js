@@ -33,7 +33,7 @@
       try { return await orig.apply(this, arguments); } finally { for (const who in keep) SPEAKERS[who].p = keep[who]; } })(ST.play); } catch (e) {}
   // ---------- 开战立绘：进首领战前，大立绘从右边划进来，左边写名号 ----------
   const CUT = { 1: 'jiangheng', 2: 'xuanfeng', 3: 'jiyue', 4: 'fenyu' };
-  for (const n in CUT) ld('r434_cut_' + CUT[n], 'r434/cut_' + CUT[n] + '.webp?v=1');
+  for (const n in CUT) ld('r434_cut_' + CUT[n], 'r434/cut_' + CUT[n] + '.webp?v=2');
   const V = { on: false, t0: 0, n: 0 };
   const overlay = { draw() { if (!V.on) return; const t = (performance.now() - V.t0) / 1000, B = T.BOSS[V.n], im = IMG['r434_cut_' + CUT[V.n]]; if (!B) return;
     const a = Math.min(1, t / .25) * (t > 1.55 ? Math.max(0, 1 - (t - 1.55) / .3) : 1), k = 1 - Math.pow(1 - Math.min(1, t / .45), 3);
