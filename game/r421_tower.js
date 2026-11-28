@@ -36,7 +36,7 @@
   // ---------- 首领 ----------
   const BOSS = {
     1: { n: 1, id: 'tw_bianhua', ep: '彼岸', name: '绛蘅', title: '彼岸花精', wx: 'mu', lv: 14, spd: 13, hpK: 1.05, atkK: .9, f1: 'bianhua_f1', f2: 'bianhua_f2', f2name: '花冢', bg: 'bg_tw1', pos: [300, 628], pos2: [300, 640],
-      cry: '嘘——轻点声。两个一起留下来睡吧。', turn: ['……竟还不肯睡？', '那便让这些花，替我留客吧。'], adds: ['tw_huayan'] },
+      cry: '嘘——轻点声。两个一起留下来睡吧。', turn: ['……竟还不肯睡？', '也罢，既然不愿做梦，', '那便化作花肥，留在这儿吧。'], adds: ['tw_huayan'] },
     2: { n: 2, id: 'tw_baihu', ep: '白虎', name: '玄锋', title: '白虎之魂', wx: 'jin', lv: 17, spd: 14, hpK: 1.6, atkK: 1.05, f1: 'baihu_f1', f2: 'baihu_f2', f2name: '白虎真身', bg: 'bg_tw2', pos: [290, 630], pos2: [300, 640],
       cry: '关外的东西，一个也不许进来。', turn: ['……北关，不破。'], adds: [] } };
   const heroes = b => H.heroes(b);

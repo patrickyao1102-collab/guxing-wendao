@@ -107,9 +107,9 @@
   const heroes = b => (b.heroes || [b.P]).filter(u => u.alive);
   const big = (t, c = '#ff6a4a', s = 62) => floatText(W / 2, 300, t, c, s, 1.5, BRUSH);
   const guard = P => { if (P.buffs.def) { delete P.buffs.def; floatText(P.x, P.y - P.h - 10, '格挡', '#9fd3ff', 36); return .4; } if (P.buffs.shield) { P.buffs.shield--; if (!P.buffs.shield) delete P.buffs.shield; return .5; } return 1; };
-  async function charge(e, text) { e._charge = text; e.pose = null; e._va = null;   /* 这一回合是蓄力，不是出手：把开头自动起的出手帧掐掉，直接换蓄力的姿势 */ big(e._ep + ' · 蓄势', '#ff5a3a', 58); try { playSnd('sfx_charge'); } catch (e2) {} S.shake = 8;
+  async function charge(e, text) { e._charge = text; e.pose = null; e._va = null;   /* 这一回合是蓄力，不是出手：把开头自动起的出手帧掐掉，直接换蓄力的姿势 */ /* 11-28 19:42 作者嫌字多：不再飘「某某 · 蓄势」，蓄力看画面（四边泛色、身上的光、R473 头像冷笑）+ 下方一句招式名 */ try { playSnd('sfx_charge'); } catch (e2) {} S.shake = 8;
     try { fx('fx3_orb_violet', { loop: true, life: .9, layer: 2, x: e.x + 40, y: e.y - e.h * .55, scale: k => .4 + k * .7, alpha: 1.2 }); } catch (e2) {} await sleep(1000); return true; }
-  async function tired(e) { e._break = 2; e._pojiT = performance.now() / 1000; if (!art('poji')) floatText(e.x, e.y - e.h - 70, '力竭 · 破绽！', '#ffe27a', 44, 1.6, BRUSH); try { playSnd('sfx_boom', .5); } catch (e2) {} await sleep(500); }
+  async function tired(e) { e._break = 2;   /* 11-28 19:42 作者：「破绽、喘息之类的太多了……可以变化表情」——不再飘「力竭 · 破绽」、不盖「破绽」印，力竭用首领的表情 / 姿势表现（R473） */ try { playSnd('sfx_boom', .5); } catch (e2) {} await sleep(500); }
   // 蓄力那一回合是从「蓄力图集」起手的，出手帧不会自己播（出手帧在主图集里）——大招放出来的那一下，这里补播一遍出手帧（重画过本体的妖王 / 头目才有）
   const hasAtk = e => { try { const V = window.VSPRITES && VSPRITES[e.key]; return !!(V && V.meta && V.meta.n > V.meta.idleEnd + 1); } catch (er) { return false; } };
   const playAtk = e => { try { if (e.alive && e._va == null && hasAtk(e)) { e._vk = undefined; e._va = performance.now() / 1000; return true; } } catch (er) {} return false; };
@@ -187,7 +187,7 @@
       _yw: y, _id: y.id, _ep: y.ep, _atk0: atk0, _def0: def0, turn: 0, _type: y.type };
     e.ai = async (en, b) => { en.turn++;
       if (en._break) { en._break--; if (en._break >= 1) { en._va = null;   /* 喘息这一回合不出手：别播出手帧（原来会原地空挥一下） */
-          floatText(en.x, en.y - en.h - 40, '喘息……', '#ffe27a', 38); await sleep(700); return true; } }
+          await sleep(700); return true; } }   /* 不再飘「喘息……」（作者 11-28 19:42） */
       try { return await AI[y.id](en, b); } catch (err) { console.warn('R370 ai', err); return false; } };
     return e; }
   window.R370_MAKE = makeYW;
@@ -203,8 +203,8 @@
     FIGHT = { y, boss };
     world.locked = true; world.path = null; if (world.player) world.player.moving = false;
     try { playSnd('sfx_claw', .7); } catch (e) {} S.flash = .6; S.flashColor = '#ff3a1a'; await sleep(150); await fadeOut(220);
-    if (y.mini && !F().r370_tut0) { F().r370_tut0 = 1; S.fade = 0; try { await showPanel('头目 · 打法', ['它蓄力时，屏幕下方会出红色警示——那一回合选「防御」。', '!它放完大招会力竭喘息：这时打它，伤害多五成。']); } catch (e) {} }
-    else if (!y.mini && !F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，屏幕下方会出红色警示——那一回合全队选「防御」。', '它放完大招会力竭，名牌上亮出「破绽」：这时打它，伤害多五成。', '!左上角的法宝，每场能祭出一次。']); } catch (e) {} }
+    if (y.mini && !F().r370_tut0) { F().r370_tut0 = 1; S.fade = 0; try { await showPanel('头目 · 打法', ['它蓄力时，四周泛起红光，屏幕下方亮出招式名——那一回合选「防御」。', '!大招放完它要缓一口气，神色一变，就是下重手的时候。']); } catch (e) {} }
+    else if (!y.mini && !F().r370_tut) { F().r370_tut = 1; S.fade = 0; try { await showPanel('妖王讨伐 · 打法', ['妖王蓄力时，四周泛起它的颜色，屏幕下方亮出招式名——那一回合全队选「防御」。', '大招放完它要缓一口气，身形一垮，就是下重手的时候。', '!左上角的法宝，每场能祭出一次。']); } catch (e) {} }
     const pr = startBattle({ title: (y.mini ? '头目 · ' : '妖王讨伐 · ') + y.ep + ' ' + y.name, bg: y.bg, enemies: ens, exp, gold, boss: true, flee: false, yw: y.id });
     try { if (battle) { let ai = 0; for (const u of battle.enemies) { if (u._yw) { u._scale = y.scale; battle._yw = u; u.x = (y.bpos || [290, 610])[0]; u.y = (y.bpos || [290, 610])[1]; } else { const sl = (y.apos || [[570, 665], [545, 470], [440, 560]])[ai++] || [600, 560]; u.x = sl[0]; u.y = sl[1]; } } } } catch (e) {}   // 妖王站左边靠后，小怪站它身前，别叠在一起
     await fadeIn(240); const win = await pr; FIGHT = null;
@@ -321,14 +321,14 @@
           if (f) ctx.drawImage(f, 0, 0, f.width * k, f.height, 124, 60, 520 * k, 22); else { ctx.fillStyle = brk ? '#b06aff' : '#c8281e'; ctx.fillRect(124, 60, 520 * k, 22); }
           ctx.drawImage(pl, 0, 0, 680, 96);
           ctx.font = `700 24px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; textOutline(e._ep + ' · ' + e._yw.name, 145 + 477 / 2, 28, '#ffe9c0', '#2a0a00', 5);
-          ctx.textAlign = 'right'; ctx.font = `600 17px ${FONT}`; textOutline(brk ? '破绽' : 'Lv' + e.lv, 145 + 470, 29, brk ? '#e6c2ff' : '#ffd9a0', '#2a0a00', 4); }
+          ctx.textAlign = 'right'; ctx.font = `600 17px ${FONT}`; textOutline('Lv' + e.lv, 145 + 470, 29, '#ffd9a0', '#2a0a00', 4); }
         else { const bx = 380, by = 174, bw = 520; ctx.fillStyle = 'rgba(20,8,4,.82)'; roundRect(bx - 10, by - 30, bw + 20, 54, 10); ctx.fill(); ctx.strokeStyle = '#c9a25a'; ctx.lineWidth = 2; ctx.stroke();
           ctx.fillStyle = '#2a0a06'; ctx.fillRect(bx, by, bw, 14); ctx.fillStyle = brk ? '#b06aff' : '#d2362a'; ctx.fillRect(bx, by, bw * k, 14);
           ctx.font = `700 20px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; textOutline('妖王 · ' + e._ep + ' ' + e._yw.name, bx, by - 14, '#ffe9c0', '#2a0a00', 4); }
         ctx.restore();
         if (e._charge) { const ws = art('warn_strip'), a = .78 + Math.sin(now * 8) * .22; ctx.save(); ctx.globalAlpha = a; if (ws) ctx.drawImage(ws, 360, 596, 560, 64); else { ctx.fillStyle = 'rgba(40,0,0,.85)'; roundRect(360, 602, 560, 50, 8); ctx.fill(); }
-          ctx.globalAlpha = 1; ctx.font = `700 19px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; let t = e._charge; while (ctx.measureText(t).width > 410 && t.length > 6) t = t.slice(0, -1); textOutline(t, 640, 628, '#ffe0c0', '#3a0000', 5); ctx.restore(); }
-        if (e._pojiT) { const dt = now - e._pojiT, pj = art('poji'); if (dt > 1.5) e._pojiT = 0; else if (pj) { const a = Math.min(1, dt / .12) * Math.min(1, (1.5 - dt) / .35), s2 = 1 + Math.max(0, .2 - dt) * 3; ctx.save(); ctx.globalAlpha = a; ctx.translate(e.x + 40, e.y - e.h * 1.05); ctx.scale(s2, s2); ctx.drawImage(pj, -110, -110, 220, 220); ctx.restore(); } } }
+          ctx.globalAlpha = 1; ctx.font = `700 19px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const mv = /「(.+?)」/.exec(e._charge); let t = mv ? '「' + mv[1] + '」　防御' : '蓄力中　防御'; while (ctx.measureText(t).width > 410 && t.length > 6) t = t.slice(0, -1); textOutline(t, 640, 628, '#ffe0c0', '#3a0000', 5); ctx.restore(); }
+        if (e._pojiT && window.R370_POJI) { const dt = now - e._pojiT, pj = art('poji');   /* 「破绽」印不再盖（作者 11-28 19:42），要找回来设 R370_POJI = 1 */ if (dt > 1.5) e._pojiT = 0; else if (pj) { const a = Math.min(1, dt / .12) * Math.min(1, (1.5 - dt) / .35), s2 = 1 + Math.max(0, .2 - dt) * 3; ctx.save(); ctx.globalAlpha = a; ctx.translate(e.x + 40, e.y - e.h * 1.05); ctx.scale(s2, s2); ctx.drawImage(pj, -110, -110, 220, 220); ctx.restore(); } } }
       // 法宝钮
       const id = fb().on; if (id && ITEM_DB[id] && (b.state === 'menu' || b._fbUsed)) { const used = !!b._fbUsed, im = art(used ? 'fabao_btn_used' : 'fabao_btn_ready'), cx = FBR.x + 55, cy = FBR.y + 55; ctx.save(); if (used) ctx.globalAlpha = .55;
         if (im) ctx.drawImage(im, FBR.x, FBR.y, 110, 110); else if (!used) { const g = ctx.createRadialGradient(cx, cy, 20, cx, cy, 62 + Math.sin(now * 4) * 4); g.addColorStop(0, 'rgba(255,220,120,.55)'); g.addColorStop(1, 'rgba(255,220,120,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 66, 0, 7); ctx.fill(); }

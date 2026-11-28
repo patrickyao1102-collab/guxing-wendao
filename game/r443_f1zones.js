@@ -44,18 +44,20 @@
   const padKey = (z, p) => z + p.c.join('_');
   // ---------- 图 ----------
   const want = {}, got = {};
-  const K = (z, name) => 'r443_' + V + '_' + z + '_' + name, KT = name => 'r443_tp_' + name;
+  // R473：某一苑可以整个换成新画——window.R443_OVR[苑] = { on(), meta(), key(名), src(名) }（内苑重画用；关掉就回到这里的原图）
+  const OVR = z => { const o = window.R443_OVR && R443_OVR[z]; return o && o.on() ? o : null; };
+  const K = (z, name) => { const o = OVR(z); return o ? o.key(name) : 'r443_' + V + '_' + z + '_' + name; }, KT = name => 'r443_tp_' + name;
   function ldk(k, src) { if (k in want) return; want[k] = 1; const im = new Image(); im.onload = () => { IMG[k] = im; got[k] = 1; }; im.onerror = () => { got[k] = 1; }; im.src = src; try { if (window.IMG_GUARD && IMG_GUARD.bump) IMG_GUARD.bump(im); } catch (e) {} }
-  const ld = (z, name) => ldk(K(z, name), 'r443/' + V + '/' + z + '/' + name + '.webp?v=' + (V === 'b' ? (z === 'a' ? 2 : 3) : 1));   // b 版：外苑 v2、中苑内苑 v3（R453 修整）
+  const ld = (z, name) => OVR(z) ? ldk(K(z, name), OVR(z).src(name)) : ldk(K(z, name), 'r443/' + V + '/' + z + '/' + name + '.webp?v=' + (V === 'b' ? (z === 'a' ? 2 : 3) : 1));   // b 版：外苑 v2、中苑内苑 v3（R453 修整）
   const ldt = name => ldk(KT(name), 'r443/tp/' + name + '.webp?v=2');   // v2：R446c 加帧（法阵 idle 12 / on 16，传送 go 24 / arrive 12）
-  const Z = z => META[V][z];
+  const Z = z => OVR(z) ? OVR(z).meta() : META[V][z];
   function loadCore(z) { const M = Z(z); ld(z, 'base'); for (const o of M.ov) ld(z, o[6]); }
   function loadRest(z) { const M = Z(z);
     for (const o of M.objs) { for (const f of o.frames || []) ld(z, f); for (const s of Object.values(o.states || {})) ld(z, s); }
     for (const w of M.water) { ld(z, w.mask); ld(z, w.tile); if (w.fg) ld(z, w.fg); for (const g of w.glints) ld(z, g); }
     for (const p of PADS[z]) { ldt('tp_' + p.g + '_idle'); ldt('tp_' + p.g + '_on'); } ldt('tp_used'); ldt('tp1_go'); ldt('tp1_arrive'); }
   { const o = window.MAP_EXTRA_READY; window.MAP_EXTRA_READY = m => { let a = 1; try { a = o ? o(m) : 1; } catch (e) {} if (a == null) a = 1; const z = zoneOf(m); if (!z) return a;
-      loadCore(z); loadRest(z); const pre = 'r443_' + V + '_' + z + '_', ks = Object.keys(want).filter(k => k === pre + 'base' || Z(z).ov.some(o => pre + o[6] === k)); return Math.min(a, ks.length ? ks.filter(k => got[k]).length / ks.length : 0); }; }
+      loadCore(z); loadRest(z); const ks = Object.keys(want).filter(k => k === K(z, 'base') || Z(z).ov.some(o => K(z, o[6]) === k)); return Math.min(a, ks.length ? ks.filter(k => got[k]).length / ks.length : 0); }; }
   // ---------- 地图 ----------
   const isLamp = o => /^lamp/.test(o.id), isGate = o => o.id === 'gate', isRelic = o => /^relic/.test(o.id);
   const lampsOf = () => Z('c').objs.filter(isLamp);
@@ -69,7 +71,7 @@
       if (o.id === 'wangchuan_pond' && o.w > 300) blk(o.x + o.w * .12, o.y + o.h * .3, o.x + o.w * .86, o.y + o.h * .86); }
     const objs = [];
     for (const [r, x, y, w, h, sy, name] of M.ov) objs.push({ id: 'r443_ov', uid: K(z, name), img: K(z, name), x, y, w, h, sy, flat: false, flip: false, noBlock: true, noPre: true });
-    if (V === 'b' && window.R457) objs.push({ id: 'r443_obj', uid: 'r457_fl', img: K(z, 'base'), r443: { z, o: { id: 'flowers' } }, x: 0, y: 0, w: M.w, h: M.h, sy: -1e6, flat: true, flip: false, noBlock: true, noPre: true });   // R457：外苑的花随风摆
+    if (V === 'b' && window.R457 && !OVR(z)) objs.push({ id: 'r443_obj', uid: 'r457_fl', img: K(z, 'base'), r443: { z, o: { id: 'flowers' } }, x: 0, y: 0, w: M.w, h: M.h, sy: -1e6, flat: true, flip: false, noBlock: true, noPre: true });   // R457：外苑的花随风摆
     for (const o of M.objs) objs.push({ id: 'r443_obj', uid: K(z, o.id), img: K(z, 'base'), r443: { z, o }, x: o.x, y: o.y, w: o.w, h: o.h, sy: o.id === 'flower_tree' ? o.by - 80 : o.by, flat: /mist|pond|dais/.test(o.id), flip: false, noBlock: true, noPre: true });
     const dais = M.objs.find(o => o.id === 'boss_dais');
     if (dais) objs.push({ id: 'r443_obj', uid: K(z, 'boss_pic'), img: K(z, 'base'), r443: { z, o: { id: 'boss_pic', bx: dais.bx, by: dais.by } }, x: dais.bx - 200, y: dais.by - 520, w: 400, h: 520, sy: dais.by - 100, flat: false, flip: false, noBlock: true, noPre: true });
@@ -139,8 +141,8 @@
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; const tt = now;
       for (const o of Z(z).objs) { let x, y, r0;
         if (isRelic(o) && !ST().relic[RELIC_I[z]]) { x = o.bx; y = o.by - 10; r0 = 30; }
-        else if (isLamp(o) && stateOf(o) === 'off') { x = o.bx; y = o.by - 50; r0 = 60; } else continue;
-        const f = .5 + .5 * Math.sin(tt * 3 + o.bx), g = ctx.createRadialGradient(x, y, 1, x, y, r0); g.addColorStop(0, `rgba(255,232,190,${.3 + .3 * f})`); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.fillRect(x - r0, y - r0, r0 * 2, r0 * 2); }
+        else if (isLamp(o) && stateOf(o) === 'off') { x = o.bx; y = o.by - (o.hy || 50); r0 = o.hr || 60; } else continue;
+        const f = .5 + .5 * Math.sin(tt * 3 + o.bx), g = ctx.createRadialGradient(x, y, 1, x, y, r0); g.addColorStop(0, `rgba(255,232,190,${(.3 + .3 * f) * (o.ha || 1)})`); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.fillRect(x - r0, y - r0, r0 * 2, r0 * 2); }
       ctx.restore(); } catch (e) {} })(typeof tileAmbientHigh === 'function' ? tileAmbientHigh : null);
   // ---------- 踩阵 ----------
   const MUST = { on: false, x: 0, y: 0 };   // 刚落地站在阵上：先走开才会再触发
@@ -188,10 +190,11 @@
   async function mech(i) { const S2 = ST(); if (S2.mech[i]) { await narrate(TXT.mech + '已经' + TXT.mechVerb + '了。'); return; }
     S2.mech[i] = 1; try { playSnd('sfx_buff', .6); } catch (e) {} const k = S2.mech.filter(Boolean).length, N = lampsOf().length;
     await narrate(TXT.mechLines[Math.min(k, 3) - 1]);
+    if (k >= N && !S2.gate && window.R473) { await R473.wardBreak(); return; }   // R473：第三盏灯亮 → 镜头到门前、禁制散掉；门要自己去推
     if (k >= N && !S2.gate) { S2.gate = 1; applyGate(); try { playSnd('sfx_charge', .6); } catch (e) {} S.shake = 10; toast('花墙开了', 1800); } else if (k < N) toast(TXT.mech + ' ' + k + ' / ' + N, 1600); }
-  async function shut() { await narrate(TXT.gateShut); await say('星旋', '三盏' + TXT.mech + '都' + TXT.mechVerb + '了才开。内苑里找找。'); }
+  async function shut() { if (window.R473) return R473.gateTalk(); await narrate(TXT.gateShut); await say('星旋', '三盏' + TXT.mech + '都' + TXT.mechVerb + '了才开。内苑里找找。'); }
   async function relic(i) { const S2 = ST(); if (S2.relic[i]) { await narrate('这件东西已经看过了。'); return; } S2.relic[i] = 1; await lines(TXT.relics[i]); }
-  async function boss() { if (TOWER_STORY.cleared(1)) { await narrate('花树下空荡荡的，只有落花。'); return; }
+  async function boss() { if (window.R473) return R473.bossStage(); if (TOWER_STORY.cleared(1)) { await narrate('花树下空荡荡的，只有落花。'); return; }
     if (!ST().gate) return shut();
     await lines(TXT.meet); world.locked = true; await fadeOut(240);
     const win = await TOWER.fightBoss(1); world.locked = true;
@@ -233,5 +236,5 @@
       for (const z of ZS) { const b = document.createElement('button'); b.textContent = '进一层' + ZNAME[z]; b.onclick = () => { try { const pnl = document.getElementById('dbgPanel'); if (pnl) pnl.style.display = 'none'; } catch (e) {} goZone(z); }; row2.appendChild(b); }
       p.appendChild(h); p.appendChild(row1); p.appendChild(row2); mark(); };
     if (document.getElementById('dbgPanel')) add(); else { const mo = new MutationObserver(() => { if (document.getElementById('dbgPanel')) { add(); mo.disconnect(); } }); mo.observe(document.documentElement, { childList: true, subtree: true }); } } catch (e) {}
-  window.R443 = { PADS, START, setVer, goZone, tp, ver: () => V, FX, MUST, buildAll, curZ, STEP };
+  window.R443 = { PADS, START, CHEST, setVer, goZone, tp, ver: () => V, FX, MUST, buildAll, curZ, STEP, applyGate, Z, K, OVR };
 })();

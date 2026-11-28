@@ -138,7 +138,7 @@
       for (const [p, q] of pts) if (q.front && q.a > .01) drawPetal(ctx, q.x, q.y, p.sz * 1.1, p.rot + t * p.vr, p.col, q.a, p.glow);
       ctx.restore();
       // 名号：最后慢慢淡入（不闪）
-      const tk = ease(seg(t, 7.4, 8.6)); if (tk > 0) { const B = (window.TOWER && TOWER.BOSS && TOWER.BOSS[1]) || { name: '绛蘅', title: '彼岸花精' };
+      const tk = ease(seg(t, 7.4, 8.6)) * (1 - ease(seg(t, 9.8, 10.8))); if (tk > 0) {   /* R473：名号亮一会儿就淡掉，后面接对白 */ const B = (window.TOWER && TOWER.BOSS && TOWER.BOSS[1]) || { name: '绛蘅', title: '彼岸花精' };
         ctx.save(); ctx.globalAlpha = tk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.font = `30px ${typeof FONT !== 'undefined' ? FONT : 'serif'}`; ctx.fillStyle = 'rgba(255,220,220,.85)'; ctx.fillText('万妖塔 · 第一层', W / 2, 92);
         ctx.font = `76px ${typeof BRUSH !== 'undefined' ? BRUSH : 'serif'}`; ctx.shadowColor = '#ff4058'; ctx.shadowBlur = 22; ctx.fillStyle = '#fff4ec'; ctx.fillText(B.name, W / 2, 160 + 8 * (1 - tk)); ctx.shadowBlur = 0;

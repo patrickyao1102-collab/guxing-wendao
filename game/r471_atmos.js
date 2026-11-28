@@ -11,7 +11,10 @@
     wyt_f1a: [0.00, 0.10, 0.00, 0, [60, 0, 12]],
     wyt_f1b: [0.10, 0.28, 0.10, 14, [60, 0, 12]],
     wyt_f1c: [0.30, 0.62, 0.26, 40, [70, 0, 14]],
+    // R473 新画内苑 + 灰石血纹地面（作者 11-28：地面克制，花树才显得邪异）：压暗照旧，但不再把灰石整片染成血红——色调只偏一点点红、红雾减半
+    wyt_f1c_gray: [0.30, 0.62, 0.13, 40, [70, 0, 14], 'neutral'],
   };
+  const cfgOf = m => (m === 'wyt_f1c' && window.R473I && R473I.on() && R473I.ground() !== 'def' && CFG.wyt_f1c_gray) || CFG[m];
   const lerp = (a, b, k) => a + (b - a) * k;
   let cur = null, k = 0;   // k：当前强度，进图时从 0 慢慢升上去
   const TH = []; for (let i = 0; i < 60; i++) TH.push({ x: Math.random(), y: Math.random(), len: 80 + Math.random() * 220, sp: 6 + Math.random() * 14, w: .6 + Math.random() * 1.4, ph: Math.random() * 6.28 });
@@ -28,13 +31,13 @@
   function lamps(t) {
     try {
       if (world.mapName !== 'wyt_f1c' || !window.R443_META) return;
-      const V = (window.R443 && R443.ver && R443.ver()) || 'b', M = R443_META[V] && R443_META[V].c; if (!M) return;
+      const V = (window.R443 && R443.ver && R443.ver()) || 'b', M = window.R443 && R443.Z ? R443.Z('c') : R443_META[V] && R443_META[V].c; if (!M) return;   // R473：内苑换新画时跟着新灯位
       const ls = M.objs.filter(o => /^lamp/.test(o.id)), st = ((S.flags.tw || {}).f1 || {}).mech || [];
       const zm = VZ(), cam = world.cam || { x: 0, y: 0 }, now = performance.now() / 1000;
       ls.forEach((o, i) => {
-        const x = (o.bx - cam.x) * zm, y = (o.by - cam.y) * zm, s = zm; if (x < -200 || x > W + 200 || y < -300 || y > H + 200) return;
+        const x = (o.bx - cam.x) * zm, gy = (o.by - cam.y) * zm, s = zm, y = gy - ((o.hy || 44) - 44) * s, wk = o.glowK || 1; if (   /* 新灯（R473）自己画了光：hy 灯心高度、glowK 减弱 */x < -200 || x > W + 200 || y < -300 || y > H + 200) return;
         const on = !!st[i]; if (on && LIT[i] == null) LIT[i] = (LIT._init ? now : now - 99); LIT._init = 1;
-        ctx.save();
+        ctx.save(); ctx.globalAlpha = wk;
         if (!on) {
           // 冷：压一层青灰暗影
           const g = ctx.createRadialGradient(x, y - 40 * s, 4, x, y - 40 * s, 70 * s); g.addColorStop(0, 'rgba(20,30,45,.35)'); g.addColorStop(1, 'rgba(20,30,45,0)'); ctx.fillStyle = g; ctx.fillRect(x - 80 * s, y - 120 * s, 160 * s, 160 * s);
@@ -46,12 +49,12 @@
           ctx.globalCompositeOperation = 'lighter';
           const fl = .85 + Math.sin(t * 7.3 + i) * .06 + Math.sin(t * 11.1 + i * 2) * .04;
           // 地上一圈暖光（扁椭圆）
-          ctx.save(); ctx.translate(x, y - 6 * s); ctx.scale(1, .42); const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, 150 * s); gr.addColorStop(0, `rgba(255,190,110,${.32 * fl})`); gr.addColorStop(1, 'rgba(255,150,60,0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, 150 * s, 0, 7); ctx.fill(); ctx.restore();
+          ctx.save(); ctx.translate(x, gy - 6 * s); ctx.scale(1, .42); const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, 150 * s); gr.addColorStop(0, `rgba(255,190,110,${.32 * fl})`); gr.addColorStop(1, 'rgba(255,150,60,0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, 150 * s, 0, 7); ctx.fill(); ctx.restore();
           // 灯心的光
           const gc = ctx.createRadialGradient(x, y - 44 * s, 0, x, y - 44 * s, 60 * s); gc.addColorStop(0, `rgba(255,230,170,${.7 * fl})`); gc.addColorStop(.4, `rgba(255,170,80,${.3 * fl})`); gc.addColorStop(1, 'rgba(255,140,60,0)'); ctx.fillStyle = gc; ctx.fillRect(x - 60 * s, y - 104 * s, 120 * s, 120 * s);
           // 金色火星往上飘
-          for (let j = 0; j < 6; j++) { const p = ((t * .35 + j / 6) % 1), ex = x + Math.sin(j * 1.7 + t) * 14 * s, ey = y - 60 * s - p * 110 * s; ctx.globalAlpha = (1 - p) * .8; ctx.fillStyle = '#ffd38a'; ctx.beginPath(); ctx.arc(ex, ey, 1.6 * s, 0, 7); ctx.fill(); }
-          ctx.globalAlpha = 1;
+          for (let j = 0; j < 6; j++) { const p = ((t * .35 + j / 6) % 1), ex = x + Math.sin(j * 1.7 + t) * 14 * s, ey = y - 60 * s - p * 110 * s; ctx.globalAlpha = (1 - p) * .8 * wk; ctx.fillStyle = '#ffd38a'; ctx.beginPath(); ctx.arc(ex, ey, 1.6 * s, 0, 7); ctx.fill(); }
+          ctx.globalAlpha = wk;
           // 刚点亮：暖金光柱缓缓升起再散（1.5 秒）
           const d = now - LIT[i]; if (d < 1.6) { const u = d / 1.6, hgt = 260 * s * Math.min(1, u * 1.6), al = Math.sin(Math.PI * u) * .55;
             const gp = ctx.createLinearGradient(x - 26 * s, 0, x + 26 * s, 0); gp.addColorStop(0, 'rgba(255,200,120,0)'); gp.addColorStop(.5, `rgba(255,225,160,${al})`); gp.addColorStop(1, 'rgba(255,200,120,0)'); ctx.fillStyle = gp; ctx.fillRect(x - 26 * s, y - 40 * s - hgt, 52 * s, hgt); }
@@ -63,14 +66,15 @@
   const layer = { draw() {
     try {
       if (typeof S === 'undefined' || S.scene !== drawMap || !world || !world.map) return;
-      const c = CFG[world.mapName]; if (!c) { cur = null; k = 0; return; }
+      const c = cfgOf(world.mapName); if (!c) { cur = null; k = 0; return; }
       if (cur !== world.mapName) { cur = world.mapName; k = 0; }
       k = Math.min(1, k + 1 / 120);   // 进图后约两秒慢慢压上来
       const t = performance.now() / 1000, near = bossNear(), K = k * (1 + near * .6);
       const [dim, vig, fog, nth, col] = c;
       ctx.save();
       // 1) 色调：整体压暗、偏血红（multiply 只会变暗，不会突然发亮）
-      if (dim > 0) { ctx.globalCompositeOperation = 'multiply'; const q = dim * K; ctx.fillStyle = `rgb(${Math.round(255 * (1 - Math.min(.3, q * .55)))},${Math.round(255 * (1 - Math.min(.55, q * 1.4)))},${Math.round(255 * (1 - Math.min(.5, q * 1.3)))})`; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
+      if (dim > 0 && c[5] === 'neutral') { ctx.globalCompositeOperation = 'multiply'; const q = dim * K; ctx.fillStyle = `rgb(${Math.round(255 * (1 - Math.min(.3, q * .72)))},${Math.round(255 * (1 - Math.min(.4, q * .95)))},${Math.round(255 * (1 - Math.min(.38, q * .9)))})`; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
+      else if (dim > 0) { ctx.globalCompositeOperation = 'multiply'; const q = dim * K; ctx.fillStyle = `rgb(${Math.round(255 * (1 - Math.min(.3, q * .55)))},${Math.round(255 * (1 - Math.min(.55, q * 1.4)))},${Math.round(255 * (1 - Math.min(.5, q * 1.3)))})`; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
       // 2) 红雾：几团大而软的雾，跟着镜头有一点视差，慢慢漂
       if (fog > 0) { const cam = world.cam || { x: 0, y: 0 };
         for (const f of FOG) { f.x += f.vx / 60; f.y += f.vy / 60; if (f.x < -.3) f.x = 1.3; if (f.x > 1.3) f.x = -.3; if (f.y < -.3) f.y = 1.3; if (f.y > 1.3) f.y = -.3;
