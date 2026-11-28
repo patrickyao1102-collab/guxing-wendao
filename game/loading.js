@@ -23,6 +23,8 @@
     // R478：题名图换新样式（Codex A 行草横题 / B 宋刻横题 / C 隶书双行，作者还没挑）时，设 window.LOADING_TITLE_SRC = (地图id, 'light'|'dark') => 图片地址 就行，返回空就算这张图没有题名
     for (const v of ['light', 'dark']) { const im = new Image(); im.onload = () => { TIM[m][v] = im; }; im.onerror = () => { TIM[m][v] = null; }; let src = 'r163/' + m + '_' + v + '.webp'; try { if (window.LOADING_TITLE_SRC) src = LOADING_TITLE_SRC(m, v); } catch (e) {} if (src) im.src = src; else TIM[m][v] = null; } };
   const TITLE_IM = (m, v) => { titleLoad(m); return TIM[m] && TIM[m][v] || null; };
+  // R479：测试面板换题字样式（A 行草 / B 宋刻 / 旧版）后，把已经下好的题名清掉，下一帧按新样式重新要
+  window.LOADING_TITLE_RESET = () => { for (const k in TIM) delete TIM[k]; for (const k in TIT) delete TIT[k]; };
   const titleReady = () => { const m = world.mapName; titleLoad(m); const t = TIM[m]; return !t || ('light' in t && 'dark' in t) || performance.now() - TIT[m] > 8000; };
   const extraReady = () => { try { const e = window.MAP_EXTRA_READY ? MAP_EXTRA_READY(world.mapName) : 1; return e == null ? 1 : e; } catch (e) { return 1; } };
   function readiness() { const r = Math.min(imgReady(), extraReady() < 1 ? .9 * extraReady() + .05 : 1); if (r < 1) { imgOkMap = null; return r; }
@@ -172,7 +174,10 @@
       // R478：题名画在哪儿（TR = 题名图实际画出来的框）交给 LOADING_TITLE_DONE，测试版在题名下面接着排「地图来历」；
       //       这张图没有书法题名（两版都 404）时，先问 LOADING_TITLE_MISSING 要不要自己补一个题名（它画了就返回框，不画返回 null，照旧走 8 秒电脑字）
       const tm0 = TIM[world.mapName], miss = !!tm0 && tm0.light === null && tm0.dark === null; let TR = null;
-      if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
+      let PL = null; if (TI && window.LOADING_TITLE_PLACE) { try { PL = LOADING_TITLE_PLACE(TI, world.mapName, now); } catch (e) { PL = null; } }
+      if (TI && PL) {   // R479：新题字（Codex R477 A 行草 / B 宋刻，自带分区小字）自己定位置大小，刚下好时淡入
+        ctx.save(); ctx.globalAlpha = a * (PL.a == null ? 1 : PL.a); ctx.drawImage(TI, PL.x, PL.y, PL.w, PL.h); ctx.restore(); TR = { x: PL.x, y: PL.y, w: PL.w, h: PL.h, im: TI };
+      } else if (TI) {   // 作者 11-08：地图名换成 Codex R163「云开长卷」书法题名（米白金 / 墨黑两版按插画亮暗选）
         const sc = Math.min(1.3, (four ? 185 : 520) / TI.width), dw = TI.width * sc, dh = TI.height * sc;
         ctx.drawImage(TI, four ? 30 : 44, four ? 26 : 44, dw, dh); TR = { x: four ? 30 : 44, y: four ? 26 : 44, w: dw, h: dh, im: TI };
       } else if (miss && window.LOADING_TITLE_MISSING && (TR = (() => { try { return LOADING_TITLE_MISSING(title0, dark, col, a); } catch (e) { return null; } })())) {
